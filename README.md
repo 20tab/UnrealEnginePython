@@ -104,3 +104,6 @@ x, y, z = uobject.get_actor_location()
 ```py
 pitch, yaw, roll = uobject.get_actor_rotation()
 ```
+
+Memory management
+-----------------
