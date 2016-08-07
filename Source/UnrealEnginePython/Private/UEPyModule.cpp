@@ -69,6 +69,23 @@ end:
 	return Py_None;
 }
 
+static PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
+	
+	char *message;
+	if (!PyArg_ParseTuple(args, "s:print_string", &message)) {
+		return NULL;
+	}
+
+	if (!GEngine)
+		goto end;
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Cyan, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
+
+end:
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:find_class", &name)) {
@@ -229,6 +246,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
+	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ "vector_add_vector", py_unreal_engine_vector_add_vector, METH_VARARGS, "" },
 	{ "vector_add_float", py_unreal_engine_vector_add_float, METH_VARARGS, "" },
