@@ -115,6 +115,65 @@ void APyActor::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
 	Py_DECREF(ret);
 }
 
+void APyActor::CallPythonActorMethod(FString method_name)
+{
+	if (!py_actor_instance)
+		return;
+
+	PyObject *ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+bool APyActor::CallPythonActorMethodBool(FString method_name)
+{
+	if (!py_actor_instance)
+		return false;
+
+	PyObject *ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return false;
+	}
+
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return true;
+	}
+
+	Py_DECREF(ret);
+	return false;
+}
+
+FString APyActor::CallPythonActorMethodString(FString method_name)
+{
+	if (!py_actor_instance)
+		return FString();
+
+	PyObject *ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FString();
+	}
+
+	PyObject *py_str = PyObject_Str(ret);
+	if (!py_str) {
+		Py_DECREF(ret);
+		return FString();
+	}
+
+	char *str_ret = PyUnicode_AsUTF8(py_str);
+
+	FString ret_fstring = FString(UTF8_TO_TCHAR(str_ret));
+
+	Py_DECREF(py_str);
+
+	return ret_fstring;
+}
+
 
 APyActor::~APyActor()
 {

@@ -32,6 +32,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Python")
 	FString PythonClass;
 
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void CallPythonActorMethod(FString method_name);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	bool CallPythonActorMethodBool(FString method_name);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	FString CallPythonActorMethodString(FString method_name);
 
 private:
 	PyObject *py_actor_instance;
