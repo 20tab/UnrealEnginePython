@@ -281,11 +281,16 @@ static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 	UObjectProperty *u_obj_property = Cast<UObjectProperty>(u_property);
 	if (u_obj_property) {
 		UObject *u_obj = u_obj_property->GetPropertyValue(u_property->ContainerPtrToValuePtr<UObject>(self->ue_object));
+		if (!u_obj)
+			goto end;
 		PyObject *py_obj = (PyObject *)ue_get_python_wrapper(u_obj);
+		if (!py_obj)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 		Py_INCREF(py_obj);
 		return py_obj;
 	}
 
+end:
 	Py_INCREF(Py_None);
 	return Py_None;
 
@@ -860,6 +865,7 @@ static PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args) {
 
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_actor_spawn(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
@@ -892,6 +898,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
+	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };
@@ -955,6 +962,41 @@ static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject * self, PyObject
 
 	Py_INCREF(Py_False);
 	return Py_False;
+
+}
+
+static PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x = 0, y = 0, z = 0;
+	float pitch = 0, yaw = 0, roll = 0;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O|ffffff:actor_spawn", &obj, &x, &y, &z, &pitch, &yaw, &roll)) {
+		return NULL;
+	}
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	FVector const location = FVector(x, y, z);
+	FRotator const rotation = FRotator(pitch, yaw, roll);
+
+	AActor *actor = world->SpawnActor((UClass *)py_obj->ue_object, &location, &rotation);
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
 
 }
 
