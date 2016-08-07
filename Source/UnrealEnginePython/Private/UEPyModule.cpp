@@ -1,0 +1,623 @@
+#include "UnrealEnginePythonPrivatePCH.h"
+
+
+DEFINE_LOG_CATEGORY(LogPython);
+
+PyDoc_STRVAR(unreal_engine_py_doc, "Unreal Engine Python module.");
+
+static PyModuleDef unreal_engine_module = {
+	PyModuleDef_HEAD_INIT,
+	"unreal_engine",
+	unreal_engine_py_doc,
+	-1,
+	NULL,
+};
+
+
+
+static PyObject *init_unreal_engine(void) {
+	return PyModule_Create(&unreal_engine_module);
+}
+
+static PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
+	char *message;
+	if (!PyArg_ParseTuple(args, "s:log", &message)) {
+		return NULL;
+	}
+	UE_LOG(LogPython, Log, TEXT("%s"), UTF8_TO_TCHAR(message));
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_unreal_engine_log_warning(PyObject * self, PyObject * args) {
+	char *message;
+	if (!PyArg_ParseTuple(args, "s:log_warning", &message)) {
+		return NULL;
+	}
+	UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(message));
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args) {
+	char *message;
+	if (!PyArg_ParseTuple(args, "s:log_error", &message)) {
+		return NULL;
+	}
+	UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(message));
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args) {
+	int key;
+	float time_to_display;
+	char *message;
+	if (!PyArg_ParseTuple(args, "ifs:add_on_screen_debug_message", &key, &time_to_display, &message)) {
+		return NULL;
+	}
+
+	if (!GEngine)
+		goto end;
+
+	GEngine->AddOnScreenDebugMessage(key, time_to_display, FColor::Green, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
+
+end:
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+
+/*
+for (UActorComponent *component : GetOwner()->GetComponents()) {
+UE_LOG(LogPython, Error, TEXT("Component: %s"), *component->GetName());
+}
+*/
+
+
+static PyMethodDef unreal_engine_methods[] = {
+	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
+	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
+	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
+	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
+	{ NULL, NULL },
+};
+
+
+
+
+
+#define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
+							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
+
+static PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *call_args;
+	if (!PyArg_ParseTuple(args, "s:call", &call_args)) {
+		return NULL;
+	}
+
+	FOutputDeviceNull od_null;
+	self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_property", &property_name)) {
+		return NULL;
+	}
+
+	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	UFloatProperty *u_float_property = Cast<UFloatProperty>(u_property);
+	if (u_float_property)
+		return Py_BuildValue("f", u_float_property->GetPropertyValue(u_property->ContainerPtrToValuePtr<float>(self->ue_object)));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *ret = PyList_New(0);
+
+	for (TFieldIterator<UProperty> PropIt(self->ue_object->GetClass()); PropIt; ++PropIt)
+	{
+		UProperty* property = *PropIt;
+		PyObject *property_name = PyUnicode_FromString(TCHAR_TO_UTF8(*property->GetName()));
+		PyList_Append(ret, property_name);
+		Py_DECREF(property_name);
+	}
+
+	return ret;
+
+}
+
+static PyObject *py_ue_get_owner(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<UActorComponent>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a component");
+	}
+
+	UActorComponent *component = (UActorComponent *) self->ue_object;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(component->GetOwner());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+static PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
+}
+
+static PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (self->ue_object->IsA<AActor>()) {
+		AActor *actor = (AActor *)self->ue_object;
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*(actor->GetActorLabel())));
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *component = (UActorComponent *)self->ue_object;
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*(component->GetOwner()->GetActorLabel())));
+	}
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+}
+
+
+static PyObject *py_ue_get_actor_location(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetActorLocation();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorLocation();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
+static PyObject *py_ue_get_input_axis(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *axis_name;
+	if (!PyArg_ParseTuple(args, "s:get_input_axis", &axis_name)) {
+		return NULL;
+	}
+
+	UInputComponent *input = nullptr;
+
+	if (self->ue_object->IsA<AActor>()) {
+		input = ((AActor *)self->ue_object)->InputComponent;
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		input = ((UActorComponent *)self->ue_object)->GetOwner()->InputComponent;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	}
+
+	if (!input) {
+		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
+	}
+
+	return Py_BuildValue("f", input->GetAxisValue(FName(UTF8_TO_TCHAR(axis_name))));
+
+}
+
+static PyObject *py_ue_bind_input_axis(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *axis_name;
+	if (!PyArg_ParseTuple(args, "s:bind_input_axis", &axis_name)) {
+		return NULL;
+	}
+
+	UInputComponent *input = nullptr;
+
+	if (self->ue_object->IsA<AActor>()) {
+		input = ((AActor *)self->ue_object)->InputComponent;
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		input = ((UActorComponent *)self->ue_object)->GetOwner()->InputComponent;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	}
+
+	if (!input) {
+		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
+	}
+
+	input->BindAxis(FName(UTF8_TO_TCHAR(axis_name)));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_enable_input(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	/*
+	TODO manage controller index
+	char *axis_name;
+	if (!PyArg_ParseTuple(args, "s:get_input_axis", &axis_name)) {
+		return NULL;
+	}*/
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "no player controller available");
+
+	if (self->ue_object->IsA<AActor>()) {
+		((AActor *)self->ue_object)->EnableInput(controller);
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		((UActorComponent *)self->ue_object)->GetOwner()->EnableInput(controller);
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+
+static PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x, y, z;
+	if (!PyArg_ParseTuple(args, "fff:set_actor_location", &x, &y, &z)) {
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<AActor>()) {
+		((AActor *)self->ue_object)->SetActorLocation(FVector(x, y, z), false);
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		((UActorComponent *)self->ue_object)->GetOwner()->SetActorLocation(FVector(x, y, z));
+		goto ret;
+	}
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_find_object(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
+		return NULL;
+	}
+	UObject *u_object = nullptr;
+
+	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
+		UObject *u_obj = *Itr;
+		if (u_obj->GetName().Equals(UTF8_TO_TCHAR(name))) {
+			u_object = u_obj;
+			break;
+		}
+	}
+
+	if (u_object) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_actor_by_label", &name)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	UObject *u_object = nullptr;
+
+	for (TActorIterator<AActor> Itr(world); Itr; ++Itr) {
+		AActor *u_obj = *Itr;
+		if (u_obj->GetActorLabel().Equals(UTF8_TO_TCHAR(name))) {
+			u_object = u_obj;
+			break;
+		}
+	}
+
+	if (u_object) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetClass());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+static PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *ret = PyList_New(0);
+
+	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
+		UObject *u_obj = *Itr;
+		if (u_obj->GetWorld() != world)
+			continue;
+		ue_PyUObject *py_obj = ue_get_python_wrapper(u_obj);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+	return ret;
+}
+
+static PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *ret = PyList_New(0);
+
+	for (TActorIterator<AActor> Itr(world); Itr; ++Itr) {
+		UObject *u_obj = *Itr;
+		ue_PyUObject *py_obj = ue_get_python_wrapper(u_obj);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+
+	}
+
+
+	return ret;
+}
+
+static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
+
+static PyMethodDef ue_PyUObject_methods[] = {
+	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
+	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
+	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
+	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
+	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
+	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
+	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
+	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
+	{ "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
+	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
+	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
+	{ "all_actors", (PyCFunction)py_ue_all_actors, METH_VARARGS, "" },
+	{ "get_input_axis", (PyCFunction)py_ue_get_input_axis, METH_VARARGS, "" },
+	{ "bind_input_axis", (PyCFunction)py_ue_bind_input_axis, METH_VARARGS, "" },
+	{ "enable_input", (PyCFunction)py_ue_enable_input, METH_VARARGS, "" },
+	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
+	{ NULL }  /* Sentinel */
+};
+
+static PyTypeObject ue_PyUObjectType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	"unreal_engine.UObject",             /* tp_name */
+	sizeof(ue_PyUObject), /* tp_basicsize */
+	0,                         /* tp_itemsize */
+	0,                         /* tp_dealloc */
+	0,                         /* tp_print */
+	0,                         /* tp_getattr */
+	0,                         /* tp_setattr */
+	0,                         /* tp_reserved */
+	0,                         /* tp_repr */
+	0,                         /* tp_as_number */
+	0,                         /* tp_as_sequence */
+	0,                         /* tp_as_mapping */
+	0,                         /* tp_hash  */
+	0,                         /* tp_call */
+	0,                         /* tp_str */
+	0,                         /* tp_getattro */
+	0,                         /* tp_setattro */
+	0,                         /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT,        /* tp_flags */
+	"Unreal Engine generic UObject",           /* tp_doc */
+	0,                         /* tp_traverse */
+	0,                         /* tp_clear */
+	0,                         /* tp_richcompare */
+	0,                         /* tp_weaklistoffset */
+	0,                         /* tp_iter */
+	0,                         /* tp_iternext */
+	ue_PyUObject_methods,             /* tp_methods */
+};
+
+static PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "o:is_a", &obj)) {
+		return NULL;
+	}
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (self->ue_object->IsA((UClass *)py_obj->ue_object)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+void unreal_engine_init_py_module() {
+	PyImport_AppendInittab("unreal_engine", init_unreal_engine);
+	PyObject *new_unreal_engine_module = PyImport_AddModule("unreal_engine");
+
+	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
+
+	PyMethodDef *unreal_engine_function;
+	for (unreal_engine_function = unreal_engine_methods; unreal_engine_function->ml_name != NULL; unreal_engine_function++) {
+		PyObject *func = PyCFunction_New(unreal_engine_function, NULL);
+		PyDict_SetItemString(unreal_engine_dict, unreal_engine_function->ml_name, func);
+		Py_DECREF(func);
+	}
+
+
+	ue_PyUObjectType.tp_new = PyType_GenericNew;
+	if (PyType_Ready(&ue_PyUObjectType) < 0)
+		return;
+
+	Py_INCREF(&ue_PyUObjectType);
+	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
+
+}
+
+
+ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
+	if (!ue_obj || !ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
+		return nullptr;
+	UPyObject *ue_py_object = FindObject<UPyObject>(ue_obj, TEXT("__PyObject"), true);
+	if (!ue_py_object) {
+		ue_py_object = NewObject<UPyObject>(ue_obj, FName(TEXT("__PyObject")));
+		if (!ue_py_object) {
+			return nullptr;
+		}
+		ue_py_object->py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
+		if (!ue_py_object->py_object) {
+			ue_py_object->ConditionalBeginDestroy();
+			return nullptr;
+		}
+		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
+
+		Py_INCREF(ue_py_object->py_object);
+	}
+
+	return ue_py_object->py_object;
+}
+
+void unreal_engine_py_log_error() {
+	PyObject *type = NULL;
+	PyObject *value = NULL;
+	PyObject *traceback = NULL;
+
+	PyErr_Fetch(&type, &value, &traceback);
+	PyErr_NormalizeException(&type, &value, &traceback);
+
+	if (!value)
+		return;
+
+	char *msg = NULL;
+	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
+	if (zero) {
+		msg = PyBytes_AsString(zero);
+	}
+
+	if (!msg)
+		return;
+
+	UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(msg));
+
+	PyErr_Clear();
+}
+
+UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
+	if (py_obj->ue_object->IsA<AActor>()) {
+		AActor *actor = (AActor *)py_obj->ue_object;
+		return actor->GetWorld();
+	}
+
+	if (py_obj->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *component = (UActorComponent *)py_obj->ue_object;
+		return component->GetWorld();
+	}
+
+	return nullptr;
+}
