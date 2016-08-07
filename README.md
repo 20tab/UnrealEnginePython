@@ -58,3 +58,11 @@ git clone https://github.com/20tab/UnrealEnginePython
 # Installation on other platforms
 
 Currently only Windows and MacOSX are supported, Linux support should be available soon. We are investigating Android support too via the kivy project.
+
+# Using Python with Unreal Engine (finally)
+
+Creating a new blueprint class managed by python
+------------------------------------------------
+
+Adding a python component to an Actor
+-------------------------------------
