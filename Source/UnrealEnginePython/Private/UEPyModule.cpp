@@ -838,6 +838,24 @@ static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
+static PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	actor->Destroy();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+	
+}
+
 
 
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
@@ -873,6 +891,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
+	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };
