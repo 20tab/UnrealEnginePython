@@ -5,7 +5,7 @@ using UnrealBuildTool;
 public class UnrealEnginePython : ModuleRules
 {
 
-    private const string pythonHome = "C:\\Program Files\\Python35\\";
+    private const string pythonHome = "C:/Users/Roberto/Documents/Unreal Projects/PyTest30/Plugins/UnrealEnginePython/python-3.5.2-embed-amd64";
 
     public UnrealEnginePython(TargetInfo Target)
     {
@@ -58,11 +58,12 @@ public class UnrealEnginePython : ModuleRules
 
 
 
-       // PublicIncludePaths.Add(pythonHome + "..\\");
-        PublicLibraryPaths.Add(pythonHome + "libs");
+        PublicIncludePaths.Add(pythonHome);
+        PublicLibraryPaths.Add(pythonHome + "/libs");
         PublicAdditionalLibraries.Add("python35.lib");
 
-        RuntimeDependencies.Add(new RuntimeDependency("C:/Users/Roberto/Documents/Unreal Projects/PyTest30/Plugins/UnrealEnginePython/python35.dll"));
+        RuntimeDependencies.Add(new RuntimeDependency(pythonHome + "/python35.dll"));
+        RuntimeDependencies.Add(new RuntimeDependency(pythonHome + "/python35.zip"));
 
     }
 }

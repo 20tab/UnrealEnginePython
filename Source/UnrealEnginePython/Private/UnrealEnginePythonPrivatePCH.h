@@ -10,6 +10,6 @@
 #include "Engine.h"
 
 
-#include <C:/Program Files/Python35/include/Python.h>
+#include <include/Python.h>
 
 #include "UEPyModule.h"
