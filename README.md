@@ -75,24 +75,41 @@ uclass = unreal_engine.find_class('name')
 ```
 
 ```py
-uclass = unreal_engine.log('message')
+unreal_engine.log('message')
 ```
 
 ```py
-uclass = unreal_engine.log_warning('message')
+unreal_engine.log_warning('message')
 ```
 
 ```py
-uclass = unreal_engine.log_error('message')
+unreal_engine.log_error('message')
 ```
 
 ```py
-uclass = unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
+unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
 ```
 
 ```py
-uclass = unreal_engine.print_string('message')
+unreal_engine.print_string('message')
 ```
+
+```py
+unreal_engine.vector_add_vector(x, y, z[, x1, y1, z1, ...])
+```
+
+```py
+unreal_engine.vector_add_float(x, y, z[, d1, d2, ...])
+```
+
+```py
+unreal_engine.vector_mul_vector(x, y, z[, x1, y1, z1, ...])
+```
+
+```py
+unreal_engine.vector_mul_float(x, y, z[, d1, d2, ...])
+```
+
 
 The uobject api
 ---------------
@@ -102,8 +119,113 @@ x, y, z = uobject.get_actor_location()
 ```
 
 ```py
+uobject.set_actor_location(x, y, z)
+```
+
+```py
 pitch, yaw, roll = uobject.get_actor_rotation()
 ```
+
+```py
+uobject.set_actor_rotation(pitch, yaw, roll)
+```
+
+```py
+x, y, z = uobject.get_actor_forward()
+```
+
+```py
+x, y, z = uobject.get_actor_right()
+```
+
+```py
+x, y, z = uobject.get_actor_up()
+```
+
+```py
+x, y, z = uobject.get_actor_velocity()
+```
+
+```py
+value = uobject.get_property('name')
+```
+
+```py
+properties_list = uobject.properties()
+```
+
+```py
+uobject.call('function')
+```
+
+```py
+actor = uobject.get_owner()
+```
+
+```py
+name = uobject.get_name()
+```
+
+```py
+full_name = uobject.get_full_name()
+```
+
+```py
+# really slow !
+found_uobject = uobject.find_object('name')
+```
+
+```py
+# really really slow !
+found_uobjects = uobject.all_objects()
+```
+
+```py
+found_actors = uobject.all_actors()
+```
+
+```py
+uclass = uobject.get_class()
+```
+
+```py
+uclass = uobject.actor_spawn(uclass[, x, y, z, pitch, yaw, roll])
+```
+
+```py
+uobject.actor_destroy()
+```
+
+```py
+yesno = uobject.actor_has_component_of_type(uclass)
+```
+
+```py
+components = uobject.actor_components()
+```
+
+```py
+uobject.enable_input()
+```
+
+```py
+uobject.bind_input_axis('axis')
+```
+
+```py
+uobject.quit_game()
+```
+
+```py
+yesno = uobject.is_input_key_down('key')
+```
+
+```py
+value = uobject.get_input_axis('axis')
+```
+
+Math functions
+--------------
 
 Memory management
 -----------------
