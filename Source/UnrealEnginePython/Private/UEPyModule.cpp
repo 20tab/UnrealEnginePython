@@ -89,12 +89,140 @@ static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-/*
-for (UActorComponent *component : GetOwner()->GetComponents()) {
-UE_LOG(LogPython, Error, TEXT("Component: %s"), *component->GetName());
-}
-*/
 
+static PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *args) {
+	
+	float x=0, y=0, z=0;
+
+	Py_ssize_t items = PyTuple_Size(args);
+
+	if ((items % 3) != 0) {
+		return PyErr_Format(PyExc_TypeError, "this function requires a 3-multiple number of args");
+	}
+
+	for (int i = 0; i < (int)items; i += 3) {
+		PyObject *x_py = PyTuple_GetItem(args, i);
+		if (!PyFloat_Check(x_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+		x += (float) PyFloat_AsDouble(x_py);
+		PyObject *y_py = PyTuple_GetItem(args, i+1);
+		if (!PyFloat_Check(y_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
+		y += (float)PyFloat_AsDouble(y_py);
+		PyObject *z_py = PyTuple_GetItem(args, i+2);
+		if (!PyFloat_Check(z_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
+		z += (float)PyFloat_AsDouble(z_py);
+	}
+
+	return Py_BuildValue("fff", x, y, z);
+}
+
+static PyObject *py_unreal_engine_vector_add_float(PyObject * self, PyObject *args) {
+
+	float x = 0, y = 0, z = 0;
+
+	Py_ssize_t items = PyTuple_Size(args);
+
+	if (items < 3) {
+		return PyErr_Format(PyExc_TypeError, "this function requires a xyz vector");
+	}
+
+	PyObject *x_py = PyTuple_GetItem(args, 0);
+	if (!PyFloat_Check(x_py))
+		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+	x = (float)PyFloat_AsDouble(x_py);
+
+
+	PyObject *y_py = PyTuple_GetItem(args, 1);
+	if (!PyFloat_Check(y_py))
+		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+	y = (float)PyFloat_AsDouble(y_py);
+
+	PyObject *z_py = PyTuple_GetItem(args, 2);
+	if (!PyFloat_Check(z_py))
+		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+	z = (float)PyFloat_AsDouble(z_py);
+
+	for (int i = 3; i < (int)items; i ++) {
+		PyObject *delta_py = PyTuple_GetItem(args, i);
+		if (!PyFloat_Check(delta_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
+		float delta = (float)PyFloat_AsDouble(delta_py);
+		x += delta;
+		y += delta;
+		z += delta;
+	}
+
+	return Py_BuildValue("fff", x, y, z);
+}
+
+static PyObject *py_unreal_engine_vector_mul_vector(PyObject * self, PyObject *args) {
+
+	float x = 1, y = 1, z = 1;
+
+	Py_ssize_t items = PyTuple_Size(args);
+
+	if ((items % 3) != 0) {
+		return PyErr_Format(PyExc_TypeError, "this function requires a 3-multiple number of args");
+	}
+
+	for (int i = 0; i < (int)items; i += 3) {
+		PyObject *x_py = PyTuple_GetItem(args, i);
+		if (!PyFloat_Check(x_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+		x *= (float)PyFloat_AsDouble(x_py);
+		PyObject *y_py = PyTuple_GetItem(args, i + 1);
+		if (!PyFloat_Check(y_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
+		y *= (float)PyFloat_AsDouble(y_py);
+		PyObject *z_py = PyTuple_GetItem(args, i + 2);
+		if (!PyFloat_Check(z_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
+		z *= (float)PyFloat_AsDouble(z_py);
+	}
+
+	return Py_BuildValue("fff", x, y, z);
+}
+
+static PyObject *py_unreal_engine_vector_mul_float(PyObject * self, PyObject *args) {
+
+	float x = 0, y = 0, z = 0;
+
+	Py_ssize_t items = PyTuple_Size(args);
+
+	if (items < 3) {
+		return PyErr_Format(PyExc_TypeError, "this function requires a xyz vector");
+	}
+
+	PyObject *x_py = PyTuple_GetItem(args, 0);
+	if (!PyFloat_Check(x_py))
+		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+	x = (float)PyFloat_AsDouble(x_py);
+
+
+	PyObject *y_py = PyTuple_GetItem(args, 1);
+	if (!PyFloat_Check(y_py))
+		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+	y = (float)PyFloat_AsDouble(y_py);
+
+	PyObject *z_py = PyTuple_GetItem(args, 2);
+	if (!PyFloat_Check(z_py))
+		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
+	z = (float)PyFloat_AsDouble(z_py);
+
+	for (int i = 3; i < (int)items; i++) {
+		PyObject *delta_py = PyTuple_GetItem(args, i);
+		if (!PyFloat_Check(delta_py))
+			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
+		float delta = (float)PyFloat_AsDouble(delta_py);
+		x *= delta;
+		y *= delta;
+		z *= delta;
+	}
+
+	return Py_BuildValue("fff", x, y, z);
+}
 
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
@@ -102,6 +230,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
+	{ "vector_add_vector", py_unreal_engine_vector_add_vector, METH_VARARGS, "" },
+	{ "vector_add_float", py_unreal_engine_vector_add_float, METH_VARARGS, "" },
+	{ "vector_mul_vector", py_unreal_engine_vector_mul_vector, METH_VARARGS, "" },
+	{ "vector_mul_float", py_unreal_engine_vector_mul_float, METH_VARARGS, "" },
 	{ NULL, NULL },
 };
 
@@ -250,6 +382,102 @@ static PyObject *py_ue_get_actor_location(ue_PyUObject *self, PyObject * args) {
 
 ret:
 	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
+static PyObject *py_ue_get_actor_forward(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetActorForwardVector();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorForwardVector();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
+static PyObject *py_ue_get_actor_right(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetActorRightVector();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorRightVector();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
+static PyObject *py_ue_get_actor_up(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetActorUpVector();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorUpVector();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
+static PyObject *py_ue_get_actor_rotation(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FRotator vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetActorRotation();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorRotation();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.Pitch, vec3.Yaw, vec3.Roll);
 
 }
 
@@ -421,12 +649,39 @@ static PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
 	}
 
 	if (self->ue_object->IsA<AActor>()) {
-		((AActor *)self->ue_object)->SetActorLocation(FVector(x, y, z), false);
+		((AActor *)self->ue_object)->SetActorLocation(FVector(x, y, z));
 		goto ret;
 	}
 
 	if (self->ue_object->IsA<UActorComponent>()) {
 		((UActorComponent *)self->ue_object)->GetOwner()->SetActorLocation(FVector(x, y, z));
+		goto ret;
+	}
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float pitch, yaw, roll;
+	if (!PyArg_ParseTuple(args, "fff:set_actor_rotation", &pitch, &yaw, &roll)) {
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<AActor>()) {
+		((AActor *)self->ue_object)->SetActorRotation(FRotator(pitch, yaw, roll));
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		((UActorComponent *)self->ue_object)->GetOwner()->SetActorRotation(FRotator(pitch, yaw, roll));
 		goto ret;
 	}
 
@@ -583,12 +838,20 @@ static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
+
+
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
+	{ "get_actor_forward", (PyCFunction)py_ue_get_actor_forward, METH_VARARGS, "" },
+	{ "get_actor_right", (PyCFunction)py_ue_get_actor_right, METH_VARARGS, "" },
+	{ "get_actor_up", (PyCFunction)py_ue_get_actor_up, METH_VARARGS, "" },
+	{ "get_actor_rotation", (PyCFunction)py_ue_get_actor_rotation, METH_VARARGS, "" },
 	{ "get_actor_velocity", (PyCFunction)py_ue_get_actor_velocity, METH_VARARGS, "" },
 	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
+	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
@@ -609,6 +872,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
+	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };
@@ -644,12 +908,43 @@ static PyTypeObject ue_PyUObjectType = {
 	ue_PyUObject_methods,             /* tp_methods */
 };
 
+static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:is_a", &obj)) {
+		return NULL;
+	}
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	if (actor->GetComponentByClass((UClass *)py_obj->ue_object)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+
+}
+
 static PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "o:is_a", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:is_a", &obj)) {
 		return NULL;
 	}
 
