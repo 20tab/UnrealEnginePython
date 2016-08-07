@@ -145,6 +145,14 @@ static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 	if (u_float_property)
 		return Py_BuildValue("f", u_float_property->GetPropertyValue(u_property->ContainerPtrToValuePtr<float>(self->ue_object)));
 
+	UObjectProperty *u_obj_property = Cast<UObjectProperty>(u_property);
+	if (u_obj_property) {
+		UObject *u_obj = u_obj_property->GetPropertyValue(u_property->ContainerPtrToValuePtr<UObject>(self->ue_object));
+		PyObject *py_obj = (PyObject *)ue_get_python_wrapper(u_obj);
+		Py_INCREF(py_obj);
+		return py_obj;
+	}
+
 	Py_INCREF(Py_None);
 	return Py_None;
 
@@ -191,6 +199,14 @@ static PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 
 	
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
+}
+
+static PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetFullName())));
 }
 
 #if WITH_EDITOR
@@ -539,6 +555,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
+	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
