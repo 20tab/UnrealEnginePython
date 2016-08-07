@@ -2,19 +2,19 @@
 
 #include "Components/ActorComponent.h"
 
-#include "PyActorComponent.generated.h"
+#include "PythonComponent.generated.h"
 
 
 
 UCLASS(ClassGroup = (Python), meta = (BlueprintSpawnableComponent))
-class UPyActorComponent : public UActorComponent
+class UPythonComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UPyActorComponent();
-	~UPyActorComponent();
+	UPythonComponent();
+	~UPythonComponent();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;

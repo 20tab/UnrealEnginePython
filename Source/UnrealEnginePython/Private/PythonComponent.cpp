@@ -1,9 +1,9 @@
 #include "UnrealEnginePythonPrivatePCH.h"
-#include "PyActorComponent.h"
+#include "PythonComponent.h"
 
 
 
-UPyActorComponent::UPyActorComponent()
+UPythonComponent::UPyActorComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -16,7 +16,7 @@ UPyActorComponent::UPyActorComponent()
 
 
 // Called when the game starts
-void UPyActorComponent::BeginPlay()
+void UPythonComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -84,7 +84,7 @@ void UPyActorComponent::BeginPlay()
 
 
 // Called every frame
-void UPyActorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -100,7 +100,7 @@ void UPyActorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 }
 
-UPyActorComponent::~UPyActorComponent()
+UPythonComponent::~UPyActorComponent()
 {
 	Py_XDECREF(py_component_instance);
 	UE_LOG(LogPython, Error, TEXT("Python UActorComponent wrapper XDECREF'ed"));

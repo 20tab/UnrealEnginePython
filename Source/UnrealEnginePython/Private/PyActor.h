@@ -7,7 +7,7 @@
 
 
 
-UCLASS(BlueprintType, Blueprintable, Config = Engine, ClassGroup = (Python))
+UCLASS(BlueprintType, Blueprintable)
 class APyActor : public AActor
 {
 	GENERATED_BODY()
