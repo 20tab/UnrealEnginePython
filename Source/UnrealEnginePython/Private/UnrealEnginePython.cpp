@@ -17,10 +17,14 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	PyObject *py_sys = PyImport_ImportModule("sys");
 	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
+
 	PyObject *py_path = PyDict_GetItemString(py_sys_dict, "path");
 
+	char *zip_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("python35.zip")));
+	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
+	PyList_Insert(py_path, 0, py_zip_path);
+	
 	char *scripts_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts")));
-
 	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
 	PyList_Insert(py_path, 0, py_scripts_path);
 

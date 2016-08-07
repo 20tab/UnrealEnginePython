@@ -70,11 +70,7 @@ public class UnrealEnginePython : ModuleRules
 
 
         PublicIncludePaths.Add(PythonHome);
-        PublicLibraryPaths.Add(PythonHome + "/libs/");
-        PublicAdditionalLibraries.Add("python35.lib");
-
-        RuntimeDependencies.Add(new RuntimeDependency(PythonHome + "/python35.dll"));
-        RuntimeDependencies.Add(new RuntimeDependency(PythonHome + "/python35.zip"));
+        PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", "python35.lib"));
 
     }
 }
