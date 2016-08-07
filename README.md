@@ -15,6 +15,18 @@ All of the exposed engine features are under the 'unreal_engine' virtual module 
 
 # Installation on Windows (64 bit)
 
+* install Unreal Engine 4.12 and Python 3.5 as a system user
+* run the unreal editor and create a new blank c++ project
+* once the project is setup, close both unreal and visual studio
+* move to the project directory (you can right click the problem from the epic launcher and choose 'show in explorer')
+* create a 'Plugins' directory into the project directory
+* move into the just created Plugins directory and clone the repository:
+
+```sh
+git clone https://github.com/20tab/UnrealEnginePython
+```
+
+
 # Installation on MacOSX
 
 # Installation on other platforms
