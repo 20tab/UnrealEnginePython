@@ -6,7 +6,7 @@ using System.IO;
 public class UnrealEnginePython : ModuleRules
 {
 
-    private const string pythonHome = "python-3.5.2-embed-amd64";
+    private const string pythonHome = "python35";
 
     protected string PythonHome
     {
