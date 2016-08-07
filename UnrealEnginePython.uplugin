@@ -11,13 +11,13 @@
 	"MarketplaceURL": "",
 	"SupportURL": "",
 	"EnabledByDefault": false,
-	"CanContainContent": false,
+	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"Installed": false,
 	"Modules": [
 		{
 			"Name": "UnrealEnginePython",
-			"Type": "Developer",
+			"Type": "Runtime",
 			"LoadingPhase": "PreDefault"
 		}
 	]

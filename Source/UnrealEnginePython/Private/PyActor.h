@@ -32,7 +32,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Python")
 	FString PythonClass;
 
+
 private:
 	PyObject *py_actor_instance;
+
+	UFUNCTION()
+	void PyOnActorBeginOverlap(AActor *overlapped, AActor *other);
 };
 

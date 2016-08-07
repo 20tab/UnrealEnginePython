@@ -3,7 +3,7 @@
 
 
 
-UPythonComponent::UPyActorComponent()
+UPythonComponent::UPythonComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -41,12 +41,14 @@ void UPythonComponent::BeginPlay()
 		return;
 	}
 
+#if WITH_EDITOR
 	// todo implement autoreload with a dictionary of mule timestamps
 	py_component_module = PyImport_ReloadModule(py_component_module);
 	if (!py_component_module) {
 		unreal_engine_py_log_error();
 		return;
 	}
+#endif
 
 	if (PythonClass.IsEmpty())
 		return;
@@ -100,7 +102,7 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
-UPythonComponent::~UPyActorComponent()
+UPythonComponent::~UPythonComponent()
 {
 	Py_XDECREF(py_component_instance);
 	UE_LOG(LogPython, Error, TEXT("Python UActorComponent wrapper XDECREF'ed"));

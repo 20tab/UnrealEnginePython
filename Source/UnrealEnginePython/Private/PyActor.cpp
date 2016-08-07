@@ -7,6 +7,8 @@ APyActor::APyActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	this->OnActorBeginOverlap.AddDynamic(this, &APyActor::PyOnActorBeginOverlap);
+
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
 }
@@ -38,12 +40,14 @@ void APyActor::BeginPlay()
 		return;
 	}
 
+#if WITH_EDITOR
 	// todo implement autoreload with a dictionary of module timestamps
 	py_actor_module = PyImport_ReloadModule(py_actor_module);
 	if (!py_actor_module) {
 		unreal_engine_py_log_error();
 		return;
 	}
+#endif
 
 	if (PythonClass.IsEmpty())
 		return;
@@ -96,6 +100,21 @@ void APyActor::Tick(float DeltaTime)
 	Py_DECREF(ret);
 
 }
+
+
+void APyActor::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
+{
+	if (!py_actor_instance)
+		return;
+
+	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_begin_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 
 APyActor::~APyActor()
 {

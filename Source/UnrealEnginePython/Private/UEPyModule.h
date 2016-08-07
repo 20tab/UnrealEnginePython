@@ -1,6 +1,10 @@
 #pragma once
 
+
+
 #include "UnrealEnginePython.h"
+
+#include "UEPyModule.generated.h"
 
 
 
@@ -10,8 +14,10 @@ typedef struct {
 		UObject *ue_object;
 } ue_PyUObject;
 
+UCLASS()
 class UPyObject : public UObject
 {
+	GENERATED_BODY()
 public:
 	ue_PyUObject *py_object;
 };

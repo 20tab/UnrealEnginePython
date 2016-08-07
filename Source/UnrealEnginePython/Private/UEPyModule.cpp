@@ -67,6 +67,25 @@ end:
 	return Py_None;
 }
 
+static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_class", &name)) {
+		return NULL;
+	}
+
+	UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
+	
+	if (u_class) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_class);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 
 /*
@@ -81,6 +100,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
+	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ NULL, NULL },
 };
 
@@ -204,6 +224,30 @@ static PyObject *py_ue_get_actor_location(ue_PyUObject *self, PyObject * args) {
 
 	if (self->ue_object->IsA<UActorComponent>()) {
 		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorLocation();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
+static PyObject *py_ue_get_actor_velocity(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetVelocity();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetVelocity();
 		goto ret;
 	}
 
@@ -459,10 +503,33 @@ static PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
+static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	PyObject *ret = PyList_New(0);
+
+	for (UActorComponent *component : actor->GetComponents()) {
+		ue_PyUObject *py_obj = ue_get_python_wrapper(component);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+
+	return ret;
+}
+
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
+	{ "get_actor_velocity", (PyCFunction)py_ue_get_actor_velocity, METH_VARARGS, "" },
 	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
@@ -478,6 +545,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "bind_input_axis", (PyCFunction)py_ue_bind_input_axis, METH_VARARGS, "" },
 	{ "enable_input", (PyCFunction)py_ue_enable_input, METH_VARARGS, "" },
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
+	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
