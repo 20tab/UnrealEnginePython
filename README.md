@@ -26,6 +26,9 @@ All of the exposed engine features are under the 'unreal_engine' virtual module 
 git clone https://github.com/20tab/UnrealEnginePython
 ```
 
+* from the explorer right click on the project main file and choose 'generate visual studio project files'
+* open again visual studio, you should now see Plugins/UnrealEnginePython in your solution explorer
+* 
 
 # Installation on MacOSX
 
