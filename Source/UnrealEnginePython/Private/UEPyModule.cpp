@@ -193,6 +193,7 @@ static PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
 }
 
+#if WITH_EDITOR
 static PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -209,7 +210,7 @@ static PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args) {
 
 	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 }
-
+#endif
 
 static PyObject *py_ue_get_actor_location(ue_PyUObject *self, PyObject * args) {
 
@@ -412,6 +413,7 @@ static PyObject *py_ue_find_object(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
+#if WITH_EDITOR
 static PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -446,6 +448,7 @@ static PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args)
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+#endif
 
 static PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 
@@ -536,9 +539,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
+#if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
-	{ "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
+#endif
+	{ "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
 	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
 	{ "all_actors", (PyCFunction)py_ue_all_actors, METH_VARARGS, "" },
 	{ "get_input_axis", (PyCFunction)py_ue_get_input_axis, METH_VARARGS, "" },

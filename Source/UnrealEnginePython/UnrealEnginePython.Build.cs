@@ -61,7 +61,7 @@ public class UnrealEnginePython : ModuleRules
         PublicLibraryPaths.Add(pythonHome + "libs");
         PublicAdditionalLibraries.Add("python35.lib");
 
-        RuntimeDependencies.Add(new RuntimeDependency("python35.dll"));
+        RuntimeDependencies.Add(new RuntimeDependency("C:/Users/Roberto/Documents/Unreal Projects/PyTest30/Plugins/UnrealEnginePython/python35.dll"));
 
     }
 }
