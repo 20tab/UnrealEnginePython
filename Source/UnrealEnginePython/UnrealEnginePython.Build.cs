@@ -1,14 +1,25 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class UnrealEnginePython : ModuleRules
 {
 
-    private const string pythonHome = "C:/Users/Roberto/Documents/Unreal Projects/PyTest30/Plugins/UnrealEnginePython/python-3.5.2-embed-amd64";
+    private const string pythonHome = "python-3.5.2-embed-amd64";
+
+    protected string PythonHome
+    {
+        get
+        {
+            return Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", pythonHome));
+        }
+    }
 
     public UnrealEnginePython(TargetInfo Target)
     {
+
+        System.Console.WriteLine("Using Python at: " + PythonHome);
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -58,12 +69,12 @@ public class UnrealEnginePython : ModuleRules
 
 
 
-        PublicIncludePaths.Add(pythonHome);
-        PublicLibraryPaths.Add(pythonHome + "/libs");
+        PublicIncludePaths.Add(PythonHome);
+        PublicLibraryPaths.Add(PythonHome + "/libs/");
         PublicAdditionalLibraries.Add("python35.lib");
 
-        RuntimeDependencies.Add(new RuntimeDependency(pythonHome + "/python35.dll"));
-        RuntimeDependencies.Add(new RuntimeDependency(pythonHome + "/python35.zip"));
+        RuntimeDependencies.Add(new RuntimeDependency(PythonHome + "/python35.dll"));
+        RuntimeDependencies.Add(new RuntimeDependency(PythonHome + "/python35.zip"));
 
     }
 }
