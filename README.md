@@ -19,4 +19,4 @@ All of the exposed engine features are under the 'unreal_engine' virtual module 
 
 # Installation on other platforms
 
-Currently only Windows and MacOSX are supported, Linux support should be available soon. We are invastigating Android support too via the kivy project.
+Currently only Windows and MacOSX are supported, Linux support should be available soon. We are investigating Android support too via the kivy project.
