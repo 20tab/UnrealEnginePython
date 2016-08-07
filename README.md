@@ -66,3 +66,41 @@ Creating a new blueprint class managed by python
 
 Adding a python component to an Actor
 -------------------------------------
+
+The unreal_engine module
+------------------------
+
+```py
+uclass = unreal_engine.find_class('name')
+```
+
+```py
+uclass = unreal_engine.log('message')
+```
+
+```py
+uclass = unreal_engine.log_warning('message')
+```
+
+```py
+uclass = unreal_engine.log_error('message')
+```
+
+```py
+uclass = unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
+```
+
+```py
+uclass = unreal_engine.print_string('message')
+```
+
+The uobject api
+---------------
+
+```py
+x, y, z = uobject.get_actor_location()
+```
+
+```py
+pitch, yaw, roll = uobject.get_actor_rotation()
+```
