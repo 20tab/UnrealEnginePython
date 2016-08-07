@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
 
 DEFINE_LOG_CATEGORY(LogPython);
 
@@ -86,7 +88,6 @@ static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
 
 /*
 for (UActorComponent *component : GetOwner()->GetComponents()) {
@@ -337,6 +338,44 @@ static PyObject *py_ue_bind_input_axis(ue_PyUObject *self, PyObject * args) {
 
 }
 
+static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	UKismetSystemLibrary::QuitGame(world, world->GetFirstPlayerController(), EQuitPreference::Quit);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:is_input_key_down", &key)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+
+	if (controller->IsInputKeyDown(key)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 static PyObject *py_ue_enable_input(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -568,6 +607,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "enable_input", (PyCFunction)py_ue_enable_input, METH_VARARGS, "" },
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
 	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
+	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
+	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
+
 	{ NULL }  /* Sentinel */
 };
 

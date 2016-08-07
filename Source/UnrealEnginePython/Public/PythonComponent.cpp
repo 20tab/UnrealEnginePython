@@ -105,5 +105,5 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 UPythonComponent::~UPythonComponent()
 {
 	Py_XDECREF(py_component_instance);
-	UE_LOG(LogPython, Error, TEXT("Python UActorComponent wrapper XDECREF'ed"));
+	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent wrapper XDECREF'ed"));
 }

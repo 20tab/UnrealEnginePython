@@ -119,5 +119,5 @@ void APyActor::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
 APyActor::~APyActor()
 {
 	Py_XDECREF(py_actor_instance);
-	UE_LOG(LogPython, Error, TEXT("Python AActor wrapper XDECREF'ed"));
+	UE_LOG(LogPython, Warning, TEXT("Python AActor wrapper XDECREF'ed"));
 }
