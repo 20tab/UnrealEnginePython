@@ -169,6 +169,7 @@ import unreal_engine as ue
 ```
 
 
+---
 ```py
 uclass = unreal_engine.find_class('name')
 ```
@@ -178,24 +179,32 @@ You can use this uobject to search for objects of that type or to spawn new acto
 
 
 
+
+---
 ```py
 unreal_engine.log('message')
 ```
 
 log a string into the editor output log (under the LogPython category/class)
 
+
+---
 ```py
 unreal_engine.log_warning('message')
 ```
 
 log a warning string (yellow) into the editor output log (under the LogPython category/class)
 
+
+---
 ```py
 unreal_engine.log_error('message')
 ```
 
 log an error string (red) into the editor output log (under the LogPython category/class)
 
+
+---
 ```py
 unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
 ```
@@ -204,35 +213,46 @@ low-level equivalent of blueprint 'print string' function. It disappear after 't
 
 TODO: support for colors
 
+
+---
 ```py
 unreal_engine.print_string('message')
 ```
 
 python equivalent of the blueprint 'print string' function. It disappears after 2 seconds and it is wrote in cyan color.
 
+
+---
 ```py
 unreal_engine.vector_add_vector(x, y, z[, x1, y1, z1, ...])
 ```
 
 optimized vector math function, allows adding 3 dimensions vectors exposed as 3 float values
 
+
+---
 ```py
 unreal_engine.vector_add_float(x, y, z[, d1, d2, ...])
 ```
 
 optimized vector math function, allows adding a 3 dimensions vector with one or more floats
 
+
+---
 ```py
 unreal_engine.vector_mul_vector(x, y, z[, x1, y1, z1, ...])
 ```
 
 optimized vector math function, allows multiplyging 3 dimensions vectors exposed as 3 float values
 
+
+---
 ```py
 unreal_engine.vector_mul_float(x, y, z[, d1, d2, ...])
 ```
 
 optimized vector math function, allows multiplying a 3 dimensions vector with one or more floats
+
 
 The 'World' concept
 -------------------
@@ -252,119 +272,230 @@ Sometime methods are implemented for automatically getting the right object. As 
 
 When this automagic approach is too risky, the method will check for the uobject type and will raise an exception in the case of inconsistencies.
 
+---
 ```py
 x, y, z = uobject.get_actor_location()
 ```
 
 get the current actor location (automatically retrieve the actor from the component if needed)
 
-
+---
 ```py
 uobject.set_actor_location(x, y, z)
 ```
 
 set the current actor location (automatically retrieve the actor from the component if needed)
 
+---
 ```py
 pitch, yaw, roll = uobject.get_actor_rotation()
 ```
 
+get the current actor rotation (automatically retrieve the actor from the component if needed)
+
+
+---
 ```py
 uobject.set_actor_rotation(pitch, yaw, roll)
 ```
+set the current actor rotation (automatically retrieve the actor from the component if needed)
 
+---
 ```py
 x, y, z = uobject.get_actor_forward()
 ```
 
+get the current actor forward vector (automatically retrieve the actor from the component if needed)
+
+---
 ```py
 x, y, z = uobject.get_actor_right()
 ```
 
+get the current actor right vector (automatically retrieve the actor from the component if needed)
+
+---
 ```py
 x, y, z = uobject.get_actor_up()
 ```
 
+get the current actor up vector (automatically retrieve the actor from the component if needed)
+
+---
 ```py
 x, y, z = uobject.get_actor_velocity()
 ```
+get the current actor velocity vector (automatically retrieve the actor from the component if needed)
 
+
+---
 ```py
 value = uobject.get_property('name')
 ```
 
+get the property value of a uobject
+
+NOTE: currently only float and object are supported
+
+---
 ```py
 properties_list = uobject.properties()
 ```
 
+get the list of properties available for the uobject (as a list of string names)
+
+---
 ```py
-uobject.call('function')
+uobject.call('function arg0 arg1 argN....')
 ```
 
+this is probably the most important functionality of the Unreal Engine reflection system.
+
+It allows you to call a method/function exposed by a uobject passing it arguments.
+
+For example you have an uobject mapped to a UTextRenderComponent and you want to change the text:
+
+text_render_component.call('SetText Hello')
+
+will call the UTextRenderComponent::SetText(FString value) method passing 'Hello' as the string argument
+
+This methods allows you to interface with basically every engine features, but is is obviously slower than directly calling C++ methods.
+
+Use it for calling blueprint functions, or while waiting for the addition of new specific-methods in the uobject api ;)
+
+---
 ```py
 actor = uobject.get_owner()
 ```
 
+get the owner of an object (generally called by a component to get its actor)
+
+
+---
 ```py
 name = uobject.get_name()
 ```
 
+---
 ```py
 full_name = uobject.get_full_name()
 ```
 
+---
 ```py
 # really slow !
 found_uobject = uobject.find_object('name')
 ```
 
+---
 ```py
 # really really slow !
 found_uobjects = uobject.all_objects()
 ```
 
+---
 ```py
 found_actors = uobject.all_actors()
 ```
 
+---
 ```py
 uclass = uobject.get_class()
 ```
 
+---
 ```py
 uclass = uobject.actor_spawn(uclass[, x, y, z, pitch, yaw, roll])
 ```
 
+---
 ```py
 uobject.actor_destroy()
 ```
 
+---
 ```py
 yesno = uobject.actor_has_component_of_type(uclass)
 ```
 
+---
 ```py
 components = uobject.actor_components()
 ```
 
+---
 ```py
 uobject.enable_input()
 ```
 
+---
 ```py
 uobject.bind_input_axis('axis')
 ```
 
+---
 ```py
 uobject.quit_game()
 ```
 
+---
 ```py
 yesno = uobject.is_input_key_down('key')
 ```
 
+---
 ```py
 value = uobject.get_input_axis('axis')
+```
+
+---
+```py
+yesno = uobject.actor_has_tag('tagname')
+```
+
+---
+```py
+x, y, z, ex, ey, ez = uobject.get_actor_bounds()
+```
+
+---
+```py
+hit_object, x, y, z, nx, ny, nz = uobject.line_trace_single_by_channel(x0, y1, z0, x1, y1, z1, channel)
+```
+
+---
+```py
+[(hit_object, x, y, z, nx, ny, nz), ...] = uobject.line_trace_multi_by_channel(x0, y1, z0, x1, y1, z1, channel)
+```
+
+---
+```py
+uobject.show_mouse_cursor()
+```
+
+---
+```py
+uobject.enable_click_events()
+```
+
+---
+```py
+uobject.enable_mouse_over_events()
+```
+
+---
+```py
+uobject.destructible_apply_damage(damage, impulse, dx, dy, dz, ix, iy, iz)
+```
+
+---
+```py
+uobject.set_view_target(target)
+```
+
+---
+```py
+uobject.set_simulate_physics()
 ```
 
 Automatic module reloading (Editor only)
@@ -390,6 +521,9 @@ Events
 
 Packaging
 ---------
+
+Examples
+--------
 
 Known issues
 ------------
