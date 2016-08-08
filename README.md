@@ -72,6 +72,10 @@ In the classes menu choose 'PyActor':
 
 ![Alt text](screenshots/unreal_screenshot1.png?raw=true "Screenshot 1")
 
+You now have a new asset, give it a meaningful name, and double click on it to start configuring it in the blueprint editor
+
+![Alt text](screenshots/unreal_screenshot2.png?raw=true "Screenshot 2")
+
 Adding a python component to an Actor
 -------------------------------------
 
