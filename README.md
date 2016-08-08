@@ -483,6 +483,21 @@ uobject.enable_click_events()
 uobject.enable_mouse_over_events()
 ```
 
+---
+```py
+uobject.destructible_apply_damage(damage, impulse, dx, dy, dz, ix, iy, iz)
+```
+
+---
+```py
+uobject.set_view_target(target)
+```
+
+---
+```py
+uobject.set_simulate_physics()
+```
+
 Automatic module reloading (Editor only)
 ----------------------------------------
 
