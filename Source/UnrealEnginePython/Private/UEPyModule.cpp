@@ -603,6 +603,7 @@ static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+
 static PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -1081,6 +1082,7 @@ static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_spawn(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_set_view_target(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
@@ -1122,6 +1124,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
 	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
 	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
+	{ "set_view_target", (PyCFunction)py_ue_set_view_target, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -1219,6 +1222,41 @@ static PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return ret;
+
+}
+
+static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x = 0, y = 0, z = 0;
+	float pitch = 0, yaw = 0, roll = 0;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:set_view_target", &obj)) {
+		return NULL;
+	}
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not an actor");
+	}
+
+	AActor *actor = (AActor *)py_obj->ue_object;
+
+	world->GetFirstPlayerController()->SetViewTarget(actor);
+	
+	Py_INCREF(Py_None);
+	return Py_None;
 
 }
 
