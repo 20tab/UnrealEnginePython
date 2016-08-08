@@ -110,8 +110,8 @@ Now you can drag the bluprint from the content browser to the scene and just cli
 
 You should see your actor moving along the 'z' axis at a speed of 1 meter per second
 
-What is 'self.uobject'
-----------------------
+What is 'self.uobject' ?
+------------------------
 
 The python class is completely unrelated to Unreal Engine, but the PyActor class adds to it a 'uobject' field pointing to a special wrapper class (UPyObject). This single class manages all the UObject classes available in the engine, using (well, abusing) the c++ reflection system available in Unreal Engine. So whenever you want to access the engine you need to start from the 'uobject' field.
 
