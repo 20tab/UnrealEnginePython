@@ -8,6 +8,7 @@ APyActor::APyActor()
 	PrimaryActorTick.bCanEverTick = true;
 
 	this->OnActorBeginOverlap.AddDynamic(this, &APyActor::PyOnActorBeginOverlap);
+	this->OnClicked.AddDynamic(this, &APyActor::PyOnActorClicked);
 
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
@@ -108,6 +109,19 @@ void APyActor::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
 		return;
 
 	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_begin_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+void APyActor::PyOnActorClicked(AActor *touched_actor, FKey button_pressed)
+{
+	if (!py_actor_instance)
+		return;
+
+	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_clicked", "Os", (PyObject *)ue_get_python_wrapper(touched_actor), TCHAR_TO_UTF8(*button_pressed.ToString()));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;

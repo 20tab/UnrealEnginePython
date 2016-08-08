@@ -46,5 +46,8 @@ private:
 
 	UFUNCTION()
 	void PyOnActorBeginOverlap(AActor *overlapped, AActor *other);
+
+	UFUNCTION()
+	void PyOnActorClicked(AActor *touched_actor, FKey button_pressed);
 };
 
