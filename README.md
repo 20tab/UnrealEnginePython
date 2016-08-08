@@ -76,6 +76,40 @@ You now have a new asset, give it a meaningful name, and double click on it to s
 
 ![Alt text](screenshots/unreal_screenshot2.png?raw=true "Screenshot 2")
 
+On the right (in the 'Details' tab) you will find the Python section.
+
+For now only 'Python Module' and 'Python Class' are meaningful.
+
+Go to the Content directory of your project and create a directory named 'Scripts'. This is where all of your python modules will reside. With your favourite text editor create a new python module (like funnygameclasses.py), and define a new class into it:
+
+```py
+import unreal_engine as ue
+
+ue.log('Hello i am a Python module')
+
+class Hero:
+
+    def begin_play(self):
+        ue.log('Begin Play on Hero class')
+        
+    def tick(self, delta_time):
+        # get current location
+        x, y, z = self.uobject.get_actor_location()
+        # increase Z honouring delta_time
+        z += 100 * delta_time
+        # set new location
+        self.uobject.set_actor_location(x, y, z)
+
+```
+
+Now, go back to the blueprint editor and set 'funnygameclasses' in the 'Python Module' field, and 'Hero' in 'Python Class'
+
+As you can see the actor will simply move over the z axis, but we need to give it some kind of visual representation to have a feedback in the scene. In the blueprint editor click on 'add component' and add some shape (a spehere, or a cube, or whatever you want). Save and Compile your blueprint.
+
+Now you can drag the bluprint from the content browser to the scene and just click 'Play'.
+
+You should see your actor moving along the 'z' axis at a speed of 1 meter per second
+
 Adding a python component to an Actor
 -------------------------------------
 
