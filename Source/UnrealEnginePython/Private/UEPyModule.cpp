@@ -603,6 +603,22 @@ static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	ue_PyUObject *ret = ue_get_python_wrapper(world);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+	
+}
+
 
 static PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
 
@@ -1164,6 +1180,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
+	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
