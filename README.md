@@ -131,6 +131,11 @@ From the previous example the 'text_render_component' maintain a mapping to the 
 
 Pay attention: the python class you map to the PyActor class, is not a ue_PyUObject (it is a classic python class) but hold a reference (via the 'uobject' field) to a ue_PyUObject mapped to the AActor.
 
+Note about 'uobject' from now on
+---------------------------------
+
+In the following lines, whenever you find a reference to 'uobject' it is meant as a ue_PyUObject object.
+
 Adding a python component to an Actor
 -------------------------------------
 
@@ -147,57 +152,118 @@ actor = self.uobject.get_class()
 The unreal_engine module
 ------------------------
 
+This is a generic module, exposing functions not related to a particular 'World' (see below).
+
+You can use these functions from an actor, a component or directly from a module.
+
+Just remember to import it:
+
+```py
+import unreal_engine
+```
+
+or (as an example)
+
+```py
+import unreal_engine as ue
+```
+
+
 ```py
 uclass = unreal_engine.find_class('name')
 ```
+
+This function searches for a class in the engine with the specified name and returns its 'uobject' (a c++ UClass object internally).
+You can use this uobject to search for objects of that type or to spawn new actors (and lot of more things)
+
+
 
 ```py
 unreal_engine.log('message')
 ```
 
+log a string into the editor output log (under the LogPython category/class)
+
 ```py
 unreal_engine.log_warning('message')
 ```
+
+log a warning string (yellow) into the editor output log (under the LogPython category/class)
 
 ```py
 unreal_engine.log_error('message')
 ```
 
+log an error string (red) into the editor output log (under the LogPython category/class)
+
 ```py
 unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
 ```
+
+low-level equivalent of blueprint 'print string' function. It disappear after 'timeout' seconds and can get a numeric key (use -1 for disabling keys feature)
+
+TODO: support for colors
 
 ```py
 unreal_engine.print_string('message')
 ```
 
+python equivalent of the blueprint 'print string' function. It disappears after 2 seconds and it is wrote in cyan color.
+
 ```py
 unreal_engine.vector_add_vector(x, y, z[, x1, y1, z1, ...])
 ```
+
+optimized vector math function, allows adding 3 dimensions vectors exposed as 3 float values
 
 ```py
 unreal_engine.vector_add_float(x, y, z[, d1, d2, ...])
 ```
 
+optimized vector math function, allows adding a 3 dimensions vector with one or more floats
+
 ```py
 unreal_engine.vector_mul_vector(x, y, z[, x1, y1, z1, ...])
 ```
+
+optimized vector math function, allows multiplyging 3 dimensions vectors exposed as 3 float values
 
 ```py
 unreal_engine.vector_mul_float(x, y, z[, d1, d2, ...])
 ```
 
+optimized vector math function, allows multiplying a 3 dimensions vector with one or more floats
+
+The 'World' concept
+-------------------
+
+Every uobject is mapped to a world (UWorld in c++). Generally when you play on a Level, that level is your current World, but at the same time there could be multiple worlds (like when streaming new levels, or while testing in the editor there is a world for the editor and one for the simulation)
+
+While it is pretty rare to reference other worlds, you may need to compare the world of two uobject's (for example you may have a reference in your python module to a uobject of a hidden world and you want to check if you need to use it).
+
+The uobject.get_world() functions return a uobject representing the world (the C++ UWorld class)
 
 The uobject api
 ---------------
+
+Each uobject represent a UObject class of the Engine. This C++ class is basically the root of all the other classes (Actors, components, properties ...). Thanks to Unreal Engine reflection system we do not need to implement a python class for each unreal engine class, but for performance reason we expose the most common methods. The uobject system check for the type of the mapped C++ UObject and will call the method only if it is safe to call it.
+
+Sometime methods are implemented for automatically getting the right object. As an example get_actor_location() when called over a component will automatically retrieve the related actor and will call C++ AActor::GetActorLocation() method over it.
+
+When this automagic approach is too risky, the method will check for the uobject type and will raise an exception in the case of inconsistencies.
 
 ```py
 x, y, z = uobject.get_actor_location()
 ```
 
+get the current actor location (automatically retrieve the actor from the component if needed)
+
+
 ```py
 uobject.set_actor_location(x, y, z)
 ```
+
+set the current actor location (automatically retrieve the actor from the component if needed)
 
 ```py
 pitch, yaw, roll = uobject.get_actor_rotation()
