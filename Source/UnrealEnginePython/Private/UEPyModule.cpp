@@ -1083,6 +1083,8 @@ static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_spawn(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_set_view_target(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_add_actor_component(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
@@ -1125,6 +1127,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
 	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
 	{ "set_view_target", (PyCFunction)py_ue_set_view_target, METH_VARARGS, "" },
+	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
+	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -1159,12 +1163,50 @@ static PyTypeObject ue_PyUObjectType = {
 	ue_PyUObject_methods,             /* tp_methods */
 };
 
+static PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:add_actor_component", &obj, &name)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+	
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a class");
+	}
+
+	UActorComponent *component = NewObject<UActorComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)));
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "unable to create component");
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+
+}
+
 static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:is_a", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:actor_has_component_of_type", &obj)) {
 		return NULL;
 	}
 
@@ -1189,6 +1231,42 @@ static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject * self, PyObject
 	return Py_False;
 
 }
+
+static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:get_actor_component_by_type", &obj)) {
+		return NULL;
+	}
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	UActorComponent *component = actor->GetComponentByClass((UClass *)py_obj->ue_object);
+	if (component) {
+		PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
 
 static PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 
