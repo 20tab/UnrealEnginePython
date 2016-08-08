@@ -919,6 +919,40 @@ static PyObject *py_ue_enable_mouse_over_events(ue_PyUObject * self, PyObject * 
 	return Py_None;
 }
 
+static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	bool enabled = true;
+
+	PyObject *is_true = NULL;
+	if (!PyArg_ParseTuple(args, "|O:set_simulate_physics", &is_true)) {
+		return NULL;
+	}
+
+	if (is_true && !PyObject_IsTrue(is_true))
+		enabled = false;
+
+	UPrimitiveComponent *primitive = nullptr;
+	
+	if (self->ue_object->IsA<UPrimitiveComponent>()) {
+		primitive = (UPrimitiveComponent *)self->ue_object;
+	}
+	else if (self->ue_object->IsA<AActor>()) {
+		AActor *actor = (AActor *)self->ue_object;
+		primitive = (UPrimitiveComponent *) actor->GetComponentByClass(UPrimitiveComponent::StaticClass());
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "unable to set physics for the object");
+	}
+
+	primitive->SetSimulatePhysics(enabled);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -1129,6 +1163,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_view_target", (PyCFunction)py_ue_set_view_target, METH_VARARGS, "" },
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
+	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
