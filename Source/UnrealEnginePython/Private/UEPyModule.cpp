@@ -879,6 +879,123 @@ static PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args) {
 	
 }
 
+static PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *tag;
+	if (!PyArg_ParseTuple(args, "s:actor_has_tag", &tag)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	if (actor->ActorHasTag(FName(UTF8_TO_TCHAR(tag)))) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+
+
+}
+
+static PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	FVector origin;
+	FVector extent;
+
+	actor->GetActorBounds(false, origin, extent);
+
+	return Py_BuildValue("ffffff", origin.X, origin.Y, origin.Z, extent.X, extent.Y, extent.Z);
+
+}
+
+static PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x1 = 0, y1 = 0, z1 = 0;
+	float x2 = 0, y2 = 0, z2 = 0;
+	int channel;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	
+	if (!PyArg_ParseTuple(args, "ffffffi:line_trace_single_by_channel", &x1, &y1, &z1, &x2, &y2, &z2, &channel)) {
+		return NULL;
+	}
+
+	FHitResult hit;
+
+	bool got_hit = world->LineTraceSingleByChannel(hit, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel) channel);
+
+	if (got_hit) {
+		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
+	}
+
+	return Py_BuildValue("Offffff", Py_None, 0,0,0,0,0,0);
+
+}
+
+static PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x1 = 0, y1 = 0, z1 = 0;
+	float x2 = 0, y2 = 0, z2 = 0;
+	int channel;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+
+	if (!PyArg_ParseTuple(args, "ffffffi:line_trace_multi_by_channel", &x1, &y1, &z1, &x2, &y2, &z2, &channel)) {
+		return NULL;
+	}
+
+	TArray<struct FHitResult> hits;
+	hits.Reset();
+	
+	PyObject *hits_list = PyList_New(0);
+
+
+	bool got_hits = world->LineTraceMultiByChannel(hits, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
+
+	if (got_hits) {
+		for (int i = 0; i < hits.Num(); i++) {
+			FHitResult hit = hits[i];
+			PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
+			if (ret) {
+				PyList_Append(hits_list, Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z));
+			}
+		}
+	}
+
+	return hits_list;
+
+}
+
 
 
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
@@ -917,7 +1034,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
 	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS, "" },
-
+	{ "actor_has_tag", (PyCFunction)py_ue_actor_has_tag, METH_VARARGS, "" },
+	{ "get_actor_bounds", (PyCFunction)py_ue_get_actor_bounds, METH_VARARGS, "" },
+	{ "line_trace_single_by_channel", (PyCFunction)py_ue_line_trace_single_by_channel, METH_VARARGS, "" },
+	{ "line_trace_multi_by_channel", (PyCFunction)py_ue_line_trace_multi_by_channel, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -1064,6 +1184,15 @@ void unreal_engine_init_py_module() {
 	Py_INCREF(&ue_PyUObjectType);
 	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
 
+
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_CAMERA", PyLong_FromLong(ECollisionChannel::ECC_Camera));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_DESTRUCTIBLE", PyLong_FromLong(ECollisionChannel::ECC_Destructible));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_PAWN", PyLong_FromLong(ECollisionChannel::ECC_Pawn));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_PHYSICS_BODY", PyLong_FromLong(ECollisionChannel::ECC_PhysicsBody));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_VEHICLE", PyLong_FromLong(ECollisionChannel::ECC_Vehicle));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_VISIBILITY", PyLong_FromLong(ECollisionChannel::ECC_Visibility));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_WORLD_DYNAMIC", PyLong_FromLong(ECollisionChannel::ECC_WorldDynamic));
+	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_WORLD_STATIC", PyLong_FromLong(ECollisionChannel::ECC_WorldStatic));
 }
 
 
