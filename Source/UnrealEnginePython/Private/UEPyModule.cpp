@@ -106,6 +106,21 @@ static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+#if WITH_EDITOR
+static PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
+	
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	UWorld *world = GEditor->GetEditorWorldContext().World();
+	ue_PyUObject *ret = ue_get_python_wrapper(world);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+#endif
+
 
 static PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *args) {
 	
@@ -247,6 +262,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
+#if WITH_EDITOR
+	{ "get_editor_world()", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
+#endif
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ "vector_add_vector", py_unreal_engine_vector_add_vector, METH_VARARGS, "" },
 	{ "vector_add_float", py_unreal_engine_vector_add_float, METH_VARARGS, "" },

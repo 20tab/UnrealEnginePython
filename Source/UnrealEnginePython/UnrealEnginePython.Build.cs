@@ -67,7 +67,15 @@ public class UnrealEnginePython : ModuleRules
             );
 
 
-	if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32)) {
+        if (UEBuildConfiguration.bBuildEditor)
+        {
+            PrivateDependencyModuleNames.AddRange(new string[]
+            {
+                "UnrealEd"
+            });
+        }
+
+        if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32)) {
         	PublicIncludePaths.Add(PythonHome);
         	PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", "python35.lib"));
 	}

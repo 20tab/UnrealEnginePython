@@ -8,6 +8,9 @@
 //#include "PyActorComponent.h"
 
 #include "Engine.h"
+#if WITH_EDITOR
+#include "Editor.h"
+#endif
 
 
 #if UNREAL_ENGINE_PYTHON_ON_MAC
