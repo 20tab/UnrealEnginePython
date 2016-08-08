@@ -1080,6 +1080,7 @@ static PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_spawn(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
@@ -1120,6 +1121,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "show_mouse_cursor", (PyCFunction)py_ue_show_mouse_cursor, METH_VARARGS, "" },
 	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
 	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
+	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -1240,6 +1242,46 @@ static PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 		return Py_True;
 	}
 
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+static PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float damage_amount = 0;
+	float impulse_strength = 0;
+	float x = 0, y = 0, z = 0;
+	float ix = 0, iy = 0, iz = 0;
+	if (!PyArg_ParseTuple(args, "ffffffff:destructible_apply_damage", &damage_amount, &impulse_strength, &x, &y, &z, &ix, &iy, &iz)) {
+		return NULL;
+	}
+
+	UDestructibleComponent *destructible = nullptr;
+	AActor *actor = nullptr;
+
+	if (self->ue_object->IsA<UDestructibleComponent>()) {
+		destructible = (UDestructibleComponent *)self->ue_object;
+	}
+	else if (self->ue_object->IsA<AActor>()) {
+		actor = (AActor *)self->ue_object;
+		destructible = (UDestructibleComponent *) actor->GetComponentByClass(UDestructibleComponent::StaticClass());
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		actor = (AActor *)self->ue_object->GetOuter();
+		if (actor) {
+			destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
+		}
+	}
+
+	if (destructible) {
+		destructible->ApplyDamage(damage_amount, FVector(x, y, z), FVector(ix, iy, iz), impulse_strength);
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "UObject is not a destructible");
+	}
 
 	Py_INCREF(Py_False);
 	return Py_False;
