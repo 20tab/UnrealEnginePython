@@ -110,6 +110,25 @@ Now you can drag the bluprint from the content browser to the scene and just cli
 
 You should see your actor moving along the 'z' axis at a speed of 1 meter per second
 
+What is 'self.uobject'
+----------------------
+
+The python class is completely unrelated to Unreal Engine, but the PyActor class adds to it a 'uobject' field pointing to a special wrapper class (UPyObject). This single class manages all the UObject classes available in the engine, using (well, abusing) the c++ reflection system available in Unreal Engine. So whenever you want to access the engine you need to start from the 'uobject' field.
+
+In the PyActor class, 'uobject' points the the related AActor, while when you use PythonComponent, uobject points to the related UActorComponent.
+
+UPyObject are simple Unreal Engine objects dynamically attached to every engine object you need to interact with in your code.
+
+So a call to:
+
+```py
+text_render_component = unreal_engine.find_class('TextRenderComponent')
+```
+
+will internally search for the 'TextRenderComponent' class (via c++ reflection) and if found, will create a new UPyObject holding a reference to a python class (ue_PyUObject internally) and will attach to the just found class using the __PyObject key.
+
+Thanks to this approach, whenever we need to reference a UObject in python, the plugin will first search for the '__PyObject' subobject and if found will directly return it (without regenerating it')
+
 Adding a python component to an Actor
 -------------------------------------
 
