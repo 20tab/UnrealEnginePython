@@ -473,5 +473,8 @@ Events
 Packaging
 ---------
 
+Examples
+--------
+
 Known issues
 ------------
