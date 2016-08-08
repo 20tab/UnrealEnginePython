@@ -301,6 +301,9 @@ yesno = uobject.is_input_key_down('key')
 value = uobject.get_input_axis('axis')
 ```
 
+Automatic module reloading (Editor only)
+----------------------------------------
+
 Math functions
 --------------
 
@@ -318,6 +321,9 @@ Blueprints integration
 
 Events
 ------
+
+Packaging
+---------
 
 Known issues
 ------------
