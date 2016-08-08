@@ -113,24 +113,36 @@ You should see your actor moving along the 'z' axis at a speed of 1 meter per se
 What is 'self.uobject' ?
 ------------------------
 
-The python class is completely unrelated to Unreal Engine, but the PyActor class adds to it a 'uobject' field pointing to a special wrapper class (UPyObject). This single class manages all the UObject classes available in the engine, using (well, abusing) the c++ reflection system available in Unreal Engine. So whenever you want to access the engine you need to start from the 'uobject' field.
+To allows seamless Python integration, each UObject of the engine is automatically mapped to a special Python Object (ue_PyUObject).
 
-In the PyActor class, 'uobject' points the the related AActor, while when you use PythonComponent, uobject points to the related UActorComponent.
+Whenever you want to access a UObject from python, you effectively get a reference to a ue_PyUObject exposing (via its methods) the features of the UObject (properties, functions, ....)
 
-UPyObject are simple Unreal Engine objects dynamically attached to every engine object you need to interact with in your code.
+This special python object is cached into the UObject (via the __PyObject property) so you do not need to recreate it every time (and more important you can hold state information nto the python class)
 
-So a call to:
+To be more clear, a call to:
 
 ```py
 text_render_component = unreal_engine.find_class('TextRenderComponent')
 ```
 
-will internally search for the 'TextRenderComponent' class (via c++ reflection) and if found, will create a new UPyObject holding a reference to a python class (ue_PyUObject internally) and will attach to the just found class using the __PyObject key.
+will internally search for the 'TextRenderComponent' class (via c++ reflection) and when found will check if it exposes a '__PyObject' property. If available, it wil lreturn its value to the Python VM, otherwise a new one will be created and mapped to it.
 
-Thanks to this approach, whenever we need to reference a UObject in python, the plugin will first search for the '__PyObject' subobject and if found will directly return it (without regenerating it')
+From the previous example the 'text_render_component' maintain a mapping to the UObject (well a UClass in this example).
+
+Pay attention: the python class you map to the PyActor class, is not a ue_PyUObject (it is a classic python class) but hold a reference (via the 'uobject' field) to a ue_PyUObject mapped to the AActor.
 
 Adding a python component to an Actor
 -------------------------------------
+
+This works in the same way as the PyActor class, but it is, well, a component. You can attach it (search for the 'Python' component) to any actor.
+
+Remember that for components, the self.uobject field point to the component itself, not the actor.
+
+To access the actor you can use
+
+```py
+actor = self.uobject.get_class()
+```
 
 The unreal_engine module
 ------------------------
