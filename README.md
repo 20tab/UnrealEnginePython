@@ -254,7 +254,6 @@ unreal_engine.vector_mul_float(x, y, z[, d1, d2, ...])
 optimized vector math function, allows multiplying a 3 dimensions vector with one or more floats
 
 
-
 The 'World' concept
 -------------------
 
@@ -447,6 +446,41 @@ yesno = uobject.is_input_key_down('key')
 ---
 ```py
 value = uobject.get_input_axis('axis')
+```
+
+---
+```py
+yesno = uobject.actor_has_tag('tagname')
+```
+
+---
+```py
+x, y, z, ex, ey, ez = uobject.get_actor_bounds()
+```
+
+---
+```py
+hit_object, x, y, z, nx, ny, nz = uobject.line_trace_single_by_channel(x0, y1, z0, x1, y1, z1, channel)
+```
+
+---
+```py
+[(hit_object, x, y, z, nx, ny, nz), ...] = uobject.line_trace_multi_by_channel(x0, y1, z0, x1, y1, z1, channel)
+```
+
+---
+```py
+uobject.show_mouse_cursor()
+```
+
+---
+```py
+uobject.enable_click_events()
+```
+
+---
+```py
+uobject.enable_mouse_over_events()
 ```
 
 Automatic module reloading (Editor only)
