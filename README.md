@@ -178,11 +178,15 @@ You can use this uobject to search for objects of that type or to spawn new acto
 
 
 
+
+
 ```py
 unreal_engine.log('message')
 ```
 
 log a string into the editor output log (under the LogPython category/class)
+
+
 
 ```py
 unreal_engine.log_warning('message')
@@ -190,11 +194,15 @@ unreal_engine.log_warning('message')
 
 log a warning string (yellow) into the editor output log (under the LogPython category/class)
 
+
+
 ```py
 unreal_engine.log_error('message')
 ```
 
 log an error string (red) into the editor output log (under the LogPython category/class)
+
+
 
 ```py
 unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
@@ -204,11 +212,15 @@ low-level equivalent of blueprint 'print string' function. It disappear after 't
 
 TODO: support for colors
 
+
+
 ```py
 unreal_engine.print_string('message')
 ```
 
 python equivalent of the blueprint 'print string' function. It disappears after 2 seconds and it is wrote in cyan color.
+
+
 
 ```py
 unreal_engine.vector_add_vector(x, y, z[, x1, y1, z1, ...])
@@ -216,11 +228,15 @@ unreal_engine.vector_add_vector(x, y, z[, x1, y1, z1, ...])
 
 optimized vector math function, allows adding 3 dimensions vectors exposed as 3 float values
 
+
+
 ```py
 unreal_engine.vector_add_float(x, y, z[, d1, d2, ...])
 ```
 
 optimized vector math function, allows adding a 3 dimensions vector with one or more floats
+
+
 
 ```py
 unreal_engine.vector_mul_vector(x, y, z[, x1, y1, z1, ...])
@@ -228,11 +244,15 @@ unreal_engine.vector_mul_vector(x, y, z[, x1, y1, z1, ...])
 
 optimized vector math function, allows multiplyging 3 dimensions vectors exposed as 3 float values
 
+
+
 ```py
 unreal_engine.vector_mul_float(x, y, z[, d1, d2, ...])
 ```
 
 optimized vector math function, allows multiplying a 3 dimensions vector with one or more floats
+
+
 
 The 'World' concept
 -------------------
