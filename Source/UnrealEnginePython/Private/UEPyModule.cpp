@@ -839,6 +839,85 @@ static PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
+static PyObject *py_ue_show_mouse_cursor(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	bool enabled = true;
+
+	PyObject *is_true = NULL;
+	if (!PyArg_ParseTuple(args, "|O:show_mouse_cursor", &is_true)) {
+		return NULL;
+	}
+
+	if (is_true && !PyObject_IsTrue(is_true))
+		enabled = false;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	if (controller)
+		controller->bShowMouseCursor = enabled;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_enable_click_events(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	bool enabled = true;
+
+	PyObject *is_true = NULL;
+	if (!PyArg_ParseTuple(args, "|O:enable_click_events", &is_true)) {
+		return NULL;
+	}
+
+	if (is_true && !PyObject_IsTrue(is_true))
+		enabled = false;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	if (controller)
+		controller->bEnableClickEvents = enabled;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_enable_mouse_over_events(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	bool enabled = true;
+
+	PyObject *is_true = NULL;
+	if (!PyArg_ParseTuple(args, "|O:enable_mouse_over_events", &is_true)) {
+		return NULL;
+	}
+
+	if (is_true && !PyObject_IsTrue(is_true))
+		enabled = false;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	if (controller)
+		controller->bEnableMouseOverEvents = enabled;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -1038,6 +1117,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_bounds", (PyCFunction)py_ue_get_actor_bounds, METH_VARARGS, "" },
 	{ "line_trace_single_by_channel", (PyCFunction)py_ue_line_trace_single_by_channel, METH_VARARGS, "" },
 	{ "line_trace_multi_by_channel", (PyCFunction)py_ue_line_trace_multi_by_channel, METH_VARARGS, "" },
+	{ "show_mouse_cursor", (PyCFunction)py_ue_show_mouse_cursor, METH_VARARGS, "" },
+	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
+	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
