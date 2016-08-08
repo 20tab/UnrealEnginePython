@@ -64,6 +64,18 @@ Currently only Windows and MacOSX are supported, Linux support should be availab
 Creating a new blueprint class managed by python
 ------------------------------------------------
 
+We are going to create a new Actor based on python (instead of C++ or blueprints)
+
+In the content browser click on 'add new' and choose 'blueprint class'
+
+In the classes menu choose 'PyActor':
+
+![Alt text](screenshots/unreal_screenshot1.png?raw=true "Screenshot 1")
+
+You now have a new asset, give it a meaningful name, and double click on it to start configuring it in the blueprint editor
+
+![Alt text](screenshots/unreal_screenshot2.png?raw=true "Screenshot 2")
+
 Adding a python component to an Actor
 -------------------------------------
 
