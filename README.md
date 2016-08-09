@@ -114,6 +114,24 @@ Now you can drag the bluprint from the content browser to the scene and just cli
 
 You should see your actor moving along the 'z' axis at a speed of 1 meter per second
 
+By default a 'begin_play' and a 'tick' method are expected (NOTE: currently you get an exception if you do not define them, this should be addressed soon). The following methods are defined for PyActor (they are triggered on specific events):
+
+```py
+def on_actor_begin_overlap(self, other_actor):
+    pass
+
+def on_actor_end_overlap(self, other_actor):
+    pass
+    
+# *args is currently under investigation
+def on_actor_hit(self, other, *args):
+    pass
+    
+# maybe touched_actor is useless ?
+def on_actor_clicked(self, touched_actor, button_pressed)
+    pass
+```
+
 What is 'self.uobject' ?
 ------------------------
 
