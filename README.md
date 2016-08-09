@@ -595,8 +595,51 @@ class ActorGoingUp:
 Navigation
 ---------
 
+The only exposed navigation-related method is 'simple_move_to_location'. It expects a Pawn with a movement component (like a character)
+
+```py
+class MoveToTargetComponent:
+
+    def begin_play(self):
+        # get a 'target point' reference from a pawn public property
+        target = self.uobject.get_owner().get_property('target')
+        self.uobject.get_owner().simple_move_to_location(*target.get_actor_location())
+        
+    def tick(self, delta_time):
+        pass
+```
+
 Physics
 -------
+
+The 'set_simulate_physics' method is exposed for enabling physic on PrimitiveComponent.
+
+Remember that you cannot enable physics withotu setting the collision presetes accordingly:
+
+```py
+
+# PyActor with a staticmeshcomponent (a sphere)
+# when overlapped it became a physic object
+class Ball:
+
+    def begin_play(self):
+        self.sphere = self.uobject.get_actor_component_by_type(ue.find_class('StaticMeshComponent'))
+        
+    def tick(self, delta_time):
+        pass
+    
+    def on_actor_begin_overlap(self, other_actor):
+        # change collision profile
+        self.sphere.call('SetCollisionProfileName BlockAll')
+        # enable physics
+        self.sphere.set_simulate_physics()
+        
+    # once the object became a physics one, hit event will start arriving
+    def on_actor_hit(self, other, *args):
+        ue.print_string('HIT with ' + other.get_name())
+```
+
+TODO: expose more physics functions, expecially the one for applying forces
 
 Fracturing
 ----------
