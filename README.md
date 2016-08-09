@@ -8,6 +8,8 @@ avoid blueprints or c++ but as a good companion to them (albeit reducing the amo
 
 Another funny feature is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
+Mid term goal is allowing scripting of the editor too.
+
 The plugin embeds the python3 library and automatically add an actor class (PyActor), a pawn class (PyPawn) and a component class (PythonComponent).
 Both are available in your editor once you load the plugin.
 
@@ -18,9 +20,9 @@ All of the exposed engine features are under the 'unreal_engine' virtual module 
 The installation is pretty long (and boring) as you do not want the final users of the product to be required to install python, so we need to use the 'embedded python distribution' (available for windows in the official python site). Unfortunately the embedded distribution does not contain the python development headers so we need the official system-wide installation too.
 
 * install Unreal Engine 4.12 and Python 3.5 as a system user
-* run the unreal editor and create a new blank c++ project
+* run the unreal editor and create a new blank c++ project (NOT a blueprint one, otherwise visual studio will not be initialized)
 * once the project is setup, close both unreal and visual studio
-* move to the project directory (you can right click the problem from the epic launcher and choose 'show in explorer')
+* move to the project directory (you can right click the project from the epic launcher and choose 'show in explorer')
 * create a 'Plugins' directory into the project directory
 * move into the just created Plugins directory and clone the repository:
 
@@ -31,7 +33,7 @@ git clone https://github.com/20tab/UnrealEnginePython
 * from the explorer right click on the project main file and choose 'generate visual studio project files'
 * open again visual studio, you should now see Plugins/UnrealEnginePython in your solution explorer
 * before running the plugin build process you need to copy development headers and libs in the plugin directory (Plugins/UnrealEnginePython).
-* create the directory Plugins/UnrealEnginePython/python35
+* create the directory Plugins/UnrealEnginePython/python35 (this is where the build script expects to find headers and static libs)
 * copy "C:/Program Files/Python35/include" and "C:/Program Files/Python35/libs" into Plugins/UnrealEnginePython/python35
 * run the compilation from visual studio
 * once the compilation ends, copy the python35.dll (from "C:/Program Files/Python35" or from the embeded distribution) into the Binaries/Win64 directory of your project (you will find the plugin dll too in this directory)
@@ -44,7 +46,7 @@ If all goes well, open the output log and search for the string "Python". You sh
 On the Mac the installation is easier, as the final user is currently forced to install python on its system (there are obviously dozens of workarounds but at this stage of the project we prefer focusing on the api).
 
 * install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/3.5" directory).
-* create a new unreal engine blank c++ project
+* create a new unreal engine blank c++ project (NOT a blueprint one, otherwise XCode will not be initialized)
 * create a Plugins directory in the project directory
 * move to the Projects directory and clone the plugin repository
 
@@ -89,9 +91,11 @@ ue.log('Hello i am a Python module')
 
 class Hero:
 
+    # this is called on game start
     def begin_play(self):
         ue.log('Begin Play on Hero class')
         
+    # this is called at every 'tick'    
     def tick(self, delta_time):
         # get current location
         x, y, z = self.uobject.get_actor_location()
@@ -523,13 +527,17 @@ Blueprints integration
 Events
 ------
 
+Currently there is no support for defining custom events from python. The best thing to do is defining them from a blueprint and mapping each event to a python method:
+
+![Alt text](screenshots/unreal_screenshot3.png?raw=true "Screenshot 3")
+
 Packaging
 ---------
 
 Examples
 --------
 
-This is a PyActor destroying itself whenever another actor overlap it. Remember to add a mesh component to it (like a spehere) and set its collision behaviour as 'OverlapAll'
+This is a PyActor destroying itself whenever another actor overlap it. Remember to add a mesh component to it (like a sphere) and set its collision behaviour as 'OverlapAll'. This could be tested with the third person official template.
 
 ```py
 class Ball:
@@ -545,5 +553,13 @@ class Ball:
 Memory management
 -----------------
 
-Known issues
-------------
+Status and Known issues
+-----------------------
+
+The project could be considered in beta state.
+
+Code should be organized way better as currently all of the uobject api is in a single huge file.
+
+The property system is incomplete.
+
+We would like to find a way to define and manage custom events directly from python
