@@ -48,6 +48,12 @@ private:
 	void PyOnActorBeginOverlap(AActor *overlapped, AActor *other);
 
 	UFUNCTION()
+	void PyOnActorEndOverlap(AActor *overlapped, AActor *other);
+
+	UFUNCTION()
+	void PyOnActorHit(AActor *self_actor, AActor *other, FVector normal_impulse, const FHitResult &hit);
+
+	UFUNCTION()
 	void PyOnActorClicked(AActor *touched_actor, FKey button_pressed);
 };
 
