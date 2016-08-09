@@ -570,6 +570,28 @@ Math functions
 
 The plugin does not expose FVector, FRotator or FQuat. You have optimized shortcuts in the unreal_engine module, but you can use any python math library if you want (included numpy)
 
+
+```py
+import unreal_engine
+
+class ActorGoingUp:
+    def begin_play(self):
+        # 1 meter by second
+        self.speed = 100
+    
+    def tick(self, delta_time):
+        # get the up vector
+        up = self.uobject.get_up_vector()
+        # get current position
+        position = self.uobject.get_actor_location()
+        # build a direction vector based on speed
+        up_amount = unreal_engine.vector_mul_float(*up, self.speed, delta_time)
+        # sum the direction to the position
+        new_position = unreal_engine.vector_add_vector(position, up_amount)
+        # set the new position
+        self.uobject.set_actor_location(*new_position)
+```
+
 Navigation
 ---------
 
