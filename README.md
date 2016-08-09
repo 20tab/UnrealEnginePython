@@ -563,3 +563,5 @@ Code should be organized way better as currently all of the uobject api is in a 
 The property system is incomplete.
 
 We would like to find a way to define and manage custom events directly from python
+
+The build system is not very robust. Maybe linking the python static library into the plugin dll could be a better approach.
