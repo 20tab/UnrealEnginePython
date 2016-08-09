@@ -677,6 +677,47 @@ static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+static PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x, y, z;
+	if (!PyArg_ParseTuple(args, "fff:simple_move_to_location", &x, &y, &z)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APawn *pawn = nullptr;
+
+	if (self->ue_object->IsA<APawn>()) {
+		pawn = (APawn *)self->ue_object;
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *component = (UActorComponent *)self->ue_object;
+		AActor *actor = component->GetOwner();
+		if (actor) {
+			if (actor->IsA<APawn>()) {
+				pawn = (APawn *)actor;
+			}
+		}
+	}
+
+	if (!pawn)
+		return PyErr_Format(PyExc_Exception, "uobject is not a pawn");
+
+	AController *controller = pawn->GetController();
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "Pawn has no controller");
+
+	world->GetNavigationSystem()->SimpleMoveToLocation(controller, FVector(x, y, z));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -1240,6 +1281,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
 	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
+	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
