@@ -86,6 +86,7 @@ end:
 	return Py_None;
 }
 
+
 static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:find_class", &name)) {
@@ -93,9 +94,29 @@ static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	}
 
 	UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
-	
+
 	if (u_class) {
 		ue_PyUObject *ret = ue_get_python_wrapper(u_class);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
+		return NULL;
+	}
+
+	UObject *u_object = FindObject<UObject>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
+
+	if (u_object) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
 		if (!ret)
 			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 		Py_INCREF(ret);
@@ -266,6 +287,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_editor_world()", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
 #endif
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
+	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
 	{ "vector_add_vector", py_unreal_engine_vector_add_vector, METH_VARARGS, "" },
 	{ "vector_add_float", py_unreal_engine_vector_add_float, METH_VARARGS, "" },
 	{ "vector_mul_vector", py_unreal_engine_vector_mul_vector, METH_VARARGS, "" },
@@ -290,7 +312,9 @@ static PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
 	}
 
 	FOutputDeviceNull od_null;
-	self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true);
+	if (!self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true)) {
+		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"",  call_args);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -327,6 +351,38 @@ static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 	}
 
 end:
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *property_name;
+	PyObject *property_value;
+	if (!PyArg_ParseTuple(args, "sO:set_property", &property_name, &property_value)) {
+		return NULL;
+	}
+
+	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	if (PyFloat_Check(property_value)) {
+		UFloatProperty *u_float_property = Cast<UFloatProperty>(u_property);
+		if (u_float_property)
+			u_float_property->SetPropertyValue(u_property->ContainerPtrToValuePtr<float>(self->ue_object), PyFloat_AsDouble(property_value));
+	}
+
+	if (PyUnicode_Check(property_value)) {
+		UStrProperty *u_str_property = Cast<UStrProperty>(u_property);
+		if (u_str_property)
+			u_str_property->SetPropertyValue(u_property->ContainerPtrToValuePtr<FString>(self->ue_object), FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(property_value))));
+	}
+
+
 	Py_INCREF(Py_None);
 	return Py_None;
 
@@ -1153,6 +1209,7 @@ static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_set_view_target(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_add_actor_component(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_add_actor_root_component(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
@@ -1164,6 +1221,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
 	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
+	{ "set_property", (PyCFunction)py_ue_set_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
@@ -1196,6 +1254,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
 	{ "set_view_target", (PyCFunction)py_ue_set_view_target, METH_VARARGS, "" },
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
+	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
@@ -1262,6 +1321,50 @@ static PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 	UActorComponent *component = NewObject<UActorComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)));
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
+
+	component->RegisterComponent();
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+
+}
+
+static PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:add_actor_root_component", &obj, &name)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a class");
+	}
+
+	USceneComponent *component = NewObject<USceneComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)));
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "unable to create component");
+
+	actor->SetRootComponent(component);
+
+	component->RegisterComponent();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
 	if (!ret)
