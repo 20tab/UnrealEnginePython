@@ -8,6 +8,8 @@ avoid blueprints or c++ but as a good companion to them (albeit reducing the amo
 
 Another funny feature is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
+Mid term goal is allowing scripting of the editor too.
+
 The plugin embeds the python3 library and automatically add an actor class (PyActor), a pawn class (PyPawn) and a component class (PythonComponent).
 Both are available in your editor once you load the plugin.
 
@@ -44,7 +46,7 @@ If all goes well, open the output log and search for the string "Python". You sh
 On the Mac the installation is easier, as the final user is currently forced to install python on its system (there are obviously dozens of workarounds but at this stage of the project we prefer focusing on the api).
 
 * install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/3.5" directory).
-* create a new unreal engine blank c++ project
+* create a new unreal engine blank c++ project (NOT a blueprint one, otherwise XCode will not be initialized)
 * create a Plugins directory in the project directory
 * move to the Projects directory and clone the plugin repository
 
