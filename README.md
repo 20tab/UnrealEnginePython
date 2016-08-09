@@ -504,8 +504,9 @@ Automatic module reloading (Editor only)
 Math functions
 --------------
 
-Memory management
------------------
+
+Navigation
+---------
 
 Physics
 -------
@@ -524,6 +525,9 @@ Packaging
 
 Examples
 --------
+
+Memory management
+-----------------
 
 Known issues
 ------------
