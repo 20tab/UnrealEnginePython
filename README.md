@@ -531,7 +531,7 @@ Packaging
 Examples
 --------
 
-This is a PyActor destroying itself whenever another actor overlap it. Remember to add a mesh component to it (like a spehere) and set its collision behaviour as 'OverlapAll'
+This is a PyActor destroying itself whenever another actor overlap it. Remember to add a mesh component to it (like a sphere) and set its collision behaviour as 'OverlapAll'. This could be tested with the third person official template.
 
 ```py
 class Ball:
