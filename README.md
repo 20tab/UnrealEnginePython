@@ -384,6 +384,16 @@ get the property value of a uobject
 
 NOTE: currently only floats and objects values are supported
 
+
+---
+```py
+uobject.set_property('name', value)
+```
+
+set the property of a uobject
+
+NOTE: currently only floats and strings values are supported
+
 ---
 ```py
 properties_list = uobject.properties()
@@ -419,6 +429,12 @@ actor = uobject.get_owner()
 
 get the owner of an object (generally called by a component to get its actor)
 
+---
+```py
+world = uobject.get_world()
+```
+
+get the world containing an object. (currently useful only for testing and comparison)
 
 ---
 ```py
@@ -483,6 +499,13 @@ yesno = uobject.actor_has_component_of_type(uclass)
 ```
 
 return True if the actor has a component of the specified type
+
+---
+```py
+yesno = uobject.get_actor_component_by_type(uclass)
+```
+
+return the first component (of an actor) of the specified type
 
 ---
 ```py
@@ -564,6 +587,8 @@ uobject.enable_mouse_over_events()
 uobject.destructible_apply_damage(damage, impulse, dx, dy, dz, ix, iy, iz)
 ```
 
+See Fracturing below
+
 ---
 ```py
 uobject.set_view_target(target)
@@ -576,7 +601,27 @@ change the view target. The 'target' argument should be an actor with a camera c
 uobject.set_simulate_physics()
 ```
 
-enable physics on a primitive component
+---
+```py
+new_component = uobject.add_actor_component(uclass, 'name')
+```
+
+add a new component of the specified uclass (type) and set its name
+
+---
+```py
+new_component = uobject.add_actor_root_component(uclass, 'name')
+```
+
+add a new component as the root one of the specified uclass (type) and set its name
+
+---
+```py
+uobject.simple_move_to_location(x, y, z)
+```
+
+move to a location using navmesh (see Navigation below)
+
 
 Automatic module reloading (Editor only)
 ----------------------------------------
