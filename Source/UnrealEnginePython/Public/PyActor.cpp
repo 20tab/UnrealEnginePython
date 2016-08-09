@@ -157,12 +157,19 @@ void APyActor::PyOnActorClicked(AActor *touched_actor, FKey button_pressed)
 	Py_DECREF(ret);
 }
 
-void APyActor::CallPythonActorMethod(FString method_name)
+void APyActor::CallPythonActorMethod(FString method_name, FString args)
 {
 	if (!py_actor_instance)
 		return;
 
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+	}
+
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -170,12 +177,18 @@ void APyActor::CallPythonActorMethod(FString method_name)
 	Py_DECREF(ret);
 }
 
-bool APyActor::CallPythonActorMethodBool(FString method_name)
+bool APyActor::CallPythonActorMethodBool(FString method_name, FString args)
 {
 	if (!py_actor_instance)
 		return false;
 
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+	}
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return false;
@@ -190,12 +203,18 @@ bool APyActor::CallPythonActorMethodBool(FString method_name)
 	return false;
 }
 
-FString APyActor::CallPythonActorMethodString(FString method_name)
+FString APyActor::CallPythonActorMethodString(FString method_name, FString args)
 {
 	if (!py_actor_instance)
 		return FString();
 
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+	}
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return FString();

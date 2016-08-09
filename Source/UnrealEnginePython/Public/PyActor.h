@@ -33,13 +33,13 @@ public:
 	FString PythonClass;
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void CallPythonActorMethod(FString method_name);
+	void CallPythonActorMethod(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	bool CallPythonActorMethodBool(FString method_name);
+	bool CallPythonActorMethodBool(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	FString CallPythonActorMethodString(FString method_name);
+	FString CallPythonActorMethodString(FString method_name, FString args);
 
 private:
 	PyObject *py_actor_instance;
