@@ -762,7 +762,9 @@ Packaging
 
 When you package your projects, remember to include the libpython (dll or dylib) in the binaries folder and the Scripts directory.
 
-If you do not want to distribute pythn sources, you can include only the __pycache__ directory with the bytecode.
+If you do not want to distribute pythn sources, you can include only the '__pycache__' directory with the bytecode.
+
+Do not forget to include python third party modules (if you use any of them in your project)
 
 Examples
 --------
