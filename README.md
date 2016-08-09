@@ -694,6 +694,18 @@ class Ball:
 Memory management
 -----------------
 
+Dealing with 2 different GC's is really challenging.
+
+PyActor, PyPawn and PythonComponent automatically DECREF's the mapped classes. This should be enough unless you hold references
+in the python modules themselves. As this would be a bad programming practice, the current approach should be safe enough.
+
+In addition to this, every time a uobject has to return its UObject mapping, it checks for its validity and safety:
+
+```c
+#define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
+							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
+```
+
 Status and Known issues
 -----------------------
 
