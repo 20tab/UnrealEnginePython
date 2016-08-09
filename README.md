@@ -11,7 +11,7 @@ Another funny feature is that you can change your python code even after the pro
 Mid term goal is allowing scripting of the editor too.
 
 The plugin embeds the python3 library and automatically adds an actor class (PyActor), a pawn class (PyPawn) and a component class (PythonComponent).
-Both are available in your editor once you load the plugin.
+They are available in your editor once you load the plugin.
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
