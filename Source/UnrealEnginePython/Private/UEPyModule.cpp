@@ -1076,9 +1076,8 @@ static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args
 	if (self->ue_object->IsA<UPrimitiveComponent>()) {
 		primitive = (UPrimitiveComponent *)self->ue_object;
 	}
-	else if (self->ue_object->IsA<AActor>()) {
-		AActor *actor = (AActor *)self->ue_object;
-		primitive = (UPrimitiveComponent *)actor->GetComponentByClass(UPrimitiveComponent::StaticClass());
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
 	}
 	
 	if (!primitive) {
