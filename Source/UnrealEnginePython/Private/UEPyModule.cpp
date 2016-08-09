@@ -330,6 +330,7 @@ static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 		return NULL;
 	}
 
+
 	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);

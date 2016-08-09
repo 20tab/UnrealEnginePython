@@ -102,6 +102,88 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
+void UPythonComponent::CallPythonComponentMethod(FString method_name, FString args)
+{
+	if (!py_component_instance)
+		return;
+
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+	}
+
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+bool UPythonComponent::CallPythonComponentMethodBool(FString method_name, FString args)
+{
+	if (!py_component_instance)
+		return false;
+
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+	}
+	
+
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return false;
+	}
+
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return true;
+	}
+
+	Py_DECREF(ret);
+	return false;
+}
+
+FString UPythonComponent::CallPythonComponentMethodString(FString method_name, FString args)
+{
+	if (!py_component_instance)
+		return FString();
+
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+	}
+
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FString();
+	}
+
+	PyObject *py_str = PyObject_Str(ret);
+	if (!py_str) {
+		Py_DECREF(ret);
+		return FString();
+	}
+
+	char *str_ret = PyUnicode_AsUTF8(py_str);
+
+	FString ret_fstring = FString(UTF8_TO_TCHAR(str_ret));
+
+	Py_DECREF(py_str);
+
+	return ret_fstring;
+}
+
+
 UPythonComponent::~UPythonComponent()
 {
 	Py_XDECREF(py_component_instance);
