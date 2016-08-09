@@ -132,6 +132,8 @@ def on_actor_clicked(self, touched_actor, button_pressed)
     pass
 ```
 
+more events are going to be added
+
 What is 'self.uobject' ?
 ------------------------
 
