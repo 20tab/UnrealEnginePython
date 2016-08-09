@@ -547,5 +547,13 @@ class Ball:
 Memory management
 -----------------
 
-Known issues
-------------
+Status and Known issues
+-----------------------
+
+The project could be considered in beta state.
+
+Code should be organized way better as currently all of the uobject api is in a single huge file.
+
+The property system is incomplete.
+
+We would like to find a way to define and manage custom events directly from python
