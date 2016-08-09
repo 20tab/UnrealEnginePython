@@ -662,8 +662,48 @@ TODO: expose more physics functions, expecially the one for applying forces
 Fracturing
 ----------
 
+Fracturing is one of the best features you get for free in unreal engine.
+
+You can apply damage to destructible objects directly from python (more kind of damages will be added soon)
+
+```py
+class DestroyMeComponent:
+
+    def begin_play(self):
+        # get a reference to a destructible component in the actor
+        self.destructible = self.uobject.get_actor_component_by_type(ue.find_class('DestructibleComponent'))
+        
+    def tick(self, delta_time):
+        pass
+        
+    def explode(self):
+        # damage amount
+        amount = 1000
+        strength = 20000
+        position = self.uobject.get_owner().get_actor_location()
+        up = self.uobject.get_owner().get_actor_up()
+        self.destructible.destructible_apply_damage(amount, strength, *position, *up)
+    
+```
+
+you can now call the 'explode' method via blueprints using the 'Call Python Component Method' node
+
 Blueprints integration
 ----------------------
+
+You can call blueprints functions (or custom events) via the .call() method:
+
+```py
+your_funny_blueprint_object.call('AFunctionOrACustomEvent with_a_arg')
+```
+
+Whenever you need to reference external object, avoid using find_object() and similar. Instead add a public variable in your blueprint
+pointing to the specific object. You can then reference this object easily getting the property value:
+
+```py
+the_other_object = self.uobject.get_property('target')
+the_other_object.set_actor_location(0, 0, 0)
+```
 
 Events
 ------
@@ -674,6 +714,10 @@ Currently there is no support for defining custom events from python. The best t
 
 Packaging
 ---------
+
+When you package your projects, remember to include the libpython (dll or dylib) in the binaries folder and the Scripts directory.
+
+If you do not want to distribute pythn sources, you can include only the __pycache__ directory with the bytecode.
 
 Examples
 --------
@@ -689,6 +733,26 @@ class Ball:
     def on_actor_begin_overlap(self, other_actor):
         ue.print_string('Collided with ' + other_actor.get_name())
         self.uobject.actor_destroy()
+```
+
+Now we create (at runtime !!!) a whole new PyActor:
+
+```py
+class SuperHero:
+    def begin_play(self):
+        # spawn a new PyActor
+        new_actor = self.uobject.actor_spawn(ue.find_class('PyActor'), 0, 0, 0, 0, 0, 90)
+        # add a sphere component as the root one
+        static_mesh = new_actor.add_actor_root_component(ue.find_class('StaticMeshComponent'), 'SphereMesh')
+        # set the mesh as the Sphere asset
+        static_mesh.call('SetStaticMesh /Engine/EngineMeshes/Sphere.Sphere')
+        # set the python module
+        new_actor.set_property('PythonModule', 'gameclasses')
+        # set the python class
+        new_actor.set_property('PythonClass', 'Vertical')
+        
+    def tick(self, delta_time):
+        pass
 ```
 
 Memory management
