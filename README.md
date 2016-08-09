@@ -527,6 +527,10 @@ Blueprints integration
 Events
 ------
 
+Currently there is no support for defining custom events from python. The best thing to do is defining them from a blueprint and mapping each event to a python method:
+
+![Alt text](screenshots/unreal_screenshot3.png?raw=true "Screenshot 3")
+
 Packaging
 ---------
 
