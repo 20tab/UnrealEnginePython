@@ -1081,7 +1081,7 @@ static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args
 		primitive = (UPrimitiveComponent *)actor->GetComponentByClass(UPrimitiveComponent::StaticClass());
 	}
 	
-	if (!primitive)
+	if (!primitive) {
 		return PyErr_Format(PyExc_Exception, "unable to set physics for the object");
 	}
 
