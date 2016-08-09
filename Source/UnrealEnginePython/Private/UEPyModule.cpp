@@ -70,7 +70,7 @@ end:
 }
 
 static PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
-	
+
 	char *message;
 	if (!PyArg_ParseTuple(args, "s:print_string", &message)) {
 		return NULL;
@@ -129,7 +129,7 @@ static PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) 
 
 #if WITH_EDITOR
 static PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
-	
+
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
@@ -144,8 +144,8 @@ static PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * a
 
 
 static PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *args) {
-	
-	float x=0, y=0, z=0;
+
+	float x = 0, y = 0, z = 0;
 
 	Py_ssize_t items = PyTuple_Size(args);
 
@@ -157,12 +157,12 @@ static PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *a
 		PyObject *x_py = PyTuple_GetItem(args, i);
 		if (!PyFloat_Check(x_py))
 			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-		x += (float) PyFloat_AsDouble(x_py);
-		PyObject *y_py = PyTuple_GetItem(args, i+1);
+		x += (float)PyFloat_AsDouble(x_py);
+		PyObject *y_py = PyTuple_GetItem(args, i + 1);
 		if (!PyFloat_Check(y_py))
 			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
 		y += (float)PyFloat_AsDouble(y_py);
-		PyObject *z_py = PyTuple_GetItem(args, i+2);
+		PyObject *z_py = PyTuple_GetItem(args, i + 2);
 		if (!PyFloat_Check(z_py))
 			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
 		z += (float)PyFloat_AsDouble(z_py);
@@ -197,7 +197,7 @@ static PyObject *py_unreal_engine_vector_add_float(PyObject * self, PyObject *ar
 		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
 	z = (float)PyFloat_AsDouble(z_py);
 
-	for (int i = 3; i < (int)items; i ++) {
+	for (int i = 3; i < (int)items; i++) {
 		PyObject *delta_py = PyTuple_GetItem(args, i);
 		if (!PyFloat_Check(delta_py))
 			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
@@ -313,7 +313,7 @@ static PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
 
 	FOutputDeviceNull od_null;
 	if (!self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true)) {
-		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"",  call_args);
+		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"", call_args);
 	}
 
 	Py_INCREF(Py_None);
@@ -421,7 +421,7 @@ static PyObject *py_ue_get_owner(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a component");
 	}
 
-	UActorComponent *component = (UActorComponent *) self->ue_object;
+	UActorComponent *component = (UActorComponent *)self->ue_object;
 
 	ue_PyUObject *ret = ue_get_python_wrapper(component->GetOwner());
 	if (!ret)
@@ -434,7 +434,7 @@ static PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	
+
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
 }
 
@@ -738,7 +738,7 @@ static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
-	
+
 }
 
 
@@ -1072,13 +1072,13 @@ static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args
 		enabled = false;
 
 	UPrimitiveComponent *primitive = nullptr;
-	
+
 	if (self->ue_object->IsA<UPrimitiveComponent>()) {
 		primitive = (UPrimitiveComponent *)self->ue_object;
 	}
 	else if (self->ue_object->IsA<AActor>()) {
 		AActor *actor = (AActor *)self->ue_object;
-		primitive = (UPrimitiveComponent *) actor->GetComponentByClass(UPrimitiveComponent::StaticClass());
+		primitive = (UPrimitiveComponent *)actor->GetComponentByClass(UPrimitiveComponent::StaticClass());
 	}
 	else {
 		return PyErr_Format(PyExc_Exception, "unable to set physics for the object");
@@ -1128,7 +1128,7 @@ static PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 
-	
+
 }
 
 static PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args) {
@@ -1189,14 +1189,14 @@ static PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObjec
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	
+
 	if (!PyArg_ParseTuple(args, "ffffffi:line_trace_single_by_channel", &x1, &y1, &z1, &x2, &y2, &z2, &channel)) {
 		return NULL;
 	}
 
 	FHitResult hit;
 
-	bool got_hit = world->LineTraceSingleByChannel(hit, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel) channel);
+	bool got_hit = world->LineTraceSingleByChannel(hit, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
 
 	if (got_hit) {
 		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
@@ -1205,7 +1205,7 @@ static PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObjec
 		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
 	}
 
-	return Py_BuildValue("Offffff", Py_None, 0,0,0,0,0,0);
+	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
 
 }
 
@@ -1228,7 +1228,7 @@ static PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject
 
 	TArray<struct FHitResult> hits;
 	hits.Reset();
-	
+
 	PyObject *hits_list = PyList_New(0);
 
 
@@ -1362,7 +1362,7 @@ static PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 	}
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-	
+
 	if (!py_obj->ue_object->IsA<UClass>()) {
 		return PyErr_Format(PyExc_Exception, "argument is not a class");
 	}
@@ -1554,7 +1554,7 @@ static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 	AActor *actor = (AActor *)py_obj->ue_object;
 
 	world->GetFirstPlayerController()->SetViewTarget(actor);
-	
+
 	Py_INCREF(Py_None);
 	return Py_None;
 
@@ -1605,7 +1605,7 @@ static PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject *
 	}
 	else if (self->ue_object->IsA<AActor>()) {
 		actor = (AActor *)self->ue_object;
-		destructible = (UDestructibleComponent *) actor->GetComponentByClass(UDestructibleComponent::StaticClass());
+		destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
 	}
 	else if (self->ue_object->IsA<UActorComponent>()) {
 		actor = (AActor *)self->ue_object->GetOuter();
