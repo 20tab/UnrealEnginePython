@@ -149,6 +149,9 @@ To access the actor you can use
 actor = self.uobject.get_class()
 ```
 
+Pythonizing a GameMode
+-----------------------
+
 The unreal_engine module
 ------------------------
 
