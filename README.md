@@ -156,6 +156,8 @@ actor = self.uobject.get_class()
 Pythonizing a GameMode
 -----------------------
 
+You can attach a PythonComponent to a GameMode blueprint. Its tick method will be executed during the whole game life.
+
 The unreal_engine module
 ------------------------
 
@@ -563,3 +565,9 @@ Code should be organized way better as currently all of the uobject api is in a 
 The property system is incomplete.
 
 We would like to find a way to define and manage custom events directly from python
+
+.py files are not recognized by the editor. This should be fixed soon
+
+We still do not have a plugin icon ;)
+
+The build system is not very robust. Maybe linking the python static library into the plugin dll could be a better approach.
