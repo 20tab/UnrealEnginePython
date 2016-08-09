@@ -43,7 +43,7 @@ If all goes well, open the output log and search for the string "Python". You sh
 
 On the Mac the installation is easier, as the final user is currently forced to install python on its system (there are obviously dozens of workarounds but at this stage of the project we prefer focusing on the api).
 
-* install the latest official python distribution from python.org (the installation will end in the "Library/Frameworks/Python.framework/Versions/3.5" directory).
+* install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/3.5" directory).
 * create a new unreal engine blank c++ project
 * create a Plugins directory in the project directory
 * move to the Projects directory and clone the plugin repository
@@ -528,6 +528,19 @@ Packaging
 
 Examples
 --------
+
+This is a PyActor destroying itself whenever another actor overlap it. Remember to add a mesh component to it (like a spehere) and set its collision behaviour as 'OverlapAll'
+
+```py
+class Ball:
+    def begin_play(self):
+        ue.print_string('Hello')
+    def tick(self, delta_time):
+        pass
+    def on_actor_begin_overlap(self, other_actor):
+        ue.print_string('Collided with ' + other_actor.get_name())
+        self.uobject.actor_destroy()
+```
 
 Memory management
 -----------------
