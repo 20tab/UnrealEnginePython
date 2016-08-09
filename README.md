@@ -571,3 +571,8 @@ We would like to find a way to define and manage custom events directly from pyt
 We still do not have a plugin icon ;)
 
 The build system is not very robust. Maybe linking the python static library into the plugin dll could be a better approach.
+
+Contacts
+--------
+
+If you want to contact us, drop a mail to info at 20tab.com
