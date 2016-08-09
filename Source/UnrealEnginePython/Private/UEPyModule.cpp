@@ -350,6 +350,8 @@ static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 		return py_obj;
 	}
 
+	return PyErr_Format(PyExc_Exception, "unsupported value type for property %s", property_name);
+
 end:
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -376,10 +378,14 @@ static PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 			u_float_property->SetPropertyValue(u_property->ContainerPtrToValuePtr<float>(self->ue_object), PyFloat_AsDouble(property_value));
 	}
 
-	if (PyUnicode_Check(property_value)) {
+	else if (PyUnicode_Check(property_value)) {
 		UStrProperty *u_str_property = Cast<UStrProperty>(u_property);
 		if (u_str_property)
 			u_str_property->SetPropertyValue(u_property->ContainerPtrToValuePtr<FString>(self->ue_object), FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(property_value))));
+	}
+
+	else {
+		return PyErr_Format(PyExc_Exception, "unsupported property value");
 	}
 
 
