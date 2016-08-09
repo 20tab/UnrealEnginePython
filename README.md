@@ -156,6 +156,8 @@ actor = self.uobject.get_class()
 Pythonizing a GameMode
 -----------------------
 
+You can attach a PythonComponent to a GameMode blueprint. Its tick method will be executed during the whole game life.
+
 The unreal_engine module
 ------------------------
 
