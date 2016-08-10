@@ -468,6 +468,18 @@ class DestroyMeComponent:
 
 you can now call the 'explode' method via blueprints using the 'Call Python Component Method' node
 
+Another approach (way more easier) would be adding a RadialForceComponent and fire it when you want to destroy something:
+
+```py
+# get a reference to the RadialForceComponent
+self.radial_force = self.uobject.get_owner().get_actor_component_by_type(ue.find_class('RadialForceComponent'))
+
+# fire it !
+self.radial_force.call('FireImpulse')
+```
+
+
+
 Splines
 -------
 
