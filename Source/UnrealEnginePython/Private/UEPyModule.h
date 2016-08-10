@@ -10,8 +10,8 @@
 
 typedef struct {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UObject *ue_object;
+	/* Type-specific fields go here. */
+	UObject *ue_object;
 } ue_PyUObject;
 
 UCLASS()

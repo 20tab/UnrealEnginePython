@@ -2,7 +2,6 @@
 #include "PyPawn.h"
 
 
-
 APyPawn::APyPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;

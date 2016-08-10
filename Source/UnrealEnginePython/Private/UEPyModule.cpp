@@ -670,6 +670,8 @@ static PyObject *py_ue_bind_input_axis(ue_PyUObject *self, PyObject * args) {
 
 }
 
+
+
 static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -1079,7 +1081,7 @@ static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args
 	else {
 		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
 	}
-	
+
 	if (!primitive) {
 		return PyErr_Format(PyExc_Exception, "unable to set physics for the object");
 	}
@@ -1674,6 +1676,7 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		}
 		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
 
+
 		Py_INCREF(ue_py_object->py_object);
 	}
 
@@ -1718,3 +1721,4 @@ UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
 
 	return nullptr;
 }
+

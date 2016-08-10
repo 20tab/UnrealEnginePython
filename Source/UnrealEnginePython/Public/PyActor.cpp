@@ -123,6 +123,9 @@ void APyActor::PyOnActorEndOverlap(AActor *overlapped, AActor *other)
 	if (!py_actor_instance)
 		return;
 
+	if (!PyObject_HasAttrString(py_actor_instance, "on_actor_end_overlap"))
+		return;
+
 	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_end_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
 	if (!ret) {
 		unreal_engine_py_log_error();
