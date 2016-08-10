@@ -23,3 +23,4 @@ public:
 void unreal_engine_py_log_error();
 ue_PyUObject *ue_get_python_wrapper(UObject *);
 UWorld *ue_get_uworld(ue_PyUObject *);
+PyObject *ue_py_convert_property(UProperty *, uint8 *);

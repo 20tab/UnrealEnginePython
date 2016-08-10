@@ -729,6 +729,70 @@ static PyObject *py_ue_find_object(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
+static PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_function", &name)) {
+		return NULL;
+	}
+
+	UFunction *function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(name)));
+	if (!function)
+		goto end;
+
+	UE_LOG(LogPython, Warning, TEXT("Func %d %d"), function->NumParms, function->ReturnValueOffset);
+
+	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)function);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+end:
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UFunction *function = nullptr;
+
+	if (PyTuple_Size(args) < 1) {
+		return PyErr_Format(PyExc_TypeError, "this function requires at least an argument");
+	}
+
+	PyObject *func_id = PyTuple_GetItem(args, 0);
+
+	if (PyUnicode_Check(func_id)) {
+		function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(func_id))));
+	}
+
+
+	if (!function)
+		return PyErr_Format(PyExc_Exception, "unable to find function");
+
+	UE_LOG(LogPython, Warning, TEXT("Func %d %d %d"), function->NumParms, function->ReturnValueOffset, function->ParmsSize);
+
+	uint8 *buffer = (uint8 *)FMemory_Alloca(function->ParmsSize);
+
+	self->ue_object->ProcessEvent(function, buffer);
+
+	TFieldIterator<UProperty> Props(function);
+	for (; Props; ++Props) {
+		UProperty *prop = *Props;
+		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
+			return ue_py_convert_property(prop, buffer);
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 #if WITH_EDITOR
 static PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args) {
 
@@ -1037,12 +1101,12 @@ static PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject
 	}
 
 	APlayerController *controller = world->GetFirstPlayerController();
-	
+
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "unable to find first player controller");
-	
+
 	FHitResult hit;
-	
+
 	bool got_hit = controller->GetHitResultUnderCursor((ECollisionChannel)channel, complex, hit);
 
 	if (got_hit) {
@@ -1087,6 +1151,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 #endif
 	{ "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
+	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
+	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS, "" },
 	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
 	{ "all_actors", (PyCFunction)py_ue_all_actors, METH_VARARGS, "" },
 	{ "get_input_axis", (PyCFunction)py_ue_get_input_axis, METH_VARARGS, "" },
@@ -1552,3 +1618,23 @@ UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
 	return nullptr;
 }
 
+PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
+	if (auto casted_prop = Cast<UBoolProperty>(prop)) {
+		bool value = casted_prop->GetPropertyValue_InContainer(buffer);
+		if (value) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	if (auto casted_prop = Cast<UFloatProperty>(prop)) {
+		float value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyFloat_FromDouble(value);
+	}
+
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
