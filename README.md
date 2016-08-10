@@ -321,6 +321,7 @@ Remember, there is no need to implement every single engine class method, the re
 
 Most-used methods are implemented directly as uobject methods for performance reasons.
 
+You can get the the list of uobject api methods here: https://github.com/20tab/UnrealEnginePython/blob/master/uobject_API.md
 
 Automatic module reloading (Editor only)
 ----------------------------------------
