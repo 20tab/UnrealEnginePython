@@ -57,6 +57,26 @@ git clone https://github.com/20tab/UnrealEnginePython
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
 * Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
 
+Upgrading on MacOSX
+-------------------
+
+To upgrade to the latest development version of UnrealEnginePython:
+* move to the Plugins directory in the project directory and use git pull
+
+```sh
+git pull
+```
+
+* move to UnrealEnginePython/Binaries from the Plugin directory
+* remove the plugin library UE4Editor-UnrealEnginePython.dylib to warn UnrealEngine to recompile the plugin
+
+```sh
+rm UE4Editor-UnrealEnginePython.dylib
+```
+
+* restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
+* Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
+
 # Installation on other platforms
 
 Currently only Windows and MacOSX are supported, Linux support should be available soon. We are investigating Android support too via the kivy project.
