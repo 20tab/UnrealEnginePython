@@ -1,4 +1,5 @@
-
+The uobject API
+===============
 
 ---
 ```py
@@ -280,8 +281,7 @@ change the view target. The 'target' argument should be an actor with a camera c
 ---
 ```py
 uobject.set_simulate_physics()
-The uobject API
-===============
+```
 
 ---
 ```py
