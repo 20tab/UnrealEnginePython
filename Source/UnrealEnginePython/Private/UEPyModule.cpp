@@ -1273,17 +1273,39 @@ static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject
 		return NULL;
 	}
 
-	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+	ue_PyUObject *py_obj = nullptr;
+
+	if (PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		py_obj = (ue_PyUObject *)obj;
+	}
+	// shortcut for finding class by string
+	else if (PyUnicode_Check(obj)) {
+		char *class_name = PyUnicode_AsUTF8(obj);
+		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
+
+		if (u_class) {
+			py_obj = ue_get_python_wrapper(u_class);
+			if (py_obj)
+				Py_INCREF(py_obj);
+		}
+	}
+
+	if (!py_obj)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	AActor *actor = nullptr;
+
+	if (self->ue_object->IsA<AActor>()) {
+		actor = (AActor *)self->ue_object;
+	}
+	// another shortcut for finding an actor by its component
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *tmp_component = (UActorComponent *)self->ue_object;
+		actor = tmp_component->GetOwner();
 	}
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!self->ue_object->IsA<AActor>()) {
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
-
-	AActor *actor = (AActor *)self->ue_object;
 
 	UActorComponent *component = actor->GetComponentByClass((UClass *)py_obj->ue_object);
 	if (component) {
