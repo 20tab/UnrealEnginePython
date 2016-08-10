@@ -624,6 +624,12 @@ uobject.simple_move_to_location(x, y, z)
 
 move to a location using navmesh (see Navigation below)
 
+---
+```py
+clicked_actor, x, y, z, nx, ny, nz = self.uobject.get_hit_result_under_cursor(channel)
+```
+
+get the world point under the mouse cursor (see Navigation below, for an example usage)
 
 Automatic module reloading (Editor only)
 ----------------------------------------
@@ -660,7 +666,7 @@ class ActorGoingUp:
 Navigation
 ---------
 
-The only exposed navigation-related method is 'simple_move_to_location'. It expects a Pawn with a movement component (like a character)
+The only exposed navigation-related method is 'simple_move_to_location'. It expects a Pawn with a movement component (like a Character)
 
 ```py
 class MoveToTargetComponent:
@@ -672,6 +678,21 @@ class MoveToTargetComponent:
         
     def tick(self, delta_time):
         pass
+```
+
+Another example for diablo-like movements (click to move, add this component to a character)
+
+```py
+class Walker:
+    def begin_play(self):
+        self.uobject.show_mouse_cursor()
+    def tick(self, delta_time):
+        if not self.uobject.is_input_key_down('LeftMouseButton'):
+            return
+        clicked_actor, x, y, z, nx, ny, nz = self.uobject.get_hit_result_under_cursor(ue.COLLISION_CHANNEL_VISIBILITY)
+        if not clicked_actor:
+            return
+        self.uobject.simple_move_to_location(x, y, z)
 ```
 
 Physics
