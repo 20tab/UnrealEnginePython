@@ -75,6 +75,9 @@ void APyPawn::BeginPlay()
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in pawn wrapper class"));
 	}
 
+	if (!PyObject_HasAttrString(py_pawn_instance, "begin_play"))
+		return;
+
 	PyObject *bp_ret = PyObject_CallMethod(py_pawn_instance, "begin_play", NULL);
 	if (!bp_ret) {
 		unreal_engine_py_log_error();
@@ -92,6 +95,9 @@ void APyPawn::Tick(float DeltaTime)
 	if (!py_pawn_instance)
 		return;
 
+	if (!PyObject_HasAttrString(py_pawn_instance, "tick"))
+		return;
+
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "tick", "f", DeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -107,6 +113,9 @@ void APyPawn::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
 	if (!py_pawn_instance)
 		return;
 
+	if (!PyObject_HasAttrString(py_pawn_instance, "on_actor_begin_overlap"))
+		return;
+
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "on_actor_begin_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -118,6 +127,9 @@ void APyPawn::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
 void APyPawn::PyOnActorClicked(AActor *touched_actor, FKey button_pressed)
 {
 	if (!py_pawn_instance)
+		return;
+
+	if (!PyObject_HasAttrString(py_pawn_instance, "on_actor_clicked"))
 		return;
 
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "on_actor_clicked", "Os", (PyObject *)ue_get_python_wrapper(touched_actor), TCHAR_TO_UTF8(*button_pressed.ToString()));

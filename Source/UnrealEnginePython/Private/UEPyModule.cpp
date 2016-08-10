@@ -1250,6 +1250,48 @@ static PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject
 
 }
 
+static PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int channel;
+	PyObject *trace_complex = NULL;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+
+	if (!PyArg_ParseTuple(args, "i|O:get_hit_result_under_cursor", &channel, &trace_complex)) {
+		return NULL;
+	}
+
+
+	bool complex = false;
+	if (trace_complex && PyObject_IsTrue(trace_complex)) {
+		complex = true;
+	}
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to find first player controller");
+	
+	FHitResult hit;
+	
+	bool got_hit = controller->GetHitResultUnderCursor((ECollisionChannel)channel, complex, hit);
+
+	if (got_hit) {
+		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
+	}
+
+	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
+
+}
+
 
 
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
@@ -1299,6 +1341,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_bounds", (PyCFunction)py_ue_get_actor_bounds, METH_VARARGS, "" },
 	{ "line_trace_single_by_channel", (PyCFunction)py_ue_line_trace_single_by_channel, METH_VARARGS, "" },
 	{ "line_trace_multi_by_channel", (PyCFunction)py_ue_line_trace_multi_by_channel, METH_VARARGS, "" },
+	{ "get_hit_result_under_cursor", (PyCFunction)py_ue_get_hit_result_under_cursor, METH_VARARGS, "" },
 	{ "show_mouse_cursor", (PyCFunction)py_ue_show_mouse_cursor, METH_VARARGS, "" },
 	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
 	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
