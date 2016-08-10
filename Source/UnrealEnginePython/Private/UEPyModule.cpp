@@ -2,6 +2,10 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "UEPySpline.h"
+#include "UEPyNavigation.h"
+#include "UEPyInput.h"
+
 
 DEFINE_LOG_CATEGORY(LogPython);
 
@@ -295,12 +299,6 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ NULL, NULL },
 };
 
-
-
-
-
-#define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
-							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
 
 static PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
 
@@ -609,67 +607,6 @@ ret:
 
 }
 
-static PyObject *py_ue_get_input_axis(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *axis_name;
-	if (!PyArg_ParseTuple(args, "s:get_input_axis", &axis_name)) {
-		return NULL;
-	}
-
-	UInputComponent *input = nullptr;
-
-	if (self->ue_object->IsA<AActor>()) {
-		input = ((AActor *)self->ue_object)->InputComponent;
-	}
-	else if (self->ue_object->IsA<UActorComponent>()) {
-		input = ((UActorComponent *)self->ue_object)->GetOwner()->InputComponent;
-	}
-	else {
-		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	}
-
-	if (!input) {
-		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
-	}
-
-	return Py_BuildValue("f", input->GetAxisValue(FName(UTF8_TO_TCHAR(axis_name))));
-
-}
-
-static PyObject *py_ue_bind_input_axis(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *axis_name;
-	if (!PyArg_ParseTuple(args, "s:bind_input_axis", &axis_name)) {
-		return NULL;
-	}
-
-	UInputComponent *input = nullptr;
-
-	if (self->ue_object->IsA<AActor>()) {
-		input = ((AActor *)self->ue_object)->InputComponent;
-	}
-	else if (self->ue_object->IsA<UActorComponent>()) {
-		input = ((UActorComponent *)self->ue_object)->GetOwner()->InputComponent;
-	}
-	else {
-		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	}
-
-	if (!input) {
-		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
-	}
-
-	input->BindAxis(FName(UTF8_TO_TCHAR(axis_name)));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
-
 
 
 static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
@@ -686,46 +623,7 @@ static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-static PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args) {
 
-	ue_py_check(self);
-
-	float x, y, z;
-	if (!PyArg_ParseTuple(args, "fff:simple_move_to_location", &x, &y, &z)) {
-		return NULL;
-	}
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	APawn *pawn = nullptr;
-
-	if (self->ue_object->IsA<APawn>()) {
-		pawn = (APawn *)self->ue_object;
-	}
-	else if (self->ue_object->IsA<UActorComponent>()) {
-		UActorComponent *component = (UActorComponent *)self->ue_object;
-		AActor *actor = component->GetOwner();
-		if (actor) {
-			if (actor->IsA<APawn>()) {
-				pawn = (APawn *)actor;
-			}
-		}
-	}
-
-	if (!pawn)
-		return PyErr_Format(PyExc_Exception, "uobject is not a pawn");
-
-	AController *controller = pawn->GetController();
-	if (!controller)
-		return PyErr_Format(PyExc_Exception, "Pawn has no controller");
-
-	world->GetNavigationSystem()->SimpleMoveToLocation(controller, FVector(x, y, z));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
 
 static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
@@ -744,63 +642,7 @@ static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 }
 
 
-static PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
 
-	ue_py_check(self);
-
-	char *key;
-	if (!PyArg_ParseTuple(args, "s:is_input_key_down", &key)) {
-		return NULL;
-	}
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	APlayerController *controller = world->GetFirstPlayerController();
-
-	if (controller->IsInputKeyDown(key)) {
-		Py_INCREF(Py_True);
-		return Py_True;
-	}
-
-	Py_INCREF(Py_False);
-	return Py_False;
-}
-
-static PyObject *py_ue_enable_input(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	/*
-	TODO manage controller index
-	char *axis_name;
-	if (!PyArg_ParseTuple(args, "s:get_input_axis", &axis_name)) {
-		return NULL;
-	}*/
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (!controller)
-		return PyErr_Format(PyExc_Exception, "no player controller available");
-
-	if (self->ue_object->IsA<AActor>()) {
-		((AActor *)self->ue_object)->EnableInput(controller);
-	}
-	else if (self->ue_object->IsA<UActorComponent>()) {
-		((UActorComponent *)self->ue_object)->GetOwner()->EnableInput(controller);
-	}
-	else {
-		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
 
 
 static PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
@@ -980,84 +822,6 @@ static PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
-static PyObject *py_ue_show_mouse_cursor(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	bool enabled = true;
-
-	PyObject *is_true = NULL;
-	if (!PyArg_ParseTuple(args, "|O:show_mouse_cursor", &is_true)) {
-		return NULL;
-	}
-
-	if (is_true && !PyObject_IsTrue(is_true))
-		enabled = false;
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (controller)
-		controller->bShowMouseCursor = enabled;
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_enable_click_events(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	bool enabled = true;
-
-	PyObject *is_true = NULL;
-	if (!PyArg_ParseTuple(args, "|O:enable_click_events", &is_true)) {
-		return NULL;
-	}
-
-	if (is_true && !PyObject_IsTrue(is_true))
-		enabled = false;
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (controller)
-		controller->bEnableClickEvents = enabled;
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_enable_mouse_over_events(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	bool enabled = true;
-
-	PyObject *is_true = NULL;
-	if (!PyArg_ParseTuple(args, "|O:enable_mouse_over_events", &is_true)) {
-		return NULL;
-	}
-
-	if (is_true && !PyObject_IsTrue(is_true))
-		enabled = false;
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (controller)
-		controller->bEnableMouseOverEvents = enabled;
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
 
 static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args) {
 
@@ -1293,7 +1057,6 @@ static PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject
 }
 
 
-
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_spawn(ue_PyUObject *, PyObject *);
@@ -1352,6 +1115,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
+	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
+	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

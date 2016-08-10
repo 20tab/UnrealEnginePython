@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "UnrealEnginePython.h"
 
 #include "UEPyModule.generated.h"
