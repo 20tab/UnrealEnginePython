@@ -189,6 +189,8 @@ yesno = uobject.get_actor_component_by_type(uclass)
 
 return the first component (of an actor) of the specified type
 
+It has two shortcuts, it can retrieve the actor from a component, and can get a string (instead of the output of ue.find_class('name')) with the class of the component
+
 ---
 ```py
 components = uobject.actor_components()
