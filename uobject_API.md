@@ -1,6 +1,11 @@
 The uobject API
 ===============
 
+This is the list of the methods exposed by the uobject api.
+
+Remember we do not need to expose all of the methods available in ue4, but only the most common one that could impact performances
+if using the c++ reflection too much. For all the other cases using uobject.call('Function args') is the blessed approach.
+
 ---
 ```py
 x, y, z = uobject.get_actor_location()
