@@ -269,7 +269,7 @@ uobject.enable_mouse_over_events()
 uobject.destructible_apply_damage(damage, impulse, dx, dy, dz, ix, iy, iz)
 ```
 
-See Fracturing below
+See Fracturing section on the README
 
 ---
 ```py
@@ -302,11 +302,26 @@ add a new component as the root one of the specified uclass (type) and set its n
 uobject.simple_move_to_location(x, y, z)
 ```
 
-move to a location using navmesh (see Navigation below)
+move to a location using navmesh (see Navigation on main README)
 
 ---
 ```py
 clicked_actor, x, y, z, nx, ny, nz = self.uobject.get_hit_result_under_cursor(channel)
 ```
 
-get the world point under the mouse cursor (see Navigation below, for an example usage)
+get the world point under the mouse cursor (see Navigation on main README, for an example usage)
+
+
+---
+```py
+length = uobject.get_spline_length()
+```
+
+get the length of a spline component (see Spline section in the main README)
+
+---
+```py
+x, y, z = uobject.get_world_location_at_distance_along_spline(distance)
+```
+
+get the a point of a spline component based on distance (see Spline section in the main README)
