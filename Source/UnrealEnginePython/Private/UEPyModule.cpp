@@ -916,15 +916,16 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
 	{ "get_actor_rotation", (PyCFunction)py_ue_get_actor_rotation, METH_VARARGS, "" },
+	{ "get_actor_scale", (PyCFunction)py_ue_get_actor_scale, METH_VARARGS, "" },
 
 	{ "get_actor_forward", (PyCFunction)py_ue_get_actor_forward, METH_VARARGS, "" },
 	{ "get_actor_right", (PyCFunction)py_ue_get_actor_right, METH_VARARGS, "" },
 	{ "get_actor_up", (PyCFunction)py_ue_get_actor_up, METH_VARARGS, "" },
 
 	
-	
-	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
 	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
+	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
+	{ "set_actor_scale", (PyCFunction)py_ue_set_actor_scale, METH_VARARGS, "" },
 	
 
 	{ "get_world_location", (PyCFunction)py_ue_get_world_location, METH_VARARGS, "" },
@@ -1089,10 +1090,6 @@ static PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 static PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	PyObject *sound;
 	float x, y, z;

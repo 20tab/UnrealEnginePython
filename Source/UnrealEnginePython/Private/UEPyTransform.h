@@ -5,9 +5,8 @@
 #include "UnrealEnginePython.h"
 
 PyObject *py_ue_get_actor_location(ue_PyUObject *, PyObject *);
-
-PyObject *py_ue_get_actor_location(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_rotation(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_actor_scale(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_actor_forward(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_right(ue_PyUObject *, PyObject *);
@@ -17,6 +16,7 @@ PyObject *py_ue_get_actor_up(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_set_actor_rotation(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_actor_location(ue_PyUObject *, PyObject *);
+PyObject *py_ue_set_actor_scale(ue_PyUObject *, PyObject *);
 
 
 PyObject *py_ue_get_world_location(ue_PyUObject *, PyObject *);

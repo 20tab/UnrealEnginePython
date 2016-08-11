@@ -26,6 +26,30 @@ ret:
 
 }
 
+PyObject *py_ue_get_actor_scale(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec3;
+
+	if (self->ue_object->IsA<AActor>()) {
+		vec3 = ((AActor *)self->ue_object)->GetActorScale3D();
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorScale3D();
+		goto ret;
+	}
+
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+
+}
+
 PyObject *py_ue_get_actor_forward(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -138,6 +162,33 @@ PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
 
 	if (self->ue_object->IsA<UActorComponent>()) {
 		((UActorComponent *)self->ue_object)->GetOwner()->SetActorLocation(FVector(x, y, z));
+		goto ret;
+	}
+
+	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+ret:
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+PyObject *py_ue_set_actor_scale(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float x, y, z;
+	if (!PyArg_ParseTuple(args, "fff:set_actor_scale", &x, &y, &z)) {
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<AActor>()) {
+		((AActor *)self->ue_object)->SetActorScale3D(FVector(x, y, z));
+		goto ret;
+	}
+
+	if (self->ue_object->IsA<UActorComponent>()) {
+		((UActorComponent *)self->ue_object)->GetOwner()->SetActorScale3D(FVector(x, y, z));
 		goto ret;
 	}
 
