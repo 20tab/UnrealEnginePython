@@ -67,7 +67,7 @@ To upgrade to the latest development version of UnrealEnginePython:
 git pull
 ```
 
-* move to UnrealEnginePython/Binaries from the Plugin directory
+* move to UnrealEnginePython/Binaries/Mac from the Plugin directory
 * remove the plugin library UE4Editor-UnrealEnginePython.dylib to warn UnrealEngine to recompile the plugin
 
 ```sh
