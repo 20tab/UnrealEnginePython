@@ -2,9 +2,11 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
-#include "UEPySpline.h"
-#include "UEPyNavigation.h"
+#include "UEPyTransform.h"
 #include "UEPyInput.h"
+#include "UEPyNavigation.h"
+#include "UEPySpline.h"
+
 
 
 DEFINE_LOG_CATEGORY(LogPython);
@@ -429,125 +431,6 @@ static PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args) {
 }
 #endif
 
-static PyObject *py_ue_get_actor_location(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	FVector vec3;
-
-	if (self->ue_object->IsA<AActor>()) {
-		vec3 = ((AActor *)self->ue_object)->GetActorLocation();
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorLocation();
-		goto ret;
-	}
-
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
-
-}
-
-static PyObject *py_ue_get_actor_forward(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	FVector vec3;
-
-	if (self->ue_object->IsA<AActor>()) {
-		vec3 = ((AActor *)self->ue_object)->GetActorForwardVector();
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorForwardVector();
-		goto ret;
-	}
-
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
-
-}
-
-static PyObject *py_ue_get_actor_right(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	FVector vec3;
-
-	if (self->ue_object->IsA<AActor>()) {
-		vec3 = ((AActor *)self->ue_object)->GetActorRightVector();
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorRightVector();
-		goto ret;
-	}
-
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
-
-}
-
-static PyObject *py_ue_get_actor_up(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	FVector vec3;
-
-	if (self->ue_object->IsA<AActor>()) {
-		vec3 = ((AActor *)self->ue_object)->GetActorUpVector();
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorUpVector();
-		goto ret;
-	}
-
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
-
-}
-
-static PyObject *py_ue_get_actor_rotation(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	FRotator vec3;
-
-	if (self->ue_object->IsA<AActor>()) {
-		vec3 = ((AActor *)self->ue_object)->GetActorRotation();
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetActorRotation();
-		goto ret;
-	}
-
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	return Py_BuildValue("fff", vec3.Pitch, vec3.Yaw, vec3.Roll);
-
-}
 
 static PyObject *py_ue_get_actor_velocity(ue_PyUObject *self, PyObject * args) {
 
@@ -591,6 +474,7 @@ static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 
 
 
+
 static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -611,89 +495,6 @@ static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 
 
-static PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	float x, y, z;
-	if (!PyArg_ParseTuple(args, "fff:set_actor_location", &x, &y, &z)) {
-		return NULL;
-	}
-
-	if (self->ue_object->IsA<AActor>()) {
-		((AActor *)self->ue_object)->SetActorLocation(FVector(x, y, z));
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		((UActorComponent *)self->ue_object)->GetOwner()->SetActorLocation(FVector(x, y, z));
-		goto ret;
-	}
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
-
-static PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	float pitch, yaw, roll;
-	if (!PyArg_ParseTuple(args, "fff:set_actor_rotation", &pitch, &yaw, &roll)) {
-		return NULL;
-	}
-
-	if (self->ue_object->IsA<AActor>()) {
-		((AActor *)self->ue_object)->SetActorRotation(FRotator(pitch, yaw, roll));
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		((UActorComponent *)self->ue_object)->GetOwner()->SetActorRotation(FRotator(pitch, yaw, roll));
-		goto ret;
-	}
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
-
-static PyObject *py_ue_find_object(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
-		return NULL;
-	}
-	UObject *u_object = nullptr;
-
-	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
-		UObject *u_obj = *Itr;
-		if (u_obj->GetName().Equals(UTF8_TO_TCHAR(name))) {
-			u_object = u_obj;
-			break;
-		}
-	}
-
-	if (u_object) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
 
 static PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 
@@ -1107,19 +908,49 @@ static PyObject *py_ue_set_view_target(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_add_actor_component(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_add_actor_root_component(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_play_sound_at_location(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
+
+	// Transform
+
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
+	{ "get_actor_rotation", (PyCFunction)py_ue_get_actor_rotation, METH_VARARGS, "" },
+
 	{ "get_actor_forward", (PyCFunction)py_ue_get_actor_forward, METH_VARARGS, "" },
 	{ "get_actor_right", (PyCFunction)py_ue_get_actor_right, METH_VARARGS, "" },
 	{ "get_actor_up", (PyCFunction)py_ue_get_actor_up, METH_VARARGS, "" },
-	{ "get_actor_rotation", (PyCFunction)py_ue_get_actor_rotation, METH_VARARGS, "" },
-	{ "get_actor_velocity", (PyCFunction)py_ue_get_actor_velocity, METH_VARARGS, "" },
-	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
+
+	
+	
 	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
+	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
+	
+
+	{ "get_world_location", (PyCFunction)py_ue_get_world_location, METH_VARARGS, "" },
+	{ "get_world_rotation", (PyCFunction)py_ue_get_world_rotation, METH_VARARGS, "" },
+	{ "get_world_scale", (PyCFunction)py_ue_get_world_scale, METH_VARARGS, "" },
+	{ "get_relative_location", (PyCFunction)py_ue_get_relative_location, METH_VARARGS, "" },
+	{ "get_relative_rotation", (PyCFunction)py_ue_get_relative_rotation, METH_VARARGS, "" },
+	{ "get_relative_scale", (PyCFunction)py_ue_get_relative_scale, METH_VARARGS, "" },
+	
+	{ "set_world_location", (PyCFunction)py_ue_set_world_location, METH_VARARGS, "" },
+	{ "set_world_rotation", (PyCFunction)py_ue_set_world_rotation, METH_VARARGS, "" },
+	{ "set_world_scale", (PyCFunction)py_ue_set_world_scale, METH_VARARGS, "" },
+	{ "set_relative_location", (PyCFunction)py_ue_set_relative_location, METH_VARARGS, "" },
+	{ "set_relative_rotation", (PyCFunction)py_ue_set_relative_rotation, METH_VARARGS, "" },
+	{ "set_relative_scale", (PyCFunction)py_ue_set_relative_scale, METH_VARARGS, "" },
+
+	{ "get_forward_vector", (PyCFunction)py_ue_get_forward_vector, METH_VARARGS, "" },
+	{ "get_up_vector", (PyCFunction)py_ue_get_up_vector, METH_VARARGS, "" },
+	{ "get_right_vector", (PyCFunction)py_ue_get_right_vector, METH_VARARGS, "" },
+
+	// UObject
+
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "set_property", (PyCFunction)py_ue_set_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
+
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
@@ -1128,14 +959,25 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 #endif
-	{ "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
+	
+
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
 	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS, "" },
+
+
 	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
 	{ "all_actors", (PyCFunction)py_ue_all_actors, METH_VARARGS, "" },
+
+	// Input
+
 	{ "get_input_axis", (PyCFunction)py_ue_get_input_axis, METH_VARARGS, "" },
 	{ "bind_input_axis", (PyCFunction)py_ue_bind_input_axis, METH_VARARGS, "" },
 	{ "enable_input", (PyCFunction)py_ue_enable_input, METH_VARARGS, "" },
+	{ "show_mouse_cursor", (PyCFunction)py_ue_show_mouse_cursor, METH_VARARGS, "" },
+	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
+	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
+
+
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
 	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
@@ -1146,22 +988,30 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS, "" },
 	{ "actor_has_tag", (PyCFunction)py_ue_actor_has_tag, METH_VARARGS, "" },
 	{ "get_actor_bounds", (PyCFunction)py_ue_get_actor_bounds, METH_VARARGS, "" },
+
 	{ "line_trace_single_by_channel", (PyCFunction)py_ue_line_trace_single_by_channel, METH_VARARGS, "" },
 	{ "line_trace_multi_by_channel", (PyCFunction)py_ue_line_trace_multi_by_channel, METH_VARARGS, "" },
 	{ "get_hit_result_under_cursor", (PyCFunction)py_ue_get_hit_result_under_cursor, METH_VARARGS, "" },
-	{ "show_mouse_cursor", (PyCFunction)py_ue_show_mouse_cursor, METH_VARARGS, "" },
-	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
-	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
+	
 	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
+
 	{ "set_view_target", (PyCFunction)py_ue_set_view_target, METH_VARARGS, "" },
+
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "get_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
+
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
+
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
 	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },
+
+	{ "get_actor_velocity", (PyCFunction)py_ue_get_actor_velocity, METH_VARARGS, "" },
+
+	{ "play_sound_at_location", (PyCFunction)py_ue_play_sound_at_location, METH_VARARGS, "" },
+
 	{ NULL }  /* Sentinel */
 };
 
@@ -1235,6 +1085,46 @@ static PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 	return ret;
 
 }
+
+static PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *sound;
+	float x, y, z;
+	float volume = 1;
+	float pitch = 1;
+	float start = 0;
+
+	if (!PyArg_ParseTuple(args, "Offf|fff:play_sound_at_location", &sound, &x, &y, &z, &volume, &pitch, &start)) {
+		return NULL;
+	}
+
+
+	USoundBase *sound_object = nullptr;
+	if (PyObject_IsInstance(sound, (PyObject *)&ue_PyUObjectType)) {
+		ue_PyUObject *py_sound = (ue_PyUObject *)sound;
+		if (py_sound->ue_object->IsA<USoundBase>()) {
+			sound_object = (USoundBase *)py_sound->ue_object;
+		}
+	}
+	else if (PyUnicode_Check(sound)) {
+		sound_object = FindObject<USoundBase>(ANY_PACKAGE, UTF8_TO_TCHAR(PyUnicode_AsUTF8(sound)));
+	}
+
+	if (!sound_object)
+		return PyErr_Format(PyExc_Exception, "invalid sound object");
+
+	UGameplayStatics::PlaySoundAtLocation(self->ue_object, sound_object, FVector(x, y, z), volume, pitch, start);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 static PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 
