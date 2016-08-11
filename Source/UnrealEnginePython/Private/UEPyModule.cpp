@@ -741,8 +741,6 @@ static PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 	if (!function)
 		return PyErr_Format(PyExc_Exception, "unable to find function");
 
-	UE_LOG(LogPython, Warning, TEXT("Func %d %d %d"), function->NumParms, function->ReturnValueOffset, function->ParmsSize);
-
 	uint8 *buffer = (uint8 *)FMemory_Alloca(function->ParmsSize);
 	int argn = 1;
 
@@ -756,6 +754,7 @@ static PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 		if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
 			return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property");
 		}
+		argn++;
 	}
 
 	self->ue_object->ProcessEvent(function, buffer);
@@ -1158,6 +1157,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
+	{ "get_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
