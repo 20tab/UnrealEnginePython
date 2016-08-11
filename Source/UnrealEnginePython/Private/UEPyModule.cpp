@@ -328,33 +328,11 @@ static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 		return NULL;
 	}
 
-
 	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	UFloatProperty *u_float_property = Cast<UFloatProperty>(u_property);
-	if (u_float_property)
-		return Py_BuildValue("f", u_float_property->GetPropertyValue(u_property->ContainerPtrToValuePtr<float>(self->ue_object)));
-
-	UObjectProperty *u_obj_property = Cast<UObjectProperty>(u_property);
-	if (u_obj_property) {
-		UObject *u_obj = u_obj_property->GetPropertyValue(u_property->ContainerPtrToValuePtr<UObject>(self->ue_object));
-		if (!u_obj)
-			goto end;
-		PyObject *py_obj = (PyObject *)ue_get_python_wrapper(u_obj);
-		if (!py_obj)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(py_obj);
-		return py_obj;
-	}
-
-	return PyErr_Format(PyExc_Exception, "unsupported value type for property %s", property_name);
-
-end:
-	Py_INCREF(Py_None);
-	return Py_None;
-
+	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
 }
 
 static PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
@@ -371,22 +349,10 @@ static PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	if (PyFloat_Check(property_value)) {
-		UFloatProperty *u_float_property = Cast<UFloatProperty>(u_property);
-		if (u_float_property)
-			u_float_property->SetPropertyValue(u_property->ContainerPtrToValuePtr<float>(self->ue_object), PyFloat_AsDouble(property_value));
+	
+	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object)) {
+		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
 	}
-
-	else if (PyUnicode_Check(property_value)) {
-		UStrProperty *u_str_property = Cast<UStrProperty>(u_property);
-		if (u_str_property)
-			u_str_property->SetPropertyValue(u_property->ContainerPtrToValuePtr<FString>(self->ue_object), FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(property_value))));
-	}
-
-	else {
-		return PyErr_Format(PyExc_Exception, "unsupported property value");
-	}
-
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -778,6 +744,19 @@ static PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 	UE_LOG(LogPython, Warning, TEXT("Func %d %d %d"), function->NumParms, function->ReturnValueOffset, function->ParmsSize);
 
 	uint8 *buffer = (uint8 *)FMemory_Alloca(function->ParmsSize);
+	int argn = 1;
+
+	TFieldIterator<UProperty> PArgs(function);
+	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
+		UProperty *prop = *PArgs;
+		PyObject *py_arg = PyTuple_GetItem(args, argn);
+		if (!py_arg) {
+			return PyErr_Format(PyExc_TypeError, "not enough arguments");
+		}
+		if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
+			return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property");
+		}
+	}
 
 	self->ue_object->ProcessEvent(function, buffer);
 
@@ -1629,12 +1608,110 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return Py_False;
 	}
 
+	if (auto casted_prop = Cast<UIntProperty>(prop)) {
+		int value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyLong_FromLong(value);
+	}
+
 	if (auto casted_prop = Cast<UFloatProperty>(prop)) {
 		float value = casted_prop->GetPropertyValue_InContainer(buffer);
 		return PyFloat_FromDouble(value);
 	}
 
+	if (auto casted_prop = Cast<UStrProperty>(prop)) {
+		FString value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
+	}
 
+	if (auto casted_prop = Cast<UObjectProperty>(prop)) {
+		auto value = casted_prop->GetPropertyValue_InContainer(buffer);
+		if (value) {
+			ue_PyUObject *ret = ue_get_python_wrapper(value);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+			Py_INCREF(ret);
+			return (PyObject *)ret;
+		}
+		goto end;
+	}
+
+	if (auto casted_prop = Cast<UClassProperty>(prop)) {
+		auto value = casted_prop->GetPropertyValue_InContainer(buffer);
+		if (value) {
+			ue_PyUObject *ret = ue_get_python_wrapper(value);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+			Py_INCREF(ret);
+			return (PyObject *)ret;
+		}
+		goto end;
+	}
+
+	return PyErr_Format(PyExc_Exception, "unsupported value type for property %s", TCHAR_TO_UTF8(*prop->GetName()));
+
+end:
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
+	
+	if (PyBool_Check(py_obj)) {
+		auto casted_prop = Cast<UBoolProperty>(prop);
+		if (!casted_prop)
+			return false;
+		if (PyObject_IsTrue(py_obj)) {
+			casted_prop->SetPropertyValue_InContainer(buffer, true);
+		}
+		else {
+			casted_prop->SetPropertyValue_InContainer(buffer, false);
+		}
+		return true;
+	}
+
+	if (PyLong_Check(py_obj)) {
+		auto casted_prop = Cast<UIntProperty>(prop);
+		if (!casted_prop)
+			return false;
+		casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_obj));
+		return true;
+	}
+
+	if (PyFloat_Check(py_obj)) {
+		auto casted_prop = Cast<UFloatProperty>(prop);
+		if (!casted_prop)
+			return false;
+		casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_obj));
+		return true;
+	}
+
+	if (PyUnicode_Check(py_obj)) {
+		auto casted_prop = Cast<UStrProperty>(prop);
+		if (!casted_prop)
+			return false;
+		casted_prop->SetPropertyValue_InContainer(buffer, FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj))));
+		return true;
+	}
+
+	if (PyObject_IsInstance(py_obj, (PyObject *)&ue_PyUObjectType)) {
+		ue_PyUObject *ue_obj = (ue_PyUObject *)py_obj;
+		if (ue_obj->ue_object->IsA<UClass>()) {
+			auto casted_prop = Cast<UClassProperty>(prop);
+			if (!casted_prop)
+				return false;
+			casted_prop->SetPropertyValue_InContainer(buffer, (UClass *)ue_obj->ue_object);
+			return true;
+		}
+
+		if (ue_obj->ue_object->IsA<UObjectProperty>()) {
+			auto casted_prop = Cast<UObjectProperty>(prop);
+			if (!casted_prop)
+				return false;
+			casted_prop->SetPropertyValue_InContainer(buffer, ue_obj->ue_object);
+			return true;
+		}
+	}
+
+	return false;
+
 }
