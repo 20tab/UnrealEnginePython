@@ -510,7 +510,7 @@ class Spline:
 Blueprints integration
 ----------------------
 
-You can call blueprints functions (or custom events) via the .call() method:
+You can call blueprints functions (or custom events) via the .call() and .call_function() methods:
 
 ```py
 your_funny_blueprint_object.call('AFunctionOrACustomEvent with_a_arg')
@@ -523,6 +523,23 @@ pointing to the specific object. You can then reference this object easily getti
 the_other_object = self.uobject.get_property('target')
 the_other_object.set_actor_location(0, 0, 0)
 ```
+
+.call_function() is more advanced, as it allows for return values and python args:
+
+```py
+# an example of moving an object z with curves:
+class Curver:
+    def begin_play(self):
+        self.curve = self.uobject.get_owner().get_property('curve')
+        self.accumulator = 0.0
+    def tick(self, delta_time):
+        x, y, z = self.uobject.get_actor_location()
+        z = self.curve.call_function('GetFloatValue', self.accumulator) * 100
+        self.uobject.set_actor_location(x, y, z)
+        self.accumulator += delta_time
+
+```
+
 
 Events
 ------
