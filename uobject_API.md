@@ -69,7 +69,7 @@ value = uobject.get_property('name')
 
 get the property value of a uobject
 
-NOTE: currently only floats and objects values are supported
+NOTE: currently structs are not supported
 
 
 ---
@@ -79,7 +79,7 @@ uobject.set_property('name', value)
 
 set the property of a uobject
 
-NOTE: currently only floats and strings values are supported
+NOTE: currently structs are not supported
 
 ---
 ```py
@@ -108,6 +108,15 @@ will call the UTextRenderComponent::SetText(FString value) method passing 'Hello
 This methods allows you to interface with basically every engine features, but is is obviously slower than directly calling C++ methods.
 
 Use it for calling blueprint functions, or while waiting for the addition of new specific-methods in the uobject api ;)
+
+---
+```py
+ret = uobject.call_function('function', arg0, arg1, argN....')
+```
+
+the advanced companion of 'call'. This is a more advanced way for calling UFUNCTION's and for getting their return value.
+
+Note: structs are not supported
 
 ---
 ```py
@@ -190,6 +199,8 @@ return True if the actor has a component of the specified type
 ---
 ```py
 yesno = uobject.get_actor_component_by_type(uclass)
+# alias
+yesno = uobject.get_component_by_type(uclass)
 ```
 
 return the first component (of an actor) of the specified type
