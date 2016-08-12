@@ -6,6 +6,10 @@
 
 
 PyObject *py_ue_is_input_key_down(ue_PyUObject *, PyObject *);
+PyObject *py_ue_was_input_key_just_pressed(ue_PyUObject *, PyObject *);
+PyObject *py_ue_was_input_key_just_released(ue_PyUObject *, PyObject *);
+PyObject *py_ue_is_action_pressed(ue_PyUObject *, PyObject *);
+PyObject *py_ue_is_action_released(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enable_input(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_input_axis(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_input_axis(ue_PyUObject *, PyObject *);

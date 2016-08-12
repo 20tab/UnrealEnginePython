@@ -1010,6 +1010,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "show_mouse_cursor", (PyCFunction)py_ue_show_mouse_cursor, METH_VARARGS, "" },
 	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
 	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
+	{ "was_input_key_just_pressed", (PyCFunction)py_ue_was_input_key_just_pressed, METH_VARARGS, "" },
+	{ "was_input_key_just_released", (PyCFunction)py_ue_was_input_key_just_released, METH_VARARGS, "" },
+	{ "is_action_pressed", (PyCFunction)py_ue_is_action_pressed, METH_VARARGS, "" },
+	{ "is_action_released", (PyCFunction)py_ue_is_action_released, METH_VARARGS, "" },
+	
 
 	// Movements
 
@@ -1017,6 +1022,16 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_controller_yaw_input", (PyCFunction)py_ue_add_controller_yaw_input, METH_VARARGS, "" },
 	{ "get_control_rotation", (PyCFunction)py_ue_get_control_rotation, METH_VARARGS, "" },
 	{ "add_movement_input", (PyCFunction)py_ue_add_movement_input, METH_VARARGS, "" },
+
+	{ "jump", (PyCFunction)py_ue_jump, METH_VARARGS, "" },
+	{ "stop_jumping", (PyCFunction)py_ue_stop_jumping, METH_VARARGS, "" },
+	{ "crouch", (PyCFunction)py_ue_crouch, METH_VARARGS, "" },
+	{ "uncrouch", (PyCFunction)py_ue_uncrouch, METH_VARARGS, "" },
+	{ "launch", (PyCFunction)py_ue_launch, METH_VARARGS, "" },
+	{ "is_jumping", (PyCFunction)py_ue_is_jumping, METH_VARARGS, "" },
+	{ "is_crouched", (PyCFunction)py_ue_is_crouched, METH_VARARGS, "" },
+	{ "can_jump", (PyCFunction)py_ue_can_jump, METH_VARARGS, "" },
+	{ "can_crouch", (PyCFunction)py_ue_can_crouch, METH_VARARGS, "" },
 
 
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },

@@ -25,6 +25,114 @@ PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
 	return Py_False;
 }
 
+PyObject *py_ue_was_input_key_just_pressed(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:was_input_key_just_pressed", &key)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+
+	if (controller->WasInputKeyJustPressed(key)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_ue_is_action_pressed(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:is_action_pressed", &key)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	UPlayerInput *input = controller->PlayerInput;
+	if (!input)
+		goto end;
+
+	for (FInputActionKeyMapping mapping : input->GetKeysForAction(key)) {
+		if (controller->WasInputKeyJustPressed(mapping.Key)) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+	}
+
+end:
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_ue_was_input_key_just_released(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:was_input_key_just_released", &key)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+
+	if (controller->WasInputKeyJustReleased(key)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_ue_is_action_released(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:is_action_released", &key)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = world->GetFirstPlayerController();
+	UPlayerInput *input = controller->PlayerInput;
+	if (!input)
+		goto end;
+
+	for (FInputActionKeyMapping mapping : input->GetKeysForAction(key)) {
+		if (controller->WasInputKeyJustReleased(mapping.Key)) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+	}
+
+end:
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 PyObject *py_ue_enable_input(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
