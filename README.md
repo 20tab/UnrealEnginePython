@@ -187,10 +187,67 @@ This works in the same way as the PyActor class, but it is, well, a component. Y
 
 Remember that for components, the self.uobject field point to the component itself, not the actor.
 
-To access the actor you can use
+To access the actor you can use:
 
 ```py
-actor = self.uobject.get_class()
+actor = self.uobject.get_owner()
+```
+
+The following example implements the third person official blueprint as a python component:
+
+```py
+import unreal_engine as ue
+
+class Player:
+    def begin_play(self):
+        # get a reference to the owing pawn (a character)
+        self.pawn = self.uobject.get_owner()
+        
+        # allows the pawn to receive axis values
+        self.pawn.bind_input_axis('TurnRate')
+        self.pawn.bind_input_axis('LookUpRate')
+        
+        # the following two values are originally implemented as blueprint variable
+        self.base_turn_rate = 45.0
+        self.base_look_up_rate = 45.0
+        
+         # bind the other axis
+        self.pawn.bind_input_axis('Turn')
+        self.pawn.bind_input_axis('LookUp')
+
+        self.pawn.bind_input_axis('MoveForward')
+        self.pawn.bind_input_axis('MoveRight')
+        
+    def tick(self, delta_time):
+        # z rotation
+        turn_rate = self.pawn.get_input_axis('TurnRate') * self.base_turn_rate * delta_time
+        self.pawn.add_controller_yaw_input(turn_rate)
+
+        # y rotation
+        look_up_rate = self.pawn.get_input_axis('LookUpRate') * self.base_look_up_rate * delta_time
+        self.pawn.add_controller_pitch_input(look_up_rate)
+
+        # mouse vertical
+        self.pawn.add_controller_yaw_input(self.pawn.get_input_axis('Turn'))
+
+        # mouse horizontal
+        self.pawn.add_controller_pitch_input(self.pawn.get_input_axis('LookUp'))
+
+        # get current control rotation
+        rot = self.pawn.get_control_rotation()
+        
+        # move the character
+        fwd = ue.get_forward_vector(0, 0, rot[2])
+        right = ue.get_right_vector(0, 0, rot[2])
+
+        self.pawn.add_movement_input(*fwd, self.pawn.get_input_axis('MoveForward'))
+        self.pawn.add_movement_input(*right, self.pawn.get_input_axis('MoveRight'))
+
+        # manage jump
+        if self.pawn.is_action_pressed('Jump'):
+            self.pawn.jump()
+        if self.pawn.is_action_released('Jump'):
+            self.pawn.stop_jumping()
 ```
 
 PyPawn
@@ -346,7 +403,7 @@ You can get the the list of uobject api methods here: https://github.com/20tab/U
 Automatic module reloading (Editor only)
 ----------------------------------------
 
-When in the editor, you can change the code of your modules without restarting the project. The editor will reload the module every time a PyActor, PyPawn or PyComponent is instantiated. This is obviously not the best approach. In the future we would like to implement timestamp monitoring on the file to reload only when needed.
+When in the editor, you can change the code of your modules without restarting the project. The editor will reload the module every time a PyActor, PyPawn or PythonComponent is instantiated. This is obviously not the best approach. In the future we would like to implement timestamp monitoring on the file to reload only when needed.
 
 Math functions
 --------------
