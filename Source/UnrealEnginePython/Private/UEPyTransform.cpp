@@ -142,7 +142,7 @@ PyObject *py_ue_get_actor_rotation(ue_PyUObject *self, PyObject * args) {
 	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 
 ret:
-	return Py_BuildValue("fff", vec3.Pitch, vec3.Yaw, vec3.Roll);
+	return Py_BuildValue("fff", vec3.Roll, vec3.Pitch, vec3.Yaw);
 
 }
 
@@ -204,8 +204,8 @@ PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	float pitch, yaw, roll;
-	if (!PyArg_ParseTuple(args, "fff:set_actor_rotation", &pitch, &yaw, &roll)) {
+	float roll, pitch, yaw;
+	if (!PyArg_ParseTuple(args, "fff:set_actor_rotation", &roll, &pitch, &yaw)) {
 		return NULL;
 	}
 
@@ -241,7 +241,7 @@ PyObject *py_ue_get_world_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>()) {
 		FRotator vec3 = ((USceneComponent *)self->ue_object)->GetComponentRotation();
-		return Py_BuildValue("fff", vec3.Pitch, vec3.Yaw, vec3.Roll);
+		return Py_BuildValue("fff", vec3.Roll, vec3.Pitch, vec3.Yaw);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
 }
@@ -268,7 +268,7 @@ PyObject *py_ue_get_relative_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>()) {
 		FRotator vec3 = ((USceneComponent *)self->ue_object)->RelativeRotation;
-		return Py_BuildValue("fff", vec3.Pitch, vec3.Yaw, vec3.Roll);
+		return Py_BuildValue("fff", vec3.Roll, vec3.Pitch, vec3.Yaw);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
 }
@@ -325,8 +325,8 @@ PyObject *py_ue_set_world_location(ue_PyUObject *self, PyObject * args) {
 
 PyObject *py_ue_set_world_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
-	float pitch, yaw, roll;
-	if (!PyArg_ParseTuple(args, "fff:set_world_rotation", &pitch, &yaw, &roll)) {
+	float roll, pitch, yaw;
+	if (!PyArg_ParseTuple(args, "fff:set_world_rotation", &roll, &pitch, &yaw)) {
 		return NULL;
 	}
 	if (self->ue_object->IsA<USceneComponent>()) {
@@ -367,8 +367,8 @@ PyObject *py_ue_set_relative_location(ue_PyUObject *self, PyObject * args) {
 
 PyObject *py_ue_set_relative_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
-	float pitch, yaw, roll;
-	if (!PyArg_ParseTuple(args, "fff:set_relative_rotation", &pitch, &yaw, &roll)) {
+	float roll, pitch, yaw;
+	if (!PyArg_ParseTuple(args, "fff:set_relative_rotation", &roll, &pitch, &yaw)) {
 		return NULL;
 	}
 	if (self->ue_object->IsA<USceneComponent>()) {

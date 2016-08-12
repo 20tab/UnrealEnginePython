@@ -1,11 +1,13 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "UEPyTransform.h"
 #include "UEPyInput.h"
 #include "UEPyNavigation.h"
 #include "UEPySpline.h"
+#include "UEPyMovements.h"
 
 
 
@@ -90,6 +92,33 @@ static PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args)
 end:
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+static PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) {
+	float roll, pitch, yaw;
+	if (!PyArg_ParseTuple(args, "fff:get_forward_vector", &roll, &pitch, &yaw)) {
+		return NULL;
+	}
+	FVector vec = UKismetMathLibrary::GetForwardVector(FRotator(pitch, yaw, roll));
+	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
+}
+
+static PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
+	float roll, pitch, yaw;
+	if (!PyArg_ParseTuple(args, "fff:get_right_vector", &roll, &pitch, &yaw)) {
+		return NULL;
+	}
+	FVector vec = UKismetMathLibrary::GetRightVector(FRotator(pitch, yaw, roll));
+	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
+}
+
+static PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
+	float roll, pitch, yaw;
+	if (!PyArg_ParseTuple(args, "fff:get_up_vector", &roll, &pitch, &yaw)) {
+		return NULL;
+	}
+	FVector vec = UKismetMathLibrary::GetUpVector(FRotator(pitch, yaw, roll));
+	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
 }
 
 
@@ -298,6 +327,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "vector_add_float", py_unreal_engine_vector_add_float, METH_VARARGS, "" },
 	{ "vector_mul_vector", py_unreal_engine_vector_mul_vector, METH_VARARGS, "" },
 	{ "vector_mul_float", py_unreal_engine_vector_mul_float, METH_VARARGS, "" },
+
+	{ "get_forward_vector", py_unreal_engine_get_forward_vector, METH_VARARGS, "" },
+	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
+	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
 	{ NULL, NULL },
 };
 
@@ -978,6 +1011,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "enable_click_events", (PyCFunction)py_ue_enable_click_events, METH_VARARGS, "" },
 	{ "enable_mouse_over_events", (PyCFunction)py_ue_enable_mouse_over_events, METH_VARARGS, "" },
 
+	// Movements
+
+	{ "add_controller_pitch_input", (PyCFunction)py_ue_add_controller_pitch_input, METH_VARARGS, "" },
+	{ "add_controller_yaw_input", (PyCFunction)py_ue_add_controller_yaw_input, METH_VARARGS, "" },
+	{ "get_control_rotation", (PyCFunction)py_ue_get_control_rotation, METH_VARARGS, "" },
+	{ "add_movement_input", (PyCFunction)py_ue_add_movement_input, METH_VARARGS, "" },
+
 
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
 	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
@@ -1259,14 +1299,14 @@ static PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
 	float x = 0, y = 0, z = 0;
-	float pitch = 0, yaw = 0, roll = 0;
+	float roll = 0, pitch = 0, yaw = 0;
 
 	UWorld *world = ue_get_uworld(self);
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O|ffffff:actor_spawn", &obj, &x, &y, &z, &pitch, &yaw, &roll)) {
+	if (!PyArg_ParseTuple(args, "O|ffffff:actor_spawn", &obj, &x, &y, &z, &roll, &pitch, &yaw)) {
 		return NULL;
 	}
 
@@ -1292,9 +1332,6 @@ static PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
-
-	float x = 0, y = 0, z = 0;
-	float pitch = 0, yaw = 0, roll = 0;
 
 	UWorld *world = ue_get_uworld(self);
 	if (!world)
