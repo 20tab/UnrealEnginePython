@@ -1030,6 +1030,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "launch", (PyCFunction)py_ue_launch, METH_VARARGS, "" },
 	{ "is_jumping", (PyCFunction)py_ue_is_jumping, METH_VARARGS, "" },
 	{ "is_crouched", (PyCFunction)py_ue_is_crouched, METH_VARARGS, "" },
+	{ "is_falling", (PyCFunction)py_ue_is_falling, METH_VARARGS, "" },
+	{ "is_flying", (PyCFunction)py_ue_is_falling, METH_VARARGS, "" },
 	{ "can_jump", (PyCFunction)py_ue_can_jump, METH_VARARGS, "" },
 	{ "can_crouch", (PyCFunction)py_ue_can_crouch, METH_VARARGS, "" },
 

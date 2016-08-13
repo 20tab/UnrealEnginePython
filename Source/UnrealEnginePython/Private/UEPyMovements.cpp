@@ -354,6 +354,76 @@ PyObject *py_ue_is_crouched(ue_PyUObject *self, PyObject * args) {
 	return Py_False;
 }
 
+PyObject *py_ue_is_falling(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	ACharacter *character = nullptr;
+
+	if (self->ue_object->IsA<ACharacter>()) {
+		character = (ACharacter *)self->ue_object;
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *component = (UActorComponent *)self->ue_object;
+		AActor *actor = component->GetOwner();
+		if (actor) {
+			if (actor->IsA<ACharacter>()) {
+				character = (ACharacter *)actor;
+			}
+		}
+	}
+
+	if (!character)
+		return PyErr_Format(PyExc_Exception, "uobject is not a character");
+
+	UMovementComponent *movement = character->GetMovementComponent();
+	if (movement && movement->IsA<UCharacterMovementComponent>()) {
+		UCharacterMovementComponent *character_movement = (UCharacterMovementComponent *)movement;
+		if (character_movement->IsFalling()) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_ue_is_flying(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	ACharacter *character = nullptr;
+
+	if (self->ue_object->IsA<ACharacter>()) {
+		character = (ACharacter *)self->ue_object;
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *component = (UActorComponent *)self->ue_object;
+		AActor *actor = component->GetOwner();
+		if (actor) {
+			if (actor->IsA<ACharacter>()) {
+				character = (ACharacter *)actor;
+			}
+		}
+	}
+
+	if (!character)
+		return PyErr_Format(PyExc_Exception, "uobject is not a character");
+
+	UMovementComponent *movement = character->GetMovementComponent();
+	if (movement && movement->IsA<UCharacterMovementComponent>()) {
+		UCharacterMovementComponent *character_movement = (UCharacterMovementComponent *)movement;
+		if (character_movement->IsFlying()) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 PyObject *py_ue_can_jump(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
