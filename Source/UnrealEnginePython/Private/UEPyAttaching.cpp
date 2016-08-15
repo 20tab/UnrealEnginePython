@@ -148,3 +148,81 @@ static PyObject *py_ue_get_attached_actors(ue_PyUObject * self, PyObject * args)
 	}
 	return py_children;
 }
+
+static PyObject *py_ue_attach_to_actor(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *socket_name = "";
+	int location_rule = (int) EAttachmentRule::SnapToTarget;
+	int rotation_rule = (int) EAttachmentRule::KeepWorld;
+	int scale_rule = (int) EAttachmentRule::SnapToTarget;
+	PyObject *py_weld = nullptr;
+	if (!PyArg_ParseTuple(args, "O|siiiO:attach_to_actor", &obj, &socket_name, &location_rule, &rotation_rule, &scale_rule, &py_weld)) {
+		return NULL;
+	}
+
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve Actor from uobject");
+
+	ue_PyUObject *py_obj = ue_is_pyuobject(obj);
+	if (!py_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	if (!py_obj->ue_object->IsA<AActor>())
+		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
+
+	AActor *other = (AActor *)py_obj->ue_object;
+
+	bool weld = false;
+	if (py_weld && PyObject_IsTrue(py_weld))
+		weld = true;
+
+	actor->AttachToActor(other, FAttachmentTransformRules((EAttachmentRule)location_rule, (EAttachmentRule)rotation_rule, (EAttachmentRule)scale_rule, weld), UTF8_TO_TCHAR(socket_name));
+	
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_attach_to_component(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *socket_name = "";
+	int location_rule = (int)EAttachmentRule::SnapToTarget;
+	int rotation_rule = (int)EAttachmentRule::KeepWorld;
+	int scale_rule = (int)EAttachmentRule::SnapToTarget;
+	PyObject *py_weld = nullptr;
+	if (!PyArg_ParseTuple(args, "O|siiiO:attach_to_component", &obj, &socket_name, &location_rule, &rotation_rule, &scale_rule, &py_weld)) {
+		return NULL;
+	}
+
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve Actor from uobject");
+
+	ue_PyUObject *py_obj = ue_is_pyuobject(obj);
+	if (!py_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	if (!py_obj->ue_object->IsA<USceneComponent>())
+		return PyErr_Format(PyExc_Exception, "argument is not a SceneComponent");
+
+	USceneComponent *other = (USceneComponent *)py_obj->ue_object;
+
+	bool weld = false;
+	if (py_weld && PyObject_IsTrue(py_weld))
+		weld = true;
+
+	actor->AttachToComponent(other, FAttachmentTransformRules((EAttachmentRule)location_rule, (EAttachmentRule)rotation_rule, (EAttachmentRule)scale_rule, weld), UTF8_TO_TCHAR(socket_name));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
