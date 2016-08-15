@@ -820,11 +820,9 @@ static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<AActor>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
-
-	AActor *actor = (AActor *)self->ue_object;
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
 
 	PyObject *ret = PyList_New(0);
 
@@ -836,6 +834,33 @@ static PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args) {
 	}
 
 	return ret;
+}
+
+static PyObject *py_ue_get_actor_component(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:get_actor_component", &name)) {
+		return NULL;
+	}
+
+	for (UActorComponent *component : actor->GetComponents()) {
+		if (component->GetName().Equals(UTF8_TO_TCHAR(name))) {
+			ue_PyUObject *py_obj = ue_get_python_wrapper(component);
+			if (!py_obj)
+				return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+			Py_INCREF(py_obj);
+			return (PyObject *) py_obj;
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args) {
@@ -1023,6 +1048,7 @@ static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_set_view_target(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_add_actor_component(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_get_actor_components_by_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_add_actor_root_component(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_play_sound_at_location(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_get_overlapping_actors(ue_PyUObject *, PyObject *);
@@ -1068,6 +1094,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "set_property", (PyCFunction)py_ue_set_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
+	{ "get_properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
 
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
@@ -1098,6 +1125,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "was_input_key_just_released", (PyCFunction)py_ue_was_input_key_just_released, METH_VARARGS, "" },
 	{ "is_action_pressed", (PyCFunction)py_ue_is_action_pressed, METH_VARARGS, "" },
 	{ "is_action_released", (PyCFunction)py_ue_is_action_released, METH_VARARGS, "" },
+	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
 	
 
 	// Movements
@@ -1121,11 +1149,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
-	{ "actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
+	{ "get_actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
+	{ "components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
+	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
+
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
-	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
+	
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
+
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
 	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS, "" },
 	{ "actor_has_tag", (PyCFunction)py_ue_actor_has_tag, METH_VARARGS, "" },
@@ -1143,6 +1175,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "get_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
+	{ "get_component", (PyCFunction)py_ue_get_actor_component, METH_VARARGS, "" },
+	{ "get_actor_component", (PyCFunction)py_ue_get_actor_component, METH_VARARGS, "" },
+	{ "get_actor_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
+	{ "get_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
 
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
@@ -1380,19 +1416,12 @@ static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject
 	if (!py_obj)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 
-	AActor *actor = nullptr;
-
-	if (self->ue_object->IsA<AActor>()) {
-		actor = (AActor *)self->ue_object;
-	}
-	// another shortcut for finding an actor by its component
-	else if (self->ue_object->IsA<UActorComponent>()) {
-		UActorComponent *tmp_component = (UActorComponent *)self->ue_object;
-		actor = tmp_component->GetOwner();
-	}
-
+	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
 	UActorComponent *component = actor->GetComponentByClass((UClass *)py_obj->ue_object);
 	if (component) {
@@ -1405,6 +1434,54 @@ static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject
 
 	Py_INCREF(Py_None);
 	return Py_None;
+
+}
+
+static PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:get_actor_components_by_type", &obj)) {
+		return NULL;
+	}
+
+	ue_PyUObject *py_obj = nullptr;
+
+	if (PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		py_obj = (ue_PyUObject *)obj;
+	}
+	// shortcut for finding class by string
+	else if (PyUnicode_Check(obj)) {
+		char *class_name = PyUnicode_AsUTF8(obj);
+		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
+
+		if (u_class) {
+			py_obj = ue_get_python_wrapper(u_class);
+			if (py_obj)
+				Py_INCREF(py_obj);
+		}
+	}
+
+	if (!py_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+
+	PyObject *components = PyList_New(0);
+
+	for(UActorComponent *component: actor->GetComponentsByClass((UClass *)py_obj->ue_object)) {
+		ue_PyUObject *item = ue_get_python_wrapper(component);
+		if (item)
+			PyList_Append(components, (PyObject *)item);
+	}
+
+	return components;
 
 }
 
