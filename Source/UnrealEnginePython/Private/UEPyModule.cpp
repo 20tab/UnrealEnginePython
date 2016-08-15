@@ -8,6 +8,7 @@
 #include "UEPyNavigation.h"
 #include "UEPySpline.h"
 #include "UEPyMovements.h"
+#include "UEPyAttaching.h"
 
 
 
@@ -1160,6 +1161,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
+
+	{ "get_socket_location", (PyCFunction)py_ue_get_socket_location, METH_VARARGS, "" },
+	{ "get_socket_rotation", (PyCFunction)py_ue_get_socket_rotation, METH_VARARGS, "" },
+	{ "get_socket_transform", (PyCFunction)py_ue_get_socket_transform, METH_VARARGS, "" },
+	{ "get_socket_world_transform", (PyCFunction)py_ue_get_socket_world_transform, METH_VARARGS, "" },
+	{ "get_socket_actor_transform", (PyCFunction)py_ue_get_socket_actor_transform, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };

@@ -27,9 +27,9 @@ class TestTransform(unittest.TestCase):
 
     def test_rotation(self):
         self.actor.set_actor_rotation(17, 22, 30)
-        pitch, roll, yaw = self.actor.get_actor_rotation()
-        self.assertTrue(17 - pitch < 0.01)
-        self.assertTrue(22 - roll < 0.01)
+        roll, pitch, yaw = self.actor.get_actor_rotation()
+        self.assertTrue(17 - roll < 0.01)
+        self.assertTrue(22 - pitch < 0.01)
         self.assertTrue(30 - yaw < 0.01)
 
     def test_scale(self):
