@@ -97,3 +97,54 @@ PyObject *py_ue_get_socket_actor_transform(ue_PyUObject *self, PyObject * args) 
 	FRotator rot = FRotator(transform.GetRotation());
 	return Py_BuildValue("ffffff", location.X, location.Y, location.Z, rot.Roll, rot.Pitch, rot.Yaw);
 }
+
+static PyObject *py_ue_get_all_child_actors(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+	PyObject *py_include_descendants = NULL;
+	if (!PyArg_ParseTuple(args, "|O:get_all_child_actors", &py_include_descendants)) {
+		return NULL;
+	}
+
+	bool include_descendants = true;
+	if (py_include_descendants && !PyObject_IsTrue(py_include_descendants))
+		include_descendants = false;
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve actor from UObject");
+
+
+	PyObject *py_children = PyList_New(0);
+
+	TArray<AActor *> children;
+	actor->GetAllChildActors(children, include_descendants);
+
+	for (AActor *child : children) {
+		ue_PyUObject *item = ue_get_python_wrapper(child);
+		if (item)
+			PyList_Append(py_children, (PyObject *)item);
+	}
+	return py_children;
+}
+
+static PyObject *py_ue_get_attached_actors(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+	
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve actor from UObject");
+
+	PyObject *py_children = PyList_New(0);
+
+	TArray<AActor *> children;
+	actor->GetAttachedActors(children);
+
+	for (AActor *child : children) {
+		ue_PyUObject *item = ue_get_python_wrapper(child);
+		if (item)
+			PyList_Append(py_children, (PyObject *)item);
+	}
+	return py_children;
+}
