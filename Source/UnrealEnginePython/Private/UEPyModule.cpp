@@ -558,6 +558,36 @@ static PyObject *py_ue_create_player(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(controller->PlayerState->PlayerId);
 }
 
+static PyObject *py_ue_get_num_players(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	AGameMode *game_mode = world->GetAuthGameMode();
+	if (!game_mode)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve GameMode from world");
+
+	return PyLong_FromLong(game_mode->NumPlayers);
+}
+
+static PyObject *py_ue_get_num_spectators(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	AGameMode *game_mode = world->GetAuthGameMode();
+	if (!game_mode)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve GameMode from world");
+
+	return PyLong_FromLong(game_mode->NumSpectators);
+}
+
 
 
 static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
@@ -1125,6 +1155,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "world_tick", (PyCFunction)py_ue_world_tick, METH_VARARGS, "" },
 
 	{ "create_player", (PyCFunction)py_ue_create_player, METH_VARARGS, "" },
+	{ "get_num_players", (PyCFunction)py_ue_get_num_players, METH_VARARGS, "" },
+	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };

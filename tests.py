@@ -37,6 +37,15 @@ class TestTransform(unittest.TestCase):
         scale = self.actor.get_actor_scale()
         self.assertEqual(scale, (3, 5, 7))
 
+class TestPlayer(unittest.TestCase):
+    def setUp(self):
+        self.actor = tests.tester_actor
+
+    def test_create_player(self):
+        self.assertEqual(self.actor.get_num_players(), 1)
+        self.actor.create_player(-1)
+        self.assertEqual(self.actor.get_num_players(), 2)
+
         
 class TesterActor:
     def begin_play(self):
