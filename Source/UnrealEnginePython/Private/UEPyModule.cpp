@@ -1024,6 +1024,7 @@ static PyObject *py_ue_add_actor_component(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_add_actor_root_component(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_play_sound_at_location(ue_PyUObject *, PyObject *);
+static PyObject *py_ue_get_overlapping_actors(ue_PyUObject *, PyObject *);
 
 static PyMethodDef ue_PyUObject_methods[] = {
 
@@ -1157,6 +1158,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "create_player", (PyCFunction)py_ue_create_player, METH_VARARGS, "" },
 	{ "get_num_players", (PyCFunction)py_ue_get_num_players, METH_VARARGS, "" },
 	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
+
+	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };
@@ -1496,6 +1499,47 @@ static PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
+static PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve actor from UObject");
+
+	PyObject *class_filter = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:get_overlapping_actors", &class_filter)) {
+		return NULL;
+	}
+	
+	UClass *filtering = AActor::StaticClass();
+
+	if (class_filter) {
+		
+		if (!PyObject_IsInstance(class_filter, (PyObject *)&ue_PyUObjectType))
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+		ue_PyUObject *py_obj = (ue_PyUObject *)class_filter;
+
+		if (!py_obj->ue_object->IsA((UClass *)py_obj->ue_object))
+			return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+
+		filtering = (UClass *)py_obj->ue_object;
+	}
+
+	PyObject *py_overlapping_actors = PyList_New(0);
+
+	TArray<AActor *> overalpping_actors;
+	actor->GetOverlappingActors(overalpping_actors, filtering);
+
+	for (AActor *overlapping_actor : overalpping_actors) {
+		ue_PyUObject *item = ue_get_python_wrapper(overlapping_actor);
+		if (item)
+			PyList_Append(py_overlapping_actors, (PyObject *)item);
+	}
+	return py_overlapping_actors;
+}
+
 static PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -1657,6 +1701,18 @@ UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
 		return component->GetWorld();
 	}
 
+	return nullptr;
+}
+
+AActor *ue_get_actor(ue_PyUObject *py_obj) {
+	if (py_obj->ue_object->IsA<AActor>()) {
+		return (AActor *)py_obj->ue_object;
+	}
+
+	if (py_obj->ue_object->IsA<UActorComponent>()) {
+		UActorComponent *tmp_component = (UActorComponent *)py_obj->ue_object;
+		return tmp_component->GetOwner();
+	}
 	return nullptr;
 }
 
