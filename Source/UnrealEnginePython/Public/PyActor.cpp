@@ -95,6 +95,9 @@ void APyActor::Tick(float DeltaTime)
 	if (!py_actor_instance)
 		return;
 
+	if (!PyObject_HasAttrString(py_actor_instance, "tick"))
+		return;
+
 	PyObject *ret = PyObject_CallMethod(py_actor_instance, "tick", "f", DeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();

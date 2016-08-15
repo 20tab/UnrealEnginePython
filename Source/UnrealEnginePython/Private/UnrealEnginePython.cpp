@@ -12,6 +12,8 @@ void FUnrealEnginePythonModule::StartupModule()
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
 	Py_Initialize();
+	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
+	PySys_SetArgv(1, argv);
 
 	unreal_engine_init_py_module();
 

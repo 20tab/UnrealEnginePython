@@ -331,6 +331,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_forward_vector", py_unreal_engine_get_forward_vector, METH_VARARGS, "" },
 	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
+
 	{ NULL, NULL },
 };
 
@@ -442,7 +443,7 @@ static PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetFullName())));
+return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetFullName())));
 }
 
 #if WITH_EDITOR
@@ -499,12 +500,63 @@ static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	UKismetSystemLibrary::QuitGame(world, world->GetFirstPlayerController(), EQuitPreference::Quit);
+	// no need to support multiple controllers
+	APlayerController *controller = world->GetFirstPlayerController();
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve the first controller");
+
+	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit);
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
+// mainly used for testing
+static PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float delta_time;
+	if (!PyArg_ParseTuple(args, "f:world_tick", &delta_time)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	world->Tick(LEVELTICK_All, delta_time);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_create_player(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int controller_id;
+	PyObject *spawn_pawn;
+	if (!PyArg_ParseTuple(args, "i|O:create_player", &controller_id, &spawn_pawn)) {
+		return NULL;
+	}
+
+	bool b_spawn_pawn = true;
+
+	if (spawn_pawn && !PyObject_IsTrue(spawn_pawn)) {
+		b_spawn_pawn = false;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = UGameplayStatics::CreatePlayer(world, controller_id, b_spawn_pawn);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to create a new player fro controller %d", controller_id);
+
+	return PyLong_FromLong(controller->PlayerState->PlayerId);
+}
 
 
 
@@ -896,13 +948,14 @@ static PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject
 
 	int channel;
 	PyObject *trace_complex = NULL;
+	int controller_id = 0;
 
 	UWorld *world = ue_get_uworld(self);
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 
-	if (!PyArg_ParseTuple(args, "i|O:get_hit_result_under_cursor", &channel, &trace_complex)) {
+	if (!PyArg_ParseTuple(args, "i|Oi:get_hit_result_under_cursor", &channel, &trace_complex, &controller_id)) {
 		return NULL;
 	}
 
@@ -912,10 +965,9 @@ static PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject
 		complex = true;
 	}
 
-	APlayerController *controller = world->GetFirstPlayerController();
-
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
 	if (!controller)
-		return PyErr_Format(PyExc_Exception, "unable to find first player controller");
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 
 	FHitResult hit;
 
@@ -1069,6 +1121,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_velocity", (PyCFunction)py_ue_get_actor_velocity, METH_VARARGS, "" },
 
 	{ "play_sound_at_location", (PyCFunction)py_ue_play_sound_at_location, METH_VARARGS, "" },
+
+	{ "world_tick", (PyCFunction)py_ue_world_tick, METH_VARARGS, "" },
+
+	{ "create_player", (PyCFunction)py_ue_create_player, METH_VARARGS, "" },
 
 	{ NULL }  /* Sentinel */
 };
@@ -1355,7 +1411,8 @@ static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:set_view_target", &obj)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "O|i:set_view_target", &obj, &controller_id)) {
 		return NULL;
 	}
 
@@ -1371,7 +1428,11 @@ static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 
 	AActor *actor = (AActor *)py_obj->ue_object;
 
-	world->GetFirstPlayerController()->SetViewTarget(actor);
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+
+	controller->SetViewTarget(actor);
 
 	Py_INCREF(Py_None);
 	return Py_None;

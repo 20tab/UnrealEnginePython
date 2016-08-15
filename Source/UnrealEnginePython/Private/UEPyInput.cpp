@@ -6,7 +6,8 @@ PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	char *key;
-	if (!PyArg_ParseTuple(args, "s:is_input_key_down", &key)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "s|i:is_input_key_down", &key, &controller_id)) {
 		return NULL;
 	}
 
@@ -14,7 +15,9 @@ PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 
 	if (controller->IsInputKeyDown(key)) {
 		Py_INCREF(Py_True);
@@ -30,7 +33,8 @@ PyObject *py_ue_was_input_key_just_pressed(ue_PyUObject *self, PyObject * args) 
 	ue_py_check(self);
 
 	char *key;
-	if (!PyArg_ParseTuple(args, "s:was_input_key_just_pressed", &key)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "s|i:was_input_key_just_pressed", &key, &controller_id)) {
 		return NULL;
 	}
 
@@ -38,7 +42,9 @@ PyObject *py_ue_was_input_key_just_pressed(ue_PyUObject *self, PyObject * args) 
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 
 	if (controller->WasInputKeyJustPressed(key)) {
 		Py_INCREF(Py_True);
@@ -54,7 +60,8 @@ PyObject *py_ue_is_action_pressed(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	char *key;
-	if (!PyArg_ParseTuple(args, "s:is_action_pressed", &key)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "s|i:is_action_pressed", &key, &controller_id)) {
 		return NULL;
 	}
 
@@ -62,7 +69,9 @@ PyObject *py_ue_is_action_pressed(ue_PyUObject *self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 	UPlayerInput *input = controller->PlayerInput;
 	if (!input)
 		goto end;
@@ -84,7 +93,8 @@ PyObject *py_ue_was_input_key_just_released(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	char *key;
-	if (!PyArg_ParseTuple(args, "s:was_input_key_just_released", &key)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "s|i:was_input_key_just_released", &key, &controller_id)) {
 		return NULL;
 	}
 
@@ -92,7 +102,9 @@ PyObject *py_ue_was_input_key_just_released(ue_PyUObject *self, PyObject * args)
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 
 	if (controller->WasInputKeyJustReleased(key)) {
 		Py_INCREF(Py_True);
@@ -108,7 +120,8 @@ PyObject *py_ue_is_action_released(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	char *key;
-	if (!PyArg_ParseTuple(args, "s:is_action_released", &key)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "s|i:is_action_released", &key, &controller_id)) {
 		return NULL;
 	}
 
@@ -116,7 +129,9 @@ PyObject *py_ue_is_action_released(ue_PyUObject *self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 	UPlayerInput *input = controller->PlayerInput;
 	if (!input)
 		goto end;
@@ -137,17 +152,18 @@ PyObject *py_ue_enable_input(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	/*
-	TODO manage controller index
-	}*/
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "|i:enable_input", &controller_id)) {
+		return NULL;
+	}
 
 	UWorld *world = ue_get_uworld(self);
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
 	if (!controller)
-		return PyErr_Format(PyExc_Exception, "no player controller available");
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
 
 	if (self->ue_object->IsA<AActor>()) {
 		((AActor *)self->ue_object)->EnableInput(controller);
@@ -232,7 +248,8 @@ PyObject *py_ue_show_mouse_cursor(ue_PyUObject * self, PyObject * args) {
 	bool enabled = true;
 
 	PyObject *is_true = NULL;
-	if (!PyArg_ParseTuple(args, "|O:show_mouse_cursor", &is_true)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "|Oi:show_mouse_cursor", &is_true, &controller_id)) {
 		return NULL;
 	}
 
@@ -243,9 +260,11 @@ PyObject *py_ue_show_mouse_cursor(ue_PyUObject * self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (controller)
-		controller->bShowMouseCursor = enabled;
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+	
+	controller->bShowMouseCursor = enabled;
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -258,7 +277,8 @@ PyObject *py_ue_enable_click_events(ue_PyUObject * self, PyObject * args) {
 	bool enabled = true;
 
 	PyObject *is_true = NULL;
-	if (!PyArg_ParseTuple(args, "|O:enable_click_events", &is_true)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "|Oi:enable_click_events", &is_true, &controller_id)) {
 		return NULL;
 	}
 
@@ -269,9 +289,11 @@ PyObject *py_ue_enable_click_events(ue_PyUObject * self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (controller)
-		controller->bEnableClickEvents = enabled;
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+
+	controller->bEnableClickEvents = enabled;
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -284,7 +306,8 @@ PyObject *py_ue_enable_mouse_over_events(ue_PyUObject * self, PyObject * args) {
 	bool enabled = true;
 
 	PyObject *is_true = NULL;
-	if (!PyArg_ParseTuple(args, "|O:enable_mouse_over_events", &is_true)) {
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "|Oi:enable_mouse_over_events", &is_true, &controller_id)) {
 		return NULL;
 	}
 
@@ -296,7 +319,7 @@ PyObject *py_ue_enable_mouse_over_events(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 
-	APlayerController *controller = world->GetFirstPlayerController();
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
 	if (controller)
 		controller->bEnableMouseOverEvents = enabled;
 
