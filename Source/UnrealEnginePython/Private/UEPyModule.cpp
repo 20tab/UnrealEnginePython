@@ -10,6 +10,7 @@
 #include "UEPyMovements.h"
 #include "UEPyAttaching.h"
 #include "UEPySkeletal.h"
+#include "UEPyTraceAndSweep.h"
 
 
 
@@ -142,6 +143,28 @@ static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+static PyObject *py_unreal_engine_color_to_linear(PyObject * self, PyObject * args) {
+	uint8 r, g, b;
+	uint8 a = 255;
+	if (!PyArg_ParseTuple(args, "iii|i:color_to_linear", &r, &g, &b, &a)) {
+		return NULL;
+	}
+
+	FLinearColor lcolor = FColor(r, g, b, a).ReinterpretAsLinear();
+	return Py_BuildValue("fff", lcolor.R, lcolor.G, lcolor.B);
+}
+
+static PyObject *py_unreal_engine_color_from_linear(PyObject * self, PyObject * args) {
+	float r, g, b;
+	float a = 1;
+	if (!PyArg_ParseTuple(args, "fff|f:color_from_linear", &r, &g, &b, &a)) {
+		return NULL;
+	}
+
+	FColor color = FLinearColor(r, g, b, a).ToFColor(true);
+	return Py_BuildValue("iii", color.R, color.G, color.B);
 }
 
 static PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
@@ -333,6 +356,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_forward_vector", py_unreal_engine_get_forward_vector, METH_VARARGS, "" },
 	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
+
+	{ "color_to_linear", py_unreal_engine_color_to_linear, METH_VARARGS, "" },
+	{ "color_from_linear", py_unreal_engine_color_from_linear, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
@@ -928,118 +954,7 @@ static PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args) {
 
 }
 
-static PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * args) {
 
-	ue_py_check(self);
-
-	float x1 = 0, y1 = 0, z1 = 0;
-	float x2 = 0, y2 = 0, z2 = 0;
-	int channel;
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-
-	if (!PyArg_ParseTuple(args, "ffffffi:line_trace_single_by_channel", &x1, &y1, &z1, &x2, &y2, &z2, &channel)) {
-		return NULL;
-	}
-
-	FHitResult hit;
-
-	bool got_hit = world->LineTraceSingleByChannel(hit, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
-
-	if (got_hit) {
-		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
-	}
-
-	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
-
-}
-
-static PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	float x1 = 0, y1 = 0, z1 = 0;
-	float x2 = 0, y2 = 0, z2 = 0;
-	int channel;
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-
-	if (!PyArg_ParseTuple(args, "ffffffi:line_trace_multi_by_channel", &x1, &y1, &z1, &x2, &y2, &z2, &channel)) {
-		return NULL;
-	}
-
-	TArray<struct FHitResult> hits;
-	hits.Reset();
-
-	PyObject *hits_list = PyList_New(0);
-
-
-	bool got_hits = world->LineTraceMultiByChannel(hits, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
-
-	if (got_hits) {
-		for (int i = 0; i < hits.Num(); i++) {
-			FHitResult hit = hits[i];
-			PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
-			if (ret) {
-				PyList_Append(hits_list, Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z));
-			}
-		}
-	}
-
-	return hits_list;
-
-}
-
-static PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	int channel;
-	PyObject *trace_complex = NULL;
-	int controller_id = 0;
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-
-	if (!PyArg_ParseTuple(args, "i|Oi:get_hit_result_under_cursor", &channel, &trace_complex, &controller_id)) {
-		return NULL;
-	}
-
-
-	bool complex = false;
-	if (trace_complex && PyObject_IsTrue(trace_complex)) {
-		complex = true;
-	}
-
-	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
-	if (!controller)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
-
-	FHitResult hit;
-
-	bool got_hit = controller->GetHitResultUnderCursor((ECollisionChannel)channel, complex, hit);
-
-	if (got_hit) {
-		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
-	}
-
-	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
-
-}
 
 
 static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
@@ -1169,6 +1084,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "line_trace_single_by_channel", (PyCFunction)py_ue_line_trace_single_by_channel, METH_VARARGS, "" },
 	{ "line_trace_multi_by_channel", (PyCFunction)py_ue_line_trace_multi_by_channel, METH_VARARGS, "" },
 	{ "get_hit_result_under_cursor", (PyCFunction)py_ue_get_hit_result_under_cursor, METH_VARARGS, "" },
+	{ "draw_debug_line", (PyCFunction)py_ue_draw_debug_line, METH_VARARGS, "" },
 	
 	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
 
@@ -1712,6 +1628,21 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_KEEP_RELATIVE", PyLong_FromLong((int)EAttachmentRule::KeepRelative));
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_KEEP_WORLD", PyLong_FromLong((int)EAttachmentRule::KeepWorld));
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_SNAP_TO_TARGET", PyLong_FromLong((int)EAttachmentRule::SnapToTarget));
+
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_BLACK", Py_BuildValue("iii", FColor::Black.R, FColor::Black.G, FColor::Black.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_BLUE", Py_BuildValue("iii", FColor::Blue.R, FColor::Blue.G, FColor::Blue.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_CYAN", Py_BuildValue("iii", FColor::Cyan.R, FColor::Cyan.G, FColor::Cyan.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_EMERALD", Py_BuildValue("iii", FColor::Emerald.R, FColor::Emerald.G, FColor::Emerald.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_GREEN", Py_BuildValue("iii", FColor::Green.R, FColor::Green.G, FColor::Green.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_MAGENTA", Py_BuildValue("iii", FColor::Magenta.R, FColor::Magenta.G, FColor::Magenta.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_ORANGE", Py_BuildValue("iii", FColor::Orange.R, FColor::Orange.G, FColor::Orange.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_PURPLE", Py_BuildValue("iii", FColor::Purple.R, FColor::Purple.G, FColor::Purple.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_RED", Py_BuildValue("iii", FColor::Red.R, FColor::Red.G, FColor::Red.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_SILVER", Py_BuildValue("iii", FColor::Silver.R, FColor::Silver.G, FColor::Silver.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_TURQUOISE", Py_BuildValue("iii", FColor::Turquoise.R, FColor::Turquoise.G, FColor::Turquoise.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_WHITE", Py_BuildValue("iii", FColor::White.R, FColor::White.G, FColor::White.B));
+	PyDict_SetItemString(unreal_engine_dict, "COLOR_YELLOW", Py_BuildValue("iii", FColor::Yellow.R, FColor::Yellow.G, FColor::Yellow.B));
+
 }
 
 
