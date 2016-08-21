@@ -9,6 +9,7 @@
 #include "UEPySpline.h"
 #include "UEPyMovements.h"
 #include "UEPyAttaching.h"
+#include "UEPySkeletal.h"
 
 
 
@@ -1198,6 +1199,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 
+
+	// Attaching
+
 	{ "get_socket_location", (PyCFunction)py_ue_get_socket_location, METH_VARARGS, "" },
 	{ "get_socket_rotation", (PyCFunction)py_ue_get_socket_rotation, METH_VARARGS, "" },
 	{ "get_socket_transform", (PyCFunction)py_ue_get_socket_transform, METH_VARARGS, "" },
@@ -1207,6 +1211,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_all_child_actors", (PyCFunction)py_ue_get_all_child_actors, METH_VARARGS, "" },
 	{ "attach_to_actor", (PyCFunction)py_ue_attach_to_actor, METH_VARARGS, "" },
 	{ "attach_to_component", (PyCFunction)py_ue_attach_to_component, METH_VARARGS, "" },
+
+	// Skeletal
+	{ "get_anim_instance", (PyCFunction)py_ue_get_anim_instance, METH_VARARGS, "" },
+
 
 	{ NULL }  /* Sentinel */
 };
