@@ -200,6 +200,49 @@ static PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * a
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
+static PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *actors = PyList_New(0);
+
+	USelection *selection = GEditor->GetSelectedActors();
+	int32 nums = selection->CountSelections<UObject>();
+
+	for (int32 i = 0; i < nums;i++) {
+		UObject *obj = selection->GetSelectedObject(i);
+		if (!obj->IsA<AActor>())
+			continue;
+		AActor *actor = (AActor *)obj;
+		ue_PyUObject *item = ue_get_python_wrapper(actor);
+		if (item)
+			PyList_Append(actors, (PyObject *)item);
+	}
+
+	return actors;
+}
+
+static PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	GEditor->SelectNone(true, true, false);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 #endif
 
 
@@ -344,7 +387,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
 #if WITH_EDITOR
-	{ "get_editor_world()", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
+	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
+	{ "editor_get_selected_actors", (PyCFunction)py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
+	{ "editor_select_actor", (PyCFunction)py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
+	{ "editor_deselect_actors", (PyCFunction)py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
 #endif
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
@@ -490,6 +536,24 @@ static PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args) {
 	}
 
 	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+}
+static PyObject *py_ue_set_actor_label(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
+
+	char *label;
+	if (!PyArg_ParseTuple(args, "s:set_actor_label", &label)) {
+		return NULL;
+	}
+
+	actor->SetActorLabel(UTF8_TO_TCHAR(label), true);
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 #endif
 
@@ -1020,6 +1084,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
+	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
+	
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 #endif
 	
@@ -1696,7 +1762,7 @@ void unreal_engine_py_log_error() {
 
 	PyObject *traceback_module = PyImport_ImportModule("traceback");
 	if (!traceback_module) {
-		return;
+		goto end;
 	}
 
 	PyObject *traceback_dict = PyModule_GetDict(traceback_module);
@@ -1724,6 +1790,11 @@ end:
 }
 
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
+
+	if (py_obj->ue_object->IsA<UWorld>()) {
+		return (UWorld *)py_obj->ue_object;
+	}
+
 	if (py_obj->ue_object->IsA<AActor>()) {
 		AActor *actor = (AActor *)py_obj->ue_object;
 		return actor->GetWorld();

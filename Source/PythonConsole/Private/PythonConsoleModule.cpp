@@ -1,0 +1,162 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+
+#include "PythonConsolePrivatePCH.h"
+#include "SPythonConsole.h"
+#include "SPythonLog.h"
+#include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
+#include "SDockTab.h"
+
+IMPLEMENT_MODULE( FPythonConsoleModule, PythonLog );
+
+namespace PythonConsoleModule
+{
+	static const FName PythonLogTabName = FName(TEXT("PythonLog"));
+}
+
+/** This class is to capture all log output even if the log window is closed */
+class FPythonLogHistory : public FOutputDevice
+{
+public:
+
+	FPythonLogHistory()
+	{
+		GLog->AddOutputDevice(this);
+		GLog->SerializeBacklog(this);
+	}
+
+	~FPythonLogHistory()
+	{
+		// At shutdown, GLog may already be null
+		if( GLog != NULL )
+		{
+			GLog->RemoveOutputDevice(this);
+		}
+	}
+
+	/** Gets all captured messages */
+	const TArray< TSharedPtr<FLogMessage> >& GetMessages() const
+	{
+		return Messages;
+	}
+
+protected:
+
+	virtual void Serialize( const TCHAR* V, ELogVerbosity::Type Verbosity, const class FName& Category ) override
+	{
+		// Capture all incoming messages and store them in history
+		SPythonLog::CreateLogMessages(V, Verbosity, Category, Messages);
+	}
+
+private:
+
+	/** All log messsges since this module has been started */
+	TArray< TSharedPtr<FLogMessage> > Messages;
+};
+
+/** Our global output log app spawner */
+static TSharedPtr<FPythonLogHistory> PythonLogHistory;
+
+TSharedRef<SDockTab> SpawnPythonLog( const FSpawnTabArgs& Args )
+{
+	return SNew(SDockTab)
+		.Icon(FEditorStyle::GetBrush("Log.TabIcon"))
+		.TabRole( ETabRole::NomadTab )
+		.Label( NSLOCTEXT("PythonConsole", "TabTitle", "Python Console") )
+		[
+			SNew(SPythonLog).Messages( PythonLogHistory->GetMessages() )
+		];
+}
+
+void FPythonConsoleModule::StartupModule()
+{
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(PythonConsoleModule::PythonLogTabName, FOnSpawnTab::CreateStatic( &SpawnPythonLog ) )
+		.SetDisplayName(NSLOCTEXT("UnrealEditor", "PythonLogTab", "Python Console"))
+		.SetTooltipText(NSLOCTEXT("UnrealEditor", "PythonLogTooltipText", "Open the Python Console tab."))
+		.SetGroup( WorkspaceMenu::GetMenuStructure().GetDeveloperToolsLogCategory() )
+		.SetIcon( FSlateIcon(FEditorStyle::GetStyleSetName(), "Log.TabIcon") );
+
+	
+	PythonLogHistory = MakeShareable(new FPythonLogHistory);
+}
+
+void FPythonConsoleModule::ShutdownModule()
+{
+	if (FSlateApplication::IsInitialized())
+	{
+		FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(PythonConsoleModule::PythonLogTabName);
+	}
+}
+
+TSharedRef< SWidget > FPythonConsoleModule::MakeConsoleInputBox( TSharedPtr< SEditableTextBox >& OutExposedEditableTextBox ) const
+{
+	TSharedRef< SPythonConsoleInputBox > NewConsoleInputBox = SNew( SPythonConsoleInputBox );
+	OutExposedEditableTextBox = NewConsoleInputBox->GetEditableTextBox();
+	return NewConsoleInputBox;
+}
+
+
+void FPythonConsoleModule::TogglePythonConsoleForWindow( const TSharedRef< SWindow >& Window, const EPythonConsoleStyle::Type InStyle, const FPythonConsoleDelegates& PythonConsoleDelegates )
+{
+	bool bShouldOpen = true;
+	// Close an existing console box, if there is one
+	TSharedPtr< SWidget > PinnedPythonConsole( PythonConsole.Pin() );
+	if( PinnedPythonConsole.IsValid() )
+	{
+		// If the console is already open close it unless it is in a different window.  In that case reopen it on that window
+		bShouldOpen = false;
+		TSharedPtr< SWindow > WindowForExistingConsole = FSlateApplication::Get().FindWidgetWindow(PinnedPythonConsole.ToSharedRef());
+		if (WindowForExistingConsole.IsValid())
+		{
+			WindowForExistingConsole->RemoveOverlaySlot(PinnedPythonConsole.ToSharedRef());
+			PythonConsole.Reset();
+		}
+
+		if( WindowForExistingConsole != Window )
+		{
+			// Console is being opened on another window
+			bShouldOpen = true;
+		}
+	}
+	
+	TSharedPtr<SDockTab> ActiveTab = FGlobalTabmanager::Get()->GetActiveTab();
+	if (ActiveTab.IsValid() && ActiveTab->GetLayoutIdentifier() == FTabId(PythonConsoleModule::PythonLogTabName))
+	{
+		FGlobalTabmanager::Get()->DrawAttention(ActiveTab.ToSharedRef());
+		bShouldOpen = false;
+	}
+
+	if( bShouldOpen )
+	{
+		const EPythonConsoleStyle::Type PythonConsoleStyle = InStyle;
+		TSharedRef< SPythonConsole > PythonConsoleRef = SNew( SPythonConsole, PythonConsoleStyle, this, &PythonConsoleDelegates );
+		PythonConsole = PythonConsoleRef;
+
+		const int32 MaximumZOrder = MAX_int32;
+		Window->AddOverlaySlot( MaximumZOrder )
+		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Center)
+		.Padding( 10.0f )
+		[
+			PythonConsoleRef
+		];
+
+		// Force keyboard focus
+		PythonConsoleRef->SetFocusToEditableText();
+	}
+}
+
+
+void FPythonConsoleModule::ClosePythonConsole()
+{
+	TSharedPtr< SWidget > PinnedPythonConsole( PythonConsole.Pin() );
+
+	if( PinnedPythonConsole.IsValid() )
+	{
+		TSharedPtr< SWindow > WindowForExistingConsole = FSlateApplication::Get().FindWidgetWindow(PinnedPythonConsole.ToSharedRef());
+		if (WindowForExistingConsole.IsValid())
+		{
+			WindowForExistingConsole->RemoveOverlaySlot( PinnedPythonConsole.ToSharedRef() );
+			PythonConsole.Reset();
+		}
+	}
+}
