@@ -154,7 +154,7 @@ static PyObject *py_ue_attach_to_actor(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
 	PyObject *obj;
-	char *socket_name = "";
+	char *socket_name = (char *)"";
 	int location_rule = (int) EAttachmentRule::SnapToTarget;
 	int rotation_rule = (int) EAttachmentRule::KeepWorld;
 	int scale_rule = (int) EAttachmentRule::SnapToTarget;
@@ -193,7 +193,7 @@ static PyObject *py_ue_attach_to_component(ue_PyUObject * self, PyObject * args)
 	ue_py_check(self);
 
 	PyObject *obj;
-	char *socket_name = "";
+	char *socket_name = (char *)"";
 	int location_rule = (int)EAttachmentRule::SnapToTarget;
 	int rotation_rule = (int)EAttachmentRule::KeepWorld;
 	int scale_rule = (int)EAttachmentRule::SnapToTarget;
