@@ -1743,8 +1743,10 @@ void unreal_engine_py_log_error() {
 	PyErr_Fetch(&type, &value, &traceback);
 	PyErr_NormalizeException(&type, &value, &traceback);
 
-	if (!value)
-		goto end;
+	if (!value) {
+		PyErr_Clear();
+		return;
+	}
 
 	char *msg = NULL;
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
@@ -1752,17 +1754,23 @@ void unreal_engine_py_log_error() {
 		msg = PyBytes_AsString(zero);
 	}
 
-	if (!msg)
-		goto end;
+	if (!msg) {
+		PyErr_Clear();
+		return;
+	}
 
 	UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(msg));
 
 	// taken from uWSGI ;)
-	if (!traceback) goto end;
+	if (!traceback) {
+		PyErr_Clear();
+		return;
+	}
 
 	PyObject *traceback_module = PyImport_ImportModule("traceback");
 	if (!traceback_module) {
-		goto end;
+		PyErr_Clear();
+		return;
 	}
 
 	PyObject *traceback_dict = PyModule_GetDict(traceback_module);
@@ -1770,8 +1778,10 @@ void unreal_engine_py_log_error() {
 
 	if (format_exception) {
 		PyObject *ret = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
-		if (!ret)
-			goto end;
+		if (!ret) {
+			PyErr_Clear();
+			return;
+		}
 		if (PyList_Check(ret)) {
 			for (int i = 0; i < PyList_Size(ret); i++) {
 				PyObject *item = PyList_GetItem(ret, i);
@@ -1785,7 +1795,6 @@ void unreal_engine_py_log_error() {
 		}
 	}
 
-end:
 	PyErr_Clear();
 }
 
