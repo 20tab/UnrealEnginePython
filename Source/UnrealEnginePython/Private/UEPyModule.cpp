@@ -713,8 +713,10 @@ static PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 	}
 
 	UFunction *function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(name)));
-	if (!function)
-		goto end;
+	if (!function) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
 
 	UE_LOG(LogPython, Warning, TEXT("Func %d %d"), function->NumParms, function->ReturnValueOffset);
 
@@ -724,9 +726,6 @@ static PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 
-end:
-	Py_INCREF(Py_None);
-	return Py_None;
 }
 
 static PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
