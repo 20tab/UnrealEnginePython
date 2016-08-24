@@ -23,4 +23,7 @@ selected_actors = unreal_engine.editor_get_selected_actors()
 
 # deselect actors
 unreal_engine.editor_deselect_actors()
+
+# select an actor
+unreal_engine.editor_select_actor(an_actor)
 ```
