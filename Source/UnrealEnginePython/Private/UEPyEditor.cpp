@@ -55,6 +55,23 @@ PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args)
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:editor_select_actor", &obj)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(obj))
+		return PyErr_Format(PyExc_Exception, "invalid uobject");
+
+	ue_PyUObject *py_actor = (ue_PyUObject *)obj;
+
+	if (!py_actor->ue_object->IsA<AActor>())
+		return PyErr_Format(PyExc_Exception, "uobject is not an Actor");
+
+	AActor *actor = (AActor *)py_actor->ue_object;
+
+	GEditor->SelectActor(actor, true, true);
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
