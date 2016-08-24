@@ -26,4 +26,27 @@ unreal_engine.editor_deselect_actors()
 
 # select an actor
 unreal_engine.editor_select_actor(an_actor)
+
+# import an asset
+new_asset = unreal_engine.import_asset(filename, package[, factory_class])
 ```
+
+Asset importing
+---------------
+
+The following code shows how to import an asset from python (an image as a texture):
+
+```py
+import unreal_engine as ue
+
+# get a factory class
+factory = ue.find_class('TextureFactory')
+
+# import the asset using the specified class
+new_asset = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/Content/Foo', factory)
+
+# print the asset class (it will be a Texture2D)
+ue.log(new_asset.get_class().get_name())
+```
+
+The last argument (the factory class) can be omitted, in such a case the factory will be detected by the file extension.
