@@ -1,8 +1,9 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-#include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/KismetMathLibrary.h"
 
+
+#include "UEPyEngine.h"
+#include "UEPyObject.h"
 #include "UEPyTransform.h"
 #include "UEPyInput.h"
 #include "UEPyNavigation.h"
@@ -11,6 +12,9 @@
 #include "UEPyAttaching.h"
 #include "UEPySkeletal.h"
 #include "UEPyTraceAndSweep.h"
+#if WITH_EDITOR
+#include "UEPyEditor.h"
+#endif
 
 
 
@@ -32,353 +36,6 @@ static PyObject *init_unreal_engine(void) {
 	return PyModule_Create(&unreal_engine_module);
 }
 
-static PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:log", &message)) {
-		return NULL;
-	}
-	UE_LOG(LogPython, Log, TEXT("%s"), UTF8_TO_TCHAR(message));
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_log_warning(PyObject * self, PyObject * args) {
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:log_warning", &message)) {
-		return NULL;
-	}
-	UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(message));
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args) {
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:log_error", &message)) {
-		return NULL;
-	}
-	UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(message));
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args) {
-	int key;
-	float time_to_display;
-	char *message;
-	if (!PyArg_ParseTuple(args, "ifs:add_on_screen_debug_message", &key, &time_to_display, &message)) {
-		return NULL;
-	}
-
-	if (!GEngine)
-		goto end;
-
-	GEngine->AddOnScreenDebugMessage(key, time_to_display, FColor::Green, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
-
-end:
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
-
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:print_string", &message)) {
-		return NULL;
-	}
-
-	if (!GEngine)
-		goto end;
-
-	GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Cyan, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
-
-end:
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) {
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:get_forward_vector", &roll, &pitch, &yaw)) {
-		return NULL;
-	}
-	FVector vec = UKismetMathLibrary::GetForwardVector(FRotator(pitch, yaw, roll));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
-}
-
-static PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:get_right_vector", &roll, &pitch, &yaw)) {
-		return NULL;
-	}
-	FVector vec = UKismetMathLibrary::GetRightVector(FRotator(pitch, yaw, roll));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
-}
-
-static PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:get_up_vector", &roll, &pitch, &yaw)) {
-		return NULL;
-	}
-	FVector vec = UKismetMathLibrary::GetUpVector(FRotator(pitch, yaw, roll));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
-}
-
-
-static PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_class", &name)) {
-		return NULL;
-	}
-
-	UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
-
-	if (u_class) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_class);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_color_to_linear(PyObject * self, PyObject * args) {
-	uint8 r, g, b;
-	uint8 a = 255;
-	if (!PyArg_ParseTuple(args, "iii|i:color_to_linear", &r, &g, &b, &a)) {
-		return NULL;
-	}
-
-	FLinearColor lcolor = FColor(r, g, b, a).ReinterpretAsLinear();
-	return Py_BuildValue("fff", lcolor.R, lcolor.G, lcolor.B);
-}
-
-static PyObject *py_unreal_engine_color_from_linear(PyObject * self, PyObject * args) {
-	float r, g, b;
-	float a = 1;
-	if (!PyArg_ParseTuple(args, "fff|f:color_from_linear", &r, &g, &b, &a)) {
-		return NULL;
-	}
-
-	FColor color = FLinearColor(r, g, b, a).ToFColor(true);
-	return Py_BuildValue("iii", color.R, color.G, color.B);
-}
-
-static PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
-		return NULL;
-	}
-
-	UObject *u_object = FindObject<UObject>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
-
-	if (u_object) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-#if WITH_EDITOR
-static PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
-
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
-	UWorld *world = GEditor->GetEditorWorldContext().World();
-	ue_PyUObject *ret = ue_get_python_wrapper(world);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-}
-
-static PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject * args) {
-
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
-	PyObject *actors = PyList_New(0);
-
-	USelection *selection = GEditor->GetSelectedActors();
-	int32 nums = selection->CountSelections<UObject>();
-
-	for (int32 i = 0; i < nums;i++) {
-		UObject *obj = selection->GetSelectedObject(i);
-		if (!obj->IsA<AActor>())
-			continue;
-		AActor *actor = (AActor *)obj;
-		ue_PyUObject *item = ue_get_python_wrapper(actor);
-		if (item)
-			PyList_Append(actors, (PyObject *)item);
-	}
-
-	return actors;
-}
-
-static PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * args) {
-
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
-	GEditor->SelectNone(true, true, false);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args) {
-
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-#endif
-
-
-static PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *args) {
-
-	float x = 0, y = 0, z = 0;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if ((items % 3) != 0) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a 3-multiple number of args");
-	}
-
-	for (int i = 0; i < (int)items; i += 3) {
-		PyObject *x_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(x_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-		x += (float)PyFloat_AsDouble(x_py);
-		PyObject *y_py = PyTuple_GetItem(args, i + 1);
-		if (!PyFloat_Check(y_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
-		y += (float)PyFloat_AsDouble(y_py);
-		PyObject *z_py = PyTuple_GetItem(args, i + 2);
-		if (!PyFloat_Check(z_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
-		z += (float)PyFloat_AsDouble(z_py);
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
-
-static PyObject *py_unreal_engine_vector_add_float(PyObject * self, PyObject *args) {
-
-	float x = 0, y = 0, z = 0;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if (items < 3) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a xyz vector");
-	}
-
-	PyObject *x_py = PyTuple_GetItem(args, 0);
-	if (!PyFloat_Check(x_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	x = (float)PyFloat_AsDouble(x_py);
-
-
-	PyObject *y_py = PyTuple_GetItem(args, 1);
-	if (!PyFloat_Check(y_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	y = (float)PyFloat_AsDouble(y_py);
-
-	PyObject *z_py = PyTuple_GetItem(args, 2);
-	if (!PyFloat_Check(z_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	z = (float)PyFloat_AsDouble(z_py);
-
-	for (int i = 3; i < (int)items; i++) {
-		PyObject *delta_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(delta_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
-		float delta = (float)PyFloat_AsDouble(delta_py);
-		x += delta;
-		y += delta;
-		z += delta;
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
-
-static PyObject *py_unreal_engine_vector_mul_vector(PyObject * self, PyObject *args) {
-
-	float x = 1, y = 1, z = 1;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if ((items % 3) != 0) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a 3-multiple number of args");
-	}
-
-	for (int i = 0; i < (int)items; i += 3) {
-		PyObject *x_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(x_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-		x *= (float)PyFloat_AsDouble(x_py);
-		PyObject *y_py = PyTuple_GetItem(args, i + 1);
-		if (!PyFloat_Check(y_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
-		y *= (float)PyFloat_AsDouble(y_py);
-		PyObject *z_py = PyTuple_GetItem(args, i + 2);
-		if (!PyFloat_Check(z_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
-		z *= (float)PyFloat_AsDouble(z_py);
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
-
-static PyObject *py_unreal_engine_vector_mul_float(PyObject * self, PyObject *args) {
-
-	float x = 0, y = 0, z = 0;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if (items < 3) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a xyz vector");
-	}
-
-	PyObject *x_py = PyTuple_GetItem(args, 0);
-	if (!PyFloat_Check(x_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	x = (float)PyFloat_AsDouble(x_py);
-
-
-	PyObject *y_py = PyTuple_GetItem(args, 1);
-	if (!PyFloat_Check(y_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	y = (float)PyFloat_AsDouble(y_py);
-
-	PyObject *z_py = PyTuple_GetItem(args, 2);
-	if (!PyFloat_Check(z_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	z = (float)PyFloat_AsDouble(z_py);
-
-	for (int i = 3; i < (int)items; i++) {
-		PyObject *delta_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(delta_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
-		float delta = (float)PyFloat_AsDouble(delta_py);
-		x *= delta;
-		y *= delta;
-		z *= delta;
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
 
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
@@ -386,12 +43,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
-#if WITH_EDITOR
-	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
-	{ "editor_get_selected_actors", (PyCFunction)py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
-	{ "editor_select_actor", (PyCFunction)py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
-	{ "editor_deselect_actors", (PyCFunction)py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
-#endif
+
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
 	{ "vector_add_vector", py_unreal_engine_vector_add_vector, METH_VARARGS, "" },
@@ -406,86 +58,16 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "color_to_linear", py_unreal_engine_color_to_linear, METH_VARARGS, "" },
 	{ "color_from_linear", py_unreal_engine_color_from_linear, METH_VARARGS, "" },
 
+#if WITH_EDITOR
+	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
+	{ "editor_get_selected_actors", (PyCFunction)py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
+	{ "editor_select_actor", (PyCFunction)py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
+	{ "editor_deselect_actors", (PyCFunction)py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
+#endif
+
 	{ NULL, NULL },
 };
 
-
-static PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *call_args;
-	if (!PyArg_ParseTuple(args, "s:call", &call_args)) {
-		return NULL;
-	}
-
-	FOutputDeviceNull od_null;
-	if (!self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true)) {
-		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"", call_args);
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
-
-static PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_property", &property_name)) {
-		return NULL;
-	}
-
-	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
-	if (!u_property)
-		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
-
-	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
-}
-
-static PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *property_name;
-	PyObject *property_value;
-	if (!PyArg_ParseTuple(args, "sO:set_property", &property_name, &property_value)) {
-		return NULL;
-	}
-
-	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
-	if (!u_property)
-		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
-
-	
-	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object)) {
-		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
-
-static PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	PyObject *ret = PyList_New(0);
-
-	for (TFieldIterator<UProperty> PropIt(self->ue_object->GetClass()); PropIt; ++PropIt)
-	{
-		UProperty* property = *PropIt;
-		PyObject *property_name = PyUnicode_FromString(TCHAR_TO_UTF8(*property->GetName()));
-		PyList_Append(ret, property_name);
-		Py_DECREF(property_name);
-	}
-
-	return ret;
-
-}
 
 static PyObject *py_ue_get_owner(ue_PyUObject *self, PyObject * args) {
 
@@ -504,21 +86,7 @@ static PyObject *py_ue_get_owner(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-static PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 
-	ue_py_check(self);
-
-
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
-}
-
-static PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-
-return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetFullName())));
-}
 
 #if WITH_EDITOR
 static PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args) {
@@ -700,84 +268,6 @@ static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 
 
-
-
-
-static PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_function", &name)) {
-		return NULL;
-	}
-
-	UFunction *function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(name)));
-	if (!function) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	UE_LOG(LogPython, Warning, TEXT("Func %d %d"), function->NumParms, function->ReturnValueOffset);
-
-	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)function);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-
-}
-
-static PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UFunction *function = nullptr;
-
-	if (PyTuple_Size(args) < 1) {
-		return PyErr_Format(PyExc_TypeError, "this function requires at least an argument");
-	}
-
-	PyObject *func_id = PyTuple_GetItem(args, 0);
-
-	if (PyUnicode_Check(func_id)) {
-		function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(func_id))));
-	}
-
-
-	if (!function)
-		return PyErr_Format(PyExc_Exception, "unable to find function");
-
-	uint8 *buffer = (uint8 *)FMemory_Alloca(function->ParmsSize);
-	int argn = 1;
-
-	TFieldIterator<UProperty> PArgs(function);
-	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
-		UProperty *prop = *PArgs;
-		PyObject *py_arg = PyTuple_GetItem(args, argn);
-		if (!py_arg) {
-			return PyErr_Format(PyExc_TypeError, "not enough arguments");
-		}
-		if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
-			return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property");
-		}
-		argn++;
-	}
-
-	self->ue_object->ProcessEvent(function, buffer);
-
-	TFieldIterator<UProperty> Props(function);
-	for (; Props; ++Props) {
-		UProperty *prop = *Props;
-		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
-			return ue_py_convert_property(prop, buffer);
-		}
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
 #if WITH_EDITOR
 static PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args) {
 
@@ -815,16 +305,7 @@ static PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args)
 }
 #endif
 
-static PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 
-	ue_py_check(self);
-
-	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetClass());
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-}
 
 static PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args) {
 
@@ -945,7 +426,7 @@ static PyObject *py_ue_get_actor_component(ue_PyUObject * self, PyObject * args)
 			if (!py_obj)
 				return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 			Py_INCREF(py_obj);
-			return (PyObject *) py_obj;
+			return (PyObject *)py_obj;
 		}
 	}
 
@@ -1020,7 +501,6 @@ static PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args) {
 
 
 
-static PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_actor_spawn(ue_PyUObject *, PyObject *);
 static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
@@ -1044,11 +524,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_right", (PyCFunction)py_ue_get_actor_right, METH_VARARGS, "" },
 	{ "get_actor_up", (PyCFunction)py_ue_get_actor_up, METH_VARARGS, "" },
 
-	
+
 	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
 	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
 	{ "set_actor_scale", (PyCFunction)py_ue_set_actor_scale, METH_VARARGS, "" },
-	
+
 
 	{ "get_world_location", (PyCFunction)py_ue_get_world_location, METH_VARARGS, "" },
 	{ "get_world_rotation", (PyCFunction)py_ue_get_world_rotation, METH_VARARGS, "" },
@@ -1056,7 +536,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_relative_location", (PyCFunction)py_ue_get_relative_location, METH_VARARGS, "" },
 	{ "get_relative_rotation", (PyCFunction)py_ue_get_relative_rotation, METH_VARARGS, "" },
 	{ "get_relative_scale", (PyCFunction)py_ue_get_relative_scale, METH_VARARGS, "" },
-	
+
 	{ "set_world_location", (PyCFunction)py_ue_set_world_location, METH_VARARGS, "" },
 	{ "set_world_rotation", (PyCFunction)py_ue_set_world_rotation, METH_VARARGS, "" },
 	{ "set_world_scale", (PyCFunction)py_ue_set_world_scale, METH_VARARGS, "" },
@@ -1084,10 +564,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
-	
+
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 #endif
-	
+
 
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
 	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS, "" },
@@ -1109,7 +589,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "is_action_pressed", (PyCFunction)py_ue_is_action_pressed, METH_VARARGS, "" },
 	{ "is_action_released", (PyCFunction)py_ue_is_action_released, METH_VARARGS, "" },
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
-	
+
 
 	// Movements
 
@@ -1138,7 +618,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
-	
+
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
 
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
@@ -1150,7 +630,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "line_trace_multi_by_channel", (PyCFunction)py_ue_line_trace_multi_by_channel, METH_VARARGS, "" },
 	{ "get_hit_result_under_cursor", (PyCFunction)py_ue_get_hit_result_under_cursor, METH_VARARGS, "" },
 	{ "draw_debug_line", (PyCFunction)py_ue_draw_debug_line, METH_VARARGS, "" },
-	
+
 	{ "destructible_apply_damage", (PyCFunction)py_ue_destructible_apply_damage, METH_VARARGS, "" },
 
 	{ "set_view_target", (PyCFunction)py_ue_set_view_target, METH_VARARGS, "" },
@@ -1470,7 +950,7 @@ static PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObjec
 
 	PyObject *components = PyList_New(0);
 
-	for(UActorComponent *component: actor->GetComponentsByClass((UClass *)py_obj->ue_object)) {
+	for (UActorComponent *component : actor->GetComponentsByClass((UClass *)py_obj->ue_object)) {
 		ue_PyUObject *item = ue_get_python_wrapper(component);
 		if (item)
 			PyList_Append(components, (PyObject *)item);
@@ -1553,30 +1033,7 @@ static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 
 }
 
-static PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 
-	ue_py_check(self);
-
-	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:is_a", &obj)) {
-		return NULL;
-	}
-
-	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (self->ue_object->IsA((UClass *)py_obj->ue_object)) {
-		Py_INCREF(Py_True);
-		return Py_True;
-	}
-
-
-	Py_INCREF(Py_False);
-	return Py_False;
-}
 
 static PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args) {
 
@@ -1590,11 +1047,11 @@ static PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * ar
 	if (!PyArg_ParseTuple(args, "|O:get_overlapping_actors", &class_filter)) {
 		return NULL;
 	}
-	
+
 	UClass *filtering = AActor::StaticClass();
 
 	if (class_filter) {
-		
+
 		if (!PyObject_IsInstance(class_filter, (PyObject *)&ue_PyUObjectType))
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 
@@ -1680,7 +1137,7 @@ void unreal_engine_init_py_module() {
 	Py_INCREF(&ue_PyUObjectType);
 	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
 
-
+	// Collision channels
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_CAMERA", PyLong_FromLong(ECollisionChannel::ECC_Camera));
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_DESTRUCTIBLE", PyLong_FromLong(ECollisionChannel::ECC_Destructible));
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_PAWN", PyLong_FromLong(ECollisionChannel::ECC_Pawn));
@@ -1690,10 +1147,13 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_WORLD_DYNAMIC", PyLong_FromLong(ECollisionChannel::ECC_WorldDynamic));
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_WORLD_STATIC", PyLong_FromLong(ECollisionChannel::ECC_WorldStatic));
 
+	// Attachments
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_KEEP_RELATIVE", PyLong_FromLong((int)EAttachmentRule::KeepRelative));
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_KEEP_WORLD", PyLong_FromLong((int)EAttachmentRule::KeepWorld));
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_SNAP_TO_TARGET", PyLong_FromLong((int)EAttachmentRule::SnapToTarget));
 
+
+	// Colors
 	PyDict_SetItemString(unreal_engine_dict, "COLOR_BLACK", Py_BuildValue("iii", FColor::Black.R, FColor::Black.G, FColor::Black.B));
 	PyDict_SetItemString(unreal_engine_dict, "COLOR_BLUE", Py_BuildValue("iii", FColor::Blue.R, FColor::Blue.G, FColor::Blue.B));
 	PyDict_SetItemString(unreal_engine_dict, "COLOR_CYAN", Py_BuildValue("iii", FColor::Cyan.R, FColor::Cyan.G, FColor::Cyan.B));
@@ -1886,7 +1346,7 @@ end:
 }
 
 bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
-	
+
 	if (PyBool_Check(py_obj)) {
 		auto casted_prop = Cast<UBoolProperty>(prop);
 		if (!casted_prop)
