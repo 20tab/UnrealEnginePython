@@ -711,12 +711,16 @@ In addition to this, every time a uobject has to return its UObject mapping, it 
 							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
 ```
 
+
+Unit Testing
+------------
+
+The repository includes a TestingActor asset and a tests.py script. Just add the asset and the script to your project and the test suite will be run. The test suite is still a prototype it will be improved soon.
+
 Status and Known issues
 -----------------------
 
 The project could be considered in beta state.
-
-Code should be organized way better as currently all of the uobject api is in a single huge file.
 
 The property system still lacks Struct support
 
@@ -730,7 +734,6 @@ The build system is not very robust. Maybe linking the python static library int
 
 Investigate what to do with threads (maybe disallowing unreal engine calls in python threads should be enough)
 
-We need to find a way for automatic testing :)
 
 Contacts
 --------
