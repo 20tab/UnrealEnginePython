@@ -6,7 +6,9 @@
 #include "UEPyObject.h"
 #include "UEPyActor.h"
 #include "UEPyTransform.h"
+#include "UEPyPlayer.h"
 #include "UEPyInput.h"
+#include "UEPyWorld.h"
 #include "UEPyNavigation.h"
 #include "UEPySpline.h"
 #include "UEPyMovements.h"
@@ -70,173 +72,6 @@ static PyMethodDef unreal_engine_methods[] = {
 };
 
 
-static PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	// no need to support multiple controllers
-	APlayerController *controller = world->GetFirstPlayerController();
-	if (!controller)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve the first controller");
-
-	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-// mainly used for testing
-static PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	float delta_time;
-	if (!PyArg_ParseTuple(args, "f:world_tick", &delta_time)) {
-		return NULL;
-	}
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	world->Tick(LEVELTICK_All, delta_time);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_create_player(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	int controller_id;
-	PyObject *spawn_pawn;
-	if (!PyArg_ParseTuple(args, "i|O:create_player", &controller_id, &spawn_pawn)) {
-		return NULL;
-	}
-
-	bool b_spawn_pawn = true;
-
-	if (spawn_pawn && !PyObject_IsTrue(spawn_pawn)) {
-		b_spawn_pawn = false;
-	}
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	APlayerController *controller = UGameplayStatics::CreatePlayer(world, controller_id, b_spawn_pawn);
-	if (!controller)
-		return PyErr_Format(PyExc_Exception, "unable to create a new player fro controller %d", controller_id);
-
-	return PyLong_FromLong(controller->PlayerState->PlayerId);
-}
-
-static PyObject *py_ue_get_num_players(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	AGameMode *game_mode = world->GetAuthGameMode();
-	if (!game_mode)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve GameMode from world");
-
-	return PyLong_FromLong(game_mode->NumPlayers);
-}
-
-static PyObject *py_ue_get_num_spectators(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	AGameMode *game_mode = world->GetAuthGameMode();
-	if (!game_mode)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve GameMode from world");
-
-	return PyLong_FromLong(game_mode->NumSpectators);
-}
-
-
-
-static PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	ue_PyUObject *ret = ue_get_python_wrapper(world);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-
-}
-
-
-
-#if WITH_EDITOR
-
-#endif
-
-
-
-static PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	PyObject *ret = PyList_New(0);
-
-	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
-		UObject *u_obj = *Itr;
-		if (u_obj->GetWorld() != world)
-			continue;
-		ue_PyUObject *py_obj = ue_get_python_wrapper(u_obj);
-		if (!py_obj)
-			continue;
-		PyList_Append(ret, (PyObject *)py_obj);
-	}
-	return ret;
-}
-
-static PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	PyObject *ret = PyList_New(0);
-
-	for (TActorIterator<AActor> Itr(world); Itr; ++Itr) {
-		UObject *u_obj = *Itr;
-		ue_PyUObject *py_obj = ue_get_python_wrapper(u_obj);
-		if (!py_obj)
-			continue;
-		PyList_Append(ret, (PyObject *)py_obj);
-
-	}
-
-
-	return ret;
-}
-
 
 static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args) {
 
@@ -270,11 +105,6 @@ static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
-
-
-
-
 
 
 
@@ -662,6 +492,8 @@ void unreal_engine_init_py_module() {
 }
 
 
+// utility functions
+
 ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 	if (!ue_obj || !ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
 		return nullptr;
@@ -748,6 +580,7 @@ void unreal_engine_py_log_error() {
 	PyErr_Clear();
 }
 
+// retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
 
 	if (py_obj->ue_object->IsA<UWorld>()) {
@@ -767,6 +600,7 @@ UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
 	return nullptr;
 }
 
+// retrieve actor from component (if possible)
 AActor *ue_get_actor(ue_PyUObject *py_obj) {
 	if (py_obj->ue_object->IsA<AActor>()) {
 		return (AActor *)py_obj->ue_object;
@@ -779,6 +613,7 @@ AActor *ue_get_actor(ue_PyUObject *py_obj) {
 	return nullptr;
 }
 
+// convert a property to a python object
 PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 	if (auto casted_prop = Cast<UBoolProperty>(prop)) {
 		bool value = casted_prop->GetPropertyValue_InContainer(buffer);
@@ -836,6 +671,7 @@ end:
 	return Py_None;
 }
 
+// convert a python object to a property
 bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 
 	if (PyBool_Check(py_obj)) {
@@ -898,6 +734,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 
 }
 
+// check if a python object is a wrapper to a UObject
 ue_PyUObject *ue_is_pyuobject(PyObject *obj) {
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType))
 		return nullptr;
