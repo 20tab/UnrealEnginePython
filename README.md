@@ -3,15 +3,17 @@ Embed Python in Unreal Engine 4
 
 # How and Why ?
 
-This is a plugin allowing the mapping of Actors, Pawns and Components to python classes (and a lot more). It is not meant as a way to
-avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;)
+This is a plugin embedding a whole Python3 VM In Unreal Engine 4 (both the editor and runtime).
+
+It includes the mapping of Actors, Pawns and Components to python classes, editor scripting and a lot more.
+
+It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;)
 
 Another funny feature is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
-Mid term goal is allowing scripting of the editor too.
+The plugin automatically adds an actor class (PyActor), a pawn class (PyPawn) and a component class (PythonComponent).
 
-The plugin embeds the python3 library and automatically adds an actor class (PyActor), a pawn class (PyPawn) and a component class (PythonComponent).
-They are available in your editor once you load the plugin.
+They are available in your editor once you load the plugin. In the development menu, you get access to the 'PythonConsole' too (you can use it to trigger python commands directly from the editor)
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
