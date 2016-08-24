@@ -43,10 +43,29 @@ import unreal_engine as ue
 factory = ue.find_class('TextureFactory')
 
 # import the asset using the specified class
-new_asset = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/Content/Foo', factory)
+new_asset = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/FooBar/Foo', factory)
 
 # print the asset class (it will be a Texture2D)
 ue.log(new_asset.get_class().get_name())
 ```
 
 The last argument (the factory class) can be omitted, in such a case the factory will be detected by the file extension.
+
+If you want to customize the factory (for modifying import options) you can directly generate a new factory object and set its properties:
+
+```py
+import unreal_engine as ue
+
+factory = ue.find_class('TextureFactory')
+# instantiate the factory
+factory_obj = ue.new_object(factory)
+
+# print the properties list
+ue.log(str(factory_obj.properties()))
+
+# set a property
+factory_obj.set_property('bRGBToEmissive', True)
+
+# import the asset (this time using a factory object instead of a factory class)
+new_object = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/FooBar/20tab', factory_obj)
+```
