@@ -64,11 +64,13 @@ static PyMethodDef unreal_engine_methods[] = {
 
 #if WITH_EDITOR
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
-	{ "editor_get_selected_actors", (PyCFunction)py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
-	{ "editor_select_actor", (PyCFunction)py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
-	{ "editor_deselect_actors", (PyCFunction)py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
-	{ "import_asset", (PyCFunction)py_unreal_engine_import_asset, METH_VARARGS, "" },
+	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
+	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
+	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
+	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
 #endif
+
+	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
@@ -130,6 +132,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 #endif
 
+	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
+	{ "add_to_root", (PyCFunction)py_ue_add_to_root, METH_VARARGS, "" },
+	{ "remove_from_root", (PyCFunction)py_ue_remove_from_root, METH_VARARGS, "" },
 
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
 	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS, "" },

@@ -21,7 +21,7 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 		return NULL;
 	}
 
-	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+	if (!ue_is_pyuobject(obj)) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -203,5 +203,39 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
 	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
+}
+
+PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (self->ue_object->IsRooted()) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+
+PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	self->ue_object->AddToRoot();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	self->ue_object->RemoveFromRoot();
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 

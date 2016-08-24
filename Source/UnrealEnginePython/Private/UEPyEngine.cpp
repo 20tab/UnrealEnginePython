@@ -292,3 +292,52 @@ PyObject *py_unreal_engine_vector_mul_float(PyObject * self, PyObject *args) {
 
 	return Py_BuildValue("fff", x, y, z);
 }
+
+PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
+
+	PyObject *obj;
+	PyObject *py_outer;
+	char *name = nullptr;
+	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj, &py_outer, &name)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+
+	UClass *obj_class = (UClass *)py_obj->ue_object;
+
+	FName f_name = NAME_None;
+
+	if (name) {
+		f_name = FName(UTF8_TO_TCHAR(name));
+	}
+
+	UObject *outer = GetTransientPackage();
+
+	if (py_outer && py_outer != Py_None) {
+		if (!ue_is_pyuobject(py_outer)) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		}
+
+		ue_PyUObject *py_outer_obj = (ue_PyUObject *)py_outer;
+
+		outer = py_outer_obj->ue_object;
+	}
+
+	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name);
+	if (!new_object)
+		return PyErr_Format(PyExc_Exception, "unable to create object");
+
+	ue_PyUObject *ret = ue_get_python_wrapper(new_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
