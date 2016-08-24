@@ -15,6 +15,7 @@
 #include "UEPyAttaching.h"
 #include "UEPySkeletal.h"
 #include "UEPyTraceAndSweep.h"
+#include "UEPyAudio.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -111,9 +112,6 @@ static PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args
 
 
 static PyObject *py_ue_destructible_apply_damage(ue_PyUObject *, PyObject *);
-static PyObject *py_ue_set_view_target(ue_PyUObject *, PyObject *);
-
-static PyObject *py_ue_play_sound_at_location(ue_PyUObject *, PyObject *);
 
 
 static PyMethodDef ue_PyUObject_methods[] = {
@@ -316,85 +314,6 @@ static PyTypeObject ue_PyUObjectType = {
 	0,                         /* tp_iternext */
 	ue_PyUObject_methods,             /* tp_methods */
 };
-
-
-
-static PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
-
-	ue_py_check(self);
-
-	PyObject *sound;
-	float x, y, z;
-	float volume = 1;
-	float pitch = 1;
-	float start = 0;
-
-	if (!PyArg_ParseTuple(args, "Offf|fff:play_sound_at_location", &sound, &x, &y, &z, &volume, &pitch, &start)) {
-		return NULL;
-	}
-
-
-	USoundBase *sound_object = nullptr;
-	if (PyObject_IsInstance(sound, (PyObject *)&ue_PyUObjectType)) {
-		ue_PyUObject *py_sound = (ue_PyUObject *)sound;
-		if (py_sound->ue_object->IsA<USoundBase>()) {
-			sound_object = (USoundBase *)py_sound->ue_object;
-		}
-	}
-	else if (PyUnicode_Check(sound)) {
-		sound_object = FindObject<USoundBase>(ANY_PACKAGE, UTF8_TO_TCHAR(PyUnicode_AsUTF8(sound)));
-	}
-
-	if (!sound_object)
-		return PyErr_Format(PyExc_Exception, "invalid sound object");
-
-	UGameplayStatics::PlaySoundAtLocation(self->ue_object, sound_object, FVector(x, y, z), volume, pitch, start);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-
-
-static PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
-
-	ue_py_check(self);
-
-	UWorld *world = ue_get_uworld(self);
-	if (!world)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
-
-	PyObject *obj;
-	int controller_id = 0;
-	if (!PyArg_ParseTuple(args, "O|i:set_view_target", &obj, &controller_id)) {
-		return NULL;
-	}
-
-	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<AActor>()) {
-		return PyErr_Format(PyExc_Exception, "argument is not an actor");
-	}
-
-	AActor *actor = (AActor *)py_obj->ue_object;
-
-	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
-	if (!controller)
-		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
-
-	controller->SetViewTarget(actor);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-
-}
-
-
-
 
 
 static PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args) {

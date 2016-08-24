@@ -101,3 +101,40 @@ PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 
 }
+
+PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *obj;
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "O|i:set_view_target", &obj, &controller_id)) {
+		return NULL;
+	}
+
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not an actor");
+	}
+
+	AActor *actor = (AActor *)py_obj->ue_object;
+
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+
+	controller->SetViewTarget(actor);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
