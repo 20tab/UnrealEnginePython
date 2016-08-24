@@ -67,6 +67,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_get_selected_actors", (PyCFunction)py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
 	{ "editor_select_actor", (PyCFunction)py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_deselect_actors", (PyCFunction)py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
+	{ "import_asset", (PyCFunction)py_unreal_engine_import_asset, METH_VARARGS, "" },
 #endif
 
 	{ NULL, NULL },
