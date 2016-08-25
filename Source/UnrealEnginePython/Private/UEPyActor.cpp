@@ -364,8 +364,6 @@ PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject * args
 
 		if (u_class) {
 			py_obj = ue_get_python_wrapper(u_class);
-			if (py_obj)
-				Py_INCREF(py_obj);
 		}
 	}
 
@@ -414,8 +412,6 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 		if (u_class) {
 			py_obj = ue_get_python_wrapper(u_class);
-			if (py_obj)
-				Py_INCREF(py_obj);
 		}
 	}
 

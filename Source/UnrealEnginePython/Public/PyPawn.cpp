@@ -56,10 +56,10 @@ void APyPawn::BeginPlay()
 		return;
 	}
 
-	PyObject *py_obj = (PyObject *) ue_get_python_wrapper(this);
+	ue_PyUObject *py_obj = ue_get_python_wrapper(this);
 
 	if (py_obj) {
-		PyObject_SetAttrString(py_pawn_instance, "uobject", py_obj);
+		PyObject_SetAttrString(py_pawn_instance, "uobject", (PyObject *) py_obj);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in pawn wrapper class"));
@@ -71,7 +71,7 @@ void APyPawn::BeginPlay()
 	}
 
 	if (!PythonDisableAutoBinding)
-		ue_autobind_events_for_class(this, py_pawn_instance);
+		ue_autobind_events_for_pyclass(py_obj, py_pawn_instance);
 
 	if (!PyObject_HasAttrString(py_pawn_instance, "begin_play"))
 		return;
@@ -166,5 +166,7 @@ FString APyPawn::CallPythonPawnMethodString(FString method_name)
 APyPawn::~APyPawn()
 {
 	Py_XDECREF(py_pawn_instance);
+#if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Warning, TEXT("Python APawn wrapper XDECREF'ed"));
+#endif
 }

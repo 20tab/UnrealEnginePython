@@ -249,12 +249,11 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
 	if (!PyArg_ParseTuple(args, "sO:bind_event", &event_name, &py_callable)) {
 		return NULL;
 	}
-
 	
 	if (!PyCallable_Check(py_callable)) {
 		return PyErr_Format(PyExc_Exception, "object is not callable");
 	}
 
-	return ue_bind_event(self->ue_object, FString(event_name), py_callable, true);
+	return ue_bind_pyevent(self, FString(event_name), py_callable, true);
 }
 

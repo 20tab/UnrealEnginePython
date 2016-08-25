@@ -253,12 +253,38 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
+
+
+static void ue_pyobject_clear(ue_PyUObject *self) {
+	Py_ssize_t len = PyList_Size(self->python_delegates_gc);
+	for (Py_ssize_t i = 0; i < len; i++) {
+		PyObject *item = PyList_GetItem(self->python_delegates_gc, i);
+		UObject *py_delegate = (UObject *)PyLong_AsLongLong(item);
+		// avoid making mess on engine shutdown
+		if (!py_delegate || !py_delegate->IsValidLowLevel() || py_delegate->IsPendingKillOrUnreachable())
+			continue;
+		if (py_delegate->IsRooted())
+			py_delegate->RemoveFromRoot();
+		py_delegate->ConditionalBeginDestroy();
+	}
+#if UEPY_MEMORY_DEBUG
+	UE_LOG(LogPython, Warning, TEXT("destroying pyobject with %d over %p"), self->python_delegates_gc->ob_refcnt, self->ue_property);
+#endif
+	Py_DECREF(self->python_delegates_gc);
+}
+
+// destructor
+static void ue_pyobject_dealloc(ue_PyUObject *self) {
+	ue_pyobject_clear(self);
+	Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
 static PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.UObject",             /* tp_name */
 	sizeof(ue_PyUObject), /* tp_basicsize */
 	0,                         /* tp_itemsize */
-	0,                         /* tp_dealloc */
+	(destructor)ue_pyobject_dealloc,       /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */
@@ -359,11 +385,16 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 			return nullptr;
 		}
 		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
-
-
-		Py_INCREF(ue_py_object->py_object);
+		((ue_PyUObject *)ue_py_object->py_object)->python_delegates_gc = PyList_New(0);
+		((ue_PyUObject *)ue_py_object->py_object)->ue_property = ue_py_object;
+#if UEPY_MEMORY_DEBUG
+		UE_LOG(LogPython, Warning, TEXT("----------------- CREATED %p"), ue_py_object);
+#endif
+		//Py_INCREF(ue_py_object->py_object);
 	}
-
+#if UEPY_MEMORY_DEBUG
+	UE_LOG(LogPython, Warning, TEXT("REFCNT for %s = %d"), *ue_obj->GetName(), ue_py_object->py_object->ob_base.ob_refcnt);
+#endif
 	return ue_py_object->py_object;
 }
 
@@ -490,6 +521,16 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
 	}
 
+	if (auto casted_prop = Cast<UTextProperty>(prop)) {
+		FText value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value.ToString()));
+	}
+
+	if (auto casted_prop = Cast<UNameProperty>(prop)) {
+		FName value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value.ToString()));
+	}
+
 	if (auto casted_prop = Cast<UObjectProperty>(prop)) {
 		auto value = casted_prop->GetPropertyValue_InContainer(buffer);
 		if (value) {
@@ -510,6 +551,27 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 			Py_INCREF(ret);
 			return (PyObject *)ret;
+		}
+		goto end;
+	}
+
+	// map a UStruct to a dictionary (if possible)
+	if (auto casted_prop = Cast<UStructProperty>(prop)) {
+		UE_LOG(LogPython, Error, TEXT("UStruct type not supported for %s"), *prop->GetName());
+		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct)) {
+			UE_LOG(LogPython, Error, TEXT("UStruct scripted !!!"));
+			PyObject *py_struct_dict = PyDict_New();
+			TFieldIterator<UProperty> SArgs(casted_struct);
+			for (; SArgs; ++SArgs) {
+				UE_LOG(LogPython, Error, TEXT("UStruct NAME %s"), *SArgs->GetName());
+				PyObject *struct_value = ue_py_convert_property(*SArgs, casted_prop->ContainerPtrToValuePtr<uint8>(buffer));
+				if (!struct_value) {
+					Py_DECREF(py_struct_dict);
+					return NULL;
+				}
+				PyDict_SetItemString(py_struct_dict, TCHAR_TO_UTF8(*SArgs->GetName()), struct_value);
+			}
+			return py_struct_dict;
 		}
 		goto end;
 	}
@@ -597,7 +659,7 @@ ue_PyUObject *ue_is_pyuobject(PyObject *obj) {
 }
 
 // automatically bind events based on class methods names
-void ue_autobind_events_for_class(UObject *u_obj, PyObject *py_class) {
+void ue_autobind_events_for_pyclass(ue_PyUObject *u_obj, PyObject *py_class) {
 	PyObject *attrs = PyObject_Dir(py_class);
 	if (!attrs)
 		return;
@@ -623,15 +685,18 @@ void ue_autobind_events_for_class(UObject *u_obj, PyObject *py_class) {
 					event_name = event_name.Append(part);
 				}
 				// do not fail on wrong properties
-				ue_bind_event(u_obj, event_name, item, false);
+				ue_bind_pyevent(u_obj, event_name, item, false);
 			}
 		}
+		Py_XDECREF(item);
 	}
+
+	Py_DECREF(attrs);
 }
 
-PyObject *ue_bind_event(UObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property) {
+PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property) {
 
-	UProperty *u_property = u_obj->GetClass()->FindPropertyByName(FName(*event_name));
+	UProperty *u_property = u_obj->ue_object->GetClass()->FindPropertyByName(FName(*event_name));
 	if (!u_property) {
 		if (fail_on_wrong_property)
 			return PyErr_Format(PyExc_Exception, "unable to find event property %s", event_name);
@@ -640,12 +705,15 @@ PyObject *ue_bind_event(UObject *u_obj, FString event_name, PyObject *py_callabl
 	}
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
-		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj);
+		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
 
 		FScriptDelegate script_delegate;
 		UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-		py_delegate->SetPyCallable(py_callable);
+		//py_delegate->SetPyCallable(py_callable);
 		py_delegate->SetSignature(casted_prop->SignatureFunction);
+		py_delegate->AddToRoot();
+		// collect pointer to allow removal
+		PyList_Append(u_obj->python_delegates_gc, PyLong_FromLongLong((long long)py_delegate));
 
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
@@ -654,7 +722,7 @@ PyObject *ue_bind_event(UObject *u_obj, FString event_name, PyObject *py_callabl
 		multiscript_delegate.Add(script_delegate);
 
 		// re-assign multicast delegate
-		casted_prop->SetPropertyValue_InContainer(u_obj, multiscript_delegate);
+		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
 
 	}
 	else {
@@ -664,4 +732,13 @@ PyObject *ue_bind_event(UObject *u_obj, FString event_name, PyObject *py_callabl
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+UPyObject::~UPyObject() {
+#if UEPY_MEMORY_DEBUG
+	if (py_object && py_object->ob_base.ob_refcnt != 1) {
+		UE_LOG(LogPython, Error, TEXT("INCONSISTENT DESTROY %p with refcnt %d"), this, py_object->ob_base.ob_refcnt);
+	}
+#endif
+	Py_XDECREF(py_object);
 }

@@ -57,21 +57,29 @@ void APyActor::BeginPlay()
 		return;
 	}
 
-	PyObject *py_obj = (PyObject *) ue_get_python_wrapper(this);
+	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt after %s initialization %d"), *this->GetName(), py_actor_instance->ob_refcnt);
+
+	ue_PyUObject *py_obj = ue_get_python_wrapper(this);
 
 	if (py_obj) {
-		PyObject_SetAttrString(py_actor_instance, "uobject", py_obj);
+		PyObject_SetAttrString(py_actor_instance, "uobject", (PyObject *) py_obj);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in actor wrapper class"));
 	}
 
+	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt after %s initialization[2] %d"), *this->GetName(), py_actor_instance->ob_refcnt);
+
 	if (!PyObject_HasAttrString(py_actor_instance, "tick") || PythonTickForceDisabled) {
 		SetActorTickEnabled(false);
 	}
 
+	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt before %s autobinding %d"), *this->GetName(), py_actor_instance->ob_refcnt);
+
 	if (!PythonDisableAutoBinding)
-		ue_autobind_events_for_class(this, py_actor_instance);
+		ue_autobind_events_for_pyclass(py_obj, py_actor_instance);
+
+	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt after %s autobinding %d"), *this->GetName(), py_actor_instance->ob_refcnt);
 
 	if (!PyObject_HasAttrString(py_actor_instance, "begin_play"))
 		return;
@@ -187,6 +195,14 @@ FString APyActor::CallPythonActorMethodString(FString method_name, FString args)
 
 APyActor::~APyActor()
 {
+#if UEPY_MEMORY_DEBUG
+	if (py_actor_instance && py_actor_instance->ob_refcnt != 1) {
+		UE_LOG(LogPython, Error, TEXT("Inconsistent Python AActor wrapper refcnt = %d"), py_actor_instance->ob_refcnt);
+	}
+#endif
 	Py_XDECREF(py_actor_instance);
-	UE_LOG(LogPython, Warning, TEXT("Python AActor wrapper XDECREF'ed"));
+
+#if UEPY_MEMORY_DEBUG
+	UE_LOG(LogPython, Warning, TEXT("Python AActor %s wrapper XDECREF'ed"), *this->GetName());
+#endif
 }

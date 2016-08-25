@@ -52,5 +52,7 @@ void UPythonDelegate::PyFakeCallable()
 UPythonDelegate::~UPythonDelegate()
 {
 	Py_XDECREF(py_callable);
+#if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Warning, TEXT("PythonDelegate callable XDECREF'ed"));
+#endif
 }
