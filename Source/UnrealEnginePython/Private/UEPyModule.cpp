@@ -699,7 +699,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 	UProperty *u_property = u_obj->ue_object->GetClass()->FindPropertyByName(FName(*event_name));
 	if (!u_property) {
 		if (fail_on_wrong_property)
-			return PyErr_Format(PyExc_Exception, "unable to find event property %s", event_name);
+			return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(*event_name));
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -727,7 +727,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 	}
 	else {
 		if (fail_on_wrong_property)
-			return PyErr_Format(PyExc_Exception, "property %s is not an event", event_name);
+			return PyErr_Format(PyExc_Exception, "property %s is not an event", TCHAR_TO_UTF8(*event_name));
 	}
 
 	Py_INCREF(Py_None);
