@@ -10,6 +10,8 @@ UPythonComponent::UPythonComponent()
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
+	PythonTickForceDisabled = false;
+
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
 }
@@ -22,16 +24,6 @@ void UPythonComponent::BeginPlay()
 
 	// ...
 
-	const TCHAR *blob = *PythonCode;
-
-	int ret = PyRun_SimpleString(TCHAR_TO_UTF8(blob));
-
-	UE_LOG(LogPython, Warning, TEXT("Python ret = %d"), ret);
-
-	if (ret) {
-		unreal_engine_py_log_error();
-	}
-
 	if (PythonModule.IsEmpty())
 		return;
 
@@ -42,7 +34,7 @@ void UPythonComponent::BeginPlay()
 	}
 
 #if WITH_EDITOR
-	// todo implement autoreload with a dictionary of mule timestamps
+	// todo implement autoreload with a dictionary of module timestamps
 	py_component_module = PyImport_ReloadModule(py_component_module);
 	if (!py_component_module) {
 		unreal_engine_py_log_error();
@@ -76,6 +68,15 @@ void UPythonComponent::BeginPlay()
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in component wrapper class"));
 	}
 
+	// disable ticking if no tick method is exposed
+	if (!PyObject_HasAttrString(py_component_instance, "tick") || PythonTickForceDisabled) {
+		SetComponentTickEnabled(false);
+	}
+
+	if (!PyObject_HasAttrString(py_component_instance, "begin_play")) {
+		return;
+	}
+
 	PyObject *bp_ret = PyObject_CallMethod(py_component_instance, "begin_play", NULL);
 	if (!bp_ret) {
 		unreal_engine_py_log_error();
@@ -92,6 +93,8 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (!py_component_instance)
 		return;
+
+	// no need to check for method availability, we did it in begin_play
 
 	PyObject *ret = PyObject_CallMethod(py_component_instance, "tick", "f", DeltaTime);
 	if (!ret) {

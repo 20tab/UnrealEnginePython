@@ -12,6 +12,8 @@ APyActor::APyActor()
 	this->OnActorHit.AddDynamic(this, &APyActor::PyOnActorHit);
 	this->OnClicked.AddDynamic(this, &APyActor::PyOnActorClicked);
 
+	PythonTickForceDisabled = false;
+
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
 }
@@ -23,16 +25,6 @@ void APyActor::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-
-	const TCHAR *blob = *PythonCode;
-
-	int ret = PyRun_SimpleString(TCHAR_TO_UTF8(blob));
-
-	UE_LOG(LogPython, Warning, TEXT("Python ret = %d"), ret);
-
-	if (ret) {
-		unreal_engine_py_log_error();
-	}
 
 	if (PythonModule.IsEmpty())
 		return;
@@ -77,6 +69,13 @@ void APyActor::BeginPlay()
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in actor wrapper class"));
 	}
+
+	if (!PyObject_HasAttrString(py_actor_instance, "tick") || PythonTickForceDisabled) {
+		SetActorTickEnabled(false);
+	}
+
+	if (!PyObject_HasAttrString(py_actor_instance, "begin_play"))
+		return;
 
 	PyObject *bp_ret = PyObject_CallMethod(py_actor_instance, "begin_play", NULL);
 	if (!bp_ret) {
