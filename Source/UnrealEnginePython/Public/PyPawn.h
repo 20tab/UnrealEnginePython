@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Python")
 	bool PythonTickForceDisabled;
 
+	UPROPERTY(EditAnywhere, Category = "Python")
+	bool PythonDisableAutoBinding;
+
 	UFUNCTION(BlueprintCallable, Category = "Python")
 	void CallPythonPawnMethod(FString method_name);
 
@@ -43,11 +46,5 @@ public:
 
 private:
 	PyObject *py_pawn_instance;
-
-	UFUNCTION()
-	void PyOnActorBeginOverlap(AActor *overlapped, AActor *other);
-
-	UFUNCTION()
-	void PyOnActorClicked(AActor *touched_actor, FKey button_pressed);
 };
 

@@ -21,6 +21,7 @@
 #include "UEPyEditor.h"
 #endif
 
+#include "PythonDelegate.h"
 
 
 DEFINE_LOG_CATEGORY(LogPython);
@@ -125,6 +126,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
 	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
+
+	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
+
 #if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
@@ -557,6 +561,11 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return true;
 	}
 
+	// encode a dictionary to a struct
+	if (PyDict_Check(py_obj)) {
+		return false;
+	}
+
 	if (PyObject_IsInstance(py_obj, (PyObject *)&ue_PyUObjectType)) {
 		ue_PyUObject *ue_obj = (ue_PyUObject *)py_obj;
 		if (ue_obj->ue_object->IsA<UClass>()) {
@@ -585,4 +594,74 @@ ue_PyUObject *ue_is_pyuobject(PyObject *obj) {
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType))
 		return nullptr;
 	return (ue_PyUObject *)obj;
+}
+
+// automatically bind events based on class methods names
+void ue_autobind_events_for_class(UObject *u_obj, PyObject *py_class) {
+	PyObject *attrs = PyObject_Dir(py_class);
+	if (!attrs)
+		return;
+
+	Py_ssize_t len = PyList_Size(attrs);
+	for (Py_ssize_t i = 0; i < len; i++) {
+		PyObject *py_attr_name = PyList_GetItem(attrs, i);
+		if (!py_attr_name || !PyUnicode_Check(py_attr_name))
+			continue;
+		FString attr_name = UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_attr_name));
+		if (!attr_name.StartsWith("on_", ESearchCase::CaseSensitive))
+			continue;
+		// check if the attr is a callable
+		PyObject *item = PyObject_GetAttrString(py_class, TCHAR_TO_UTF8(*attr_name));
+		if (item && PyCallable_Check(item)) {
+			TArray<FString> parts;
+			if (attr_name.ParseIntoArray(parts, UTF8_TO_TCHAR("_")) > 1) {
+				FString event_name;
+				for (FString part : parts) {
+					FString first_letter = part.Left(1).ToUpper();
+					part.RemoveAt(0);
+					event_name = event_name.Append(first_letter);
+					event_name = event_name.Append(part);
+				}
+				// do not fail on wrong properties
+				ue_bind_event(u_obj, event_name, item, false);
+			}
+		}
+	}
+}
+
+PyObject *ue_bind_event(UObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property) {
+
+	UProperty *u_property = u_obj->GetClass()->FindPropertyByName(FName(*event_name));
+	if (!u_property) {
+		if (fail_on_wrong_property)
+			return PyErr_Format(PyExc_Exception, "unable to find event property %s", event_name);
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
+		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj);
+
+		FScriptDelegate script_delegate;
+		UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+		py_delegate->SetPyCallable(py_callable);
+		py_delegate->SetSignature(casted_prop->SignatureFunction);
+
+		// fake UFUNCTION for bypassing checks
+		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
+
+		// add the new delegate
+		multiscript_delegate.Add(script_delegate);
+
+		// re-assign multicast delegate
+		casted_prop->SetPropertyValue_InContainer(u_obj, multiscript_delegate);
+
+	}
+	else {
+		if (fail_on_wrong_property)
+			return PyErr_Format(PyExc_Exception, "property %s is not an event", event_name);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }

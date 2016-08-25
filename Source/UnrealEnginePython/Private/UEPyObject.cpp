@@ -1,5 +1,6 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "PythonDelegate.h"
 
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 
@@ -237,5 +238,23 @@ PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args) {
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *event_name;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "sO:bind_event", &event_name, &py_callable)) {
+		return NULL;
+	}
+
+	
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "object is not callable");
+	}
+
+	return ue_bind_event(self->ue_object, FString(event_name), py_callable, true);
 }
 

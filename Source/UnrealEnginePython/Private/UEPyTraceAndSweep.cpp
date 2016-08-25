@@ -24,10 +24,13 @@ PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * arg
 	bool got_hit = world->LineTraceSingleByChannel(hit, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
 
 	if (got_hit) {
-		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
+		AActor *actor = hit.GetActor();
+		if (actor) {
+			PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+			return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
+		}
 	}
 
 	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
@@ -62,9 +65,12 @@ PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject * args
 	if (got_hits) {
 		for (int i = 0; i < hits.Num(); i++) {
 			FHitResult hit = hits[i];
-			PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
-			if (ret) {
-				PyList_Append(hits_list, Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z));
+			AActor *actor = hit.GetActor();
+			if (actor) {
+				PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
+				if (ret) {
+					PyList_Append(hits_list, Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z));
+				}
 			}
 		}
 	}
@@ -105,10 +111,13 @@ PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject * args
 	bool got_hit = controller->GetHitResultUnderCursor((ECollisionChannel)channel, complex, hit);
 
 	if (got_hit) {
-		PyObject *ret = (PyObject *)ue_get_python_wrapper(hit.GetActor());
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
+		AActor *actor = hit.GetActor();
+		if (actor) {
+			PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+			return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
+		}
 	}
 
 	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);

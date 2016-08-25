@@ -11,6 +11,7 @@ UPythonComponent::UPythonComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	PythonTickForceDisabled = false;
+	PythonDisableAutoBinding = false;
 
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
@@ -72,6 +73,9 @@ void UPythonComponent::BeginPlay()
 	if (!PyObject_HasAttrString(py_component_instance, "tick") || PythonTickForceDisabled) {
 		SetComponentTickEnabled(false);
 	}
+
+	if (!PythonDisableAutoBinding)
+		ue_autobind_events_for_class(this, py_component_instance);
 
 	if (!PyObject_HasAttrString(py_component_instance, "begin_play")) {
 		return;

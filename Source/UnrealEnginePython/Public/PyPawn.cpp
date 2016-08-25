@@ -6,10 +6,8 @@ APyPawn::APyPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	this->OnActorBeginOverlap.AddDynamic(this, &APyPawn::PyOnActorBeginOverlap);
-	this->OnClicked.AddDynamic(this, &APyPawn::PyOnActorClicked);
-
 	PythonTickForceDisabled = false;
+	PythonDisableAutoBinding = false;
 
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
@@ -72,6 +70,9 @@ void APyPawn::BeginPlay()
 		SetActorTickEnabled(false);
 	}
 
+	if (!PythonDisableAutoBinding)
+		ue_autobind_events_for_class(this, py_pawn_instance);
+
 	if (!PyObject_HasAttrString(py_pawn_instance, "begin_play"))
 		return;
 
@@ -101,38 +102,6 @@ void APyPawn::Tick(float DeltaTime)
 
 }
 
-
-void APyPawn::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
-{
-	if (!py_pawn_instance)
-		return;
-
-	if (!PyObject_HasAttrString(py_pawn_instance, "on_actor_begin_overlap"))
-		return;
-
-	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "on_actor_begin_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return;
-	}
-	Py_DECREF(ret);
-}
-
-void APyPawn::PyOnActorClicked(AActor *touched_actor, FKey button_pressed)
-{
-	if (!py_pawn_instance)
-		return;
-
-	if (!PyObject_HasAttrString(py_pawn_instance, "on_actor_clicked"))
-		return;
-
-	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "on_actor_clicked", "Os", (PyObject *)ue_get_python_wrapper(touched_actor), TCHAR_TO_UTF8(*button_pressed.ToString()));
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return;
-	}
-	Py_DECREF(ret);
-}
 
 void APyPawn::CallPythonPawnMethod(FString method_name)
 {

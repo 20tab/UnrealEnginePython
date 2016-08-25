@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Python")
 	bool PythonTickForceDisabled;
 
+	UPROPERTY(EditAnywhere, Category = "Python")
+	bool PythonDisableAutoBinding;
+
 	UFUNCTION(BlueprintCallable, Category = "Python")
 	void CallPythonComponentMethod(FString method_name, FString args);
 

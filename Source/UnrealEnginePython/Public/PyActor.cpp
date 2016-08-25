@@ -7,12 +7,8 @@ APyActor::APyActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	this->OnActorBeginOverlap.AddDynamic(this, &APyActor::PyOnActorBeginOverlap);
-	this->OnActorEndOverlap.AddDynamic(this, &APyActor::PyOnActorEndOverlap);
-	this->OnActorHit.AddDynamic(this, &APyActor::PyOnActorHit);
-	this->OnClicked.AddDynamic(this, &APyActor::PyOnActorClicked);
-
 	PythonTickForceDisabled = false;
+	PythonDisableAutoBinding = false;
 
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
@@ -74,6 +70,9 @@ void APyActor::BeginPlay()
 		SetActorTickEnabled(false);
 	}
 
+	if (!PythonDisableAutoBinding)
+		ue_autobind_events_for_class(this, py_actor_instance);
+
 	if (!PyObject_HasAttrString(py_actor_instance, "begin_play"))
 		return;
 
@@ -106,61 +105,6 @@ void APyActor::Tick(float DeltaTime)
 
 }
 
-
-void APyActor::PyOnActorBeginOverlap(AActor *overlapped, AActor *other)
-{
-	if (!py_actor_instance)
-		return;
-
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_begin_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return;
-	}
-	Py_DECREF(ret);
-}
-
-void APyActor::PyOnActorEndOverlap(AActor *overlapped, AActor *other)
-{
-	if (!py_actor_instance)
-		return;
-
-	if (!PyObject_HasAttrString(py_actor_instance, "on_actor_end_overlap"))
-		return;
-
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_end_overlap", "O", (PyObject *)ue_get_python_wrapper(other));
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return;
-	}
-	Py_DECREF(ret);
-}
-
-void APyActor::PyOnActorHit(AActor *self_actor, AActor *other, FVector impulse_normal, const FHitResult &hit)
-{
-	if (!py_actor_instance)
-		return;
-
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_hit", "O(fff)(fff)(fff)", (PyObject *)ue_get_python_wrapper(other), impulse_normal.X, impulse_normal.Y, impulse_normal.Z, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return;
-	}
-	Py_DECREF(ret);
-}
-
-void APyActor::PyOnActorClicked(AActor *touched_actor, FKey button_pressed)
-{
-	if (!py_actor_instance)
-		return;
-
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, "on_actor_clicked", "Os", (PyObject *)ue_get_python_wrapper(touched_actor), TCHAR_TO_UTF8(*button_pressed.ToString()));
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return;
-	}
-	Py_DECREF(ret);
-}
 
 void APyActor::CallPythonActorMethod(FString method_name, FString args)
 {

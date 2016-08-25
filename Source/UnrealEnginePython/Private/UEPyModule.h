@@ -27,3 +27,6 @@ AActor *ue_get_actor(ue_PyUObject *);
 PyObject *ue_py_convert_property(UProperty *, uint8 *);
 bool ue_py_convert_pyobject(PyObject *, UProperty *, uint8 *);
 ue_PyUObject *ue_is_pyuobject(PyObject *);
+
+void ue_autobind_events_for_class(UObject *, PyObject *);
+PyObject *ue_bind_event(UObject *, FString, PyObject *, bool);
