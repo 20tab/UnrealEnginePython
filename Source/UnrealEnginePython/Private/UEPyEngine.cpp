@@ -296,7 +296,7 @@ PyObject *py_unreal_engine_vector_mul_float(PyObject * self, PyObject *args) {
 PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 
 	PyObject *obj;
-	PyObject *py_outer;
+	PyObject *py_outer = NULL;
 	char *name = nullptr;
 	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj, &py_outer, &name)) {
 		return NULL;
