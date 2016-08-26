@@ -579,6 +579,19 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		goto end;
 	}
 
+	if (auto casted_prop = Cast<UWeakObjectProperty>(prop)) {
+		auto value = casted_prop->GetPropertyValue_InContainer(buffer);
+		UObject *strong_obj = value.Get();
+		if (strong_obj) {
+			ue_PyUObject *ret = ue_get_python_wrapper(strong_obj);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+			Py_INCREF(ret);
+			return (PyObject *)ret;
+		}
+		goto end;
+	}
+
 	return PyErr_Format(PyExc_Exception, "unsupported value type for property %s", TCHAR_TO_UTF8(*prop->GetName()));
 
 end:
