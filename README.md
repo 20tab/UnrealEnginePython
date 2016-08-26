@@ -136,25 +136,47 @@ Now you can drag the bluprint from the content browser to the scene and just cli
 
 You should see your actor moving along the 'z' axis at a speed of 1 meter per second
 
-By default a 'begin_play' and a 'tick' method are expected (NOTE: currently you get an exception if you do not define them, this should be addressed soon). The following methods are defined for PyActor (they are triggered on specific events):
+By default a 'begin_play' and a 'tick' method are expected (they will be automatically taken into account if found). In addition to them an 'automagic' system for defining event is available:
 
 ```py
-def on_actor_begin_overlap(self, other_actor):
+def on_actor_begin_overlap(self, me, other_actor):
     pass
 
-def on_actor_end_overlap(self, other_actor):
+def on_actor_end_overlap(self, me, other_actor):
     pass
     
-# *args is currently under investigation
-def on_actor_hit(self, other, *args):
+def on_actor_hit(self, me, other_actor, normal_impulse, hit_result):
     pass
-    
-# maybe touched_actor is useless ?
-def on_actor_clicked(self, touched_actor, button_pressed)
-    pass
+
+...
 ```
 
-more events are going to be added
+Basically for each method startwing with 'on_' the related delegate/event is automatically configured (if available).
+
+If you instead prefer to manually setup events, the following functions are exposed:
+
+```py
+
+class Ball:
+
+    def begin_play(self):
+        self.uobject.bind_event('OnActorBeginOverlap', self.manage_overlap)
+        self.uobject.bind_action('Jump', ue.IE_PRESSED, self.uobject.jump)
+        self.uobject.bind_key('K', ue.IE_PRESSED, self.you_pressed_K)
+        self.uobject.bind_axis('MoveForward', self.move_forward)
+        
+    def manage_overlap(self, me, other):
+        ue.print_string('overlapping ' + other.get_name())
+        
+    def you_pressed_K(self):
+        ue.log_warning('you pressed K')
+        
+     def move_forward(self, amount):
+        ue.print_string('axis value: ' + str(amount))
+        
+
+```
+
 
 What is 'self.uobject' ?
 ------------------------
@@ -195,7 +217,7 @@ To access the actor you can use:
 actor = self.uobject.get_owner()
 ```
 
-The following example implements the third person official blueprint as a python component:
+The following example implements the third person official blueprint as a python component in non-evented way (this is an anti-pattern in unreal engine, see below for the evented-based approach):
 
 ```py
 import unreal_engine as ue
@@ -485,14 +507,14 @@ class Ball:
     def tick(self, delta_time):
         pass
     
-    def on_actor_begin_overlap(self, other_actor):
+    def on_actor_begin_overlap(self, me, other_actor):
         # change collision profile
         self.sphere.call('SetCollisionProfileName BlockAll')
         # enable physics
         self.sphere.set_simulate_physics()
         
     # once the object became a physics one, hit event will start arriving
-    def on_actor_hit(self, other, *args):
+    def on_actor_hit(self, me, other, *args):
         ue.print_string('HIT with ' + other.get_name())
 ```
 
@@ -603,7 +625,15 @@ class Curver:
 Events
 ------
 
-Currently there is no support for defining custom events from python. The best thing to do is defining them from a blueprint and mapping each event to a python method:
+You can easily bind events (as seen before) with the bind_event function
+
+```py
+self.uobject.bind_event('OnActorBeginOverlap', a_funny_callback)
+```
+
+Support for mapping custom events directly from python is currently worked on.
+
+If you want to map events from a blueprint to a python function, the best thing to do is using the 'python call' blueprint functions exposed by the various plugin classes:
 
 ![Alt text](screenshots/unreal_screenshot3.png?raw=true "Screenshot 3")
 
@@ -722,9 +752,9 @@ Status and Known issues
 
 The project could be considered in beta state.
 
-The property system still lacks Struct support
+The property system still lacks array support
 
-We would like to find a way to define and manage custom events directly from python
+complete custom events integration
 
 .py files are not recognized by the editor. This should be fixed soon
 
