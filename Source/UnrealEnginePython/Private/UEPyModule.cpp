@@ -81,6 +81,7 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
+	{ "new_blueprint_class", py_unreal_engine_new_blueprint_class, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
