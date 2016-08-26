@@ -420,6 +420,53 @@ PyObject *py_ue_bind_axis(ue_PyUObject *self, PyObject * args) {
 
 }
 
+PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *key_name;
+	int key;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "siO:bind_key", &key_name, &key, &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "object is not a callable");
+	}
+
+	UInputComponent *input = nullptr;
+
+	if (self->ue_object->IsA<AActor>()) {
+		input = ((AActor *)self->ue_object)->InputComponent;
+	}
+	else if (self->ue_object->IsA<UActorComponent>()) {
+		input = ((UActorComponent *)self->ue_object)->GetOwner()->InputComponent;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	}
+
+	if (!input) {
+		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
+	}
+
+	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+
+	// allow the delegate to not be destroyed
+	self->ue_property->python_delegates_gc.Add(py_delegate);
+
+	FInputKeyBinding input_key_binding(FKey(UTF8_TO_TCHAR(key_name)), (const EInputEvent)key);
+	input_key_binding.KeyDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);
+	input->KeyBindings.Add(input_key_binding);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
 
 
 
