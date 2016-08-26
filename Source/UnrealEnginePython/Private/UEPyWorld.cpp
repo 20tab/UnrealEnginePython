@@ -138,3 +138,14 @@ PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 
 }
+
+PyObject *py_ue_get_world_delta_seconds(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	return Py_BuildValue("f", UGameplayStatics::GetWorldDeltaSeconds(world));
+}
