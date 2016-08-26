@@ -14,6 +14,8 @@ public:
 	void SetPyCallable(PyObject *callable);
 	void SetSignature(UFunction *original_signature);
 
+	void PyInputHandler();
+
 private:
 	UFunction *signature;
 

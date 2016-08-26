@@ -49,6 +49,16 @@ void UPythonDelegate::PyFakeCallable()
 {
 }
 
+void UPythonDelegate::PyInputHandler()
+{
+	PyObject *ret = PyObject_CallObject(py_callable, NULL);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 UPythonDelegate::~UPythonDelegate()
 {
 	Py_XDECREF(py_callable);

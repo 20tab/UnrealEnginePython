@@ -169,6 +169,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "is_action_pressed", (PyCFunction)py_ue_is_action_pressed, METH_VARARGS, "" },
 	{ "is_action_released", (PyCFunction)py_ue_is_action_released, METH_VARARGS, "" },
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
+	{ "bind_action", (PyCFunction)py_ue_bind_action, METH_VARARGS, "" },
 
 
 	// Movements
@@ -361,6 +362,12 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "COLOR_WHITE", Py_BuildValue("iii", FColor::White.R, FColor::White.G, FColor::White.B));
 	PyDict_SetItemString(unreal_engine_dict, "COLOR_YELLOW", Py_BuildValue("iii", FColor::Yellow.R, FColor::Yellow.G, FColor::Yellow.B));
 
+	// Input
+	PyDict_SetItemString(unreal_engine_dict, "IE_AXIS", PyLong_FromLong(EInputEvent::IE_Axis));
+	PyDict_SetItemString(unreal_engine_dict, "IE_DOUBLE_CLICK", PyLong_FromLong(EInputEvent::IE_DoubleClick));
+	PyDict_SetItemString(unreal_engine_dict, "IE_PRESSED", PyLong_FromLong(EInputEvent::IE_Pressed));
+	PyDict_SetItemString(unreal_engine_dict, "IE_RELEASED", PyLong_FromLong(EInputEvent::IE_Released));
+	PyDict_SetItemString(unreal_engine_dict, "IE_REPEAT", PyLong_FromLong(EInputEvent::IE_Repeat));
 }
 
 
