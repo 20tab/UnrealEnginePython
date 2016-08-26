@@ -59,6 +59,16 @@ void UPythonDelegate::PyInputHandler()
 	Py_DECREF(ret);
 }
 
+void UPythonDelegate::PyInputAxisHandler(float value)
+{
+	PyObject *ret = PyObject_CallFunction(py_callable, "f", value);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+}
+	Py_DECREF(ret);
+}
+
 UPythonDelegate::~UPythonDelegate()
 {
 	Py_XDECREF(py_callable);

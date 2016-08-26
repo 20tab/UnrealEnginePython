@@ -17,3 +17,4 @@ PyObject *py_ue_enable_mouse_over_events(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enable_click_events(ue_PyUObject *, PyObject *);
 PyObject *py_ue_show_mouse_cursor(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_action(ue_PyUObject *, PyObject *);
+PyObject *py_ue_bind_axis(ue_PyUObject *, PyObject *);

@@ -15,6 +15,7 @@ public:
 	void SetSignature(UFunction *original_signature);
 
 	void PyInputHandler();
+	void PyInputAxisHandler(float value);
 
 private:
 	UFunction *signature;

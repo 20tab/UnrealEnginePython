@@ -170,6 +170,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "is_action_released", (PyCFunction)py_ue_is_action_released, METH_VARARGS, "" },
 	{ "is_input_key_down", (PyCFunction)py_ue_is_input_key_down, METH_VARARGS, "" },
 	{ "bind_action", (PyCFunction)py_ue_bind_action, METH_VARARGS, "" },
+	{ "bind_axis", (PyCFunction)py_ue_bind_axis, METH_VARARGS, "" },
 
 
 	// Movements
