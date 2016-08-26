@@ -56,13 +56,15 @@ void APyPawn::BeginPlay()
 		return;
 	}
 
-	ue_PyUObject *py_obj = ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_wrapper(this);
 
-	if (py_obj) {
-		PyObject_SetAttrString(py_pawn_instance, "uobject", (PyObject *) py_obj);
+	if (py_uobject) {
+		PyObject_SetAttrString(py_pawn_instance, "uobject", (PyObject *) py_uobject);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in pawn wrapper class"));
+		unreal_engine_py_log_error();
+		return;
 	}
 
 	// disable ticking if not required
@@ -71,7 +73,7 @@ void APyPawn::BeginPlay()
 	}
 
 	if (!PythonDisableAutoBinding)
-		ue_autobind_events_for_pyclass(py_obj, py_pawn_instance);
+		ue_autobind_events_for_pyclass(py_uobject, py_pawn_instance);
 
 	if (!PyObject_HasAttrString(py_pawn_instance, "begin_play"))
 		return;
@@ -165,8 +167,13 @@ FString APyPawn::CallPythonPawnMethodString(FString method_name)
 
 APyPawn::~APyPawn()
 {
+#if UEPY_MEMORY_DEBUG
+	if (py_pawn_instance && py_pawn_instance->ob_refcnt != 1) {
+		UE_LOG(LogPython, Error, TEXT("Inconsistent Python APawn wrapper refcnt = %d"), py_pawn_instance->ob_refcnt);
+	}
+#endif
 	Py_XDECREF(py_pawn_instance);
 #if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Warning, TEXT("Python APawn wrapper XDECREF'ed"));
+	UE_LOG(LogPython, Warning, TEXT("Python APawn (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
 #endif
 }

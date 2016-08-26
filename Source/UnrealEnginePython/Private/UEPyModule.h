@@ -1,17 +1,18 @@
 #pragma once
 
 #include "UnrealEnginePython.h"
+#include "PythonDelegate.h"
 
 #include "UEPyModule.generated.h"
 
-
+// fwd declaration
+class UPyObject;
 
 typedef struct {
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	UObject *ue_object;
-	UObject *ue_property;
-	PyObject *python_delegates_gc;
+		/* Type-specific fields go here. */
+		UObject *ue_object;
+	UPyObject *ue_property;
 } ue_PyUObject;
 
 UCLASS()
@@ -21,6 +22,17 @@ class UPyObject : public UObject
 public:
 	ue_PyUObject *py_object;
 	~UPyObject();
+	TArray<UPythonDelegate*> python_delegates_gc;
+};
+
+
+UCLASS()
+class UPythonGCManager : public UObject
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY()
+	TArray<UPyObject *> python_properties_gc;
 };
 
 void unreal_engine_py_log_error();

@@ -1,7 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "PyActor.h"
 
-
+#include "PythonDelegate.h"
 
 APyActor::APyActor()
 {
@@ -57,29 +57,24 @@ void APyActor::BeginPlay()
 		return;
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt after %s initialization %d"), *this->GetName(), py_actor_instance->ob_refcnt);
+	py_uobject = ue_get_python_wrapper(this);
 
-	ue_PyUObject *py_obj = ue_get_python_wrapper(this);
-
-	if (py_obj) {
-		PyObject_SetAttrString(py_actor_instance, "uobject", (PyObject *) py_obj);
+	if (py_uobject) {
+		PyObject_SetAttrString(py_actor_instance, "uobject", (PyObject *)py_uobject);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in actor wrapper class"));
+		unreal_engine_py_log_error();
+		return;
 	}
-
-	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt after %s initialization[2] %d"), *this->GetName(), py_actor_instance->ob_refcnt);
 
 	if (!PyObject_HasAttrString(py_actor_instance, "tick") || PythonTickForceDisabled) {
 		SetActorTickEnabled(false);
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt before %s autobinding %d"), *this->GetName(), py_actor_instance->ob_refcnt);
-
 	if (!PythonDisableAutoBinding)
-		ue_autobind_events_for_pyclass(py_obj, py_actor_instance);
+		ue_autobind_events_for_pyclass(py_uobject, py_actor_instance);
 
-	UE_LOG(LogPython, Warning, TEXT("PyActor refcnt after %s autobinding %d"), *this->GetName(), py_actor_instance->ob_refcnt);
 
 	if (!PyObject_HasAttrString(py_actor_instance, "begin_play"))
 		return;
@@ -203,6 +198,6 @@ APyActor::~APyActor()
 	Py_XDECREF(py_actor_instance);
 
 #if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Warning, TEXT("Python AActor %s wrapper XDECREF'ed"), *this->GetName());
+	UE_LOG(LogPython, Warning, TEXT("Python AActor (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object: nullptr);
 #endif
 }

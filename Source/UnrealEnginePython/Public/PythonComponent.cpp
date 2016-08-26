@@ -60,13 +60,15 @@ void UPythonComponent::BeginPlay()
 		return;
 	}
 
-	ue_PyUObject *py_obj = ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_wrapper(this);
 
-	if (py_obj) {
-		PyObject_SetAttrString(py_component_instance, "uobject", (PyObject *)py_obj);
+	if (py_uobject) {
+		PyObject_SetAttrString(py_component_instance, "uobject", (PyObject *)py_uobject);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in component wrapper class"));
+		unreal_engine_py_log_error();
+		return;
 	}
 
 	// disable ticking if no tick method is exposed
@@ -75,7 +77,7 @@ void UPythonComponent::BeginPlay()
 	}
 
 	if (!PythonDisableAutoBinding)
-		ue_autobind_events_for_pyclass(py_obj, py_component_instance);
+		ue_autobind_events_for_pyclass(py_uobject, py_component_instance);
 
 	if (!PyObject_HasAttrString(py_component_instance, "begin_play")) {
 		return;
@@ -193,8 +195,13 @@ FString UPythonComponent::CallPythonComponentMethodString(FString method_name, F
 
 UPythonComponent::~UPythonComponent()
 {
+#if UEPY_MEMORY_DEBUG
+	if (py_component_instance && py_component_instance->ob_refcnt != 1) {
+		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UActorComponent wrapper refcnt = %d"), py_component_instance->ob_refcnt);
+	}
+#endif
 	Py_XDECREF(py_component_instance);
 #if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent wrapper XDECREF'ed"));
+	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
 #endif
 }

@@ -46,5 +46,7 @@ public:
 
 private:
 	PyObject *py_actor_instance;
+	// mapped uobject, required for debug and advanced reflection
+	ue_PyUObject *py_uobject;
 };
 

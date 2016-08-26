@@ -26,6 +26,11 @@
 
 DEFINE_LOG_CATEGORY(LogPython);
 
+
+
+
+
+
 PyDoc_STRVAR(unreal_engine_py_doc, "Unreal Engine Python module.");
 
 static PyModuleDef unreal_engine_module = {
@@ -36,8 +41,12 @@ static PyModuleDef unreal_engine_module = {
 	NULL,
 };
 
+UPythonGCManager *PythonGCManager;
 
 static PyObject *init_unreal_engine(void) {
+
+	
+
 	return PyModule_Create(&unreal_engine_module);
 }
 
@@ -254,28 +263,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 };
 
 
-
-static void ue_pyobject_clear(ue_PyUObject *self) {
-	Py_ssize_t len = PyList_Size(self->python_delegates_gc);
-	for (Py_ssize_t i = 0; i < len; i++) {
-		PyObject *item = PyList_GetItem(self->python_delegates_gc, i);
-		UObject *py_delegate = (UObject *)PyLong_AsLongLong(item);
-		// avoid making mess on engine shutdown
-		if (!py_delegate || !py_delegate->IsValidLowLevel() || py_delegate->IsPendingKillOrUnreachable())
-			continue;
-		if (py_delegate->IsRooted())
-			py_delegate->RemoveFromRoot();
-		py_delegate->ConditionalBeginDestroy();
-	}
-#if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Warning, TEXT("destroying pyobject with %d over %p"), self->python_delegates_gc->ob_refcnt, self->ue_property);
-#endif
-	Py_DECREF(self->python_delegates_gc);
-}
-
 // destructor
 static void ue_pyobject_dealloc(ue_PyUObject *self) {
-	ue_pyobject_clear(self);
+#if UEPY_MEMORY_DEBUG
+	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
+#endif
+	// this could happen during engine shutdown, so have mercy
+	if (PythonGCManager && PythonGCManager->IsValidLowLevel()) {
+		PythonGCManager->python_properties_gc.Remove(self->ue_property);
+	}
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -371,6 +367,11 @@ void unreal_engine_init_py_module() {
 // utility functions
 
 ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
+	if (!PythonGCManager) {
+		PythonGCManager = NewObject<UPythonGCManager>();
+		PythonGCManager->AddToRoot();
+		UE_LOG(LogPython, Log, TEXT("Initialized Python GC Manager"));
+	}
 	if (!ue_obj || !ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
 		return nullptr;
 	UPyObject *ue_py_object = FindObject<UPyObject>(ue_obj, TEXT("__PyObject"), true);
@@ -385,16 +386,21 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 			return nullptr;
 		}
 		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
-		((ue_PyUObject *)ue_py_object->py_object)->python_delegates_gc = PyList_New(0);
 		((ue_PyUObject *)ue_py_object->py_object)->ue_property = ue_py_object;
+
+		if (PythonGCManager && PythonGCManager->IsValidLowLevel()) {
+			PythonGCManager->python_properties_gc.Add(ue_py_object);
+		}
+		else {
+			UE_LOG(LogPython, Fatal, TEXT("[BUG] PYTHON GC MANAGER BROKEN DURING ADD !"));
+		}
+		
 #if UEPY_MEMORY_DEBUG
-		UE_LOG(LogPython, Warning, TEXT("----------------- CREATED %p"), ue_py_object);
+		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p"), ue_py_object, ue_obj);
 #endif
 		//Py_INCREF(ue_py_object->py_object);
 	}
-#if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Warning, TEXT("REFCNT for %s = %d"), *ue_obj->GetName(), ue_py_object->py_object->ob_base.ob_refcnt);
-#endif
+
 	return ue_py_object->py_object;
 }
 
@@ -557,13 +563,10 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 
 	// map a UStruct to a dictionary (if possible)
 	if (auto casted_prop = Cast<UStructProperty>(prop)) {
-		UE_LOG(LogPython, Error, TEXT("UStruct type not supported for %s"), *prop->GetName());
 		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct)) {
-			UE_LOG(LogPython, Error, TEXT("UStruct scripted !!!"));
 			PyObject *py_struct_dict = PyDict_New();
 			TFieldIterator<UProperty> SArgs(casted_struct);
 			for (; SArgs; ++SArgs) {
-				UE_LOG(LogPython, Error, TEXT("UStruct NAME %s"), *SArgs->GetName());
 				PyObject *struct_value = ue_py_convert_property(*SArgs, casted_prop->ContainerPtrToValuePtr<uint8>(buffer));
 				if (!struct_value) {
 					Py_DECREF(py_struct_dict);
@@ -709,12 +712,12 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 		FScriptDelegate script_delegate;
 		UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-		//py_delegate->SetPyCallable(py_callable);
+		py_delegate->SetPyCallable(py_callable);
 		py_delegate->SetSignature(casted_prop->SignatureFunction);
+		// avoid delegates to be destroyed by the GC
 		py_delegate->AddToRoot();
-		// collect pointer to allow removal
-		PyList_Append(u_obj->python_delegates_gc, PyLong_FromLongLong((long long)py_delegate));
-
+		u_obj->ue_property->python_delegates_gc.Add(py_delegate);
+		
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
@@ -735,6 +738,12 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 }
 
 UPyObject::~UPyObject() {
+#if UEPY_MEMORY_DEBUG
+	UE_LOG(LogPython, Error, TEXT("Destroying PyProperty %p"), this);
+#endif
+	for (UPythonDelegate *py_delegate :this->python_delegates_gc) {
+		py_delegate->RemoveFromRoot();
+	}
 #if UEPY_MEMORY_DEBUG
 	if (py_object && py_object->ob_base.ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("INCONSISTENT DESTROY %p with refcnt %d"), this, py_object->ob_base.ob_refcnt);
