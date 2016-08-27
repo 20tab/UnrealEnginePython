@@ -50,7 +50,7 @@ On the Mac the installation is easier, as the final user is currently forced to 
 * install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/3.5" directory).
 * create a new unreal engine blank c++ project (NOT a blueprint one, otherwise XCode will not be initialized)
 * create a Plugins directory in the project directory
-* move to the Projects directory and clone the plugin repository
+* move to the Plugins directory and clone the plugin repository
 
 ```sh
 git clone https://github.com/20tab/UnrealEnginePython
