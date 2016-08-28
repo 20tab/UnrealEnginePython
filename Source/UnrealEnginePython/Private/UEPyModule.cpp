@@ -264,6 +264,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_anim_instance", (PyCFunction)py_ue_get_anim_instance, METH_VARARGS, "" },
 
 
+	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

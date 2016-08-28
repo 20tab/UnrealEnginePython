@@ -342,24 +342,27 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+
+
 PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args) {
 
-	PyObject *py_outer;
+	PyObject *py_parent;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:new_blueprint_class", &py_outer, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:new_blueprint_class", &py_parent, &name)) {
 		return NULL;
 	}
 
 	UObject *outer = GetTransientPackage();
+	UClass *parent = UObject::StaticClass();
 
-	if (py_outer != Py_None) {
-		if (!ue_is_pyuobject(py_outer)) {
+	if (py_parent != Py_None) {
+		if (!ue_is_pyuobject(py_parent)) {
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
-		ue_PyUObject *py_obj = (ue_PyUObject *)py_outer;
-		outer = py_obj->ue_object;
-		if (!outer->IsA<UPackage>())
-			return PyErr_Format(PyExc_Exception, "uobject is not a UPackage");
+		ue_PyUObject *py_obj = (ue_PyUObject *)py_parent;
+		if (!py_obj->ue_object->IsA<UClass>())
+			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+		parent = (UClass *)py_obj->ue_object;
 	}
 
 	UBlueprintGeneratedClass *new_object = NewObject<UBlueprintGeneratedClass>(outer, UTF8_TO_TCHAR(name), RF_Public);
@@ -371,9 +374,15 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 	new_object->ClassGeneratedBy = blueprint;
 
 	new_object->ClassFlags |= CLASS_Native;
-	UClass *parent = UObject::StaticClass();
+
+	auto BPClassConstructor = [](const FObjectInitializer& ObjectInitializer) {
+		UE_LOG(LogPython, Error, TEXT("BUILDING A NEW CLASS"));
+		auto bp_class = static_cast<UBlueprintGeneratedClass *>(ObjectInitializer.GetClass());
+		bp_class->ClassConstructor(ObjectInitializer);
+	};
 
 	new_object->ClassConstructor = parent->ClassConstructor;
+
 	new_object->PropertyLink = parent->PropertyLink;
 	new_object->ClassWithin = parent->ClassWithin;
 	new_object->ClassConfigName = parent->ClassConfigName;
@@ -383,6 +392,8 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 
 	new_object->Bind();
 	new_object->StaticLink(true);
+
+	new_object->GetDefaultObject();
 
 	ue_PyUObject *ret = ue_get_python_wrapper(new_object);
 	if (!ret)

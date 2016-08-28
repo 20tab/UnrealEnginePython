@@ -19,3 +19,4 @@ PyObject *py_ue_add_to_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_from_root(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_bind_event(ue_PyUObject *, PyObject *);
+PyObject *py_ue_add_function(ue_PyUObject *, PyObject *);

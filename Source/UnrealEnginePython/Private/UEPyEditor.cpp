@@ -156,6 +156,5 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
 #endif
 

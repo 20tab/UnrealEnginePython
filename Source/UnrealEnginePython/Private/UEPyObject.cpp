@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "PythonDelegate.h"
+#include "PythonFunction.h"
 
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 
@@ -255,5 +256,56 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
 	}
 
 	return ue_bind_pyevent(self, FString(event_name), py_callable, true);
+}
+
+PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "sO:add_function", &name, &py_callable)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+	}
+
+	UClass *u_class = (UClass *)self->ue_object;
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "object is not callable");
+	}
+
+	UFunction *found_function = u_class->FindFunctionByName(UTF8_TO_TCHAR(name));
+	if (found_function)
+		return PyErr_Format(PyExc_Exception, "function %s already mapped to class", name);
+
+	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public);
+
+	function->SetPyCallable(py_callable);
+	function->RepOffset = MAX_uint16;
+	function->ReturnValueOffset = MAX_uint16;
+	function->FirstPropertyToInit = NULL;
+
+	function->Script.Add(EX_EndFunctionParms);
+	
+	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable;
+	FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
+
+	function->Bind();
+	function->StaticLink(true);
+
+	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
+
+	function->Next = u_class->Children;
+	u_class->Children = function;
+	u_class->AddFunctionToFunctionMap(function);
+
+	
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
