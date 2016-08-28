@@ -15,6 +15,7 @@
 #include "UEPyAttaching.h"
 #include "UEPySkeletal.h"
 #include "UEPyTraceAndSweep.h"
+#include "UEPyTimer.h"
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
 #if WITH_EDITOR
@@ -263,6 +264,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	// Skeletal
 	{ "get_anim_instance", (PyCFunction)py_ue_get_anim_instance, METH_VARARGS, "" },
 
+	// Timer
+	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
 
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
@@ -335,6 +338,8 @@ void unreal_engine_init_py_module() {
 
 	Py_INCREF(&ue_PyUObjectType);
 	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
+
+	ue_python_init_ftimerhandle(new_unreal_engine_module);
 
 	// Collision channels
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_CAMERA", PyLong_FromLong(ECollisionChannel::ECC_Camera));

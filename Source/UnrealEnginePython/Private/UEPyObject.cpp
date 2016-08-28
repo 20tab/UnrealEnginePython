@@ -303,9 +303,8 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
 
-	
-
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
 

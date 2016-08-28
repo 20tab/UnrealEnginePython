@@ -9,6 +9,7 @@ class UPythonDelegate : public UObject
 	GENERATED_BODY()
 
 public:
+	UPythonDelegate();
 	~UPythonDelegate();
 	virtual void ProcessEvent(UFunction *function, void *Parms) override;
 	void SetPyCallable(PyObject *callable);
@@ -19,6 +20,7 @@ public:
 
 private:
 	UFunction *signature;
+	bool signature_set;
 
 	UFUNCTION()
 	void PyFakeCallable();
