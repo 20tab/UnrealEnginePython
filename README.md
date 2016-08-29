@@ -501,6 +501,30 @@ class ActorGoingUp:
         self.uobject.set_actor_location(*new_position)
 ```
 
+Referencing objects
+-------------------
+
+You can use find_class(), find_struct() and find_object() functions to reference already loaded classes/objects.
+
+If you need to reference assets (still) not loaded in the engine you can use load_struct(), load_class() or load_object():
+
+```py
+a_struct_data = ue.load_struct('/Game/Data')
+ue.log(a_struct_data.as_dict())
+```
+
+or to find a specific asset:
+
+```py
+texture_class = ue.find_class('Texture2D')
+a_specific_texture = ue.load_object(texture_class, '/Game/Textures/logo2')
+```
+
+The as_dict() method
+--------------------
+
+This special method can be called on any uobject: it will attempt to serialize it to a python dictionary
+
 Navigation
 ---------
 
