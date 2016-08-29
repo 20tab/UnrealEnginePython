@@ -3,6 +3,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "PythonGeneratedClass.h"
+
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
 	char *message;
 	if (!PyArg_ParseTuple(args, "s:log", &message)) {
@@ -365,28 +367,38 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 		parent = (UClass *)py_obj->ue_object;
 	}
 
-	UBlueprintGeneratedClass *new_object = NewObject<UBlueprintGeneratedClass>(outer, UTF8_TO_TCHAR(name), RF_Public);
+	UBlueprintGeneratedClass *new_object = nullptr;
+
+	if (Cast<UBlueprintGeneratedClass>(parent)) {
+		UE_LOG(LogPython, Warning, TEXT("Parent class is blueprint generated"));
+		new_object = NewObject<UBlueprintGeneratedClass>(outer, UTF8_TO_TCHAR(name), RF_Public);
+	}
+	else {
+		UE_LOG(LogPython, Warning, TEXT("Parent class is NOT blueprint generated"));
+		new_object = NewObject<UPythonGeneratedClass>(outer, UTF8_TO_TCHAR(name), RF_Public);
+		new_object->ClassFlags |= CLASS_Native;
+	}
+
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create blueprint class");
 
-	UBlueprint *blueprint = NewObject<UBlueprint>(outer);
+	UBlueprint *blueprint = NewObject<UBlueprint>(outer, MakeUniqueObjectName(outer, UBlueprint::StaticClass(), UTF8_TO_TCHAR(name)), RF_Public);
 	blueprint->GeneratedClass = new_object;
 	new_object->ClassGeneratedBy = blueprint;
-
-	new_object->ClassFlags |= CLASS_Native;
-
-	auto BPClassConstructor = [](const FObjectInitializer& ObjectInitializer) {
-		UE_LOG(LogPython, Error, TEXT("BUILDING A NEW CLASS"));
-		auto bp_class = static_cast<UBlueprintGeneratedClass *>(ObjectInitializer.GetClass());
-		bp_class->ClassConstructor(ObjectInitializer);
+	
+	auto ClassConstructor = [](const FObjectInitializer& ObjectInitializer) {
+		auto _class = ObjectInitializer.GetClass();
+		UE_LOG(LogPython, Warning, TEXT("CALLING CONSTRUCTOR OF %s"), *_class->GetName());
+		_class->GetSuperClass()->ClassConstructor(ObjectInitializer);
 	};
 
-	new_object->ClassConstructor = parent->ClassConstructor;
+	new_object->ClassConstructor = ClassConstructor;
+	new_object->SetSuperStruct(parent);
 
 	new_object->PropertyLink = parent->PropertyLink;
 	new_object->ClassWithin = parent->ClassWithin;
 	new_object->ClassConfigName = parent->ClassConfigName;
-	new_object->SetSuperStruct(parent);
+	
 	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit | CLASS_CompiledFromBlueprint));
 	new_object->ClassCastFlags |= parent->ClassCastFlags;
 

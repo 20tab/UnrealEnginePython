@@ -84,6 +84,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
 	{ "new_blueprint_class", py_unreal_engine_new_blueprint_class, METH_VARARGS, "" },
 
+	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
+
 	{ NULL, NULL },
 };
 
@@ -378,6 +380,27 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "IE_PRESSED", PyLong_FromLong(EInputEvent::IE_Pressed));
 	PyDict_SetItemString(unreal_engine_dict, "IE_RELEASED", PyLong_FromLong(EInputEvent::IE_Released));
 	PyDict_SetItemString(unreal_engine_dict, "IE_REPEAT", PyLong_FromLong(EInputEvent::IE_Repeat));
+
+#if WITH_EDITOR
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_OK", PyLong_FromLong(EAppMsgType::Ok));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_YES_NO", PyLong_FromLong(EAppMsgType::YesNo));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_OK_CANCEL", PyLong_FromLong(EAppMsgType::OkCancel));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_YES_NO_CANCEL", PyLong_FromLong(EAppMsgType::YesNoCancel));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_CANCEL_RETRY_CONTINUE", PyLong_FromLong(EAppMsgType::CancelRetryContinue));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_YES_NO_YES_ALL_NO_ALL", PyLong_FromLong(EAppMsgType::YesNoYesAllNoAll));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_YES_NO_YES_ALL_NO_ALL_CANCEL", PyLong_FromLong(EAppMsgType::YesNoYesAllNoAllCancel));
+	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_YES_NO_YES_ALL", PyLong_FromLong(EAppMsgType::YesNoYesAll));
+
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_OK", PyLong_FromLong(EAppReturnType::Ok));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_YES", PyLong_FromLong(EAppReturnType::Yes));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_YES_ALL", PyLong_FromLong(EAppReturnType::YesAll));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_NO_ALL", PyLong_FromLong(EAppReturnType::NoAll));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_NO", PyLong_FromLong(EAppReturnType::No));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_RETRY", PyLong_FromLong(EAppReturnType::Retry));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_CONTINUE", PyLong_FromLong(EAppReturnType::Continue));
+	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_CANCEL", PyLong_FromLong(EAppReturnType::Cancel));
+	
+#endif
 }
 
 

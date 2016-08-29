@@ -156,5 +156,29 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	int app_msg_type;
+	char *text;
+	char *title = nullptr;
+	if (!PyArg_ParseTuple(args, "is|s:message_dialog_open", &app_msg_type, &text, &title)) {
+		return NULL;
+	}
+
+	FText *f_title = nullptr;
+
+	if (title) {
+		FText f_title_value = FText::FromString(UTF8_TO_TCHAR(title));
+		f_title = &f_title_value;
+	}
+
+	EAppReturnType::Type ret = FMessageDialog::Open((EAppMsgType::Type) app_msg_type, FText::FromString(UTF8_TO_TCHAR(text)), f_title);
+
+	return PyLong_FromLong(ret);
+}
 #endif
 
