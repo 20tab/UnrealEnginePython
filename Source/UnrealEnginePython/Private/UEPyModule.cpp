@@ -692,7 +692,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 			return true;
 		}
 
-		if (ue_obj->ue_object->IsA<UObjectProperty>()) {
+		if (ue_obj->ue_object->IsA<UObject>()) {
 			auto casted_prop = Cast<UObjectProperty>(prop);
 			if (!casted_prop)
 				return false;

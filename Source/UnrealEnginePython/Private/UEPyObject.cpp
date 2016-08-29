@@ -140,10 +140,14 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UStruct>())
-		return PyErr_Format(PyExc_Exception, "uobject is not a UStruct");
+	UStruct *u_struct = nullptr;
 
-	UStruct *u_struct = (UStruct *)self->ue_object;
+	if (self->ue_object->IsA<UStruct>()) {
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
 
 	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
@@ -163,12 +167,14 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	ue_py_check(self);
+	UStruct *u_struct = nullptr;
 
-	if (!self->ue_object->IsA<UStruct>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a a UStruct");
+	if (self->ue_object->IsA<UStruct>()) {
+		u_struct = (UStruct *)self->ue_object;
 	}
-	UStruct *u_struct = (UStruct *)self->ue_object;
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
 
 	PyObject *ret = PyList_New(0);
 
@@ -212,10 +218,14 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UStruct>())
-		return PyErr_Format(PyExc_Exception, "uobject is not a UStruct");
+	UStruct *u_struct = nullptr;
 
-	UStruct *u_struct = (UStruct *)self->ue_object;
+	if (self->ue_object->IsA<UStruct>()) {
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
 
 	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
@@ -328,10 +338,15 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UStruct>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a a UStruct");
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>()) {
+		u_struct = (UStruct *)self->ue_object;
 	}
-	UStruct *u_struct = (UStruct *)self->ue_object;
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+	
 	PyObject *py_struct_dict = PyDict_New();
 	TFieldIterator<UProperty> SArgs(u_struct);
 	for (; SArgs; ++SArgs) {
