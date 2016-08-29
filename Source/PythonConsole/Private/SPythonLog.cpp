@@ -241,7 +241,7 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 						OnConsoleCommandExecuted.ExecuteIfBound();
 						return;
 					}
-						
+
 					if (PyList_Check(ret)) {
 						for (int i = 0; i < PyList_Size(ret); i++) {
 							PyObject *item = PyList_GetItem(ret, i);

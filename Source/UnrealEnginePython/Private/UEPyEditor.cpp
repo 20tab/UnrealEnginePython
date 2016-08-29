@@ -4,6 +4,7 @@
 
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Editor/UnrealEd/Classes/Factories/Factory.h"
+#include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -179,6 +180,27 @@ PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args)
 	EAppReturnType::Type ret = FMessageDialog::Open((EAppMsgType::Type) app_msg_type, FText::FromString(UTF8_TO_TCHAR(text)), f_title);
 
 	return PyLong_FromLong(ret);
+}
+
+PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
+	char *path;
+
+	if (!PyArg_ParseTuple(args, "s|get_asset", &path)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
+	if (!asset.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
+	ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 }
 #endif
 
