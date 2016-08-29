@@ -6,31 +6,52 @@
 #include "PythonGeneratedClass.h"
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:log", &message)) {
+	PyObject *py_message;
+	if (!PyArg_ParseTuple(args, "O:log", &py_message)) {
 		return NULL;
 	}
+
+	PyObject *stringified = PyObject_Str(py_message);
+	if (!stringified)
+		return PyErr_Format(PyExc_Exception, "argument cannot be casted to string");
+	char *message = PyUnicode_AsUTF8(stringified);
 	UE_LOG(LogPython, Log, TEXT("%s"), UTF8_TO_TCHAR(message));
+	Py_DECREF(stringified);
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 PyObject *py_unreal_engine_log_warning(PyObject * self, PyObject * args) {
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:log_warning", &message)) {
+	PyObject *py_message;
+	if (!PyArg_ParseTuple(args, "O:log_warning", &py_message)) {
 		return NULL;
 	}
+
+	PyObject *stringified = PyObject_Str(py_message);
+	if (!stringified)
+		return PyErr_Format(PyExc_Exception, "argument cannot be casted to string");
+	char *message = PyUnicode_AsUTF8(stringified);
 	UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(message));
+	Py_DECREF(stringified);
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args) {
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:log_error", &message)) {
+	PyObject *py_message;
+	if (!PyArg_ParseTuple(args, "O:log_error", &py_message)) {
 		return NULL;
 	}
+
+	PyObject *stringified = PyObject_Str(py_message);
+	if (!stringified)
+		return PyErr_Format(PyExc_Exception, "argument cannot be casted to string");
+	char *message = PyUnicode_AsUTF8(stringified);
 	UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(message));
+	Py_DECREF(stringified);
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -38,15 +59,22 @@ PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args) {
 PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args) {
 	int key;
 	float time_to_display;
-	char *message;
-	if (!PyArg_ParseTuple(args, "ifs:add_on_screen_debug_message", &key, &time_to_display, &message)) {
+	PyObject *py_message;
+	if (!PyArg_ParseTuple(args, "ifO:add_on_screen_debug_message", &key, &time_to_display, &py_message)) {
 		return NULL;
 	}
 
 	if (!GEngine)
 		goto end;
 
+	PyObject *stringified = PyObject_Str(py_message);
+	if (!stringified)
+		return PyErr_Format(PyExc_Exception, "argument cannot be casted to string");
+	char *message = PyUnicode_AsUTF8(stringified);
+
 	GEngine->AddOnScreenDebugMessage(key, time_to_display, FColor::Green, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
+
+	Py_DECREF(stringified);
 
 end:
 	Py_INCREF(Py_None);
@@ -55,15 +83,22 @@ end:
 
 PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
 
-	char *message;
-	if (!PyArg_ParseTuple(args, "s:print_string", &message)) {
+	PyObject *py_message;
+	if (!PyArg_ParseTuple(args, "O:print_string", &py_message)) {
 		return NULL;
 	}
 
 	if (!GEngine)
 		goto end;
 
+	PyObject *stringified = PyObject_Str(py_message);
+	if (!stringified)
+		return PyErr_Format(PyExc_Exception, "argument cannot be casted to string");
+	char *message = PyUnicode_AsUTF8(stringified);
+
 	GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Cyan, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
+
+	Py_DECREF(stringified);
 
 end:
 	Py_INCREF(Py_None);
