@@ -28,10 +28,6 @@
 DEFINE_LOG_CATEGORY(LogPython);
 
 
-
-
-
-
 PyDoc_STRVAR(unreal_engine_py_doc, "Unreal Engine Python module.");
 
 static PyModuleDef unreal_engine_module = {
@@ -45,9 +41,6 @@ static PyModuleDef unreal_engine_module = {
 UPythonGCManager *PythonGCManager;
 
 static PyObject *init_unreal_engine(void) {
-
-	
-
 	return PyModule_Create(&unreal_engine_module);
 }
 
@@ -56,11 +49,17 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
+
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
 
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
+	{ "find_struct", py_unreal_engine_find_struct, METH_VARARGS, "" },
+	{ "load_class", py_unreal_engine_load_class, METH_VARARGS, "" },
+	{ "load_struct", py_unreal_engine_load_struct, METH_VARARGS, "" },
+
 	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
+
 	{ "vector_add_vector", py_unreal_engine_vector_add_vector, METH_VARARGS, "" },
 	{ "vector_add_float", py_unreal_engine_vector_add_float, METH_VARARGS, "" },
 	{ "vector_mul_vector", py_unreal_engine_vector_mul_vector, METH_VARARGS, "" },
@@ -270,6 +269,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
 
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
+	{ "as_dict", (PyCFunction)py_ue_as_dict, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -285,6 +285,8 @@ static void ue_pyobject_dealloc(ue_PyUObject *self) {
 	}
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
+
+
 
 static PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
@@ -399,7 +401,7 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_RETRY", PyLong_FromLong(EAppReturnType::Retry));
 	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_CONTINUE", PyLong_FromLong(EAppReturnType::Continue));
 	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_CANCEL", PyLong_FromLong(EAppReturnType::Cancel));
-	
+
 #endif
 }
 
@@ -424,7 +426,7 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		if (!ue_py_object->py_object) {
 			ue_py_object->ConditionalBeginDestroy();
 			return nullptr;
-		}
+	}
 		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
 		((ue_PyUObject *)ue_py_object->py_object)->ue_property = ue_py_object;
 
@@ -434,12 +436,12 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		else {
 			UE_LOG(LogPython, Fatal, TEXT("[BUG] PYTHON GC MANAGER BROKEN DURING ADD !"));
 		}
-		
+
 #if UEPY_MEMORY_DEBUG
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p"), ue_py_object, ue_obj);
 #endif
 		//Py_INCREF(ue_py_object->py_object);
-	}
+}
 
 	return ue_py_object->py_object;
 }
@@ -604,17 +606,11 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 	// map a UStruct to a dictionary (if possible)
 	if (auto casted_prop = Cast<UStructProperty>(prop)) {
 		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct)) {
-			PyObject *py_struct_dict = PyDict_New();
-			TFieldIterator<UProperty> SArgs(casted_struct);
-			for (; SArgs; ++SArgs) {
-				PyObject *struct_value = ue_py_convert_property(*SArgs, casted_prop->ContainerPtrToValuePtr<uint8>(buffer));
-				if (!struct_value) {
-					Py_DECREF(py_struct_dict);
-					return NULL;
-				}
-				PyDict_SetItemString(py_struct_dict, TCHAR_TO_UTF8(*SArgs->GetName()), struct_value);
-			}
-			return py_struct_dict;
+			ue_PyUObject *ret = ue_get_python_wrapper(casted_struct);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+			Py_INCREF(ret);
+			return (PyObject *)ret;
 		}
 		goto end;
 	}
@@ -632,7 +628,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		goto end;
 	}
 
-	return PyErr_Format(PyExc_Exception, "unsupported value type for property %s", TCHAR_TO_UTF8(*prop->GetName()));
+	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
 
 end:
 	Py_INCREF(Py_None);
@@ -770,7 +766,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		// avoid delegates to be destroyed by the GC
 		py_delegate->AddToRoot();
 		u_obj->ue_property->python_delegates_gc.Add(py_delegate);
-		
+
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
@@ -788,13 +784,13 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
+	}
 
 UPyObject::~UPyObject() {
 #if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Error, TEXT("Destroying PyProperty %p"), this);
 #endif
-	for (UPythonDelegate *py_delegate :this->python_delegates_gc) {
+	for (UPythonDelegate *py_delegate : this->python_delegates_gc) {
 		py_delegate->RemoveFromRoot();
 	}
 #if UEPY_MEMORY_DEBUG

@@ -118,6 +118,114 @@ PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
+	char *name;
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "s|s:load_class", &name, &filename)) {
+		return NULL;
+	}
+
+	TCHAR *t_filename = nullptr;
+	if (filename)
+		t_filename = UTF8_TO_TCHAR(filename);
+
+	UObject *u_class = StaticLoadObject(UClass::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
+
+	if (u_class) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_class);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_struct", &name)) {
+		return NULL;
+	}
+
+	UStruct *u_struct = FindObject<UStruct>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
+
+	if (u_struct) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
+	char *name;
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "s|s:load_struct", &name, &filename)) {
+		return NULL;
+	}
+
+	TCHAR *t_filename = nullptr;
+	if (filename)
+		t_filename = UTF8_TO_TCHAR(filename);
+
+	UObject *u_struct = StaticLoadObject(UStruct::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
+
+	if (u_struct) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
+	PyObject *obj;
+	char *name;
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|s:load_object", &obj, &name, &filename)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	}
+
+	UClass *u_class = (UClass *)py_obj;
+
+	TCHAR *t_filename = nullptr;
+	if (filename)
+		t_filename = UTF8_TO_TCHAR(filename);
+
+	UObject *u_object = StaticLoadObject(u_class, NULL, UTF8_TO_TCHAR(name), t_filename);
+
+	if (u_object) {
+		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 PyObject *py_unreal_engine_color_to_linear(PyObject * self, PyObject * args) {
 	uint8 r, g, b;
