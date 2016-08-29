@@ -69,3 +69,12 @@ factory_obj.set_property('bRGBToEmissive', True)
 # import the asset (this time using a factory object instead of a factory class)
 new_object = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/FooBar/20tab', factory_obj)
 ```
+
+Message Dialog
+--------------
+
+You can open a modal window (the Message Dialog) and wait for its response:
+
+ret = message_dialog_open(ue.APP_MSG_TYPE_YES_NO, "Do you want to shot ?")
+if ret == ue.APP_RETURN_TYPE_YES:
+    ue.log('You choose "YES"')
