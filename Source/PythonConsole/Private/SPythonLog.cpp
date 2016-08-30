@@ -264,12 +264,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 }
 
 
-void SPythonConsoleInputBox::OnFocusLost(const FFocusEvent& InFocusEvent)
-{
-	//	SuggestionBox->SetIsOpen(false);
-}
-
-
 TSharedRef< FPythonLogTextLayoutMarshaller > FPythonLogTextLayoutMarshaller::Create(TArray< TSharedPtr<FLogMessage> > InMessages)
 {
 	return MakeShareable(new FPythonLogTextLayoutMarshaller(MoveTemp(InMessages)));

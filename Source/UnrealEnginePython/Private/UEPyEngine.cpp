@@ -476,7 +476,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 		outer = py_outer_obj->ue_object;
 	}
 
-	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name);
+	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, RF_Public| RF_Standalone);
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 
@@ -486,8 +486,6 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
-
-
 
 PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args) {
 

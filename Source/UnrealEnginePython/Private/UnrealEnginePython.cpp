@@ -33,6 +33,13 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	UE_LOG(LogPython, Log , TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
 	UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
+
+	if (PyImport_ImportModule("ue_site")) {
+		UE_LOG(LogPython, Log, TEXT("ue_site Python module successfully imported"));
+	}
+	else {
+		unreal_engine_py_log_error();
+	}
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()

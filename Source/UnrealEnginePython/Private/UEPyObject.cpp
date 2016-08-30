@@ -334,6 +334,53 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *name;
+	PyObject *replicate = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|O:add_property", &obj, &name, &replicate)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UStruct>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStruct");
+
+	if (!ue_is_pyuobject(obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+	}
+
+	UProperty *u_property = NewObject<UProperty>(self->ue_object, (UClass *)py_obj->ue_object, UTF8_TO_TCHAR(name));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+
+	uint64 flags = CPF_Edit;
+	if (replicate && PyObject_IsTrue(replicate)) {
+		flags |= CPF_Net;
+	}
+
+	u_property->SetPropertyFlags(flags);
+
+	UStruct *u_struct = (UStruct *)self->ue_object;
+
+	u_struct->AddCppProperty(u_property);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+	
+}
+
 PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -369,6 +416,8 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	if (!PyArg_ParseTuple(args, "s:save_package", &filename)) {
 		return NULL;
 	}
+
+	// NOTE maybe we should check for transient object, to avoid crashes
 
 	if (UPackage::SavePackage(GetTransientPackage(), self->ue_object, EObjectFlags::RF_NoFlags, UTF8_TO_TCHAR(filename))) {
 		Py_INCREF(Py_True);

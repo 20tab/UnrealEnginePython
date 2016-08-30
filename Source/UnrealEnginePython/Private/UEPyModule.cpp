@@ -273,6 +273,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
 
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
+	{ "add_property", (PyCFunction)py_ue_add_property, METH_VARARGS, "" },
 	{ "as_dict", (PyCFunction)py_ue_as_dict, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };

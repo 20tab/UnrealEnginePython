@@ -62,8 +62,6 @@ protected:
 
 	virtual bool SupportsKeyboardFocus() const override { return true; }
 
-	void OnFocusLost( const FFocusEvent& InFocusEvent ) override;
-
 	/** Handles entering in a command */
 	void OnTextCommitted(const FText& InText, ETextCommit::Type CommitInfo);
 
