@@ -360,4 +360,23 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 	return py_struct_dict;
 }
 
+#if WITH_EDITOR
+PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *filename;
+	if (!PyArg_ParseTuple(args, "s:save_package", &filename)) {
+		return NULL;
+	}
+
+	if (UPackage::SavePackage(GetTransientPackage(), self->ue_object, EObjectFlags::RF_NoFlags, UTF8_TO_TCHAR(filename))) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+#endif
 
