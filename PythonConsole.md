@@ -75,6 +75,8 @@ Message Dialog
 
 You can open a modal window (the Message Dialog) and wait for its response:
 
+```py
 ret = message_dialog_open(ue.APP_MSG_TYPE_YES_NO, "Do you want to shot ?")
 if ret == ue.APP_RETURN_TYPE_YES:
     ue.log('You choose "YES"')
+```
