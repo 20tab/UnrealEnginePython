@@ -3,6 +3,10 @@
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
 
+#if WITH_EDITOR
+#include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#endif
+
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -412,14 +416,18 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	char *filename;
-	if (!PyArg_ParseTuple(args, "s:save_package", &filename)) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:save_package", &name)) {
 		return NULL;
 	}
 
-	// NOTE maybe we should check for transient object, to avoid crashes
+	UPackage *package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+	if (!package)
+		return PyErr_Format(PyExc_Exception, "unable to create package");
 
-	if (UPackage::SavePackage(GetTransientPackage(), self->ue_object, EObjectFlags::RF_NoFlags, UTF8_TO_TCHAR(filename))) {
+	FString filename = FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
+
+	if (UPackage::SavePackage(package, self->ue_object, EObjectFlags::RF_NoFlags, *filename)) {
 		Py_INCREF(Py_True);
 		return Py_True;
 	}

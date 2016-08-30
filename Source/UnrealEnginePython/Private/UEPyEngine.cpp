@@ -141,16 +141,15 @@ PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 
 	UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
 
-	if (u_class) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_class);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "unable to find class %s", name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_class);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
@@ -166,16 +165,15 @@ PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
 
 	UObject *u_class = StaticLoadObject(UClass::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
 
-	if (u_class) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_class);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "unable to find class %s", name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_class);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
@@ -186,16 +184,15 @@ PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
 
 	UStruct *u_struct = FindObject<UStruct>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
 
-	if (u_struct) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
+	if (!u_struct)
+		return PyErr_Format(PyExc_Exception, "unable to find class %s", name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
@@ -211,16 +208,15 @@ PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
 
 	UObject *u_struct = StaticLoadObject(UStruct::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
 
-	if (u_struct) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
+	if (!u_struct)
+		return PyErr_Format(PyExc_Exception, "unable to find struct %s", name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 
@@ -249,16 +245,15 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
 
 	UObject *u_object = StaticLoadObject(u_class, NULL, UTF8_TO_TCHAR(name), t_filename);
 
-	if (u_object) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "unable to load object %s", name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 
@@ -292,16 +287,15 @@ PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
 
 	UObject *u_object = FindObject<UObject>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
 
-	if (u_object) {
-		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "unable to find object %s", name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *args) {
@@ -476,7 +470,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 		outer = py_outer_obj->ue_object;
 	}
 
-	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, RF_Public| RF_Standalone);
+	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, RF_Public | RF_Standalone);
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 
@@ -527,6 +521,7 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 	blueprint->GeneratedClass = new_object;
 	new_object->ClassGeneratedBy = blueprint;
 	
+
 	auto ClassConstructor = [](const FObjectInitializer& ObjectInitializer) {
 		auto _class = ObjectInitializer.GetClass();
 		UE_LOG(LogPython, Warning, TEXT("CALLING CONSTRUCTOR OF %s"), *_class->GetName());
@@ -539,7 +534,7 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 	new_object->PropertyLink = parent->PropertyLink;
 	new_object->ClassWithin = parent->ClassWithin;
 	new_object->ClassConfigName = parent->ClassConfigName;
-	
+
 	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit | CLASS_CompiledFromBlueprint));
 	new_object->ClassCastFlags |= parent->ClassCastFlags;
 
