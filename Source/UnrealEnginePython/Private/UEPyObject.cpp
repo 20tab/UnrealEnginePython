@@ -309,9 +309,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "object is not callable");
 	}
 
-	UFunction *found_function = u_class->FindFunctionByName(UTF8_TO_TCHAR(name));
-	if (found_function)
-		return PyErr_Format(PyExc_Exception, "function %s already mapped to class", name);
+	UFunction *parent_function = u_class->GetSuperClass()->FindFunctionByName(UTF8_TO_TCHAR(name));
 
 	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public);
 
@@ -321,12 +319,61 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	function->FirstPropertyToInit = NULL;
 
 	function->Script.Add(EX_EndFunctionParms);
+
+	if (parent_function) {
+		function->SetSuperStruct(parent_function);
+		/*
+			duplicate properties
+		*/
+	}
+	else {
+		UField **next_property = &function->Children;
+		UProperty **next_property_link = &function->PropertyLink;
+		// get __annotations__
+		PyObject *annotations = PyObject_GetAttrString(py_callable, "__annotations__");
+		PyObject *annotation_keys = PyDict_Keys(annotations);
+		if (annotation_keys) {
+			Py_ssize_t len = PyList_Size(annotation_keys);
+			for (Py_ssize_t i = 0; i < len; i++) {
+				PyObject *key = PyList_GetItem(annotation_keys, i);
+				char *p_name = PyUnicode_AsUTF8(key);
+				PyObject *value = PyDict_GetItem(annotations, key);
+				UProperty *prop = nullptr;
+				if (PyType_Check(value)) {
+					if ((PyTypeObject *)value == &PyFloat_Type) {
+						prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name));
+					}
+				}
+				if (prop) {
+					if (!strcmp(p_name, "return")) {
+						prop->SetPropertyFlags(CPF_Parm|CPF_ReturnParm);
+					}
+					else {
+						prop->SetPropertyFlags(CPF_Parm);
+					}
+					*next_property = prop;
+					next_property = &prop->Next;
+
+					*next_property_link = prop;
+					next_property_link = &prop->PropertyLinkNext;
+				}
+			}
+		}
+	}
 	
 	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable;
 	FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
 
 	function->Bind();
 	function->StaticLink(true);
+
+	// allocate properties storage (ignore super)
+	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
+	for (; props; ++props) {
+		function->NumParms++;
+		UProperty *p = *props;
+		function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
+	}
 
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
 
