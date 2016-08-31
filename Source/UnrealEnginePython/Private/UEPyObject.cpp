@@ -309,10 +309,13 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "object is not callable");
 	}
 
+	if (u_class->FindFunctionByName(UTF8_TO_TCHAR(name))) {
+		return PyErr_Format(PyExc_Exception, "function %s is already registered", name);
+	}
+
 	UFunction *parent_function = u_class->GetSuperClass()->FindFunctionByName(UTF8_TO_TCHAR(name));
 
 	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public);
-
 	function->SetPyCallable(py_callable);
 	function->RepOffset = MAX_uint16;
 	function->ReturnValueOffset = MAX_uint16;
