@@ -159,7 +159,7 @@ PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
 		return NULL;
 	}
 
-	TCHAR *t_filename = nullptr;
+	TCHAR *t_filename = (TCHAR *)0;
 	if (filename)
 		t_filename = UTF8_TO_TCHAR(filename);
 
@@ -202,7 +202,7 @@ PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
 		return NULL;
 	}
 
-	TCHAR *t_filename = nullptr;
+	TCHAR *t_filename = (TCHAR *)0;
 	if (filename)
 		t_filename = UTF8_TO_TCHAR(filename);
 
@@ -237,9 +237,9 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 	}
 
-	UClass *u_class = (UClass *)py_obj;
+	UClass *u_class = (UClass *)py_obj->ue_object;
 
-	TCHAR *t_filename = nullptr;
+	TCHAR *t_filename = (TCHAR *)0;
 	if (filename)
 		t_filename = UTF8_TO_TCHAR(filename);
 
@@ -489,7 +489,7 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 		return NULL;
 	}
 
-	UObject *outer = GetTransientPackage();
+	UObject *outer = CreatePackage(nullptr, TEXT("/Script/Python"));
 	UClass *parent = UObject::StaticClass();
 
 	if (py_parent != Py_None) {
@@ -501,7 +501,7 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 		parent = (UClass *)py_obj->ue_object;
 	}
-
+	
 	UBlueprintGeneratedClass *new_object = nullptr;
 
 	if (Cast<UBlueprintGeneratedClass>(parent)) {
@@ -517,7 +517,7 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create blueprint class");
 
-	UBlueprint *blueprint = NewObject<UBlueprint>(outer, MakeUniqueObjectName(outer, UBlueprint::StaticClass(), UTF8_TO_TCHAR(name)), RF_Public);
+	UBlueprint *blueprint = NewObject<UBlueprint>(outer);
 	blueprint->GeneratedClass = new_object;
 	new_object->ClassGeneratedBy = blueprint;
 	
