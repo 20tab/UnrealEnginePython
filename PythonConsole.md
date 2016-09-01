@@ -73,7 +73,7 @@ new_object = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/FooBar/2
 PyFbxFactory
 ------------
 
-This is an ad-hoc factory subclassing the standard FbxFactory. Its only objective is to disable the fbx importer dialog to allow easy scripting of fbx importing. You can set fbx importer options via the 'set_fbx_import_option()' function:
+This is an ad-hoc factory subclassing the standard FbxFactory (many thanks to Chris Emerson for the idea). Its only objective is to disable the fbx importer dialog to allow easy scripting of fbx importing. You can set fbx importer options via the 'set_fbx_import_option()' function:
 
 ```py
 import unreal_engine as ue
