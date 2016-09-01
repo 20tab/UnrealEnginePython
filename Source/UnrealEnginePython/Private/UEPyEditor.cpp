@@ -5,6 +5,9 @@
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Editor/UnrealEd/Classes/Factories/Factory.h"
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#include "UnrealEd.h"
+#include "FbxMeshUtils.h"
+
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -202,5 +205,31 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
+PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * args) {
+	PyObject *obj;
+
+	if (!PyArg_ParseTuple(args, "O|set_fbx_import_option", &obj)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	if (!ue_is_pyuobject(obj))
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+	if (!py_obj->ue_object->IsA<UFbxImportUI>())
+		return PyErr_Format(PyExc_Exception, "object is not a FbxImportUI");
+
+	UFbxImportUI *ui = (UFbxImportUI *)py_obj->ue_object;
+
+	FbxMeshUtils::SetImportOption(ui);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 #endif
 

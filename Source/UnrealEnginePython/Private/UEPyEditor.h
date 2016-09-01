@@ -10,3 +10,5 @@ PyObject *py_unreal_engine_editor_get_selected_actors(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_deselect_actors(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_select_actor(PyObject *, PyObject *);
 PyObject *py_unreal_engine_import_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_set_fbx_import_option(PyObject *, PyObject *);

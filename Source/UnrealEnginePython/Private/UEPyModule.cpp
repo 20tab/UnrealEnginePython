@@ -88,6 +88,8 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 
+	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
+
 	{ NULL, NULL },
 };
 

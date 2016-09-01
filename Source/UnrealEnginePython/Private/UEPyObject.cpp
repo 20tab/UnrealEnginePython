@@ -373,9 +373,16 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	// allocate properties storage (ignore super)
 	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
 	for (; props; ++props) {
-		function->NumParms++;
 		UProperty *p = *props;
-		function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
+		if (p->HasAnyPropertyFlags(CPF_Parm)) {
+			function->NumParms++;
+			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
+			if (p->HasAnyPropertyFlags(CPF_ReturnParm)) {
+				function->ReturnValueOffset = p->GetOffset_ForUFunction();
+				p->DestructorLinkNext = function->DestructorLink;
+				function->DestructorLink = p;
+			}
+		}
 	}
 
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
