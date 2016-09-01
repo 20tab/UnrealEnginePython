@@ -3,6 +3,10 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#if WITH_EDITOR
+#include "Kismet2/KismetEditorUtilities.h"
+#endif
+
 #include "PythonGeneratedClass.h"
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
@@ -481,15 +485,15 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args) {
+#if WITH_EDITOR
+PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
 
 	PyObject *py_parent;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:new_blueprint_class", &py_parent, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:create_blueprint", &py_parent, &name)) {
 		return NULL;
 	}
 
-	UObject *outer = CreatePackage(nullptr, TEXT("/Script/Python"));
 	UClass *parent = UObject::StaticClass();
 
 	if (py_parent != Py_None) {
@@ -501,7 +505,40 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 		parent = (UClass *)py_obj->ue_object;
 	}
-	
+
+	UObject *outer = CreatePackage(nullptr, TEXT("/Game/"));
+	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprint(parent, outer, UTF8_TO_TCHAR(name), EBlueprintType::BPTYPE_Normal, UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+
+	ue_PyUObject *ret = ue_get_python_wrapper(bp);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+#endif
+
+PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
+
+	PyObject *py_parent;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:new_class", &py_parent, &name)) {
+		return NULL;
+	}
+
+	UObject *outer = GetTransientPackage();
+	UClass *parent = UObject::StaticClass();
+
+	if (py_parent != Py_None) {
+		if (!ue_is_pyuobject(py_parent)) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		}
+		ue_PyUObject *py_obj = (ue_PyUObject *)py_parent;
+		if (!py_obj->ue_object->IsA<UClass>())
+			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+		parent = (UClass *)py_obj->ue_object;
+	}
+
 	UBlueprintGeneratedClass *new_object = nullptr;
 
 	if (Cast<UBlueprintGeneratedClass>(parent)) {
@@ -510,32 +547,22 @@ PyObject *py_unreal_engine_new_blueprint_class(PyObject * self, PyObject * args)
 	}
 	else {
 		UE_LOG(LogPython, Warning, TEXT("Parent class is NOT blueprint generated"));
-		new_object = NewObject<UPythonGeneratedClass>(outer, UTF8_TO_TCHAR(name), RF_Public);
+		new_object = NewObject<UBlueprintGeneratedClass>(outer, UTF8_TO_TCHAR(name), RF_Public);
 		new_object->ClassFlags |= CLASS_Native;
 	}
 
 	if (!new_object)
-		return PyErr_Format(PyExc_Exception, "unable to create blueprint class");
+		return PyErr_Format(PyExc_Exception, "unable to create class");
 
-	UBlueprint *blueprint = NewObject<UBlueprint>(outer);
-	blueprint->GeneratedClass = new_object;
-	new_object->ClassGeneratedBy = blueprint;
-	
 
-	auto ClassConstructor = [](const FObjectInitializer& ObjectInitializer) {
-		auto _class = ObjectInitializer.GetClass();
-		UE_LOG(LogPython, Warning, TEXT("CALLING CONSTRUCTOR OF %s"), *_class->GetName());
-		_class->GetSuperClass()->ClassConstructor(ObjectInitializer);
-	};
-
-	new_object->ClassConstructor = ClassConstructor;
+	new_object->ClassConstructor = parent->ClassConstructor;
 	new_object->SetSuperStruct(parent);
 
 	new_object->PropertyLink = parent->PropertyLink;
 	new_object->ClassWithin = parent->ClassWithin;
 	new_object->ClassConfigName = parent->ClassConfigName;
 
-	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit | CLASS_CompiledFromBlueprint));
+	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit | CLASS_HideDropDown));
 	new_object->ClassCastFlags |= parent->ClassCastFlags;
 
 	new_object->Bind();

@@ -423,7 +423,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 
-	uint64 flags = CPF_Edit;
+	uint64 flags = CPF_Edit|CPF_BlueprintVisible;
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
 	}

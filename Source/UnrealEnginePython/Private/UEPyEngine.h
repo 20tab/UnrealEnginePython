@@ -32,6 +32,10 @@ PyObject *py_unreal_engine_vector_mul_vector(PyObject *, PyObject *);
 PyObject *py_unreal_engine_vector_mul_float(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_object(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_class(PyObject *, PyObject *);
-PyObject *py_unreal_engine_new_blueprint_class(PyObject *, PyObject *);
+
+#if WITH_EDITOR
+PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
+#endif
+
 
 PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);

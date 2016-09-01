@@ -81,10 +81,13 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
 	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
 	{ "get_asset", py_unreal_engine_get_asset, METH_VARARGS, "" },
+	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
-	{ "new_blueprint_class", py_unreal_engine_new_blueprint_class, METH_VARARGS, "" },
+	
+
+	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 
