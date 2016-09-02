@@ -5,6 +5,7 @@
 
 #if WITH_EDITOR
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#include "UnrealEd.h"
 #endif
 
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
@@ -281,7 +282,7 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
 	if (!PyArg_ParseTuple(args, "sO:bind_event", &event_name, &py_callable)) {
 		return NULL;
 	}
-	
+
 	if (!PyCallable_Check(py_callable)) {
 		return PyErr_Format(PyExc_Exception, "object is not callable");
 	}
@@ -344,12 +345,12 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 				UProperty *prop = nullptr;
 				if (PyType_Check(value)) {
 					if ((PyTypeObject *)value == &PyFloat_Type) {
-						prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name));
+						prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 					}
 				}
 				if (prop) {
 					if (!strcmp(p_name, "return")) {
-						prop->SetPropertyFlags(CPF_Parm|CPF_ReturnParm);
+						prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
 					}
 					else {
 						prop->SetPropertyFlags(CPF_Parm);
@@ -363,12 +364,16 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 			}
 		}
 	}
-	
-	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable;
+
+
 	FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
 
 	function->Bind();
 	function->StaticLink(true);
+
+	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable;
+	function->ParmsSize = 0;
+	function->NumParms = 0;
 
 	// allocate properties storage (ignore super)
 	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
@@ -379,8 +384,6 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm)) {
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
-				p->DestructorLinkNext = function->DestructorLink;
-				function->DestructorLink = p;
 			}
 		}
 	}
@@ -423,7 +426,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 
-	uint64 flags = CPF_Edit|CPF_BlueprintVisible;
+	uint64 flags = CPF_Edit | CPF_BlueprintVisible;
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
 	}
@@ -439,7 +442,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
-	
+
 }
 
 PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
@@ -454,7 +457,7 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 	else {
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
-	
+
 	PyObject *py_struct_dict = PyDict_New();
 	TFieldIterator<UProperty> SArgs(u_struct);
 	for (; SArgs; ++SArgs) {
@@ -489,6 +492,39 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 		return Py_True;
 	}
 
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_ask_for_new_file = nullptr;
+	PyObject *py_show_notification = nullptr;
+	char *filename;
+	if (!PyArg_ParseTuple(args, "|OOs:asset_reimport", &py_ask_for_new_file, &py_show_notification, &filename)) {
+		return NULL;
+	}
+
+	bool ask_for_new_file = false;
+	bool show_notification = false;
+	FString f_filename = FString("");
+
+	if (py_ask_for_new_file && PyObject_IsTrue(py_ask_for_new_file))
+		ask_for_new_file = true;
+
+	if (py_show_notification && PyObject_IsTrue(py_show_notification))
+		show_notification = true;
+
+	if (filename)
+		f_filename = FString(UTF8_TO_TCHAR(filename));
+
+	if (FReimportManager::Instance()->Reimport(self->ue_object, ask_for_new_file, show_notification, f_filename)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+	
 	Py_INCREF(Py_False);
 	return Py_False;
 }

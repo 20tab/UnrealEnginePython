@@ -26,4 +26,5 @@ PyObject *py_ue_as_dict(ue_PyUObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject *, PyObject *);
+PyObject *py_ue_asset_reimport(ue_PyUObject *, PyObject *);
 #endif

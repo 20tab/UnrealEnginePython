@@ -155,6 +155,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
+	{ "asset_reimport", (PyCFunction)py_ue_asset_reimport, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },

@@ -21,6 +21,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		return;
 
 	PyObject *py_args = PyTuple_New(function->NumParms);
+
 	Py_ssize_t argn = 0;
 
 	UProperty *return_property = nullptr;
