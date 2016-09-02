@@ -70,6 +70,27 @@ factory_obj.set_property('bRGBToEmissive', True)
 new_object = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/FooBar/20tab', factory_obj)
 ```
 
+Reimporting
+-----------
+
+You can reimport an object with the asset_reimport() method:
+
+```py
+uobject.asset_reimport([ask_for_new_file, show_notification, filename])
+```
+
+Assets listing
+--------------
+
+```py
+# get the assets under the specified path
+assets = unreal_engine.get_assets(path[, recursive])
+
+# get all the assets implementing the specified class (class_name is a string, like 'SkeletalMesh')
+assets = unreal_engine.get_assets_by_class(class_name[, includes_subclasses])
+```
+
+
 PyFbxFactory
 ------------
 
