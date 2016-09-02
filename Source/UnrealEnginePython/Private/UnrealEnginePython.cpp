@@ -7,6 +7,15 @@ void unreal_engine_init_py_module();
 
 #define LOCTEXT_NAMESPACE "FUnrealEnginePythonModule"
 
+
+void FUnrealEnginePythonModule::PythonGILRelease() {
+	ue_python_gil = PyEval_SaveThread();
+}
+
+void FUnrealEnginePythonModule::PythonGILAcquire() {
+	PyEval_RestoreThread((PyThreadState *)ue_python_gil);
+}
+
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
@@ -27,13 +36,13 @@ void FUnrealEnginePythonModule::StartupModule()
 	char *zip_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("python35.zip")));
 	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
 	PyList_Insert(py_path, 0, py_zip_path);
-	
+
 	char *scripts_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts")));
 	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
 	PyList_Insert(py_path, 0, py_scripts_path);
 
 
-	UE_LOG(LogPython, Log , TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
+	UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
 	UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
 
 	if (PyImport_ImportModule("ue_site")) {
@@ -42,6 +51,9 @@ void FUnrealEnginePythonModule::StartupModule()
 	else {
 		unreal_engine_py_log_error();
 	}
+
+	// TODO investigate python threads support
+	//PythonGILRelease();
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()
@@ -54,6 +66,6 @@ void FUnrealEnginePythonModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FUnrealEnginePythonModule, UnrealEnginePython)
 

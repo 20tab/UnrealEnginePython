@@ -11,8 +11,14 @@ class FUnrealEnginePythonModule : public IModuleInterface
 {
 public:
 
+	void PythonGILAcquire();
+	void PythonGILRelease();
+
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+private:
+	void *ue_python_gil;
 };
 
