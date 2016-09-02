@@ -6,13 +6,13 @@ using System.IO;
 public class UnrealEnginePython : ModuleRules
 {
 
-    private const string pythonHome = "python35";
+    private const string PythonVersion = "python27";
 
     protected string PythonHome
     {
         get
         {
-            return Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", pythonHome));
+            return Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", PythonVersion));
         }
     }
 
@@ -79,7 +79,7 @@ public class UnrealEnginePython : ModuleRules
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
         {
             PublicIncludePaths.Add(PythonHome);
-            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", "python35.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", PythonVersion + ".lib"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {

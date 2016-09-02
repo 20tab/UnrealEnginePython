@@ -1,5 +1,6 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
+#pragma once
 //#define UEPY_MEMORY_DEBUG	1
 //#define UEPY_THREADING 1
 
@@ -18,6 +19,22 @@
 #include <python3.5m/Python.h>
 #else
 #include <include/Python.h>
+#endif
+
+#if PY_MAJOR_VERSION <= 3
+namespace
+{
+	char* PyUnicode_AsUTF8(PyObject* pyStr)
+	{
+		if (PyUnicode_Check(pyStr)) {
+			pyStr = PyUnicode_AsUTF8String(pyStr);
+			if (pyStr == NULL) {
+				return NULL;
+			}
+		}
+		return PyString_AsString(pyStr);
+	}
+}
 #endif
 
 #include "UEPyModule.h"
