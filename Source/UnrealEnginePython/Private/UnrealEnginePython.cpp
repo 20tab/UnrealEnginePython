@@ -15,6 +15,8 @@ void FUnrealEnginePythonModule::StartupModule()
 	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
 	PySys_SetArgv(1, argv);
 
+	PyEval_InitThreads();
+
 	unreal_engine_init_py_module();
 
 	PyObject *py_sys = PyImport_ImportModule("sys");
