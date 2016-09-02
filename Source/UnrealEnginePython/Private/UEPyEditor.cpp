@@ -188,7 +188,7 @@ PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args)
 PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	char *path;
 
-	if (!PyArg_ParseTuple(args, "s|get_asset", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_asset", &path)) {
 		return NULL;
 	}
 
@@ -206,10 +206,78 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
+	char *path;
+	PyObject *py_recursive = nullptr;
+
+	if (!PyArg_ParseTuple(args, "s|O:get_assets", &path, &py_recursive)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	bool recursive = false;
+	if (py_recursive && PyObject_IsTrue(py_recursive))
+		recursive = true;
+
+	TArray<FAssetData> assets;
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	AssetRegistryModule.Get().GetAssetsByPath(UTF8_TO_TCHAR(path), assets, recursive);
+
+	PyObject *assets_list = PyList_New(0);
+
+	for (FAssetData asset : assets) {
+		if (!asset.IsValid())
+			continue;
+		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+		if (ret) {
+			PyList_Append(assets_list, (PyObject *)ret);
+		}
+	}
+
+	return assets_list;
+}
+
+PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args) {
+	char *path;
+	PyObject *py_recursive = nullptr;
+
+	if (!PyArg_ParseTuple(args, "s|O:get_assets_by_class", &path, &py_recursive)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	bool recursive = false;
+	if (py_recursive && PyObject_IsTrue(py_recursive))
+		recursive = true;
+
+	TArray<FAssetData> assets;
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	AssetRegistryModule.Get().GetAssetsByClass(UTF8_TO_TCHAR(path), assets, recursive);
+
+	PyObject *assets_list = PyList_New(0);
+
+	for (FAssetData asset : assets) {
+		if (!asset.IsValid())
+			continue;
+		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+		if (ret) {
+			PyList_Append(assets_list, (PyObject *)ret);
+		}
+	}
+
+	return assets_list;
+}
+
 PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * args) {
 	PyObject *obj;
 
-	if (!PyArg_ParseTuple(args, "O|set_fbx_import_option", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:set_fbx_import_option", &obj)) {
 		return NULL;
 	}
 
