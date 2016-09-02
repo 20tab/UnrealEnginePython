@@ -54,6 +54,8 @@ public class UnrealEnginePython : ModuleRules
                 "InputCore",
                 "Slate",
                 "SlateCore",
+                "MovieScene",
+                "LevelSequence"
 				// ... add private dependencies that you statically link with here ...
 			}
             );

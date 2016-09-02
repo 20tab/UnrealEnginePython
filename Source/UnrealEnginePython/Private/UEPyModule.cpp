@@ -18,6 +18,7 @@
 #include "UEPyTimer.h"
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
+#include "UEPySequencer.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -279,6 +280,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
+
+	// Sequencer
+	{ "sequencer_tracks", (PyCFunction)py_ue_sequencer_tracks, METH_VARARGS, "" },
+	{ "sequencer_folders", (PyCFunction)py_ue_sequencer_folders, METH_VARARGS, "" },
+	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
 	{ "add_property", (PyCFunction)py_ue_add_property, METH_VARARGS, "" },
