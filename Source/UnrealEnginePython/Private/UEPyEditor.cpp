@@ -5,6 +5,7 @@
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Editor/UnrealEd/Classes/Factories/Factory.h"
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 #include "UnrealEd.h"
 #include "FbxMeshUtils.h"
 
@@ -259,6 +260,31 @@ PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args)
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	AssetRegistryModule.Get().GetAssetsByClass(UTF8_TO_TCHAR(path), assets, recursive);
+
+	PyObject *assets_list = PyList_New(0);
+
+	for (FAssetData asset : assets) {
+		if (!asset.IsValid())
+			continue;
+		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+		if (ret) {
+			PyList_Append(assets_list, (PyObject *)ret);
+		}
+	}
+
+	return assets_list;
+}
+
+PyObject *py_unreal_engine_get_selected_assets(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+
+	TArray<FAssetData> assets;
+
+	FContentBrowserModule& ContentBrowserModule = FModuleManager::GetModuleChecked<FContentBrowserModule>("ContentBrowser");
+	ContentBrowserModule.Get().GetSelectedAssets(assets);
 
 	PyObject *assets_list = PyList_New(0);
 
