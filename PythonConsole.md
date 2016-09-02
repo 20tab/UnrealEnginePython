@@ -88,6 +88,9 @@ assets = unreal_engine.get_assets(path[, recursive])
 
 # get all the assets implementing the specified class (class_name is a string, like 'SkeletalMesh')
 assets = unreal_engine.get_assets_by_class(class_name[, includes_subclasses])
+
+# get the assets currently selected in the content browser
+assets = unreal_engine.get_selected_assets()
 ```
 
 
