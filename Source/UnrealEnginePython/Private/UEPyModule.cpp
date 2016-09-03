@@ -19,6 +19,8 @@
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
+#include "UEPyDelegateHandle.h"
+#include "UEPyTicker.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -89,13 +91,15 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
-	
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
+
+	// Ticker
+	{ "add_ticker", py_ue_add_ticker, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
