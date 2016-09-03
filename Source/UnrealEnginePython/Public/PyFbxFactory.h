@@ -13,6 +13,8 @@ class UPyFbxFactory : public UFbxFactory
 {
 	GENERATED_BODY()
 
+	UPyFbxFactory(const FObjectInitializer& ObjectInitializer);
+
 	virtual bool ConfigureProperties() override;
 
 };
