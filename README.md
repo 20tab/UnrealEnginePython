@@ -3,7 +3,7 @@ Embed Python in Unreal Engine 4
 
 # How and Why ?
 
-This is a plugin embedding a whole Python3 VM In Unreal Engine 4 (both the editor and runtime).
+This is a plugin embedding a whole Python (currently version 3, version 2 support will come soon) VM In Unreal Engine 4 (both the editor and runtime).
 
 It includes the mapping of Actors, Pawns and Components to python classes, editor scripting and a lot more.
 
@@ -120,17 +120,17 @@ class Hero:
     # this is called at every 'tick'    
     def tick(self, delta_time):
         # get current location
-        x, y, z = self.uobject.get_actor_location()
+        location = self.uobject.get_actor_location()
         # increase Z honouring delta_time
-        z += 100 * delta_time
+        location.z += 100 * delta_time
         # set new location
-        self.uobject.set_actor_location(x, y, z)
+        self.uobject.set_actor_location(location)
 
 ```
 
 Now, go back to the blueprint editor and set 'funnygameclasses' in the 'Python Module' field, and 'Hero' in 'Python Class'
 
-As you can see the actor will simply move over the z axis, but we need to give it some kind of visual representation to have a feedback in the scene. In the blueprint editor click on 'add component' and add some shape (a spehere, or a cube, or whatever you want). Save and Compile your blueprint.
+As you can see the actor will simply move over the z axis, but we need to give it some kind of visual representation to have a feedback in the scene. In the blueprint editor click on 'add component' and add some shape (a sphere, or a cube, or whatever you want). Save and Compile your blueprint.
 
 Now you can drag the bluprint from the content browser to the scene and just click 'Play'.
 
@@ -408,37 +408,6 @@ python equivalent of the blueprint 'print string' function. It disappears after 
 
 ---
 ```py
-unreal_engine.vector_add_vector(x, y, z[, x1, y1, z1, ...])
-```
-
-optimized vector math function, allows adding 3 dimensions vectors exposed as 3 float values
-
-
----
-```py
-unreal_engine.vector_add_float(x, y, z[, d1, d2, ...])
-```
-
-optimized vector math function, allows adding a 3 dimensions vector with one or more floats
-
-
----
-```py
-unreal_engine.vector_mul_vector(x, y, z[, x1, y1, z1, ...])
-```
-
-optimized vector math function, allows multiplyging 3 dimensions vectors exposed as 3 float values
-
-
----
-```py
-unreal_engine.vector_mul_float(x, y, z[, d1, d2, ...])
-```
-
-optimized vector math function, allows multiplying a 3 dimensions vector with one or more floats
-
----
-```py
 editor = unreal_engine.get_editor_world()
 ```
 
@@ -477,7 +446,9 @@ When in the editor, you can change the code of your modules without restarting t
 Math functions
 --------------
 
-The plugin does not expose FVector, FRotator or FQuat. You have optimized shortcuts in the unreal_engine module, but you can use any python math library if you want (included numpy)
+The plugin exposes FVector, FRotator, FQuat, FColor, FHitResult and a bunch of the internal handles.
+
+Where meaningful math operations are exposed:
 
 
 ```py
@@ -494,11 +465,11 @@ class ActorGoingUp:
         # get current position
         position = self.uobject.get_actor_location()
         # build a direction vector based on speed
-        up_amount = unreal_engine.vector_mul_float(*up, self.speed, delta_time)
+        up_amount = up * self.speed * delta_time)
         # sum the direction to the position
-        new_position = unreal_engine.vector_add_vector(position, up_amount)
+        position += up_amount
         # set the new position
-        self.uobject.set_actor_location(*new_position)
+        self.uobject.set_actor_location(new_position)
 ```
 
 Referencing objects
@@ -536,7 +507,7 @@ class MoveToTargetComponent:
     def begin_play(self):
         # get a 'target point' reference from a pawn public property
         target = self.uobject.get_owner().get_property('target')
-        self.uobject.get_owner().simple_move_to_location(*target.get_actor_location())
+        self.uobject.get_owner().simple_move_to_location(target.get_actor_location())
         
     def tick(self, delta_time):
         pass
@@ -551,10 +522,11 @@ class Walker:
     def tick(self, delta_time):
         if not self.uobject.is_input_key_down('LeftMouseButton'):
             return
-        clicked_actor, x, y, z, nx, ny, nz = self.uobject.get_hit_result_under_cursor(ue.COLLISION_CHANNEL_VISIBILITY)
-        if not clicked_actor:
+        hit = self.uobject.get_hit_result_under_cursor(ue.COLLISION_CHANNEL_VISIBILITY)
+        if not hit:
             return
-        self.uobject.simple_move_to_location(x, y, z)
+        # hit is a unreal_engine.FHitResult object
+        self.uobject.simple_move_to_location(hit.impact_point)
 ```
 
 Physics
@@ -628,7 +600,7 @@ class DestroyMeComponent:
         strength = 20000
         position = self.uobject.get_owner().get_actor_location()
         up = self.uobject.get_owner().get_actor_up()
-        self.destructible.destructible_apply_damage(amount, strength, *position, *up)
+        self.destructible.destructible_apply_damage(amount, strength, position, up)
     
 ```
 
@@ -669,7 +641,7 @@ class Spline:
             return
         # find the next point on the spline
         next_point = self.spline.get_world_location_at_distance_along_spline(self.distance)
-        self.actor_to_move.set_actor_location(*next_point)
+        self.actor_to_move.set_actor_location(next_point)
         self.distance += 100 * delta_time
 ```
 
@@ -699,9 +671,9 @@ class Curver:
         self.curve = self.uobject.get_owner().get_property('curve')
         self.accumulator = 0.0
     def tick(self, delta_time):
-        x, y, z = self.uobject.get_actor_location()
+        location = self.uobject.get_actor_location()
         z = self.curve.call_function('GetFloatValue', self.accumulator) * 100
-        self.uobject.set_actor_location(x, y, z)
+        self.uobject.set_actor_location(location.x, location.y, z)
         self.accumulator += delta_time
 
 ```
@@ -725,13 +697,13 @@ If you want to map events from a blueprint to a python function, the best thing 
 Audio
 -----
 
-The uobject.play_sound_at_location(sound, x, y, z[, volume_multiplier, pitch_multiplier, start_time]) api method is exposed:
+The uobject.play_sound_at_location(sound, position[, volume_multiplier, pitch_multiplier, start_time]) api method is exposed:
 
 ```py
 # get a reference to asound
 sound = ue.find_object('my_sound')
 # play the sound at position 0,0,0
-self.uobject.play_sound_at_location(sound, 0, 0, 0)
+self.uobject.play_sound_at_location(sound, FVector(0, 0, 0))
 ```
 
 If you prefer to work with AudioComponent:
@@ -797,7 +769,7 @@ Now we create (at runtime !!!) a whole new PyActor:
 class SuperHero:
     def begin_play(self):
         # spawn a new PyActor
-        new_actor = self.uobject.actor_spawn(ue.find_class('PyActor'), 0, 0, 0, 0, 0, 90)
+        new_actor = self.uobject.actor_spawn(ue.find_class('PyActor'), Fvector(0, 0, 0),FRotator(0, 0, 90))
         # add a sphere component as the root one
         static_mesh = new_actor.add_actor_root_component(ue.find_class('StaticMeshComponent'), 'SphereMesh')
         # set the mesh as the Sphere asset
