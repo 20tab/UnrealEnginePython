@@ -360,6 +360,7 @@ void unreal_engine_init_py_module() {
 
 	ue_python_init_fvector(new_unreal_engine_module);
 	ue_python_init_frotator(new_unreal_engine_module);
+	ue_python_init_ftransform(new_unreal_engine_module);
 	ue_python_init_fhitresult(new_unreal_engine_module);
 
 	ue_python_init_ftimerhandle(new_unreal_engine_module);

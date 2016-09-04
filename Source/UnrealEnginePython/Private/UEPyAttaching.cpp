@@ -53,9 +53,7 @@ PyObject *py_ue_get_socket_transform(ue_PyUObject *self, PyObject * args) {
 	USceneComponent *component = (USceneComponent *)self->ue_object;
 
 	FTransform transform = component->GetSocketTransform(UTF8_TO_TCHAR(socket_name), ERelativeTransformSpace::RTS_Component);
-	FVector location = transform.GetLocation();
-	FRotator rot = FRotator(transform.GetRotation());
-	return Py_BuildValue("ffffff", location.X, location.Y, location.Z, rot.Roll, rot.Pitch, rot.Yaw);
+	return py_ue_new_ftransform(transform);
 }
 
 PyObject *py_ue_get_socket_world_transform(ue_PyUObject *self, PyObject * args) {
@@ -73,9 +71,7 @@ PyObject *py_ue_get_socket_world_transform(ue_PyUObject *self, PyObject * args) 
 	USceneComponent *component = (USceneComponent *)self->ue_object;
 
 	FTransform transform = component->GetSocketTransform(UTF8_TO_TCHAR(socket_name), ERelativeTransformSpace::RTS_World);
-	FVector location = transform.GetLocation();
-	FRotator rot = FRotator(transform.GetRotation());
-	return Py_BuildValue("ffffff", location.X, location.Y, location.Z, rot.Roll, rot.Pitch, rot.Yaw);
+	return py_ue_new_ftransform(transform);
 }
 
 PyObject *py_ue_get_socket_actor_transform(ue_PyUObject *self, PyObject * args) {
@@ -93,9 +89,7 @@ PyObject *py_ue_get_socket_actor_transform(ue_PyUObject *self, PyObject * args) 
 	USceneComponent *component = (USceneComponent *)self->ue_object;
 
 	FTransform transform = component->GetSocketTransform(UTF8_TO_TCHAR(socket_name), ERelativeTransformSpace::RTS_Actor);
-	FVector location = transform.GetLocation();
-	FRotator rot = FRotator(transform.GetRotation());
-	return Py_BuildValue("ffffff", location.X, location.Y, location.Z, rot.Roll, rot.Pitch, rot.Yaw);
+	return py_ue_new_ftransform(transform);
 }
 
 static PyObject *py_ue_get_all_child_actors(ue_PyUObject * self, PyObject * args) {

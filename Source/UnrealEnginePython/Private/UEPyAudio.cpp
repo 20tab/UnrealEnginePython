@@ -7,12 +7,12 @@ PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	PyObject *sound;
-	float x, y, z;
+	PyObject *py_location;
 	float volume = 1;
 	float pitch = 1;
 	float start = 0;
 
-	if (!PyArg_ParseTuple(args, "Offf|fff:play_sound_at_location", &sound, &x, &y, &z, &volume, &pitch, &start)) {
+	if (!PyArg_ParseTuple(args, "OO|fff:play_sound_at_location", &sound, &py_location, &volume, &pitch, &start)) {
 		return NULL;
 	}
 
@@ -31,7 +31,11 @@ PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 	if (!sound_object)
 		return PyErr_Format(PyExc_Exception, "invalid sound object");
 
-	UGameplayStatics::PlaySoundAtLocation(self->ue_object, sound_object, FVector(x, y, z), volume, pitch, start);
+	ue_PyFVector *location = py_ue_is_fvector(py_location);
+	if (!location)
+		return PyErr_Format(PyExc_TypeError, "sound location must be a FVector");
+
+	UGameplayStatics::PlaySoundAtLocation(self->ue_object, sound_object, location->vec, volume, pitch, start);
 
 	Py_INCREF(Py_None);
 	return Py_None;
