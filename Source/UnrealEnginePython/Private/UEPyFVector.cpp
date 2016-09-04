@@ -94,7 +94,11 @@ static PyGetSetDef ue_PyFVector_getseters[] = {
 	{ NULL }  /* Sentinel */
 };
 
-
+static PyObject *ue_PyFVector_str(ue_PyFVector *self)
+{
+	return PyUnicode_FromFormat("<class 'unreal_engine.FVector' {'x': %f, 'y': %f, 'z': %f}>",
+		self->vec.X, self->vec.Y, self->vec.Z);
+}
 
 static PyTypeObject ue_PyFVectorType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
@@ -112,7 +116,7 @@ static PyTypeObject ue_PyFVectorType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	0,                         /* tp_str */
+	(reprfunc)ue_PyFVector_str,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
