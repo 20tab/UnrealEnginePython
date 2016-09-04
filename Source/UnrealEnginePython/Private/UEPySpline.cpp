@@ -49,7 +49,7 @@ PyObject *py_ue_get_world_location_at_distance_along_spline(ue_PyUObject * self,
 	
 	
 	FVector location = spline->GetWorldLocationAtDistanceAlongSpline(distance);
-	return Py_BuildValue("fff", location.X, location.Y, location.Z);
+	return py_ue_new_fvector(location);
 }
 
 

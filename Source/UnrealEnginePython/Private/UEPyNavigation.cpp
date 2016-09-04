@@ -6,10 +6,9 @@ PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	float x, y, z;
-	if (!PyArg_ParseTuple(args, "fff:simple_move_to_location", &x, &y, &z)) {
+	FVector vec;
+	if (!py_ue_vector_arg(args, vec))
 		return NULL;
-	}
 
 	UWorld *world = ue_get_uworld(self);
 	if (!world)
@@ -37,7 +36,7 @@ PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args) {
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "Pawn has no controller");
 
-	world->GetNavigationSystem()->SimpleMoveToLocation(controller, FVector(x, y, z));
+	world->GetNavigationSystem()->SimpleMoveToLocation(controller, vec);
 
 	Py_INCREF(Py_None);
 	return Py_None;

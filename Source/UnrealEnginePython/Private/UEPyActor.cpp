@@ -43,7 +43,7 @@ PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args) {
 
 	actor->GetActorBounds(false, origin, extent);
 
-	return Py_BuildValue("ffffff", origin.X, origin.Y, origin.Z, extent.X, extent.Y, extent.Z);
+	return Py_BuildValue("OO", py_ue_new_fvector(origin), py_ue_new_fvector(extent));
 
 }
 
@@ -118,23 +118,11 @@ PyObject *py_ue_get_actor_velocity(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	FVector vec3;
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 
-	if (self->ue_object->IsA<AActor>()) {
-		vec3 = ((AActor *)self->ue_object)->GetVelocity();
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		vec3 = ((UActorComponent *)self->ue_object)->GetOwner()->GetVelocity();
-		goto ret;
-	}
-
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
-	return Py_BuildValue("fff", vec3.X, vec3.Y, vec3.Z);
+	return py_ue_new_fvector(actor->GetVelocity());
 
 }
 
