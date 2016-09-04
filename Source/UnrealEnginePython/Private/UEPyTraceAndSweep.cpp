@@ -24,16 +24,11 @@ PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * arg
 	bool got_hit = world->LineTraceSingleByChannel(hit, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
 
 	if (got_hit) {
-		AActor *actor = hit.GetActor();
-		if (actor) {
-			PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
-			if (!ret)
-				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-			return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
-		}
+		return py_ue_new_fhitresult(hit);
 	}
 
-	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
+	Py_INCREF(Py_None);
+	return Py_None;
 
 }
 
@@ -59,22 +54,14 @@ PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject * args
 
 	PyObject *hits_list = PyList_New(0);
 
-
 	bool got_hits = world->LineTraceMultiByChannel(hits, FVector(x1, y1, z1), FVector(x2, y2, z2), (ECollisionChannel)channel);
 
 	if (got_hits) {
 		for (int i = 0; i < hits.Num(); i++) {
 			FHitResult hit = hits[i];
-			AActor *actor = hit.GetActor();
-			if (actor) {
-				PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
-				if (ret) {
-					PyList_Append(hits_list, Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z));
-				}
-			}
+			PyList_Append(hits_list, py_ue_new_fhitresult(hit));
 		}
 	}
-
 	return hits_list;
 
 }
@@ -111,16 +98,11 @@ PyObject *py_ue_get_hit_result_under_cursor(ue_PyUObject * self, PyObject * args
 	bool got_hit = controller->GetHitResultUnderCursor((ECollisionChannel)channel, complex, hit);
 
 	if (got_hit) {
-		AActor *actor = hit.GetActor();
-		if (actor) {
-			PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
-			if (!ret)
-				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-			return Py_BuildValue("Offffff", ret, hit.ImpactPoint.X, hit.ImpactPoint.Y, hit.ImpactPoint.Z, hit.ImpactNormal.X, hit.ImpactNormal.Y, hit.ImpactNormal.Z);
-		}
+		return py_ue_new_fhitresult(hit);
 	}
 
-	return Py_BuildValue("Offffff", Py_None, 0, 0, 0, 0, 0, 0);
+	Py_INCREF(Py_None);
+	return Py_None;
 
 }
 
