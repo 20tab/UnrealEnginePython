@@ -26,16 +26,13 @@ PyObject *py_unreal_engine_color_from_linear(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 
-PyObject *py_unreal_engine_vector_add_vector(PyObject *, PyObject *);
-PyObject *py_unreal_engine_vector_add_float(PyObject *, PyObject *);
-PyObject *py_unreal_engine_vector_mul_vector(PyObject *, PyObject *);
-PyObject *py_unreal_engine_vector_mul_float(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_new_object(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_class(PyObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
+PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);
 #endif
 
 
-PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);

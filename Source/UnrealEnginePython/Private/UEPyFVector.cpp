@@ -96,8 +96,8 @@ static PyGetSetDef ue_PyFVector_getseters[] = {
 
 static PyObject *ue_PyFVector_str(ue_PyFVector *self)
 {
-	return PyUnicode_FromFormat("<class 'unreal_engine.FVector' {'x': %f, 'y': %f, 'z': %f}>",
-		self->vec.X, self->vec.Y, self->vec.Z);
+	return PyUnicode_FromFormat("<class 'unreal_engine.FVector' {'x': %S, 'y': %S, 'z': %S}>",
+		PyFloat_FromDouble(self->vec.X), PyFloat_FromDouble(self->vec.Y), PyFloat_FromDouble(self->vec.Z));
 }
 
 static PyTypeObject ue_PyFVectorType = {
