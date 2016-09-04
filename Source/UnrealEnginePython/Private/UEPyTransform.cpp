@@ -117,24 +117,14 @@ PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:set_actor_rotation", &roll, &pitch, &yaw)) {
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
-	}
 
-	if (self->ue_object->IsA<AActor>()) {
-		((AActor *)self->ue_object)->SetActorRotation(FRotator(pitch, yaw, roll));
-		goto ret;
-	}
-
-	if (self->ue_object->IsA<UActorComponent>()) {
-		((UActorComponent *)self->ue_object)->GetOwner()->SetActorRotation(FRotator(pitch, yaw, roll));
-		goto ret;
-	}
-
-	return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-
-ret:
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	actor->SetActorRotation(rot);
 	Py_INCREF(Py_None);
 	return Py_None;
 
@@ -238,12 +228,11 @@ PyObject *py_ue_set_world_location(ue_PyUObject *self, PyObject * args) {
 
 PyObject *py_ue_set_world_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:set_world_rotation", &roll, &pitch, &yaw)) {
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
-	}
 	if (self->ue_object->IsA<USceneComponent>()) {
-		((USceneComponent *)self->ue_object)->SetWorldRotation(FRotator(pitch, yaw, roll));
+		((USceneComponent *)self->ue_object)->SetWorldRotation(rot);
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -280,12 +269,11 @@ PyObject *py_ue_set_relative_location(ue_PyUObject *self, PyObject * args) {
 
 PyObject *py_ue_set_relative_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:set_relative_rotation", &roll, &pitch, &yaw)) {
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
-	}
 	if (self->ue_object->IsA<USceneComponent>()) {
-		((USceneComponent *)self->ue_object)->SetRelativeRotation(FRotator(pitch, yaw, roll));
+		((USceneComponent *)self->ue_object)->SetRelativeRotation(rot);
 		Py_INCREF(Py_None);
 		return Py_None;
 	}

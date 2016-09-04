@@ -35,7 +35,7 @@ PyObject *py_ue_get_socket_rotation(ue_PyUObject *self, PyObject * args) {
 	USceneComponent *component = (USceneComponent *)self->ue_object;
 
 	FRotator rot = component->GetSocketRotation(UTF8_TO_TCHAR(socket_name));
-	return Py_BuildValue("fff", rot.Roll, rot.Pitch, rot.Yaw);
+	return py_ue_new_frotator(rot);
 }
 
 PyObject *py_ue_get_socket_transform(ue_PyUObject *self, PyObject * args) {

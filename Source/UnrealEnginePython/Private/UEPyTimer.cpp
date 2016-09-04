@@ -83,7 +83,7 @@ PyObject *py_ue_set_timer(ue_PyUObject *self, PyObject * args) {
 	PyObject *py_callable;
 	PyObject *py_loop = nullptr;
 	float first_delay = -1;
-	if (!PyArg_ParseTuple(args, "fO|Of:simple_move_to_location", &rate, &py_callable, &py_loop, &first_delay)) {
+	if (!PyArg_ParseTuple(args, "fO|Of:set_timer", &rate, &py_callable, &py_loop, &first_delay)) {
 		return NULL;
 	}
 

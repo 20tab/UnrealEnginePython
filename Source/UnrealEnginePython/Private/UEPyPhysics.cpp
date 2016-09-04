@@ -41,9 +41,9 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args) 
 
 	float damage_amount = 0;
 	float impulse_strength = 0;
-	float x = 0, y = 0, z = 0;
-	float ix = 0, iy = 0, iz = 0;
-	if (!PyArg_ParseTuple(args, "ffffffff:destructible_apply_damage", &damage_amount, &impulse_strength, &x, &y, &z, &ix, &iy, &iz)) {
+	PyObject *py_obj_location = nullptr;
+	PyObject *py_obj_impulse = nullptr;
+	if (!PyArg_ParseTuple(args, "ffOO:destructible_apply_damage", &damage_amount, &impulse_strength, &py_obj_location, &py_obj_impulse)) {
 		return NULL;
 	}
 
@@ -64,8 +64,25 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args) 
 		}
 	}
 
+	FVector location = FVector(0, 0, 0);
+	FVector impulse = FVector(0, 0, 0);
+
+	if (py_obj_location) {
+		ue_PyFVector *py_location = py_ue_is_fvector(py_obj_location);
+		if (!py_location)
+			return PyErr_Format(PyExc_Exception, "location must be a FVector");
+		location = py_location->vec;
+	}
+
+	if (py_obj_impulse) {
+		ue_PyFVector *py_impulse = py_ue_is_fvector(py_obj_impulse);
+		if (!py_impulse)
+			return PyErr_Format(PyExc_Exception, "impulse must be a FVector");
+		impulse = py_impulse->vec;
+	}
+
 	if (destructible) {
-		destructible->ApplyDamage(damage_amount, FVector(x, y, z), FVector(ix, iy, iz), impulse_strength);
+		destructible->ApplyDamage(damage_amount, location, impulse, impulse_strength);
 	}
 	else {
 		return PyErr_Format(PyExc_Exception, "UObject is not a destructible");

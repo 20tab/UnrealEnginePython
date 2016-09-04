@@ -110,29 +110,26 @@ end:
 }
 
 PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) {
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:get_forward_vector", &roll, &pitch, &yaw)) {
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
-	}
-	FVector vec = UKismetMathLibrary::GetForwardVector(FRotator(pitch, yaw, roll));
+	FVector vec = UKismetMathLibrary::GetForwardVector(rot);
 	return py_ue_new_fvector(vec);
 }
 
 PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:get_right_vector", &roll, &pitch, &yaw)) {
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
-	}
-	FVector vec = UKismetMathLibrary::GetRightVector(FRotator(pitch, yaw, roll));
+	FVector vec = UKismetMathLibrary::GetRightVector(rot);
 	return py_ue_new_fvector(vec);
 }
 
 PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
-	float roll, pitch, yaw;
-	if (!PyArg_ParseTuple(args, "fff:get_up_vector", &roll, &pitch, &yaw)) {
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
-	}
-	FVector vec = UKismetMathLibrary::GetUpVector(FRotator(pitch, yaw, roll));
+	FVector vec = UKismetMathLibrary::GetUpVector(rot);
 	return py_ue_new_fvector(vec);
 }
 

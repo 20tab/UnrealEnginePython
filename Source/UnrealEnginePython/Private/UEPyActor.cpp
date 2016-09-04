@@ -430,15 +430,15 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	float x = 0, y = 0, z = 0;
-	float roll = 0, pitch = 0, yaw = 0;
+	PyObject *py_obj_location = nullptr;
+	PyObject *py_obj_rotation = nullptr;
 
 	UWorld *world = ue_get_uworld(self);
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O|ffffff:actor_spawn", &obj, &x, &y, &z, &roll, &pitch, &yaw)) {
+	if (!PyArg_ParseTuple(args, "O|OO:actor_spawn", &obj, &py_obj_location, &py_obj_rotation)) {
 		return NULL;
 	}
 
@@ -448,8 +448,22 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
-	FVector const location = FVector(x, y, z);
-	FRotator const rotation = FRotator(pitch, yaw, roll);
+	FVector location = FVector(0,0,0);
+	FRotator rotation = FRotator(0,0,0);
+
+	if (py_obj_location) {
+		ue_PyFVector *py_location = py_ue_is_fvector(py_obj_location);
+		if (!py_location)
+			return PyErr_Format(PyExc_Exception, "location must be an FVector");
+		location = py_location->vec;
+	}
+
+	if (py_obj_rotation) {
+		ue_PyFRotator *py_rotation = py_ue_is_frotator(py_obj_rotation);
+		if (!py_rotation)
+			return PyErr_Format(PyExc_Exception, "location must be an FRotator");
+		rotation = py_rotation->rot;
+	}
 
 	AActor *actor = world->SpawnActor((UClass *)py_obj->ue_object, &location, &rotation);
 

@@ -72,11 +72,11 @@ PyObject *py_ue_add_movement_input(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	float x, y, z;
+	PyObject *py_obj_movement;
 	float scale = 1;
 	PyObject *py_force = nullptr;
 	bool force = false;
-	if (!PyArg_ParseTuple(args, "fff|fO:add_movement_input", &x, &y, &z, &scale, &py_force)) {
+	if (!PyArg_ParseTuple(args, "O|fO:add_movement_input", &py_obj_movement, &scale, &py_force)) {
 		return NULL;
 	}
 
@@ -102,7 +102,12 @@ PyObject *py_ue_add_movement_input(ue_PyUObject *self, PyObject * args) {
 	if (!pawn)
 		return PyErr_Format(PyExc_Exception, "uobject is not a pawn");
 
-	pawn->AddMovementInput(FVector(x, y, z), scale, force);
+	ue_PyFVector *movement = py_ue_is_fvector(py_obj_movement);
+
+	if (!movement)
+		return PyErr_Format(PyExc_Exception, "movement input must be a FVector");
+
+	pawn->AddMovementInput(movement->vec, scale, force);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -131,7 +136,7 @@ PyObject *py_ue_get_control_rotation(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a pawn");
 
 	FRotator rot = pawn->GetControlRotation();
-	return Py_BuildValue("fff", rot.Roll, rot.Pitch, rot.Yaw);
+	return py_ue_new_frotator(rot);
 }
 
 PyObject *py_ue_jump(ue_PyUObject *self, PyObject * args) {
@@ -251,12 +256,12 @@ PyObject *py_ue_launch(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	float x, y, z;
+	PyObject *py_obj_force;
 	PyObject *py_xy_override = nullptr;
 	PyObject *py_z_override = nullptr;
 	bool xy_override = false;
 	bool z_override;
-	if (!PyArg_ParseTuple(args, "fff|OO:launch", &x, &y, &z, &py_xy_override, &z_override)) {
+	if (!PyArg_ParseTuple(args, "O|OO:launch", &py_obj_force, &py_xy_override, &z_override)) {
 		return NULL;
 	}
 
@@ -286,7 +291,12 @@ PyObject *py_ue_launch(ue_PyUObject *self, PyObject * args) {
 		z_override = true;
 	}
 
-	character->LaunchCharacter(FVector(x, y, z), xy_override, z_override);
+	ue_PyFVector *force = py_ue_is_fvector(py_obj_force);
+
+	if (!force)
+		return PyErr_Format(PyExc_Exception, "launch force must be a FVector");
+
+	character->LaunchCharacter(force->vec, xy_override, z_override);
 
 	Py_INCREF(Py_None);
 	return Py_None;
