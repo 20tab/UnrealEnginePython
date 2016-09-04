@@ -8,13 +8,14 @@ if using the c++ reflection too much. For all the other cases using uobject.call
 
 ---
 ```py
-x, y, z = uobject.get_actor_location()
+vector = uobject.get_actor_location()
 ```
 
 get the current actor location (automatically retrieve the actor from the component if needed)
 
 ---
 ```py
+uobject.set_actor_location(vector)
 uobject.set_actor_location(x, y, z)
 ```
 
@@ -22,7 +23,7 @@ set the current actor location (automatically retrieve the actor from the compon
 
 ---
 ```py
-pitch, yaw, roll = uobject.get_actor_rotation()
+rotation = uobject.get_actor_rotation()
 ```
 
 get the current actor rotation (automatically retrieve the actor from the component if needed)
@@ -30,34 +31,35 @@ get the current actor rotation (automatically retrieve the actor from the compon
 
 ---
 ```py
+uobject.set_actor_rotation(rotation)
 uobject.set_actor_rotation(pitch, yaw, roll)
 ```
 set the current actor rotation (automatically retrieve the actor from the component if needed)
 
 ---
 ```py
-x, y, z = uobject.get_actor_forward()
+vector = uobject.get_actor_forward()
 ```
 
 get the current actor forward vector (automatically retrieve the actor from the component if needed)
 
 ---
 ```py
-x, y, z = uobject.get_actor_right()
+vector = uobject.get_actor_right()
 ```
 
 get the current actor right vector (automatically retrieve the actor from the component if needed)
 
 ---
 ```py
-x, y, z = uobject.get_actor_up()
+vector = uobject.get_actor_up()
 ```
 
 get the current actor up vector (automatically retrieve the actor from the component if needed)
 
 ---
 ```py
-x, y, z = uobject.get_actor_velocity()
+vector = uobject.get_actor_velocity()
 ```
 get the current actor velocity vector (automatically retrieve the actor from the component if needed)
 
@@ -177,7 +179,7 @@ this is the same as calling ->GetClass() in c++. You can get the UClass of a uob
 
 ---
 ```py
-uclass = uobject.actor_spawn(uclass[, x, y, z, pitch, yaw, roll])
+uclass = uobject.actor_spawn(uclass[, location, rotation])
 ```
 
 spawn an actor. uclass is the reference you can get via get_class() or unreal_engine.find_class()
@@ -252,19 +254,19 @@ check if an actor is tagged with the specific tag
 
 ---
 ```py
-x, y, z, ex, ey, ez = uobject.get_actor_bounds()
+location, extents = uobject.get_actor_bounds()
 ```
 
-get the bounds of an object (ex, ey and ez are the extents)
+get the bounds of an object (both location and extents are vectors)
 
 ---
 ```py
-hit_object, x, y, z, nx, ny, nz = uobject.line_trace_single_by_channel(x0, y1, z0, x1, y1, z1, channel)
+hit = uobject.line_trace_single_by_channel(start, end, channel)
 ```
 
 ---
 ```py
-[(hit_object, x, y, z, nx, ny, nz), ...] = uobject.line_trace_multi_by_channel(x0, y1, z0, x1, y1, z1, channel)
+[hit0, hit1, ...] = uobject.line_trace_multi_by_channel(start, end, channel)
 ```
 
 ---
@@ -284,7 +286,7 @@ uobject.enable_mouse_over_events()
 
 ---
 ```py
-uobject.destructible_apply_damage(damage, impulse, dx, dy, dz, ix, iy, iz)
+uobject.destructible_apply_damage(damage, impulse, direction, impulse)
 ```
 
 See Fracturing section on the README
@@ -317,6 +319,7 @@ add a new component as the root one of the specified uclass (type) and set its n
 
 ---
 ```py
+uobject.simple_move_to_location(vector)
 uobject.simple_move_to_location(x, y, z)
 ```
 
@@ -324,7 +327,7 @@ move to a location using navmesh (see Navigation on main README)
 
 ---
 ```py
-clicked_actor, x, y, z, nx, ny, nz = self.uobject.get_hit_result_under_cursor(channel)
+hit = self.uobject.get_hit_result_under_cursor(channel)
 ```
 
 get the world point under the mouse cursor (see Navigation on main README, for an example usage)
@@ -339,7 +342,7 @@ get the length of a spline component (see Spline section in the main README)
 
 ---
 ```py
-x, y, z = uobject.get_world_location_at_distance_along_spline(distance)
+vector = uobject.get_world_location_at_distance_along_spline(distance)
 ```
 
 get the a point of a spline component based on distance (see Spline section in the main README)
