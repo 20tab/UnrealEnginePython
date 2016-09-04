@@ -10,12 +10,34 @@ static PyObject *py_ue_fvector_normalized(ue_PyFVector *self, PyObject * args) {
 	return py_ue_new_fvector(vec);
 }
 
+static PyObject *py_ue_fvector_dot(ue_PyFVector *self, PyObject * args) {
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:dot", &py_obj))
+		return NULL;
+	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
+	if (!py_vec)
+		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
+	return PyFloat_FromDouble(FVector::DotProduct(self->vec, py_vec->vec));
+}
+
+static PyObject *py_ue_fvector_cross(ue_PyFVector *self, PyObject * args) {
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:cross", &py_obj))
+		return NULL;
+	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
+	if (!py_vec)
+		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
+	return py_ue_new_fvector(FVector::CrossProduct(self->vec, py_vec->vec));
+}
+
 
 static PyMethodDef ue_PyFVector_methods[] = {
 
 	{ "length", (PyCFunction)py_ue_fvector_length, METH_VARARGS, "" },
 	{ "size", (PyCFunction)py_ue_fvector_length, METH_VARARGS, "" },
 	{ "normalized", (PyCFunction)py_ue_fvector_normalized, METH_VARARGS, "" },
+	{ "dot", (PyCFunction)py_ue_fvector_dot, METH_VARARGS, "" },
+	{ "cross", (PyCFunction)py_ue_fvector_cross, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -125,6 +147,23 @@ static PyObject *ue_py_fvector_add(ue_PyFVector *self, PyObject *value) {
 	return py_ue_new_fvector(vec);
 }
 
+static PyObject *ue_py_fvector_sub(ue_PyFVector *self, PyObject *value) {
+	FVector vec = self->vec;
+	ue_PyFVector *py_vec = py_ue_is_fvector(value);
+	if (py_vec) {
+		vec -= py_vec->vec;
+	}
+	else if (PyNumber_Check(value)) {
+		PyObject *f_value = PyNumber_Float(value);
+		float f = PyFloat_AsDouble(f_value);
+		vec.X -= f;
+		vec.Y -= f;
+		vec.Z -= f;
+		Py_DECREF(f_value);
+	}
+	return py_ue_new_fvector(vec);
+}
+
 static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value) {
 	FVector vec = self->vec;
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
@@ -135,6 +174,25 @@ static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value) {
 		PyObject *f_value = PyNumber_Float(value);
 		float f = PyFloat_AsDouble(f_value);
 		vec *= f;
+		Py_DECREF(f_value);
+	}
+	return py_ue_new_fvector(vec);
+}
+
+static PyObject *ue_py_fvector_div(ue_PyFVector *self, PyObject *value) {
+	FVector vec = self->vec;
+	ue_PyFVector *py_vec = py_ue_is_fvector(value);
+	if (py_vec) {
+		if (py_vec->vec.X == 0 || py_vec->vec.Y == 0 || py_vec->vec.Z == 0)
+			return PyErr_Format(PyExc_ZeroDivisionError, "division by zero");
+		vec /= py_vec->vec;
+	}
+	else if (PyNumber_Check(value)) {
+		PyObject *f_value = PyNumber_Float(value);
+		float f = PyFloat_AsDouble(f_value);
+		if (f == 0)
+			return PyErr_Format(PyExc_ZeroDivisionError, "division by zero");
+		vec /= f;
 		Py_DECREF(f_value);
 	}
 	return py_ue_new_fvector(vec);
@@ -185,7 +243,9 @@ void ue_python_init_fvector(PyObject *ue_module) {
 	memset(&ue_PyFVector_number_methods, 0, sizeof(PyNumberMethods));
 	ue_PyFVectorType.tp_as_number = &ue_PyFVector_number_methods;
 	ue_PyFVector_number_methods.nb_add = (binaryfunc)ue_py_fvector_add;
+	ue_PyFVector_number_methods.nb_subtract = (binaryfunc)ue_py_fvector_sub;
 	ue_PyFVector_number_methods.nb_multiply = (binaryfunc)ue_py_fvector_mul;
+	ue_PyFVector_number_methods.nb_divmod = (binaryfunc)ue_py_fvector_div;
 
 	memset(&ue_PyFVector_sequence_methods, 0, sizeof(PySequenceMethods));
 	ue_PyFVectorType.tp_as_sequence = &ue_PyFVector_sequence_methods;

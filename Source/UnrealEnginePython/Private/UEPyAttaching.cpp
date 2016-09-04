@@ -17,7 +17,7 @@ PyObject *py_ue_get_socket_location(ue_PyUObject *self, PyObject * args) {
 	USceneComponent *component = (USceneComponent *)self->ue_object;
 
 	FVector vec = component->GetSocketLocation(UTF8_TO_TCHAR(socket_name));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
+	return py_ue_new_fvector(vec);
 }
 
 PyObject *py_ue_get_socket_rotation(ue_PyUObject *self, PyObject * args) {

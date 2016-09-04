@@ -115,7 +115,7 @@ PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) 
 		return NULL;
 	}
 	FVector vec = UKismetMathLibrary::GetForwardVector(FRotator(pitch, yaw, roll));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
+	return py_ue_new_fvector(vec);
 }
 
 PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
@@ -124,7 +124,7 @@ PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
 		return NULL;
 	}
 	FVector vec = UKismetMathLibrary::GetRightVector(FRotator(pitch, yaw, roll));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
+	return py_ue_new_fvector(vec);
 }
 
 PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
@@ -133,7 +133,7 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
 		return NULL;
 	}
 	FVector vec = UKismetMathLibrary::GetUpVector(FRotator(pitch, yaw, roll));
-	return Py_BuildValue("fff", vec.X, vec.Y, vec.Z);
+	return py_ue_new_fvector(vec);
 }
 
 
@@ -302,139 +302,6 @@ PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_vector_add_vector(PyObject * self, PyObject *args) {
-
-	float x = 0, y = 0, z = 0;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if ((items % 3) != 0) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a 3-multiple number of args");
-	}
-
-	for (int i = 0; i < (int)items; i += 3) {
-		PyObject *x_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(x_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-		x += (float)PyFloat_AsDouble(x_py);
-		PyObject *y_py = PyTuple_GetItem(args, i + 1);
-		if (!PyFloat_Check(y_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
-		y += (float)PyFloat_AsDouble(y_py);
-		PyObject *z_py = PyTuple_GetItem(args, i + 2);
-		if (!PyFloat_Check(z_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
-		z += (float)PyFloat_AsDouble(z_py);
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
-
-PyObject *py_unreal_engine_vector_add_float(PyObject * self, PyObject *args) {
-
-	float x = 0, y = 0, z = 0;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if (items < 3) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a xyz vector");
-	}
-
-	PyObject *x_py = PyTuple_GetItem(args, 0);
-	if (!PyFloat_Check(x_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	x = (float)PyFloat_AsDouble(x_py);
-
-
-	PyObject *y_py = PyTuple_GetItem(args, 1);
-	if (!PyFloat_Check(y_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	y = (float)PyFloat_AsDouble(y_py);
-
-	PyObject *z_py = PyTuple_GetItem(args, 2);
-	if (!PyFloat_Check(z_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	z = (float)PyFloat_AsDouble(z_py);
-
-	for (int i = 3; i < (int)items; i++) {
-		PyObject *delta_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(delta_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
-		float delta = (float)PyFloat_AsDouble(delta_py);
-		x += delta;
-		y += delta;
-		z += delta;
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
-
-PyObject *py_unreal_engine_vector_mul_vector(PyObject * self, PyObject *args) {
-
-	float x = 1, y = 1, z = 1;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if ((items % 3) != 0) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a 3-multiple number of args");
-	}
-
-	for (int i = 0; i < (int)items; i += 3) {
-		PyObject *x_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(x_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-		x *= (float)PyFloat_AsDouble(x_py);
-		PyObject *y_py = PyTuple_GetItem(args, i + 1);
-		if (!PyFloat_Check(y_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (y)");
-		y *= (float)PyFloat_AsDouble(y_py);
-		PyObject *z_py = PyTuple_GetItem(args, i + 2);
-		if (!PyFloat_Check(z_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values (z)");
-		z *= (float)PyFloat_AsDouble(z_py);
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
-
-PyObject *py_unreal_engine_vector_mul_float(PyObject * self, PyObject *args) {
-
-	float x = 0, y = 0, z = 0;
-
-	Py_ssize_t items = PyTuple_Size(args);
-
-	if (items < 3) {
-		return PyErr_Format(PyExc_TypeError, "this function requires a xyz vector");
-	}
-
-	PyObject *x_py = PyTuple_GetItem(args, 0);
-	if (!PyFloat_Check(x_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	x = (float)PyFloat_AsDouble(x_py);
-
-
-	PyObject *y_py = PyTuple_GetItem(args, 1);
-	if (!PyFloat_Check(y_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	y = (float)PyFloat_AsDouble(y_py);
-
-	PyObject *z_py = PyTuple_GetItem(args, 2);
-	if (!PyFloat_Check(z_py))
-		return PyErr_Format(PyExc_TypeError, "this function supports only float values (x)");
-	z = (float)PyFloat_AsDouble(z_py);
-
-	for (int i = 3; i < (int)items; i++) {
-		PyObject *delta_py = PyTuple_GetItem(args, i);
-		if (!PyFloat_Check(delta_py))
-			return PyErr_Format(PyExc_TypeError, "this function supports only float values");
-		float delta = (float)PyFloat_AsDouble(delta_py);
-		x *= delta;
-		y *= delta;
-		z *= delta;
-	}
-
-	return Py_BuildValue("fff", x, y, z);
-}
 
 PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 
