@@ -70,9 +70,9 @@ PyObject *py_ue_get_actor_rotation(ue_PyUObject *self, PyObject * args) {
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 
-	FRotator vec3 = actor->GetActorRotation();
+	FRotator rot = actor->GetActorRotation();
 
-	return Py_BuildValue("fff", vec3.Roll, vec3.Pitch, vec3.Yaw);
+	return py_ue_new_frotator(rot);
 
 }
 
@@ -153,8 +153,8 @@ PyObject *py_ue_get_world_location(ue_PyUObject *self, PyObject * args) {
 PyObject *py_ue_get_world_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>()) {
-		FRotator vec3 = ((USceneComponent *)self->ue_object)->GetComponentRotation();
-		return Py_BuildValue("fff", vec3.Roll, vec3.Pitch, vec3.Yaw);
+		FRotator rot = ((USceneComponent *)self->ue_object)->GetComponentRotation();
+		return py_ue_new_frotator(rot);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
 }
@@ -180,8 +180,8 @@ PyObject *py_ue_get_relative_location(ue_PyUObject *self, PyObject * args) {
 PyObject *py_ue_get_relative_rotation(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>()) {
-		FRotator vec3 = ((USceneComponent *)self->ue_object)->RelativeRotation;
-		return Py_BuildValue("fff", vec3.Roll, vec3.Pitch, vec3.Yaw);
+		FRotator rot = ((USceneComponent *)self->ue_object)->RelativeRotation;
+		return py_ue_new_frotator(rot);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
 }
