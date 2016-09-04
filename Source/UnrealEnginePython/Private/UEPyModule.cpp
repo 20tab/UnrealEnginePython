@@ -363,6 +363,8 @@ void unreal_engine_init_py_module() {
 	Py_INCREF(&ue_PyUObjectType);
 	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
 
+	ue_python_init_fvector(new_unreal_engine_module);
+
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
 
 	// Collision channels

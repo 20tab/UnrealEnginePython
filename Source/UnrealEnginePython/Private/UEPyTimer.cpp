@@ -7,11 +7,13 @@ static PyObject *py_ue_ftimerhandle_clear(ue_PyFTimerHandle *self, PyObject * ar
 }
 
 static PyObject *py_ue_ftimerhandle_pause(ue_PyFTimerHandle *self, PyObject * args) {
+	self->world->GetTimerManager().PauseTimer(self->thandle);
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject *py_ue_ftimerhandle_unpause(ue_PyFTimerHandle *self, PyObject * args) {
+	self->world->GetTimerManager().UnPauseTimer(self->thandle);
 	Py_INCREF(Py_None);
 	return Py_None;
 }
