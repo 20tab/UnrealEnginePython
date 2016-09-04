@@ -148,20 +148,39 @@ static Py_ssize_t ue_py_fvector_seq_length(ue_PyFVector *self) {
 
 static PyObject *ue_py_fvector_seq_item(ue_PyFVector *self, Py_ssize_t i) {
 	switch (i) {
-		case 0:
-			return PyFloat_FromDouble(self->vec.X);
-		case 1:
-			return PyFloat_FromDouble(self->vec.Y);
-		case 2:
-			return PyFloat_FromDouble(self->vec.Z);
+	case 0:
+		return PyFloat_FromDouble(self->vec.X);
+	case 1:
+		return PyFloat_FromDouble(self->vec.Y);
+	case 2:
+		return PyFloat_FromDouble(self->vec.Z);
 	}
 	return PyErr_Format(PyExc_IndexError, "FVector has only 3 items");
 }
 
 PySequenceMethods ue_PyFVector_sequence_methods;
 
+static int ue_py_fvector_init(ue_PyFVector *self, PyObject *args, PyObject *kwargs) {
+	float x = 0, y = 0, z = 0;
+	if (!PyArg_ParseTuple(args, "|fff", &x, &y, &z))
+		return -1;
+
+	if (PyTuple_Size(args) == 1) {
+		y = x;
+		z = x;
+	}
+
+	self->vec.X = x;
+	self->vec.Y = y;
+	self->vec.Z = z;
+
+	return 0;
+}
+
 void ue_python_init_fvector(PyObject *ue_module) {
 	ue_PyFVectorType.tp_new = PyType_GenericNew;
+
+	ue_PyFVectorType.tp_init = (initproc)ue_py_fvector_init;
 
 	memset(&ue_PyFVector_number_methods, 0, sizeof(PyNumberMethods));
 	ue_PyFVectorType.tp_as_number = &ue_PyFVector_number_methods;
@@ -193,7 +212,7 @@ ue_PyFVector *py_ue_is_fvector(PyObject *obj) {
 }
 
 bool py_ue_vector_arg(PyObject *args, FVector &vec) {
-	
+
 	if (PyTuple_Size(args) == 1) {
 		PyObject *arg = PyTuple_GetItem(args, 0);
 		ue_PyFVector *py_vec = py_ue_is_fvector(arg);
@@ -207,7 +226,7 @@ bool py_ue_vector_arg(PyObject *args, FVector &vec) {
 
 	float x, y, z;
 	if (!PyArg_ParseTuple(args, "fff", &x, &y, &z))
-			return false;
+		return false;
 	vec.X = x;
 	vec.Y = y;
 	vec.Z = z;
