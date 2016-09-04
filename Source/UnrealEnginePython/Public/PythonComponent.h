@@ -43,6 +43,30 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Python")
 	FString CallPythonComponentMethodString(FString method_name, FString args);
 
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	float CallPythonComponentMethodFloat(FString method_name, FString args);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrInt(FString attr, int Integer);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrFloat(FString attr, float Float);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrString(FString attr, FString String);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrBool(FString attr, bool Boolean);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrVector(FString attr, FVector Vector);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrRotator(FString attr, FRotator Rotator);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void SetPythonAttrObject(FString attr, UObject *Object);
+
 private:
 	PyObject *py_component_instance;
 	// mapped uobject, required for debug and advanced reflection
