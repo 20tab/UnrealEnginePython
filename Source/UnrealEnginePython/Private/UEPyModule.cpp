@@ -925,6 +925,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		argn++;
 	}
 
+	FScopeCycleCounterUObject ObjectScope(u_obj);
+	FScopeCycleCounterUObject FunctionScope(u_function);
+
 	u_obj->ProcessEvent(u_function, buffer);
 
 	TFieldIterator<UProperty> Props(u_function);
