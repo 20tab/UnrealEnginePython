@@ -360,6 +360,12 @@ is equal to:
 vec = self.uobject.call_function('K2_GetActorLocation')
 ```
 
+Obviously you can combine methods/properties:
+
+```py
+self.uobject.CharacterMovement.MaxWalkSpeed = 600.0
+```
+
 Albeit the system allows for full unreal api usage, reflection is slower than native methods.
 
 Try to use native methods whenever possible, and open pull request whenever you think a function should be exposed as native methods.
