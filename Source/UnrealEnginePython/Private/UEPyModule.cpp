@@ -326,6 +326,11 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 			}
 
 			UFunction *function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(attr)));
+			// retry wth K2_ prefix
+			if (!function) {
+				FString k2_name = FString("K2_") + UTF8_TO_TCHAR(attr);
+				function = self->ue_object->FindFunction(FName(*k2_name));
+			}
 			if (function) {
 				// swallow previous exception
 				PyErr_Clear();
@@ -691,6 +696,19 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 	// map a UStruct to a dictionary (if possible)
 	if (auto casted_prop = Cast<UStructProperty>(prop)) {
 		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct)) {
+			// check for FVector
+			if (casted_struct == TBaseStructure<FVector>::Get()) {
+				FVector vec = *casted_prop->ContainerPtrToValuePtr<FVector>(buffer);
+				return py_ue_new_fvector(vec);
+			}
+			if (casted_struct == TBaseStructure<FRotator>::Get()) {
+				FRotator rot = *casted_prop->ContainerPtrToValuePtr<FRotator>(buffer);
+				return py_ue_new_frotator(rot);
+			}
+			if (casted_struct == TBaseStructure<FTransform>::Get()) {
+				FTransform transform = *casted_prop->ContainerPtrToValuePtr<FTransform>(buffer);
+				return py_ue_new_ftransform(transform);
+			}
 			ue_PyUObject *ret = ue_get_python_wrapper(casted_struct);
 			if (!ret)
 				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -768,8 +786,38 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return false;
 	}
 
-	// encode a dictionary to a struct
+	// TODO encode a dictionary to a struct
 	if (PyDict_Check(py_obj)) {
+		return false;
+	}
+
+	if (ue_PyFVector *py_vec = py_ue_is_fvector(py_obj)) {
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == TBaseStructure<FVector>::Get()) {
+				*casted_prop->ContainerPtrToValuePtr<FVector>(buffer) = py_vec->vec;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_obj)) {
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == TBaseStructure<FRotator>::Get()) {
+				*casted_prop->ContainerPtrToValuePtr<FRotator>(buffer) = py_rot->rot;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_obj)) {
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == TBaseStructure<FTransform>::Get()) {
+				*casted_prop->ContainerPtrToValuePtr<FTransform>(buffer) = py_transform->transform;
+				return true;
+			}
+		}
 		return false;
 	}
 
