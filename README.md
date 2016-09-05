@@ -262,7 +262,7 @@ class Player:
         
         # move the character
         fwd = ue.get_forward_vector(0, 0, rot[2])
-        right = ue.get_right_vector(0, 0, rot[2])
+        right = ue.get_right_vector(0, 0, rot.yaw)
 
         self.pawn.add_movement_input(*fwd, self.pawn.get_input_axis('MoveForward'))
         self.pawn.add_movement_input(*right, self.pawn.get_input_axis('MoveRight'))
