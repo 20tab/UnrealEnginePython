@@ -23,6 +23,7 @@
 #include "UEPyEditor.h"
 #endif
 
+
 #include "PythonDelegate.h"
 
 
@@ -84,7 +85,7 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
-	
+
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
@@ -304,7 +305,36 @@ static void ue_pyobject_dealloc(ue_PyUObject *self) {
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
+static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) {
+	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
+	if (!ret) {
+		if (PyUnicode_Check(attr_name)) {
+			char *attr = PyUnicode_AsUTF8(attr_name);
+			// first check for property
+			UStruct *u_struct = nullptr;
+			if (self->ue_object->IsA<UStruct>()) {
+				u_struct = (UStruct *)self->ue_object;
+			}
+			else {
+				u_struct = (UStruct *)self->ue_object->GetClass();
+			}
+			UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
+			if (u_property) {
+				// swallow previous exception
+				PyErr_Clear();
+				return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
+			}
 
+			UFunction *function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(attr)));
+			if (function) {
+				// swallow previous exception
+				PyErr_Clear();
+				return py_ue_new_callable(function, self->ue_object);
+			}
+		}
+	}
+	return ret;
+}
 
 static PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
@@ -323,7 +353,7 @@ static PyTypeObject ue_PyUObjectType = {
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
 	0,                         /* tp_str */
-	0,                         /* tp_getattro */
+	(getattrofunc)ue_PyUObject_getattro, /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
 	Py_TPFLAGS_DEFAULT,        /* tp_flags */
@@ -367,6 +397,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_fhitresult(new_unreal_engine_module);
 
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
+
+	ue_python_init_callable(new_unreal_engine_module);
 
 	// Collision channels
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_CAMERA", PyLong_FromLong(ECollisionChannel::ECC_Camera));
@@ -449,7 +481,7 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		if (!ue_py_object->py_object) {
 			ue_py_object->ConditionalBeginDestroy();
 			return nullptr;
-	}
+		}
 		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
 		((ue_PyUObject *)ue_py_object->py_object)->ue_property = ue_py_object;
 
@@ -464,10 +496,10 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p"), ue_py_object, ue_obj);
 #endif
 		//Py_INCREF(ue_py_object->py_object);
-}
+		}
 
 	return ue_py_object->py_object;
-}
+	}
 
 void unreal_engine_py_log_error() {
 	PyObject *type = NULL;
@@ -777,6 +809,44 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *u_obj, PyObject *py_class) {
 	Py_DECREF(attrs);
 }
 
+PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn) {
+	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
+
+	Py_ssize_t tuple_len = PyTuple_Size(args);
+
+	TFieldIterator<UProperty> PArgs(u_function);
+	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
+		UProperty *prop = *PArgs;
+		if (argn >= tuple_len) {
+			// no more args, leave default values...
+			prop->InitializeValue_InContainer(buffer);
+		}
+		else {
+			PyObject *py_arg = PyTuple_GetItem(args, argn);
+			if (!py_arg) {
+				return PyErr_Format(PyExc_TypeError, "unable to get pyobject for property %s", TCHAR_TO_UTF8(*prop->GetName()));
+			}
+			if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
+				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
+			}
+		}
+		argn++;
+	}
+
+	u_obj->ProcessEvent(u_function, buffer);
+
+	TFieldIterator<UProperty> Props(u_function);
+	for (; Props; ++Props) {
+		UProperty *prop = *Props;
+		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
+			return ue_py_convert_property(prop, buffer);
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property) {
 
 	UProperty *u_property = u_obj->ue_object->GetClass()->FindPropertyByName(FName(*event_name));
@@ -815,7 +885,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 	Py_INCREF(Py_None);
 	return Py_None;
-	}
+}
 
 UPyObject::~UPyObject() {
 #if UEPY_MEMORY_DEBUG

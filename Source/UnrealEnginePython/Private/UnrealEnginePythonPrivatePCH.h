@@ -25,6 +25,8 @@
 #include "UEPyFRotator.h"
 #include "UEPyFTransform.h"
 
+#include "UEPyCallable.h"
+
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
 							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")

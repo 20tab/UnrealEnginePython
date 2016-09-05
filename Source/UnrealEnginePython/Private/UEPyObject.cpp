@@ -60,46 +60,11 @@ PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 		function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(func_id))));
 	}
 
-
 	if (!function)
 		return PyErr_Format(PyExc_Exception, "unable to find function");
 
-	uint8 *buffer = (uint8 *)FMemory_Alloca(function->ParmsSize);
-	int argn = 1;
+	return py_ue_ufunction_call(function, self->ue_object, args, 1);
 
-	Py_ssize_t tuple_len = PyTuple_Size(args);
-
-	TFieldIterator<UProperty> PArgs(function);
-	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
-		UProperty *prop = *PArgs;
-		if (argn >= tuple_len) {
-			// no more args, leave default values...
-			prop->InitializeValue_InContainer(buffer);
-		}
-		else {
-			PyObject *py_arg = PyTuple_GetItem(args, argn);
-			if (!py_arg) {
-				return PyErr_Format(PyExc_TypeError, "unable to get pyobject for property %s", TCHAR_TO_UTF8(*prop->GetName()));
-			}
-			if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
-				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
-			}
-		}
-		argn++;
-	}
-
-	self->ue_object->ProcessEvent(function, buffer);
-
-	TFieldIterator<UProperty> Props(function);
-	for (; Props; ++Props) {
-		UProperty *prop = *Props;
-		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
-			return ue_py_convert_property(prop, buffer);
-		}
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
 }
 
 PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
