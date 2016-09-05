@@ -319,6 +319,65 @@ class PlayerEvented:
         self.pawn.add_movement_input(*right, axis_value)
 ```
 
+Native methods VS reflection
+----------------------------
+
+By default the UObject class defines __getattr__ and __setattr__ as wrappers for unreal properties and functions.
+
+This means that calling:
+
+```py
+self.uobject.bCanBeDamaged = True
+```
+
+it is the same as
+
+```py
+self.uobject.set_property('bCanBeDamaged', True)
+```
+
+As well as function calls:
+
+```py
+vec = self.uobject.GetActorRightForward()
+```
+
+means
+
+```py
+vec = self.uobject.call_function('GetActorRightForward')
+```
+
+And more important (and handy) K2_ functions are automagically exposed too:
+
+```py
+vec = self.uobject.GetActorLocation()
+```
+
+is equal to:
+
+```py
+vec = self.uobject.call_function('K2_GetActorLocation')
+```
+
+Albeit the system allows for full unreal api usage, reflection is slower than native methods.
+
+Try to use native methods whenever possible, and open pull request whenever you think a function should be exposed as native methods.
+
+So
+
+```py
+vec = self.uobject.get_actor_location()
+```
+
+is way faster than
+
+```py
+vec = self.uobject.GetActorLocation()
+```
+
+
+
 PyPawn
 ------
 
