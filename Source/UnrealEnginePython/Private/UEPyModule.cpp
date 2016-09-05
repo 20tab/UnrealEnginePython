@@ -336,6 +336,36 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 	return ret;
 }
 
+static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObject *value) {
+	// first of all check for UProperty
+	if (PyUnicode_Check(attr_name)) {
+		char *attr = PyUnicode_AsUTF8(attr_name);
+		// first check for property
+		UStruct *u_struct = nullptr;
+		if (self->ue_object->IsA<UStruct>()) {
+			u_struct = (UStruct *)self->ue_object;
+		}
+		else {
+			u_struct = (UStruct *)self->ue_object->GetClass();
+		}
+		UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
+		if (u_property) {
+			if (ue_py_convert_pyobject(value, u_property, (uint8*)self->ue_object)) {
+				return 0;
+			}
+			PyErr_SetString(PyExc_ValueError, "invalid value for UProperty");
+			return -1;
+		}
+
+		// now check for funciton name
+		if (self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(attr)))) {
+			PyErr_SetString(PyExc_ValueError, "you cannot overwrite a UFunction");
+			return -1;
+		}
+	}
+	return PyObject_GenericSetAttr((PyObject *)self, attr_name, value);
+}
+
 static PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.UObject",             /* tp_name */
@@ -354,7 +384,7 @@ static PyTypeObject ue_PyUObjectType = {
 	0,                         /* tp_call */
 	0,                         /* tp_str */
 	(getattrofunc)ue_PyUObject_getattro, /* tp_getattro */
-	0,                         /* tp_setattro */
+	(setattrofunc)ue_PyUObject_setattro, /* tp_setattro */
 	0,                         /* tp_as_buffer */
 	Py_TPFLAGS_DEFAULT,        /* tp_flags */
 	"Unreal Engine generic UObject",           /* tp_doc */
