@@ -75,7 +75,7 @@ PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 			return PyErr_Format(PyExc_TypeError, "not enough arguments");
 		}
 		if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
-			return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property");
+			return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
 		}
 		argn++;
 	}

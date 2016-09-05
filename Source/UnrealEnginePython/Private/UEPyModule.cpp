@@ -255,6 +255,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "create_player", (PyCFunction)py_ue_create_player, METH_VARARGS, "" },
 	{ "get_num_players", (PyCFunction)py_ue_get_num_players, METH_VARARGS, "" },
 	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
+	{ "get_player_controller", (PyCFunction)py_ue_get_player_controller, METH_VARARGS, "" },
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 
@@ -688,11 +689,19 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 	}
 
 	if (PyUnicode_Check(py_obj)) {
-		auto casted_prop = Cast<UStrProperty>(prop);
-		if (!casted_prop)
-			return false;
-		casted_prop->SetPropertyValue_InContainer(buffer, FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj))));
-		return true;
+		if (auto casted_prop = Cast<UStrProperty>(prop)) {
+			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)));
+			return true;
+		}
+		if (auto casted_prop = Cast<UNameProperty>(prop)) {
+			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)));
+			return true;
+		}
+		if (auto casted_prop = Cast<UTextProperty>(prop)) {
+			casted_prop->SetPropertyValue_InContainer(buffer, FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj))));
+			return true;
+		}
+		return false;
 	}
 
 	// encode a dictionary to a struct
