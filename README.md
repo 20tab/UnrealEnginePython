@@ -376,6 +376,7 @@ is way faster than
 vec = self.uobject.GetActorLocation()
 ```
 
+Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
 
 PyPawn
