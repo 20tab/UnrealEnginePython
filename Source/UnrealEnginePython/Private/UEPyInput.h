@@ -19,3 +19,5 @@ PyObject *py_ue_show_mouse_cursor(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_action(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_axis(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_key(ue_PyUObject *, PyObject *);
+PyObject *py_ue_bind_pressed_key(ue_PyUObject *, PyObject *);
+PyObject *py_ue_bind_released_key(ue_PyUObject *, PyObject *);

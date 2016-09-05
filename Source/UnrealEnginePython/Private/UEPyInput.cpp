@@ -467,6 +467,26 @@ PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args) {
 
 }
 
+PyObject *py_ue_bind_pressed_key(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+	char *key_name;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "sO:bind_pressed_key", &key_name, &py_callable)) {
+		return NULL;
+	}
+	return py_ue_bind_key(self, Py_BuildValue("siO", key_name, EInputEvent::IE_Pressed, py_callable));
+}
+
+PyObject *py_ue_bind_released_key(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+	char *key_name;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "sO:bind_released_key", &key_name, &py_callable)) {
+		return NULL;
+	}
+	return py_ue_bind_key(self, Py_BuildValue("siO", key_name, EInputEvent::IE_Released, py_callable));
+}
+
 
 
 

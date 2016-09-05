@@ -184,6 +184,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "bind_action", (PyCFunction)py_ue_bind_action, METH_VARARGS, "" },
 	{ "bind_axis", (PyCFunction)py_ue_bind_axis, METH_VARARGS, "" },
 	{ "bind_key", (PyCFunction)py_ue_bind_key, METH_VARARGS, "" },
+	{ "bind_pressed_key", (PyCFunction)py_ue_bind_pressed_key, METH_VARARGS, "" },
+	{ "bind_released_key", (PyCFunction)py_ue_bind_released_key, METH_VARARGS, "" },
 
 
 	// Movements
