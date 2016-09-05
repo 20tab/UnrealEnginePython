@@ -709,6 +709,10 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				FTransform transform = *casted_prop->ContainerPtrToValuePtr<FTransform>(buffer);
 				return py_ue_new_ftransform(transform);
 			}
+			if (casted_struct == FHitResult::StaticStruct()) {
+				FHitResult hit = *casted_prop->ContainerPtrToValuePtr<FHitResult>(buffer);
+				return py_ue_new_fhitresult(hit);
+			}
 			ue_PyUObject *ret = ue_get_python_wrapper(casted_struct);
 			if (!ret)
 				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -815,6 +819,16 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get()) {
 				*casted_prop->ContainerPtrToValuePtr<FTransform>(buffer) = py_transform->transform;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (ue_PyFHitResult *py_hit = py_ue_is_fhitresult(py_obj)) {
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == FHitResult::StaticStruct()) {
+				*casted_prop->ContainerPtrToValuePtr<FHitResult>(buffer) = py_hit->hit;
 				return true;
 			}
 		}

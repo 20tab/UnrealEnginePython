@@ -186,7 +186,7 @@ PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
 	UStruct *u_struct = FindObject<UStruct>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
 
 	if (!u_struct)
-		return PyErr_Format(PyExc_Exception, "unable to find class %s", name);
+		return PyErr_Format(PyExc_Exception, "unable to find struct %s", name);
 
 	ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
 	if (!ret)
