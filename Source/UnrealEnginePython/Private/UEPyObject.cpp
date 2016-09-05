@@ -67,15 +67,23 @@ PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 	uint8 *buffer = (uint8 *)FMemory_Alloca(function->ParmsSize);
 	int argn = 1;
 
+	Py_ssize_t tuple_len = PyTuple_Size(args);
+
 	TFieldIterator<UProperty> PArgs(function);
 	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
 		UProperty *prop = *PArgs;
-		PyObject *py_arg = PyTuple_GetItem(args, argn);
-		if (!py_arg) {
-			return PyErr_Format(PyExc_TypeError, "not enough arguments");
+		if (argn >= tuple_len) {
+			// no more args, leave default values...
+			prop->InitializeValue_InContainer(buffer);
 		}
-		if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
-			return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
+		else {
+			PyObject *py_arg = PyTuple_GetItem(args, argn);
+			if (!py_arg) {
+				return PyErr_Format(PyExc_TypeError, "unable to get pyobject for property %s", TCHAR_TO_UTF8(*prop->GetName()));
+			}
+			if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
+				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
+			}
 		}
 		argn++;
 	}
@@ -524,7 +532,7 @@ PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
-	
+
 	Py_INCREF(Py_False);
 	return Py_False;
 }
