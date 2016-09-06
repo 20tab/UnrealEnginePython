@@ -333,6 +333,17 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 				FString k2_name = FString("K2_") + UTF8_TO_TCHAR(attr);
 				function = self->ue_object->FindFunction(FName(*k2_name));
 			}
+
+			// last hope, is it a static class ?
+			if (!function) {
+				if (self->ue_object->IsA<UClass>()) {
+					UClass *u_class = (UClass *)self->ue_object;
+					UObject *cdo = u_class->GetDefaultObject();
+					if (cdo) {
+						function = cdo->FindFunction(FName(UTF8_TO_TCHAR(attr)));
+					}
+				}
+			}
 			if (function) {
 				// swallow previous exception
 				PyErr_Clear();
