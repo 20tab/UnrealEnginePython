@@ -848,6 +848,12 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 			Py_DECREF(py_float);
 			return true;
 		}
+		if (auto casted_prop = Cast<UByteProperty>(prop)) {
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
 		return false;
 	}
 
@@ -1011,7 +1017,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 			}
 			if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
 				py_ue_destroy_params(u_function, buffer);
-				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
+				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s (%s)", TCHAR_TO_UTF8(*prop->GetName()), TCHAR_TO_UTF8(*prop->GetClass()->GetName()));
 			}
 		}
 		argn++;
