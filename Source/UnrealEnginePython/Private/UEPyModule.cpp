@@ -289,6 +289,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
 	{ "add_property", (PyCFunction)py_ue_add_property, METH_VARARGS, "" },
 	{ "as_dict", (PyCFunction)py_ue_as_dict, METH_VARARGS, "" },
+
+	{ "get_cdo", (PyCFunction)py_ue_get_cdo, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -371,6 +373,12 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 	return PyObject_GenericSetAttr((PyObject *)self, attr_name, value);
 }
 
+static PyObject *ue_PyUObject_str(ue_PyUObject *self)
+{
+	return PyUnicode_FromFormat("<unreal_engine.UObject '%s' (%p) UClass '%s'>",
+		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()));
+}
+
 static PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.UObject",             /* tp_name */
@@ -387,7 +395,7 @@ static PyTypeObject ue_PyUObjectType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	0,                         /* tp_str */
+	(reprfunc)ue_PyUObject_str,                         /* tp_str */
 	(getattrofunc)ue_PyUObject_getattro, /* tp_getattro */
 	(setattrofunc)ue_PyUObject_setattro, /* tp_setattro */
 	0,                         /* tp_as_buffer */

@@ -444,6 +444,23 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 	return py_struct_dict;
 }
 
+PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+	}
+
+	UClass *u_class = (UClass *)self->ue_object;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_class->GetDefaultObject());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 

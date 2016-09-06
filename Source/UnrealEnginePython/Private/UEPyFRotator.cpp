@@ -84,7 +84,7 @@ static PyGetSetDef ue_PyFRotator_getseters[] = {
 
 static PyObject *ue_PyFRotator_str(ue_PyFRotator *self)
 {
-	return PyUnicode_FromFormat("<class 'unreal_engine.FRotator' {'roll': %S, 'pitch': %S, 'yaw': %S}>",
+	return PyUnicode_FromFormat("<unreal_engine.FRotator {'roll': %S, 'pitch': %S, 'yaw': %S}>",
 		PyFloat_FromDouble(self->rot.Roll), PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw));
 }
 

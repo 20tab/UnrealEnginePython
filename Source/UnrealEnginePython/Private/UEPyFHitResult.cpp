@@ -68,7 +68,7 @@ static PyGetSetDef ue_PyFHitResult_getseters[] = {
 
 static PyObject *ue_PyFHitResult_str(ue_PyFHitResult *self)
 {
-	return PyUnicode_FromFormat("<class 'unreal_engine.FHitResult' {'location': {'x': %S, 'y': %S, 'x': %S}, 'impact_point': {'x': %S, 'y': %S, 'x': %S}}>",
+	return PyUnicode_FromFormat("<unreal_engine.FHitResult {'location': {'x': %S, 'y': %S, 'x': %S}, 'impact_point': {'x': %S, 'y': %S, 'x': %S}}>",
 		PyFloat_FromDouble(self->hit.Location.X), PyFloat_FromDouble(self->hit.Location.Y), PyFloat_FromDouble(self->hit.Location.Z),
 		PyFloat_FromDouble(self->hit.ImpactPoint.X), PyFloat_FromDouble(self->hit.ImpactPoint.Y), PyFloat_FromDouble(self->hit.ImpactPoint.Z));
 }
