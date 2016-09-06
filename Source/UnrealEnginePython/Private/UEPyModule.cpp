@@ -539,10 +539,10 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p"), ue_py_object, ue_obj);
 #endif
 		//Py_INCREF(ue_py_object->py_object);
-		}
+	}
 
 	return ue_py_object->py_object;
-	}
+}
 
 void unreal_engine_py_log_error() {
 	PyObject *type = NULL;
@@ -686,7 +686,8 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		return PyErr_Format(PyExc_Exception, "invalid UObject type");
+		Py_INCREF(Py_None);
+		return Py_None;
 	}
 
 	if (auto casted_prop = Cast<UClassProperty>(prop)) {
@@ -698,7 +699,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		return PyErr_Format(PyExc_Exception, "invalid UClass type");
+		return PyErr_Format(PyExc_Exception, "invalid UClass type for %s", TCHAR_TO_UTF8(*casted_prop->GetName()));
 	}
 
 	// map a UStruct to a dictionary (if possible)
@@ -940,25 +941,39 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *u_obj, PyObject *py_class) {
 	Py_DECREF(attrs);
 }
 
+static void py_ue_destroy_params(UFunction *u_function, uint8 *buffer) {
+	// destroy params
+	TFieldIterator<UProperty> DArgs(u_function);
+	for (; DArgs && (DArgs->PropertyFlags & CPF_Parm); ++DArgs) {
+		UProperty *prop = *DArgs;
+		prop->DestroyValue_InContainer(buffer);
+	}
+}
+
 PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn) {
 
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
+
+	// initialize args
+	TFieldIterator<UProperty> IArgs(u_function);
+	for (; IArgs && (IArgs->PropertyFlags & CPF_Parm); ++IArgs) {
+		UProperty *prop = *IArgs;
+		prop->InitializeValue_InContainer(buffer);
+	}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 
 	TFieldIterator<UProperty> PArgs(u_function);
 	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
 		UProperty *prop = *PArgs;
-		if (argn >= tuple_len) {
-			// no more args, leave default values...
-			prop->InitializeValue_InContainer(buffer);
-		}
-		else {
+		if (argn < tuple_len) {
 			PyObject *py_arg = PyTuple_GetItem(args, argn);
 			if (!py_arg) {
+				py_ue_destroy_params(u_function, buffer);
 				return PyErr_Format(PyExc_TypeError, "unable to get pyobject for property %s", TCHAR_TO_UTF8(*prop->GetName()));
 			}
 			if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
+				py_ue_destroy_params(u_function, buffer);
 				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s", TCHAR_TO_UTF8(*prop->GetName()));
 			}
 		}
@@ -970,13 +985,22 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	u_obj->ProcessEvent(u_function, buffer);
 
+	PyObject *ret = nullptr;
+
 	TFieldIterator<UProperty> Props(u_function);
 	for (; Props; ++Props) {
 		UProperty *prop = *Props;
 		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
-			return ue_py_convert_property(prop, buffer);
+			ret = ue_py_convert_property(prop, buffer);
+			break;
 		}
 	}
+
+	// destroy params
+	py_ue_destroy_params(u_function, buffer);
+
+	if (ret)
+		return ret;
 
 	Py_INCREF(Py_None);
 	return Py_None;
