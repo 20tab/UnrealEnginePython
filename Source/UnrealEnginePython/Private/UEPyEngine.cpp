@@ -150,6 +150,24 @@ PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_enum", &name)) {
+		return NULL;
+	}
+
+	UEnum *u_enum = FindObject<UEnum>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
+
+	if (!u_enum)
+		return PyErr_Format(PyExc_Exception, "unable to find enum %s", name);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_enum);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 
 }
 
@@ -174,7 +192,29 @@ PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
 
+PyObject *py_unreal_engine_load_enum(PyObject * self, PyObject * args) {
+	char *name;
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "s|s:load_enum", &name, &filename)) {
+		return NULL;
+	}
+
+	TCHAR *t_filename = (TCHAR *)0;
+	if (filename)
+		t_filename = UTF8_TO_TCHAR(filename);
+
+	UObject *u_enum = StaticLoadObject(UEnum::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
+
+	if (!u_enum)
+		return PyErr_Format(PyExc_Exception, "unable to find enum %s", name);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_enum);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 }
 
 PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {

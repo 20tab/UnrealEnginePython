@@ -57,9 +57,11 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ "find_struct", py_unreal_engine_find_struct, METH_VARARGS, "" },
+	{ "find_enum", py_unreal_engine_find_enum, METH_VARARGS, "" },
 
 	{ "load_class", py_unreal_engine_load_class, METH_VARARGS, "" },
 	{ "load_struct", py_unreal_engine_load_struct, METH_VARARGS, "" },
+	{ "load_enum", py_unreal_engine_load_enum, METH_VARARGS, "" },
 
 	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
 	{ "load_object", py_unreal_engine_load_object, METH_VARARGS, "" },
