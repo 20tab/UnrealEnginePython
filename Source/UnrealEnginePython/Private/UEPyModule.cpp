@@ -336,7 +336,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 				function = self->ue_object->FindFunction(FName(*k2_name));
 			}
 
-			// last hope, is it a static class ?
+			// is it a static class ?
 			if (!function) {
 				if (self->ue_object->IsA<UClass>()) {
 					UClass *u_class = (UClass *)self->ue_object;
@@ -346,6 +346,16 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 					}
 				}
 			}
+
+			// last hope, is it an enum ?
+			if (!function) {
+				if (self->ue_object->IsA<UEnum>()) {
+					UEnum *u_enum = (UEnum *)self->ue_object;
+					PyErr_Clear();
+					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
+				}
+			}
+
 			if (function) {
 				// swallow previous exception
 				PyErr_Clear();
