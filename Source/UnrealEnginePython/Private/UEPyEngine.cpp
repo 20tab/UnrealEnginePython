@@ -68,8 +68,10 @@ PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject
 		return NULL;
 	}
 
-	if (!GEngine)
-		goto end;
+	if (!GEngine) {
+		Py_INCREF(Py_None);
+        	return Py_None;
+	}
 
 	PyObject *stringified = PyObject_Str(py_message);
 	if (!stringified)
@@ -80,9 +82,8 @@ PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject
 
 	Py_DECREF(stringified);
 
-end:
 	Py_INCREF(Py_None);
-	return Py_None;
+        return Py_None;
 }
 
 PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
@@ -92,8 +93,10 @@ PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
 		return NULL;
 	}
 
-	if (!GEngine)
-		goto end;
+	if (!GEngine) {
+		Py_INCREF(Py_None);
+                return Py_None;
+	}
 
 	PyObject *stringified = PyObject_Str(py_message);
 	if (!stringified)
@@ -104,7 +107,6 @@ PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
 
 	Py_DECREF(stringified);
 
-end:
 	Py_INCREF(Py_None);
 	return Py_None;
 }

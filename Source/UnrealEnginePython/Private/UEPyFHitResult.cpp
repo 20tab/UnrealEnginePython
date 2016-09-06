@@ -55,14 +55,14 @@ static PyObject *py_ue_fhitresult_get_actor(ue_PyFHitResult *self, void *closure
 
 
 static PyGetSetDef ue_PyFHitResult_getseters[] = {
-	{ "location", (getter)py_ue_fhitresult_get_location, NULL, "", NULL },
-	{ "normal", (getter)py_ue_fhitresult_get_normal, NULL, "", NULL },
-	{ "actor", (getter)py_ue_fhitresult_get_actor, NULL, "", NULL },
-	{ "distance", (getter)py_ue_fhitresult_get_distance, NULL, "", NULL },
-	{ "impact_point", (getter)py_ue_fhitresult_get_impact_point, NULL, "", NULL },
-	{ "impact_normal", (getter)py_ue_fhitresult_get_impact_normal, NULL, "", NULL },
-	{ "time", (getter)py_ue_fhitresult_get_time, NULL, "", NULL },
-	{ "bone_name", (getter)py_ue_fhitresult_get_bone_name, NULL, "", NULL },
+	{(char *)"location", (getter)py_ue_fhitresult_get_location, NULL, (char *)"", NULL },
+	{(char *)"normal", (getter)py_ue_fhitresult_get_normal, NULL, (char *)"", NULL },
+	{(char *)"actor", (getter)py_ue_fhitresult_get_actor, NULL, (char *)"", NULL },
+	{(char *)"distance", (getter)py_ue_fhitresult_get_distance, NULL, (char *)"", NULL },
+	{(char *)"impact_point", (getter)py_ue_fhitresult_get_impact_point, NULL, (char *)"", NULL },
+	{(char *)"impact_normal", (getter)py_ue_fhitresult_get_impact_normal, NULL, (char *)"", NULL },
+	{(char *)"time", (getter)py_ue_fhitresult_get_time, NULL, (char *)"", NULL },
+	{(char *)"bone_name", (getter)py_ue_fhitresult_get_bone_name, NULL, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 

@@ -88,9 +88,9 @@ static int py_ue_fvector_set_z(ue_PyFVector *self, PyObject *value, void *closur
 
 
 static PyGetSetDef ue_PyFVector_getseters[] = {
-	{ "x", (getter)py_ue_fvector_get_x, (setter)py_ue_fvector_set_x, "", NULL },
-	{ "y", (getter)py_ue_fvector_get_y, (setter)py_ue_fvector_set_y, "", NULL },
-	{ "z", (getter)py_ue_fvector_get_z, (setter)py_ue_fvector_set_z, "", NULL },
+	{(char *) "x", (getter)py_ue_fvector_get_x, (setter)py_ue_fvector_set_x, (char *)"", NULL },
+	{(char *) "y", (getter)py_ue_fvector_get_y, (setter)py_ue_fvector_set_y, (char *)"", NULL },
+	{(char *) "z", (getter)py_ue_fvector_get_z, (setter)py_ue_fvector_set_z, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 

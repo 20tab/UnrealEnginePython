@@ -76,9 +76,9 @@ static int py_ue_frotator_set_roll(ue_PyFRotator *self, PyObject *value, void *c
 
 
 static PyGetSetDef ue_PyFRotator_getseters[] = {
-	{ "pitch", (getter)py_ue_frotator_get_pitch, (setter)py_ue_frotator_set_pitch, "", NULL },
-	{ "yaw", (getter)py_ue_frotator_get_yaw, (setter)py_ue_frotator_set_yaw, "", NULL },
-	{ "roll", (getter)py_ue_frotator_get_roll, (setter)py_ue_frotator_set_roll, "", NULL },
+	{ (char*)"pitch", (getter)py_ue_frotator_get_pitch, (setter)py_ue_frotator_set_pitch, (char *)"", NULL },
+	{ (char *)"yaw", (getter)py_ue_frotator_get_yaw, (setter)py_ue_frotator_set_yaw, (char *)"", NULL },
+	{ (char *)"roll", (getter)py_ue_frotator_get_roll, (setter)py_ue_frotator_set_roll, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 

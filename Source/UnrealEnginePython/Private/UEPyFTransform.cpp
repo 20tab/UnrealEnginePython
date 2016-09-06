@@ -21,9 +21,9 @@ static PyObject *py_ue_ftransform_get_rotation(ue_PyFTransform *self, void *clos
 
 
 static PyGetSetDef ue_PyFTransform_getseters[] = {
-	{ "translation", (getter)py_ue_ftransform_get_translation, NULL, "", NULL },
-	{ "scale", (getter)py_ue_ftransform_get_scale, NULL, "", NULL },
-	{ "rotation", (getter)py_ue_ftransform_get_rotation, NULL, "", NULL },
+	{(char *) "translation", (getter)py_ue_ftransform_get_translation, NULL, (char *)"", NULL },
+	{(char *) "scale", (getter)py_ue_ftransform_get_scale, NULL, (char *)"", NULL },
+	{(char *) "rotation", (getter)py_ue_ftransform_get_rotation, NULL, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 
