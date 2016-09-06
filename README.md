@@ -384,6 +384,26 @@ vec = self.uobject.GetActorLocation()
 
 Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
+The automagic UClass mapper
+---------------------------
+
+Instead of doing a gazilion of unreal_engine.find_class(name) calls, the plugin adds a 'magic' module called unreal_engine.classes. It allows to import unreal classes like python classes:
+
+```py
+from unreal_engine.classes import ActorComponent, ForceFeedbackEffect, KismetSystemLibrary
+
+...
+components = self.uobject.get_owner().GetComponentsByClass(ActorComponent)
+
+...
+self.force_feedback = ue.load_object(ForceFeedbackEffect, '/Game/vibrate')
+self.uobject.get_player_controller().ClientPlayForceFeedback(self.force_feedback)
+
+...
+name = KismetSystemLibrary.GetObjectName(self.actor)
+```
+
+the last example, shows another magic feature: static classes function calls. Obviously in this specific case using self.actor.get_name() would have been the best approach, but this feature allows you to access your blueprint function libraries too.
 
 PyPawn
 ------
