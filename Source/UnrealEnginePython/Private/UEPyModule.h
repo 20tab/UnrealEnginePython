@@ -46,4 +46,4 @@ ue_PyUObject *ue_is_pyuobject(PyObject *);
 void ue_autobind_events_for_pyclass(ue_PyUObject *, PyObject *);
 PyObject *ue_bind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
 
-PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int);
+PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject *);

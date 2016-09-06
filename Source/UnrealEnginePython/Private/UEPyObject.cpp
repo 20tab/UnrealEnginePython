@@ -44,7 +44,7 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kwargs) {
 
 	ue_py_check(self);
 
@@ -63,7 +63,7 @@ PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args) {
 	if (!function)
 		return PyErr_Format(PyExc_Exception, "unable to find function");
 
-	return py_ue_ufunction_call(function, self->ue_object, args, 1);
+	return py_ue_ufunction_call(function, self->ue_object, args, 1, kwargs);
 
 }
 
@@ -139,6 +139,22 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 
+}
+
+PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+	if (!self->ue_object->IsA<UEnum>())
+		return PyErr_Format(PyExc_TypeError, "uobject is not a UEnum");
+
+	UEnum *u_enum = (UEnum *)self->ue_object;
+	uint8 max_enum_value = u_enum->GetMaxEnumValue();
+	PyObject *ret = PyList_New(0);
+	for (uint8 i = 0; i < max_enum_value; i++) {
+		PyObject *py_long = PyUnicode_FromString(TCHAR_TO_UTF8(*u_enum->GetEnumName(i)));
+		PyList_Append(ret, py_long);
+		Py_DECREF(py_long);
+	}
+	return ret;
 }
 
 PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {

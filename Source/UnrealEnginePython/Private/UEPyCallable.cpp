@@ -18,7 +18,7 @@ static PyObject* ue_pycallable_call(ue_PyCallable *self, PyObject *args, PyObjec
 		return PyErr_Format(PyExc_Exception, "UFunction/UObject is in invalid state for python callable");
 	}
 	
-	return py_ue_ufunction_call(self->u_function, self->u_target, args, 0);
+	return py_ue_ufunction_call(self->u_function, self->u_target, args, 0, kw);
 }
 
 static PyTypeObject ue_PyCallableType = {

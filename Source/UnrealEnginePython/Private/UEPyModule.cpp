@@ -165,7 +165,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "remove_from_root", (PyCFunction)py_ue_remove_from_root, METH_VARARGS, "" },
 
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
-	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS, "" },
+
+#pragma warning(suppress: 4191)
+	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS | METH_KEYWORDS, "" },
 
 
 	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
@@ -293,9 +295,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "as_dict", (PyCFunction)py_ue_as_dict, METH_VARARGS, "" },
 
 	{ "get_cdo", (PyCFunction)py_ue_get_cdo, METH_VARARGS, "" },
+	{ "enum_values", (PyCFunction)py_ue_enum_values, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
-
 
 // destructor
 static void ue_pyobject_dealloc(ue_PyUObject *self) {
@@ -993,7 +995,7 @@ static void py_ue_destroy_params(UFunction *u_function, uint8 *buffer) {
 	}
 }
 
-PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn) {
+PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn, PyObject *kwargs) {
 
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 
@@ -1018,6 +1020,16 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 			if (!ue_py_convert_pyobject(py_arg, prop, buffer)) {
 				py_ue_destroy_params(u_function, buffer);
 				return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s (%s)", TCHAR_TO_UTF8(*prop->GetName()), TCHAR_TO_UTF8(*prop->GetClass()->GetName()));
+			}
+		}
+		else if (kwargs) {
+			char *prop_name = TCHAR_TO_UTF8(*prop->GetName());
+			PyObject *dict_value = PyDict_GetItemString(kwargs, prop_name);
+			if (dict_value) {
+				if (!ue_py_convert_pyobject(dict_value, prop, buffer)) {
+					py_ue_destroy_params(u_function, buffer);
+					return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s (%s)", TCHAR_TO_UTF8(*prop->GetName()), TCHAR_TO_UTF8(*prop->GetClass()->GetName()));
+				}
 			}
 		}
 		argn++;
