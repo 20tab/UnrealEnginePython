@@ -677,8 +677,8 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*value.ToString()));
 	}
 
-	if (auto casted_prop = Cast<UObjectProperty>(prop)) {
-		auto value = casted_prop->GetPropertyValue_InContainer(buffer);
+	if (auto casted_prop = Cast<UObjectPropertyBase>(prop)) {
+		auto value = casted_prop->GetObjectPropertyValue_InContainer(buffer);
 		if (value) {
 			ue_PyUObject *ret = ue_get_python_wrapper(value);
 			if (!ret)
@@ -686,7 +686,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		goto end;
+		return PyErr_Format(PyExc_Exception, "invalid UObject type");
 	}
 
 	if (auto casted_prop = Cast<UClassProperty>(prop)) {
@@ -698,7 +698,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		goto end;
+		return PyErr_Format(PyExc_Exception, "invalid UClass type");
 	}
 
 	// map a UStruct to a dictionary (if possible)
@@ -727,7 +727,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		goto end;
+		return PyErr_Format(PyExc_TypeError, "unsupported UStruct type");
 	}
 
 	if (auto casted_prop = Cast<UWeakObjectProperty>(prop)) {
@@ -740,7 +740,9 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		goto end;
+		// nullptr
+		Py_INCREF(Py_None);
+		return Py_None;
 	}
 
 	if (auto casted_prop = Cast<UArrayProperty>(prop)) {
@@ -777,10 +779,6 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 	}
 
 	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
-
-end:
-	Py_INCREF(Py_None);
-	return Py_None;
 }
 
 // convert a python object to a property
@@ -887,10 +885,10 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		}
 
 		if (ue_obj->ue_object->IsA<UObject>()) {
-			auto casted_prop = Cast<UObjectProperty>(prop);
+			auto casted_prop = Cast<UObjectPropertyBase>(prop);
 			if (!casted_prop)
 				return false;
-			casted_prop->SetPropertyValue_InContainer(buffer, ue_obj->ue_object);
+			casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object);
 			return true;
 		}
 	}
