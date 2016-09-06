@@ -27,6 +27,7 @@
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
+#include "UEPyENumsImporter.h"
 
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
