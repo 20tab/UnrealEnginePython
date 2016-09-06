@@ -384,8 +384,8 @@ vec = self.uobject.GetActorLocation()
 
 Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
-The automagic UClass mapper
----------------------------
+The automagic UClass and UEnums mappers
+---------------------------------------
 
 Instead of doing a gazilion of unreal_engine.find_class(name) calls, the plugin adds a 'magic' module called unreal_engine.classes. It allows to import unreal classes like python classes:
 
@@ -404,6 +404,32 @@ name = KismetSystemLibrary.GetObjectName(self.actor)
 ```
 
 the last example, shows another magic feature: static classes function calls. Obviously in this specific case using self.actor.get_name() would have been the best approach, but this feature allows you to access your blueprint function libraries too.
+
+Another example for adding a widget:
+
+```py
+from unreal_engine.classes import WidgetBlueprintLibrary
+
+class PythonFunnyActor:
+    def begin_play(self):
+        WidgetBlueprintLibrary.Create(self.uobject, ue.find_class('velocity_C'))
+```
+
+And another complex example using enums, keyword arguments and output values (output values are appended after the return value):
+
+```py
+
+import unreal_engine as ue
+from unreal_engine import FVector, FRotator, FTransform, FHitResult
+from unreal_engine.classes import ActorComponent, ForceFeedbackEffect, KismetSystemLibrary, WidgetBlueprintLibrary
+from unreal_engine.enums import EInputEvent, ETraceTypeQuery, EDrawDebugTrace
+
+...
+
+is_hitting_something, hit_result = KismetSystemLibrary.LineTraceSingle_NEW(self.actor, self.actor.get_actor_location(), FVector(300, 300, 300), ETraceTypeQuery.TraceTypeQuery1, DrawDebugType=EDrawDebugTrace.ForOneFrame)
+if is_hitting_something:
+    ue.log(hit_result)
+```
 
 PyPawn
 ------
