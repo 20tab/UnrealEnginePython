@@ -443,6 +443,16 @@ void unreal_engine_init_py_module() {
 
 	ue_python_init_callable(new_unreal_engine_module);
 
+	ue_python_init_uclassesimporter(new_unreal_engine_module);
+
+	PyObject *py_sys = PyImport_ImportModule("sys");
+	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
+
+	PyObject *py_sys_modules = PyDict_GetItemString(py_sys_dict, "modules");
+	PyObject *u_classes_importer = py_ue_new_uclassesimporter();
+	Py_INCREF(u_classes_importer);
+	PyDict_SetItemString(py_sys_modules, "unreal_engine.classes", u_classes_importer);
+
 	// Collision channels
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_CAMERA", PyLong_FromLong(ECollisionChannel::ECC_Camera));
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_DESTRUCTIBLE", PyLong_FromLong(ECollisionChannel::ECC_Destructible));
