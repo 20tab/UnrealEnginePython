@@ -17,6 +17,7 @@ static PyObject* ue_pycallable_call(ue_PyCallable *self, PyObject *args, PyObjec
 		self->u_target->IsPendingKillOrUnreachable()) {
 		return PyErr_Format(PyExc_Exception, "UFunction/UObject is in invalid state for python callable");
 	}
+	
 	return py_ue_ufunction_call(self->u_function, self->u_target, args, 0);
 }
 

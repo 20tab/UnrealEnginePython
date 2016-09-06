@@ -510,8 +510,9 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args) {
 
 	for (AActor *overlapping_actor : overalpping_actors) {
 		ue_PyUObject *item = ue_get_python_wrapper(overlapping_actor);
-		if (item)
+		if (item) {
 			PyList_Append(py_overlapping_actors, (PyObject *)item);
+		}
 	}
 	return py_overlapping_actors;
 }

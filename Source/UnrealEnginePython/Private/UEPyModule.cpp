@@ -735,6 +735,39 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		goto end;
 	}
 
+	if (auto casted_prop = Cast<UArrayProperty>(prop)) {
+		FScriptArrayHelper_InContainer array_helper(casted_prop, buffer);
+		PyObject *py_list = PyList_New(0);
+		UProperty *array_prop = casted_prop->Inner;
+		if (array_prop->IsA<UStructProperty>()) {
+			uint8 *array_buffer = (uint8 *)FMemory_Alloca(array_prop->GetSize());
+			for (int i = 0; i < array_helper.Num(); i++) {
+				array_prop->InitializeValue(array_buffer);
+				array_prop->CopyCompleteValueFromScriptVM(array_buffer, array_helper.GetRawPtr(i));
+				PyObject *item = ue_py_convert_property(array_prop, array_buffer);
+				array_prop->DestroyValue(array_buffer);
+				if (!item) {
+					Py_DECREF(py_list);
+					return NULL;
+				}
+				PyList_Append(py_list, item);
+				Py_DECREF(item);
+			}
+		}
+		else {
+			for (int i = 0; i < array_helper.Num(); i++) {
+				PyObject *item = ue_py_convert_property(array_prop, array_helper.GetRawPtr(i));
+				if (!item) {
+					Py_DECREF(py_list);
+					return NULL;
+				}
+				PyList_Append(py_list, item);
+				Py_DECREF(item);
+			}
+		}
+		return py_list;
+	}
+
 	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
 
 end:
@@ -758,20 +791,20 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return true;
 	}
 
-	if (PyLong_Check(py_obj)) {
-		auto casted_prop = Cast<UIntProperty>(prop);
-		if (!casted_prop)
-			return false;
-		casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_obj));
-		return true;
-	}
-
-	if (PyFloat_Check(py_obj)) {
-		auto casted_prop = Cast<UFloatProperty>(prop);
-		if (!casted_prop)
-			return false;
-		casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_obj));
-		return true;
+	if (PyNumber_Check(py_obj)) {
+		if (auto casted_prop = Cast<UIntProperty>(prop)) {
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
+		if (auto casted_prop = Cast<UFloatProperty>(prop)) {
+			PyObject *py_float = PyNumber_Float(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_float));
+			Py_DECREF(py_float);
+			return true;
+		}
+		return false;
 	}
 
 	if (PyUnicode_Check(py_obj)) {
@@ -902,6 +935,7 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *u_obj, PyObject *py_class) {
 }
 
 PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn) {
+
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
