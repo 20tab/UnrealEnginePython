@@ -1008,6 +1008,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 
+	int has_out_params = 0;
+
 	TFieldIterator<UProperty> PArgs(u_function);
 	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
 		UProperty *prop = *PArgs;
@@ -1032,6 +1034,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 				}
 			}
 		}
+		if ((PArgs->PropertyFlags & (CPF_ConstParm | CPF_OutParm)) == CPF_OutParm) {
+			has_out_params++;
+		}
 		argn++;
 	}
 
@@ -1042,13 +1047,48 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	PyObject *ret = nullptr;
 
+	int has_ret_param = 0;
 	TFieldIterator<UProperty> Props(u_function);
 	for (; Props; ++Props) {
 		UProperty *prop = *Props;
 		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
 			ret = ue_py_convert_property(prop, buffer);
+			if (!ret) {
+				// destroy params
+				py_ue_destroy_params(u_function, buffer);
+				return NULL;
+			}
+			has_ret_param = 1;
 			break;
 		}
+	}
+
+	if (has_out_params > 0) {
+		PyObject *multi_ret = PyTuple_New(has_out_params + has_ret_param);
+		if (ret) {
+			PyTuple_SetItem(multi_ret, 0, ret);
+		}
+		TFieldIterator<UProperty> OProps(u_function);
+		for (; OProps; ++OProps) {
+			UProperty *prop = *OProps;
+			if ((prop->GetPropertyFlags() & (CPF_ConstParm|CPF_OutParm)) == CPF_OutParm) {
+				// skip return param as it must be always the first
+				if (prop->GetPropertyFlags() & CPF_ReturnParm)
+					continue;
+				PyObject *py_out = ue_py_convert_property(prop, buffer);
+				if (!py_out) {
+					Py_DECREF(multi_ret);
+					// destroy params
+					py_ue_destroy_params(u_function, buffer);
+					return NULL;
+				}
+				PyTuple_SetItem(multi_ret, has_ret_param, py_out);
+				has_ret_param++;
+			}
+		}
+		// destroy params
+		py_ue_destroy_params(u_function, buffer);
+		return multi_ret;
 	}
 
 	// destroy params
