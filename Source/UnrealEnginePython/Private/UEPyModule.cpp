@@ -463,6 +463,7 @@ void unreal_engine_init_py_module() {
 	ue_python_init_frotator(new_unreal_engine_module);
 	ue_python_init_ftransform(new_unreal_engine_module);
 	ue_python_init_fhitresult(new_unreal_engine_module);
+	ue_python_init_fcolor(new_unreal_engine_module);
 
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
 
@@ -761,6 +762,10 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				FHitResult hit = *casted_prop->ContainerPtrToValuePtr<FHitResult>(buffer);
 				return py_ue_new_fhitresult(hit);
 			}
+			if (casted_struct == TBaseStructure<FColor>::Get()) {
+				FColor color = *casted_prop->ContainerPtrToValuePtr<FColor>(buffer);
+				return py_ue_new_fcolor(color);
+			}
 			ue_PyUObject *ret = ue_get_python_wrapper(casted_struct);
 			if (!ret)
 				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -904,6 +909,16 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get()) {
 				*casted_prop->ContainerPtrToValuePtr<FTransform>(buffer) = py_transform->transform;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (ue_PyFColor *py_color = py_ue_is_fcolor(py_obj)) {
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == TBaseStructure<FColor>::Get()) {
+				*casted_prop->ContainerPtrToValuePtr<FColor>(buffer) = py_color->color;
 				return true;
 			}
 		}

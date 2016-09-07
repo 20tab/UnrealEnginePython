@@ -1,0 +1,18 @@
+#pragma once
+
+
+
+#include "UnrealEnginePython.h"
+
+typedef struct {
+	PyObject_HEAD
+	/* Type-specific fields go here. */
+	FColor color;
+} ue_PyFColor;
+
+PyObject *py_ue_new_fcolor(FColor);
+ue_PyFColor *py_ue_is_fcolor(PyObject *);
+
+void ue_python_init_fcolor(PyObject *);
+
+bool py_ue_color_arg(PyObject *, FColor &);
