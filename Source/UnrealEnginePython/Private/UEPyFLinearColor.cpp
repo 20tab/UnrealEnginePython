@@ -187,6 +187,13 @@ static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyOb
 	return 0;
 }
 
+static void flinearcolor_add_color(char *color_name, FLinearColor lcolor) {
+	PyObject *color = py_ue_new_flinearcolor(lcolor);
+	// not required
+	Py_INCREF(color);
+	PyDict_SetItemString(ue_PyFLinearColorType.tp_dict, color_name, color);
+}
+
 void ue_python_init_flinearcolor(PyObject *ue_module) {
 	ue_PyFLinearColorType.tp_new = PyType_GenericNew;
 
@@ -206,6 +213,14 @@ void ue_python_init_flinearcolor(PyObject *ue_module) {
 
 	Py_INCREF(&ue_PyFLinearColorType);
 	PyModule_AddObject(ue_module, "FLinearColor", (PyObject *)&ue_PyFLinearColorType);
+
+	flinearcolor_add_color("Black", FLinearColor::Black);
+	flinearcolor_add_color("Blue", FLinearColor::Blue);
+	flinearcolor_add_color("Gray", FLinearColor::Gray);
+	flinearcolor_add_color("Green", FLinearColor::Green);
+	flinearcolor_add_color("Red", FLinearColor::Red);
+	flinearcolor_add_color("White", FLinearColor::White);
+	flinearcolor_add_color("Yellow", FLinearColor::Yellow);
 }
 
 PyObject *py_ue_new_flinearcolor(FLinearColor color) {

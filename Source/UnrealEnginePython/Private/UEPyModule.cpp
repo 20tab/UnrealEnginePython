@@ -497,22 +497,6 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_KEEP_WORLD", PyLong_FromLong((int)EAttachmentRule::KeepWorld));
 	PyDict_SetItemString(unreal_engine_dict, "ATTACHMENT_RULE_SNAP_TO_TARGET", PyLong_FromLong((int)EAttachmentRule::SnapToTarget));
 
-
-	// Colors
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_BLACK", Py_BuildValue("iii", FColor::Black.R, FColor::Black.G, FColor::Black.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_BLUE", Py_BuildValue("iii", FColor::Blue.R, FColor::Blue.G, FColor::Blue.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_CYAN", Py_BuildValue("iii", FColor::Cyan.R, FColor::Cyan.G, FColor::Cyan.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_EMERALD", Py_BuildValue("iii", FColor::Emerald.R, FColor::Emerald.G, FColor::Emerald.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_GREEN", Py_BuildValue("iii", FColor::Green.R, FColor::Green.G, FColor::Green.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_MAGENTA", Py_BuildValue("iii", FColor::Magenta.R, FColor::Magenta.G, FColor::Magenta.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_ORANGE", Py_BuildValue("iii", FColor::Orange.R, FColor::Orange.G, FColor::Orange.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_PURPLE", Py_BuildValue("iii", FColor::Purple.R, FColor::Purple.G, FColor::Purple.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_RED", Py_BuildValue("iii", FColor::Red.R, FColor::Red.G, FColor::Red.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_SILVER", Py_BuildValue("iii", FColor::Silver.R, FColor::Silver.G, FColor::Silver.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_TURQUOISE", Py_BuildValue("iii", FColor::Turquoise.R, FColor::Turquoise.G, FColor::Turquoise.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_WHITE", Py_BuildValue("iii", FColor::White.R, FColor::White.G, FColor::White.B));
-	PyDict_SetItemString(unreal_engine_dict, "COLOR_YELLOW", Py_BuildValue("iii", FColor::Yellow.R, FColor::Yellow.G, FColor::Yellow.B));
-
 	// Input
 	PyDict_SetItemString(unreal_engine_dict, "IE_AXIS", PyLong_FromLong(EInputEvent::IE_Axis));
 	PyDict_SetItemString(unreal_engine_dict, "IE_DOUBLE_CLICK", PyLong_FromLong(EInputEvent::IE_DoubleClick));
