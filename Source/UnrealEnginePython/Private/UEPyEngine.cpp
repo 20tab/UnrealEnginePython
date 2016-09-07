@@ -300,28 +300,6 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
 }
 
 
-PyObject *py_unreal_engine_color_to_linear(PyObject * self, PyObject * args) {
-	uint8 r, g, b;
-	uint8 a = 255;
-	if (!PyArg_ParseTuple(args, "iii|i:color_to_linear", &r, &g, &b, &a)) {
-		return NULL;
-	}
-
-	FLinearColor lcolor = FColor(r, g, b, a).ReinterpretAsLinear();
-	return Py_BuildValue("fff", lcolor.R, lcolor.G, lcolor.B);
-}
-
-PyObject *py_unreal_engine_color_from_linear(PyObject * self, PyObject * args) {
-	float r, g, b;
-	float a = 1;
-	if (!PyArg_ParseTuple(args, "fff|f:color_from_linear", &r, &g, &b, &a)) {
-		return NULL;
-	}
-
-	FColor color = FLinearColor(r, g, b, a).ToFColor(true);
-	return Py_BuildValue("iii", color.R, color.G, color.B);
-}
-
 PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:find_object", &name)) {

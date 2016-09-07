@@ -25,6 +25,7 @@
 #include "UEPyFRotator.h"
 #include "UEPyFTransform.h"
 #include "UEPyFColor.h"
+#include "UEPyFLinearColor.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"

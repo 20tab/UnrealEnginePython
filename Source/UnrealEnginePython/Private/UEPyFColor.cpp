@@ -4,8 +4,13 @@ static PyObject *py_ue_fcolor_to_hex(ue_PyFColor *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->color.ToString()));
 }
 
+static PyObject *py_ue_fcolor_to_linear(ue_PyFColor *self, PyObject * args) {
+	return py_ue_new_flinearcolor(self->color.ReinterpretAsLinear());
+}
+
 static PyMethodDef ue_PyFColor_methods[] = {
 	{ "to_hex", (PyCFunction)py_ue_fcolor_to_hex, METH_VARARGS, "" },
+	{ "to_linear", (PyCFunction)py_ue_fcolor_to_linear, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

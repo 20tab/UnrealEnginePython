@@ -23,9 +23,6 @@ PyObject *py_unreal_engine_load_class(PyObject *, PyObject *);
 PyObject *py_unreal_engine_load_struct(PyObject *, PyObject *);
 PyObject *py_unreal_engine_load_enum(PyObject *, PyObject *);
 
-PyObject *py_unreal_engine_color_to_linear(PyObject *, PyObject *);
-PyObject *py_unreal_engine_color_from_linear(PyObject *, PyObject *);
-
 PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 
 

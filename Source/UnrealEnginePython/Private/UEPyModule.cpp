@@ -70,8 +70,6 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
 
-	{ "color_to_linear", py_unreal_engine_color_to_linear, METH_VARARGS, "" },
-	{ "color_from_linear", py_unreal_engine_color_from_linear, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
@@ -464,6 +462,7 @@ void unreal_engine_init_py_module() {
 	ue_python_init_ftransform(new_unreal_engine_module);
 	ue_python_init_fhitresult(new_unreal_engine_module);
 	ue_python_init_fcolor(new_unreal_engine_module);
+	ue_python_init_flinearcolor(new_unreal_engine_module);
 
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
 
@@ -766,6 +765,10 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				FColor color = *casted_prop->ContainerPtrToValuePtr<FColor>(buffer);
 				return py_ue_new_fcolor(color);
 			}
+			if (casted_struct == TBaseStructure<FLinearColor>::Get()) {
+				FLinearColor color = *casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer);
+				return py_ue_new_flinearcolor(color);
+			}
 			ue_PyUObject *ret = ue_get_python_wrapper(casted_struct);
 			if (!ret)
 				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -919,6 +922,16 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == TBaseStructure<FColor>::Get()) {
 				*casted_prop->ContainerPtrToValuePtr<FColor>(buffer) = py_color->color;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(py_obj)) {
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == TBaseStructure<FLinearColor>::Get()) {
+				*casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer) = py_color->color;
 				return true;
 			}
 		}
