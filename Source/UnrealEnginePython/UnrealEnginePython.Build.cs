@@ -56,7 +56,6 @@ public class UnrealEnginePython : ModuleRules
                 "SlateCore",
                 "MovieScene",
                 "LevelSequence",
-                "UnrealEd"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
@@ -72,7 +71,9 @@ public class UnrealEnginePython : ModuleRules
 
         if (UEBuildConfiguration.bBuildEditor)
         {
-            PrivateDependencyModuleNames.AddRange(new string[]{});
+            PrivateDependencyModuleNames.AddRange(new string[]{
+                "UnrealEd"
+            });
         }
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
