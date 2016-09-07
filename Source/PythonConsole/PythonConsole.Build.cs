@@ -18,7 +18,14 @@ public class PythonConsole : ModuleRules
 
     public PythonConsole(TargetInfo Target)
 	{
-		PrivateDependencyModuleNames.AddRange(
+        PrivateIncludePaths.AddRange(
+            new string[] {
+                "PythonConsole/Private",
+				// ... add other private include paths required here ...
+			}
+        );
+
+        PrivateDependencyModuleNames.AddRange(
 			new string[] {
 				"Core",
 				"CoreUObject", // @todo Mac: for some reason it's needed to link in debug on Mac

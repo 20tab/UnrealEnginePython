@@ -1,6 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #if WITH_EDITOR
+
+#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Editor/UnrealEd/Classes/Factories/Factory.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#if WITH_EDITOR
-
 #include "UnrealEd.h"
 
 #include "PyFbxFactory.generated.h"
@@ -19,4 +17,3 @@ class UPyFbxFactory : public UFbxFactory
 
 };
 
-#endif

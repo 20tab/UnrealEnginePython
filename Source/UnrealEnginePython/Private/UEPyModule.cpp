@@ -82,6 +82,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_selected_assets", py_unreal_engine_get_selected_assets, METH_VARARGS, "" },
 	{ "get_assets_by_class", py_unreal_engine_get_assets_by_class, METH_VARARGS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
+	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
+	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
@@ -89,9 +91,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
-	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 
-	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
@@ -285,7 +285,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// Sequencer
 	{ "sequencer_tracks", (PyCFunction)py_ue_sequencer_tracks, METH_VARARGS, "" },
+#if WITH_EDITOR
 	{ "sequencer_folders", (PyCFunction)py_ue_sequencer_folders, METH_VARARGS, "" },
+#endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
@@ -1015,12 +1017,20 @@ static void py_ue_destroy_params(UFunction *u_function, uint8 *buffer) {
 PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn, PyObject *kwargs) {
 
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
+	FMemory::Memzero(buffer, u_function->ParmsSize);
 
 	// initialize args
 	TFieldIterator<UProperty> IArgs(u_function);
 	for (; IArgs && (IArgs->PropertyFlags & CPF_Parm); ++IArgs) {
 		UProperty *prop = *IArgs;
 		prop->InitializeValue_InContainer(buffer);
+#if WITH_EDITOR
+		FString default_key = FString("CPP_Default_") + prop->GetName();
+		FString default_key_value = u_function->GetMetaData(FName(*default_key));
+		if (!default_key_value.IsEmpty()) {
+			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
+		}
+#endif
 	}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);

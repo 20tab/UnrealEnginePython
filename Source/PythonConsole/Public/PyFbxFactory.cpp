@@ -1,6 +1,5 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "PythonConsolePrivatePCH.h"
 
-#if WITH_EDITOR
 #include "PyFbxFactory.h"
 
 UPyFbxFactory::UPyFbxFactory(const FObjectInitializer& ObjectInitializer)
@@ -16,5 +15,3 @@ bool UPyFbxFactory::ConfigureProperties() {
 
 	return true;
 }
-
-#endif

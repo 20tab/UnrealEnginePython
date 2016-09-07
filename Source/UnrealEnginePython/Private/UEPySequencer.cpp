@@ -36,6 +36,7 @@ PyObject *py_ue_sequencer_tracks(ue_PyUObject *self, PyObject * args) {
 	return py_tracks;
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_sequencer_folders(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -68,6 +69,7 @@ PyObject *py_ue_sequencer_folders(ue_PyUObject *self, PyObject * args) {
 
 	return py_folders;
 }
+#endif
 
 PyObject *py_ue_sequencer_sections(ue_PyUObject *self, PyObject * args) {
 
