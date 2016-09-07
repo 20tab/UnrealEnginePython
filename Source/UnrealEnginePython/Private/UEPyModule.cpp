@@ -343,6 +343,11 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 					UObject *cdo = u_class->GetDefaultObject();
 					if (cdo) {
 						function = cdo->FindFunction(FName(UTF8_TO_TCHAR(attr)));
+						// try _NEW ?
+						if (!function) {
+							FString name_new = UTF8_TO_TCHAR(attr) + FString("_NEW");
+							function = cdo->FindFunction(FName(*name_new));
+						}
 					}
 				}
 			}
