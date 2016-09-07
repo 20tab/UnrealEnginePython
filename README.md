@@ -965,8 +965,6 @@ Status and Known issues
 
 The project could be considered in beta state.
 
-The property system still lacks array support
-
 complete custom events integration
 
 .py files are not recognized by the editor. This should be fixed soon
