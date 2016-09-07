@@ -183,6 +183,13 @@ static int ue_py_fcolor_init(ue_PyFColor *self, PyObject *args, PyObject *kwargs
 	return 0;
 }
 
+static void fcolor_add_color(char *color_name, FColor fcolor) {
+	PyObject *color = py_ue_new_fcolor(fcolor);
+	// not required
+	Py_INCREF(color);
+	PyDict_SetItemString(ue_PyFColorType.tp_dict, color_name, color);
+}
+
 void ue_python_init_fcolor(PyObject *ue_module) {
 	ue_PyFColorType.tp_new = PyType_GenericNew;
 
@@ -202,6 +209,20 @@ void ue_python_init_fcolor(PyObject *ue_module) {
 
 	Py_INCREF(&ue_PyFColorType);
 	PyModule_AddObject(ue_module, "FColor", (PyObject *)&ue_PyFColorType);
+
+	fcolor_add_color("Black", FColor::Black);
+	fcolor_add_color("Blue", FColor::Blue);
+	fcolor_add_color("Cyan", FColor::Cyan);
+	fcolor_add_color("Emerald", FColor::Emerald);
+	fcolor_add_color("Green", FColor::Green);
+	fcolor_add_color("Magenta", FColor::Magenta);
+	fcolor_add_color("Orange", FColor::Orange);
+	fcolor_add_color("Purple", FColor::Purple);
+	fcolor_add_color("Red", FColor::Red);
+	fcolor_add_color("Silver", FColor::Silver);
+	fcolor_add_color("Turquoise", FColor::Turquoise);
+	fcolor_add_color("White", FColor::White);
+	fcolor_add_color("Yellow", FColor::Yellow);
 }
 
 PyObject *py_ue_new_fcolor(FColor color) {
