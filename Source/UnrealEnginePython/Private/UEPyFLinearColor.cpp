@@ -187,7 +187,7 @@ static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyOb
 	return 0;
 }
 
-static void flinearcolor_add_color(char *color_name, FLinearColor lcolor) {
+static void flinearcolor_add_color(const char *color_name, FLinearColor lcolor) {
 	PyObject *color = py_ue_new_flinearcolor(lcolor);
 	// not required
 	Py_INCREF(color);

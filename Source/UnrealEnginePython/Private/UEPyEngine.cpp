@@ -438,7 +438,6 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create class");
 
-
 	new_object->ClassConstructor = parent->ClassConstructor;
 	new_object->SetSuperStruct(parent);
 
@@ -446,7 +445,7 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	new_object->ClassWithin = parent->ClassWithin;
 	new_object->ClassConfigName = parent->ClassConfigName;
 
-	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit | CLASS_HideDropDown));
+	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit | CLASS_HideDropDown | CLASS_Hidden));
 	new_object->ClassCastFlags |= parent->ClassCastFlags;
 
 	new_object->Bind();

@@ -12,6 +12,7 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 
 void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 {
+	UE_LOG(LogPython, Warning, TEXT("CALLING PYTHON FUNCTION"));
 
 	UPythonFunction *function = static_cast<UPythonFunction *>(Stack.CurrentNativeFunction);
 
@@ -20,11 +21,22 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	if (!function->py_callable)
 		return;
 
-	PyObject *py_args = PyTuple_New(function->NumParms);
+	UE_LOG(LogPython, Warning, TEXT("READY TO RUN CALLABLE"));
 
+	if (function->GetSuperFunction()) {
+		UE_LOG(LogPython, Warning, TEXT("HAS SUPER FUNCTION"));
+	}
+
+	// count the number of arguments
 	Py_ssize_t argn = 0;
+	TFieldIterator<UProperty> IArgs(function);
+	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
+		argn++;
+	}
 
-	UProperty *return_property = nullptr;
+	PyObject *py_args = PyTuple_New(argn);// function->NumParms);
+
+	argn = 0;
 
 	TFieldIterator<UProperty> PArgs(function);
 	for (; PArgs && argn < function->NumParms && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
@@ -39,16 +51,6 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		argn++;
 	}
 
-	// get return value (if required)
-	TFieldIterator<UProperty> RArgs(function);
-	for (; RArgs; ++RArgs) {
-		UProperty *prop = *RArgs;
-		if (prop->GetPropertyFlags() & CPF_ReturnParm) {
-			return_property = prop;
-			break;
-		}
-	}
-
 	PyObject *ret = PyObject_CallObject(function->py_callable, py_args);
 	Py_DECREF(py_args);
 	if (!ret) {
@@ -56,8 +58,13 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		return;
 	}
 
-	if (return_property) {
+	// get return value (if required)
+	UProperty *return_property = ((UFunction *)Stack.Node)->GetReturnProperty();
+	if (return_property && function->ReturnValueOffset != MAX_uint16) {
+		UE_LOG(LogPython, Warning, TEXT("FOUND RETURN VALUE"));
 		ue_py_convert_pyobject(ret, return_property, (uint8 *)Stack.Locals);
+		// copy value to stack result value
+		FMemory::Memcpy(RESULT_PARAM, Stack.Locals + function->ReturnValueOffset, return_property->ArrayDim * return_property->ElementSize);
 	}
 	Py_DECREF(ret);
 }

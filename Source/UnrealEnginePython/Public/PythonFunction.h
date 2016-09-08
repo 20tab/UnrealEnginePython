@@ -11,6 +11,7 @@ class UPythonFunction : public UFunction
 public:
 	~UPythonFunction();
 	void SetPyCallable(PyObject *callable);
+
 	DECLARE_FUNCTION(CallPythonCallable);
 
 	PyObject *py_callable;

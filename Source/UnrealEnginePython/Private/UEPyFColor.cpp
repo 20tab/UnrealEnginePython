@@ -183,7 +183,7 @@ static int ue_py_fcolor_init(ue_PyFColor *self, PyObject *args, PyObject *kwargs
 	return 0;
 }
 
-static void fcolor_add_color(char *color_name, FColor fcolor) {
+static void fcolor_add_color(const char *color_name, FColor fcolor) {
 	PyObject *color = py_ue_new_fcolor(fcolor);
 	// not required
 	Py_INCREF(color);

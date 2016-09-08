@@ -340,6 +340,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 				if (prop) {
 					if (!strcmp(p_name, "return")) {
 						prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
+						function->FunctionFlags |= FUNC_HasOutParms;
 					}
 					else {
 						prop->SetPropertyFlags(CPF_Parm);
@@ -377,7 +378,10 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 		}
 	}
 
+	UE_LOG(LogPython, Warning, TEXT("REGISTERED A FUNCTION WITH %d PARAMS (size %d)"), function->NumParms, function->ParmsSize);
+
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
+	
 
 	function->Next = u_class->Children;
 	u_class->Children = function;
