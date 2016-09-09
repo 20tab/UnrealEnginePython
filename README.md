@@ -264,8 +264,8 @@ class Player:
         fwd = ue.get_forward_vector(0, 0, rot[2])
         right = ue.get_right_vector(0, 0, rot.yaw)
 
-        self.pawn.add_movement_input(*fwd, self.pawn.get_input_axis('MoveForward'))
-        self.pawn.add_movement_input(*right, self.pawn.get_input_axis('MoveRight'))
+        self.pawn.add_movement_input(fwd, self.pawn.get_input_axis('MoveForward'))
+        self.pawn.add_movement_input(right, self.pawn.get_input_axis('MoveRight'))
 
         # manage jump
         if self.pawn.is_action_pressed('Jump'):
@@ -311,12 +311,12 @@ class PlayerEvented:
     def move_forward(self, axis_value):
         rot = self.pawn.get_control_rotation()
         fwd = ue.get_forward_vector(0, 0, rot[2])
-        self.pawn.add_movement_input(*fwd, axis_value)
+        self.pawn.add_movement_input(fwd, axis_value)
 
     def move_right(self, axis_value):
         rot = self.pawn.get_control_rotation()
         right = ue.get_right_vector(0, 0, rot[2])
-        self.pawn.add_movement_input(*right, axis_value)
+        self.pawn.add_movement_input(right, axis_value)
 ```
 
 Native methods VS reflection
