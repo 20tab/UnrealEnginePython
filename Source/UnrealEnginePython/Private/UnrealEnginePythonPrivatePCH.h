@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 //#define UEPY_MEMORY_DEBUG	1
+//#define UEPY_THREADING 1
 
 #include "UnrealEnginePython.h"
 

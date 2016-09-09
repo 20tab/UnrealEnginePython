@@ -9,11 +9,15 @@ void unreal_engine_init_py_module();
 
 
 void FUnrealEnginePythonModule::PythonGILRelease() {
+#if UEPY_THREADING
 	ue_python_gil = PyEval_SaveThread();
+#endif
 }
 
 void FUnrealEnginePythonModule::PythonGILAcquire() {
+#if UEPY_THREADING
 	PyEval_RestoreThread((PyThreadState *)ue_python_gil);
+#endif
 }
 
 void FUnrealEnginePythonModule::StartupModule()

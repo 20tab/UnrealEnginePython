@@ -24,13 +24,17 @@ private:
 struct FScopePythonGIL {
 	FScopePythonGIL()
 	{
+#if UEPY_THREADING
 		UnrealEnginePythonModule = FModuleManager::LoadModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
 		UnrealEnginePythonModule.PythonGILAcquire();
+#endif
 	}
 
 	~FScopePythonGIL()
 	{
+#if UEPY_THREADING
 		UnrealEnginePythonModule.PythonGILRelease();
+#endif
 	}
 
 	FUnrealEnginePythonModule UnrealEnginePythonModule;
