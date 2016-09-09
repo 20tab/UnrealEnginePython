@@ -340,7 +340,6 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 				if (prop) {
 					if (!strcmp(p_name, "return")) {
 						prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
-						function->FunctionFlags |= FUNC_HasOutParms;
 					}
 					else {
 						prop->SetPropertyFlags(CPF_Parm);
