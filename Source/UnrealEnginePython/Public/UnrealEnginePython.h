@@ -7,18 +7,32 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogPython, Log, All);
 
 
-class FUnrealEnginePythonModule : public IModuleInterface
+class UNREALENGINEPYTHON_API FUnrealEnginePythonModule : public IModuleInterface
 {
 public:
 
 	void PythonGILAcquire();
 	void PythonGILRelease();
 
-	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
 private:
 	void *ue_python_gil;
+};
+
+struct FScopePythonGIL {
+	FScopePythonGIL()
+	{
+		UnrealEnginePythonModule = FModuleManager::LoadModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+		UnrealEnginePythonModule.PythonGILAcquire();
+	}
+
+	~FScopePythonGIL()
+	{
+		UnrealEnginePythonModule.PythonGILRelease();
+	}
+
+	FUnrealEnginePythonModule UnrealEnginePythonModule;
 };
 

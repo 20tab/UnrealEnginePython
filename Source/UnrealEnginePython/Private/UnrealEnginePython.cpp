@@ -49,11 +49,12 @@ void FUnrealEnginePythonModule::StartupModule()
 		UE_LOG(LogPython, Log, TEXT("ue_site Python module successfully imported"));
 	}
 	else {
+		// TODO gracefully manage the error
 		unreal_engine_py_log_error();
 	}
 
-	// TODO investigate python threads support
-	//PythonGILRelease();
+	// release the GIL
+	PythonGILRelease();
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()
@@ -62,6 +63,7 @@ void FUnrealEnginePythonModule::ShutdownModule()
 	// we call this function before unloading the module.
 
 	UE_LOG(LogPython, Log, TEXT("Goodbye Python"));
+	PythonGILAcquire();
 	Py_Finalize();
 }
 

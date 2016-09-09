@@ -9,6 +9,7 @@ APyPawn::APyPawn()
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
 
+	FScopePythonGIL gil;
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
 }
@@ -23,6 +24,8 @@ void APyPawn::BeginPlay()
 
 	if (PythonModule.IsEmpty())
 		return;
+
+	FScopePythonGIL gil;
 
 	PyObject *py_pawn_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
 	if (!py_pawn_module) {
@@ -95,6 +98,8 @@ void APyPawn::Tick(float DeltaTime)
 	if (!py_pawn_instance)
 		return;
 
+	FScopePythonGIL gil;
+
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "tick", "f", DeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -110,6 +115,8 @@ void APyPawn::CallPythonPawnMethod(FString method_name)
 	if (!py_pawn_instance)
 		return;
 
+	FScopePythonGIL gil;
+
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -122,6 +129,8 @@ bool APyPawn::CallPythonPawnMethodBool(FString method_name)
 {
 	if (!py_pawn_instance)
 		return false;
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	if (!ret) {
@@ -142,6 +151,8 @@ FString APyPawn::CallPythonPawnMethodString(FString method_name)
 {
 	if (!py_pawn_instance)
 		return FString();
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = PyObject_CallMethod(py_pawn_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	if (!ret) {
@@ -167,6 +178,7 @@ FString APyPawn::CallPythonPawnMethodString(FString method_name)
 
 APyPawn::~APyPawn()
 {
+	FScopePythonGIL gil;
 #if UEPY_MEMORY_DEBUG
 	if (py_pawn_instance && py_pawn_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python APawn wrapper refcnt = %d"), py_pawn_instance->ob_refcnt);

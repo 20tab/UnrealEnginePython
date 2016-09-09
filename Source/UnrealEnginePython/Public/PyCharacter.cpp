@@ -10,6 +10,7 @@ APyCharacter::APyCharacter()
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
 
+	FScopePythonGIL gil;
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
 }
@@ -18,12 +19,16 @@ APyCharacter::APyCharacter()
 // Called when the game starts
 void APyCharacter::BeginPlay()
 {
+	
+
 	Super::BeginPlay();
 
 	// ...
 
 	if (PythonModule.IsEmpty())
 		return;
+
+	FScopePythonGIL gil;
 
 	PyObject *py_character_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
 	if (!py_character_module) {
@@ -92,10 +97,14 @@ void APyCharacter::BeginPlay()
 // Called every frame
 void APyCharacter::Tick(float DeltaTime)
 {
+	
+
 	Super::Tick(DeltaTime);
 
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	// no need to check for method availability, we did it in begin_play
 
@@ -110,8 +119,12 @@ void APyCharacter::Tick(float DeltaTime)
 
 void APyCharacter::CallPyCharacterMethod(FString method_name, FString args)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -130,8 +143,12 @@ void APyCharacter::CallPyCharacterMethod(FString method_name, FString args)
 
 void APyCharacter::SetPythonAttrObject(FString attr, UObject *object)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	ue_PyUObject *py_obj = ue_get_python_wrapper(object);
 	if (!py_obj) {
@@ -147,8 +164,12 @@ void APyCharacter::SetPythonAttrObject(FString attr, UObject *object)
 
 void APyCharacter::SetPythonAttrString(FString attr, FString s)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyUnicode_FromString(TCHAR_TO_UTF8(*s))) < 0) {
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
@@ -157,8 +178,12 @@ void APyCharacter::SetPythonAttrString(FString attr, FString s)
 
 void APyCharacter::SetPythonAttrFloat(FString attr, float f)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyFloat_FromDouble(f)) < 0) {
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
@@ -167,8 +192,12 @@ void APyCharacter::SetPythonAttrFloat(FString attr, float f)
 
 void APyCharacter::SetPythonAttrInt(FString attr, int n)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyLong_FromLong(n)) < 0) {
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
@@ -177,8 +206,12 @@ void APyCharacter::SetPythonAttrInt(FString attr, int n)
 
 void APyCharacter::SetPythonAttrVector(FString attr, FVector vec)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_ue_new_fvector(vec)) < 0) {
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
@@ -187,8 +220,12 @@ void APyCharacter::SetPythonAttrVector(FString attr, FVector vec)
 
 void APyCharacter::SetPythonAttrRotator(FString attr, FRotator rot)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_ue_new_frotator(rot)) < 0) {
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
@@ -197,8 +234,12 @@ void APyCharacter::SetPythonAttrRotator(FString attr, FRotator rot)
 
 void APyCharacter::SetPythonAttrBool(FString attr, bool b)
 {
+	
+
 	if (!py_character_instance)
 		return;
+
+	FScopePythonGIL gil;
 	
 	PyObject *py_bool = Py_False;
 	if (b) {
@@ -212,8 +253,12 @@ void APyCharacter::SetPythonAttrBool(FString attr, bool b)
 
 bool APyCharacter::CallPyCharacterMethodBool(FString method_name, FString args)
 {
+	
+
 	if (!py_character_instance)
 		return false;
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -240,8 +285,12 @@ bool APyCharacter::CallPyCharacterMethodBool(FString method_name, FString args)
 
 float APyCharacter::CallPyCharacterMethodFloat(FString method_name, FString args)
 {
+	
+
 	if (!py_character_instance)
 		return false;
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -271,8 +320,12 @@ float APyCharacter::CallPyCharacterMethodFloat(FString method_name, FString args
 
 FString APyCharacter::CallPyCharacterMethodString(FString method_name, FString args)
 {
+	
+
 	if (!py_character_instance)
 		return FString();
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -312,6 +365,7 @@ void APyCharacter::SetupPlayerInputComponent(class UInputComponent* input)
 
 APyCharacter::~APyCharacter()
 {
+	FScopePythonGIL gil;
 #if UEPY_MEMORY_DEBUG
 	if (py_character_instance && py_character_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python ACharacter wrapper refcnt = %d"), py_character_instance->ob_refcnt);

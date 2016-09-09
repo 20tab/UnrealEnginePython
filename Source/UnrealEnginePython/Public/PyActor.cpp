@@ -10,6 +10,7 @@ APyActor::APyActor()
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
 
+	FScopePythonGIL gil;
 	// pre-generate PyUObject (for performance)
 	ue_get_python_wrapper(this);
 }
@@ -24,6 +25,8 @@ void APyActor::BeginPlay()
 
 	if (PythonModule.IsEmpty())
 		return;
+
+	FScopePythonGIL gil;
 
 	PyObject *py_actor_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
 	if (!py_actor_module) {
@@ -96,6 +99,8 @@ void APyActor::Tick(float DeltaTime)
 	if (!py_actor_instance)
 		return;
 
+	FScopePythonGIL gil;
+
 	if (!PyObject_HasAttrString(py_actor_instance, "tick"))
 		return;
 
@@ -113,6 +118,8 @@ void APyActor::CallPythonActorMethod(FString method_name, FString args)
 {
 	if (!py_actor_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -133,6 +140,8 @@ bool APyActor::CallPythonActorMethodBool(FString method_name, FString args)
 {
 	if (!py_actor_instance)
 		return false;
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -159,6 +168,8 @@ FString APyActor::CallPythonActorMethodString(FString method_name, FString args)
 {
 	if (!py_actor_instance)
 		return FString();
+
+	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
 	if (args.IsEmpty()) {
@@ -190,6 +201,7 @@ FString APyActor::CallPythonActorMethodString(FString method_name, FString args)
 
 APyActor::~APyActor()
 {
+	FScopePythonGIL gil;
 #if UEPY_MEMORY_DEBUG
 	if (py_actor_instance && py_actor_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python AActor wrapper refcnt = %d"), py_actor_instance->ob_refcnt);

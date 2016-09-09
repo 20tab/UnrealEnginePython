@@ -8,6 +8,7 @@ UPythonDelegate::UPythonDelegate() {
 
 void UPythonDelegate::SetPyCallable(PyObject *callable)
 {
+	// do not acquire the gil here as we set the callable in python call themselves
 	py_callable = callable;
 	Py_INCREF(py_callable);
 }
@@ -23,6 +24,8 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 
 	if (!py_callable)
 		return;
+
+	FScopePythonGIL gil;
 
 	PyObject *py_args = nullptr;
 
@@ -59,6 +62,7 @@ void UPythonDelegate::PyFakeCallable()
 
 void UPythonDelegate::PyInputHandler()
 {
+	FScopePythonGIL gil;
 	PyObject *ret = PyObject_CallObject(py_callable, NULL);
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -69,6 +73,7 @@ void UPythonDelegate::PyInputHandler()
 
 void UPythonDelegate::PyInputAxisHandler(float value)
 {
+	FScopePythonGIL gil;
 	PyObject *ret = PyObject_CallFunction(py_callable, "f", value);
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -79,6 +84,7 @@ void UPythonDelegate::PyInputAxisHandler(float value)
 
 UPythonDelegate::~UPythonDelegate()
 {
+	FScopePythonGIL gil;
 	Py_XDECREF(py_callable);
 #if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Warning, TEXT("PythonDelegate callable XDECREF'ed"));

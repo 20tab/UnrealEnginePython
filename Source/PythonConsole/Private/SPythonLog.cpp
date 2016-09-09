@@ -127,6 +127,7 @@ private:
 SPythonConsoleInputBox::SPythonConsoleInputBox()
 	: bIgnoreUIUpdate(false)
 {
+	FScopePythonGIL gil;
 	PyObject *main_module = PyImport_AddModule("__main__");
 	main_dict = PyModule_GetDict(main_module);
 	local_dict = PyDict_New();
@@ -179,8 +180,8 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 			bIgnoreUIUpdate = false;
 
 			// Here run the python code
-			//FUnrealEnginePythonModule UnrealEnginePythonModule = FModuleManager::LoadModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-			//UnrealEnginePythonModule.PythonGILAcquire();
+			//
+			FScopePythonGIL gil;
 
 			PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*ExecString), Py_file_input, main_dict, local_dict);
 
@@ -199,7 +200,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 
 				if (!value) {
 					PyErr_Clear();
-					//UnrealEnginePythonModule.PythonGILRelease();
 					OnConsoleCommandExecuted.ExecuteIfBound();
 					return;
 				}
@@ -212,7 +212,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 
 				if (!msg) {
 					PyErr_Clear();
-					//UnrealEnginePythonModule.PythonGILRelease();
 					OnConsoleCommandExecuted.ExecuteIfBound();
 					return;
 				}
@@ -222,7 +221,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 				// taken from uWSGI ;)
 				if (!traceback) {
 					PyErr_Clear();
-					//UnrealEnginePythonModule.PythonGILRelease();
 					OnConsoleCommandExecuted.ExecuteIfBound();
 					return;
 				}
@@ -230,7 +228,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 				PyObject *traceback_module = PyImport_ImportModule("traceback");
 				if (!traceback_module) {
 					PyErr_Clear();
-					//UnrealEnginePythonModule.PythonGILRelease();
 					OnConsoleCommandExecuted.ExecuteIfBound();
 					return;
 				}
@@ -242,7 +239,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 					PyObject *ret = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
 					if (!ret) {
 						PyErr_Clear();
-						//UnrealEnginePythonModule.PythonGILRelease();
 						OnConsoleCommandExecuted.ExecuteIfBound();
 						return;
 					}
@@ -261,7 +257,6 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 				}
 				PyErr_Clear();
 			}
-			//UnrealEnginePythonModule.PythonGILRelease();
 		}
 
 	}

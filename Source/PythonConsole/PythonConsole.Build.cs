@@ -36,8 +36,8 @@ public class PythonConsole : ModuleRules
 				"SlateCore",
                 "EditorStyle",
                 "TargetPlatform",
-                "DesktopPlatform",
-			}
+                "UnrealEnginePython"
+            }
 		);
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))

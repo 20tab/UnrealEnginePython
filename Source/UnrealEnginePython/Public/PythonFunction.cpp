@@ -21,6 +21,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	if (!function->py_callable)
 		return;
 
+	FScopePythonGIL gil;
+
 	UE_LOG(LogPython, Warning, TEXT("READY TO RUN CALLABLE"));
 
 	if (function->GetSuperFunction()) {
