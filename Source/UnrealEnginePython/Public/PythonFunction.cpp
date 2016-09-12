@@ -12,9 +12,21 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 
 void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 {
-	UE_LOG(LogPython, Warning, TEXT("CALLING PYTHON FUNCTION"));
+
+	
 
 	UPythonFunction *function = static_cast<UPythonFunction *>(Stack.CurrentNativeFunction);
+
+	UE_LOG(LogPython, Warning, TEXT("CALLING PYTHON FUNCTION"));
+
+
+	
+	if (!Stack.Object) {
+		UE_LOG(LogPython, Warning, TEXT("STACK OBJECT NOT DEFINED !!!"));
+	}
+	else {
+		UE_LOG(LogPython, Warning, TEXT("READY TO RUN CALLABLE FOR %s"), *Stack.Object->GetName());
+	}
 
 	P_FINISH;
 
@@ -22,8 +34,6 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		return;
 
 	FScopePythonGIL gil;
-
-	UE_LOG(LogPython, Warning, TEXT("READY TO RUN CALLABLE"));
 
 	if (function->GetSuperFunction()) {
 		UE_LOG(LogPython, Warning, TEXT("HAS SUPER FUNCTION"));
@@ -35,7 +45,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
 	}
-
+	UE_LOG(LogPython, Warning, TEXT("Initializing %d parameters"), argn);
 	PyObject *py_args = PyTuple_New(argn);// function->NumParms);
 
 	argn = 0;

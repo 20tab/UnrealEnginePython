@@ -377,7 +377,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 		}
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("REGISTERED A FUNCTION WITH %d PARAMS (size %d)"), function->NumParms, function->ParmsSize);
+	UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
 
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
 	
