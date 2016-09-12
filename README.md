@@ -960,6 +960,24 @@ Unit Testing
 
 The repository includes a TestingActor asset and a tests.py script. Just add the asset and the script to your project and the test suite will be run. The test suite is still a prototype it will be improved soon.
 
+Threading (Experimental)
+------------------------
+
+By default the plugin is compiled without effective python threads support. This is for 2 main reasons:
+
+* we still do not have numbers about the performance impact of constantly acquiring and releasing the GIL
+* we need a better test suite
+
+By the way, if you want to play with experimental threading support, just uncomment
+
+```c
+//#define UEPY_THREADING 1
+```
+
+on top of UnrealEnginePythonPrivatePCH.h and rebuild the plugin.
+
+As with native threads, do not modify (included deletion) UObjects from non-main threads.
+
 Status and Known issues
 -----------------------
 
@@ -972,8 +990,6 @@ complete custom events integration
 We still do not have a plugin icon ;)
 
 The build system is not very robust. Maybe linking the python static library into the plugin dll could be a better approach.
-
-Investigate what to do with threads (maybe disallowing unreal engine calls in python threads should be enough)
 
 
 Contacts
