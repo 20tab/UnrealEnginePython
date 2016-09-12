@@ -357,8 +357,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 
 	FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
 
-	function->Bind();
-	function->StaticLink(true);
+	
 
 	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable;
 	function->ParmsSize = 0;
@@ -385,6 +384,11 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	function->Next = u_class->Children;
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
+
+	function->Bind();
+	function->StaticLink(true);
+
+	u_class->StaticLink(true);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -414,11 +418,11 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 	}
 
-	UProperty *u_property = NewObject<UProperty>(self->ue_object, (UClass *)py_obj->ue_object, UTF8_TO_TCHAR(name));
+	UProperty *u_property = NewObject<UProperty>(self->ue_object, (UClass *)py_obj->ue_object, UTF8_TO_TCHAR(name), RF_Public | RF_MarkAsNative | RF_Transient);
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 
-	uint64 flags = CPF_Edit | CPF_BlueprintVisible;
+	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient;
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
 	}
@@ -428,6 +432,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	UStruct *u_struct = (UStruct *)self->ue_object;
 
 	u_struct->AddCppProperty(u_property);
+
+	u_struct->StaticLink(true);
 
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)

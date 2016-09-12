@@ -437,6 +437,7 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	new_object->ClassConfigName = parent->ClassConfigName;
 
 	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit));
+	new_object->ClassFlags |= CLASS_Native;
 	
 	new_object->ClassCastFlags = parent->ClassCastFlags;
 
