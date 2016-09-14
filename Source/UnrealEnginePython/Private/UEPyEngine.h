@@ -29,6 +29,9 @@ PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_object(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_class(PyObject *, PyObject *);
 
+
+PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject *, PyObject *);
+
 #if WITH_EDITOR
 PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);

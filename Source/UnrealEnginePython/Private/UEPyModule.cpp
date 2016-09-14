@@ -92,6 +92,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
 
+	{ "create_and_dispatch_when_ready", py_unreal_engine_create_and_dispatch_when_ready, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
@@ -1098,7 +1099,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		TFieldIterator<UProperty> OProps(u_function);
 		for (; OProps; ++OProps) {
 			UProperty *prop = *OProps;
-			if ((prop->GetPropertyFlags() & (CPF_ConstParm|CPF_OutParm)) == CPF_OutParm) {
+			if ((prop->GetPropertyFlags() & (CPF_ConstParm | CPF_OutParm)) == CPF_OutParm) {
 				// skip return param as it must be always the first
 				if (prop->GetPropertyFlags() & CPF_ReturnParm)
 					continue;

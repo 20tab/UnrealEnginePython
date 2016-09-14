@@ -305,11 +305,15 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 
 	UFunction *parent_function = u_class->GetSuperClass()->FindFunctionByName(UTF8_TO_TCHAR(name));
 
-	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public);
+	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 	function->SetPyCallable(py_callable);
 	function->RepOffset = MAX_uint16;
 	function->ReturnValueOffset = MAX_uint16;
 	function->FirstPropertyToInit = NULL;
+
+	function->Bind();
+	function->StaticLink(true);
+
 
 	function->Script.Add(EX_EndFunctionParms);
 
@@ -384,12 +388,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	function->Next = u_class->Children;
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
-
-	function->Bind();
-	function->StaticLink(true);
-
-	u_class->StaticLink(true);
-
+	
 	Py_INCREF(Py_None);
 	return Py_None;
 }

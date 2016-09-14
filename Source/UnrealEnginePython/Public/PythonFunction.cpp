@@ -30,8 +30,9 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	P_FINISH;
 
-	if (!function->py_callable)
+	if (!function->py_callable) {
 		return;
+	}
 
 	FScopePythonGIL gil;
 
@@ -79,6 +80,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		FMemory::Memcpy(RESULT_PARAM, Stack.Locals + function->ReturnValueOffset, return_property->ArrayDim * return_property->ElementSize);
 	}
 	Py_DECREF(ret);
+	
 }
 
 UPythonFunction::~UPythonFunction()

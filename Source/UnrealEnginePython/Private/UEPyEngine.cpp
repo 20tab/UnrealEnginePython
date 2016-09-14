@@ -452,3 +452,34 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
+PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObject * args) {
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:create_and_dispatch_when_ready", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_TypeError, "argument is not callable");
+
+	Py_INCREF(py_callable);
+
+	FGraphEventRef task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]() {
+		FScopePythonGIL gil;
+		PyObject *ret = PyObject_CallObject(py_callable, nullptr);
+		if (ret) {
+			Py_DECREF(ret);
+		}
+		else {
+			unreal_engine_py_log_error();
+		}
+		Py_DECREF(py_callable);
+	}, TStatId(), nullptr, ENamedThreads::GameThread);
+
+	FTaskGraphInterface::Get().WaitUntilTaskCompletes(task);
+	// TODO Implement signal triggering in addition to WaitUntilTaskCompletes
+	// FTaskGraphInterface::Get().TriggerEventWhenTaskCompletes
+	
+	Py_INCREF(Py_None);
+	return Py_None;
+}
