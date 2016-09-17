@@ -263,7 +263,7 @@ PyObject *py_ue_show_mouse_cursor(ue_PyUObject * self, PyObject * args) {
 	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
-	
+
 	controller->bShowMouseCursor = enabled;
 
 	Py_INCREF(Py_None);
@@ -365,7 +365,7 @@ PyObject *py_ue_bind_action(ue_PyUObject *self, PyObject * args) {
 	// allow the delegate to not be destroyed
 	self->ue_property->python_delegates_gc.Add(py_delegate);
 
-	FInputActionBinding input_action_binding(FName(UTF8_TO_TCHAR(action_name)), (const EInputEvent) key);
+	FInputActionBinding input_action_binding(FName(UTF8_TO_TCHAR(action_name)), (const EInputEvent)key);
 	input_action_binding.ActionDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);
 	input->AddActionBinding(input_action_binding);
 

@@ -80,7 +80,7 @@ void UPythonDelegate::PyInputAxisHandler(float value)
 		return;
 	}
 	Py_DECREF(ret);
-	}
+}
 
 UPythonDelegate::~UPythonDelegate()
 {

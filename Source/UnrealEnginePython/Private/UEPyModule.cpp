@@ -94,6 +94,8 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "create_and_dispatch_when_ready", py_unreal_engine_create_and_dispatch_when_ready, METH_VARARGS, "" },
 
+	{ "add_ticker", py_unreal_engine_add_ticker, METH_VARARGS, "" },
+
 	{ NULL, NULL },
 };
 

@@ -310,12 +310,14 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	function->RepOffset = MAX_uint16;
 	function->ReturnValueOffset = MAX_uint16;
 	function->FirstPropertyToInit = NULL;
+	function->Script.Add(EX_EndFunctionParms);
 
+	
 	function->Bind();
 	function->StaticLink(true);
-
-
-	function->Script.Add(EX_EndFunctionParms);
+	
+	//function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable | FUNC_Event;
+	function->FunctionFlags |= FUNC_Native | FUNC_Event | FUNC_BlueprintEvent;
 
 	if (parent_function) {
 		function->SetSuperStruct(parent_function);
@@ -359,11 +361,11 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	}
 
 
-	FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
+	//FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
 
 	
 
-	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable;
+	
 	function->ParmsSize = 0;
 	function->NumParms = 0;
 
@@ -376,6 +378,8 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm)) {
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
+				p->DestructorLinkNext = function->DestructorLink;
+				function->DestructorLink = p;
 			}
 		}
 	}
@@ -388,7 +392,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 	function->Next = u_class->Children;
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
-	
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
