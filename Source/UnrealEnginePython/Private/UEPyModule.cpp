@@ -877,6 +877,35 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return false;
 	}
 
+	if (PyList_Check(py_obj)) {
+		if (auto casted_prop = Cast<UArrayProperty>(prop)) {
+			FScriptArrayHelper_InContainer helper(casted_prop, buffer);
+
+			UProperty *array_prop = casted_prop->Inner;
+			Py_ssize_t pylist_len = PyList_Size(py_obj);
+
+			// fix array helper size
+			if (helper.Num() < pylist_len) {
+				helper.AddValues(pylist_len - helper.Num());
+			}
+			else if (helper.Num() > pylist_len) {
+				helper.RemoveValues(pylist_len, helper.Num() - pylist_len);
+			}
+			
+			for (int i = 0; i < (int)pylist_len; i++) {
+				uint8 *item_buf = helper.GetRawPtr(i);
+				PyObject *py_item = PyList_GetItem(py_obj, i);
+				if (!ue_py_convert_pyobject(py_item, array_prop, item_buf)) {
+					Py_DECREF(py_item);
+					return false;
+				}
+				Py_DECREF(py_item);
+			}
+			return true;
+		}
+		return false;
+	}
+
 	// TODO encode a dictionary to a struct
 	if (PyDict_Check(py_obj)) {
 		return false;
