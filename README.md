@@ -3,7 +3,7 @@ Embed Python in Unreal Engine 4
 
 # How and Why ?
 
-This is a plugin embedding a whole Python (currently version 3, version 2 support will come soon) VM In Unreal Engine 4 (both the editor and runtime).
+This is a plugin embedding a whole Python VM (both versions 3.x [the default and suggested one] and 2.7) In Unreal Engine 4 (both the editor and runtime).
 
 It includes the mapping of Actors, Pawns, Characters and Components to python classes, editor scripting and a lot more.
 
@@ -43,6 +43,8 @@ git clone https://github.com/20tab/UnrealEnginePython
 
 If all goes well, open the output log and search for the string "Python". You should see the Python VM initialization message. It means your editor has now full python support.
 
+To use python 2, follow the same approach but with a python27 directory (instead of python35) and change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
+
 # Installation on MacOSX
 
 On the Mac the installation is easier, as the final user is currently forced to install python on its system (there are obviously dozens of workarounds but at this stage of the project we prefer focusing on the api).
@@ -52,12 +54,16 @@ On the Mac the installation is easier, as the final user is currently forced to 
 * create a Plugins directory in the project directory
 * move to the Plugins directory and clone the plugin repository
 
+
 ```sh
 git clone https://github.com/20tab/UnrealEnginePython
 ```
 
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
 * Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
+
+
+For python 2 just change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
 
 Upgrading on MacOSX
 -------------------
