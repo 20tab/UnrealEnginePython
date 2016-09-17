@@ -6,8 +6,8 @@ using System.IO;
 public class UnrealEnginePython : ModuleRules
 {
 
-    //private const string pythonHome = "python35";
-    private const string pythonHome = "python27";
+    private const string pythonHome = "python35";
+    //private const string pythonHome = "python27";
 
     protected string PythonHome
     {
