@@ -17,8 +17,13 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
+	void RunString(char *);
+
 private:
 	void *ue_python_gil;
+	// used by console
+	void *main_dict;
+	void *local_dict;
 };
 
 struct FScopePythonGIL {
@@ -39,4 +44,7 @@ struct FScopePythonGIL {
 
 	FUnrealEnginePythonModule UnrealEnginePythonModule;
 };
+
+
+
 

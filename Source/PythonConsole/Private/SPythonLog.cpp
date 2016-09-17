@@ -128,9 +128,7 @@ SPythonConsoleInputBox::SPythonConsoleInputBox()
 	: bIgnoreUIUpdate(false)
 {
 	FScopePythonGIL gil;
-	PyObject *main_module = PyImport_AddModule("__main__");
-	main_dict = PyModule_GetDict(main_module);
-	local_dict = PyDict_New();
+	
 }
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
@@ -181,82 +179,10 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 
 			// Here run the python code
 			//
-			FScopePythonGIL gil;
+			FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+			PythonModule.RunString(TCHAR_TO_UTF8(*ExecString));
 
-			PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*ExecString), Py_file_input, main_dict, local_dict);
-
-			if (eval_ret) {
-				Py_DECREF(eval_ret);
-			}
-
-
-			if (PyErr_Occurred()) {
-				PyObject *type = NULL;
-				PyObject *value = NULL;
-				PyObject *traceback = NULL;
-
-				PyErr_Fetch(&type, &value, &traceback);
-				PyErr_NormalizeException(&type, &value, &traceback);
-
-				if (!value) {
-					PyErr_Clear();
-					OnConsoleCommandExecuted.ExecuteIfBound();
-					return;
-				}
-
-				char *msg = NULL;
-				PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
-				if (zero) {
-					msg = PyBytes_AsString(zero);
-				}
-
-				if (!msg) {
-					PyErr_Clear();
-					OnConsoleCommandExecuted.ExecuteIfBound();
-					return;
-				}
-
-				UE_LOG(LogTemp, Error, TEXT("%s"), UTF8_TO_TCHAR(msg));
-
-				// taken from uWSGI ;)
-				if (!traceback) {
-					PyErr_Clear();
-					OnConsoleCommandExecuted.ExecuteIfBound();
-					return;
-				}
-
-				PyObject *traceback_module = PyImport_ImportModule("traceback");
-				if (!traceback_module) {
-					PyErr_Clear();
-					OnConsoleCommandExecuted.ExecuteIfBound();
-					return;
-				}
-
-				PyObject *traceback_dict = PyModule_GetDict(traceback_module);
-				PyObject *format_exception = PyDict_GetItemString(traceback_dict, "format_exception");
-
-				if (format_exception) {
-					PyObject *ret = PyObject_CallFunctionObjArgs(format_exception, type, value, traceback, NULL);
-					if (!ret) {
-						PyErr_Clear();
-						OnConsoleCommandExecuted.ExecuteIfBound();
-						return;
-					}
-
-					if (PyList_Check(ret)) {
-						for (int i = 0; i < PyList_Size(ret); i++) {
-							PyObject *item = PyList_GetItem(ret, i);
-							if (item) {
-								UE_LOG(LogTemp, Error, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(item))));
-							}
-						}
-					}
-					else {
-						UE_LOG(LogTemp, Error, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(ret))));
-					}
-				}
-				PyErr_Clear();
-			}
+			
 		}
 
 	}

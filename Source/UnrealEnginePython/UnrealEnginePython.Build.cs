@@ -7,6 +7,7 @@ public class UnrealEnginePython : ModuleRules
 {
 
     private const string pythonHome = "python35";
+    //private const string pythonHome = "python27";
 
     protected string PythonHome
     {
@@ -79,13 +80,21 @@ public class UnrealEnginePython : ModuleRules
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
         {
             PublicIncludePaths.Add(PythonHome);
-            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", "python35.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", string.Format("{0}.lib", pythonHome)));
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
-            string mac_python = "/Library/Frameworks/Python.framework/Versions/3.5/";
-            PublicIncludePaths.Add(Path.Combine(mac_python, "include"));
-            PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython3.5m.dylib"));
+            if (pythonHome == "python35")
+            {
+                string mac_python = "/Library/Frameworks/Python.framework/Versions/3.5/";
+                PublicIncludePaths.Add(Path.Combine(mac_python, "include"));
+                PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython3.5m.dylib"));
+            }
+            else if (pythonHome == "python27") {
+                string mac_python = "/Library/Frameworks/Python.framework/Versions/2.7/";
+                PublicIncludePaths.Add(Path.Combine(mac_python, "include"));
+                PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython2.7.dylib"));
+            }
             Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC=1"));
         }
 

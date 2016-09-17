@@ -32,6 +32,7 @@ DEFINE_LOG_CATEGORY(LogPython);
 
 PyDoc_STRVAR(unreal_engine_py_doc, "Unreal Engine Python module.");
 
+#if PY_MAJOR_VERSION >= 3
 static PyModuleDef unreal_engine_module = {
 	PyModuleDef_HEAD_INIT,
 	"unreal_engine",
@@ -40,11 +41,14 @@ static PyModuleDef unreal_engine_module = {
 	NULL,
 };
 
-UPythonGCManager *PythonGCManager;
-
 static PyObject *init_unreal_engine(void) {
 	return PyModule_Create(&unreal_engine_module);
 }
+#endif
+
+UPythonGCManager *PythonGCManager;
+
+
 
 
 static PyMethodDef unreal_engine_methods[] = {
@@ -447,8 +451,13 @@ static PyTypeObject ue_PyUObjectType = {
 
 
 void unreal_engine_init_py_module() {
+#if PY_MAJOR_VERSION >= 3
 	PyImport_AppendInittab("unreal_engine", init_unreal_engine);
 	PyObject *new_unreal_engine_module = PyImport_AddModule("unreal_engine");
+#else
+	PyObject *new_unreal_engine_module = Py_InitModule3("unreal_engine", NULL, unreal_engine_py_doc);
+#endif
+	
 
 	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
 
@@ -591,11 +600,14 @@ void unreal_engine_py_log_error() {
 	}
 
 	char *msg = NULL;
+#if PY_MAJOR_VERSION >= 3
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
 	if (zero) {
 		msg = PyBytes_AsString(zero);
 	}
-
+#else
+	msg = PyString_AsString(PyObject_Str(value));
+#endif
 	if (!msg) {
 		PyErr_Clear();
 		return;

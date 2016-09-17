@@ -4,6 +4,20 @@
 
 void unreal_engine_init_py_module();
 
+#if PY_MAJOR_VERSION < 3
+char *PyUnicode_AsUTF8(PyObject *py_str) {
+	if (PyUnicode_Check(py_str)) {
+		PyObject *unicode = PyUnicode_AsUTF8String(py_str);
+		if (unicode) {
+			return PyString_AsString(unicode);
+		}
+		// just a hack to avoid crashes
+		return (char *)"<invalid_string>";
+	}
+	return PyString_AsString(py_str);
+}
+#endif
+
 
 #define LOCTEXT_NAMESPACE "FUnrealEnginePythonModule"
 
@@ -25,7 +39,11 @@ void FUnrealEnginePythonModule::StartupModule()
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
 	Py_Initialize();
+#if PY_MAJOR_VERSION >= 3
 	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
+#else
+	char *argv[] = { (char *)"UnrealEngine", NULL };
+#endif
 	PySys_SetArgv(1, argv);
 
 	PyEval_InitThreads();
@@ -57,6 +75,10 @@ void FUnrealEnginePythonModule::StartupModule()
 		unreal_engine_py_log_error();
 	}
 
+	PyObject *main_module = PyImport_AddModule("__main__");
+	main_dict = PyModule_GetDict(main_module);
+	local_dict = PyDict_New();
+
 	// release the GIL
 	PythonGILRelease();
 }
@@ -69,6 +91,16 @@ void FUnrealEnginePythonModule::ShutdownModule()
 	UE_LOG(LogPython, Log, TEXT("Goodbye Python"));
 	PythonGILAcquire();
 	Py_Finalize();
+}
+
+void FUnrealEnginePythonModule::RunString(char *str) {
+	FScopePythonGIL gil;
+	PyObject *eval_ret = PyRun_String(str, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(eval_ret);
 }
 
 #undef LOCTEXT_NAMESPACE

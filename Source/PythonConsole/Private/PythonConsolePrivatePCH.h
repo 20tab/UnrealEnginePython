@@ -6,9 +6,4 @@
 #include "PythonConsoleModule.h"
 #include "SlateBasics.h"
 
-#if UNREAL_ENGINE_PYTHON_ON_MAC
-#include <python3.5m/Python.h>
-#else
-#include <include/Python.h>
-#endif
 

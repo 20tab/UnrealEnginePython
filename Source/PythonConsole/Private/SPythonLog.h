@@ -78,9 +78,6 @@ private:
 
 	/** to prevent recursive calls in UI callback */
 	bool bIgnoreUIUpdate;
-
-	PyObject *main_dict;
-	PyObject *local_dict;
 };
 
 /**
