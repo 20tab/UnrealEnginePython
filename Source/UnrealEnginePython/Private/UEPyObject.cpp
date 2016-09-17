@@ -411,32 +411,71 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	if (!self->ue_object->IsA<UStruct>())
 		return PyErr_Format(PyExc_Exception, "uobject is not a UStruct");
 
-	if (!ue_is_pyuobject(obj)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	UObject *scope = nullptr;
+	UProperty *u_property = nullptr;
+	UClass *u_class = nullptr;
+	bool is_array = false;
+
+	if (ue_is_pyuobject(obj)) {
+		ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+		if (!py_obj->ue_object->IsA<UClass>()) {
+			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+		}
+		u_class = (UClass *)py_obj->ue_object;
+		if (u_class == UArrayProperty::StaticClass())
+			return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
+		scope = self->ue_object;
+	}
+	else if (PyList_Check(obj)) {
+		if (PyList_Size(obj) == 1) {
+			PyObject *py_item = PyList_GetItem(obj, 0);
+			if (ue_is_pyuobject(py_item)) {
+				ue_PyUObject *py_obj = (ue_PyUObject *)py_item;
+				if (!py_obj->ue_object->IsA<UClass>()) {
+					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+				}
+				u_class = (UClass *)py_obj->ue_object;
+				if (u_class == UArrayProperty::StaticClass())
+					return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
+				UArrayProperty *u_array = NewObject<UArrayProperty>(self->ue_object, UTF8_TO_TCHAR(name), RF_Public | RF_MarkAsNative | RF_Transient);
+				if (!u_array)
+					return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+				scope = u_array;
+				is_array = true;
+			}
+		}
 	}
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<UClass>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+	if (!scope) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject or a single item list");
 	}
 
-	UProperty *u_property = NewObject<UProperty>(self->ue_object, (UClass *)py_obj->ue_object, UTF8_TO_TCHAR(name), RF_Public | RF_MarkAsNative | RF_Transient);
-	if (!u_property)
+	u_property = NewObject<UProperty>(scope, u_class, UTF8_TO_TCHAR(name), RF_Public | RF_MarkAsNative | RF_Transient);
+	if (!u_property) {
+		if (is_array)
+			scope->MarkPendingKill();
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+	}
 
 	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient;
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
 	}
 
+	if (is_array) {
+		UArrayProperty *u_array = (UArrayProperty *)scope;
+		u_array->Inner = u_property;
+		u_property->SetPropertyFlags(flags);
+		u_property = u_array;
+	}
+
 	u_property->SetPropertyFlags(flags);
 
 	UStruct *u_struct = (UStruct *)self->ue_object;
-
 	u_struct->AddCppProperty(u_property);
-
 	u_struct->StaticLink(true);
+
+	
 
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
