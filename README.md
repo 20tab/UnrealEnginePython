@@ -55,14 +55,15 @@ On the Mac the installation is easier, as the final user is currently forced to 
 * move to the Plugins directory and clone the plugin repository
 
 
-For python 2 just change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
-
 ```sh
 git clone https://github.com/20tab/UnrealEnginePython
 ```
 
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
 * Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
+
+
+For python 2 just change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
 
 Upgrading on MacOSX
 -------------------
