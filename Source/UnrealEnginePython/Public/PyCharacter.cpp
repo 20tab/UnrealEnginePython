@@ -65,7 +65,7 @@ void APyCharacter::BeginPlay()
 	py_uobject = ue_get_python_wrapper(this);
 
 	if (py_uobject) {
-		PyObject_SetAttrString(py_character_instance, "uobject", (PyObject *)py_uobject);
+		PyObject_SetAttrString(py_character_instance, (char *)"uobject", (PyObject *)py_uobject);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in character wrapper class"));
@@ -74,18 +74,18 @@ void APyCharacter::BeginPlay()
 	}
 
 	// disable ticking if no tick method is exposed
-	if (!PyObject_HasAttrString(py_character_instance, "tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"tick") || PythonTickForceDisabled) {
 		SetActorTickEnabled(false);
 	}
 
 	if (!PythonDisableAutoBinding)
 		ue_autobind_events_for_pyclass(py_uobject, py_character_instance);
 
-	if (!PyObject_HasAttrString(py_character_instance, "begin_play")) {
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"begin_play")) {
 		return;
 	}
 
-	PyObject *bp_ret = PyObject_CallMethod(py_character_instance, "begin_play", NULL);
+	PyObject *bp_ret = PyObject_CallMethod(py_character_instance, (char *)"begin_play", NULL);
 	if (!bp_ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -108,7 +108,7 @@ void APyCharacter::Tick(float DeltaTime)
 
 	// no need to check for method availability, we did it in begin_play
 
-	PyObject *ret = PyObject_CallMethod(py_character_instance, "tick", "f", DeltaTime);
+	PyObject *ret = PyObject_CallMethod(py_character_instance, (char *)"tick", (char *)"f", DeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -131,7 +131,7 @@ void APyCharacter::CallPyCharacterMethod(FString method_name, FString args)
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 	if (!ret) {
@@ -265,7 +265,7 @@ bool APyCharacter::CallPyCharacterMethodBool(FString method_name, FString args)
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 	
 
@@ -297,7 +297,7 @@ float APyCharacter::CallPyCharacterMethodFloat(FString method_name, FString args
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 
@@ -332,7 +332,7 @@ FString APyCharacter::CallPyCharacterMethodString(FString method_name, FString a
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 	if (!ret) {

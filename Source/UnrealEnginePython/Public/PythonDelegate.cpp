@@ -74,7 +74,7 @@ void UPythonDelegate::PyInputHandler()
 void UPythonDelegate::PyInputAxisHandler(float value)
 {
 	FScopePythonGIL gil;
-	PyObject *ret = PyObject_CallFunction(py_callable, "f", value);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"f", value);
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;

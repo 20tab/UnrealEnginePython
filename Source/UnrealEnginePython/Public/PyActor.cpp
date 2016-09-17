@@ -63,7 +63,7 @@ void APyActor::BeginPlay()
 	py_uobject = ue_get_python_wrapper(this);
 
 	if (py_uobject) {
-		PyObject_SetAttrString(py_actor_instance, "uobject", (PyObject *)py_uobject);
+		PyObject_SetAttrString(py_actor_instance, (char*)"uobject", (PyObject *)py_uobject);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in actor wrapper class"));
@@ -71,7 +71,7 @@ void APyActor::BeginPlay()
 		return;
 	}
 
-	if (!PyObject_HasAttrString(py_actor_instance, "tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_actor_instance, (char *)"tick") || PythonTickForceDisabled) {
 		SetActorTickEnabled(false);
 	}
 
@@ -79,10 +79,10 @@ void APyActor::BeginPlay()
 		ue_autobind_events_for_pyclass(py_uobject, py_actor_instance);
 
 
-	if (!PyObject_HasAttrString(py_actor_instance, "begin_play"))
+	if (!PyObject_HasAttrString(py_actor_instance, (char *)"begin_play"))
 		return;
 
-	PyObject *bp_ret = PyObject_CallMethod(py_actor_instance, "begin_play", NULL);
+	PyObject *bp_ret = PyObject_CallMethod(py_actor_instance, (char *)"begin_play", NULL);
 	if (!bp_ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -101,10 +101,10 @@ void APyActor::Tick(float DeltaTime)
 
 	FScopePythonGIL gil;
 
-	if (!PyObject_HasAttrString(py_actor_instance, "tick"))
+	if (!PyObject_HasAttrString(py_actor_instance, (char *)"tick"))
 		return;
 
-	PyObject *ret = PyObject_CallMethod(py_actor_instance, "tick", "f", DeltaTime);
+	PyObject *ret = PyObject_CallMethod(py_actor_instance, (char *)"tick", (char *)"f", DeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -126,7 +126,7 @@ void APyActor::CallPythonActorMethod(FString method_name, FString args)
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 	if (!ret) {
@@ -148,7 +148,7 @@ bool APyActor::CallPythonActorMethodBool(FString method_name, FString args)
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -176,7 +176,7 @@ FString APyActor::CallPythonActorMethodString(FString method_name, FString args)
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), "s", TCHAR_TO_UTF8(*args));
+		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 	if (!ret) {
 		unreal_engine_py_log_error();

@@ -14,8 +14,10 @@
 #endif
 
 
-#if UNREAL_ENGINE_PYTHON_ON_MAC
+#if UNREAL_ENGINE_PYTHON_ON_MAC == 3
 #include <python3.5m/Python.h>
+#elif UNREAL_ENGINE_PYTHON_ON_MAC == 2
+#include <python2.7/Python.h>
 #else
 #include <include/Python.h>
 #endif

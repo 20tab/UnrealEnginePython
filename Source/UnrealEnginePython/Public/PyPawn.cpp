@@ -62,7 +62,7 @@ void APyPawn::BeginPlay()
 	py_uobject = ue_get_python_wrapper(this);
 
 	if (py_uobject) {
-		PyObject_SetAttrString(py_pawn_instance, "uobject", (PyObject *) py_uobject);
+		PyObject_SetAttrString(py_pawn_instance, (char *)"uobject", (PyObject *) py_uobject);
 	}
 	else {
 		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in pawn wrapper class"));
@@ -71,17 +71,17 @@ void APyPawn::BeginPlay()
 	}
 
 	// disable ticking if not required
-	if (!PyObject_HasAttrString(py_pawn_instance, "tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_pawn_instance, (char *)"tick") || PythonTickForceDisabled) {
 		SetActorTickEnabled(false);
 	}
 
 	if (!PythonDisableAutoBinding)
 		ue_autobind_events_for_pyclass(py_uobject, py_pawn_instance);
 
-	if (!PyObject_HasAttrString(py_pawn_instance, "begin_play"))
+	if (!PyObject_HasAttrString(py_pawn_instance, (char *)"begin_play"))
 		return;
 
-	PyObject *bp_ret = PyObject_CallMethod(py_pawn_instance, "begin_play", NULL);
+	PyObject *bp_ret = PyObject_CallMethod(py_pawn_instance, (char *)"begin_play", NULL);
 	if (!bp_ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -100,7 +100,7 @@ void APyPawn::Tick(float DeltaTime)
 
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallMethod(py_pawn_instance, "tick", "f", DeltaTime);
+	PyObject *ret = PyObject_CallMethod(py_pawn_instance, (char *)"tick", (char *)"f", DeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
