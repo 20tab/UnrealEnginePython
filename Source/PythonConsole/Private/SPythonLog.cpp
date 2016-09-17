@@ -10,6 +10,21 @@
 //#include "UnrealEnginePython.h"
 #define LOCTEXT_NAMESPACE "PythonConsole"
 
+#if PY_MAJOR_VERSION <= 3
+namespace
+{
+	char* PyUnicode_AsUTF8(PyObject* pyStr)
+	{
+		if (PyUnicode_Check(pyStr)) {
+			pyStr = PyUnicode_AsUTF8String(pyStr);
+			if (pyStr == NULL) {
+				return NULL;
+			}
+		}
+		return PyString_AsString(pyStr);
+	}
+}
+#endif
 
 /** Custom console editable text box whose only purpose is to prevent some keys from being typed */
 class SPythonConsoleEditableTextBox : public SEditableTextBox

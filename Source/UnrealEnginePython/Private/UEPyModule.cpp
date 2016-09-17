@@ -32,20 +32,24 @@ DEFINE_LOG_CATEGORY(LogPython);
 
 PyDoc_STRVAR(unreal_engine_py_doc, "Unreal Engine Python module.");
 
+const char* PY_MOD_NAME = "_unreal_engine";
+
+#if PY_MAJOR_VERSION >= 3
 static PyModuleDef unreal_engine_module = {
 	PyModuleDef_HEAD_INIT,
-	"unreal_engine",
+	PY_MOD_NAME,
 	unreal_engine_py_doc,
 	-1,
 	NULL,
 };
 
-UPythonGCManager *PythonGCManager;
-
 static PyObject *init_unreal_engine(void) {
 	return PyModule_Create(&unreal_engine_module);
 }
 
+#endif
+
+UPythonGCManager *PythonGCManager;
 
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
@@ -447,8 +451,13 @@ static PyTypeObject ue_PyUObjectType = {
 
 
 void unreal_engine_init_py_module() {
-	PyImport_AppendInittab("unreal_engine", init_unreal_engine);
-	PyObject *new_unreal_engine_module = PyImport_AddModule("unreal_engine");
+	PyObject *new_unreal_engine_module;
+#if PY_MAJOR_VERSION >= 3
+	PyImport_AppendInittab(PY_MOD_NAME, init_unreal_engine);
+	new_unreal_engine_module = PyImport_AddModule(PY_MOD_NAME);
+#else
+	new_unreal_engine_module = Py_InitModule3(PY_MOD_NAME, NULL, unreal_engine_py_doc);
+#endif
 
 	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
 
@@ -458,7 +467,6 @@ void unreal_engine_init_py_module() {
 		PyDict_SetItemString(unreal_engine_dict, unreal_engine_function->ml_name, func);
 		Py_DECREF(func);
 	}
-
 
 	ue_PyUObjectType.tp_new = PyType_GenericNew;
 	if (PyType_Ready(&ue_PyUObjectType) < 0)
@@ -577,6 +585,8 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 	return ue_py_object->py_object;
 }
 
+// This version of log_error doesn't correctly log the error to the console when using python 2.
+#if PY_MAJOR_VERSION >= 3
 void unreal_engine_py_log_error() {
 	PyObject *type = NULL;
 	PyObject *value = NULL;
@@ -639,6 +649,46 @@ void unreal_engine_py_log_error() {
 
 	PyErr_Clear();
 }
+#else
+void unreal_engine_py_log_error() {
+	PyObject *exception, *v, *traceback;
+	PyErr_Fetch(&exception, &v, &traceback);
+	PyErr_NormalizeException(&exception, &v, &traceback);
+
+	/*
+	import traceback
+	lst = traceback.format_exception(exception, v, traceback)
+	*/
+	PyObject* tbstr = PyString_FromString("traceback");
+	PyObject* tbmod = PyImport_Import(tbstr);
+	if (!tbmod) {
+		UE_LOG(LogPython, Error, TEXT("traceback module missing."));
+		return;
+	}
+	PyObject* tbdict = PyModule_GetDict(tbmod);
+	PyObject* formatFunc = PyDict_GetItemString(tbdict, "format_exception");
+	if (!formatFunc){
+		UE_LOG(LogPython, Error, TEXT("Can't find traceback.format_exception"));
+		return;
+	}
+	if (!traceback) {
+		traceback = Py_None;
+		Py_INCREF(Py_None);
+	}
+	PyObject* args = Py_BuildValue("(OOO)", exception, v, traceback);
+	PyObject* lst = PyObject_CallObject(formatFunc, args);
+
+	for (int i = 0; i<PyList_GET_SIZE(lst); i++) {
+		// Strip off the newline so the error messages don't have gaps.
+		char *str = PyString_AsString(PyList_GetItem(lst, i));
+		str[strlen(str) - 1] = 0;
+		UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(str));
+	}
+
+	Py_DECREF(args);
+	Py_DECREF(lst);
+}
+#endif
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

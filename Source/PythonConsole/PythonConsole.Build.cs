@@ -6,7 +6,7 @@ using System.IO;
 public class PythonConsole : ModuleRules
 {
 
-    private const string pythonHome = "python35";
+    private const string pythonHome = "python27";
 
     protected string PythonHome
     {
@@ -43,7 +43,7 @@ public class PythonConsole : ModuleRules
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
         {
             PublicIncludePaths.Add(PythonHome);
-            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", "python35.lib"));
+            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", pythonHome + ".lib"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {

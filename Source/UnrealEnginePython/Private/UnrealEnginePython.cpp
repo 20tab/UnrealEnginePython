@@ -4,7 +4,6 @@
 
 void unreal_engine_init_py_module();
 
-
 #define LOCTEXT_NAMESPACE "FUnrealEnginePythonModule"
 
 
@@ -23,42 +22,42 @@ void FUnrealEnginePythonModule::PythonGILAcquire() {
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	
+	//First we need to initialize python and manually setup our environment.
+	//We are manually setting up the environment due to no easy way to redirect python to a zip install.
+	FString scripts_path = FPaths::Combine(*FPaths::ConvertRelativePathToFull(FPaths::GameContentDir()), UTF8_TO_TCHAR("Scripts"));
+	FString home_path = FString::Printf(TEXT("%s/python%d%d"), *scripts_path, PY_MAJOR_VERSION, PY_MINOR_VERSION);
+	
+	Py_NoSiteFlag = 1;
+	Py_SetProgramName("UnrealEngine");
+	Py_SetPythonHome(TCHAR_TO_UTF8(*home_path));
+	Py_InitializeEx(0);
 
-	Py_Initialize();
-	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
-	PySys_SetArgv(1, argv);
+	PyObject *main_module = PyImport_AddModule("__main__");
+	FString startup_cmd = FString::Printf(TEXT("import sys;sys.path.append('%s');"), *scripts_path);
+	PyRun_SimpleString(TCHAR_TO_UTF8(*startup_cmd));
 
 	PyEval_InitThreads();
 
 	unreal_engine_init_py_module();
 
-	PyObject *py_sys = PyImport_ImportModule("sys");
-	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
+	// Python implemented startup script.
+	PyObject *ue_module = PyImport_ImportModule("unreal_engine");
 
-	PyObject *py_path = PyDict_GetItemString(py_sys_dict, "path");
-
-	char *zip_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("python35.zip")));
-	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
-	PyList_Insert(py_path, 0, py_zip_path);
-
-	char *scripts_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts")));
-	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
-	PyList_Insert(py_path, 0, py_scripts_path);
-
-
-	UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
-	UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
-
-	if (PyImport_ImportModule("ue_site")) {
-		UE_LOG(LogPython, Log, TEXT("ue_site Python module successfully imported"));
+	if (!PyErr_Occurred()) {
+		PyObject_SetAttrString(main_module, "unreal_engine", ue_module);
+		Py_XDECREF(ue_module);
 	}
 	else {
 		// TODO gracefully manage the error
 		unreal_engine_py_log_error();
 	}
 
+	PyRun_SimpleString("import site");
 	// release the GIL
 	PythonGILRelease();
+	UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
+	UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), *home_path);
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()
