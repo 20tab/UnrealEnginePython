@@ -473,6 +473,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		u_property = u_array;
 	}
 
+
 	if (u_class == UMulticastDelegateProperty::StaticClass()) {
 		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
 		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object);
@@ -482,23 +483,10 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	u_property->SetPropertyFlags(flags);
 	u_property->ArrayDim = 1;
 
-	
-
 	UStruct *u_struct = (UStruct *)self->ue_object;
 	u_struct->AddCppProperty(u_property);
 	u_struct->StaticLink(true);
 
-	// initialize CDO (if we are a UClass)
-	if (u_struct->IsA<UClass>()) {
-		UClass *owner_class = (UClass *)u_struct;
-		UObject *cdo = owner_class->GetDefaultObject();
-		TFieldIterator<UProperty> props(owner_class);
-		for (; props; ++props) {
-			UProperty *prop = *props;
-			prop->InitializeValue_InContainer(cdo);
-		}
-	}
-	
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
