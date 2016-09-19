@@ -416,6 +416,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	UClass *u_class = nullptr;
 	bool is_array = false;
 
+	EObjectFlags o_flags = RF_Public | RF_MarkAsNative | RF_Transient;
+
 	if (ue_is_pyuobject(obj)) {
 		ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 		if (!py_obj->ue_object->IsA<UClass>()) {
@@ -437,12 +439,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 				u_class = (UClass *)py_obj->ue_object;
 				if (u_class == UArrayProperty::StaticClass())
 					return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
-				UArrayProperty *u_array = NewObject<UArrayProperty>(self->ue_object, UTF8_TO_TCHAR(name), RF_Public | RF_MarkAsNative | RF_Transient);
+				UArrayProperty *u_array = NewObject<UArrayProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
 				if (!u_array)
 					return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 				scope = u_array;
 				is_array = true;
 			}
+			Py_DECREF(py_item);
 		}
 	}
 
@@ -450,33 +453,39 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject or a single item list");
 	}
 
-	u_property = NewObject<UProperty>(scope, u_class, UTF8_TO_TCHAR(name), RF_Public | RF_MarkAsNative | RF_Transient);
+	u_property = NewObject<UProperty>(scope, u_class, UTF8_TO_TCHAR(name), o_flags);
 	if (!u_property) {
 		if (is_array)
 			scope->MarkPendingKill();
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 	}
 
-	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient;
+	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient | CPF_ZeroConstructor;
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
 	}
 
+
 	if (is_array) {
 		UArrayProperty *u_array = (UArrayProperty *)scope;
-		u_array->Inner = u_property;
+		u_array->AddCppProperty(u_property);
 		u_property->SetPropertyFlags(flags);
 		u_property = u_array;
 	}
 
 	u_property->SetPropertyFlags(flags);
+	u_property->ArrayDim = 1;
 
 	UStruct *u_struct = (UStruct *)self->ue_object;
 	u_struct->AddCppProperty(u_property);
 	u_struct->StaticLink(true);
 
+	// initialize CDO (if we are a UClass)
+	if (u_struct->IsA<UClass>()) {
+		UClass *owner_class = (UClass *)u_struct;
+		u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
+	}
 	
-
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
