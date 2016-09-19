@@ -473,8 +473,16 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		u_property = u_array;
 	}
 
+	if (u_class == UMulticastDelegateProperty::StaticClass()) {
+		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
+		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object);
+		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
+	}
+
 	u_property->SetPropertyFlags(flags);
 	u_property->ArrayDim = 1;
+
+	
 
 	UStruct *u_struct = (UStruct *)self->ue_object;
 	u_struct->AddCppProperty(u_property);
