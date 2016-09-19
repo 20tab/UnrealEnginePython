@@ -483,7 +483,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	// initialize CDO (if we are a UClass)
 	if (u_struct->IsA<UClass>()) {
 		UClass *owner_class = (UClass *)u_struct;
-		u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
+		UObject *cdo = owner_class->GetDefaultObject();
+		TFieldIterator<UProperty> props(owner_class);
+		for (; props; ++props) {
+			UProperty *prop = *props;
+			prop->InitializeValue_InContainer(cdo);
+		}
 	}
 	
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
