@@ -2,38 +2,18 @@
 
 #include "UnrealEnginePython.h"
 #include "PythonDelegate.h"
+#include <map>
+#include <list>
 
-#include "UEPyModule.generated.h"
-
-// fwd declaration
-class UPyObject;
+//#include "UEPyModule.generated.h"
 
 typedef struct {
 	PyObject_HEAD
 		/* Type-specific fields go here. */
 		UObject *ue_object;
-	UPyObject *ue_property;
+		std::list<UPythonDelegate*> *python_delegates_gc;
 } ue_PyUObject;
 
-UCLASS()
-class UPyObject : public UObject
-{
-	GENERATED_BODY()
-public:
-	ue_PyUObject *py_object;
-	~UPyObject();
-	TArray<UPythonDelegate*> python_delegates_gc;
-};
-
-
-UCLASS()
-class UPythonGCManager : public UObject
-{
-	GENERATED_BODY()
-public:
-	UPROPERTY()
-	TArray<UPyObject *> python_properties_gc;
-};
 
 void unreal_engine_py_log_error();
 ue_PyUObject *ue_get_python_wrapper(UObject *);
@@ -47,3 +27,5 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *, PyObject *);
 PyObject *ue_bind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
 
 PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject *);
+
+void ue_pydelegates_cleanup(ue_PyUObject *);

@@ -46,10 +46,31 @@ static PyObject *init_unreal_engine(void) {
 }
 #endif
 
-UPythonGCManager *PythonGCManager;
+std::map<UObject *, ue_PyUObject *> ue_python_gc;
 
 
+static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args) {
+	std::list<UObject *> broken_list;
+	for (auto it : ue_python_gc) {
+#if UEPY_MEMORY_DEBUG
+		UE_LOG(LogPython, Warning, TEXT("Checking for UObject at %p"), it.first);
+#endif
+		UObject *u_obj = it.first;
+		if (!u_obj || !u_obj->IsValidLowLevel() || u_obj->IsPendingKillOrUnreachable()) {
+#if UEPY_MEMORY_DEBUG
+			UE_LOG(LogPython, Warning, TEXT("Removing UObject at %p (refcnt: %d)"), it.first, it.second->ob_base.ob_refcnt);
+#endif
+			broken_list.push_back(u_obj);
+		}
+	}
+	for (UObject *u_obj : broken_list) {
+		ue_PyUObject *py_obj = ue_python_gc.at(u_obj);
+		Py_DECREF(py_obj);
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
 
+}
 
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
@@ -99,6 +120,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_and_dispatch_when_ready", py_unreal_engine_create_and_dispatch_when_ready, METH_VARARGS, "" },
 
 	{ "add_ticker", py_unreal_engine_add_ticker, METH_VARARGS, "" },
+
+	{ "py_gc", py_unreal_engine_py_gc, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
@@ -306,15 +329,31 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
+void ue_pydelegates_cleanup(ue_PyUObject *self) {
+	// this could happen during engine shutdown, so have mercy
+	// start deallocating delegates mapped to the object
+	if (!self || !self->python_delegates_gc)
+		return;
+	for (UPythonDelegate *py_delegate : *(self->python_delegates_gc)) {
+		if (py_delegate && py_delegate->IsValidLowLevel()) {
+#if UEPY_MEMORY_DEBUG
+			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
+#endif
+			py_delegate->RemoveFromRoot();
+		}
+	}
+	self->python_delegates_gc->clear();
+	delete self->python_delegates_gc;
+	self->python_delegates_gc = nullptr;
+}
+
 // destructor
 static void ue_pyobject_dealloc(ue_PyUObject *self) {
 #if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
 #endif
-	// this could happen during engine shutdown, so have mercy
-	if (PythonGCManager && PythonGCManager->IsValidLowLevel()) {
-		PythonGCManager->python_properties_gc.Remove(self->ue_property);
-	}
+	ue_pydelegates_cleanup(self);
+	ue_python_gc.erase(self->ue_object);
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -457,7 +496,7 @@ void unreal_engine_init_py_module() {
 #else
 	PyObject *new_unreal_engine_module = Py_InitModule3("unreal_engine", NULL, unreal_engine_py_doc);
 #endif
-	
+
 
 	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
 
@@ -549,41 +588,29 @@ void unreal_engine_init_py_module() {
 // utility functions
 
 ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
-	if (!PythonGCManager) {
-		PythonGCManager = NewObject<UPythonGCManager>();
-		PythonGCManager->AddToRoot();
-		UE_LOG(LogPython, Log, TEXT("Initialized Python GC Manager"));
-	}
 	if (!ue_obj || !ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
 		return nullptr;
-	UPyObject *ue_py_object = FindObject<UPyObject>(ue_obj, TEXT("__PyObject"), true);
-	if (!ue_py_object) {
-		ue_py_object = NewObject<UPyObject>(ue_obj, FName(TEXT("__PyObject")));
+	std::map<UObject *, ue_PyUObject *>::iterator it = ue_python_gc.find(ue_obj);
+	// not found ??
+	if (it == ue_python_gc.end()) {
+
+		ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
 		if (!ue_py_object) {
 			return nullptr;
 		}
-		ue_py_object->py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
-		if (!ue_py_object->py_object) {
-			ue_py_object->ConditionalBeginDestroy();
-			return nullptr;
-		}
-		((ue_PyUObject *)ue_py_object->py_object)->ue_object = ue_obj;
-		((ue_PyUObject *)ue_py_object->py_object)->ue_property = ue_py_object;
+		ue_py_object->ue_object = ue_obj;
+		ue_py_object->python_delegates_gc = new std::list<UPythonDelegate *>;
 
-		if (PythonGCManager && PythonGCManager->IsValidLowLevel()) {
-			PythonGCManager->python_properties_gc.Add(ue_py_object);
-		}
-		else {
-			UE_LOG(LogPython, Fatal, TEXT("[BUG] PYTHON GC MANAGER BROKEN DURING ADD !"));
-		}
+		ue_python_gc[ue_obj] = ue_py_object;
 
 #if UEPY_MEMORY_DEBUG
-		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p"), ue_py_object, ue_obj);
+		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p %s"), ue_py_object, ue_obj, *ue_obj->GetName());
 #endif
-		//Py_INCREF(ue_py_object->py_object);
+		//Py_INCREF(ue_py_object);
+		return ue_py_object;
 	}
 
-	return ue_py_object->py_object;
+	return it->second;
 }
 
 void unreal_engine_py_log_error() {
@@ -650,7 +677,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
@@ -903,7 +930,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 			else if (helper.Num() > pylist_len) {
 				helper.RemoveValues(pylist_len, helper.Num() - pylist_len);
 			}
-			
+
 			for (int i = 0; i < (int)pylist_len; i++) {
 				uint8 *item_buf = helper.GetRawPtr(i);
 				PyObject *py_item = PyList_GetItem(py_obj, i);
@@ -1191,7 +1218,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		py_delegate->SetSignature(casted_prop->SignatureFunction);
 		// avoid delegates to be destroyed by the GC
 		py_delegate->AddToRoot();
-		u_obj->ue_property->python_delegates_gc.Add(py_delegate);
+		u_obj->python_delegates_gc->push_back(py_delegate);
 
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
@@ -1210,19 +1237,4 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
-
-UPyObject::~UPyObject() {
-#if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Error, TEXT("Destroying PyProperty %p"), this);
-#endif
-	for (UPythonDelegate *py_delegate : this->python_delegates_gc) {
-		py_delegate->RemoveFromRoot();
-	}
-#if UEPY_MEMORY_DEBUG
-	if (py_object && py_object->ob_base.ob_refcnt != 1) {
-		UE_LOG(LogPython, Error, TEXT("INCONSISTENT DESTROY %p with refcnt %d"), this, py_object->ob_base.ob_refcnt);
-	}
-#endif
-	Py_XDECREF(py_object);
 }

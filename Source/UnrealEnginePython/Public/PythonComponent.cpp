@@ -15,7 +15,10 @@ UPythonComponent::UPythonComponent()
 
 	FScopePythonGIL gil;
 	// pre-generate PyUObject (for performance)
-	ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_wrapper(this);
+	if (!py_uobject) {
+		unreal_engine_py_log_error();
+	}
 }
 
 
@@ -26,7 +29,7 @@ void UPythonComponent::BeginPlay()
 
 	// ...
 
-	if (PythonModule.IsEmpty())
+	if (!py_uobject || PythonModule.IsEmpty())
 		return;
 
 	FScopePythonGIL gil;
@@ -63,16 +66,8 @@ void UPythonComponent::BeginPlay()
 		return;
 	}
 
-	py_uobject = ue_get_python_wrapper(this);
+	PyObject_SetAttrString(py_component_instance, (char *)"uobject", (PyObject *)py_uobject);
 
-	if (py_uobject) {
-		PyObject_SetAttrString(py_component_instance, (char *)"uobject", (PyObject *)py_uobject);
-	}
-	else {
-		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in component wrapper class"));
-		unreal_engine_py_log_error();
-		return;
-	}
 
 	// disable ticking if no tick method is exposed
 	if (!PyObject_HasAttrString(py_component_instance, (char *)"tick") || PythonTickForceDisabled) {
@@ -223,7 +218,7 @@ void UPythonComponent::SetPythonAttrBool(FString attr, bool b)
 		return;
 
 	FScopePythonGIL gil;
-	
+
 	PyObject *py_bool = Py_False;
 	if (b) {
 		py_bool = Py_True;
@@ -248,7 +243,7 @@ bool UPythonComponent::CallPythonComponentMethodBool(FString method_name, FStrin
 	else {
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
-	
+
 
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -336,13 +331,20 @@ FString UPythonComponent::CallPythonComponentMethodString(FString method_name, F
 UPythonComponent::~UPythonComponent()
 {
 	FScopePythonGIL gil;
+
+	ue_pydelegates_cleanup(py_uobject);
+
 #if UEPY_MEMORY_DEBUG
 	if (py_component_instance && py_component_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UActorComponent wrapper refcnt = %d"), py_component_instance->ob_refcnt);
 	}
 #endif
 	Py_XDECREF(py_component_instance);
+	
 #if UEPY_MEMORY_DEBUG
-	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
+	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
 #endif
+
+	// this could trigger the distruction of the python/uobject mapper
+	Py_XDECREF(py_uobject);
 }

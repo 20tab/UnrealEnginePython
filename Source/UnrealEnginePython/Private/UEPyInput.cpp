@@ -363,7 +363,7 @@ PyObject *py_ue_bind_action(ue_PyUObject *self, PyObject * args) {
 	py_delegate->AddToRoot();
 
 	// allow the delegate to not be destroyed
-	self->ue_property->python_delegates_gc.Add(py_delegate);
+	self->python_delegates_gc->push_back(py_delegate);
 
 	FInputActionBinding input_action_binding(FName(UTF8_TO_TCHAR(action_name)), (const EInputEvent)key);
 	input_action_binding.ActionDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);
@@ -409,7 +409,7 @@ PyObject *py_ue_bind_axis(ue_PyUObject *self, PyObject * args) {
 	py_delegate->AddToRoot();
 
 	// allow the delegate to not be destroyed
-	self->ue_property->python_delegates_gc.Add(py_delegate);
+	self->python_delegates_gc->push_back(py_delegate);
 
 	FInputAxisBinding input_axis_binding(FName(UTF8_TO_TCHAR(axis_name)));
 	input_axis_binding.AxisDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputAxisHandler);
@@ -456,7 +456,7 @@ PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args) {
 	py_delegate->AddToRoot();
 
 	// allow the delegate to not be destroyed
-	self->ue_property->python_delegates_gc.Add(py_delegate);
+	self->python_delegates_gc->push_back(py_delegate);
 
 	FInputKeyBinding input_key_binding(FKey(UTF8_TO_TCHAR(key_name)), (const EInputEvent)key);
 	input_key_binding.KeyDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);

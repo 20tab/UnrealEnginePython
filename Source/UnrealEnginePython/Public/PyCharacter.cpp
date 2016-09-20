@@ -12,7 +12,10 @@ APyCharacter::APyCharacter()
 
 	FScopePythonGIL gil;
 	// pre-generate PyUObject (for performance)
-	ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_wrapper(this);
+	if (!py_uobject) {
+		unreal_engine_py_log_error();
+	}
 }
 
 
@@ -25,7 +28,7 @@ void APyCharacter::BeginPlay()
 
 	// ...
 
-	if (PythonModule.IsEmpty())
+	if (!py_uobject || PythonModule.IsEmpty())
 		return;
 
 	FScopePythonGIL gil;
@@ -62,16 +65,7 @@ void APyCharacter::BeginPlay()
 		return;
 	}
 
-	py_uobject = ue_get_python_wrapper(this);
-
-	if (py_uobject) {
-		PyObject_SetAttrString(py_character_instance, (char *)"uobject", (PyObject *)py_uobject);
-	}
-	else {
-		UE_LOG(LogPython, Error, TEXT("Unable to set 'uobject' field in character wrapper class"));
-		unreal_engine_py_log_error();
-		return;
-	}
+	PyObject_SetAttrString(py_character_instance, (char *)"uobject", (PyObject *)py_uobject);
 
 	// disable ticking if no tick method is exposed
 	if (!PyObject_HasAttrString(py_character_instance, (char *)"tick") || PythonTickForceDisabled) {
@@ -366,13 +360,20 @@ void APyCharacter::SetupPlayerInputComponent(class UInputComponent* input)
 APyCharacter::~APyCharacter()
 {
 	FScopePythonGIL gil;
+
+	ue_pydelegates_cleanup(py_uobject);
+
 #if UEPY_MEMORY_DEBUG
 	if (py_character_instance && py_character_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python ACharacter wrapper refcnt = %d"), py_character_instance->ob_refcnt);
 	}
 #endif
 	Py_XDECREF(py_character_instance);
+	
 #if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Warning, TEXT("Python ACharacter (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
 #endif
+
+	// this could trigger the distruction of the python/uobject mapper
+	Py_XDECREF(py_uobject);
 }

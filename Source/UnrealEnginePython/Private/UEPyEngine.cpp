@@ -501,6 +501,9 @@ PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args) {
 	// fake UFUNCTION for bypassing checks
 	ticker_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
+	// avoid the delegate to be GC'ed
+	py_delegate->AddToRoot();
+
 	FTicker::GetCoreTicker().AddTicker(ticker_delegate, delay);
 
 	Py_INCREF(Py_None);
