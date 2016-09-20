@@ -67,8 +67,8 @@ static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args) {
 		ue_PyUObject *py_obj = ue_python_gc.at(u_obj);
 		Py_DECREF(py_obj);
 	}
-	Py_INCREF(Py_None);
-	return Py_None;
+	
+	return PyLong_FromLong(broken_list.size());
 
 }
 
