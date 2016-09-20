@@ -487,6 +487,11 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	u_struct->AddCppProperty(u_property);
 	u_struct->StaticLink(true);
 
+	if (u_struct->IsA<UClass>()) {
+		UClass *owner_class = (UClass *)u_struct;
+		u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
+	}
+
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
