@@ -45,22 +45,39 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	uint8 *frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 	FMemory::Memzero(frame, function->PropertiesSize);
-	
+
 	argn = Stack.Object ? 1 : 0;
-	for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
-		Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
-		if (!on_error) {
-			PyObject *arg = ue_py_convert_property(prop, frame);
-			if (!arg) {
-				unreal_engine_py_log_error();
-				on_error = true;
-			}
-			else {
-				PyTuple_SetItem(py_args, argn++, arg);
+	// is it a bluepritn call ?
+	if (*Stack.Code == EX_EndFunctionParms && function->NumParms > 0) {
+		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
+			if (!on_error) {
+				PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals);
+				if (!arg) {
+					unreal_engine_py_log_error();
+					on_error = true;
+				}
+				else {
+					PyTuple_SetItem(py_args, argn++, arg);
+				}
 			}
 		}
 	}
-	
+	else {
+		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
+			Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
+			if (!on_error) {
+				PyObject *arg = ue_py_convert_property(prop, frame);
+				if (!arg) {
+					unreal_engine_py_log_error();
+					on_error = true;
+				}
+				else {
+					PyTuple_SetItem(py_args, argn++, arg);
+				}
+			}
+		}
+	}
+
 	Stack.Code++;
 
 	if (on_error || !function->py_callable) {
