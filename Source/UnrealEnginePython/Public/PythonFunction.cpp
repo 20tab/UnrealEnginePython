@@ -13,55 +13,59 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 {
 
-	
+	FScopePythonGIL gil;
 
 	UPythonFunction *function = static_cast<UPythonFunction *>(Stack.CurrentNativeFunction);
-
-	UE_LOG(LogPython, Warning, TEXT("CALLING PYTHON FUNCTION"));
-
-
-	
-	if (!Stack.Object) {
-		UE_LOG(LogPython, Warning, TEXT("STACK OBJECT NOT DEFINED !!!"));
-	}
-	else {
-		UE_LOG(LogPython, Warning, TEXT("READY TO RUN CALLABLE FOR %s"), *Stack.Object->GetName());
-	}
-
-	P_FINISH;
-
-	if (!function->py_callable) {
-		return;
-	}
-
-	FScopePythonGIL gil;
 
 	if (function->GetSuperFunction()) {
 		UE_LOG(LogPython, Warning, TEXT("HAS SUPER FUNCTION"));
 	}
 
+	bool on_error = false;
+
 	// count the number of arguments
-	Py_ssize_t argn = 0;
+	Py_ssize_t argn = Stack.Object ? 1 : 0;
 	TFieldIterator<UProperty> IArgs(function);
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
 	}
 	UE_LOG(LogPython, Warning, TEXT("Initializing %d parameters"), argn);
-	PyObject *py_args = PyTuple_New(argn);// function->NumParms);
+	PyObject *py_args = PyTuple_New(argn);
 
-	argn = 0;
-
-	TFieldIterator<UProperty> PArgs(function);
-	for (; PArgs && argn < function->NumParms && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs) {
-		UProperty *prop = *PArgs;
-		PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals);
-		if (!arg) {
+	if (Stack.Object) {
+		PyObject *py_obj = (PyObject *)ue_get_python_wrapper(Stack.Object);
+		if (!py_obj) {
 			unreal_engine_py_log_error();
-			Py_DECREF(py_args);
-			return;
+			on_error = true;
 		}
-		PyTuple_SetItem(py_args, argn, arg);
-		argn++;
+		else {
+			PyTuple_SetItem(py_args, 0, py_obj);
+		}
+	}
+
+	uint8 *frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
+	FMemory::Memzero(frame, function->PropertiesSize);
+	
+	argn = Stack.Object ? 1 : 0;
+	for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
+		Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
+		if (!on_error) {
+			PyObject *arg = ue_py_convert_property(prop, frame);
+			if (!arg) {
+				unreal_engine_py_log_error();
+				on_error = true;
+			}
+			else {
+				PyTuple_SetItem(py_args, argn++, arg);
+			}
+		}
+	}
+	
+	Stack.Code++;
+
+	if (on_error || !function->py_callable) {
+		Py_DECREF(py_args);
+		return;
 	}
 
 	PyObject *ret = PyObject_CallObject(function->py_callable, py_args);
@@ -70,6 +74,10 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		unreal_engine_py_log_error();
 		return;
 	}
+	Py_DECREF(ret);
+
+
+	return;
 
 	// get return value (if required)
 	UProperty *return_property = ((UFunction *)Stack.Node)->GetReturnProperty();
@@ -80,7 +88,6 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		FMemory::Memcpy(RESULT_PARAM, Stack.Locals + function->ReturnValueOffset, return_property->ArrayDim * return_property->ElementSize);
 	}
 	Py_DECREF(ret);
-	
 }
 
 UPythonFunction::~UPythonFunction()

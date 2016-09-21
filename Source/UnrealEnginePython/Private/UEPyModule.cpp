@@ -320,7 +320,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 
+#if PY_MAJOR_VERSION >= 3
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
+#endif
 	{ "add_property", (PyCFunction)py_ue_add_property, METH_VARARGS, "" },
 	{ "as_dict", (PyCFunction)py_ue_as_dict, METH_VARARGS, "" },
 

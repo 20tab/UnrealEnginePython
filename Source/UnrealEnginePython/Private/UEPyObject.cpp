@@ -279,6 +279,7 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
 	return ue_bind_pyevent(self, FString(event_name), py_callable, true);
 }
 
+#if PY_MAJOR_VERSION >= 3
 PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -307,65 +308,97 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 
 	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 	function->SetPyCallable(py_callable);
+
 	function->RepOffset = MAX_uint16;
 	function->ReturnValueOffset = MAX_uint16;
 	function->FirstPropertyToInit = NULL;
 	function->Script.Add(EX_EndFunctionParms);
 
-	
-	function->Bind();
-	function->StaticLink(true);
-	
-	//function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable | FUNC_Event;
-	function->FunctionFlags |= FUNC_Native | FUNC_Event | FUNC_BlueprintEvent;
 
 	if (parent_function) {
 		function->SetSuperStruct(parent_function);
 		/*
-			duplicate properties
+			TODO: duplicate properties of parent
 		*/
 	}
 	else {
+
+		// iterate all arguments using inspect.signature()
+		// this is required to maintaining args order
+		PyObject *inspect = PyImport_ImportModule("inspect");
+		if (!inspect) {
+			return NULL;
+		}
+		PyObject *signature = PyObject_CallMethod(inspect, "signature", "O", py_callable);
+		if (!signature) {
+			return NULL;
+		}
+
+		PyObject *parameters = PyObject_GetAttrString(signature, "parameters");
+		if (!parameters) {
+			return NULL;
+		}
+
+		PyObject *annotations = PyObject_GetAttrString(py_callable, "__annotations__");
+
 		UField **next_property = &function->Children;
 		UProperty **next_property_link = &function->PropertyLink;
-		// get __annotations__
-		PyObject *annotations = PyObject_GetAttrString(py_callable, "__annotations__");
-		PyObject *annotation_keys = PyDict_Keys(annotations);
-		if (annotation_keys) {
-			Py_ssize_t len = PyList_Size(annotation_keys);
-			for (Py_ssize_t i = 0; i < len; i++) {
-				PyObject *key = PyList_GetItem(annotation_keys, i);
-				char *p_name = PyUnicode_AsUTF8(key);
-				PyObject *value = PyDict_GetItem(annotations, key);
-				UProperty *prop = nullptr;
-				if (PyType_Check(value)) {
-					if ((PyTypeObject *)value == &PyFloat_Type) {
-						prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-					}
-				}
-				if (prop) {
-					if (!strcmp(p_name, "return")) {
-						prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
-					}
-					else {
-						prop->SetPropertyFlags(CPF_Parm);
-					}
-					*next_property = prop;
-					next_property = &prop->Next;
 
-					*next_property_link = prop;
-					next_property_link = &prop->PropertyLinkNext;
+		PyObject *parameters_keys = PyObject_GetIter(parameters);
+		// do not process args if no annotations are available
+		while (annotations) {
+			PyObject *key = PyIter_Next(parameters_keys);
+			if (!key) {
+				if (PyErr_Occurred())
+					return NULL;
+				break;
+			}
+			if (!PyUnicode_Check(key))
+				continue;
+
+			char *p_name = PyUnicode_AsUTF8(key);
+
+			PyObject *value = PyDict_GetItem(annotations, key);
+			if (!value)
+				continue;
+			UProperty *prop = nullptr;
+			if (PyType_Check(value)) {
+				if ((PyTypeObject *)value == &PyFloat_Type) {
+					prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 				}
+				else if ((PyTypeObject *)value == &PyUnicode_Type) {
+					prop = NewObject<UStrProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				else if ((PyTypeObject *)value == &PyBool_Type) {
+					prop = NewObject<UBoolProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				else if ((PyTypeObject *)value == &PyLong_Type) {
+					prop = NewObject<UInt64Property>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				// TODO add native types (like vectors, rotators...)
+			}
+			if (prop) {
+				if (!strcmp(p_name, "return")) {
+					prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
+				}
+				else {
+					prop->SetPropertyFlags(CPF_Parm);
+				}
+				*next_property = prop;
+				next_property = &prop->Next;
+				*next_property_link = prop;
+				next_property_link = &prop->PropertyLinkNext;
+			}
+			else {
+				UE_LOG(LogPython, Warning, TEXT("Unable to map argument %s to function %s"), UTF8_TO_TCHAR(p_name), UTF8_TO_TCHAR(name));
 			}
 		}
 	}
 
+	function->Bind();
+	function->StaticLink(true);
 
-	//FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
 
-	
-
-	
 	function->ParmsSize = 0;
 	function->NumParms = 0;
 
@@ -375,27 +408,40 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 		UProperty *p = *props;
 		if (p->HasAnyPropertyFlags(CPF_Parm)) {
 			function->NumParms++;
+			UE_LOG(LogPython, Warning, TEXT("PARAM %d %s size = %d"), function->NumParms, *p->GetName(), p->GetSize());
 			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm)) {
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
-				p->DestructorLinkNext = function->DestructorLink;
-				function->DestructorLink = p;
 			}
 		}
 	}
 
 	UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
 
+
+	function->FunctionFlags |= FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
+	//function->FunctionFlags |= FUNC_Native | FUNC_Event | FUNC_BlueprintEvent;
+
+	//FNativeFunctionRegistrar::RegisterFunction(u_class, UTF8_TO_TCHAR(name), (Native)&UPythonFunction::CallPythonCallable);
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
-	
+
 
 	function->Next = u_class->Children;
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
 
+	u_class->StaticLink(true);
+
+	// regenerate CDO
+	u_class->GetDefaultObject()->RemoveFromRoot();
+	u_class->GetDefaultObject()->MarkPendingKill();
+	u_class->ClassDefaultObject = nullptr;
+	u_class->GetDefaultObject();
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+#endif
 
 PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
@@ -486,7 +532,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	UStruct *u_struct = (UStruct *)self->ue_object;
 	u_struct->AddCppProperty(u_property);
 	u_struct->StaticLink(true);
-	
+
 
 	if (u_struct->IsA<UClass>()) {
 		UClass *owner_class = (UClass *)u_struct;
@@ -496,8 +542,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		owner_class->GetDefaultObject();
 		//u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
 	}
-	
-	
+
+
 
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
