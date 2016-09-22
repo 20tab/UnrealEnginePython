@@ -378,12 +378,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 				// TODO add native types (like vectors, rotators...)
 			}
 			if (prop) {
-				if (!strcmp(p_name, "return")) {
-					prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
-				}
-				else {
-					prop->SetPropertyFlags(CPF_Parm);
-				}
+				prop->SetPropertyFlags(CPF_Parm);
 				*next_property = prop;
 				next_property = &prop->Next;
 				*next_property_link = prop;
@@ -391,6 +386,40 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 			}
 			else {
 				UE_LOG(LogPython, Warning, TEXT("Unable to map argument %s to function %s"), UTF8_TO_TCHAR(p_name), UTF8_TO_TCHAR(name));
+			}
+		}
+
+		// check for return value
+		if (annotations) {
+			PyObject *py_return_value = PyDict_GetItemString(annotations, "return");
+			if (py_return_value) {
+				UProperty *prop = nullptr;
+				if (PyType_Check(py_return_value)) {
+					char *p_name = (char *) "ReturnValue";
+					if ((PyTypeObject *)py_return_value == &PyFloat_Type) {
+						prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					else if ((PyTypeObject *)py_return_value == &PyUnicode_Type) {
+						prop = NewObject<UStrProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					else if ((PyTypeObject *)py_return_value == &PyBool_Type) {
+						prop = NewObject<UBoolProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					else if ((PyTypeObject *)py_return_value == &PyLong_Type) {
+						prop = NewObject<UInt64Property>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					// TODO add native types (like vectors, rotators...)
+				}
+				if (prop) {
+					prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
+					*next_property = prop;
+					next_property = &prop->Next;
+					*next_property_link = prop;
+					next_property_link = &prop->PropertyLinkNext;
+				}
+				else {
+					UE_LOG(LogPython, Warning, TEXT("Unable to map return value to function %s"), UTF8_TO_TCHAR(name));
+				}
 			}
 		}
 	}

@@ -29,7 +29,9 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
 	}
+#if UEPY_MEMORY_DEBUG
 	UE_LOG(LogPython, Warning, TEXT("Initializing %d parameters"), argn);
+#endif
 	PyObject *py_args = PyTuple_New(argn);
 
 	if (Stack.Object) {
@@ -39,17 +41,19 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 			on_error = true;
 		}
 		else {
+			Py_INCREF(py_obj);
 			PyTuple_SetItem(py_args, 0, py_obj);
 		}
 	}
 
-	uint8 *frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
-	FMemory::Memzero(frame, function->PropertiesSize);
+	uint8 *frame = Stack.Locals;
 
 	argn = Stack.Object ? 1 : 0;
-	// is it a bluepritn call ?
+	// is it a blueprint call ?
 	if (*Stack.Code == EX_EndFunctionParms && function->NumParms > 0) {
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
+			if (prop->PropertyFlags & CPF_ReturnParm)
+				continue;
 			if (!on_error) {
 				PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals);
 				if (!arg) {
@@ -63,8 +67,12 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		}
 	}
 	else {
+		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
+		FMemory::Memzero(frame, function->PropertiesSize);
 		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
 			Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
+			if (prop->PropertyFlags & CPF_ReturnParm)
+				continue;
 			if (!on_error) {
 				PyObject *arg = ue_py_convert_property(prop, frame);
 				if (!arg) {
@@ -91,18 +99,20 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		unreal_engine_py_log_error();
 		return;
 	}
-	Py_DECREF(ret);
-
-
-	return;
 
 	// get return value (if required)
-	UProperty *return_property = ((UFunction *)Stack.Node)->GetReturnProperty();
+	UProperty *return_property = function->GetReturnProperty();
 	if (return_property && function->ReturnValueOffset != MAX_uint16) {
+#if UEPY_MEMORY_DEBUG
 		UE_LOG(LogPython, Warning, TEXT("FOUND RETURN VALUE"));
-		ue_py_convert_pyobject(ret, return_property, (uint8 *)Stack.Locals);
-		// copy value to stack result value
-		FMemory::Memcpy(RESULT_PARAM, Stack.Locals + function->ReturnValueOffset, return_property->ArrayDim * return_property->ElementSize);
+#endif
+		if (ue_py_convert_pyobject(ret, return_property, frame)) {
+			// copy value to stack result value
+			FMemory::Memcpy(RESULT_PARAM, frame + function->ReturnValueOffset, return_property->ArrayDim * return_property->ElementSize);
+		}
+		else {
+			UE_LOG(LogPython, Error, TEXT("Invalid return value type for function %s"), *function->GetFName().ToString());
+		}
 	}
 	Py_DECREF(ret);
 }
