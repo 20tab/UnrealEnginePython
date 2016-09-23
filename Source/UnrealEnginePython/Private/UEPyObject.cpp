@@ -19,6 +19,28 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetOuter());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetOutermost());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);

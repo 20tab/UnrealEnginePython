@@ -107,6 +107,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_selected_assets", py_unreal_engine_get_selected_assets, METH_VARARGS, "" },
 	{ "get_assets_by_class", py_unreal_engine_get_assets_by_class, METH_VARARGS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
+	{ "create_blueprint_from_actor", py_unreal_engine_create_blueprint_from_actor, METH_VARARGS, "" },
+	{ "replace_blueprint", py_unreal_engine_replace_blueprint, METH_VARARGS, "" },
+	{ "reload_blueprint", py_unreal_engine_reload_blueprint, METH_VARARGS, "" },
+	{ "add_components_to_blueprint", py_unreal_engine_add_components_to_blueprint, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 #endif
@@ -174,6 +178,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
+
+	{ "get_outer", (PyCFunction)py_ue_get_outer, METH_VARARGS, "" },
+	{ "get_outermost", (PyCFunction)py_ue_get_outermost, METH_VARARGS, "" },
+
+
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
 	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
 
@@ -1025,6 +1034,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		if (ue_obj->ue_object->IsA<UObject>()) {
 			auto casted_prop = Cast<UObjectPropertyBase>(prop);
 			if (!casted_prop)
+				return false;
+			// ensure the object type is correct, otherwise crash could happen (soon or later)
+			if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
 				return false;
 			casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object);
 			return true;
