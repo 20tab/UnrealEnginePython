@@ -34,13 +34,5 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject *, PyObject *
 
 PyObject *py_unreal_engine_add_ticker(PyObject *, PyObject *);
 
-#if WITH_EDITOR
-PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
-PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);
-PyObject *py_unreal_engine_reload_blueprint(PyObject *, PyObject *);
-PyObject *py_unreal_engine_replace_blueprint(PyObject *, PyObject *);
-PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject *, PyObject *);
-PyObject *py_unreal_engine_add_components_to_blueprint(PyObject *, PyObject *);
-#endif
 
 

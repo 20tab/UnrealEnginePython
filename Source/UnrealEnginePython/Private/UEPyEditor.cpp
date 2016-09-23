@@ -5,6 +5,7 @@
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Editor/UnrealEd/Classes/Factories/Factory.h"
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 #include "UnrealEd.h"
 #include "FbxMeshUtils.h"
@@ -323,6 +324,217 @@ PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * arg
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
+
+	PyObject *py_parent;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:create_blueprint", &py_parent, &name)) {
+		return NULL;
+	}
+
+	UClass *parent = UObject::StaticClass();
+
+	if (py_parent != Py_None) {
+		if (!ue_is_pyuobject(py_parent)) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		}
+		ue_PyUObject *py_obj = (ue_PyUObject *)py_parent;
+		if (!py_obj->ue_object->IsA<UClass>())
+			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+		parent = (UClass *)py_obj->ue_object;
+	}
+
+	if (name[0] != '/') {
+		return PyErr_Format(PyExc_Exception, "path must start with a /");
+	}
+
+	char *bp_name = strrchr(name, '/') + 1;
+	if (strlen(bp_name) < 1) {
+		return PyErr_Format(PyExc_Exception, "invalid blueprint name");
+	}
+
+	UPackage *outer = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+	if (!outer)
+		return PyErr_Format(PyExc_Exception, "unable to create package");
+
+	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprint(parent, outer, UTF8_TO_TCHAR(bp_name), EBlueprintType::BPTYPE_Normal, UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+	if (bp) {
+		FAssetRegistryModule::AssetCreated(bp);
+		outer->MarkPackageDirty();
+	}
+	ue_PyUObject *ret = ue_get_python_wrapper(bp);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+
+
+PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	if (!PyArg_ParseTuple(args, "O:reload_blueprint", &py_blueprint)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	UBlueprint *reloaded_bp = FKismetEditorUtilities::ReloadBlueprint(bp);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(reloaded_bp);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+
+PyObject *py_unreal_engine_compile_blueprint(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	if (!PyArg_ParseTuple(args, "O:compile_blueprint", &py_blueprint)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	FKismetEditorUtilities::CompileBlueprint(bp);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+PyObject *py_unreal_engine_replace_blueprint(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	PyObject *py_blueprint_new;
+	if (!PyArg_ParseTuple(args, "OO:replace_blueprint", &py_blueprint, &py_blueprint_new)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	if (!ue_is_pyuobject(py_blueprint_new)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	py_obj = (ue_PyUObject *)py_blueprint_new;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp_new = (UBlueprint *)py_obj->ue_object;
+
+	UBlueprint *replaced_bp = FKismetEditorUtilities::ReplaceBlueprint(bp, bp_new);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(replaced_bp);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+
+PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject * args) {
+
+	PyObject *py_actor;
+	char *name;
+	if (!PyArg_ParseTuple(args, "sO:create_blueprint", &name, &py_actor)) {
+		return NULL;
+	}
+
+	if (name[0] != '/') {
+		return PyErr_Format(PyExc_Exception, "path must start with a /");
+	}
+
+	if (!ue_is_pyuobject(py_actor)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_actor;
+	if (!py_obj->ue_object->IsA<AActor>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+	AActor *actor = (AActor *)py_obj->ue_object;
+
+	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprintFromActor(UTF8_TO_TCHAR(name), actor, true);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(bp);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+
+PyObject *py_unreal_engine_add_components_to_blueprint(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	PyObject *py_components;
+	if (!PyArg_ParseTuple(args, "OO:add_components_to_blueprint", &py_blueprint, &py_components)) {
+		return NULL;
+	}
+
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	if (!PyList_Check(py_components)) {
+		return PyErr_Format(PyExc_TypeError, "argument is not a list");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	TArray<UActorComponent *> actor_components;
+	Py_ssize_t list_len = PyList_Size(py_components);
+	for (Py_ssize_t i = 0; i < list_len; i++) {
+		PyObject *item = PyList_GetItem(py_components, i);
+		if (!ue_is_pyuobject(item)) {
+			return PyErr_Format(PyExc_TypeError, "the component list has to contains only UActorComponent classes or objects");
+		}
+		ue_PyUObject *item_obj = (ue_PyUObject *)item;
+		if (item_obj->ue_object->IsA<UActorComponent>()) {
+			UActorComponent *component = (UActorComponent *)item_obj->ue_object;
+			if (!component->GetOwner()) {
+				return PyErr_Format(PyExc_TypeError, "the component is not mapped to an actor");
+			}
+			actor_components.Add((UActorComponent *)item_obj->ue_object);
+		}
+		else {
+			return PyErr_Format(PyExc_TypeError, "the component list has to contains only UActorComponent classes or objects");
+		}
+	}
+
+	FKismetEditorUtilities::AddComponentsToBlueprint(bp, actor_components);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
 }
 
 #endif

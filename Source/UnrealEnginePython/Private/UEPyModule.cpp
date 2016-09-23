@@ -110,6 +110,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_blueprint_from_actor", py_unreal_engine_create_blueprint_from_actor, METH_VARARGS, "" },
 	{ "replace_blueprint", py_unreal_engine_replace_blueprint, METH_VARARGS, "" },
 	{ "reload_blueprint", py_unreal_engine_reload_blueprint, METH_VARARGS, "" },
+	{ "compile_blueprint", py_unreal_engine_compile_blueprint, METH_VARARGS, "" },
 	{ "add_components_to_blueprint", py_unreal_engine_add_components_to_blueprint, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
