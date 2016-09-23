@@ -9,6 +9,7 @@
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 #include "UnrealEd.h"
 #include "FbxMeshUtils.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 
 
@@ -535,6 +536,40 @@ PyObject *py_unreal_engine_add_components_to_blueprint(PyObject * self, PyObject
 	Py_INCREF(Py_None);
 	return Py_None;
 
+}
+
+PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	char *name;
+	char *in_type;
+	PyObject *py_is_array = nullptr;
+	if (!PyArg_ParseTuple(args, "Oss|O:blueprint_add_member_variable", &py_blueprint, &name, &in_type, &py_is_array)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	bool is_array = false;
+	if (py_is_array && PyObject_IsTrue(py_is_array))
+		is_array = true;
+
+	FEdGraphPinType pin(UTF8_TO_TCHAR(in_type), FString(""), nullptr, is_array, false);
+
+	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
 }
 
 #endif

@@ -72,7 +72,7 @@ public class UnrealEnginePython : ModuleRules
         if (UEBuildConfiguration.bBuildEditor)
         {
             PrivateDependencyModuleNames.AddRange(new string[]{
-                "UnrealEd"
+                "UnrealEd",
             });
         }
 
