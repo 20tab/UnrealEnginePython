@@ -5,6 +5,7 @@
 
 #if WITH_EDITOR
 #include "Kismet2/KismetEditorUtilities.h"
+#include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 #endif
 
 #include "PythonGeneratedClass.h"
@@ -390,14 +391,24 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
 		parent = (UClass *)py_obj->ue_object;
 	}
 
-	FString filename = FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
-	UPackage *outer = CreatePackage(nullptr, *filename);
+	if (name[0] != '/') {
+		return PyErr_Format(PyExc_Exception, "path must start with a /");
+	}
+
+	char *bp_name = strrchr(name, '/') + 1;
+	if (strlen(bp_name) < 1) {
+		return PyErr_Format(PyExc_Exception, "invalid blueprint name");
+	}
+
+	UPackage *outer = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 	if (!outer)
 		return PyErr_Format(PyExc_Exception, "unable to create package");
-	
 
-	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprint(parent, outer, UTF8_TO_TCHAR(name), EBlueprintType::BPTYPE_Normal, UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
-	
+	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprint(parent, outer, UTF8_TO_TCHAR(bp_name), EBlueprintType::BPTYPE_Normal, UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+	if (bp) {
+		FAssetRegistryModule::AssetCreated(bp);
+		outer->MarkPackageDirty();
+	}
 	ue_PyUObject *ret = ue_get_python_wrapper(bp);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -477,6 +488,9 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 		return NULL;
 	}
 
+	if (name[0] != '/') {
+		return PyErr_Format(PyExc_Exception, "path must start with a /");
+	}
 
 	if (!ue_is_pyuobject(py_actor)) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
@@ -485,7 +499,6 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 	if (!py_obj->ue_object->IsA<AActor>())
 		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 	AActor *actor = (AActor *)py_obj->ue_object;
-
 
 	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprintFromActor(UTF8_TO_TCHAR(name), actor, true);
 
@@ -528,19 +541,11 @@ PyObject *py_unreal_engine_add_components_to_blueprint(PyObject * self, PyObject
 		}
 		ue_PyUObject *item_obj = (ue_PyUObject *)item;
 		if (item_obj->ue_object->IsA<UActorComponent>()) {
+			UActorComponent *component = (UActorComponent *)item_obj->ue_object;
+			if (!component->GetOwner()) {
+				return PyErr_Format(PyExc_TypeError, "the component is not mapped to an actor");
+			}
 			actor_components.Add((UActorComponent *)item_obj->ue_object);
-		}
-		else if (item_obj->ue_object->IsA<UClass>()) {
-			UClass *u_class = (UClass *)item_obj->ue_object;
-			if (!u_class->IsChildOf<UActorComponent>()) {
-				return PyErr_Format(PyExc_TypeError, "the component list has to contains only UActorComponent classes or objects");
-			}
-			UActorComponent *component = NewObject<UActorComponent>(GetTransientPackage(), *u_class->GetName(), RF_Public);
-			if (component)
-				actor_components.Add(component);
-			else {
-				return PyErr_Format(PyExc_TypeError, "unable to create component from class %s", TCHAR_TO_UTF8(*u_class->GetName()));
-			}
 		}
 		else {
 			return PyErr_Format(PyExc_TypeError, "the component list has to contains only UActorComponent classes or objects");

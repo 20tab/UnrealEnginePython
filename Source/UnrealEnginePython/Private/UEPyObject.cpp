@@ -41,6 +41,15 @@ PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	self->ue_object->ConditionalBeginDestroy();
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
