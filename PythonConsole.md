@@ -9,8 +9,8 @@ In this screenshot you can see how to get access to the editor world, and how to
 
 The console is still in early stage of development (it is really raw, do not expected a good user experience)
 
-Running scripts
----------------
+Running python scripts
+----------------------
 
 Albeit you can set your startup environment in ue_site.py or you can import module, they generally require you to restart the editor whenever you modify them.
 
