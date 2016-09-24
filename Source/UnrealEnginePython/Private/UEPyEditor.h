@@ -23,7 +23,7 @@ PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);
 PyObject *py_unreal_engine_reload_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_replace_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject *, PyObject *);
-PyObject *py_unreal_engine_add_components_to_blueprint(PyObject *, PyObject *);
+PyObject *py_unreal_engine_add_component_to_blueprint(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject *, PyObject *);
 

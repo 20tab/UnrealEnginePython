@@ -489,11 +489,12 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 
 }
 
-PyObject *py_unreal_engine_add_components_to_blueprint(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject * args) {
 
 	PyObject *py_blueprint;
-	PyObject *py_components;
-	if (!PyArg_ParseTuple(args, "OO:add_components_to_blueprint", &py_blueprint, &py_components)) {
+	PyObject *py_component;
+	char *name;
+	if (!PyArg_ParseTuple(args, "OOs:add_component_to_blueprint", &py_blueprint, &py_component, &name)) {
 		return NULL;
 	}
 
@@ -502,8 +503,8 @@ PyObject *py_unreal_engine_add_components_to_blueprint(PyObject * self, PyObject
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
-	if (!PyList_Check(py_components)) {
-		return PyErr_Format(PyExc_TypeError, "argument is not a list");
+	if (!ue_is_pyuobject(py_component)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
@@ -511,31 +512,26 @@ PyObject *py_unreal_engine_add_components_to_blueprint(PyObject * self, PyObject
 		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
 	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
-	TArray<UActorComponent *> actor_components;
-	Py_ssize_t list_len = PyList_Size(py_components);
-	for (Py_ssize_t i = 0; i < list_len; i++) {
-		PyObject *item = PyList_GetItem(py_components, i);
-		if (!ue_is_pyuobject(item)) {
-			return PyErr_Format(PyExc_TypeError, "the component list has to contains only UActorComponent classes or objects");
-		}
-		ue_PyUObject *item_obj = (ue_PyUObject *)item;
-		if (item_obj->ue_object->IsA<UActorComponent>()) {
-			UActorComponent *component = (UActorComponent *)item_obj->ue_object;
-			if (!component->GetOwner()) {
-				return PyErr_Format(PyExc_TypeError, "the component is not mapped to an actor");
-			}
-			actor_components.Add((UActorComponent *)item_obj->ue_object);
-		}
-		else {
-			return PyErr_Format(PyExc_TypeError, "the component list has to contains only UActorComponent classes or objects");
-		}
+	py_obj = (ue_PyUObject *)py_component;
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+	UClass *component_class = (UClass *)py_obj->ue_object;
+
+
+	bp->Modify();
+	USCS_Node *node = bp->SimpleConstructionScript->CreateNode(component_class, UTF8_TO_TCHAR(name));
+	if (!node) {
+		return PyErr_Format(PyExc_Exception, "unable to allocate new component");
 	}
+	bp->SimpleConstructionScript->AddNode(node);
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
-	FKismetEditorUtilities::AddComponentsToBlueprint(bp, actor_components);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-
+	ue_PyUObject *ret = ue_get_python_wrapper(node->ComponentTemplate);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+	
 }
 
 PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObject * args) {
