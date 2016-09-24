@@ -72,6 +72,17 @@ static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args) {
 
 }
 
+static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args) {
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "s:exec", &filename)) {
+		return NULL;
+	}
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	PythonModule.RunFile(filename);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
@@ -128,6 +139,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_ticker", py_unreal_engine_add_ticker, METH_VARARGS, "" },
 
 	{ "py_gc", py_unreal_engine_py_gc, METH_VARARGS, "" },
+	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };

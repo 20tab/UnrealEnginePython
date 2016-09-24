@@ -103,6 +103,24 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 	Py_DECREF(eval_ret);
 }
 
+void FUnrealEnginePythonModule::RunFile(char *filename) {
+	FScopePythonGIL gil;
+	char *full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
+	FILE *fd = nullptr;
+	
+	if (fopen_s(&fd, full_path, "r") != 0) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+	}
+	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	fclose(fd);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(eval_ret);
+}
+
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FUnrealEnginePythonModule, UnrealEnginePython)

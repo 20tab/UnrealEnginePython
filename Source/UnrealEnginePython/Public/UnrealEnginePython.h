@@ -18,6 +18,7 @@ public:
 	virtual void ShutdownModule() override;
 
 	void RunString(char *);
+	void RunFile(char *);
 
 private:
 	void *ue_python_gil;
