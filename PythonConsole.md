@@ -9,6 +9,22 @@ In this screenshot you can see how to get access to the editor world, and how to
 
 The console is still in early stage of development (it is really raw, do not expected a good user experience)
 
+Running scripts
+---------------
+
+Albeit you can set your startup environment in ue_site.py or you can import module, they generally require you to restart the editor whenever you modify them.
+
+The console allows you to run python scripts on-the-fly using the ue.exec(filename) command:
+
+```py
+import unreal_engine as ue
+ue.exec('yourscript.py')
+# now you can modify it, and re-run the new version
+ue.exec('yourscript.py')
+```
+
+python scripts are searched from the /Content/Scripts directory
+
 Editor scripting
 ----------------
 
