@@ -18,6 +18,8 @@
 #include <python3.5m/Python.h>
 #elif UNREAL_ENGINE_PYTHON_ON_MAC == 2
 #include <python2.7/Python.h>
+#elif UNREAL_ENGINE_PYTHON_ON_LINUX
+#include <Python.h>
 #else
 #include <include/Python.h>
 #endif
@@ -32,7 +34,7 @@
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
-#include "UEPyENumsImporter.h"
+#include "UEPyEnumsImporter.h"
 
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\

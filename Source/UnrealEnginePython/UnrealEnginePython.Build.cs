@@ -6,8 +6,8 @@ using System.IO;
 public class UnrealEnginePython : ModuleRules
 {
 
-    private const string pythonHome = "python35";
-    //private const string pythonHome = "python27";
+    private string pythonHome = "python35";
+    //private string pythonHome = "python27";
 
     protected string PythonHome
     {
@@ -97,6 +97,19 @@ public class UnrealEnginePython : ModuleRules
                 PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython2.7.dylib"));
                 Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC=2"));
             }
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            if (pythonHome == "python35")
+            {
+                PublicIncludePaths.Add("/usr/include/python3.5m");
+                PublicAdditionalLibraries.Add("/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5.so");
+            }
+            else if (pythonHome == "python27") {
+                PublicIncludePaths.Add("/usr/include/python2.7");
+                PublicAdditionalLibraries.Add("/usr/lib/python2.7/config-x86_64-linux-gnu/libpython2.7.so");
+            }
+            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
         }
 
     }
