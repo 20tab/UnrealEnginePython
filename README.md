@@ -85,9 +85,38 @@ rm UE4Editor-UnrealEnginePython.dylib
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
 * Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
 
+Installation On Linux (64 bit)
+------------------------------
+
+Currently the suggested distribution is Ubuntu Xenial (LTS 16.04) 64bit. Obviously you need to already have an Unreal Engine build (note that on ubuntu xenial you need to install the clang-3.5 package to build the editor). Both python2.7 and python3.5 are supported and the default configuration assumes python3 (so ensure to install the python3-dev package).
+
+* Create a new C++ project and close the editor once the project is fully started
+* go to the just created project directory and create the Plugins folder
+* move to the Plugins folder and clone the plugin repository:
+
+
+```sh
+git clone https://github.com/20tab/UnrealEnginePython
+```
+
+* re-open your project, this time you will get a popup asking you for re-building the python plugin. Choose yes and wait.
+
+NOTE: always run your project from a terminal so you can see startup logs (they are really useful when building the plugin the first time, if you cannot build the plugin, open an issue on github pasting the related log lines).
+
+If you want to use python2 just edit the Source/UnrealEnginePython/UnrealEnginePython.Build.cs file and change the pythonHome string to "python27" (ensure to have the python2.7-dev package installed).
+
+If you want to use an alternative python installation, go to the end of UnrealEnginePython.Build.cs, and change the paths of includes and libpython accordingly
+
+Upgrade the plugin on Linux
+---------------------------
+
+Just remove the .so files in Plugins/UnrealEnginePython/Binaries/Linux and pull the latest code.
+
+At the next run the build procedure wil be started again.
+
 # Installation on other platforms
 
-Currently only Windows and MacOSX are supported, Linux support should be available soon. We are investigating Android support too via the kivy project.
+Currently only Windows, MacOSX and Linux are supported. We are investigating Android support too via the kivy project.
 
 # Using Python with Unreal Engine (finally)
 
@@ -191,7 +220,7 @@ To allow seamless Python integration, each UObject of the engine is automaticall
 
 Whenever you want to access a UObject from python, you effectively get a reference to a ue_PyUObject exposing (via its methods) the features of the UObject (properties, functions, ....)
 
-This special python object is cached into the UObject (via the __PyObject property) so you do not need to recreate it every time (and more important you can hold state informations into this python object)
+This special python object is cached into a c++ map in memory. (The key is the UObject pointer, the value is the ue_PyUObject pointer)
 
 To be more clear, a call to:
 
@@ -199,11 +228,11 @@ To be more clear, a call to:
 text_render_component = unreal_engine.find_class('TextRenderComponent')
 ```
 
-will internally search for the 'TextRenderComponent' class (via unreal c++ reflection) and when found will check if it exposes a '__PyObject' property. If available, it will return its value to the Python VM, otherwise a new one will be created and mapped to it.
+will internally search for the 'TextRenderComponent' class (via unreal c++ reflection) and when found will check if it is available in the cache, otherwise it will create a new ue_PyUObject object that will be placed in the cache.
 
 From the previous example the 'text_render_component' maintains a mapping to the UObject (well a UClass in this example).
 
-Pay attention: the python class you map to the PyActor class, is not a ue_PyUObject (it is a classic python class) but holds a reference (via the 'uobject' field) to a ue_PyUObject mapped to the AActor: PyActor exposes 'uobject' field mapped to the c++ UObject.
+Pay attention: the python class you map to the PyActor (or PyPawn, PyCharacter or PyComponent), is not a ue_PyUObject. It is a classic python class that holds a reference (via the 'uobject' field) to the related ue_PyUObject mapped object. The best technical term to describe those classes is 'proxy'.
 
 Note about 'uobject' from now on
 ---------------------------------
