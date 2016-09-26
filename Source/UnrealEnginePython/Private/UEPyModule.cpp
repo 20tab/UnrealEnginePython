@@ -123,6 +123,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "reload_blueprint", py_unreal_engine_reload_blueprint, METH_VARARGS, "" },
 	{ "compile_blueprint", py_unreal_engine_compile_blueprint, METH_VARARGS, "" },
 	{ "blueprint_add_member_variable", py_unreal_engine_blueprint_add_member_variable, METH_VARARGS, "" },
+	{ "blueprint_add_new_timeline", py_unreal_engine_blueprint_add_new_timeline, METH_VARARGS, "" },
 	{ "add_component_to_blueprint", py_unreal_engine_add_component_to_blueprint, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
@@ -140,6 +141,8 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "py_gc", py_unreal_engine_py_gc, METH_VARARGS, "" },
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
+
+
 
 	{ NULL, NULL },
 };
@@ -270,6 +273,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
+	{ "play", (PyCFunction)py_ue_play, METH_VARARGS, "" },
+
 	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
 
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },

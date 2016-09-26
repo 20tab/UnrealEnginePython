@@ -12,7 +12,6 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 
 
-
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
 
 	if (!GEditor)
@@ -25,6 +24,7 @@ PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
 
 PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject * args) {
 
@@ -566,6 +566,35 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 
 	Py_INCREF(Py_False);
 	return Py_False;
+}
+
+PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_new_timeline", &py_blueprint, &name)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	UTimelineTemplate *timeline = FBlueprintEditorUtils::AddNewTimeline(bp, UTF8_TO_TCHAR(name));
+	if (!timeline) {
+		return PyErr_Format(PyExc_Exception, "unable to add new timeline %s", name);
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(timeline);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 }
 
 #endif

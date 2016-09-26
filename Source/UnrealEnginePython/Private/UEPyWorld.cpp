@@ -21,6 +21,20 @@ PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_play(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	world->BeginPlay();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 // mainly used for testing
 PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args) {
 

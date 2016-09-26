@@ -5,6 +5,7 @@
 #include "UnrealEnginePython.h"
 
 PyObject *py_ue_quit_game(ue_PyUObject *, PyObject *);
+PyObject *py_ue_play(ue_PyUObject *, PyObject *);
 
 // mainly used for unit testing
 PyObject *py_ue_world_tick(ue_PyUObject *, PyObject *);
