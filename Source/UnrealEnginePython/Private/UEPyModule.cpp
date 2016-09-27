@@ -127,6 +127,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_component_to_blueprint", py_unreal_engine_add_component_to_blueprint, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
+
+	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
@@ -202,6 +204,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
 	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
+
+	{ "set_name", (PyCFunction)py_ue_set_name, METH_VARARGS, "" },
 
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
 

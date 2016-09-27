@@ -60,6 +60,27 @@ PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * ar
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *obj = nullptr;
+	if (!PyArg_ParseTuple(args, "O:editor_play", &obj)) {
+		return NULL;
+	}
+
+	bool pie = true;
+
+	if (obj && !PyObject_IsTrue(obj))
+		pie = false;
+
+	GEditor->PlayInEditor(GEditor->GetEditorWorldContext().World(), pie);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args) {
 
 	if (!GEditor)

@@ -123,6 +123,24 @@ PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 
 }
 
+PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:set_name", &name)) {
+		return NULL;
+	}
+
+	if (self->ue_object->Rename(UTF8_TO_TCHAR(name))) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -672,7 +690,15 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	FString filename = FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
 
-	if (UPackage::SavePackage(package, self->ue_object, EObjectFlags::RF_NoFlags, *filename)) {
+	if (!self->ue_object->Rename(*(self->ue_object->GetName()), package)) {
+		return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
+	}
+
+	package->FullyLoad();
+
+	if (UPackage::SavePackage(package, self->ue_object, RF_Public | RF_Standalone, *filename)) {
+		FAssetRegistryModule::AssetCreated(self->ue_object);
+		package->MarkPackageDirty();
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
