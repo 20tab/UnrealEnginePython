@@ -1,11 +1,11 @@
 The Sequencer API (Work in progress)
 ------------------------------------
 
-Credits goes to Ron Fischer for having explained me the sequencer api.
+Credits go to Ron Fischer for having explained me the sequencer api.
 
 NOTE: seq_obj in the following docs is a reference to a ULevelSequence object.
 
-NOTE2: GUID's are always managed as strings
+NOTE2: GUID's are always managed as python strings
 
 NOTE3: track_obj in the following docs is a reference to a UMovieSceneTrack object.
 
