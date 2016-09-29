@@ -2,7 +2,52 @@
 
 #include "Runtime/MovieScene/Public/MovieScene.h"
 #include "Runtime/MovieScene/Public/MovieScenePossessable.h"
+#include "Runtime/MovieScene/Public/MovieSceneBinding.h"
 #include "Runtime/LevelSequence/Public/LevelSequence.h"
+
+PyObject *py_ue_sequencer_possessable_tracks(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *guid;
+	if (!PyArg_ParseTuple(args, "s:sequencer_possessable_tracks", &guid)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid)) {
+		return PyErr_Format(PyExc_Exception, "invalid GUID");
+	}
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	PyObject *py_tracks = PyList_New(0);
+
+	FMovieScenePossessable *possessable = scene->FindPossessable(f_guid);
+	if (!possessable)
+		return PyErr_Format(PyExc_Exception, "GUID not found");
+
+	TArray<FMovieSceneBinding> bindings = scene->GetBindings();
+	for (FMovieSceneBinding binding : bindings) {
+		if (binding.GetObjectGuid() != f_guid)
+			continue;
+		for (UMovieSceneTrack *track : binding.GetTracks()) {
+			ue_PyUObject *ret = ue_get_python_wrapper((UObject *)track);
+			if (!ret) {
+				Py_DECREF(py_tracks);
+				return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+			}
+			PyList_Append(py_tracks, (PyObject *)ret);
+		}
+		break;
+	}
+
+	return py_tracks;
+}
 
 PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args) {
 
@@ -35,7 +80,7 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args) 
 	return ret;
 }
 
-PyObject *py_ue_sequencer_tracks(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
