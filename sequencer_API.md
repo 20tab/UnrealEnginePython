@@ -1,7 +1,7 @@
 The Sequencer API (Work in progress)
 ------------------------------------
 
-Credits goes to Ron Fischer for having explained to me the sequencer api.
+Credits goes to Ron Fischer for having explained me the sequencer api.
 
 NOTE: seq_obj in the following docs is a reference to a ULevelSequence object.
 
