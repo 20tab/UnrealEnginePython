@@ -545,7 +545,13 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 	if (!node) {
 		return PyErr_Format(PyExc_Exception, "unable to allocate new component");
 	}
-	bp->SimpleConstructionScript->AddNode(node);
+	USCS_Node *root = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
+	if (root) {
+		root->AddChildNode(node);
+	}
+	else {
+		bp->SimpleConstructionScript->AddNode(node);
+	}
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
 	ue_PyUObject *ret = ue_get_python_wrapper(node->ComponentTemplate);
