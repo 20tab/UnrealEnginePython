@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "Runtime/MovieScene/Public/MovieScene.h"
+#include "Runtime/MovieScene/Public/MovieScenePossessable.h"
 #include "Runtime/LevelSequence/Public/LevelSequence.h"
 
 PyObject *py_ue_sequencer_tracks(ue_PyUObject *self, PyObject * args) {
@@ -34,6 +35,37 @@ PyObject *py_ue_sequencer_tracks(ue_PyUObject *self, PyObject * args) {
 	}
 
 	return py_tracks;
+}
+
+PyObject *py_ue_sequencer_possessables(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UMovieScene *scene = nullptr;
+
+	if (self->ue_object->IsA<ULevelSequence>()) {
+		ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+		scene = seq->GetMovieScene();
+	}
+	else if (self->ue_object->IsA<UMovieScene>()) {
+		scene = (UMovieScene *)self->ue_object;
+	}
+
+	if (!scene)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence or a MovieScene");
+
+	PyObject *py_possessables = PyList_New(0);
+	for (int32 i = 0; i < scene->GetPossessableCount();i++) {
+		FMovieScenePossessable possessable = scene->GetPossessable(i);
+		ue_PyUObject *ret = ue_get_python_wrapper((UObject *)&possessable);
+		if (!ret) {
+			Py_DECREF(py_possessables);
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		}
+		PyList_Append(py_possessables, (PyObject *)ret);
+	}
+
+	return py_possessables;
 }
 
 #if WITH_EDITOR

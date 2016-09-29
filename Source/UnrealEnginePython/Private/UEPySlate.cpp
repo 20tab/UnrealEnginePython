@@ -12,6 +12,9 @@ std::list<FPythonSlateCommand *> *python_commands;
 
 void FPythonSlateCommands::RegisterCommands()
 {
+	if (!python_commands)
+		return;
+
 	for (FPythonSlateCommand *cmd : *python_commands) {
 
 		UI_COMMAND_Function(this,
