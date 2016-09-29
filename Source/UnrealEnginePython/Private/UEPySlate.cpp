@@ -47,6 +47,9 @@ void FPythonSlateCommand::Callback() {
 
 void FPythonSlateCommands::ApplyPythonExtenders() {
 
+	if (!python_commands)
+		return;
+
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
 	for (FPythonSlateCommand *cmd : *python_commands) {
