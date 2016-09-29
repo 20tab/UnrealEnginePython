@@ -3,6 +3,7 @@
 #include "Runtime/MovieScene/Public/MovieScene.h"
 #include "Runtime/MovieScene/Public/MovieScenePossessable.h"
 #include "Runtime/MovieScene/Public/MovieSceneBinding.h"
+#include "Runtime/MovieScene/Public/MovieSceneTrack.h"
 #include "Runtime/LevelSequence/Public/LevelSequence.h"
 
 PyObject *py_ue_sequencer_possessable_tracks(ue_PyUObject *self, PyObject * args) {
@@ -177,6 +178,31 @@ PyObject *py_ue_sequencer_sections(ue_PyUObject *self, PyObject * args) {
 	PyObject *py_sections = PyList_New(0);
 
 	TArray<UMovieSceneSection *> sections = scene->GetAllSections();
+
+	for (UMovieSceneSection *section : sections) {
+		ue_PyUObject *ret = ue_get_python_wrapper((UObject *)section);
+		if (!ret) {
+			Py_DECREF(py_sections);
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		}
+		PyList_Append(py_sections, (PyObject *)ret);
+	}
+
+	return py_sections;
+}
+
+PyObject *py_ue_sequencer_track_sections(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<UMovieSceneTrack>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMovieSceneTrack");
+
+	UMovieSceneTrack *track = (UMovieSceneTrack *)self->ue_object;
+
+	PyObject *py_sections = PyList_New(0);
+
+	TArray<UMovieSceneSection *> sections = track->GetAllSections();
 
 	for (UMovieSceneSection *section : sections) {
 		ue_PyUObject *ret = ue_get_python_wrapper((UObject *)section);

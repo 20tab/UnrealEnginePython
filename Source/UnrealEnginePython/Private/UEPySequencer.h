@@ -6,6 +6,7 @@
 
 PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_possessable_tracks(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_track_sections(ue_PyUObject *, PyObject *);
 #if WITH_EDITOR
 PyObject *py_ue_sequencer_folders(ue_PyUObject *, PyObject *);
 #endif
