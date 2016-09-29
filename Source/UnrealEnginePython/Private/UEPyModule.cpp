@@ -19,6 +19,7 @@
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
+#include "UEPySlate.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -129,6 +130,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 
 	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
+
+	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },

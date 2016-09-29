@@ -386,6 +386,7 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
 		FAssetRegistryModule::AssetCreated(bp);
 		outer->MarkPackageDirty();
 	}
+
 	ue_PyUObject *ret = ue_get_python_wrapper(bp);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");

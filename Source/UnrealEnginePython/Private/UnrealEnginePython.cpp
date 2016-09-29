@@ -79,8 +79,16 @@ void FUnrealEnginePythonModule::StartupModule()
 	main_dict = PyModule_GetDict(main_module);
 	local_dict = PyDict_New();
 
+#if WITH_EDITOR
+	// register commands (after importing ue_site)
+	FPythonSlateCommands::Register();
+	// apply extenders
+	FPythonSlateCommands::ApplyPythonExtenders();
+#endif
+
 	// release the GIL
 	PythonGILRelease();
+
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()
