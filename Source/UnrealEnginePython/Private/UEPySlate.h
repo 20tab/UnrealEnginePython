@@ -6,6 +6,7 @@
 #if WITH_EDITOR
 #include "SlateBasics.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
+#include <map>
 #include <list>
 
 
@@ -13,8 +14,17 @@ struct FPythonSlateCommand {
 	TSharedPtr<class FUICommandInfo> PythonSlateAction;
 	FString command_name;
 	PyObject *py_callable;
+	FString menu_bar;
 	void Builder(FMenuBuilder& Builder);
 	void Callback();
+};
+
+
+struct FPythonSlateMenuBar {
+	FString name;
+	std::list<FPythonSlateCommand *> *commands;
+	void Builder(FMenuBarBuilder& MenuBarBuilder);
+	void Filler(FMenuBuilder& Builder);
 };
 
 class FPythonSlateCommands : public TCommands<FPythonSlateCommands>
