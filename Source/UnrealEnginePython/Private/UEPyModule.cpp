@@ -132,6 +132,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
 
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
+	{ "add_nomad_tab", py_unreal_engine_add_nomad_tab, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },

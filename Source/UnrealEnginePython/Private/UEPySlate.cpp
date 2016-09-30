@@ -195,4 +195,27 @@ void ue_python_init_swidget(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "SWidget", (PyObject *)&ue_PySWidgetType);
 }
 
+TSharedRef<SDockTab> SPythonWidgetSpawner::SpawnTabNomad(const FSpawnTabArgs& SpawnTabArgs) {
+	return SNew(SDockTab)
+		.TabRole(ETabRole::NomadTab);
+}
+
+PyObject *py_unreal_engine_add_nomad_tab(PyObject *self, PyObject *args) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:add_nomad_tab", &name)) {
+		return NULL;
+	}
+
+	SPythonWidgetSpawner *spawner = new SPythonWidgetSpawner;
+
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(name, FOnSpawnTab::CreateRaw(spawner, &SPythonWidgetSpawner::SpawnTabNomad))
+		.SetDisplayName(FText::FromString(UTF8_TO_TCHAR(name)))
+		.SetMenuType(ETabSpawnerMenuType::Hidden);
+
+	FGlobalTabmanager::Get()->InvokeTab(FName(name));
+
+	// TODO return a unreal_engine.SWidget
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 #endif

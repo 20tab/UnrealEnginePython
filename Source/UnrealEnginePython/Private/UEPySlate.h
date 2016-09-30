@@ -5,6 +5,7 @@
 
 #if WITH_EDITOR
 #include "SlateBasics.h"
+#include "SlateExtras.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include <map>
 #include <list>
@@ -53,4 +54,10 @@ typedef struct {
 } ue_PySWidget;
 
 void ue_python_init_swidget(PyObject *);
+
+struct SPythonWidgetSpawner {
+	TSharedRef<SDockTab> SpawnTabNomad(const FSpawnTabArgs& SpawnTabArgs);
+};
+
+PyObject *py_unreal_engine_add_nomad_tab(PyObject *, PyObject *);
 #endif
