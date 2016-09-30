@@ -52,3 +52,22 @@ seq_obj.sequencer_folders()
 ```
 
 get the list of folders in a sequencer
+
+```py
+new_track = seq_obj.sequencer_add_master_track(u_class)
+```
+
+add a new master track. u_class must be a class child of UMovieSceneTrack, like ue.find_class('MovieSceneAudioTrack')
+
+
+```py
+name = track_obj.sequencer_get_display_name()
+```
+
+(editor only) get the display name of various seqnecer objects (currently only tracks are supported)
+
+```py
+track_obj.sequencer_set_display_name(name)
+```
+
+(editor only) set the display name of various seqnecer objects (currently only tracks are supported)
