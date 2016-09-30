@@ -355,11 +355,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_possessable_tracks", (PyCFunction)py_ue_sequencer_possessable_tracks, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "sequencer_folders", (PyCFunction)py_ue_sequencer_folders, METH_VARARGS, "" },
+	{ "sequencer_set_display_name", (PyCFunction)py_ue_sequencer_set_display_name, METH_VARARGS, "" },
+	{ "sequencer_get_display_name", (PyCFunction)py_ue_sequencer_get_display_name, METH_VARARGS, "" },
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },
 	{ "sequencer_possessables", (PyCFunction)py_ue_sequencer_possessables, METH_VARARGS, "" },
 	{ "sequencer_find_possessable", (PyCFunction)py_ue_sequencer_find_possessable, METH_VARARGS, "" },
+	{ "sequencer_add_master_track", (PyCFunction)py_ue_sequencer_add_master_track, METH_VARARGS, "" },
+	
 		
 #if PY_MAJOR_VERSION >= 3
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
