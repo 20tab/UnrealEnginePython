@@ -43,4 +43,14 @@ public:
 };
 
 PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
+
+
+
+typedef struct {
+	PyObject_HEAD
+	/* Type-specific fields go here. */
+	SWidget *s_widget;
+} ue_PySWidget;
+
+void ue_python_init_swidget(PyObject *);
 #endif

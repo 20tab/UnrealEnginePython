@@ -575,6 +575,10 @@ void unreal_engine_init_py_module() {
 
 	ue_python_init_uclassesimporter(new_unreal_engine_module);
 
+#if WITH_EDITOR
+	ue_python_init_swidget(new_unreal_engine_module);
+#endif
+
 	PyObject *py_sys = PyImport_ImportModule("sys");
 	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
 
