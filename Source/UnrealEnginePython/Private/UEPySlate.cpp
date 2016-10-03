@@ -150,6 +150,20 @@ static PyObject *ue_PySWidget_str(ue_PySWidget *self)
 		TCHAR_TO_UTF8(*self->s_widget->GetTypeAsString()));
 }
 
+PyObject *py_slate_add_child(ue_PySWidget *self, PyObject * args) {
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:add_child", &py_obj)) {
+		return NULL;
+	}
+
+	ue_PySWidget *s_widget = (ue_PySWidget *)py_obj;
+
+	// append the widgetadd
+
+	Py_INCREF(self);
+	return (PyObject*)self;
+}
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -212,10 +226,26 @@ PyObject *py_unreal_engine_add_nomad_tab(PyObject *self, PyObject *args) {
 		.SetDisplayName(FText::FromString(UTF8_TO_TCHAR(name)))
 		.SetMenuType(ETabSpawnerMenuType::Hidden);
 
-	FGlobalTabmanager::Get()->InvokeTab(FName(name));
+	TSharedRef<SDockTab> tab = FGlobalTabmanager::Get()->InvokeTab(FName(name));
 
-	// TODO return a unreal_engine.SWidget
-	Py_INCREF(Py_None);
-	return Py_None;
+	ue_PySWidget *ue_py_s_widget = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
+	ue_py_s_widget->s_widget = (SWidget *)&tab.Get();
+
+	Py_INCREF(ue_py_s_widget);
+	return (PyObject *)ue_py_s_widget;
+}
+
+PyObject *py_unreal_engine_slate_text_block(PyObject *self, PyObject *args) {
+	char *text;
+	if (!PyArg_ParseTuple(args, "s:slate_text_block", &text)) {
+		return NULL;
+	}
+
+	TSharedRef<STextBlock> text_block = SNew(STextBlock).Text(FText::FromString(UTF8_TO_TCHAR(text)));
+	ue_PySWidget *ue_py_s_widget = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
+	ue_py_s_widget->s_widget = (SWidget *)&text_block.Get();
+
+	Py_INCREF(ue_py_s_widget);
+	return (PyObject*)ue_py_s_widget;
 }
 #endif

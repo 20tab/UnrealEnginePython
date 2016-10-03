@@ -133,6 +133,8 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
 	{ "add_nomad_tab", py_unreal_engine_add_nomad_tab, METH_VARARGS, "" },
+
+	{ "slate_text_block", py_unreal_engine_slate_text_block, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },

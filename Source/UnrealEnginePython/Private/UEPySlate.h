@@ -60,4 +60,5 @@ struct SPythonWidgetSpawner {
 };
 
 PyObject *py_unreal_engine_add_nomad_tab(PyObject *, PyObject *);
+PyObject *py_unreal_engine_slate_text_block(PyObject *, PyObject *);
 #endif
