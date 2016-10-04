@@ -55,7 +55,7 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
 typedef struct {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
-	SWidget *s_widget;
+	TSharedRef<SWidget> *s_widget_ref;
 	int s_widget_type;
 } ue_PySWidget;
 
