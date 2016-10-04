@@ -180,6 +180,14 @@ static PyObject *py_slate_get_window_handle(ue_PySWidget *self, PyObject * args)
 		SWindow *s_window = (SWindow *)&self->s_widget_ref->Get();
 		return PyLong_FromLongLong((long long)s_window->GetNativeWindow()->GetOSWindowHandle());
 	}
+
+	if (self->s_widget_type & PY_SLATE_TAB) {
+		SDockTab *s_tab = (SDockTab *)&self->s_widget_ref->Get();
+		if (s_tab->GetParentWindow().IsValid()) {
+			return PyLong_FromLongLong((long long)s_tab->GetParentWindow()->GetNativeWindow()->GetOSWindowHandle());
+		}
+		return PyErr_Format(PyExc_Exception, "slate tab has no parent window");
+	}
 	
 	return PyErr_Format(PyExc_Exception, "slate object does not expose the GetNativeWindow() method");
 
