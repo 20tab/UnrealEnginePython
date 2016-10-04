@@ -135,6 +135,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_nomad_tab", py_unreal_engine_add_nomad_tab, METH_VARARGS, "" },
 
 	{ "slate_text_block", py_unreal_engine_slate_text_block, METH_VARARGS, "" },
+	{ "slate_box", py_unreal_engine_slate_box, METH_VARARGS, "" },
+	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },

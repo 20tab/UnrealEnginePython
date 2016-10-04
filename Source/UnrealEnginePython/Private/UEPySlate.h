@@ -10,6 +10,11 @@
 #include <map>
 #include <list>
 
+#define PY_SLATE_BOX	0x01
+#define PY_SLATE_BORDER	0x02
+#define PY_SLATE_WINDOW	0x04
+#define PY_SLATE_TAB	0x08
+
 
 struct FPythonSlateCommand {
 	TSharedPtr<class FUICommandInfo> PythonSlateAction;
@@ -51,6 +56,7 @@ typedef struct {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 	SWidget *s_widget;
+	int s_widget_type;
 } ue_PySWidget;
 
 void ue_python_init_swidget(PyObject *);
@@ -61,4 +67,6 @@ struct SPythonWidgetSpawner {
 
 PyObject *py_unreal_engine_add_nomad_tab(PyObject *, PyObject *);
 PyObject *py_unreal_engine_slate_text_block(PyObject *, PyObject *);
+PyObject *py_unreal_engine_slate_box(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 #endif
