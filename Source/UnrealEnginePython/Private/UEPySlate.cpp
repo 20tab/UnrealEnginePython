@@ -166,6 +166,10 @@ static PyObject *py_slate_set_content(ue_PySWidget *self, PyObject * args) {
 		SBox *s_box = (SBox *)&self->s_widget_ref->Get();
 		s_box->SetContent(*s_widget->s_widget_ref);
 	}
+	else if (self->s_widget_type & PY_SLATE_WINDOW) {
+		SWindow *s_win = (SWindow *)&self->s_widget_ref->Get();
+		s_win->SetContent(*s_widget->s_widget_ref);
+	}
 	else {
 		return PyErr_Format(PyExc_Exception, "slate object does not expose the SetContent() method");
 	}
@@ -282,8 +286,6 @@ PyObject *py_unreal_engine_slate_text_block(PyObject *self, PyObject *args) {
 
 PyObject *py_unreal_engine_slate_box(PyObject *self, PyObject *args) {
 	
-	
-
 	ue_PySWidget *ue_py_s_widget = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
 	ue_py_s_widget->s_widget_ref = new TSharedRef<SWidget>(SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Center));
 	ue_py_s_widget->s_widget_type = PY_SLATE_BOX;
@@ -301,6 +303,28 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
 	ue_PySWidget *ue_py_s_widget = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
 	ue_py_s_widget->s_widget_ref = new TSharedRef<SWidget>(FGlobalTabmanager::Get()->GetRootWindow().Get());
 	ue_py_s_widget->s_widget_type = PY_SLATE_WINDOW;
+
+	Py_INCREF(ue_py_s_widget);
+	return (PyObject*)ue_py_s_widget;
+}
+
+PyObject *py_unreal_engine_slate_window(PyObject *self, PyObject *args) {
+	char *text;
+	int width;
+	int height;
+	if (!PyArg_ParseTuple(args, "sii:slate_window", &text, &width, &height)) {
+		return NULL;
+	}
+
+	ue_PySWidget *ue_py_s_widget = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
+	ue_py_s_widget->s_widget_ref = new TSharedRef<SWidget>(SNew(SWindow)
+		.Title(FText::FromString(UTF8_TO_TCHAR(text)))
+		.ClientSize(FVector2D(width, height))
+		);
+	ue_py_s_widget->s_widget_type = PY_SLATE_WINDOW;
+	SWindow *s_win = (SWindow *)&ue_py_s_widget->s_widget_ref->Get();
+	TSharedRef<SWindow> *s_window_ref = new TSharedRef<SWindow>(s_win);
+	FSlateApplication::Get().AddWindow(*s_window_ref, true);
 
 	Py_INCREF(ue_py_s_widget);
 	return (PyObject*)ue_py_s_widget;
