@@ -14,6 +14,7 @@
 #define PY_SLATE_BORDER	0x02
 #define PY_SLATE_WINDOW	0x04
 #define PY_SLATE_TAB	0x08
+#define PY_SLATE_BUTTON 0x0F
 
 
 struct FPythonSlateCommand {
@@ -69,5 +70,6 @@ PyObject *py_unreal_engine_add_nomad_tab(PyObject *, PyObject *);
 PyObject *py_unreal_engine_slate_text_block(PyObject *, PyObject *);
 PyObject *py_unreal_engine_slate_box(PyObject *, PyObject *);
 PyObject *py_unreal_engine_slate_window(PyObject *, PyObject *);
+PyObject *py_unreal_engine_slate_button(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 #endif

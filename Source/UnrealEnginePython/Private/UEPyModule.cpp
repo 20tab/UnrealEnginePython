@@ -137,6 +137,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "slate_text_block", py_unreal_engine_slate_text_block, METH_VARARGS, "" },
 	{ "slate_box", py_unreal_engine_slate_box, METH_VARARGS, "" },
 	{ "slate_window", py_unreal_engine_slate_window, METH_VARARGS, "" },
+	{ "slate_button", py_unreal_engine_slate_button, METH_VARARGS, "" },
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 #endif
 

@@ -329,4 +329,17 @@ PyObject *py_unreal_engine_slate_window(PyObject *self, PyObject *args) {
 	Py_INCREF(ue_py_s_widget);
 	return (PyObject*)ue_py_s_widget;
 }
+
+PyObject *py_unreal_engine_slate_button(PyObject *self, PyObject *args) {
+	char *text;
+	if (!PyArg_ParseTuple(args, "s:slate_button", &text)) {
+		return NULL;
+	}
+
+	ue_PySWidget *ue_py_s_widget = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
+	ue_py_s_widget->s_widget_ref = new TSharedRef<SWidget>(SNew(SButton).Text(FText::FromString(UTF8_TO_TCHAR(text))));
+
+	Py_INCREF(ue_py_s_widget);
+	return (PyObject*)ue_py_s_widget;
+}
 #endif
