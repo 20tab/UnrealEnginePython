@@ -29,3 +29,6 @@ PyObject *ue_bind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
 PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject *);
 
 void ue_pydelegates_cleanup(ue_PyUObject *);
+
+UClass *unreal_engine_new_uclass(char *, UClass *);
+UFunction *unreal_engine_add_function(UClass *, char *, PyObject *, uint32);

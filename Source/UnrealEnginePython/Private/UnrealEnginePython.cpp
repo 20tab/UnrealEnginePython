@@ -67,6 +67,10 @@ void FUnrealEnginePythonModule::StartupModule()
 	UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
 	UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
 
+	PyObject *main_module = PyImport_AddModule("__main__");
+	main_dict = PyModule_GetDict(main_module);
+	local_dict = main_dict;// PyDict_New();
+
 	if (PyImport_ImportModule("ue_site")) {
 		UE_LOG(LogPython, Log, TEXT("ue_site Python module successfully imported"));
 	}
@@ -74,10 +78,6 @@ void FUnrealEnginePythonModule::StartupModule()
 		// TODO gracefully manage the error
 		unreal_engine_py_log_error();
 	}
-
-	PyObject *main_module = PyImport_AddModule("__main__");
-	main_dict = PyModule_GetDict(main_module);
-	local_dict = PyDict_New();
 
 #if WITH_EDITOR
 	// register commands (after importing ue_site)

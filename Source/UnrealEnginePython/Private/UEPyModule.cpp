@@ -26,6 +26,7 @@
 
 
 #include "PythonDelegate.h"
+#include "PythonFunction.h"
 
 
 DEFINE_LOG_CATEGORY(LogPython);
@@ -68,7 +69,7 @@ static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args) {
 		ue_PyUObject *py_obj = ue_python_gc.at(u_obj);
 		Py_DECREF(py_obj);
 	}
-	
+
 	return PyLong_FromLong(broken_list.size());
 
 }
@@ -370,8 +371,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_possessables", (PyCFunction)py_ue_sequencer_possessables, METH_VARARGS, "" },
 	{ "sequencer_find_possessable", (PyCFunction)py_ue_sequencer_find_possessable, METH_VARARGS, "" },
 	{ "sequencer_add_master_track", (PyCFunction)py_ue_sequencer_add_master_track, METH_VARARGS, "" },
-	
-		
+
+
 #if PY_MAJOR_VERSION >= 3
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
 #endif
@@ -540,8 +541,84 @@ static PyTypeObject ue_PyUObjectType = {
 	ue_PyUObject_methods,             /* tp_methods */
 };
 
+UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
+	UObject *outer = GetTransientPackage();
+	UClass *parent = UObject::StaticClass();
 
+	if (outer_parent) {
+		parent = outer_parent;
+		outer = parent->GetOuter();
+	}
+	UClass *new_object = NewObject<UClass>(outer, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
+	if (!new_object)
+		return nullptr;
 
+	new_object->ClassConstructor = parent->ClassConstructor;
+	new_object->SetSuperStruct(parent);
+
+	new_object->PropertyLink = parent->PropertyLink;
+	new_object->ClassWithin = parent->ClassWithin;
+	new_object->ClassConfigName = parent->ClassConfigName;
+
+	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit));
+	new_object->ClassFlags |= CLASS_Native;
+
+	new_object->ClassCastFlags = parent->ClassCastFlags;
+
+	new_object->Bind();
+	new_object->StaticLink(true);
+
+	new_object->GetDefaultObject();
+
+	return new_object;
+}
+
+static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds) {
+	// is it subclassing ?
+	if (PyTuple_Size(args) == 3) {
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 1)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 2)))));
+		
+		PyObject *parents = PyTuple_GetItem(args, 1);
+		ue_PyUObject *parent = (ue_PyUObject *)PyTuple_GetItem(parents, 0);
+
+		PyObject *class_attributes = PyTuple_GetItem(args, 2);
+
+		PyObject *class_name = PyDict_GetItemString(class_attributes, (char *)"__qualname__");
+		char *name = PyUnicode_AsUTF8(class_name);
+		// check if parent is a uclass
+		UClass *new_class = unreal_engine_new_uclass(name, (UClass *)parent->ue_object);
+		if (!new_class)
+			return -1;
+		UE_LOG(LogPython, Warning, TEXT("%s"), *parent->ue_object->GetName());
+
+		PyObject *class_attributes_keys = PyObject_GetIter(class_attributes);
+		for (;;) {
+			PyObject *key = PyIter_Next(class_attributes_keys);
+			if (!key) {
+				if (PyErr_Occurred())
+					return -1;
+				break;
+			}
+			if (!PyUnicode_Check(key))
+				continue;
+			char *class_key = PyUnicode_AsUTF8(key);
+			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_')
+				continue;
+			PyObject *value = PyDict_GetItem(class_attributes, key);
+			if (PyCallable_Check(value)) {
+				if (!unreal_engine_add_function(new_class, class_key, value, FUNC_Native | FUNC_BlueprintCallable | FUNC_Public)) {
+					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
+					return -1;
+				}
+			}
+		}
+
+		self->ue_object = new_class;
+	}
+	return 0;
+}
 
 void unreal_engine_init_py_module() {
 #if PY_MAJOR_VERSION >= 3
@@ -563,6 +640,7 @@ void unreal_engine_init_py_module() {
 
 
 	ue_PyUObjectType.tp_new = PyType_GenericNew;
+	ue_PyUObjectType.tp_init = (initproc)unreal_engine_py_init;
 	if (PyType_Ready(&ue_PyUObjectType) < 0)
 		return;
 
@@ -735,7 +813,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
@@ -1298,4 +1376,172 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_callable, uint32 function_flags) {
+
+	if (u_class->FindFunctionByName(UTF8_TO_TCHAR(name))) {
+		UE_LOG(LogPython, Error, TEXT("function %s is already registered"), UTF8_TO_TCHAR(name));
+		return nullptr;
+	}
+
+	UFunction *parent_function = u_class->GetSuperClass()->FindFunctionByName(UTF8_TO_TCHAR(name));
+
+	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
+	function->SetPyCallable(py_callable);
+
+	function->RepOffset = MAX_uint16;
+	function->ReturnValueOffset = MAX_uint16;
+	function->FirstPropertyToInit = NULL;
+	function->Script.Add(EX_EndFunctionParms);
+
+
+	if (parent_function) {
+		function->SetSuperStruct(parent_function);
+		/*
+		TODO: duplicate properties of parent
+		*/
+	}
+	else {
+
+		// iterate all arguments using inspect.signature()
+		// this is required to maintaining args order
+		PyObject *inspect = PyImport_ImportModule("inspect");
+		if (!inspect) {
+			return NULL;
+		}
+		PyObject *signature = PyObject_CallMethod(inspect, "signature", "O", py_callable);
+		if (!signature) {
+			return NULL;
+		}
+
+		PyObject *parameters = PyObject_GetAttrString(signature, "parameters");
+		if (!parameters) {
+			return NULL;
+		}
+
+		PyObject *annotations = PyObject_GetAttrString(py_callable, "__annotations__");
+
+		UField **next_property = &function->Children;
+		UProperty **next_property_link = &function->PropertyLink;
+
+		PyObject *parameters_keys = PyObject_GetIter(parameters);
+		// do not process args if no annotations are available
+		while (annotations) {
+			PyObject *key = PyIter_Next(parameters_keys);
+			if (!key) {
+				if (PyErr_Occurred())
+					return NULL;
+				break;
+			}
+			if (!PyUnicode_Check(key))
+				continue;
+
+			char *p_name = PyUnicode_AsUTF8(key);
+
+			PyObject *value = PyDict_GetItem(annotations, key);
+			if (!value)
+				continue;
+			UProperty *prop = nullptr;
+			if (PyType_Check(value)) {
+				if ((PyTypeObject *)value == &PyFloat_Type) {
+					prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				else if ((PyTypeObject *)value == &PyUnicode_Type) {
+					prop = NewObject<UStrProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				else if ((PyTypeObject *)value == &PyBool_Type) {
+					prop = NewObject<UBoolProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				else if ((PyTypeObject *)value == &PyLong_Type) {
+					prop = NewObject<UInt64Property>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				}
+				// TODO add native types (like vectors, rotators...)
+			}
+			if (prop) {
+				prop->SetPropertyFlags(CPF_Parm);
+				*next_property = prop;
+				next_property = &prop->Next;
+				*next_property_link = prop;
+				next_property_link = &prop->PropertyLinkNext;
+			}
+			else {
+				UE_LOG(LogPython, Warning, TEXT("Unable to map argument %s to function %s"), UTF8_TO_TCHAR(p_name), UTF8_TO_TCHAR(name));
+			}
+		}
+
+		// check for return value
+		if (annotations) {
+			PyObject *py_return_value = PyDict_GetItemString(annotations, "return");
+			if (py_return_value) {
+				UProperty *prop = nullptr;
+				if (PyType_Check(py_return_value)) {
+					char *p_name = (char *) "ReturnValue";
+					if ((PyTypeObject *)py_return_value == &PyFloat_Type) {
+						prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					else if ((PyTypeObject *)py_return_value == &PyUnicode_Type) {
+						prop = NewObject<UStrProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					else if ((PyTypeObject *)py_return_value == &PyBool_Type) {
+						prop = NewObject<UBoolProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					else if ((PyTypeObject *)py_return_value == &PyLong_Type) {
+						prop = NewObject<UInt64Property>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					}
+					// TODO add native types (like vectors, rotators...)
+				}
+				if (prop) {
+					prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
+					*next_property = prop;
+					next_property = &prop->Next;
+					*next_property_link = prop;
+					next_property_link = &prop->PropertyLinkNext;
+				}
+				else {
+					UE_LOG(LogPython, Warning, TEXT("Unable to map return value to function %s"), UTF8_TO_TCHAR(name));
+				}
+			}
+		}
+	}
+
+	function->Bind();
+	function->StaticLink(true);
+
+	function->ParmsSize = 0;
+	function->NumParms = 0;
+
+	// allocate properties storage (ignore super)
+	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
+	for (; props; ++props) {
+		UProperty *p = *props;
+		if (p->HasAnyPropertyFlags(CPF_Parm)) {
+			function->NumParms++;
+			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
+			if (p->HasAnyPropertyFlags(CPF_ReturnParm)) {
+				function->ReturnValueOffset = p->GetOffset_ForUFunction();
+			}
+		}
+	}
+
+	UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
+
+	function->FunctionFlags = function_flags;
+	//function->FunctionFlags |= FUNC_Native | FUNC_Event | FUNC_BlueprintEvent;
+
+	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
+
+	function->Next = u_class->Children;
+	u_class->Children = function;
+	u_class->AddFunctionToFunctionMap(function);
+
+	u_class->StaticLink(true);
+
+	// regenerate CDO
+	u_class->GetDefaultObject()->RemoveFromRoot();
+	u_class->GetDefaultObject()->MarkPendingKill();
+	u_class->ClassDefaultObject = nullptr;
+	u_class->GetDefaultObject();
+
+	return function;
 }
