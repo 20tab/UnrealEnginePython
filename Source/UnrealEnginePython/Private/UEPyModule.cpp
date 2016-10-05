@@ -608,7 +608,20 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				continue;
 			PyObject *value = PyDict_GetItem(class_attributes, key);
 			if (PyCallable_Check(value)) {
-				if (!unreal_engine_add_function(new_class, class_key, value, FUNC_Native | FUNC_BlueprintCallable | FUNC_Public)) {
+				uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
+				PyObject *is_event = PyObject_GetAttrString(value, (char *)"event");
+				if (is_event && PyObject_IsTrue(is_event)) {
+					func_flags |= FUNC_BlueprintEvent;
+				}
+				else if (!is_event)
+					PyErr_Clear();
+				PyObject *is_pure = PyObject_GetAttrString(value, (char *)"pure");
+				if (is_pure && PyObject_IsTrue(is_pure)) {
+					func_flags |= FUNC_BlueprintPure;
+				}
+				else if (!is_pure)
+					PyErr_Clear();
+				if (!unreal_engine_add_function(new_class, class_key, value, func_flags)) {
 					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
 					return -1;
 				}
