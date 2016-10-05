@@ -591,7 +591,10 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		UClass *new_class = unreal_engine_new_uclass(name, (UClass *)parent->ue_object);
 		if (!new_class)
 			return -1;
-		UE_LOG(LogPython, Warning, TEXT("%s"), *parent->ue_object->GetName());
+		UE_LOG(LogPython, Warning, TEXT("PARENT = %s"), *parent->ue_object->GetName());
+
+		// map the class to the python object
+		self->ue_object = new_class;
 
 		PyObject *class_attributes_keys = PyObject_GetIter(class_attributes);
 		for (;;) {
@@ -626,9 +629,26 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					return -1;
 				}
 			}
+			// add simple property
+			else if (ue_is_pyuobject(value)) {
+				if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+					unreal_engine_py_log_error();
+					return -1;
+				}
+			}
+			// add array property
+			else if (PyList_Check(value)) {
+				if (PyList_Size(value) == 1) {
+					PyObject *first_item = PyList_GetItem(value, 0);
+					if (ue_is_pyuobject(first_item)) {
+						if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+							unreal_engine_py_log_error();
+							return -1;
+						}
+					}
+				}
+			}
 		}
-
-		self->ue_object = new_class;
 	}
 	return 0;
 }

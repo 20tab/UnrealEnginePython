@@ -385,6 +385,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 		}
 		u_class = (UClass *)py_obj->ue_object;
+		if (!u_class->IsChildOf<UProperty>())
+			return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
 		if (u_class == UArrayProperty::StaticClass())
 			return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
 		scope = self->ue_object;
@@ -398,6 +400,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class = (UClass *)py_obj->ue_object;
+				if (!u_class->IsChildOf<UProperty>())
+					return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
 				if (u_class == UArrayProperty::StaticClass())
 					return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
 				UArrayProperty *u_array = NewObject<UArrayProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
@@ -426,14 +430,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		flags |= CPF_Net;
 	}
 
-
 	if (is_array) {
 		UArrayProperty *u_array = (UArrayProperty *)scope;
 		u_array->AddCppProperty(u_property);
 		u_property->SetPropertyFlags(flags);
 		u_property = u_array;
 	}
-
 
 	if (u_class == UMulticastDelegateProperty::StaticClass()) {
 		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
@@ -458,14 +460,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		//u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
 	}
 
-
+	// TODO add default value
 
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
-
 }
 
 PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
