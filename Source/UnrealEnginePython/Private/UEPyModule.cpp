@@ -542,6 +542,8 @@ static PyTypeObject ue_PyUObjectType = {
 };
 
 UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
+	bool is_overwriting = false;
+
 	UObject *outer = GetTransientPackage();
 	UClass *parent = UObject::StaticClass();
 
@@ -549,9 +551,31 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 		parent = outer_parent;
 		outer = parent->GetOuter();
 	}
-	UClass *new_object = NewObject<UClass>(outer, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
-	if (!new_object)
-		return nullptr;
+
+	UClass *new_object = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
+	if (!new_object) {
+		new_object = NewObject<UClass>(outer, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
+		if (!new_object)
+			return nullptr;
+	}
+	else {
+		is_overwriting = true;
+	}
+
+	if (is_overwriting && new_object->Children) {
+		UField *u_field = new_object->Children;
+		while (u_field) {
+			UE_LOG(LogPython, Warning, TEXT("ITEM %s"), *u_field->GetName(), *u_field->GetClass()->GetName());
+			if (u_field->IsA<UFunction>()) {
+				new_object->RemoveFunctionFromFunctionMap((UFunction *)u_field);
+			}
+			u_field = u_field->Next;
+		}
+		new_object->ClearFunctionMapsCaches();
+		new_object->PurgeClass(true);
+		new_object->Children = nullptr;
+		new_object->ClassAddReferencedObjects = parent->ClassAddReferencedObjects;
+	}
 
 	new_object->ClassConstructor = parent->ClassConstructor;
 	new_object->SetSuperStruct(parent);
@@ -565,10 +589,20 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 
 	new_object->ClassCastFlags = parent->ClassCastFlags;
 
-	new_object->Bind();
+	if (!is_overwriting)
+		new_object->Bind();
 	new_object->StaticLink(true);
 
+	// it could be a class update
+	if (is_overwriting && new_object->ClassDefaultObject) {
+		new_object->GetDefaultObject()->RemoveFromRoot();
+		new_object->GetDefaultObject()->MarkPendingKill();
+		new_object->ClassDefaultObject = nullptr;
+	}
+
 	new_object->GetDefaultObject();
+
+	new_object->AssembleReferenceTokenStream();
 
 	return new_object;
 }
