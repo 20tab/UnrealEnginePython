@@ -660,6 +660,12 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 				else if (!is_pure)
 					PyErr_Clear();
+				PyObject *override_name = PyObject_GetAttrString(value, (char *)"override");
+				if (override_name && PyUnicode_Check(override_name)) {
+					class_key = PyUnicode_AsUTF8(override_name);
+				}
+				else if (!override_name)
+					PyErr_Clear();
 				if (!unreal_engine_add_function(new_class, class_key, value, func_flags)) {
 					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
 					return -1;
@@ -836,7 +842,7 @@ void unreal_engine_py_log_error() {
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
 	if (zero) {
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -1523,8 +1529,15 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			else if ((PyTypeObject *)value == &PyLong_Type) {
 				prop = NewObject<UInt64Property>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 			}
-			// TODO add native types (like vectors, rotators...)
 		}
+		else if (ue_PyUObject *py_obj = ue_is_pyuobject(value)) {
+			if (py_obj->ue_object->IsA<UClass>()) {
+				UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_base->SetPropertyClass((UClass *)py_obj->ue_object);
+				prop = prop_base;
+			}
+		}
+		// TODO add native types (like vectors, rotators...)
 		if (prop) {
 			prop->SetPropertyFlags(CPF_Parm);
 			*next_property = prop;
@@ -1542,8 +1555,8 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		PyObject *py_return_value = PyDict_GetItemString(annotations, "return");
 		if (py_return_value) {
 			UProperty *prop = nullptr;
+			char *p_name = (char *) "ReturnValue";
 			if (PyType_Check(py_return_value)) {
-				char *p_name = (char *) "ReturnValue";
 				if ((PyTypeObject *)py_return_value == &PyFloat_Type) {
 					prop = NewObject<UFloatProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 				}
@@ -1556,8 +1569,15 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 				else if ((PyTypeObject *)py_return_value == &PyLong_Type) {
 					prop = NewObject<UInt64Property>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 				}
-				// TODO add native types (like vectors, rotators...)
 			}
+			else if (ue_PyUObject *py_obj = ue_is_pyuobject(py_return_value)) {
+				if (py_obj->ue_object->IsA<UClass>()) {
+					UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_base->SetPropertyClass((UClass *)py_obj->ue_object);
+					prop = prop_base;
+				}
+			}
+			// TODO add native types (like vectors, rotators...)
 			if (prop) {
 				prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
 				*next_property = prop;
