@@ -117,7 +117,11 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 
 void FUnrealEnginePythonModule::RunFile(char *filename) {
 	FScopePythonGIL gil;
-	char *full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
+	char *full_path = filename;
+	if (!FPaths::FileExists(filename))
+	{
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
+	}
 	FILE *fd = nullptr;
 	
 #if PLATFORM_WINDOWS
