@@ -521,21 +521,22 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		PyObject *py_outer = Py_None;
 		if (!PyArg_ParseTuple(args, "|OO:new_object", &py_name, &py_outer)) {
 			return NULL;
+
+			int num_args = py_name ? 3 : 1;
+			PyObject *py_args = PyTuple_New(num_args);
+			PyTuple_SetItem(py_args, 0, (PyObject *)self);
+			if (py_name) {
+				PyTuple_SetItem(py_args, 1, py_outer);
+				PyTuple_SetItem(py_args, 2, py_name);
+			}
+			PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
+			Py_DECREF(py_args);
+			return ret;
 		}
-		int num_args = py_name ? 3 : 1;
-		PyObject *py_args = PyTuple_New(num_args);
-		PyTuple_SetItem(py_args, 0, (PyObject *)self);
-		if (py_name) {
-			PyTuple_SetItem(py_args, 1, py_outer);
-			PyTuple_SetItem(py_args, 2, py_name);
-		}
-		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
-		Py_DECREF(py_args);
-		return ret;
 	}
 
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
-	
+
 }
 
 static PyTypeObject ue_PyUObjectType = {
@@ -673,8 +674,30 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 			char *class_key = PyUnicode_AsUTF8(key);
 			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_')
 				continue;
+
 			PyObject *value = PyDict_GetItem(class_attributes, key);
-			if (PyCallable_Check(value)) {
+
+			// add simple property
+			if (ue_is_pyuobject(value)) {
+				if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+					unreal_engine_py_log_error();
+					return -1;
+				}
+			}
+			// add array property
+			else if (PyList_Check(value)) {
+				if (PyList_Size(value) == 1) {
+					PyObject *first_item = PyList_GetItem(value, 0);
+					if (ue_is_pyuobject(first_item)) {
+						if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+							unreal_engine_py_log_error();
+							return -1;
+						}
+					}
+				}
+			}
+			// function ?
+			else if (PyCallable_Check(value)) {
 				uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
 				PyObject *is_event = PyObject_GetAttrString(value, (char *)"event");
 				if (is_event && PyObject_IsTrue(is_event)) {
@@ -699,27 +722,10 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					return -1;
 				}
 			}
-			// add simple property
-			else if (ue_is_pyuobject(value)) {
-				if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
-					unreal_engine_py_log_error();
-					return -1;
-				}
-			}
-			// add array property
-			else if (PyList_Check(value)) {
-				if (PyList_Size(value) == 1) {
-					PyObject *first_item = PyList_GetItem(value, 0);
-					if (ue_is_pyuobject(first_item)) {
-						if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
-							unreal_engine_py_log_error();
-							return -1;
-						}
-					}
-				}
-			}
+
 		}
 	}
+
 	return 0;
 }
 
@@ -870,7 +876,7 @@ void unreal_engine_py_log_error() {
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
 	if (zero) {
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -916,7 +922,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
