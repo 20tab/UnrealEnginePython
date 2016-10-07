@@ -510,6 +510,34 @@ static PyObject *ue_PyUObject_str(ue_PyUObject *self)
 		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()));
 }
 
+static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject *kw) {
+	// if it is a class, create a new object
+	if (self->ue_object->IsA<UClass>()) {
+		UClass *u_class = (UClass *)self->ue_object;
+		if (u_class->IsChildOf<AActor>()) {
+			return PyErr_Format(PyExc_Exception, "you cannot use __call__ on actors, they have to be spawned");
+		}
+		PyObject *py_name = nullptr;
+		PyObject *py_outer = Py_None;
+		if (!PyArg_ParseTuple(args, "|OO:new_object", &py_name, &py_outer)) {
+			return NULL;
+		}
+		int num_args = py_name ? 3 : 1;
+		PyObject *py_args = PyTuple_New(num_args);
+		PyTuple_SetItem(py_args, 0, (PyObject *)self);
+		if (py_name) {
+			PyTuple_SetItem(py_args, 1, py_outer);
+			PyTuple_SetItem(py_args, 2, py_name);
+		}
+		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
+		Py_DECREF(py_args);
+		return ret;
+	}
+
+	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
+	
+}
+
 static PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.UObject",             /* tp_name */
@@ -525,7 +553,7 @@ static PyTypeObject ue_PyUObjectType = {
 	0,                         /* tp_as_sequence */
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
-	0,                         /* tp_call */
+	(ternaryfunc)ue_PyUObject_call,                         /* tp_call */
 	(reprfunc)ue_PyUObject_str,                         /* tp_str */
 	(getattrofunc)ue_PyUObject_getattro, /* tp_getattro */
 	(setattrofunc)ue_PyUObject_setattro, /* tp_setattro */
@@ -842,7 +870,7 @@ void unreal_engine_py_log_error() {
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
 	if (zero) {
 		msg = PyBytes_AsString(zero);
-	}
+}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
