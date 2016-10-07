@@ -533,10 +533,10 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	}
 
 	package->FullyLoad();
+	package->MarkPackageDirty();
 
 	if (UPackage::SavePackage(package, self->ue_object, RF_Public | RF_Standalone, *filename)) {
 		FAssetRegistryModule::AssetCreated(self->ue_object);
-		package->MarkPackageDirty();
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
