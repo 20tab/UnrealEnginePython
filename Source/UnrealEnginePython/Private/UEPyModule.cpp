@@ -536,22 +536,29 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		PyObject *py_outer = Py_None;
 		if (!PyArg_ParseTuple(args, "|OO:new_object", &py_name, &py_outer)) {
 			return NULL;
-
-			int num_args = py_name ? 3 : 1;
-			PyObject *py_args = PyTuple_New(num_args);
-			PyTuple_SetItem(py_args, 0, (PyObject *)self);
-			if (py_name) {
-				PyTuple_SetItem(py_args, 1, py_outer);
-				PyTuple_SetItem(py_args, 2, py_name);
-			}
-			PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
-			Py_DECREF(py_args);
-			return ret;
 		}
+
+		int num_args = py_name ? 3 : 1;
+		PyObject *py_args = PyTuple_New(num_args);
+		PyTuple_SetItem(py_args, 0, (PyObject *)self);
+		if (py_name) {
+			PyTuple_SetItem(py_args, 1, py_outer);
+			PyTuple_SetItem(py_args, 2, py_name);
+		}
+		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
+		Py_DECREF(py_args);
+		if (ret) {
+			if (PyObject_HasAttrString(ret, (char *)"__init__")) {
+				PyObject *init_ret = PyObject_CallMethod(ret, (char *)"__init__", nullptr);
+				if (!init_ret) {
+					return nullptr;
+				}
+			}
+		}
+		return ret;
 	}
 
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
-
 }
 
 static PyTypeObject ue_PyUObjectType = {
@@ -687,7 +694,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 			if (!PyUnicode_Check(key))
 				continue;
 			char *class_key = PyUnicode_AsUTF8(key);
-			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_')
+			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_' && strcmp(class_key, (char *)"__init__"))
 				continue;
 
 			PyObject *value = PyDict_GetItem(class_attributes, key);
@@ -937,7 +944,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
@@ -987,6 +994,11 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 	if (auto casted_prop = Cast<UIntProperty>(prop)) {
 		int value = casted_prop->GetPropertyValue_InContainer(buffer);
 		return PyLong_FromLong(value);
+	}
+
+	if (auto casted_prop = Cast<UInt64Property>(prop)) {
+		long long value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyLong_FromLongLong(value);
 	}
 
 	if (auto casted_prop = Cast<UFloatProperty>(prop)) {
@@ -1142,6 +1154,12 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		if (auto casted_prop = Cast<UIntProperty>(prop)) {
 			PyObject *py_long = PyNumber_Long(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
+		if (auto casted_prop = Cast<UInt64Property>(prop)) {
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLongLong(py_long));
 			Py_DECREF(py_long);
 			return true;
 		}
