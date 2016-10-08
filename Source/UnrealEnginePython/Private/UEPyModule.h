@@ -11,6 +11,9 @@ typedef struct {
 	PyObject_HEAD
 		/* Type-specific fields go here. */
 		UObject *ue_object;
+		// reference to proxy class (can be null)
+		PyObject *py_proxy;
+		// list of exposed delegates
 		std::list<UPythonDelegate*> *python_delegates_gc;
 } ue_PyUObject;
 

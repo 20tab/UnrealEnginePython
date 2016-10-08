@@ -3,8 +3,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "PythonGeneratedClass.h"
-
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
 	PyObject *py_message;
 	if (!PyArg_ParseTuple(args, "O:log", &py_message)) {

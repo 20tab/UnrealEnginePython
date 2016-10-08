@@ -85,6 +85,19 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (self->py_proxy) {
+		Py_INCREF(self->py_proxy);
+		return (PyObject *)self->py_proxy;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
@@ -219,6 +232,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_name", (PyCFunction)py_ue_set_name, METH_VARARGS, "" },
 
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
+
+	{ "get_py_proxy", (PyCFunction)py_ue_get_py_proxy, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },

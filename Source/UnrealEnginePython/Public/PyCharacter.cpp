@@ -10,12 +10,6 @@ APyCharacter::APyCharacter()
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
 
-	FScopePythonGIL gil;
-	// pre-generate PyUObject (for performance)
-	py_uobject = ue_get_python_wrapper(this);
-	if (!py_uobject) {
-		unreal_engine_py_log_error();
-	}
 }
 
 
@@ -28,10 +22,16 @@ void APyCharacter::BeginPlay()
 
 	// ...
 
-	if (!py_uobject || PythonModule.IsEmpty())
+	if (PythonModule.IsEmpty())
 		return;
 
 	FScopePythonGIL gil;
+
+	py_uobject = ue_get_python_wrapper(this);
+	if (!py_uobject) {
+		unreal_engine_py_log_error();
+		return;
+	}
 
 	PyObject *py_character_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
 	if (!py_character_module) {
@@ -55,7 +55,7 @@ void APyCharacter::BeginPlay()
 	PyObject *py_character_class = PyDict_GetItemString(py_character_module_dict, TCHAR_TO_UTF8(*PythonClass));
 
 	if (!py_character_class) {
-		unreal_engine_py_log_error();
+		UE_LOG(LogPython, Error, TEXT("Unable to find class %s in module %s"), *PythonClass, *PythonModule);
 		return;
 	}
 
@@ -64,6 +64,8 @@ void APyCharacter::BeginPlay()
 		unreal_engine_py_log_error();
 		return;
 	}
+
+	py_uobject->py_proxy = py_character_instance;
 
 	PyObject_SetAttrString(py_character_instance, (char *)"uobject", (PyObject *)py_uobject);
 
