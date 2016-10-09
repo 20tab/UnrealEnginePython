@@ -9,6 +9,7 @@ APyActor::APyActor()
 
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
+	
 }
 
 
