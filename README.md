@@ -3,17 +3,17 @@ Embed Python in Unreal Engine 4
 
 # How and Why ?
 
-This is a plugin embedding a whole Python VM (both versions 3.x [the default and suggested one] and 2.7) In Unreal Engine 4 (both the editor and runtime).
+This is a plugin embedding a whole Python VM (versions 3.x [the default and suggested one] and 2.7) In Unreal Engine 4 (both the editor and runtime).
 
-It includes the mapping of Actors, Pawns, Characters and Components to python classes, editor scripting and a lot more.
+The Python VM tries to give easy access to all of the UE4 internal api + its reflection system. This means you can use the plugin to write other plugins, to automate tasks and to implement gameplay elements.
 
 It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;)
 
 Another funny feature is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
-The plugin automatically adds an actor class (PyActor), a pawn class (PyPawn), a character class (PyCharacter) and a component class (PythonComponent).
+In addition to this, the plugin automatically adds an actor class (PyActor), a pawn class (PyPawn), a character class (PyCharacter) and a component class (PythonComponent) for "gentle" integration of python in your games.
 
-They are available in your editor once you load the plugin. In the development menu, you get access to the 'PythonConsole' too (you can use it to trigger python commands directly from the editor)
+In the development menu, you get access to the 'PythonConsole' too, you can use it to trigger python commands directly from the editor.
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
@@ -124,6 +124,9 @@ Creating a new blueprint class managed by python
 ------------------------------------------------
 
 We are going to create a new Actor based on python (instead of C++ or blueprints)
+
+This is the "gentle" approach, using a 'proxy' python class to speak with the UE4 api. Once you get familiar with the system, you can
+go further and start working withe native subclassing api (https://github.com/20tab/UnrealEnginePython/blob/master/docs/SubclassingAPI.md) 
 
 In the content browser click on 'add new' and choose 'blueprint class'
 
@@ -476,95 +479,6 @@ PyPawn
 
 This works like PyActor, but this time you generate a new Pawn class (that you can posses with a controller)
 
-Pythonizing a GameMode
------------------------
-
-You can attach a PythonComponent to a GameMode blueprint. Its tick method will be executed during the whole game lifetime.
-
-The unreal_engine module
-------------------------
-
-This is a generic module, exposing functions not related to a particular 'World' (see below).
-
-You can use these functions from an actor, a pawn, a component or directly from a module.
-
-Just remember to import it:
-
-```py
-import unreal_engine
-```
-
-or (as an example)
-
-```py
-import unreal_engine as ue
-```
-
-
----
-```py
-uclass = unreal_engine.find_class('name')
-```
-
-This function searches for a class in the engine with the specified name and returns its 'uobject' (a c++ UClass object internally).
-You can use this uobject to search for objects of that type or to spawn new actors (and lot of more things)
-
----
-```py
-uclass = unreal_engine.find_object('name')
-```
-
-This is a more generic (and slower) variant of find_class that searches for every UObject. You can use it (for example) for getting references to assets (like materials, meshes...)
-
----
-```py
-unreal_engine.log('message')
-```
-
-log a string into the editor output log (under the LogPython category/class)
-
-
----
-```py
-unreal_engine.log_warning('message')
-```
-
-log a warning string (yellow) into the editor output log (under the LogPython category/class)
-
-
----
-```py
-unreal_engine.log_error('message')
-```
-
-log an error string (red) into the editor output log (under the LogPython category/class)
-
-
----
-```py
-unreal_engine.add_on_screen_debug_message(key, timeout, 'message')
-```
-
-low-level equivalent of blueprint 'print string' function. It disappear after 'timeout' seconds and can get a numeric key (use -1 for disabling keys feature)
-
-TODO: support for colors
-
-
----
-```py
-unreal_engine.print_string('message')
-```
-
-python equivalent of the blueprint 'print string' function. It disappears after 2 seconds and it is wrote in cyan color.
-
-
----
-```py
-editor = unreal_engine.get_editor_world()
-```
-
-(available only into the editor) it allows to get a reference to the editor world. This will allow in the near future to generate UObjects directly in the editor (for automating tasks or scripting the editor itself)
-
 
 The 'World' concept
 -------------------
@@ -593,10 +507,10 @@ You can get the the list of uobject api methods here: https://github.com/20tab/U
 Automatic module reloading (Editor only)
 ----------------------------------------
 
-When in the editor, you can change the code of your modules without restarting the project. The editor will reload the module every time a PyActor, PyPawn or PythonComponent is instantiated. This is obviously not the best approach. In the future we would like to implement timestamp monitoring on the file to reload only when needed.
+When in the editor, you can change the code of your modules mapped to proxies without restarting the project. The editor will reload the module every time a PyActor, PyPawn or PythonComponent is instantiated. This is obviously not the best approach. In the future we would like to implement timestamp monitoring on the file to reload only when needed.
 
-Math functions
---------------
+Primitives and Math functions
+-----------------------------
 
 The plugin exposes FVector, FRotator, FQuat, FColor, FHitResult and a bunch of the internal handles.
 
@@ -1023,7 +937,7 @@ Status and Known issues
 
 The project could be considered in beta state.
 
-complete custom events integration
+Exposing the full ue4 api is a huge amount of work, feel free to make pull requests for your specific needs.
 
 .py files are not recognized by the editor. This should be fixed soon
 
@@ -1035,4 +949,4 @@ The build system is not very robust. Maybe linking the python static library int
 Contacts
 --------
 
-If you want to contact us, drop a mail to info at 20tab.com or follow @unbit on twitter
+If you want to contact us (for help, support, sponsorship), drop a mail to info at 20tab.com or follow @unbit on twitter
