@@ -113,8 +113,6 @@ PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 		return Py_None;
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("Func %d %d"), function->NumParms, function->ReturnValueOffset);
-
 	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)function);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
@@ -227,6 +225,32 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {
 		PyObject *property_name = PyUnicode_FromString(TCHAR_TO_UTF8(*property->GetName()));
 		PyList_Append(ret, property_name);
 		Py_DECREF(property_name);
+	}
+
+	return ret;
+}
+
+PyObject *py_ue_functions(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>()) {
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	PyObject *ret = PyList_New(0);
+
+	for (TFieldIterator<UFunction> FuncIt(u_struct); FuncIt; ++FuncIt)
+	{
+		UFunction* func = *FuncIt;
+		PyObject *func_name = PyUnicode_FromString(TCHAR_TO_UTF8(*func->GetFName().ToString()));
+		PyList_Append(ret, func_name);
+		Py_DECREF(func_name);
 	}
 
 	return ret;

@@ -215,7 +215,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "set_property", (PyCFunction)py_ue_set_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
-	{ "get_properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
+	
+
+	{ "functions", (PyCFunction)py_ue_functions, METH_VARARGS, "" },
 
 	{ "is_a", (PyCFunction)py_ue_is_a, METH_VARARGS, "" },
 
@@ -529,6 +531,9 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 	// if it is a class, create a new object
 	if (self->ue_object->IsA<UClass>()) {
 		UClass *u_class = (UClass *)self->ue_object;
+		if (u_class->HasAnyClassFlags(CLASS_Abstract)) {
+			return PyErr_Format(PyExc_Exception, "abstract classes cannot be instantiated");
+		}
 		if (u_class->IsChildOf<AActor>()) {
 			return PyErr_Format(PyExc_Exception, "you cannot use __call__ on actors, they have to be spawned");
 		}

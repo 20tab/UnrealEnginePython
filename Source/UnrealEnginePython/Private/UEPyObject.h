@@ -33,6 +33,8 @@ PyObject *py_ue_get_outer(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_outermost(ue_PyUObject *, PyObject *);
 PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_functions(ue_PyUObject *, PyObject *);
+
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject *, PyObject *);
