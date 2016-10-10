@@ -10,7 +10,7 @@ The system is still under heavy development and new ideas are popping up constan
 Subclassing
 -----------
 
-You can define new classes usng standard python subclassing:
+You can define new classes using standard python subclassing:
 
 ```py
 import unreal_engine as ue
