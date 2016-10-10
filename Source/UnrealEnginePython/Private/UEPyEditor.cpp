@@ -485,7 +485,7 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 
 	PyObject *py_actor;
 	char *name;
-	if (!PyArg_ParseTuple(args, "sO:create_blueprint", &name, &py_actor)) {
+	if (!PyArg_ParseTuple(args, "sO:create_blueprint_from_actor", &name, &py_actor)) {
 		return NULL;
 	}
 
@@ -494,7 +494,7 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 	}
 
 	if (!ue_is_pyuobject(py_actor)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
 	}
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_actor;
 	if (!py_obj->ue_object->IsA<AActor>())

@@ -129,6 +129,9 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
 	return py_ue_new_fvector(vec);
 }
 
+PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
+}
 
 PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	char *name;
