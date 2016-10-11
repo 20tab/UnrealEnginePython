@@ -12,6 +12,7 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 
 void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 {
+	UE_LOG(LogPython, Warning, TEXT("ENTERING"));
 
 	FScopePythonGIL gil;
 
@@ -50,7 +51,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	argn = Stack.Object ? 1 : 0;
 	// is it a blueprint call ?
-	if (*Stack.Code == EX_EndFunctionParms && function->NumParms > 0) {
+	if (*Stack.Code == EX_EndFunctionParms) {
+		UE_LOG(LogPython, Warning, TEXT("NATIVE CALL"));
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
 			if (prop->PropertyFlags & CPF_ReturnParm)
 				continue;
@@ -67,6 +69,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		}
 	}
 	else {
+		UE_LOG(LogPython, Warning, TEXT("BLUEPRINT CALL"));
 		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 		FMemory::Memzero(frame, function->PropertiesSize);
 		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {

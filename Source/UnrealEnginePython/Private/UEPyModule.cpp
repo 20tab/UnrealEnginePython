@@ -542,7 +542,6 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		if (!PyArg_ParseTuple(args, "|OO:new_object", &py_name, &py_outer)) {
 			return NULL;
 		}
-
 		int num_args = py_name ? 3 : 1;
 		PyObject *py_args = PyTuple_New(num_args);
 		PyTuple_SetItem(py_args, 0, (PyObject *)self);
@@ -553,11 +552,12 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
 		Py_DECREF(py_args);
 		if (ret) {
-			if (PyObject_HasAttrString(ret, (char *)"__init__")) {
-				PyObject *init_ret = PyObject_CallMethod(ret, (char *)"__init__", nullptr);
+			if (PyObject_HasAttrString(ret, (char *)"python__init__")) {
+				PyObject *init_ret = PyObject_CallMethod(ret, (char *)"python__init__", nullptr);
 				if (!init_ret) {
 					return nullptr;
 				}
+				Py_DECREF(init_ret);
 			}
 		}
 		return ret;
@@ -654,13 +654,15 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 	// it could be a class update
 	if (is_overwriting && new_object->ClassDefaultObject) {
 		new_object->GetDefaultObject()->RemoveFromRoot();
-		new_object->GetDefaultObject()->MarkPendingKill();
+		new_object->GetDefaultObject()->ConditionalBeginDestroy();
 		new_object->ClassDefaultObject = nullptr;
 	}
 
-	new_object->GetDefaultObject();
+	new_object->GetDefaultObject()->PostInitProperties();
 
 	new_object->AssembleReferenceTokenStream();
+
+	UE_LOG(LogPython, Warning, TEXT("PSIZE = %d"), new_object->GetPropertiesSize());
 
 	return new_object;
 }
@@ -744,6 +746,8 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 				else if (!override_name)
 					PyErr_Clear();
+				if (!strcmp(class_key, (char *)"__init__"))
+					class_key = (char *)"python__init__";
 				if (!unreal_engine_add_function(new_class, class_key, value, func_flags)) {
 					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
 					return -1;
@@ -1708,9 +1712,9 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 
 	// regenerate CDO
 	u_class->GetDefaultObject()->RemoveFromRoot();
-	u_class->GetDefaultObject()->MarkPendingKill();
+	u_class->GetDefaultObject()->ConditionalBeginDestroy();
 	u_class->ClassDefaultObject = nullptr;
-	u_class->GetDefaultObject();
+	u_class->GetDefaultObject()->PostInitProperties();
 
 	return function;
 }

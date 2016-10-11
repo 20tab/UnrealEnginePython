@@ -471,8 +471,14 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
+	if (PyObject_HasAttrString(ret, (char *)"python__init__")) {
+		PyObject *init_ret = PyObject_CallMethod(ret, (char *)"python__init__", nullptr);
+		if (!init_ret) {
+			return nullptr;
+		}
+		Py_DECREF(init_ret);
+	}
 	return ret;
-
 }
 
 PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args) {

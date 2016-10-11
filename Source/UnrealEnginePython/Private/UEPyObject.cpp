@@ -478,10 +478,11 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	if (u_struct->IsA<UClass>()) {
 		UClass *owner_class = (UClass *)u_struct;
 		owner_class->GetDefaultObject()->RemoveFromRoot();
-		owner_class->GetDefaultObject()->MarkPendingKill();
+		owner_class->GetDefaultObject()->ConditionalBeginDestroy();
 		owner_class->ClassDefaultObject = nullptr;
-		owner_class->GetDefaultObject();
+		owner_class->GetDefaultObject()->PostInitProperties();
 		//u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
+		UE_LOG(LogPython, Warning, TEXT("UPDATED PSIZE %d"), owner_class->GetPropertiesSize());
 	}
 
 	// TODO add default value
