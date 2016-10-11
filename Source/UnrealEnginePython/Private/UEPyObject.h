@@ -37,6 +37,9 @@ PyObject *py_ue_get_super_class(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_functions(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_get_metadata(ue_PyUObject *, PyObject *);
+PyObject *py_ue_set_metadata(ue_PyUObject *, PyObject *);
+PyObject *py_ue_has_metadata(ue_PyUObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject *, PyObject *);

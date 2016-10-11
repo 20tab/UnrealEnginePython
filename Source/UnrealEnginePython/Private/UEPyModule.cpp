@@ -307,6 +307,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 
+	{ "get_metadata", (PyCFunction)py_ue_get_metadata, METH_VARARGS, "" },
+	{ "set_metadata", (PyCFunction)py_ue_set_metadata, METH_VARARGS, "" },
+	{ "has_metadata", (PyCFunction)py_ue_has_metadata, METH_VARARGS, "" },
+
+
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "play", (PyCFunction)py_ue_play, METH_VARARGS, "" },
 

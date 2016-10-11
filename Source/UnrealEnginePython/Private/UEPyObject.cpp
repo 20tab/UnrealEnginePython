@@ -95,6 +95,90 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
+PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *metadata_key;
+	char *metadata_value;
+	if (!PyArg_ParseTuple(args, "ss:set_metadata", &metadata_key, &metadata_value)) {
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<UClass>()) {
+		UClass *u_class = (UClass *)self->ue_object;
+		u_class->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
+	}
+	else if (self->ue_object->IsA<UField>()) {
+		UField *u_field = (UField *)self->ue_object;
+		u_field->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
+	}
+	else {
+		return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *metadata_key;
+	if (!PyArg_ParseTuple(args, "s:get_metadata", &metadata_key)) {
+		return NULL;
+	}
+
+	char *metadata_value = nullptr;
+
+	if (self->ue_object->IsA<UClass>()) {
+		UClass *u_class = (UClass *)self->ue_object;
+		FString value = u_class->GetMetaData(FName(UTF8_TO_TCHAR(metadata_key)));
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
+	}
+
+	if (self->ue_object->IsA<UField>()) {
+		UField *u_field = (UField *)self->ue_object;
+		FString value = u_field->GetMetaData(FName(UTF8_TO_TCHAR(metadata_key)));
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
+	}
+	
+	return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
+}
+
+PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *metadata_key;
+	if (!PyArg_ParseTuple(args, "s:has_metadata", &metadata_key)) {
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<UClass>()) {
+		UClass *u_class = (UClass *)self->ue_object;
+		if (u_class->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key)))) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	if (self->ue_object->IsA<UField>()) {
+		UField *u_field = (UField *)self->ue_object;
+		if (u_field->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key)))) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
+}
+
 PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kwargs) {
 
 	ue_py_check(self);
