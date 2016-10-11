@@ -451,7 +451,7 @@ static void ue_pyobject_dealloc(ue_PyUObject *self) {
 static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) {
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
 	if (!ret) {
-		if (PyUnicode_Check(attr_name)) {
+		if (PyUnicodeOrString_Check(attr_name)){
 			char *attr = PyUnicode_AsUTF8(attr_name);
 			// first check for property
 			UStruct *u_struct = nullptr;
@@ -512,7 +512,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 
 static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObject *value) {
 	// first of all check for UProperty
-	if (PyUnicode_Check(attr_name)) {
+	if (PyUnicodeOrString_Check(attr_name)) {
 		char *attr = PyUnicode_AsUTF8(attr_name);
 		// first check for property
 		UStruct *u_struct = nullptr;
@@ -715,7 +715,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					return -1;
 				break;
 			}
-			if (!PyUnicode_Check(key))
+			if (!PyUnicodeOrString_Check(key))
 				continue;
 			char *class_key = PyUnicode_AsUTF8(key);
 
@@ -776,7 +776,10 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				else if (!is_pure)
 					PyErr_Clear();
 				PyObject *override_name = PyObject_GetAttrString(value, (char *)"override");
-				if (override_name && PyUnicode_Check(override_name)) {
+				if (override_name && PyUnicodeOrString_Check(override_name)) {
+					class_key = PyUnicode_AsUTF8(override_name);
+				}
+				else if (override_name && PyUnicodeOrString_Check(override_name)) {
 					class_key = PyUnicode_AsUTF8(override_name);
 				}
 				else if (!override_name)
@@ -1274,7 +1277,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return false;
 	}
 
-	if (PyUnicode_Check(py_obj)) {
+	if (PyUnicodeOrString_Check(py_obj)) {
 		if (auto casted_prop = Cast<UStrProperty>(prop)) {
 			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)));
 			return true;
@@ -1426,7 +1429,7 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *u_obj, PyObject *py_class) {
 	Py_ssize_t len = PyList_Size(attrs);
 	for (Py_ssize_t i = 0; i < len; i++) {
 		PyObject *py_attr_name = PyList_GetItem(attrs, i);
-		if (!py_attr_name || !PyUnicode_Check(py_attr_name))
+		if (!py_attr_name || !PyUnicodeOrString_Check(py_attr_name))
 			continue;
 		FString attr_name = UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_attr_name));
 		if (!attr_name.StartsWith("on_", ESearchCase::CaseSensitive))
@@ -1682,7 +1685,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 				return NULL;
 			break;
 		}
-		if (!PyUnicode_Check(key))
+		if (!PyUnicodeOrString_Check(key))
 			continue;
 
 		char *p_name = PyUnicode_AsUTF8(key);

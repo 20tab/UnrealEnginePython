@@ -22,6 +22,17 @@ char *PyUnicode_AsUTF8(PyObject *py_str) {
 }
 #endif
 
+bool PyUnicodeOrString_Check(PyObject *py_obj) {
+	if (PyUnicode_Check(py_obj)) {
+		return true;
+	}
+#if PY_MAJOR_VERSION < 3
+	else if (PyString_Check(py_obj)) {
+		return true;
+	}
+#endif
+	return false;
+}
 
 #define LOCTEXT_NAMESPACE "FUnrealEnginePythonModule"
 

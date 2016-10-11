@@ -50,3 +50,4 @@
 #if PY_MAJOR_VERSION < 3
 char *PyUnicode_AsUTF8(PyObject *py_str);
 #endif
+bool PyUnicodeOrString_Check(PyObject *py_obj);

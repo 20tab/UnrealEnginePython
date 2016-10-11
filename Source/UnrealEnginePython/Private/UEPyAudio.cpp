@@ -24,7 +24,7 @@ PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 			sound_object = (USoundBase *)py_sound->ue_object;
 		}
 	}
-	else if (PyUnicode_Check(sound)) {
+	else if (PyUnicodeOrString_Check(sound)) {
 		sound_object = FindObject<USoundBase>(ANY_PACKAGE, UTF8_TO_TCHAR(PyUnicode_AsUTF8(sound)));
 	}
 
