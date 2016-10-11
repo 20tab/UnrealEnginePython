@@ -95,6 +95,7 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -178,6 +179,7 @@ PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args) {
 
 	return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
 }
+#endif
 
 PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kwargs) {
 
