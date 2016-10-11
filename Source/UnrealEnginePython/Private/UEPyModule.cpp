@@ -133,6 +133,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_assets", py_unreal_engine_get_assets, METH_VARARGS, "" },
 	{ "get_selected_assets", py_unreal_engine_get_selected_assets, METH_VARARGS, "" },
 	{ "get_assets_by_class", py_unreal_engine_get_assets_by_class, METH_VARARGS, "" },
+	{ "get_assets_by_filter", py_unreal_engine_get_assets_by_filter, METH_VARARGS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
 	{ "create_blueprint_from_actor", py_unreal_engine_create_blueprint_from_actor, METH_VARARGS, "" },
 	{ "replace_blueprint", py_unreal_engine_replace_blueprint, METH_VARARGS, "" },
@@ -847,6 +848,7 @@ void unreal_engine_init_py_module() {
 
 #if WITH_EDITOR
 	ue_python_init_swidget(new_unreal_engine_module);
+	ue_python_init_farfilter(new_unreal_engine_module);
 #endif
 
 	PyObject *py_sys = PyImport_ImportModule("sys");

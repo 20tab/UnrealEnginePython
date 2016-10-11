@@ -16,12 +16,16 @@
 
 #if UNREAL_ENGINE_PYTHON_ON_MAC == 3
 #include <python3.5m/Python.h>
+#include <python3.5m/structmember.h>
 #elif UNREAL_ENGINE_PYTHON_ON_MAC == 2
 #include <python2.7/Python.h>
+#include <python2.7/structmember.h>
 #elif UNREAL_ENGINE_PYTHON_ON_LINUX
 #include <Python.h>
+#include <structmember.h>
 #else
 #include <include/Python.h>
+#include <include/structmember.h>
 #endif
 
 #include "UEPyModule.h"
@@ -36,6 +40,9 @@
 #include "UEPyUClassesImporter.h"
 #include "UEPyEnumsImporter.h"
 
+#if WITH_EDITOR
+#include "UEPyFARFilter.h"
+#endif
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
 							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
