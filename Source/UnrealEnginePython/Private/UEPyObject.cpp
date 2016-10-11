@@ -19,6 +19,26 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UClass *u_class = nullptr;
+
+	if (self->ue_object->IsA<UClass>()) {
+		u_class = (UClass *)self->ue_object;
+	}
+	else {
+		u_class = self->ue_object->GetClass();
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_class->GetSuperClass());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

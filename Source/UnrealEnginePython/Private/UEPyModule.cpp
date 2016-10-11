@@ -27,6 +27,7 @@
 
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
+#include "PythonClass.h"
 
 
 DEFINE_LOG_CATEGORY(LogPython);
@@ -226,6 +227,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_outer", (PyCFunction)py_ue_get_outer, METH_VARARGS, "" },
 	{ "get_outermost", (PyCFunction)py_ue_get_outermost, METH_VARARGS, "" },
+
+	{ "get_super_class", (PyCFunction)py_ue_get_super_class, METH_VARARGS, "" },
 
 
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
@@ -610,7 +613,7 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 
 	UClass *new_object = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
 	if (!new_object) {
-		new_object = NewObject<UClass>(outer, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
+		new_object = NewObject<UPythonClass>(outer, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 		if (!new_object)
 			return nullptr;
 	}
@@ -667,6 +670,16 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 	return new_object;
 }
 
+// hack for avoiding loops in class constructors (thanks to the Unreal.js project for the idea)
+UClass *ue_py_class_constructor_placeholder = nullptr;
+static void UEPyClassConstructor(UClass *u_class, const FObjectInitializer &ObjectInitializer) {
+	if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class)) {
+		ue_py_class_constructor_placeholder = u_class;
+	}
+	u_class->ClassConstructor(ObjectInitializer);
+	ue_py_class_constructor_placeholder = nullptr;
+}
+
 static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds) {
 	// is it subclassing ?
 	if (PyTuple_Size(args) == 3) {
@@ -701,10 +714,29 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 			if (!PyUnicode_Check(key))
 				continue;
 			char *class_key = PyUnicode_AsUTF8(key);
-			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_' && strcmp(class_key, (char *)"__init__"))
-				continue;
 
 			PyObject *value = PyDict_GetItem(class_attributes, key);
+
+			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_') {
+				// add constructor
+				if (!strcmp(class_key, (char *)"__init__") && PyCallable_Check(value)) {
+					UPythonClass *u_py_class = (UPythonClass *)new_class;
+					u_py_class->SetPyConstructor(value);
+					u_py_class->ClassConstructor = [](const FObjectInitializer &ObjectInitializer) {
+						UClass *u_class = ue_py_class_constructor_placeholder ? ue_py_class_constructor_placeholder : ObjectInitializer.GetClass();
+						ue_py_class_constructor_placeholder = nullptr;
+
+						if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class)) {
+							UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
+							u_py_class_casted->CallPyConstructor(ObjectInitializer.GetObj());
+						}
+						else {
+							UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
+						}
+					};
+				}
+				continue;
+			}
 
 			// add simple property
 			if (ue_is_pyuobject(value)) {
@@ -746,8 +778,6 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 				else if (!override_name)
 					PyErr_Clear();
-				if (!strcmp(class_key, (char *)"__init__"))
-					class_key = (char *)"python__init__";
 				if (!unreal_engine_add_function(new_class, class_key, value, func_flags)) {
 					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
 					return -1;
