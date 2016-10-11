@@ -95,6 +95,39 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
+PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:is_child_of", &obj)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "object is not a UClass");
+
+	if (!ue_is_pyuobject(obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+	
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+
+	UClass *parent = (UClass *)py_obj->ue_object;
+	UClass *child = (UClass *)self->ue_object;
+
+	if (child->IsChildOf(parent)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 #if WITH_EDITOR
 PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args) {
 

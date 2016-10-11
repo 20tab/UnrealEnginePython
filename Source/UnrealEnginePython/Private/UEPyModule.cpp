@@ -158,6 +158,8 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
 
+	{ "classes", (PyCFunction)py_unreal_engine_classes, METH_VARARGS, "" },
+
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
@@ -221,6 +223,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "functions", (PyCFunction)py_ue_functions, METH_VARARGS, "" },
 
 	{ "is_a", (PyCFunction)py_ue_is_a, METH_VARARGS, "" },
+	{ "is_child_of", (PyCFunction)py_ue_is_child_of, METH_VARARGS, "" },
 
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
@@ -261,6 +264,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
 	{ "all_actors", (PyCFunction)py_ue_all_actors, METH_VARARGS, "" },
+	
 
 	// Input
 

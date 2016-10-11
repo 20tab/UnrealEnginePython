@@ -398,6 +398,19 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_classes(PyObject * self, PyObject * args) {
+
+	PyObject *ret = PyList_New(0);
+
+	for (TObjectIterator<UClass> Itr; Itr; ++Itr) {
+		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+	return ret;
+}
+
 PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObject * args) {
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:create_and_dispatch_when_ready", &py_callable)) {
