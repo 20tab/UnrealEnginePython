@@ -1600,7 +1600,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 	if (!inspect) {
 		return NULL;
 	}
-	PyObject *signature = PyObject_CallMethod(inspect, "signature", "O", py_callable);
+	PyObject *signature = PyObject_CallMethod(inspect, (char *)"signature", (char *)"O", py_callable);
 	if (!signature) {
 		return NULL;
 	}
