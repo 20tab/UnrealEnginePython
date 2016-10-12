@@ -565,16 +565,19 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		}
 		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
 		Py_DECREF(py_args);
-		if (ret) {
-			if (PyObject_HasAttrString(ret, (char *)"python__init__")) {
-				PyObject *init_ret = PyObject_CallMethod(ret, (char *)"python__init__", nullptr);
-				if (!init_ret) {
-					return nullptr;
-				}
-				Py_DECREF(init_ret);
-			}
-		}
 		return ret;
+	}
+
+	if (self->ue_object->IsA<UMulticastDelegateProperty>()) {
+		UMulticastDelegateProperty *prop = (UMulticastDelegateProperty *)self->ue_object;
+		FMulticastScriptDelegate *prop_delegate = prop->GetPropertyValuePtr_InContainer(self->ue_object->GetOuter());
+		if (!prop_delegate)
+			return PyErr_Format(PyExc_Exception, "UMulticastDelegateProperty is in invalid state");
+		uint8 *parms = (uint8 *)FMemory_Alloca(0);
+		prop_delegate->ProcessMulticastDelegate<UObject>(parms);
+		UE_LOG(LogPython, Warning, TEXT("DELEGATES CALLED"));
+		Py_INCREF(Py_None);
+		return Py_None;
 	}
 
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
@@ -729,23 +732,6 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 			PyObject *value = PyDict_GetItem(class_attributes, key);
 
 			if (strlen(class_key) > 2 && class_key[0] == '_' && class_key[1] == '_') {
-				// add constructor
-				if (!strcmp(class_key, (char *)"__init__") && PyCallable_Check(value)) {
-					UPythonClass *u_py_class = (UPythonClass *)new_class;
-					u_py_class->SetPyConstructor(value);
-					u_py_class->ClassConstructor = [](const FObjectInitializer &ObjectInitializer) {
-						UClass *u_class = ue_py_class_constructor_placeholder ? ue_py_class_constructor_placeholder : ObjectInitializer.GetClass();
-						ue_py_class_constructor_placeholder = nullptr;
-
-						if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class)) {
-							UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
-							u_py_class_casted->CallPyConstructor(ObjectInitializer.GetObj());
-						}
-						else {
-							UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
-						}
-					};
-				}
 				continue;
 			}
 
@@ -773,7 +759,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
 				PyObject *is_event = PyObject_GetAttrString(value, (char *)"event");
 				if (is_event && PyObject_IsTrue(is_event)) {
-					func_flags |= FUNC_BlueprintEvent;
+					func_flags |= FUNC_Event | FUNC_BlueprintEvent;
 				}
 				else if (!is_event)
 					PyErr_Clear();
@@ -795,6 +781,24 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 			}
 
+		}
+		// add constructor
+		PyObject *py_init = PyDict_GetItemString(class_attributes, (char *)"__init__");
+		if (py_init && PyCallable_Check(py_init)) {
+			UPythonClass *u_py_class = (UPythonClass *)new_class;
+			u_py_class->SetPyConstructor(py_init);
+			u_py_class->ClassConstructor = [](const FObjectInitializer &ObjectInitializer) {
+				UClass *u_class = ue_py_class_constructor_placeholder ? ue_py_class_constructor_placeholder : ObjectInitializer.GetClass();
+				ue_py_class_constructor_placeholder = nullptr;
+
+				if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class)) {
+					UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
+					u_py_class_casted->CallPyConstructor(ObjectInitializer.GetObj());
+				}
+				else {
+					UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
+				}
+			};
 		}
 	}
 
@@ -1146,6 +1150,14 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		// nullptr
 		Py_INCREF(Py_None);
 		return Py_None;
+	}
+
+	if (auto casted_prop = Cast<UMulticastDelegateProperty>(prop)) {
+		ue_PyUObject *ret = ue_get_python_wrapper(casted_prop);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
 	}
 
 	if (auto casted_prop = Cast<UArrayProperty>(prop)) {

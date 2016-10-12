@@ -602,8 +602,10 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
 	if (u_class == UMulticastDelegateProperty::StaticClass()) {
 		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
-		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object);
+		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
+		mcp->SignatureFunction->FunctionFlags = FUNC_Delegate;
 		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
+		flags &= ~CPF_Edit;
 	}
 
 	u_property->SetPropertyFlags(flags);
