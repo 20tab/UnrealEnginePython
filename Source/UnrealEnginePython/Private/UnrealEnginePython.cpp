@@ -4,6 +4,10 @@
 
 void unreal_engine_init_py_module();
 
+#if UNREAL_ENGINE_PYTHON_ON_LINUX
+const char *ue4_module_options = "linux_global_symbols";
+#endif
+
 #if PY_MAJOR_VERSION < 3
 char *PyUnicode_AsUTF8(PyObject *py_str) {
 	if (PyUnicode_Check(py_str)) {
