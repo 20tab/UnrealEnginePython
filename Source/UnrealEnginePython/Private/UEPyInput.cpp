@@ -441,7 +441,10 @@ PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args) {
 		input = ((AActor *)self->ue_object)->InputComponent;
 	}
 	else if (self->ue_object->IsA<UActorComponent>()) {
-		input = ((UActorComponent *)self->ue_object)->GetOwner()->InputComponent;
+		UActorComponent *component = (UActorComponent *)self->ue_object;
+		if (!component->GetOwner())
+			return PyErr_Format(PyExc_Exception, "component is still not mapped to an Actor");
+		input = component->GetOwner()->InputComponent;
 	}
 	else {
 		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
