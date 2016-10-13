@@ -1,4 +1,4 @@
-SeePawn(The Native Subclassing API
+The Native Subclassing API
 --------------------------
 
 This is the most advanced way to use Python for your gameplay logic, plugins or automating tasks.
