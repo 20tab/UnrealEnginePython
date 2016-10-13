@@ -1463,6 +1463,17 @@ static void py_ue_destroy_params(UFunction *u_function, uint8 *buffer) {
 
 PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *args, int argn, PyObject *kwargs) {
 
+	// check for __super call
+	if (kwargs) {
+		PyObject *is_super_call = PyDict_GetItemString(kwargs, (char *)"__super");
+		if (is_super_call) {
+			if (!u_function->GetSuperFunction()) {
+				return PyErr_Format(PyExc_Exception, "UFunction has no SuperFunction");
+			}
+			u_function = u_function->GetSuperFunction();
+		}
+	}
+
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 	FMemory::Memzero(buffer, u_function->ParmsSize);
 
