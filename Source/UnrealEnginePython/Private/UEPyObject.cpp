@@ -737,14 +737,22 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:save_package", &name)) {
+	char *name = nullptr;
+	UPackage *package = nullptr;
+	if (!PyArg_ParseTuple(args, "|s:save_package", &name)) {
 		return NULL;
 	}
+	
+	if (self->ue_object->IsA<UPackage>())
+		package = (UPackage *)self->ue_object;
 
-	UPackage *package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
-	if (!package)
-		return PyErr_Format(PyExc_Exception, "unable to create package");
+	if (!package) {
+		if (!name)
+			return NULL;
+		package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+		if (!package)
+			return PyErr_Format(PyExc_Exception, "unable to create package");
+	}
 
 	FString filename = FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
 
@@ -763,6 +771,16 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	Py_INCREF(Py_False);
 	return Py_False;
+}
+
+PyObject *py_ue_asset_can_reimport(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (FReimportManager::Instance()->CanReimport(self->ue_object)) {
+		Py_RETURN_TRUE;
+	}
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
