@@ -1,11 +1,11 @@
 The Native Subclassing API
 --------------------------
 
-This is the most advanced way to use Python for your gameplay logic, plugins or automating tasks.
+This is the most advanced way to use Python for your gameplay logic, developing plugins or automating tasks.
 
-It resembles the native way you would work with unreal and c++ but in pythonic way.
+It resembles the native way you would work with unreal and c++ but in a (more or less ;) pythonic way.
 
-The system is still under heavy development and new ideas are popping up constantly (the main objective is simplify and speed up  end-users development)
+The system is still under heavy development and new ideas are popping up constantly (the main objective is to simplify and speed up  end-users development)
 
 Subclassing
 -----------
