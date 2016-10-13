@@ -115,7 +115,12 @@ static void ue_py_farfilter_dealloc(ue_PyFARFilter *self) {
 	Py_XDECREF(self->package_paths);
 	Py_XDECREF(self->recursive_classes_exclusion_set);
 	Py_XDECREF(self->tags_and_values);
+
+#if PY_MAJOR_VERSION < 3
 	self->ob_type->tp_free((PyObject*)self);
+#else
+	Py_TYPE(self)->tp_free((PyObject*)self);
+#endif
 }
 
 static PyObject * ue_py_farfilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
