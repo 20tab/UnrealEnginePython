@@ -1647,6 +1647,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 
 	if (parent_function) {
 		function->SetSuperStruct(parent_function);
+		function_flags |= (parent_function->FunctionFlags & FUNC_FuncInherit);
 	}
 
 	// iterate all arguments using inspect.signature()
@@ -1672,6 +1673,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 
 	PyObject *parameters_keys = PyObject_GetIter(parameters);
 	// do not process args if no annotations are available
+
 	while (annotations) {
 		PyObject *key = PyIter_Next(parameters_keys);
 		if (!key) {
@@ -1687,6 +1689,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		PyObject *value = PyDict_GetItem(annotations, key);
 		if (!value)
 			continue;
+
 		UProperty *prop = nullptr;
 		if (PyType_Check(value)) {
 			if ((PyTypeObject *)value == &PyFloat_Type) {
@@ -1763,6 +1766,12 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		}
 	}
 
+	if (parent_function) {
+		if (!parent_function->IsSignatureCompatibleWith(function)) {
+			UE_LOG(LogPython, Error, TEXT("function %s signature's is not compatible with the parent"), UTF8_TO_TCHAR(name));
+			return nullptr;
+		}
+	}
 
 	function->Bind();
 	function->StaticLink(true);
@@ -1786,20 +1795,12 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 	UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
 
 	function->FunctionFlags = function_flags;
-	//function->FunctionFlags |= FUNC_Native | FUNC_Event | FUNC_BlueprintEvent;
 
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
 
 	function->Next = u_class->Children;
 
-	if (parent_function) {
-		if (!parent_function->IsSignatureCompatibleWith(function)) {
-			UE_LOG(LogPython, Error, TEXT("function %s signature's is not compatible with the parent"), UTF8_TO_TCHAR(name));
-			return nullptr;
-		}
-	}
-
-
+	
 
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
