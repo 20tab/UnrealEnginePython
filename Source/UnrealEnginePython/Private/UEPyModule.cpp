@@ -631,7 +631,6 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 	if (is_overwriting && new_object->Children) {
 		UField *u_field = new_object->Children;
 		while (u_field) {
-			UE_LOG(LogPython, Warning, TEXT("ITEM %s"), *u_field->GetName(), *u_field->GetClass()->GetName());
 			if (u_field->IsA<UFunction>()) {
 				new_object->RemoveFunctionFromFunctionMap((UFunction *)u_field);
 			}
