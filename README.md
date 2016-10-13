@@ -126,7 +126,7 @@ Creating a new blueprint class managed by python
 We are going to create a new Actor based on python (instead of C++ or blueprints)
 
 This is the "gentle" approach, using a 'proxy' python class to speak with the UE4 api. Once you get familiar with the system, you can
-go further and start working withe native subclassing api (https://github.com/20tab/UnrealEnginePython/blob/master/docs/SubclassingAPI.md) 
+go further and start working withe native subclassing api (https://github.com/20tab/UnrealEnginePython/blob/master/docs/Subclassing_API.md) 
 
 In the content browser click on 'add new' and choose 'blueprint class'
 

@@ -264,6 +264,40 @@ PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	return assets_list;
 }
 
+PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args) {
+
+	PyObject *pyfilter;
+
+	if (!PyArg_ParseTuple(args, "O:get_assets_by_filter", &pyfilter)) {
+		return NULL;
+	}
+
+	ue_PyFARFilter *filter = py_ue_is_farfilter(pyfilter);
+	if (!filter)
+		return PyErr_Format(PyExc_Exception, "Arg is not a FARFilter");
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	py_ue_sync_farfilter((PyObject *)filter);
+	TArray<FAssetData> assets;
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	AssetRegistryModule.Get().SearchAllAssets(true);
+	AssetRegistryModule.Get().GetAssets(filter->filter, assets);
+
+	PyObject *assets_list = PyList_New(0);
+	for (FAssetData asset : assets) {
+		if (!asset.IsValid())
+			continue;
+		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+		if (ret) {
+			PyList_Append(assets_list, (PyObject *)ret);
+		}
+	}
+
+	return assets_list;
+}
+
 PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args) {
 	char *path;
 	PyObject *py_recursive = nullptr;
