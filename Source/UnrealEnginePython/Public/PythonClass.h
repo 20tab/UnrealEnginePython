@@ -15,14 +15,9 @@ public:
 		Py_INCREF(py_constructor);
 	}
 
-	void CallPyConstructor(UObject *u_obj) {
+	void CallPyConstructor(ue_PyUObject *self) {
 		if (!py_constructor)
 			return;
-		PyObject *self = (PyObject *)ue_get_python_wrapper(u_obj);
-		if (!self) {
-			unreal_engine_py_log_error();
-			return;
-		}
 		PyObject *ret = PyObject_CallObject(py_constructor, Py_BuildValue("(O)", self));
 		if (!ret) {
 			unreal_engine_py_log_error();
@@ -30,6 +25,9 @@ public:
 		}
 		Py_DECREF(ret);
 	}
+
+	// __dict__ is stored here
+	ue_PyUObject *py_uobject;
 
 private:
 	

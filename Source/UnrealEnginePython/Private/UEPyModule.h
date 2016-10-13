@@ -15,6 +15,8 @@ typedef struct {
 		PyObject *py_proxy;
 		// list of exposed delegates
 		std::list<UPythonDelegate*> *python_delegates_gc;
+		// the __dict__
+		PyObject *py_dict;
 } ue_PyUObject;
 
 

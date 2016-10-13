@@ -12,15 +12,10 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 
 void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 {
-	UE_LOG(LogPython, Warning, TEXT("ENTERING"));
 
 	FScopePythonGIL gil;
 
 	UPythonFunction *function = static_cast<UPythonFunction *>(Stack.CurrentNativeFunction);
-
-	if (function->GetSuperFunction()) {
-		UE_LOG(LogPython, Warning, TEXT("HAS SUPER FUNCTION"));
-	}
 
 	bool on_error = false;
 
@@ -52,7 +47,6 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	argn = Stack.Object ? 1 : 0;
 	// is it a blueprint call ?
 	if (*Stack.Code == EX_EndFunctionParms) {
-		UE_LOG(LogPython, Warning, TEXT("NATIVE CALL"));
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
 			if (prop->PropertyFlags & CPF_ReturnParm)
 				continue;

@@ -38,6 +38,8 @@ PyObject *py_ue_get_super_class(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_functions(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_broadcast(ue_PyUObject *, PyObject *);
+
 
 
 #if WITH_EDITOR

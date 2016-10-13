@@ -415,6 +415,32 @@ PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
 
 }
 
+PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:broadcast", &property_name)) {
+		return NULL;
+	}
+
+	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+			return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(property_name));
+
+	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
+		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
+		uint8 *parms = (uint8 *)FMemory_Alloca(0);
+		multiscript_delegate.ProcessMulticastDelegate<UObject>(parms);
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "property is not a UMulticastDelegateProperty");
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -603,7 +629,15 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	if (u_class == UMulticastDelegateProperty::StaticClass()) {
 		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
 		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
-		mcp->SignatureFunction->FunctionFlags = FUNC_Delegate;
+		mcp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
+		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
+		flags &= ~CPF_Edit;
+	}
+
+	else if (u_class == UDelegateProperty::StaticClass()) {
+		UDelegateProperty *udp = (UDelegateProperty *)u_property;
+		udp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
+		udp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
 		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
 		flags &= ~CPF_Edit;
 	}
@@ -622,8 +656,6 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		owner_class->GetDefaultObject()->ConditionalBeginDestroy();
 		owner_class->ClassDefaultObject = nullptr;
 		owner_class->GetDefaultObject()->PostInitProperties();
-		//u_property->InitializeValue_InContainer(owner_class->GetDefaultObject());
-		UE_LOG(LogPython, Warning, TEXT("UPDATED PSIZE %d"), owner_class->GetPropertiesSize());
 	}
 
 	// TODO add default value

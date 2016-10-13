@@ -311,6 +311,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 
+	{ "broadcast", (PyCFunction)py_ue_broadcast, METH_VARARGS, "" },
+
 #if WITH_EDITOR
 	{ "get_metadata", (PyCFunction)py_ue_get_metadata, METH_VARARGS, "" },
 	{ "set_metadata", (PyCFunction)py_ue_set_metadata, METH_VARARGS, "" },
@@ -431,6 +433,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
+
+	Py_XDECREF(self->py_dict);
 }
 
 // destructor
@@ -526,7 +530,7 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 			return -1;
 		}
 
-		// now check for funciton name
+		// now check for function name
 		if (self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(attr)))) {
 			PyErr_SetString(PyExc_ValueError, "you cannot overwrite a UFunction");
 			return -1;
@@ -565,19 +569,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		}
 		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
 		Py_DECREF(py_args);
-		return ret;
-	}
-
-	if (self->ue_object->IsA<UMulticastDelegateProperty>()) {
-		UMulticastDelegateProperty *prop = (UMulticastDelegateProperty *)self->ue_object;
-		FMulticastScriptDelegate *prop_delegate = prop->GetPropertyValuePtr_InContainer(self->ue_object->GetOuter());
-		if (!prop_delegate)
-			return PyErr_Format(PyExc_Exception, "UMulticastDelegateProperty is in invalid state");
-		uint8 *parms = (uint8 *)FMemory_Alloca(0);
-		prop_delegate->ProcessMulticastDelegate<UObject>(parms);
-		UE_LOG(LogPython, Warning, TEXT("DELEGATES CALLED"));
-		Py_INCREF(Py_None);
-		return Py_None;
+		return (PyObject *)ret;
 	}
 
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
@@ -679,8 +671,6 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 
 	new_object->AssembleReferenceTokenStream();
 
-	UE_LOG(LogPython, Warning, TEXT("PSIZE = %d"), new_object->GetPropertiesSize());
-
 	return new_object;
 }
 
@@ -697,6 +687,7 @@ static void UEPyClassConstructor(UClass *u_class, const FObjectInitializer &Obje
 static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds) {
 	// is it subclassing ?
 	if (PyTuple_Size(args) == 3) {
+		// TODO make it smarter on error checking
 		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)))));
 		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 1)))));
 		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 2)))));
@@ -712,7 +703,6 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		UClass *new_class = unreal_engine_new_uclass(name, (UClass *)parent->ue_object);
 		if (!new_class)
 			return -1;
-		UE_LOG(LogPython, Warning, TEXT("PARENT = %s"), *parent->ue_object->GetName());
 
 		// map the class to the python object
 		self->ue_object = new_class;
@@ -735,11 +725,20 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				continue;
 			}
 
+			bool prop_added = false;
+
 			// add simple property
 			if (ue_is_pyuobject(value)) {
-				if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
-					unreal_engine_py_log_error();
-					return -1;
+				ue_PyUObject *py_obj = (ue_PyUObject *)value;
+				if (py_obj->ue_object->IsA<UClass>()) {
+					UClass *p_class = (UClass *)py_obj->ue_object;
+					if (p_class->IsChildOf<UProperty>()) {
+						if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+							unreal_engine_py_log_error();
+							return -1;
+						}
+						prop_added = true;
+					}
 				}
 			}
 			// add array property
@@ -747,9 +746,16 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				if (PyList_Size(value) == 1) {
 					PyObject *first_item = PyList_GetItem(value, 0);
 					if (ue_is_pyuobject(first_item)) {
-						if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
-							unreal_engine_py_log_error();
-							return -1;
+						ue_PyUObject *py_obj = (ue_PyUObject *)value;
+						if (py_obj->ue_object->IsA<UClass>()) {
+							UClass *p_class = (UClass *)py_obj->ue_object;
+							if (p_class->IsChildOf<UProperty>()) {
+								if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+									unreal_engine_py_log_error();
+									return -1;
+								}
+								prop_added = true;
+							}
 						}
 					}
 				}
@@ -779,26 +785,51 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
 					return -1;
 				}
+				prop_added = true;
 			}
 
+			if (!prop_added) {
+				PyObject_SetAttr((PyObject *)self, key, value);
+			}
 		}
-		// add constructor
+
+		UPythonClass *new_u_py_class = (UPythonClass *)new_class;
+		// TODO: check if we can use this to decref the ue_PyUbject mapped to the class
+		new_u_py_class->py_uobject = self;
+		new_u_py_class->ClassConstructor = [](const FObjectInitializer &ObjectInitializer) {
+			UClass *u_class = ue_py_class_constructor_placeholder ? ue_py_class_constructor_placeholder : ObjectInitializer.GetClass();
+			ue_py_class_constructor_placeholder = nullptr;
+
+			UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
+
+			if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class)) {
+				ue_PyUObject *new_self = ue_get_python_wrapper(ObjectInitializer.GetObj());
+				if (!new_self) {
+					unreal_engine_py_log_error();
+					return;
+				}
+				
+				// fill __dict__ from class
+				if (u_py_class_casted->py_uobject && u_py_class_casted->py_uobject->py_dict) {
+					PyObject *keys = PyDict_Keys(u_py_class_casted->py_uobject->py_dict);
+					Py_ssize_t keys_len = PyList_Size(keys);
+					for (Py_ssize_t i = 0; i < keys_len; i++) {
+						PyObject *key = PyList_GetItem(keys, i);
+						PyObject *value = PyDict_GetItem(u_py_class_casted->py_uobject->py_dict, key);
+						PyObject_SetAttr((PyObject *)new_self, key, value);
+					}
+					Py_DECREF(keys);
+				}
+
+				// call __init__
+				u_py_class_casted->CallPyConstructor(new_self);
+			}
+		};
+
+		// add custom constructor (__init__)
 		PyObject *py_init = PyDict_GetItemString(class_attributes, (char *)"__init__");
 		if (py_init && PyCallable_Check(py_init)) {
-			UPythonClass *u_py_class = (UPythonClass *)new_class;
-			u_py_class->SetPyConstructor(py_init);
-			u_py_class->ClassConstructor = [](const FObjectInitializer &ObjectInitializer) {
-				UClass *u_class = ue_py_class_constructor_placeholder ? ue_py_class_constructor_placeholder : ObjectInitializer.GetClass();
-				ue_py_class_constructor_placeholder = nullptr;
-
-				if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class)) {
-					UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
-					u_py_class_casted->CallPyConstructor(ObjectInitializer.GetObj());
-				}
-				else {
-					UEPyClassConstructor(u_class->GetSuperClass(), ObjectInitializer);
-				}
-			};
+			new_u_py_class->SetPyConstructor(py_init);
 		}
 	}
 
@@ -826,6 +857,7 @@ void unreal_engine_init_py_module() {
 
 	ue_PyUObjectType.tp_new = PyType_GenericNew;
 	ue_PyUObjectType.tp_init = (initproc)unreal_engine_py_init;
+	ue_PyUObjectType.tp_dictoffset = offsetof(ue_PyUObject, py_dict);
 	if (PyType_Ready(&ue_PyUObjectType) < 0)
 		return;
 
@@ -921,6 +953,7 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 		}
 		ue_py_object->ue_object = ue_obj;
 		ue_py_object->python_delegates_gc = new std::list<UPythonDelegate *>;
+		ue_py_object->py_dict = PyDict_New();
 
 		ue_python_gc[ue_obj] = ue_py_object;
 
@@ -1151,7 +1184,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
-
+	
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(prop)) {
 		ue_PyUObject *ret = ue_get_python_wrapper(casted_prop);
 		if (!ret)
@@ -1571,7 +1604,6 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 		// re-assign multicast delegate
 		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
-
 	}
 	else {
 		if (fail_on_wrong_property)
