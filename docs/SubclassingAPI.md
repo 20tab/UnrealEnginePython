@@ -26,9 +26,6 @@ class Monster(Character):
         ue.print_string('seen {}'.format(pawn))
 ```
 
-More on __init__
-----------------
-
 Properties
 ----------
 
