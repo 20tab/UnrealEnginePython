@@ -25,3 +25,12 @@ class Monster(Character):
     def OnSeePawn(self, pawn : Pawn):
         ue.print_string('seen {}'.format(pawn))
 ```
+
+Properties
+----------
+
+Function overriding
+-------------------
+
+Events
+------
