@@ -29,8 +29,8 @@ class Monster(Character):
 Properties
 ----------
 
-Function overriding
--------------------
+Functions and Events
+--------------------
 
-Events
-------
+Reloading
+---------
