@@ -348,7 +348,7 @@ PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject * args
 		py_obj = (ue_PyUObject *)obj;
 	}
 	// shortcut for finding class by string
-	else if (PyUnicode_Check(obj)) {
+	else if (PyUnicodeOrString_Check(obj)) {
 		char *class_name = PyUnicode_AsUTF8(obj);
 		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
 
@@ -396,7 +396,7 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 		py_obj = (ue_PyUObject *)obj;
 	}
 	// shortcut for finding class by string
-	else if (PyUnicode_Check(obj)) {
+	else if (PyUnicodeOrString_Check(obj)) {
 		char *class_name = PyUnicode_AsUTF8(obj);
 		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
 

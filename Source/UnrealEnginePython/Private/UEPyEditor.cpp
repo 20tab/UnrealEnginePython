@@ -143,7 +143,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 			return PyErr_Format(PyExc_Exception, "uobject is not a Class");
 		}	
 	}
-	else if (PyUnicode_Check(obj)) {
+	else if (PyUnicodeOrString_Check(obj)) {
 		char *class_name = PyUnicode_AsUTF8(obj);
 		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
 		if (u_class) {
