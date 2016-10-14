@@ -312,6 +312,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 
+	{ "component_is_registered", (PyCFunction)py_ue_component_is_registered, METH_VARARGS, "" },
+	{ "register_component", (PyCFunction)py_ue_register_component, METH_VARARGS, "" },
+
 	{ "broadcast", (PyCFunction)py_ue_broadcast, METH_VARARGS, "" },
 
 #if WITH_EDITOR
