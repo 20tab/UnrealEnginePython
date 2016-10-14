@@ -62,7 +62,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	PyArgv.Insert(Filepath, 0);
 
 #if PY_MAJOR_VERSION >= 3
-	wchar_t **argv = (**wchar_t)malloc(PyArgv.Num() * sizeof(void*));
+	wchar_t **argv = (wchar_t **)malloc(PyArgv.Num() * sizeof(void*));
 #else
 	char **argv = (char **)malloc(PyArgv.Num() * sizeof(void*));
 #endif
