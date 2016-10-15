@@ -328,8 +328,9 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 
 	actor->SetRootComponent(component);
 
-	if (actor->GetWorld())
+	if (actor->GetWorld()) {
 		component->RegisterComponent();
+	}
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
 	if (!ret)

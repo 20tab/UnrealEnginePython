@@ -1100,6 +1100,11 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return PyFloat_FromDouble(value);
 	}
 
+	if (auto casted_prop = Cast<UByteProperty>(prop)) {
+		int8 value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyLong_FromLong(value);
+	}
+
 	if (auto casted_prop = Cast<UStrProperty>(prop)) {
 		FString value = casted_prop->GetPropertyValue_InContainer(buffer);
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
