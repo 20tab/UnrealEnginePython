@@ -179,8 +179,18 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
     for ( int i = 0; i < numLines; ++i ) {
 
         PyObject * strObj = PyList_GetItem( listObj, i );
-        //char * filename = PyString_AsString( strObj );
+#if PY_MAJOR_VERSION >= 3
+        //PyObject *bytes = PyUnicode_AsUTF8String( PyObject_Str( strObj ) );
+        //if ( !bytes )
+        //{
+        //    continue;
+        //}
+
+        //char * filename = PyBytes_AsString( bytes );
         char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( strObj, "utf-8", "Error" ) );
+#else
+        char * filename = PyString_AsString( PyObject_Str (strObj) );
+#endif
         files.Add( UTF8_TO_TCHAR( filename ) );
     }
 
@@ -698,6 +708,58 @@ PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject 
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
+
+
+PyObject *py_unreal_engine_create_material_instance( PyObject * self, PyObject * args ) {
+
+    PyObject *py_material;
+    char *materialPacakgePath = nullptr;
+    char *materialName = nullptr;
+
+    if ( !PyArg_ParseTuple( args, "O|ss:create_material_instance", &py_material, &materialPacakgePath, &materialName ) ) {
+        return NULL;
+    }
+
+    if ( !ue_is_pyuobject( py_material ) ) {
+        return PyErr_Format( PyExc_Exception, "argument is not a UObject" );
+    }
+
+    ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
+    if ( !py_obj->ue_object->IsA<UMaterialInterface>() )
+        return PyErr_Format( PyExc_Exception, "uobject is not a UMaterialInterface" );
+    UMaterialInterface *materialInterface = (UMaterialInterface *)py_obj->ue_object;
+
+    FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>( "AssetTools" );
+
+    // Determine an appropriate name
+    FString Name;
+    FString PackagePath;
+    FString PackageName;
+
+    // Create the factory used to generate the asset
+    UMaterialInstanceConstantFactoryNew* Factory = NewObject<UMaterialInstanceConstantFactoryNew>();
+    Factory->InitialParent = materialInterface;
+
+    if ( materialPacakgePath && materialName )
+    {
+        Name = UTF8_TO_TCHAR( materialName );
+        PackagePath = UTF8_TO_TCHAR( materialPacakgePath );
+    }
+    else
+    {
+        AssetToolsModule.Get().CreateUniqueAssetName( materialInterface->GetOutermost()->GetName(), UTF8_TO_TCHAR( "_inst" ), PackageName, Name );
+        PackagePath = FPackageName::GetLongPackagePath( PackageName );
+    }
+
+    UObject* NewAsset = AssetToolsModule.Get().CreateAsset( Name, PackagePath, UMaterialInstanceConstant::StaticClass(), Factory );
+
+    ue_PyUObject *ret = ue_get_python_wrapper( NewAsset );
+    if ( !ret )
+        return PyErr_Format( PyExc_Exception, "uobject is in invalid state" );
+
+    Py_INCREF( ret );
+    return (PyObject *)ret;
 }
 
 #endif
