@@ -742,6 +742,13 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 						}
 						prop_added = true;
 					}
+					else {
+						if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass()), class_key, value))) {
+							unreal_engine_py_log_error();
+							return -1;
+						}
+						prop_added = true;
+					}
 				}
 			}
 			// add array property

@@ -553,8 +553,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *obj;
 	char *name;
-	PyObject *replicate = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|O:add_property", &obj, &name, &replicate)) {
+	PyObject *property_class = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|O:add_property", &obj, &name, &property_class)) {
 		return NULL;
 	}
 
@@ -564,7 +564,19 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	UObject *scope = nullptr;
 	UProperty *u_property = nullptr;
 	UClass *u_class = nullptr;
+	UClass *u_prop_class = nullptr;
 	bool is_array = false;
+
+	if (property_class) {
+		if (!ue_is_pyuobject(property_class)) {
+			return PyErr_Format(PyExc_Exception, "property class arg is not a uobject");
+		}
+		ue_PyUObject *py_prop_class = (ue_PyUObject *)property_class;
+		if (!py_prop_class->ue_object->IsA<UClass>()) {
+			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass");
+		}
+		u_prop_class = (UClass *)py_prop_class->ue_object;
+	}
 
 	EObjectFlags o_flags = RF_Public | RF_MarkAsNative | RF_Transient;
 
@@ -615,9 +627,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	}
 
 	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient | CPF_ZeroConstructor;
+
+	// TODO manage replication
+	/* 
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
-	}
+	}*/
 
 	if (is_array) {
 		UArrayProperty *u_array = (UArrayProperty *)scope;
@@ -640,6 +655,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		udp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
 		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
 		flags &= ~CPF_Edit;
+	}
+
+	else if (u_class == UObjectProperty::StaticClass()) {
+		UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+		if (u_prop_class) {
+			obj_prop->SetPropertyClass(u_prop_class);
+		}
 	}
 
 	u_property->SetPropertyFlags(flags);
