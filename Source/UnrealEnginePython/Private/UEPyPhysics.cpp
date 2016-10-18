@@ -79,6 +79,33 @@ PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args) {
 }
 
 
+PyObject *py_ue_get_physics_angular_velocity(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UPrimitiveComponent *primitive = nullptr;
+
+	if (self->ue_object->IsA<UPrimitiveComponent>()) {
+		primitive = (UPrimitiveComponent *)self->ue_object;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
+	}
+
+	char *bone_name = nullptr;
+	if (!PyArg_ParseTuple(args, "|s:get_physics_angular_velocity", &bone_name)) {
+		return nullptr;
+	}
+
+	FName f_bone_name = NAME_None;
+	if (bone_name) {
+		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
+	}
+
+	return py_ue_new_fvector(primitive->GetPhysicsAngularVelocity(f_bone_name));
+}
+
+
 PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
