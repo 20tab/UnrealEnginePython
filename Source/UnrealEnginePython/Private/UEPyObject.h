@@ -44,6 +44,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject *, PyObject *);
+PyObject *py_ue_asset_can_reimport(ue_PyUObject *, PyObject *);
 PyObject *py_ue_asset_reimport(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_metadata(ue_PyUObject *, PyObject *);

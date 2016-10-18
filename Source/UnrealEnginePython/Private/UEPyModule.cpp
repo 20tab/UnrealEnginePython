@@ -20,6 +20,8 @@
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
 #include "UEPySlate.h"
+#include "UEPyPackage.h"
+#include "UEPyAssetUserData.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -250,6 +252,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
+	{ "asset_can_reimport", (PyCFunction)py_ue_asset_can_reimport, METH_VARARGS, "" },
 	{ "asset_reimport", (PyCFunction)py_ue_asset_reimport, METH_VARARGS, "" },
 #endif
 
@@ -266,6 +269,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "all_objects", (PyCFunction)py_ue_all_objects, METH_VARARGS, "" },
 	{ "all_actors", (PyCFunction)py_ue_all_actors, METH_VARARGS, "" },
 	
+
+	// Package
+	{ "package_get_filename", (PyCFunction)py_ue_package_get_filename, METH_VARARGS, "" },
+	{ "package_is_dirty", (PyCFunction)py_ue_package_is_dirty, METH_VARARGS, "" },
+
+	// AssetUserData
+	{ "asset_import_data", (PyCFunction)py_ue_asset_import_data, METH_VARARGS, "" },
 
 	// Input
 
