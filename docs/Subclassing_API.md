@@ -29,6 +29,24 @@ class Monster(Character):
 Properties
 ----------
 
+Properties can be added to your class as static pyrhon class properties:
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character, PawnSensingComponent, Pawn, FloatProperty
+
+class Hero(Character):
+
+    # you can set it from the editor
+    UpSpeed = FloatProperty
+    
+    def ReceiveTick(self, DeltaSeconds: float):
+        location = self.get_actor_location()
+        location.z += self.UpSpeed * DeltaSeconds
+        self.set_actor_location(location)
+```
+
+
 Functions and Events
 --------------------
 
