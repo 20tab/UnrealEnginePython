@@ -35,6 +35,50 @@ PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args) {
 }
 
 
+PyObject *py_ue_add_impulse(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_obj_impulse = nullptr;
+	char *bone_name = nullptr;
+	PyObject *py_obj_b_vel_change = nullptr;
+	if (!PyArg_ParseTuple(args, "O|sO:add_impulse", &py_obj_impulse, &bone_name, &py_obj_b_vel_change)) {
+		return nullptr;
+	}
+
+	UPrimitiveComponent *primitive = nullptr;
+
+	if (self->ue_object->IsA<UPrimitiveComponent>()) {
+		primitive = (UPrimitiveComponent *)self->ue_object;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
+	}
+
+	FVector impulse = FVector(0, 0, 0);
+	if (py_obj_impulse) {
+		ue_PyFVector *py_impulse = py_ue_is_fvector(py_obj_impulse);
+		if (!py_impulse)
+			return PyErr_Format(PyExc_Exception, "impulse must be a FVector");
+		impulse = py_impulse->vec;
+	}
+
+	FName f_bone_name = NAME_None;
+	if (bone_name) {
+		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
+	}
+
+	bool b_vel_change = false;
+	if (py_obj_b_vel_change && PyObject_IsTrue(py_obj_b_vel_change))
+		b_vel_change = true;
+
+	primitive->AddImpulse(impulse, f_bone_name, b_vel_change);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
