@@ -85,22 +85,22 @@ static int py_ue_farfilter_set_recursive_paths(ue_PyFARFilter *self, PyObject *v
 }
 
 static PyGetSetDef ue_PyFARFilter_getseters[] = {
-	{ "include_only_on_disk_assets", (getter)py_ue_farfilter_get_include_only_on_disk_assets, 
-	                                 (setter)py_ue_farfilter_set_include_only_on_disk_assets, (bool)false, NULL },
-	{ "recursive_classes", (getter)py_ue_farfilter_get_recursive_classes, 
-	                       (setter)py_ue_farfilter_set_recursive_classes, (bool)false, NULL },
-	{ "recursive_paths", (getter)py_ue_farfilter_get_recursive_paths, 
-	                     (setter)py_ue_farfilter_set_recursive_paths, (bool)false, NULL },
+	{ (char *)"include_only_on_disk_assets", (getter)py_ue_farfilter_get_include_only_on_disk_assets,
+	                                 (setter)py_ue_farfilter_set_include_only_on_disk_assets, (char *)"", NULL },
+	{ (char *)"recursive_classes", (getter)py_ue_farfilter_get_recursive_classes,
+	                       (setter)py_ue_farfilter_set_recursive_classes, (char *)"", NULL },
+	{ (char *)"recursive_paths", (getter)py_ue_farfilter_get_recursive_paths,
+	                     (setter)py_ue_farfilter_set_recursive_paths, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 
 static PyMemberDef ue_PyFARFilter_members[] = {
-	{ "class_names", T_OBJECT_EX, offsetof(ue_PyFARFilter, class_names), 0, "class_names" },
-	{ "object_paths", T_OBJECT_EX, offsetof(ue_PyFARFilter, object_paths), 0, "object_paths" },
-	{ "package_names", T_OBJECT_EX, offsetof(ue_PyFARFilter, package_names), 0, "package_names" },
-	{ "package_paths", T_OBJECT_EX, offsetof(ue_PyFARFilter, package_paths), 0, "package_paths" },
-	{ "recursive_classes_exclusion_set", T_OBJECT_EX, offsetof(ue_PyFARFilter, recursive_classes_exclusion_set), 0, "recursive_classes_exclusion_set" },
-	{ "tags_and_values", T_OBJECT_EX, offsetof(ue_PyFARFilter, tags_and_values), 0, "tags_and_values" },
+	{ (char *)"class_names", T_OBJECT_EX, offsetof(ue_PyFARFilter, class_names), 0, (char *)"class_names" },
+	{ (char *)"object_paths", T_OBJECT_EX, offsetof(ue_PyFARFilter, object_paths), 0, (char *)"object_paths" },
+	{ (char *)"package_names", T_OBJECT_EX, offsetof(ue_PyFARFilter, package_names), 0, (char *)"package_names" },
+	{ (char *)"package_paths", T_OBJECT_EX, offsetof(ue_PyFARFilter, package_paths), 0, (char *)"package_paths" },
+	{ (char *)"recursive_classes_exclusion_set", T_OBJECT_EX, offsetof(ue_PyFARFilter, recursive_classes_exclusion_set), 0, (char *)"recursive_classes_exclusion_set" },
+	{ (char *)"tags_and_values", T_OBJECT_EX, offsetof(ue_PyFARFilter, tags_and_values), 0, (char *)"tags_and_values" },
 	{ NULL }  /* Sentinel */
 };
 

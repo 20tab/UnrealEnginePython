@@ -71,7 +71,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	{
 #if PY_MAJOR_VERSION >= 3
 		argv[i] = (wchar_t*)malloc(PyArgv[i].Len()+1);
-		wcscpy_s(argv[i], PyArgv[i].Len()+1, *PyArgv[i].ReplaceEscapedCharWithChar());
+    wcsncpy(argv[i], *PyArgv[i].ReplaceEscapedCharWithChar(), PyArgv[i].Len()+1);
 #else
 		argv[i] = (char*)malloc(PyArgv[i].Len() + 1);
 		strcpy_s(argv[i], PyArgv[i].Len()+1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
