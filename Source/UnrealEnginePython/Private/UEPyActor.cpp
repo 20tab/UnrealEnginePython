@@ -296,6 +296,44 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 
 }
 
+PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:actor_create_default_subobject", &obj, &name)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	AActor *actor = (AActor *)self->ue_object;
+
+	if (!ue_is_pyuobject(obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a class");
+	}
+
+	UObject *ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), (UClass *)py_obj->ue_object, false, false, true);
+	if (!ret_obj)
+		return PyErr_Format(PyExc_Exception, "unable to create component");
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(ret_obj);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+
+}
+
 PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
