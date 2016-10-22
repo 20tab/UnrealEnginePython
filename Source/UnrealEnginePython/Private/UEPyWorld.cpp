@@ -116,6 +116,20 @@ PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 }
 
+PyObject *py_ue_has_world(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world) {
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	Py_INCREF(Py_True);
+	return Py_True;
+}
+
 PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
