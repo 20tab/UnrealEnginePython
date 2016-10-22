@@ -370,6 +370,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
 
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
+	{ "add_impulse", (PyCFunction)py_ue_add_impulse, METH_VARARGS, "" },
+	{ "add_angular_impulse", (PyCFunction)py_ue_add_angular_impulse, METH_VARARGS, "" },
 	{ "add_torque", (PyCFunction)py_ue_add_torque, METH_VARARGS, "" },
 	{ "set_physics_angular_velocity", (PyCFunction)py_ue_set_physics_angular_velocity, METH_VARARGS, "" },
 	{ "get_physics_angular_velocity", (PyCFunction)py_ue_get_physics_angular_velocity, METH_VARARGS, "" },
