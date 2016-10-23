@@ -91,8 +91,6 @@ PyObject *py_unreal_engine_remove_ticker(PyObject * self, PyObject * args) {
 	ue_PyFDelegateHandle *py_handle = (ue_PyFDelegateHandle *)py_obj;
 	FTicker::GetCoreTicker().RemoveTicker(py_handle->dhandle);
 
-	Py_DECREF(py_obj);
-
 	Py_INCREF(Py_None);
 	return Py_None;
 }
