@@ -123,6 +123,50 @@ PyObject *py_ue_add_angular_impulse(ue_PyUObject * self, PyObject * args) {
 }
 
 
+PyObject *py_ue_add_force(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_obj_force = nullptr;
+	char *bone_name = nullptr;
+	PyObject *py_obj_b_accel_change = nullptr;
+	if (!PyArg_ParseTuple(args, "O|sO:add_force", &py_obj_force, &bone_name, &py_obj_b_accel_change)) {
+		return nullptr;
+	}
+
+	UPrimitiveComponent *primitive = nullptr;
+
+	if (self->ue_object->IsA<UPrimitiveComponent>()) {
+		primitive = (UPrimitiveComponent *)self->ue_object;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
+	}
+
+	FVector force = FVector(0, 0, 0);
+	if (py_obj_force) {
+		ue_PyFVector *py_force = py_ue_is_fvector(py_obj_force);
+		if (!py_force)
+			return PyErr_Format(PyExc_Exception, "force must be a FVector");
+		force = py_force->vec;
+	}
+
+	FName f_bone_name = NAME_None;
+	if (bone_name) {
+		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
+	}
+
+	bool b_accel_change = false;
+	if (py_obj_b_accel_change && PyObject_IsTrue(py_obj_b_accel_change))
+		b_accel_change = true;
+
+	primitive->AddForce(force, f_bone_name, b_accel_change);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
 PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
