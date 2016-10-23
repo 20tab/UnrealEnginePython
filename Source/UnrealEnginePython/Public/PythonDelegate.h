@@ -18,6 +18,8 @@ public:
 	void PyInputHandler();
 	void PyInputAxisHandler(float value);
 
+	bool Tick(float DeltaTime);
+
 private:
 	UFunction *signature;
 	bool signature_set;

@@ -53,6 +53,17 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 		unreal_engine_py_log_error();
 		return;
 	}
+	// currently useless as events do not return a value
+	/*
+	if (signature_set) {
+		UProperty *return_property = signature->GetReturnProperty();
+		if (return_property && signature->ReturnValueOffset != MAX_uint16) {
+			if (!ue_py_convert_pyobject(ret, return_property, (uint8 *)Parms)) {
+				UE_LOG(LogPython, Error, TEXT("Invalid return value type for delegate"));
+			}
+		}
+	}
+	*/
 	Py_DECREF(ret);
 }
 
@@ -80,6 +91,22 @@ void UPythonDelegate::PyInputAxisHandler(float value)
 		return;
 	}
 	Py_DECREF(ret);
+}
+
+bool UPythonDelegate::Tick(float DeltaTime)
+{
+	FScopePythonGIL gil;
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"f", DeltaTime);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return false;
+	}
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return true;
+	}
+	Py_DECREF(ret);
+	return false;
 }
 
 UPythonDelegate::~UPythonDelegate()

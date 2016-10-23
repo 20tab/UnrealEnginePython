@@ -456,8 +456,8 @@ PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args) {
 	FTickerDelegate ticker_delegate;
 	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
 	py_delegate->SetPyCallable(py_callable);
-	// fake UFUNCTION for bypassing checks
-	ticker_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
+
+	ticker_delegate.BindUObject(py_delegate, &UPythonDelegate::Tick);
 
 	// avoid the delegate to be GC'ed
 	py_delegate->AddToRoot();
