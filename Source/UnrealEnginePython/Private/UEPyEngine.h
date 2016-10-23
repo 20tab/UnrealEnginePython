@@ -36,7 +36,7 @@ PyObject *py_unreal_engine_new_class(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject *, PyObject *);
 
-PyObject *py_unreal_engine_add_ticker(PyObject *, PyObject *);
+
 
 
 

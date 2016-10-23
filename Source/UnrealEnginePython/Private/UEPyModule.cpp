@@ -16,6 +16,7 @@
 #include "UEPySkeletal.h"
 #include "UEPyTraceAndSweep.h"
 #include "UEPyTimer.h"
+#include "UEPyTicker.h"
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
@@ -170,6 +171,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_and_dispatch_when_ready", py_unreal_engine_create_and_dispatch_when_ready, METH_VARARGS, "" },
 
 	{ "add_ticker", py_unreal_engine_add_ticker, METH_VARARGS, "" },
+	{ "remove_ticker", py_unreal_engine_remove_ticker, METH_VARARGS, "" },
 
 	{ "py_gc", py_unreal_engine_py_gc, METH_VARARGS, "" },
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
@@ -906,6 +908,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_flinearcolor(new_unreal_engine_module);
 
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
+
+	ue_python_init_fdelegatehandle(new_unreal_engine_module);
 
 	ue_python_init_callable(new_unreal_engine_module);
 

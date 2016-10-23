@@ -442,28 +442,4 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObj
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args) {
 
-	PyObject *py_callable;
-	float delay = 0;
-	if (!PyArg_ParseTuple(args, "O|f:add_ticker", &py_callable, &delay)) {
-		return NULL;
-	}
-
-	if (!PyCallable_Check(py_callable))
-		return PyErr_Format(PyExc_Exception, "object is not a callable");
-
-	FTickerDelegate ticker_delegate;
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-
-	ticker_delegate.BindUObject(py_delegate, &UPythonDelegate::Tick);
-
-	// avoid the delegate to be GC'ed
-	py_delegate->AddToRoot();
-
-	FTicker::GetCoreTicker().AddTicker(ticker_delegate, delay);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
