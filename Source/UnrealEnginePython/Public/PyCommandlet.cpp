@@ -28,7 +28,8 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	myMatcher.FindNext();
 	FString PyCommandLine = myMatcher.GetCaptureGroup(0).Trim().TrimTrailing();
 	
-	TArray<FString> PyArgv = {FString()};
+	TArray<FString> PyArgv;
+	PyArgv.Add(FString());
 	bool escaped = false;
 	for (int i = 0; i < PyCommandLine.Len(); i++)
 	{
