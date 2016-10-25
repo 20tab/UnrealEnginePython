@@ -16,14 +16,7 @@ UPythonComponent::UPythonComponent()
 
 }
 
-
-// Called when the game starts
-void UPythonComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-
+void UPythonComponent::InitializePythonComponent() {
 	if (PythonModule.IsEmpty())
 		return;
 
@@ -90,6 +83,17 @@ void UPythonComponent::BeginPlay()
 		return;
 	}
 	Py_DECREF(bp_ret);
+}
+
+// Called when the game starts
+void UPythonComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+
+	InitializePythonComponent();
+	
 }
 
 

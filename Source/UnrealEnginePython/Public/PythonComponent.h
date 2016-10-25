@@ -22,17 +22,20 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere , Category = "Python")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
 	FString PythonModule;
 
-	UPROPERTY(EditAnywhere, Category = "Python")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
 	FString PythonClass;
 
-	UPROPERTY(EditAnywhere, Category = "Python")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
 	bool PythonTickForceDisabled;
 
-	UPROPERTY(EditAnywhere, Category = "Python")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
 	bool PythonDisableAutoBinding;
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void InitializePythonComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
 	void CallPythonComponentMethod(FString method_name, FString args);
