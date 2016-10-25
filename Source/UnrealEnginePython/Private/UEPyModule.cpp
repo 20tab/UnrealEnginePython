@@ -856,7 +856,6 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					}
 					Py_DECREF(keys);
 				}
-
 				// call __init__
 				u_py_class_casted->CallPyConstructor(new_self);
 			}
@@ -910,6 +909,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
 
 	ue_python_init_fdelegatehandle(new_unreal_engine_module);
+
+	ue_python_init_fsocket(new_unreal_engine_module);
 
 	ue_python_init_callable(new_unreal_engine_module);
 

@@ -41,6 +41,8 @@ public class UnrealEnginePython : ModuleRules
             new string[]
             {
                 "Core",
+                "Sockets",
+                "Networking"
 				// ... add other public dependencies that you statically link with here ...
 			}
             );

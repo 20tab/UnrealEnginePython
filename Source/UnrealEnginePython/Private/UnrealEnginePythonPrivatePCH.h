@@ -35,6 +35,7 @@
 #include "UEPyFTransform.h"
 #include "UEPyFColor.h"
 #include "UEPyFLinearColor.h"
+#include "UEPyFSocket.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
