@@ -44,7 +44,13 @@ public:
 	FString CallPythonComponentMethodString(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
+	void CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
 	float CallPythonComponentMethodFloat(FString method_name, FString args);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	int CallPythonComponentMethodInt(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
 	void SetPythonAttrInt(FString attr, int Integer);

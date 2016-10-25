@@ -179,6 +179,8 @@ void UPythonComponent::SetPythonAttrFloat(FString attr, float f)
 	}
 }
 
+
+
 void UPythonComponent::SetPythonAttrInt(FString attr, int n)
 {
 	if (!py_component_instance)
@@ -265,7 +267,7 @@ bool UPythonComponent::CallPythonComponentMethodBool(FString method_name, FStrin
 float UPythonComponent::CallPythonComponentMethodFloat(FString method_name, FString args)
 {
 	if (!py_component_instance)
-		return false;
+		return 0;
 
 	FScopePythonGIL gil;
 
@@ -280,7 +282,7 @@ float UPythonComponent::CallPythonComponentMethodFloat(FString method_name, FStr
 
 	if (!ret) {
 		unreal_engine_py_log_error();
-		return false;
+		return 0;
 	}
 
 	float value = 0;
@@ -288,6 +290,39 @@ float UPythonComponent::CallPythonComponentMethodFloat(FString method_name, FStr
 	if (PyNumber_Check(ret)) {
 		PyObject *py_value = PyNumber_Float(ret);
 		value = PyFloat_AsDouble(py_value);
+		Py_DECREF(py_value);
+	}
+
+	Py_DECREF(ret);
+	return value;
+}
+
+int UPythonComponent::CallPythonComponentMethodInt(FString method_name, FString args)
+{
+	if (!py_component_instance)
+		return 0;
+
+	FScopePythonGIL gil;
+
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
+	}
+
+
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return 0;
+	}
+
+	int value = 0;
+
+	if (PyNumber_Check(ret)) {
+		PyObject *py_value = PyNumber_Long(ret);
+		value = PyLong_AsLong(py_value);
 		Py_DECREF(py_value);
 	}
 
@@ -328,6 +363,54 @@ FString UPythonComponent::CallPythonComponentMethodString(FString method_name, F
 	Py_DECREF(py_str);
 
 	return ret_fstring;
+}
+
+void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings)
+{
+	if (!py_component_instance)
+		return;
+
+	output_strings.Empty();
+
+	FScopePythonGIL gil;
+
+	PyObject *ret = nullptr;
+	if (args.IsEmpty()) {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else {
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
+	}
+
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+
+	if (!PyList_Check(ret)) {
+		UE_LOG(LogPython, Error, TEXT("return value is not a list"));
+		return;
+	}
+
+	Py_ssize_t len = PyList_Size(ret);
+
+	for (Py_ssize_t i = 0; i < len; i++) {
+		PyObject *py_str = PyObject_Str(PyList_GetItem(ret, i));
+		if (!py_str) {
+			Py_DECREF(ret);
+			return;
+		}
+
+		char *str_ret = PyUnicode_AsUTF8(py_str);
+
+		FString ret_fstring = FString(UTF8_TO_TCHAR(str_ret));
+
+		output_strings.Add(ret_fstring);
+
+		Py_DECREF(py_str);
+	}
+
+	Py_DECREF(ret);
 }
 
 
