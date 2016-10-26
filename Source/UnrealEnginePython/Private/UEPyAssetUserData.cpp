@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
+
 PyObject *py_ue_asset_import_data(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -23,3 +25,4 @@ PyObject *py_ue_asset_import_data(ue_PyUObject * self, PyObject * args) {
 	}
 	return ret;
 }
+#endif

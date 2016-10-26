@@ -1,7 +1,5 @@
 #pragma once
 
-#include "UnrealEd.h"
-#include "Core.h"
 #include "Commandlets/Commandlet.h"
 #include "PyCommandlet.generated.h"
 

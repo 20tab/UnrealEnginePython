@@ -276,8 +276,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "package_get_filename", (PyCFunction)py_ue_package_get_filename, METH_VARARGS, "" },
 	{ "package_is_dirty", (PyCFunction)py_ue_package_is_dirty, METH_VARARGS, "" },
 
+#if WITH_EDITOR
 	// AssetUserData
 	{ "asset_import_data", (PyCFunction)py_ue_asset_import_data, METH_VARARGS, "" },
+#endif
 
 	// Input
 

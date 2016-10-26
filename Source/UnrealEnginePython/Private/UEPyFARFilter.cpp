@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
+
 static PyObject *py_ue_farfilter_append(ue_PyFARFilter *self, PyObject * args) {
 	PyObject *pyfilter = nullptr;
 	py_ue_sync_farfilter((PyObject *)self);
@@ -328,3 +330,5 @@ ue_PyFARFilter *py_ue_is_farfilter(PyObject *obj) {
 		return nullptr;
 	return (ue_PyFARFilter *)obj;
 }
+
+#endif
