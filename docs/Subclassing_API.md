@@ -48,7 +48,7 @@ class ExplodeTrigger(TriggerBox):
 Properties
 ----------
 
-Properties can be added to your class as static pyrhon class properties:
+Properties can be added to your class as static python class properties:
 
 ```py
 import unreal_engine as ue
