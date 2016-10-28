@@ -84,6 +84,22 @@ class Hero(Character):
         self.set_actor_location(location)
 ```
 
+To map object references to properties:
+
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character, PawnSensingComponent, Pawn, FloatProperty
+
+class Hero(Character):
+
+    # you can set it from the editor
+    AnotherCharacter = Character 
+    
+    def ReceiveTick(self, DeltaSeconds: float):
+        ue.log('Hello ' + str(AnotherCharacter))
+```
+
 
 Functions and Events
 --------------------
