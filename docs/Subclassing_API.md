@@ -5,6 +5,8 @@ This is the most advanced way to use Python for your gameplay logic, developing 
 
 It resembles the native way you would work with unreal and c++ but in a (more or less ;) pythonic way.
 
+Anything you define in python subclasses of UObjects is automatically exposed to Blueprints. As python is a dynamic language without strong encapsulation concepts, this looks (at least currently) the best approach from a python-developer point of view.
+
 The system is still under heavy development and new ideas are popping up constantly (the main objective is to simplify and speed up  end-users development)
 
 Subclassing
