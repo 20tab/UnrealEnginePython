@@ -86,6 +86,77 @@ class Hero(Character):
 Functions and Events
 --------------------
 
+By default any methods having the same signature of an internal virtual one (like ReceiveBeginPlay in the previous examples) will became 
+automagically an override. Pay attention to the function annotation style for helping the blueprint system discovering the type of arguments. Except from self, any argument (or return value) without proper type will result in ignoring the argument:
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character, PawnSensingComponent, Pawn, FloatProperty
+
+class Hero(Character):
+
+    # you can set it from the editor as array
+    UpSpeed = [FloatProperty]
+    
+    # automatic override
+    def ReceiveTick(self, DeltaSeconds: float):
+        location = self.get_actor_location()
+        location.z += self.UpSpeed[0] * DeltaSeconds
+        self.set_actor_location(location)
+        
+    # this new method will be available to blueprints
+    def FunnyNewMethod(self, a_word: str):
+        ue.print_string('This is a word from blueprint: ' + a_word)
+```
+
+you can do manual override too:
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character, PawnSensingComponent, Pawn, FloatProperty
+
+class Hero(Character):
+
+    # you can set it from the editor as array
+    UpSpeed = [FloatProperty]
+    
+    # manual override
+    def funny_receive_tick(self, DeltaSeconds: float):
+        location = self.get_actor_location()
+        location.z += self.UpSpeed[0] * DeltaSeconds
+        self.set_actor_location(location)
+    funny_receive_tick.override = 'ReceiveTick'
+```
+
+To mark a method as 'pure' (in the Blueprint sense):
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character
+
+class Hero(Character):
+        
+    # this new method will be available to blueprints
+    def FunnyNewMethod(self, a_word: str):
+        ue.print_string('This is a word from blueprint: ' + a_word)
+    FunnyNewMethod.is_pure = True
+```
+
+or static:
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character
+
+class Hero(Character):
+        
+    # this new static method will be available to blueprints
+    def FunnyStaticMethod():
+        ue.print_string('I am a static method')
+    FunnyNewMethod.is_static = True
+```
+
+
 Reloading
 ---------
 
