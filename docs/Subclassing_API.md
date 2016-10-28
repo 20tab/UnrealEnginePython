@@ -9,6 +9,8 @@ Anything you define in python subclasses of UObjects is automatically exposed to
 
 The system is still under heavy development and new ideas are popping up constantly (the main objective is to simplify and speed up  end-users development)
 
+Before starting using it, ensure to understand the exposed reflection system: https://github.com/20tab/UnrealEnginePython#native-methods-vs-reflection
+
 NOTE: currently it works only on python3 as it heavily relies on function annotations.
 
 Subclassing
