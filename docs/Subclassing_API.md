@@ -61,6 +61,23 @@ class Hero(Character):
         self.set_actor_location(location)
 ```
 
+Array can be specified like this:
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import Character, PawnSensingComponent, Pawn, FloatProperty
+
+class Hero(Character):
+
+    # you can set it from the editor as array
+    UpSpeed = [FloatProperty]
+    
+    def ReceiveTick(self, DeltaSeconds: float):
+        location = self.get_actor_location()
+        location.z += self.UpSpeed[0] * DeltaSeconds
+        self.set_actor_location(location)
+```
+
 
 Functions and Events
 --------------------
