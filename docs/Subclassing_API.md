@@ -19,11 +19,26 @@ from unreal_engine.classes import Character, PawnSensingComponent, Pawn
 class Monster(Character):
 
     def __init__(self):
-        sensor = self.add_actor_component(PawnSensingComponent, 'Sensor')
-        sensor.SightRadius = 17000
+        self.sensor = self.add_actor_component(PawnSensingComponent, 'Sensor')
+        
+    # properties can only be set starting from begin play
+    def ReceiveBeginPlay():
+        self.sensor.SightRadius = 17000
         
     def OnSeePawn(self, pawn : Pawn):
         ue.print_string('seen {}'.format(pawn))
+```
+
+Another example for a custom trigger:
+
+```py
+import unreal_engine as ue
+from unreal_engine.classes import TriggerBox, Actor
+
+class ExplodeTrigger(TriggerBox):
+
+    def ReceiveActorBeginOverlap(self, other : Actor):
+        ue.log('TRIGGERED BY ' + str(other))
 ```
 
 Properties
