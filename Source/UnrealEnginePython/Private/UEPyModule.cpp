@@ -810,6 +810,12 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 				else if (!is_pure)
 					PyErr_Clear();
+				PyObject *is_static = PyObject_GetAttrString(value, (char *)"static");
+				if (is_static && PyObject_IsTrue(is_static)) {
+					func_flags |= FUNC_Static;
+				}
+				else if (!is_static)
+					PyErr_Clear();
 				PyObject *override_name = PyObject_GetAttrString(value, (char *)"override");
 				if (override_name && PyUnicodeOrString_Check(override_name)) {
 					class_key = PyUnicode_AsUTF8(override_name);

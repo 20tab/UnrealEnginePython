@@ -18,9 +18,10 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	UPythonFunction *function = static_cast<UPythonFunction *>(Stack.CurrentNativeFunction);
 
 	bool on_error = false;
+	bool is_static = function->HasAnyFunctionFlags(FUNC_Static);
 
 	// count the number of arguments
-	Py_ssize_t argn = Stack.Object ? 1 : 0;
+	Py_ssize_t argn = (Stack.Object && !is_static) ? 1 : 0;
 	TFieldIterator<UProperty> IArgs(function);
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
@@ -30,7 +31,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 #endif
 	PyObject *py_args = PyTuple_New(argn);
 
-	if (Stack.Object) {
+	if (Stack.Object && !is_static) {
 		PyObject *py_obj = (PyObject *)ue_get_python_wrapper(Stack.Object);
 		if (!py_obj) {
 			unreal_engine_py_log_error();
@@ -44,7 +45,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	uint8 *frame = Stack.Locals;
 
-	argn = Stack.Object ? 1 : 0;
+	argn = (Stack.Object && !is_static) ? 1 : 0;
 	// is it a blueprint call ?
 	if (*Stack.Code == EX_EndFunctionParms) {
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
@@ -63,7 +64,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		}
 	}
 	else {
-		UE_LOG(LogPython, Warning, TEXT("BLUEPRINT CALL"));
+		//UE_LOG(LogPython, Warning, TEXT("BLUEPRINT CALL"));
 		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 		FMemory::Memzero(frame, function->PropertiesSize);
 		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
