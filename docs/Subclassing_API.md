@@ -158,6 +158,16 @@ class Hero(Character):
     FunnyNewMethod.is_static = True
 ```
 
+Events can be easily exposed like this:
+
+```py
+class ExplodeTrigger(TriggerBox):
+
+    def WorldDestroyedByDaemons(self):
+        ue.log_warning('WORLD DESTROYED')
+    WorldDestroyedByDaemons.event = True
+```
+
 
 Reloading
 ---------
