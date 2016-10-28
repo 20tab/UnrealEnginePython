@@ -88,3 +88,7 @@ Functions and Events
 
 Reloading
 ---------
+
+The hot-reloading system is still under heavy testing, expect a bunch of crashes when you heavily redefine classes.
+
+By the way, the idea is that simply redefining a class in python (for example via unreal_engine.exec) will update the internal unreal definition. Try to stress-test it and report crash backtraces. Thanks a lot !
