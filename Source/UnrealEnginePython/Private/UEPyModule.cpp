@@ -804,6 +804,33 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 				else if (!is_event)
 					PyErr_Clear();
+
+				PyObject *is_multicast = PyObject_GetAttrString(value, (char *)"multicast");
+				if (is_multicast && PyObject_IsTrue(is_multicast)) {
+					func_flags |= FUNC_NetMulticast;
+				}
+				else if (!is_multicast)
+					PyErr_Clear();
+				PyObject *is_server = PyObject_GetAttrString(value, (char *)"server");
+				if (is_server && PyObject_IsTrue(is_server)) {
+					func_flags |= FUNC_NetServer;
+				}
+				else if (!is_server)
+					PyErr_Clear();
+				PyObject *is_client = PyObject_GetAttrString(value, (char *)"client");
+				if (is_client && PyObject_IsTrue(is_client)) {
+					func_flags |= FUNC_NetClient;
+				}
+				else if (!is_client)
+					PyErr_Clear();
+				PyObject *is_reliable = PyObject_GetAttrString(value, (char *)"reliable");
+				if (is_reliable && PyObject_IsTrue(is_reliable)) {
+					func_flags |= FUNC_NetReliable;
+				}
+				else if (!is_reliable)
+					PyErr_Clear();
+
+
 				PyObject *is_pure = PyObject_GetAttrString(value, (char *)"pure");
 				if (is_pure && PyObject_IsTrue(is_pure)) {
 					func_flags |= FUNC_BlueprintPure;
