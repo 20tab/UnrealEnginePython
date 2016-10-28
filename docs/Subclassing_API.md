@@ -24,13 +24,15 @@ from unreal_engine.classes import Character, PawnSensingComponent, Pawn
 
 class Monster(Character):
 
+    # constructor adding a component
     def __init__(self):
         self.sensor = self.add_actor_component(PawnSensingComponent, 'Sensor')
         
     # properties can only be set starting from begin play
     def ReceiveBeginPlay():
         self.sensor.SightRadius = 17000
-        
+    
+    # this will automatically override the OnSeePawn event
     def OnSeePawn(self, pawn : Pawn):
         ue.print_string('seen {}'.format(pawn))
 ```
