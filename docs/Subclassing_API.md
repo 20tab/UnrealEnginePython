@@ -168,6 +168,19 @@ class ExplodeTrigger(TriggerBox):
     WorldDestroyedByDaemons.event = True
 ```
 
+You can make your events networkedm using the 'multicast', 'server', 'client' and 'reliable' attributes:
+
+```py
+class ExplodeTrigger(TriggerBox):
+
+    # this event will be run on the server and in reliable mode
+    def WorldDestroyedByDaemons(self):
+        ue.log_warning('WORLD DESTROYED')
+    WorldDestroyedByDaemons.event = True
+    WorldDestroyedByDaemons.server = True
+    WorldDestroyedByDaemons.reliable = True
+```
+
 
 Reloading
 ---------
