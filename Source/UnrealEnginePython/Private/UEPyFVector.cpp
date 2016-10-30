@@ -4,6 +4,10 @@ static PyObject *py_ue_fvector_length(ue_PyFVector *self, PyObject * args) {
 	return PyFloat_FromDouble(self->vec.Size());
 }
 
+static PyObject *py_ue_fvector_length_squared(ue_PyFVector *self, PyObject * args) {
+	return PyFloat_FromDouble(self->vec.SizeSquared());
+}
+
 static PyObject *py_ue_fvector_normalized(ue_PyFVector *self, PyObject * args) {
 	FVector vec = self->vec;
 	vec.Normalize();
@@ -35,6 +39,8 @@ static PyMethodDef ue_PyFVector_methods[] = {
 
 	{ "length", (PyCFunction)py_ue_fvector_length, METH_VARARGS, "" },
 	{ "size", (PyCFunction)py_ue_fvector_length, METH_VARARGS, "" },
+	{ "size_squared", (PyCFunction)py_ue_fvector_length_squared, METH_VARARGS, "" },
+	{ "length_squared", (PyCFunction)py_ue_fvector_length_squared, METH_VARARGS, "" },
 	{ "normalized", (PyCFunction)py_ue_fvector_normalized, METH_VARARGS, "" },
 	{ "dot", (PyCFunction)py_ue_fvector_dot, METH_VARARGS, "" },
 	{ "cross", (PyCFunction)py_ue_fvector_cross, METH_VARARGS, "" },
