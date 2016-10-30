@@ -34,6 +34,26 @@ static PyObject *py_ue_fvector_cross(ue_PyFVector *self, PyObject * args) {
 	return py_ue_new_fvector(FVector::CrossProduct(self->vec, py_vec->vec));
 }
 
+static PyObject *py_ue_fvector_project_on_to(ue_PyFVector *self, PyObject * args) {
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:cross", &py_obj))
+		return nullptr;
+	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
+	if (!py_vec)
+		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
+	return py_ue_new_fvector(self->vec.ProjectOnTo(py_vec->vec));
+}
+
+static PyObject *py_ue_fvector_project_on_to_normal(ue_PyFVector *self, PyObject * args) {
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:cross", &py_obj))
+		return nullptr;
+	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
+	if (!py_vec)
+		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
+	return py_ue_new_fvector(self->vec.ProjectOnToNormal(py_vec->vec));
+}
+
 
 static PyMethodDef ue_PyFVector_methods[] = {
 
@@ -44,6 +64,8 @@ static PyMethodDef ue_PyFVector_methods[] = {
 	{ "normalized", (PyCFunction)py_ue_fvector_normalized, METH_VARARGS, "" },
 	{ "dot", (PyCFunction)py_ue_fvector_dot, METH_VARARGS, "" },
 	{ "cross", (PyCFunction)py_ue_fvector_cross, METH_VARARGS, "" },
+	{ "project_on_to", (PyCFunction)py_ue_fvector_project_on_to, METH_VARARGS, "" },
+	{ "project_on_to_normal", (PyCFunction)py_ue_fvector_project_on_to_normal, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
