@@ -378,6 +378,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_angular_impulse", (PyCFunction)py_ue_add_angular_impulse, METH_VARARGS, "" },
 	{ "add_force", (PyCFunction)py_ue_add_force, METH_VARARGS, "" },
 	{ "add_torque", (PyCFunction)py_ue_add_torque, METH_VARARGS, "" },
+	{ "set_physics_linear_velocity", (PyCFunction)py_ue_set_physics_linear_velocity, METH_VARARGS, "" },
 	{ "get_physics_linear_velocity", (PyCFunction)py_ue_get_physics_linear_velocity, METH_VARARGS, "" },
 	{ "set_physics_angular_velocity", (PyCFunction)py_ue_set_physics_angular_velocity, METH_VARARGS, "" },
 	{ "get_physics_angular_velocity", (PyCFunction)py_ue_get_physics_angular_velocity, METH_VARARGS, "" },
