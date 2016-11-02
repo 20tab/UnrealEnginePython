@@ -870,6 +870,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		// TODO: check if we can use this to decref the ue_PyUbject mapped to the class
 		new_u_py_class->py_uobject = self;
 		new_u_py_class->ClassConstructor = [](const FObjectInitializer &ObjectInitializer) {
+			FScopePythonGIL gil;
 			UClass *u_class = ue_py_class_constructor_placeholder ? ue_py_class_constructor_placeholder : ObjectInitializer.GetClass();
 			ue_py_class_constructor_placeholder = nullptr;
 
