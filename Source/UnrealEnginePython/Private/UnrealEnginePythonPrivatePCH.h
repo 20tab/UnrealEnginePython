@@ -50,5 +50,9 @@
 
 #if PY_MAJOR_VERSION < 3
 char *PyUnicode_AsUTF8(PyObject *py_str);
+int PyGILState_Check() {
+	PyThreadState * tstate = _PyThreadState_Current;
+	return tstate && (tstate == PyGILState_GetThisThreadState());
+}
 #endif
 bool PyUnicodeOrString_Check(PyObject *py_obj);
