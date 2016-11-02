@@ -211,6 +211,77 @@ PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args) {
 }
 
 
+PyObject *py_ue_set_physics_linear_velocity(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UPrimitiveComponent *primitive = nullptr;
+
+	if (self->ue_object->IsA<UPrimitiveComponent>()) {
+		primitive = (UPrimitiveComponent *)self->ue_object;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
+	}
+
+	PyObject *py_obj_new_vel = nullptr;
+	PyObject *is_add_to_current = NULL;
+	char *bone_name = nullptr;
+	if (!PyArg_ParseTuple(args, "O|Os:set_physics_linear_velocity", &py_obj_new_vel, &is_add_to_current, &bone_name)) {
+		return nullptr;
+	}
+
+	FVector new_vel = FVector(0, 0, 0);
+	if (py_obj_new_vel) {
+		ue_PyFVector *py_new_vel = py_ue_is_fvector(py_obj_new_vel);
+		if (!py_new_vel)
+			return PyErr_Format(PyExc_Exception, "torque must be a FVector");
+		new_vel = py_new_vel->vec;
+	}
+
+	bool add_to_current = false;
+	if (is_add_to_current && PyObject_IsTrue(is_add_to_current))
+		add_to_current = true;
+
+	FName f_bone_name = NAME_None;
+	if (bone_name) {
+		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
+	}
+
+	primitive->SetPhysicsLinearVelocity(new_vel, add_to_current, f_bone_name);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+
+PyObject *py_ue_get_physics_linear_velocity(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UPrimitiveComponent *primitive = nullptr;
+
+	if (self->ue_object->IsA<UPrimitiveComponent>()) {
+		primitive = (UPrimitiveComponent *)self->ue_object;
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
+	}
+
+	char *bone_name = nullptr;
+	if (!PyArg_ParseTuple(args, "|s:get_physics_linear_velocity", &bone_name)) {
+		return nullptr;
+	}
+
+	FName f_bone_name = NAME_None;
+	if (bone_name) {
+		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
+	}
+
+	return py_ue_new_fvector(primitive->GetPhysicsLinearVelocity(f_bone_name));
+}
+
+
 PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -224,19 +295,19 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 		return PyErr_Format(PyExc_Exception, "uobject is not an UPrimitiveComponent");
 	}
 
-	PyObject *py_obj_new_max_ang_vel = nullptr;
+	PyObject *py_obj_new_ang_vel = nullptr;
 	PyObject *is_add_to_current = NULL;
 	char *bone_name = nullptr;
-	if (!PyArg_ParseTuple(args, "f|Os:set_physics_angular_velocity", &py_obj_new_max_ang_vel, &is_add_to_current, &bone_name)) {
+	if (!PyArg_ParseTuple(args, "O|Os:set_physics_angular_velocity", &py_obj_new_ang_vel, &is_add_to_current, &bone_name)) {
 		return nullptr;
 	}
 
-	FVector new_max_ang_vel = FVector(0, 0, 0);
-	if (py_obj_new_max_ang_vel) {
-		ue_PyFVector *py_new_max_ang_vel = py_ue_is_fvector(py_obj_new_max_ang_vel);
-		if (!py_new_max_ang_vel)
+	FVector new_ang_vel = FVector(0, 0, 0);
+	if (py_obj_new_ang_vel) {
+		ue_PyFVector *py_new_ang_vel = py_ue_is_fvector(py_obj_new_ang_vel);
+		if (!py_new_ang_vel)
 			return PyErr_Format(PyExc_Exception, "torque must be a FVector");
-		new_max_ang_vel = py_new_max_ang_vel->vec;
+		new_ang_vel = py_new_ang_vel->vec;
 	}
 
 	bool add_to_current = false;
@@ -248,7 +319,7 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
 	}
 
-	primitive->SetPhysicsAngularVelocity(new_max_ang_vel, add_to_current, f_bone_name);
+	primitive->SetPhysicsAngularVelocity(new_ang_vel, add_to_current, f_bone_name);
 
 	Py_INCREF(Py_None);
 	return Py_None;
