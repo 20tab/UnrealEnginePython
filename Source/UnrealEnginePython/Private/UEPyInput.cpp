@@ -491,6 +491,20 @@ PyObject *py_ue_bind_released_key(ue_PyUObject *self, PyObject * args) {
 }
 
 
-
+PyObject *py_unreal_engine_get_engine_defined_action_mappings(PyObject * self, PyObject * args) {
+	PyObject *py_list = PyList_New(0);
+	TArray<FInputActionKeyMapping> mappings = UPlayerInput::GetEngineDefinedActionMappings();
+	for (FInputActionKeyMapping mapping : mappings) {
+		PyObject *py_mapping = PyDict_New();
+		PyDict_SetItemString(py_mapping, (char *)"action_name", PyUnicode_FromString(TCHAR_TO_UTF8(*mapping.ActionName.ToString())));
+		PyDict_SetItemString(py_mapping, (char *)"key", PyUnicode_FromString(TCHAR_TO_UTF8(*mapping.Key.ToString())));
+		PyDict_SetItemString(py_mapping, (char *)"alt", mapping.bAlt ? Py_True : Py_False);
+		PyDict_SetItemString(py_mapping, (char *)"cmd", mapping.bCmd ? Py_True : Py_False);
+		PyDict_SetItemString(py_mapping, (char *)"ctrl", mapping.bCtrl ? Py_True : Py_False);
+		PyDict_SetItemString(py_mapping, (char *)"shift", mapping.bShift ? Py_True : Py_False);
+		PyList_Append(py_list, py_mapping);
+	}
+	return py_list;
+}
 
 

@@ -176,7 +176,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "py_gc", py_unreal_engine_py_gc, METH_VARARGS, "" },
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
 
-
+	{ "get_engine_defined_action_mappings", py_unreal_engine_get_engine_defined_action_mappings, METH_VARARGS, "" },
 
 	{ NULL, NULL },
 };
