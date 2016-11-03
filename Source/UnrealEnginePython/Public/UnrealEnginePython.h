@@ -11,7 +11,7 @@ class UNREALENGINEPYTHON_API FUnrealEnginePythonModule : public IModuleInterface
 {
 public:
 
-	void PythonGILAcquire();
+	bool PythonGILAcquire();
 	void PythonGILRelease();
 
 	virtual void StartupModule() override;
@@ -32,18 +32,21 @@ struct FScopePythonGIL {
 	{
 #if UEPY_THREADING
 		UnrealEnginePythonModule = FModuleManager::LoadModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-		UnrealEnginePythonModule.PythonGILAcquire();
+		safeForRelease = UnrealEnginePythonModule.PythonGILAcquire();
 #endif
 	}
 
 	~FScopePythonGIL()
 	{
 #if UEPY_THREADING
-		UnrealEnginePythonModule.PythonGILRelease();
+		if (safeForRelease) {
+			UnrealEnginePythonModule.PythonGILRelease();
+		}
 #endif
 	}
 
 	FUnrealEnginePythonModule UnrealEnginePythonModule;
+	bool safeForRelease;
 };
 
 

@@ -39,18 +39,21 @@ bool PyUnicodeOrString_Check(PyObject *py_obj) {
 
 void FUnrealEnginePythonModule::PythonGILRelease() {
 #if UEPY_THREADING
-	if (PyGILState_Check()) {
+	if (PyGILState_Check() == 1) {
 		ue_python_gil = PyEval_SaveThread();
 	}
 #endif
 }
 
-void FUnrealEnginePythonModule::PythonGILAcquire() {
+bool FUnrealEnginePythonModule::PythonGILAcquire() {
 #if UEPY_THREADING
-	if (!PyGILState_Check()) {
+	if (PyGILState_Check() == 0) {
 		PyEval_RestoreThread((PyThreadState *)ue_python_gil);
+		return true;
 	}
+	return false;
 #endif
+	return true;
 }
 
 void FUnrealEnginePythonModule::StartupModule()
