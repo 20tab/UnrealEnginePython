@@ -180,13 +180,6 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 
         PyObject * strObj = PyList_GetItem( listObj, i );
 #if PY_MAJOR_VERSION >= 3
-        //PyObject *bytes = PyUnicode_AsUTF8String( PyObject_Str( strObj ) );
-        //if ( !bytes )
-        //{
-        //    continue;
-        //}
-
-        //char * filename = PyBytes_AsString( bytes );
         char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( strObj, "utf-8", "Error" ) );
 #else
         char * filename = PyString_AsString( PyObject_Str (strObj) );
