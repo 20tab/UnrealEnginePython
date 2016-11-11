@@ -109,6 +109,20 @@ bool UPythonDelegate::Tick(float DeltaTime)
 	return false;
 }
 
+#if WITH_EDITOR
+void UPythonDelegate::PyFOnAssetPostImport(UFactory *factory, UObject *u_object)
+{
+	FScopePythonGIL gil;
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", ue_get_python_wrapper((UObject *)factory), ue_get_python_wrapper(u_object));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+#endif
+
+
 UPythonDelegate::~UPythonDelegate()
 {
 	FScopePythonGIL gil;

@@ -141,7 +141,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		}
 		else {
 			return PyErr_Format(PyExc_Exception, "uobject is not a Class");
-		}	
+		}
 	}
 	else if (PyUnicodeOrString_Check(obj)) {
 		char *class_name = PyUnicode_AsUTF8(obj);
@@ -156,8 +156,8 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	else {
 		return PyErr_Format(PyExc_Exception, "invalid uobject");
 	}
-		
-	
+
+
 	if (factory_class) {
 		factory = NewObject<UFactory>(GetTransientPackage(), factory_class);
 		if (!factory) {
@@ -179,7 +179,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		Py_INCREF(ret);
 		return (PyObject *)ret;
 	}
-	 
+
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -593,7 +593,7 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
-	
+
 }
 
 PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObject * args) {
@@ -657,6 +657,23 @@ PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject 
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject * args) {
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:editor_on_asset_post_import", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "object is not a callable");
+
+	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	FEditorDelegates::OnAssetPostImport.AddUObject(py_delegate, &UPythonDelegate::PyFOnAssetPostImport);
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 #endif

@@ -20,6 +20,10 @@ public:
 
 	bool Tick(float DeltaTime);
 
+#if WITH_EDITOR
+	void PyFOnAssetPostImport(UFactory *factory, UObject *u_object);
+#endif
+
 private:
 	UFunction *signature;
 	bool signature_set;

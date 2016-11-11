@@ -158,6 +158,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "slate_window", py_unreal_engine_slate_window, METH_VARARGS, "" },
 	{ "slate_button", py_unreal_engine_slate_button, METH_VARARGS, "" },
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
+
+	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
