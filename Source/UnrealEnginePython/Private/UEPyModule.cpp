@@ -23,6 +23,7 @@
 #include "UEPySlate.h"
 #include "UEPyPackage.h"
 #include "UEPyAssetUserData.h"
+#include "UEPyTexture.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -423,6 +424,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
+
+	// Texture
+	{ "texture_get_data", (PyCFunction)py_ue_texture_get_data, METH_VARARGS, "" },
+	{ "texture_set_data", (PyCFunction)py_ue_texture_set_data, METH_VARARGS, "" },
 
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },
