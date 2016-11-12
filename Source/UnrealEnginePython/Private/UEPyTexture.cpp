@@ -56,6 +56,12 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	char *byte_array_blob = PyByteArray_AsString(byte_array);
 	FMemory::Memcpy(blob, byte_array_blob, byte_array_size);
 	tex->PlatformData->Mips[mipmap].BulkData.Unlock();
+
+	tex->MarkPackageDirty();
+	tex->PostEditChange();
+
+	tex->UpdateResourceW();
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }

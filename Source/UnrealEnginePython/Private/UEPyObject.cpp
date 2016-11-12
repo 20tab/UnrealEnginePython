@@ -294,6 +294,13 @@ PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetFullName())));
 }
 
+PyObject *py_ue_get_path_name(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetPathName())));
+}
+
 PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -735,7 +742,19 @@ PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args) {
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
+	/*
+	
+		Here we have the following cases to manage:
+	
+		calling on a UObject without an outer
+		calling on a UObject with an outer
+		calling on a UObject with an outer and a name arg
+	
+	*/
+
 	ue_py_check(self);
+
+	bool has_package = false;
 
 	char *name = nullptr;
 	UPackage *package = nullptr;
@@ -743,34 +762,51 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 		return NULL;
 	}
 	
-	if (self->ue_object->IsA<UPackage>())
-		package = (UPackage *)self->ue_object;
+	UObject *outer = self->ue_object->GetOuter();
+	UObject *u_object = self->ue_object;
 
-	if (!package) {
-		if (!name)
-			return NULL;
+	if (outer && outer->IsA<UPackage>() && outer != GetTransientPackage()) {
+		package = (UPackage *)outer;
+		has_package = true;
+	}
+
+	if (!package || name) {
+		if (!name) {
+			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
+		}
 		package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		if (!package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
-	}
-
-	FString filename = FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
-
-	if (!self->ue_object->Rename(*(self->ue_object->GetName()), package)) {
-		return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
+		package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
+		if (has_package) {
+			FString split_path;
+			FString split_filename;
+			FString split_extension;
+			FString split_base(UTF8_TO_TCHAR(name));
+			FPaths::Split(split_base, split_path, split_filename, split_extension);
+			u_object = DuplicateObject(self->ue_object, package, FName(*split_filename));
+		}
+		else {
+			// move to object into the new package
+			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package)) {
+				return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
+			}
+		}
 	}
 
 	package->FullyLoad();
 	package->MarkPackageDirty();
 
-	if (UPackage::SavePackage(package, self->ue_object, RF_Public | RF_Standalone, *filename)) {
-		FAssetRegistryModule::AssetCreated(self->ue_object);
-		Py_INCREF(Py_True);
-		return Py_True;
+	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString())) {
+		FAssetRegistryModule::AssetCreated(u_object);
+		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	return PyErr_Format(PyExc_Exception, "unable to save package");
 }
 
 PyObject *py_ue_asset_can_reimport(ue_PyUObject * self, PyObject * args) {

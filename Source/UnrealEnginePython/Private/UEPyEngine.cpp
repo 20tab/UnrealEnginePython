@@ -359,6 +359,8 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 
+	new_object->PostLoad();
+
 	ue_PyUObject *ret = ue_get_python_wrapper(new_object);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
