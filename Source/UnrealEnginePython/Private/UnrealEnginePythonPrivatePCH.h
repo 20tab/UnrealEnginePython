@@ -43,6 +43,7 @@
 
 #if WITH_EDITOR
 #include "UEPyFARFilter.h"
+#include "UEPyAnimSequence.h"
 #endif
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
