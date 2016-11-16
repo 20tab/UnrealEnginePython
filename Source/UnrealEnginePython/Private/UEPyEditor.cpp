@@ -113,10 +113,10 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	//char *filename;
-    PyObject * listObj = nullptr;
+    PyObject * assetsObject = nullptr;
 	char *destination;
 	PyObject *obj = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|O:import_asset", &listObj, &destination, &obj)) {
+	if (!PyArg_ParseTuple(args, "Os|O:import_asset", &assetsObject, &destination, &obj)) {
 		return NULL;
 	}
 
@@ -157,7 +157,6 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	else {
 		return PyErr_Format(PyExc_Exception, "invalid uobject");
 	}
-		
 	
 	if (factory_class) {
 		factory = NewObject<UFactory>(GetTransientPackage(), factory_class);
@@ -166,31 +165,54 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		}
 	}
 
-    // parse the list object
-    int numLines = PyList_Size( listObj );
-
-
-    if ( numLines <= 0 )
-    {
-        return PyErr_Format( PyExc_Exception, "Asset paths is not a valid list" );
-    }
-
     TArray<FString> files;
-    for ( int i = 0; i < numLines; ++i ) {
 
-        PyObject * strObj = PyList_GetItem( listObj, i );
-#if PY_MAJOR_VERSION >= 3
-        char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( strObj, "utf-8", "Error" ) );
-#else
-        char * filename = PyString_AsString( PyObject_Str (strObj) );
-#endif
+    if ( PyList_Check( assetsObject ) ) {
+        // parse the list object
+        int numLines = PyList_Size( assetsObject );
+
+
+        if ( numLines <= 0 )
+        {
+            return PyErr_Format( PyExc_Exception, "Asset paths is not a valid list" );
+        }
+    
+        for ( int i = 0; i < numLines; ++i ) {
+
+            PyObject * strObj = PyList_GetItem( assetsObject, i );
+    	#if PY_MAJOR_VERSION >= 3
+            char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( strObj, "utf-8", "Error" ) );
+    	#else
+            char * filename = PyString_AsString( PyObject_Str (strObj) );
+    	#endif
+            files.Add( UTF8_TO_TCHAR( filename ) );
+        }
+    }
+    else if ( PyUnicodeOrString_Check( assetsObject ) ) {
+    #if PY_MAJOR_VERSION >= 3
+        char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( assetsObject, "utf-8", "Error" ) );
+    #else
+        char * filename = PyString_AsString( PyObject_Str( assetsObject ) );
+    #endif
         files.Add( UTF8_TO_TCHAR( filename ) );
     }
+    else {
+        return PyErr_Format( PyExc_Exception, "Not a string nor valid list of string" );
+    }
 
-	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
-	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, false);
+    FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+    TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, false);
     
-	if (objects.Num() > 0) {
+    if ( objects.Num() == 1 ) {
+
+        UObject *object = objects[0];
+        ue_PyUObject *ret = ue_get_python_wrapper( object );
+        if ( !ret )
+            return PyErr_Format( PyExc_Exception, "PyUObject is in invalid state" );
+        Py_INCREF( ret );
+        return (PyObject *)ret;
+    }
+    else if ( objects.Num() > 1 ) {
         PyObject *assets_list = PyList_New( 0 );
 
         for ( UObject *object : objects )
@@ -198,15 +220,16 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
             ue_PyUObject *ret = ue_get_python_wrapper( object );
             if ( !ret )
                 return PyErr_Format( PyExc_Exception, "PyUObject is in invalid state" );
-            PyList_Append( assets_list, (PyObject *)ret );
-            return assets_list;
+            PyList_Append( assets_list, (PyObject *)ret );            
         }
 
-	}
-	 
+        return assets_list;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    }
+	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 }
 
 PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args) {
