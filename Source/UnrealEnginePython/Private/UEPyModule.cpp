@@ -127,6 +127,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
 
 	{ "get_content_dir", py_unreal_engine_get_content_dir, METH_VARARGS, "" },
+	{ "convert_relative_path_to_full", py_unreal_engine_convert_relative_path_to_full, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
 	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
@@ -965,6 +966,7 @@ void unreal_engine_init_py_module() {
 #if WITH_EDITOR
 	ue_python_init_swidget(new_unreal_engine_module);
 	ue_python_init_farfilter(new_unreal_engine_module);
+	ue_python_init_fassetdata(new_unreal_engine_module);
 #endif
 
 	PyObject *py_sys = PyImport_ImportModule("sys");

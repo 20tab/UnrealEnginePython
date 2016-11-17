@@ -42,6 +42,7 @@
 #include "UEPyEnumsImporter.h"
 
 #if WITH_EDITOR
+#include "UEPyFAssetData.h"
 #include "UEPyFARFilter.h"
 #endif
 
