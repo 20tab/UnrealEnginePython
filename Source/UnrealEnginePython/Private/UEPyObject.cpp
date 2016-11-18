@@ -775,12 +775,15 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	if (!PyArg_ParseTuple(args, "|s:save_package", &name)) {
 		return NULL;
 	}
-	
 	UObject *outer = self->ue_object->GetOuter();
 	UObject *u_object = self->ue_object;
 
 	if (outer && outer->IsA<UPackage>() && outer != GetTransientPackage()) {
 		package = (UPackage *)outer;
+		has_package = true;
+	}
+	else if (u_object->IsA<UPackage>() && u_object != GetTransientPackage()) {
+		package = (UPackage *)u_object;
 		has_package = true;
 	}
 
@@ -839,7 +842,7 @@ PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *py_ask_for_new_file = nullptr;
 	PyObject *py_show_notification = nullptr;
-	char *filename;
+	char *filename = nullptr;
 	if (!PyArg_ParseTuple(args, "|OOs:asset_reimport", &py_ask_for_new_file, &py_show_notification, &filename)) {
 		return NULL;
 	}
