@@ -165,25 +165,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		}
 	}
 
-	TArray<FString> files;
-	files.Add(UTF8_TO_TCHAR(filename));
 
-	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
-	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, false);
-
-	if (objects.Num() > 0) {
-		UObject *object = objects[0];
-		ue_PyUObject *ret = ue_get_python_wrapper(object);
-		if (!ret)
-			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-		Py_INCREF(ret);
-		return (PyObject *)ret;
-	}
-
-
-	Py_INCREF(Py_None);
-	return Py_None;
-=======
     TArray<FString> files;
 
     if ( PyList_Check( assetsObject ) ) {
@@ -249,8 +231,6 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
     Py_INCREF(Py_None);
     return Py_None;
 }    
->>>>>>> cb0d7e8d562e31278e51cde1155c0c4e50182823
-}
 
 PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args) {
 
@@ -760,6 +740,7 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	py_delegate->AddToRoot();
 	FEditorDelegates::OnAssetPostImport.AddUObject(py_delegate, &UPythonDelegate::PyFOnAssetPostImport);
 	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 PyObject *py_unreal_engine_create_material_instance( PyObject * self, PyObject * args ) {
