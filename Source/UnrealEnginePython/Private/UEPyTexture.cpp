@@ -60,7 +60,8 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	tex->MarkPackageDirty();
 	tex->PostEditChange();
 
-	tex->UpdateResourceW();
+	// ensure compatibility between 4.12 and 4.14
+	//tex->UpdateResourceW();
 
 	Py_INCREF(Py_None);
 	return Py_None;
