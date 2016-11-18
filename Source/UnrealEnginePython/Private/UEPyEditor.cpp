@@ -314,8 +314,9 @@ PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args) {
 
 	PyObject *pyfilter;
+	PyObject *py_return_asset_data;
 
-	if (!PyArg_ParseTuple(args, "O:get_assets_by_filter", &pyfilter)) {
+	if (!PyArg_ParseTuple(args, "O|O:get_assets_by_filter", &pyfilter, &py_return_asset_data)) {
 		return NULL;
 	}
 
@@ -332,13 +333,24 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 	AssetRegistryModule.Get().SearchAllAssets(true);
 	AssetRegistryModule.Get().GetAssets(filter->filter, assets);
 
+	bool return_asset_data = false;
+	if (py_return_asset_data && PyObject_IsTrue(py_return_asset_data))
+		return_asset_data = true;
 	PyObject *assets_list = PyList_New(0);
 	for (FAssetData asset : assets) {
 		if (!asset.IsValid())
 			continue;
-		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+		PyObject *ret = nullptr;
+		if (return_asset_data) {
+			// Copy isn't working due to an issue with the TSharedMapView TagsAndValues memory 
+			FAssetData *asset_data = new FAssetData(asset.PackageName, asset.PackagePath, asset.GroupNames, asset.AssetName, asset.AssetClass, asset.TagsAndValues.GetMap(), asset.ChunkIDs, asset.PackageFlags);
+			ret = py_ue_new_fassetdata(asset_data);
+		}
+		else {
+			ret = (PyObject *)ue_get_python_wrapper(asset.GetAsset());
+		}
 		if (ret) {
-			PyList_Append(assets_list, (PyObject *)ret);
+			PyList_Append(assets_list, ret);
 		}
 	}
 
