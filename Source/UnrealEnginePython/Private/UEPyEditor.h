@@ -32,4 +32,7 @@ PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_play(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject *, PyObject *);
 
+// efeng additional functions
+PyObject *py_unreal_engine_create_material_instance( PyObject *, PyObject * );
+
 #endif

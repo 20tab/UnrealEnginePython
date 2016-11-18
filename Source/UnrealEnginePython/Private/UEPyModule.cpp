@@ -24,6 +24,7 @@
 #include "UEPyPackage.h"
 #include "UEPyAssetUserData.h"
 #include "UEPyTexture.h"
+#include "UEPyMaterial.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #endif
@@ -146,6 +147,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "blueprint_add_member_variable", py_unreal_engine_blueprint_add_member_variable, METH_VARARGS, "" },
 	{ "blueprint_add_new_timeline", py_unreal_engine_blueprint_add_new_timeline, METH_VARARGS, "" },
 	{ "add_component_to_blueprint", py_unreal_engine_add_component_to_blueprint, METH_VARARGS, "" },
+    { "create_material_instance", py_unreal_engine_create_material_instance, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 
@@ -251,6 +253,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
 
 	{ "get_py_proxy", (PyCFunction)py_ue_get_py_proxy, METH_VARARGS, "" },
+
+    { "post_edit_change", (PyCFunction)py_ue_post_edit_change, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
@@ -443,6 +447,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_possessables", (PyCFunction)py_ue_sequencer_possessables, METH_VARARGS, "" },
 	{ "sequencer_find_possessable", (PyCFunction)py_ue_sequencer_find_possessable, METH_VARARGS, "" },
 	{ "sequencer_add_master_track", (PyCFunction)py_ue_sequencer_add_master_track, METH_VARARGS, "" },
+
+    // Material Instance
+#if WITH_EDITOR
+    { "set_scalar_parameter", (PyCFunction)py_ue_set_scalar_parameter, METH_VARARGS, "" },
+    { "set_vector_parameter", (PyCFunction)py_ue_set_vector_parameter, METH_VARARGS, "" },
+    { "set_texture_parameter", (PyCFunction)py_ue_set_texture_parameter, METH_VARARGS, "" },
+    { "set_parent", (PyCFunction)py_ue_set_parent, METH_VARARGS, "" },
+#endif
+    
 
 
 #if PY_MAJOR_VERSION >= 3

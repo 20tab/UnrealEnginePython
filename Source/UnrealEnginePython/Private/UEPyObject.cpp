@@ -128,6 +128,20 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
+PyObject *py_ue_post_edit_change( ue_PyUObject *self, PyObject * args ) {
+    ue_py_check( self );
+
+    if ( !self->ue_object ) {
+        return PyErr_Format( PyExc_Exception, "uobject is not valid" );
+    }
+
+    self->ue_object->PostEditChange();
+
+    Py_INCREF( Py_None );
+    return Py_None;
+}
+
+
 #if WITH_EDITOR
 PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args) {
 
