@@ -97,19 +97,19 @@ void ue_python_init_fassetdata(PyObject *ue_module) {
 PyObject *py_ue_new_fassetdata(FAssetData *asset_data) {
 	ue_PyFAssetData *ret = (ue_PyFAssetData *)PyObject_New(ue_PyFAssetData, &ue_PyFAssetDataType);
 		
-	ret->asset_class = PyString_FromString(TCHAR_TO_UTF8(*asset_data->AssetClass.ToString()));
-	ret->asset_name = PyString_FromString(TCHAR_TO_UTF8(*asset_data->AssetName.ToString()));
-	ret->group_names = PyString_FromString(TCHAR_TO_UTF8(*asset_data->GroupNames.ToString()));
-	ret->object_path = PyString_FromString(TCHAR_TO_UTF8(*asset_data->ObjectPath.ToString()));
-	ret->package_flags = PyInt_FromLong(asset_data->PackageFlags);
-	ret->package_name = PyString_FromString(TCHAR_TO_UTF8(*asset_data->PackageName.ToString()));
-	ret->package_path = PyString_FromString(TCHAR_TO_UTF8(*asset_data->PackagePath.ToString()));
+	ret->asset_class = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->AssetClass.ToString()));
+	ret->asset_name = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->AssetName.ToString()));
+	ret->group_names = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->GroupNames.ToString()));
+	ret->object_path = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->ObjectPath.ToString()));
+	ret->package_flags = PyLong_FromLong(asset_data->PackageFlags);
+	ret->package_name = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->PackageName.ToString()));
+	ret->package_path = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->PackagePath.ToString()));
 	ret->tags_and_values = PyDict_New();
 	for (auto It = asset_data->TagsAndValues.CreateConstIterator(); It; ++It)
 	{
 		PyDict_SetItem(ret->tags_and_values, 
-			           PyString_FromString(TCHAR_TO_UTF8(*It->Key.ToString())), 
-					   PyString_FromString(TCHAR_TO_UTF8(*It->Value)));
+			           PyUnicode_FromString(TCHAR_TO_UTF8(*It->Key.ToString())), 
+					   PyUnicode_FromString(TCHAR_TO_UTF8(*It->Value)));
 	}
 
 	ret->asset_data = asset_data;
