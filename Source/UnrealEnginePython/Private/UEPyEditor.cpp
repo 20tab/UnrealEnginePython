@@ -113,7 +113,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	//char *filename;
-    PyObject * assetsObject = nullptr;
+	PyObject * assetsObject = nullptr;
 	char *destination;
 	PyObject *obj = nullptr;
 	if (!PyArg_ParseTuple(args, "Os|O:import_asset", &assetsObject, &destination, &obj)) {
@@ -166,71 +166,71 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	}
 
 
-    TArray<FString> files;
+	TArray<FString> files;
 
-    if ( PyList_Check( assetsObject ) ) {
-        // parse the list object
-        int numLines = PyList_Size( assetsObject );
+	if (PyList_Check(assetsObject)) {
+		// parse the list object
+		int numLines = PyList_Size(assetsObject);
 
 
-        if ( numLines <= 0 )
-        {
-            return PyErr_Format( PyExc_Exception, "Asset paths is not a valid list" );
-        }
-    
-        for ( int i = 0; i < numLines; ++i ) {
+		if (numLines <= 0)
+		{
+			return PyErr_Format(PyExc_Exception, "Asset paths is not a valid list");
+		}
 
-            PyObject * strObj = PyList_GetItem( assetsObject, i );
-    	#if PY_MAJOR_VERSION >= 3
-            char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( strObj, "utf-8", "Error" ) );
-    	#else
-            char * filename = PyString_AsString( PyObject_Str (strObj) );
-    	#endif
-            files.Add( UTF8_TO_TCHAR( filename ) );
-        }
-    }
-    else if ( PyUnicodeOrString_Check( assetsObject ) ) {
-    #if PY_MAJOR_VERSION >= 3
-        char * filename = PyBytes_AS_STRING( PyUnicode_AsEncodedString( assetsObject, "utf-8", "Error" ) );
-    #else
-        char * filename = PyString_AsString( PyObject_Str( assetsObject ) );
-    #endif
-        files.Add( UTF8_TO_TCHAR( filename ) );
-    }
-    else {
-        return PyErr_Format( PyExc_Exception, "Not a string nor valid list of string" );
-    }
+		for (int i = 0; i < numLines; ++i) {
 
-    FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
-    TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, false);
-    
-    if ( objects.Num() == 1 ) {
+			PyObject * strObj = PyList_GetItem(assetsObject, i);
+#if PY_MAJOR_VERSION >= 3
+			char * filename = PyBytes_AS_STRING(PyUnicode_AsEncodedString(strObj, "utf-8", "Error"));
+#else
+			char * filename = PyString_AsString(PyObject_Str(strObj));
+#endif
+			files.Add(UTF8_TO_TCHAR(filename));
+		}
+	}
+	else if (PyUnicodeOrString_Check(assetsObject)) {
+#if PY_MAJOR_VERSION >= 3
+		char * filename = PyBytes_AS_STRING(PyUnicode_AsEncodedString(assetsObject, "utf-8", "Error"));
+#else
+		char * filename = PyString_AsString(PyObject_Str(assetsObject));
+#endif
+		files.Add(UTF8_TO_TCHAR(filename));
+	}
+	else {
+		return PyErr_Format(PyExc_Exception, "Not a string nor valid list of string");
+	}
 
-        UObject *object = objects[0];
-        ue_PyUObject *ret = ue_get_python_wrapper( object );
-        if ( !ret )
-            return PyErr_Format( PyExc_Exception, "PyUObject is in invalid state" );
-        Py_INCREF( ret );
-        return (PyObject *)ret;
-    }
-    else if ( objects.Num() > 1 ) {
-        PyObject *assets_list = PyList_New( 0 );
+	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, false);
 
-        for ( UObject *object : objects )
-        {
-            ue_PyUObject *ret = ue_get_python_wrapper( object );
-            if ( !ret )
-                return PyErr_Format( PyExc_Exception, "PyUObject is in invalid state" );
-            PyList_Append( assets_list, (PyObject *)ret );            
-        }
+	if (objects.Num() == 1) {
 
-        return assets_list;
+		UObject *object = objects[0];
+		ue_PyUObject *ret = ue_get_python_wrapper(object);
+		if (!ret)
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		Py_INCREF(ret);
+		return (PyObject *)ret;
+	}
+	else if (objects.Num() > 1) {
+		PyObject *assets_list = PyList_New(0);
 
-    }
-	
-    Py_INCREF(Py_None);
-    return Py_None;
-}    
+		for (UObject *object : objects)
+		{
+			ue_PyUObject *ret = ue_get_python_wrapper(object);
+			if (!ret)
+				return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+			PyList_Append(assets_list, (PyObject *)ret);
+		}
+
+		return assets_list;
+
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args) {
 
@@ -311,12 +311,14 @@ PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	return assets_list;
 }
 
-PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args, PyObject *kwargs) {
 
 	PyObject *pyfilter;
 	PyObject *py_return_asset_data;
 
-	if (!PyArg_ParseTuple(args, "O|O:get_assets_by_filter", &pyfilter, &py_return_asset_data)) {
+	static char *kw_names[] = { "filter", "return_asset_data", NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:get_assets_by_filter", kw_names, &pyfilter, &py_return_asset_data)) {
 		return NULL;
 	}
 
@@ -609,9 +611,9 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 	PyObject *py_blueprint;
 	PyObject *py_component;
 	char *name;
-    char *parentName = nullptr;
+	char *parentName = nullptr;
 
-	if (!PyArg_ParseTuple(args, "OOs|s:add_component_to_blueprint", &py_blueprint, &py_component, &name, &parentName )) {
+	if (!PyArg_ParseTuple(args, "OOs|s:add_component_to_blueprint", &py_blueprint, &py_component, &name, &parentName)) {
 		return NULL;
 	}
 
@@ -640,28 +642,28 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 		return PyErr_Format(PyExc_Exception, "unable to allocate new component");
 	}
 
-    USCS_Node *parentNode = nullptr;    
-    if ( parentName )
-    { 
-        FString strParentName = UTF8_TO_TCHAR( parentName );
-        if ( strParentName.IsEmpty() )
-        {
-            parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
-        }
-        else
-        {
-            parentNode = bp->SimpleConstructionScript->FindSCSNode( UTF8_TO_TCHAR( parentName ) );
-        }
-    }
-    else
-    {
-        parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
-    }
+	USCS_Node *parentNode = nullptr;
+	if (parentName)
+	{
+		FString strParentName = UTF8_TO_TCHAR(parentName);
+		if (strParentName.IsEmpty())
+		{
+			parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
+		}
+		else
+		{
+			parentNode = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(parentName));
+		}
+	}
+	else
+	{
+		parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
+	}
 
 
-    if ( parentNode ) {
-        parentNode->AddChildNode( node );
-    }
+	if (parentNode) {
+		parentNode->AddChildNode(node);
+	}
 	else {
 		bp->SimpleConstructionScript->AddNode(node);
 	}
@@ -755,55 +757,55 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_create_material_instance( PyObject * self, PyObject * args ) {
+PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * args) {
 
-    PyObject *py_material;
-    char *materialPacakgePath = nullptr;
-    char *materialName = nullptr;
+	PyObject *py_material;
+	char *materialPacakgePath = nullptr;
+	char *materialName = nullptr;
 
-    if ( !PyArg_ParseTuple( args, "O|ss:create_material_instance", &py_material, &materialPacakgePath, &materialName ) ) {
-        return NULL;
-    }
+	if (!PyArg_ParseTuple(args, "O|ss:create_material_instance", &py_material, &materialPacakgePath, &materialName)) {
+		return NULL;
+	}
 
-    if ( !ue_is_pyuobject( py_material ) ) {
-        return PyErr_Format( PyExc_Exception, "argument is not a UObject" );
-    }
+	if (!ue_is_pyuobject(py_material)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
 
-    ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
-    if ( !py_obj->ue_object->IsA<UMaterialInterface>() )
-        return PyErr_Format( PyExc_Exception, "uobject is not a UMaterialInterface" );
-    UMaterialInterface *materialInterface = (UMaterialInterface *)py_obj->ue_object;
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
+	if (!py_obj->ue_object->IsA<UMaterialInterface>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	UMaterialInterface *materialInterface = (UMaterialInterface *)py_obj->ue_object;
 
-    FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>( "AssetTools" );
+	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-    // Determine an appropriate name
-    FString Name;
-    FString PackagePath;
-    FString PackageName;
+	// Determine an appropriate name
+	FString Name;
+	FString PackagePath;
+	FString PackageName;
 
-    // Create the factory used to generate the asset
-    UMaterialInstanceConstantFactoryNew* Factory = NewObject<UMaterialInstanceConstantFactoryNew>();
-    Factory->InitialParent = materialInterface;
+	// Create the factory used to generate the asset
+	UMaterialInstanceConstantFactoryNew* Factory = NewObject<UMaterialInstanceConstantFactoryNew>();
+	Factory->InitialParent = materialInterface;
 
-    if ( materialPacakgePath && materialName )
-    {
-        Name = UTF8_TO_TCHAR( materialName );
-        PackagePath = UTF8_TO_TCHAR( materialPacakgePath );
-    }
-    else
-    {
-        AssetToolsModule.Get().CreateUniqueAssetName( materialInterface->GetOutermost()->GetName(), UTF8_TO_TCHAR( "_inst" ), PackageName, Name );
-        PackagePath = FPackageName::GetLongPackagePath( PackageName );
-    }
+	if (materialPacakgePath && materialName)
+	{
+		Name = UTF8_TO_TCHAR(materialName);
+		PackagePath = UTF8_TO_TCHAR(materialPacakgePath);
+	}
+	else
+	{
+		AssetToolsModule.Get().CreateUniqueAssetName(materialInterface->GetOutermost()->GetName(), UTF8_TO_TCHAR("_inst"), PackageName, Name);
+		PackagePath = FPackageName::GetLongPackagePath(PackageName);
+	}
 
-    UObject* NewAsset = AssetToolsModule.Get().CreateAsset( Name, PackagePath, UMaterialInstanceConstant::StaticClass(), Factory );
+	UObject* NewAsset = AssetToolsModule.Get().CreateAsset(Name, PackagePath, UMaterialInstanceConstant::StaticClass(), Factory);
 
-    ue_PyUObject *ret = ue_get_python_wrapper( NewAsset );
-    if ( !ret )
-        return PyErr_Format( PyExc_Exception, "uobject is in invalid state" );
+	ue_PyUObject *ret = ue_get_python_wrapper(NewAsset);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 
-    Py_INCREF( ret );
-    return (PyObject *)ret;
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 }
 
 #endif
