@@ -58,7 +58,10 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	tex->PlatformData->Mips[mipmap].BulkData.Unlock();
 
 	tex->MarkPackageDirty();
+#if WITH_EDITOR
 	tex->PostEditChange();
+	tex->PostEditChange();
+#endif
 
 	// ensure compatibility between 4.12 and 4.14
 	//tex->UpdateResourceW();
