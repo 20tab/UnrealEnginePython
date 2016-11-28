@@ -316,7 +316,7 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 	PyObject *pyfilter;
 	PyObject *py_return_asset_data;
 
-	static char *kw_names[] = { "filter", "return_asset_data", NULL };
+	static char *kw_names[] = { (char *)"filter", (char *)"return_asset_data", NULL };
 
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:get_assets_by_filter", kw_names, &pyfilter, &py_return_asset_data)) {
 		return NULL;
