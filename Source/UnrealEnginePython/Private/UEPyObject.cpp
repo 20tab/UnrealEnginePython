@@ -134,9 +134,9 @@ PyObject *py_ue_post_edit_change( ue_PyUObject *self, PyObject * args ) {
     if ( !self->ue_object ) {
         return PyErr_Format( PyExc_Exception, "uobject is not valid" );
     }
-
+#if WITH_EDITOR
     self->ue_object->PostEditChange();
-
+#endif
     Py_INCREF( Py_None );
     return Py_None;
 }

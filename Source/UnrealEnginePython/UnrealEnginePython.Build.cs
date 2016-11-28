@@ -13,9 +13,9 @@ public class UnrealEnginePython : ModuleRules
     {
         get
         {
-            return Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..", pythonHome));
-        }
-    }
+			return Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../",  pythonHome));
+		}
+	}
 
     public UnrealEnginePython(TargetInfo Target)
     {
@@ -80,7 +80,7 @@ public class UnrealEnginePython : ModuleRules
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
         {
-            System.Console.WriteLine("Using Python at: " + PythonHome);
+            System.Console.WriteLine("-------->Using Python at: " + PythonHome);
             PublicIncludePaths.Add(PythonHome);
             PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", string.Format("{0}.lib", pythonHome)));
         }
