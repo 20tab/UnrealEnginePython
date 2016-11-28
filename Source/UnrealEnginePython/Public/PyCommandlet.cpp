@@ -82,7 +82,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 #if UNREAL_ENGINE_PYTHON_ON_MAC || UNREAL_ENGINE_PYTHON_ON_LINUX
 		strncpy(argv[i], TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()), PyArgv[i].Len()+1);
 #else
-		strncpy_s(argv[i], PyArgv[i].Len()+1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
+		strcpy_s(argv[i], PyArgv[i].Len()+1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
 #endif
 #endif
 	}
