@@ -75,6 +75,7 @@ public class UnrealEnginePython : ModuleRules
         {
             PrivateDependencyModuleNames.AddRange(new string[]{
                 "UnrealEd",
+                "LevelEditor"
             });
         }
 

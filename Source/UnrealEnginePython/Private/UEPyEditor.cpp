@@ -7,9 +7,11 @@
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
+
 #include "UnrealEd.h"
 #include "FbxMeshUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Editor/LevelEditor/Public/LevelEditorActions.h"
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -48,6 +50,28 @@ PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject 
 
 	return actors;
 }
+
+PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FLevelEditorActionCallbacks::Build_Execute();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_editor_command_build_lighting(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FLevelEditorActionCallbacks::BuildLightingOnly_Execute();
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * args) {
 
