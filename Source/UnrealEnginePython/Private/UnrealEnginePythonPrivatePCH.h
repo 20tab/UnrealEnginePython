@@ -13,6 +13,7 @@
 #include "Editor.h"
 #endif
 
+#include "Runtime/Launch/Resources/Version.h"
 
 #if UNREAL_ENGINE_PYTHON_ON_MAC == 3
 #include <python3.5m/Python.h>
