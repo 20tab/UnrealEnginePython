@@ -17,7 +17,17 @@ In the development menu, you get access to the 'PythonConsole' too, you can use 
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
-# Installation on Windows (64 bit)
+# Binary installation on Windows (64 bit)
+
+Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue assking us for it) and download it.
+
+Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
+
+Open your project and go to the Edit/Plugins menu. Go to the bottom and under "Project/Scripting Languages" enable UnrealEnginePython.
+
+Restart your project and you should see the PythonConsole under the "Window/Developer Tools" menu
+
+# Installation from sources on Windows (64 bit)
 
 The installation is pretty long (and boring) as you do not want the final users of the product to be required to install python, so we need to use the 'embedded python distribution' (available for windows in the official python site). Unfortunately the embedded distribution does not contain the python development headers so we need the official system-wide installation too.
 
@@ -45,7 +55,7 @@ If all goes well, open the output log and search for the string "Python". You sh
 
 To use python 2, follow the same approach but with a python27 directory (instead of python35) and change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
 
-# Installation on MacOSX
+# Installation from sources on MacOSX
 
 On the Mac the installation is easier, as the final user is currently forced to install python on its system (there are obviously dozens of workarounds but at this stage of the project we prefer focusing on the api).
 
@@ -85,8 +95,8 @@ rm UE4Editor-UnrealEnginePython.dylib
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
 * Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
 
-Installation On Linux (64 bit)
-------------------------------
+Installation from sources On Linux (64 bit)
+-------------------------------------------
 
 Currently the suggested distribution is Ubuntu Xenial (LTS 16.04) 64bit. Obviously you need to already have an Unreal Engine build (note that on ubuntu xenial you need to install the clang-3.5 package to build the editor). Both python2.7 and python3.5 are supported and the default configuration assumes python3 (so ensure to install the python3-dev package).
 
