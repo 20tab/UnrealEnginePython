@@ -17,6 +17,8 @@ In the development menu, you get access to the 'PythonConsole' too, you can use 
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
+The currently supported Unreal Engine versions are 4.12, 4.13 and 4.14
+
 # Binary installation on Windows (64 bit)
 
 First of all install an official python distribution in your system (currently the suggested one is the 3.5)
