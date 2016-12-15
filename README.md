@@ -19,6 +19,8 @@ All of the exposed engine features are under the 'unreal_engine' virtual module 
 
 # Binary installation on Windows (64 bit)
 
+First of all install an official python distribution in your system (currently the suggested one is the 3.5)
+
 Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue assking us for it) and download it.
 
 Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
