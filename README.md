@@ -33,7 +33,7 @@ Restart your project and you should see the PythonConsole under the "Window/Deve
 
 The installation is pretty long (and boring) as you do not want the final users of the product to be required to install python, so we need to use the 'embedded python distribution' (available for windows in the official python site). Unfortunately the embedded distribution does not contain the python development headers so we need the official system-wide installation too.
 
-* install Unreal Engine 4.12 and Python 3.5 as a system user
+* install Unreal Engine and Python 3.5 as a system user
 * run the unreal editor and create a new blank c++ project (NOT a blueprint one, otherwise visual studio will not be initialized)
 * once the project is setup, close both unreal and visual studio
 * move to the project directory (you can right click the project from the epic launcher and choose 'show in explorer')
