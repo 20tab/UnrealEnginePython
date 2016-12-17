@@ -177,3 +177,23 @@ PyObject *py_ue_get_world_delta_seconds(ue_PyUObject * self, PyObject * args) {
 
 	return Py_BuildValue("f", UGameplayStatics::GetWorldDeltaSeconds(world));
 }
+
+PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *ret = PyList_New(0);
+
+	for (ULevel *level : world->GetLevels() ) {
+		ue_PyUObject *py_obj = ue_get_python_wrapper(level);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+
+	}
+	return ret;
+}
