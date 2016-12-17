@@ -165,7 +165,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "slate_box", py_unreal_engine_slate_box, METH_VARARGS, "" },
 	{ "slate_window", py_unreal_engine_slate_window, METH_VARARGS, "" },
 	{ "slate_button", py_unreal_engine_slate_button, METH_VARARGS, "" },
-	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
+	
+
+	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
+	{ "move_actor_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
 
 	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
 #endif
@@ -269,6 +272,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
 	{ "asset_can_reimport", (PyCFunction)py_ue_asset_can_reimport, METH_VARARGS, "" },
 	{ "asset_reimport", (PyCFunction)py_ue_asset_reimport, METH_VARARGS, "" },
+
+	{ "factory_create_new", (PyCFunction)py_ue_factory_create_new, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },

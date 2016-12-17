@@ -12,6 +12,7 @@
 #include "FbxMeshUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Editor/LevelEditor/Public/LevelEditorActions.h"
+#include "Editor/UnrealEd/Public/EditorLevelUtils.h"
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -830,6 +831,108 @@ PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * 
 
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
+
+PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:factory_create_new", &name)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UFactory>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a Factory");
+
+	UPackage *outer = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+	if (!outer)
+		return PyErr_Format(PyExc_Exception, "unable to create package");
+
+	UFactory *factory = (UFactory *)self->ue_object;
+	UClass *u_class = self->ue_object->GetClass();
+
+	char *obj_name = strrchr(name, '/') + 1;
+	if (strlen(obj_name) < 1) {
+		return PyErr_Format(PyExc_Exception, "invalid object name");
+	}
+
+	UObject *u_object = factory->FactoryCreateNew(u_class, outer, FName(UTF8_TO_TCHAR(obj_name)), RF_Public | RF_Standalone, nullptr, GWarn);
+
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "unable to create new object from factory");
+
+	FAssetRegistryModule::AssetCreated(u_object);
+	outer->MarkPackageDirty();
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
+
+	PyObject *py_world;
+	char *name;
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|O:add_level_to_world", &py_world, &name, &py_bool)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_world))
+		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
+
+	ue_PyUObject *py_obj_world = (ue_PyUObject *)py_world;
+
+	if (!py_obj_world->ue_object->IsA<UWorld>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
+	}
+
+	UWorld *u_world = (UWorld *)py_obj_world->ue_object;
+
+	UClass *streaming_mode_class = ULevelStreamingKismet::StaticClass();
+	if (py_bool && PyObject_IsTrue(py_bool)) {
+		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
+	}
+
+	ULevel *level = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+	if (level) {
+		// TODO: update levels list
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(level);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args) {
+
+	PyObject *py_level;
+	if (!PyArg_ParseTuple(args, "OO:move_selected_actors_to_level", &py_level)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_level))
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
+
+	ue_PyUObject *py_obj_level = (ue_PyUObject *)py_level;
+
+	if (!py_obj_level->ue_object->IsA<ULevel>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
+	}
+
+	ULevel *level = (ULevel *)py_obj_level->ue_object;
+
+	GEditor->MoveSelectedActorsToLevel(level);
+	
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 #endif

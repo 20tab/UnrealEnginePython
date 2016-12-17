@@ -35,6 +35,12 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build_lighting(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_add_level_to_world(ue_PyUObject *, PyObject *);
+PyObject *py_unreal_engine_move_selected_actors_to_level(ue_PyUObject *, PyObject *);
+
+
+PyObject *py_ue_factory_create_new(ue_PyUObject *, PyObject *);
+
 // efeng additional functions
 PyObject *py_unreal_engine_create_material_instance( PyObject *, PyObject * );
 

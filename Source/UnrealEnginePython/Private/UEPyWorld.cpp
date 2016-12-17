@@ -188,7 +188,7 @@ PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *ret = PyList_New(0);
 
-	for (ULevel *level : world->GetLevels() ) {
+	for (ULevel *level : world->GetLevels()) {
 		ue_PyUObject *py_obj = ue_get_python_wrapper(level);
 		if (!py_obj)
 			continue;
@@ -197,3 +197,4 @@ PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args) {
 	}
 	return ret;
 }
+
