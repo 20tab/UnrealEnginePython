@@ -21,9 +21,9 @@ The currently supported Unreal Engine versions are 4.12, 4.13 and 4.14
 
 # Binary installation on Windows (64 bit)
 
-First of all install an official python distribution in your system (currently the suggested one is the 3.5) (do a system wide install, not a user one)
-
 Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue asking us for it [please specify the python version too]) and download it.
+
+Binary releases includes an embedded python version, so you do not need to install it in the system.
 
 Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
 
