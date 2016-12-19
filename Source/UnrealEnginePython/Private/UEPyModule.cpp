@@ -169,7 +169,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 
 	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
-	{ "move_actor_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
+	{ "move_selected_actors_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
 
 	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
 #endif

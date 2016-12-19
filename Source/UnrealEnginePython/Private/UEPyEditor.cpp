@@ -914,7 +914,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args) {
 
 	PyObject *py_level;
-	if (!PyArg_ParseTuple(args, "OO:move_selected_actors_to_level", &py_level)) {
+	if (!PyArg_ParseTuple(args, "O:move_selected_actors_to_level", &py_level)) {
 		return NULL;
 	}
 
