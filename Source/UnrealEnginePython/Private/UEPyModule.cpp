@@ -166,6 +166,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "slate_window", py_unreal_engine_slate_window, METH_VARARGS, "" },
 	{ "slate_button", py_unreal_engine_slate_button, METH_VARARGS, "" },
 	
+	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 
 	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
 	{ "move_actor_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
