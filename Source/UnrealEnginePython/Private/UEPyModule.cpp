@@ -142,6 +142,10 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "editor_command_build", py_unreal_engine_editor_command_build, METH_VARARGS, "" },
 	{ "editor_command_build_lighting", py_unreal_engine_editor_command_build_lighting, METH_VARARGS, "" },
+	{ "editor_command_save_current_level", py_unreal_engine_editor_command_save_current_level, METH_VARARGS, "" },
+	{ "editor_command_save_all_levels", py_unreal_engine_editor_command_save_all_levels, METH_VARARGS, "" },
+
+	{ "editor_save_all", py_unreal_engine_editor_save_all, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },

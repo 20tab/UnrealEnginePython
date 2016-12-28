@@ -63,6 +63,39 @@ PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_editor_command_save_current_level(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FLevelEditorActionCallbacks::Save();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FLevelEditorActionCallbacks::SaveAllLevels();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_editor_save_all(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FEditorFileUtils::SaveDirtyPackages(false, true, true, false, false, false);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_editor_command_build_lighting(PyObject * self, PyObject * args) {
 
 	if (!GEditor)
