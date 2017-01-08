@@ -701,23 +701,26 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 	}
 
 	USCS_Node *parentNode = nullptr;
-	if (parentName)
-	{
-		FString strParentName = UTF8_TO_TCHAR(parentName);
-		if (strParentName.IsEmpty())
+
+	if (component_class->IsChildOf<USceneComponent>()) {
+
+		if (parentName)
 		{
-			parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
+			FString strParentName = UTF8_TO_TCHAR(parentName);
+			if (strParentName.IsEmpty())
+			{
+				parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
+			}
+			else
+			{
+				parentNode = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(parentName));
+			}
 		}
 		else
 		{
-			parentNode = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(parentName));
+			parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
 		}
 	}
-	else
-	{
-		parentNode = bp->SimpleConstructionScript->GetDefaultSceneRootNode();
-	}
-
 
 	if (parentNode) {
 		parentNode->AddChildNode(node);
@@ -725,6 +728,7 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 	else {
 		bp->SimpleConstructionScript->AddNode(node);
 	}
+
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
 	ue_PyUObject *ret = ue_get_python_wrapper(node->ComponentTemplate);
@@ -767,6 +771,35 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 
 	Py_INCREF(Py_False);
 	return Py_False;
+}
+
+PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	char *name;
+	PyObject *visibility;
+	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	bool visible = false;
+	if (PyObject_IsTrue(visibility)) {
+		visible = true;
+	}
+
+	FBlueprintEditorUtils::SetBlueprintOnlyEditableFlag(bp, FName(UTF8_TO_TCHAR(name)), visible);
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args) {
@@ -963,7 +996,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 	ULevel *level = (ULevel *)py_obj_level->ue_object;
 
 	GEditor->MoveSelectedActorsToLevel(level);
-	
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }

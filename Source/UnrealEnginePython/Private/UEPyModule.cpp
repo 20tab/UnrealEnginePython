@@ -155,6 +155,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "compile_blueprint", py_unreal_engine_compile_blueprint, METH_VARARGS, "" },
 	{ "blueprint_add_member_variable", py_unreal_engine_blueprint_add_member_variable, METH_VARARGS, "" },
 	{ "blueprint_add_new_timeline", py_unreal_engine_blueprint_add_new_timeline, METH_VARARGS, "" },
+	{ "blueprint_set_variable_visibility", py_unreal_engine_blueprint_set_variable_visibility, METH_VARARGS, "" },
 	{ "add_component_to_blueprint", py_unreal_engine_add_component_to_blueprint, METH_VARARGS, "" },
     { "create_material_instance", py_unreal_engine_create_material_instance, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
