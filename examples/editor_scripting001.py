@@ -6,6 +6,7 @@ from unreal_engine.classes import StaticMeshComponent, StaticMeshActor, PointLig
 
 world = ue.get_editor_world()
 
+# instantiate 10 pawns with projectile component
 for i in range(0, 10):
 	new_pawn = world.actor_spawn(Pawn, FVector(0, 0, i * 1000))
 	new_pawn.set_actor_label("FooBarPawn {0}".format(i))
@@ -13,6 +14,7 @@ for i in range(0, 10):
 	projectile.InitialSpeed = 173.0
 	projectile.MaxSpeed = 999.9
 
+# instantiate 10 characters with sensing component
 for i in range(0, 10):
 	new_character = world.actor_spawn(Character, FVector(i * 100, 0, i * 1000))
 	new_character.set_actor_label("FooBarCharacter {0}".format(i))
@@ -40,10 +42,12 @@ ue.blueprint_set_variable_visibility(bp, 'SightPower', False)
 
 ue.compile_blueprint(bp)
 
+# instantiate a new actor using the previously created blueprint
 super_evil_pawn = world.actor_spawn(bp.GeneratedClass)
 super_evil_pawn.set_actor_label('Super Evil Pawn')
 super_evil_pawn.SightPower = 2217.30
 
+# save them all
 ue.editor_save_all()
 
 
