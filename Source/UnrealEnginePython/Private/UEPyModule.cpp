@@ -473,7 +473,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
     { "set_scalar_parameter", (PyCFunction)py_ue_set_scalar_parameter, METH_VARARGS, "" },
     { "set_vector_parameter", (PyCFunction)py_ue_set_vector_parameter, METH_VARARGS, "" },
     { "set_texture_parameter", (PyCFunction)py_ue_set_texture_parameter, METH_VARARGS, "" },
-    { "set_parent", (PyCFunction)py_ue_set_parent, METH_VARARGS, "" },
+	{ "set_parent", (PyCFunction)py_ue_set_parent, METH_VARARGS, "" },
+    { "static_mesh_set_collision_for_lod", (PyCFunction)py_ue_static_mesh_set_collision_for_lod, METH_VARARGS, "" },
+	{ "static_mesh_set_shadow_for_lod", (PyCFunction)py_ue_static_mesh_set_shadow_for_lod, METH_VARARGS, "" },
 #endif
     
 
