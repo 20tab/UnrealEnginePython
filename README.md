@@ -960,7 +960,9 @@ We still do not have a plugin icon ;)
 The build system is not very robust. Maybe linking the python static library into the plugin dll could be a better approach.
 
 
-Contacts
---------
+Contacts and Commercial Support
+-------------------------------
 
 If you want to contact us (for help, support, sponsorship), drop a mail to info at 20tab.com or follow @unbit on twitter
+
+We offer commercial support for both UnrealEngine and UnrealEnginePython, again drop a mail to info at 20tab.com for more infos
