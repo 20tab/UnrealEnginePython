@@ -54,3 +54,10 @@ import unreal_engine as ue
 # the material instance will get the name of the parent with the _inst suffix
 material_instance = ue.create_material_instance(new_material)
 ```
+
+Creating a Material Instance Dynamic
+------------------------------------
+
+
+Listing, getting and chaning available material properties
+----------------------------------------------------------
