@@ -72,7 +72,12 @@ To modify a material's property you need to know its name.
 
 You cannot access the property list from a material instance, you need to get it from the parent:
 
+```py
+parent_material = material_instance.Parent
+```
 
+
+Once you have the property name you can get/set parameters values
 
 ```py
 # retuns a float
