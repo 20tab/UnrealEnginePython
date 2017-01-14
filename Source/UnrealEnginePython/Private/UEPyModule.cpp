@@ -470,13 +470,14 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_add_master_track", (PyCFunction)py_ue_sequencer_add_master_track, METH_VARARGS, "" },
 
     // Material
-
+	{ "set_material", (PyCFunction)py_ue_set_material, METH_VARARGS, "" },
     { "set_material_scalar_parameter", (PyCFunction)py_ue_set_material_scalar_parameter, METH_VARARGS, "" },
     { "set_material_vector_parameter", (PyCFunction)py_ue_set_material_vector_parameter, METH_VARARGS, "" },
     { "set_material_texture_parameter", (PyCFunction)py_ue_set_material_texture_parameter, METH_VARARGS, "" },
 	{ "get_material_scalar_parameter", (PyCFunction)py_ue_get_material_scalar_parameter, METH_VARARGS, "" },
 	{ "get_material_vector_parameter", (PyCFunction)py_ue_get_material_vector_parameter, METH_VARARGS, "" },
 	{ "get_material_texture_parameter", (PyCFunction)py_ue_get_material_texture_parameter, METH_VARARGS, "" },
+	{ "create_material_instance_dynamic", (PyCFunction)py_ue_create_material_instance_dynamic, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "set_material_parent", (PyCFunction)py_ue_set_material_parent, METH_VARARGS, "" },
     { "static_mesh_set_collision_for_lod", (PyCFunction)py_ue_static_mesh_set_collision_for_lod, METH_VARARGS, "" },

@@ -219,6 +219,73 @@ PyObject *py_ue_get_material_texture_parameter(ue_PyUObject *self, PyObject * ar
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_create_material_instance_dynamic(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_material = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O:create_material_instance_dynamic", &py_material)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_material)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
+
+	if (!py_obj->ue_object->IsA<UMaterialInstanceConstant>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
+	}
+
+	UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)py_obj->ue_object;
+	
+	UMaterialInstanceDynamic *material_dynamic = UMaterialInstanceDynamic::Create(material_instance, self->ue_object);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(material_dynamic);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+
+PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int index;
+	PyObject *py_material = nullptr;
+
+	if (!PyArg_ParseTuple(args, "iO:set_material", &index, &py_material)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UPrimitiveComponent>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
+	}
+
+	UPrimitiveComponent *component = (UPrimitiveComponent *)self->ue_object;
+
+	if (!ue_is_pyuobject(py_material)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
+
+	if (!py_obj->ue_object->IsA<UMaterialInterface>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	}
+
+	UMaterialInterface *material_interface = (UMaterialInterface *)py_obj->ue_object;
+
+	component->SetMaterial(index, material_interface);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 #if WITH_EDITOR
 PyObject *py_ue_set_material_parent(ue_PyUObject *self, PyObject * args) {
