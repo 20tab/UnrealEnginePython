@@ -67,3 +67,7 @@ mid = self.uobject.create_material_instance_dynamic(material_instance)
 
 Listing, getting and chaning available material properties
 ----------------------------------------------------------
+
+To modify a material's property you need to know its name.
+
+You cannot access the property list from a material instance, you need to get it from the parent
