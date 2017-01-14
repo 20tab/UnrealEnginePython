@@ -74,6 +74,10 @@ You cannot access the property list from a material instance, you need to get it
 
 ```py
 parent_material = material_instance.Parent
+
+for expression in parent_material.Expressions:
+    parameter_name = expression.ParameterName
+    parameter_group = expression.Group
 ```
 
 
