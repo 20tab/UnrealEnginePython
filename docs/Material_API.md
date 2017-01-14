@@ -20,3 +20,37 @@ component = self.uobject.get_actor_component('Mesh')
 material = ue.load_object(Material, '/Game/Materials/Iron')
 component.set_material(index, material);
 ```
+
+Creating a Material (editor only)
+---------------------------------
+
+```py
+from unreal_engine.classes import Material
+new_material = Material()
+new_material.set_name('New Funny Material')
+new_material.save_package('/Game/Materials/NewFunnyMaterial')
+```
+
+Creating a Material Instance (editor only)
+------------------------------------------
+
+You have two ways to create a instanced material:
+
+(new_material is a reference to a previously created/loaded material)
+
+```py
+from unreal_engine.classes import MaterialInstancedConstant
+
+material_instance = MaterialInstancedConstant()
+material_instance.set_name('New Funny Material Instance')
+material_instance.set_material_parent(new_material)
+material_instance.save_package('/Game/Materials/instanced')
+```
+
+or the shortcut:
+
+```py
+import unreal_engine as ue
+# the material instance will get the name of the parent with the _inst suffix
+material_instance = ue.create_material_instance(new_material)
+```
