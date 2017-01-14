@@ -1,69 +1,150 @@
-#if WITH_EDITOR
+
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
-PyObject *py_ue_set_scalar_parameter(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
-
-	if (!self->ue_object->IsA<UMaterialInstanceConstant>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
-	}
 
 	char *scalarName = nullptr;
 	float scalarValue = 0;
-	if (!PyArg_ParseTuple(args, "sf:set_scalar_parameter", &scalarName, &scalarValue)) {
+	if (!PyArg_ParseTuple(args, "sf:set_material_scalar_parameter", &scalarName, &scalarValue)) {
 		return NULL;
 	}
 
-	UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)self->ue_object;
-
 	FName parameterName(UTF8_TO_TCHAR(scalarName));
-	material_instance->SetScalarParameterValueEditorOnly(parameterName, scalarValue);
+
+	bool valid = false;
+
+#if WITH_EDITOR
+	if (self->ue_object->IsA<UMaterialInstanceConstant>()) {
+		UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)self->ue_object;
+		material_instance->SetScalarParameterValueEditorOnly(parameterName, scalarValue);
+		valid = true;
+	}
+#endif
+
+	if (self->ue_object->IsA<UMaterialInstanceDynamic>()) {
+		UMaterialInstanceDynamic *material_instance = (UMaterialInstanceDynamic *)self->ue_object;
+		material_instance->SetScalarParameterValue(parameterName, scalarValue);
+		valid = true;
+	}
+
+	if (!valid) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a MaterialInstance");
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
 
 }
 
-PyObject *py_ue_set_vector_parameter(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_material_scalar_parameter(ue_PyUObject *self, PyObject * args) {
+
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UMaterialInstanceConstant>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
+	char *scalarName = nullptr;
+	if (!PyArg_ParseTuple(args, "s:get_material_scalar_parameter", &scalarName)) {
+		return NULL;
 	}
+
+	if (!self->ue_object->IsA<UMaterialInstance>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstance");
+	}
+
+	FName parameterName(UTF8_TO_TCHAR(scalarName));
+
+	UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+
+	float value = 0;
+
+	material_instance->GetScalarParameterValue(parameterName, value);
+
+	return PyFloat_FromDouble(value);
+
+}
+
+PyObject *py_ue_set_material_vector_parameter(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
 
 	char *vectorName;
 	PyObject *vectorValue = nullptr;
-	if (!PyArg_ParseTuple(args, "sO:set_vector_parameter", &vectorName, &vectorValue)) {
+	if (!PyArg_ParseTuple(args, "sO:set_material_vector_parameter", &vectorName, &vectorValue)) {
 		return NULL;
 	}
 
-	FVector vectorParameter(0, 0, 0);
+	FLinearColor vectorParameter(0, 0, 0, 0);
 
-	if (vectorValue) {
-		ue_PyFVector *py_vector = py_ue_is_fvector(vectorValue);
-		if (!py_vector)
-			return PyErr_Format(PyExc_Exception, "argument must be an FVector");
-		vectorParameter = py_vector->vec;
+	ue_PyFLinearColor *py_vector = py_ue_is_flinearcolor(vectorValue);
+	if (!py_vector) {
+		ue_PyFVector *py_true_vector = py_ue_is_fvector(vectorValue);
+		if (!py_true_vector) {
+			return PyErr_Format(PyExc_Exception, "argument must be an FLinearColor or FVector");
+		}
+		else {
+			vectorParameter.R = py_true_vector->vec.X;
+			vectorParameter.G = py_true_vector->vec.Y;
+			vectorParameter.B = py_true_vector->vec.Z;
+			vectorParameter.A = 1;
+		}
+	}
+	else {
+		vectorParameter = py_vector->color;
 	}
 
-	UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)self->ue_object;
-
 	FName parameterName(UTF8_TO_TCHAR(vectorName));
-	material_instance->SetVectorParameterValueEditorOnly(parameterName, FLinearColor(vectorParameter));
+
+	bool valid = false;
+
+#if WITH_EDITOR
+	if (self->ue_object->IsA<UMaterialInstanceConstant>()) {
+		UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)self->ue_object;
+		material_instance->SetVectorParameterValueEditorOnly(parameterName, vectorParameter);
+		valid = true;
+	}
+#endif
+
+	if (self->ue_object->IsA<UMaterialInstanceDynamic>()) {
+		UMaterialInstanceDynamic *material_instance = (UMaterialInstanceDynamic *)self->ue_object;
+		material_instance->SetVectorParameterValue(parameterName, vectorParameter);
+		valid = true;
+	}
+
+	if (!valid) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a MaterialInstance");
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
-
-
 }
-PyObject *py_ue_set_texture_parameter(ue_PyUObject *self, PyObject * args) {
+
+PyObject *py_ue_get_material_vector_parameter(ue_PyUObject *self, PyObject * args) {
+
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UMaterialInstanceConstant>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
+	char *scalarName = nullptr;
+	if (!PyArg_ParseTuple(args, "s:get_material_vector_parameter", &scalarName)) {
+		return NULL;
 	}
+
+	if (!self->ue_object->IsA<UMaterialInstance>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstance");
+	}
+
+	FName parameterName(UTF8_TO_TCHAR(scalarName));
+
+	UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+
+	FLinearColor vec(0, 0, 0);
+
+	material_instance->GetVectorParameterValue(parameterName, vec);
+
+	return py_ue_new_flinearcolor(vec);
+}
+
+
+PyObject *py_ue_set_material_texture_parameter(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
 
 	char *textureName;
 	PyObject *textureObject = nullptr;
@@ -81,28 +162,80 @@ PyObject *py_ue_set_texture_parameter(ue_PyUObject *self, PyObject * args) {
 
 	UTexture *ue_texture = (UTexture *)py_obj->ue_object;
 
-	UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)self->ue_object;
-
 	FName parameterName(UTF8_TO_TCHAR(textureName));
-	material_instance->SetTextureParameterValueEditorOnly(parameterName, ue_texture);
+
+	bool valid = false;
+
+#if WITH_EDITOR
+	if (self->ue_object->IsA<UMaterialInstanceConstant>()) {
+		UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)self->ue_object;
+		material_instance->SetTextureParameterValueEditorOnly(parameterName, ue_texture);
+		valid = true;
+	}
+#endif
+
+	if (self->ue_object->IsA<UMaterialInstanceDynamic>()) {
+		UMaterialInstanceDynamic *material_instance = (UMaterialInstanceDynamic *)self->ue_object;
+		material_instance->SetTextureParameterValue(parameterName, ue_texture);
+		valid = true;
+	}
+
+	if (!valid) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a MaterialInstance");
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-PyObject *py_ue_set_parent(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_material_texture_parameter(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UMaterialInstanceConstant>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
+	char *scalarName = nullptr;
+	if (!PyArg_ParseTuple(args, "s:get_material_texture_parameter", &scalarName)) {
+		return NULL;
 	}
+
+	if (!self->ue_object->IsA<UMaterialInstance>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstance");
+	}
+
+	FName parameterName(UTF8_TO_TCHAR(scalarName));
+
+	UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+
+	UTexture *texture = nullptr;
+
+	if (!material_instance->GetTextureParameterValue(parameterName, texture)) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(texture);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+
+#if WITH_EDITOR
+PyObject *py_ue_set_material_parent(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
 
 	PyObject *py_material = nullptr;
 
 	if (!PyArg_ParseTuple(args, "O:set_parent", &py_material)) {
 		return NULL;
 	}
+
+	if (!self->ue_object->IsA<UMaterialInstanceConstant>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
+	}
+
 
 	if (!ue_is_pyuobject(py_material)) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
