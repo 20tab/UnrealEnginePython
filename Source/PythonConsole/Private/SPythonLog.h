@@ -60,6 +60,11 @@ public:
 	/** SWidget interface */
 	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime ) override;
 
+
+	TArray<FString> History;
+	int HistoryPosition;
+
+
 protected:
 
 	virtual bool SupportsKeyboardFocus() const override { return true; }
