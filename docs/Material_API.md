@@ -75,6 +75,13 @@ You cannot access the property list from a material instance, you need to get it
 
 
 ```py
+# retuns a float
+material_instance.get_material_scalar_parameter('Parameter name')
+# returns a FVector
+material_instance.get_material_vector_parameter('Parameter name')
+# returns a Texture
+material_instance.get_material_texture_parameter('Parameter name')
+
 material_instance.set_material_scalar_parameter('Parameter name', float)
 material_instance.set_material_vector_parameter('Parameter name', FVector)
 material_instance.set_material_texture_parameter('Parameter name', Texture)
