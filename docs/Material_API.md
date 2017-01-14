@@ -58,6 +58,12 @@ material_instance = ue.create_material_instance(new_material)
 Creating a Material Instance Dynamic
 ------------------------------------
 
+You can create a MID (Material Instance Dynamic) from a ,aterial instance:
+
+```py
+mid = self.uobject.create_material_instance_dynamic(material_instance)
+```
+
 
 Listing, getting and chaning available material properties
 ----------------------------------------------------------
