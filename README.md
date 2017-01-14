@@ -946,6 +946,41 @@ on top of UnrealEnginePythonPrivatePCH.h and rebuild the plugin.
 
 As with native threads, do not modify (included deletion) UObjects from non-main threads.
 
+Accessing Python Proxy From UObject
+-----------------------------------
+
+Sometimes you may have a UObject and know that it is backed by a python object. To get the python object from the UObject, use the `get_py_proxy` method. For example, imagine you have the following situation:
+
+   1. There is a `PyActor` sub-class called `PyExplosiveActor` which has `Explosive` as its python class.
+   2. The `Explosive` has a `go_boom` python method.
+   3. There is a `PyActor` sub-class called `PyBadGuyActor` which has a Blueprint property called `MyBomb` and a python class called `BadGuy`.
+   4. The `BadGuy` instance in python knows that its UObject has its `MyBomb` as an instance of `PyExplosiveActor` and wants to call the `go_boom` python method.
+   
+This would be resolved as shown below:
+
+```
+import unreal_engine as ue
+
+class Explosive:
+    'Python representation for PyExplosiveActor in UE4'
+
+    def go_boom(self):
+        # do python stuff to explode
+        ...
+        self.uobject.destory()
+
+class BadGuy:
+    'Python reprsentation for PyBadGuyActor in UE4'
+   
+    def ignite_bomb(self, delay):
+        bomb = self.uobject.MyBomb
+        py_bomb = bomb.get_py_proxy()
+        py_bomb.go_boom()
+	
+```
+
+What is going on here in `BadGuy` is that self.uobject is a reference to the PyActor UObject and `self.uobject.MyBomb` is a reference to the `PyExplosive` uobject. But instead you want to access its proxy class (`Explosive`). The `get_py_proxy()` method returns the python custom class, `Explosive` that the `PyExplosiveActor` object is mapped to.
+
 Status and Known issues
 -----------------------
 
