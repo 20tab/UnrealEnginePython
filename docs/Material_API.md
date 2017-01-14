@@ -70,4 +70,12 @@ Listing, getting and chaning available material properties
 
 To modify a material's property you need to know its name.
 
-You cannot access the property list from a material instance, you need to get it from the parent
+You cannot access the property list from a material instance, you need to get it from the parent:
+
+
+
+```py
+material_instance.set_material_scalar_parameter('Parameter name', float)
+material_instance.set_material_vector_parameter('Parameter name', FVector)
+material_instance.set_material_texture_parameter('Parameter name', Texture)
+```
