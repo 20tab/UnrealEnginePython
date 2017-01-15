@@ -114,7 +114,7 @@ public class UnrealEnginePython : ModuleRules
             }
             System.Console.WriteLine("Using Python at: " + pythonHome);
             PublicIncludePaths.Add(pythonHome);
-            PublicAdditionalLibraries.Add(GetMacPythonLibFile(pythonHome));
+            PublicDelayLoadDLLs.Add(GetMacPythonLibFile(pythonHome));
             Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
