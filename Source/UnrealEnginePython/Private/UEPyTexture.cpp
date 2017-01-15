@@ -60,7 +60,6 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	tex->MarkPackageDirty();
 #if WITH_EDITOR
 	tex->PostEditChange();
-	tex->PostEditChange();
 #endif
 
 	// ensure compatibility between 4.12 and 4.14
@@ -69,4 +68,5 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
 

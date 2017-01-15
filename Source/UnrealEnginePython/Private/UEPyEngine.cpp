@@ -452,4 +452,79 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObj
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * args) {
+
+	if (!GEngine->GameViewport) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	FViewport *viewport = GEngine->GameViewport->Viewport;
+	TArray<FColor> bitmap;
+
+	bool success = GetViewportScreenShot(viewport, bitmap);
+
+	if (!success) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
+	for (int i = 0; i < bitmap.Num(); i++) {
+		PyTuple_SetItem(bitmap_tuple, i, py_ue_new_fcolor(bitmap[i]));
+	}
+
+	return bitmap_tuple;
+}
+
+#if WITH_EDITOR
+PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self, PyObject * args) {
+
+	FViewport *viewport = GEditor->GetActiveViewport();
+	if (!viewport) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	TArray<FColor> bitmap;
+
+	bool success = GetViewportScreenShot(viewport, bitmap);
+
+	if (!success) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
+	for (int i = 0; i < bitmap.Num(); i++) {
+		PyTuple_SetItem(bitmap_tuple, i, py_ue_new_fcolor(bitmap[i]));
+	}
+
+	return bitmap_tuple;
+}
+
+PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, PyObject * args) {
+
+	FViewport *viewport = GEditor->GetPIEViewport();
+	if (!viewport) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	TArray<FColor> bitmap;
+
+	bool success = GetViewportScreenShot(viewport, bitmap);
+
+	if (!success) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
+	for (int i = 0; i < bitmap.Num(); i++) {
+		PyTuple_SetItem(bitmap_tuple, i, py_ue_new_fcolor(bitmap[i]));
+	}
+
+	return bitmap_tuple;
+}
+#endif
+
 
