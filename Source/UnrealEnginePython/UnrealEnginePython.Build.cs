@@ -6,16 +6,18 @@ using System.IO;
 public class UnrealEnginePython : ModuleRules
 {
 
-    private string pythonHome = "python35";
-    //private string pythonHome = "python27";
+    // leave this string as empty for triggering auto-discovery of python installations...
+    private string pythonHome = "";
+    // otherwise specify the path of your python installation
+    //private string pythonHome = "C:/Program Files/Python36";
 
-    protected string PythonHome
+
+    private string[] windowsKnownPaths =
     {
-        get
-        {
-			return Path.GetFullPath(Path.Combine(ModuleDirectory, "..", "..",  pythonHome));
-		}
-	}
+        "C:/Program Files/Python36",
+        "C:/Program Files/Python35",
+        "C:/Python27"
+    };
 
     public UnrealEnginePython(TargetInfo Target)
     {
@@ -81,9 +83,17 @@ public class UnrealEnginePython : ModuleRules
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
         {
-            System.Console.WriteLine("Using Python at: " + PythonHome);
-            PublicIncludePaths.Add(PythonHome);
-            PublicAdditionalLibraries.Add(Path.Combine(PythonHome, "libs", string.Format("{0}.lib", pythonHome)));
+            if (pythonHome == "")
+            {
+                pythonHome = DiscoverPythonPath(windowsKnownPaths);
+                if (pythonHome == "")
+                {
+                    throw new System.Exception("Unable to find Python installation");
+                }
+            }
+            System.Console.WriteLine("Using Python at: " + pythonHome);
+            PublicIncludePaths.Add(pythonHome);
+            PublicAdditionalLibraries.Add(GetWindowsPythonLibFile(pythonHome));
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
@@ -94,7 +104,8 @@ public class UnrealEnginePython : ModuleRules
                 PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython3.5m.dylib"));
                 Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC=3"));
             }
-            else if (pythonHome == "python27") {
+            else if (pythonHome == "python27")
+            {
                 string mac_python = "/Library/Frameworks/Python.framework/Versions/2.7/";
                 PublicIncludePaths.Add(Path.Combine(mac_python, "include"));
                 PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython2.7.dylib"));
@@ -108,12 +119,80 @@ public class UnrealEnginePython : ModuleRules
                 PublicIncludePaths.Add("/usr/include/python3.5m");
                 PublicAdditionalLibraries.Add("/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5.so");
             }
-            else if (pythonHome == "python27") {
+            else if (pythonHome == "python27")
+            {
                 PublicIncludePaths.Add("/usr/include/python2.7");
                 PublicAdditionalLibraries.Add("/usr/lib/python2.7/config-x86_64-linux-gnu/libpython2.7.so");
             }
             Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
         }
 
+    }
+
+    private string DiscoverPythonPath(string[] knownPaths)
+    {
+        foreach (string path in knownPaths)
+        {
+            string headerFile = Path.Combine(path, "include", "Python.h");
+            if (File.Exists(headerFile))
+            {
+                return path;
+            }
+            // this is mainly useful for OSX
+            headerFile = Path.Combine(path, "Headers", "Python.h");
+            if (File.Exists(headerFile))
+            {
+                return path;
+            }
+        }
+        return "";
+    }
+
+    private string GetWindowsPythonLibFile(string basePath)
+    {
+        // just for usability, report if the pythonHome is not in the system path
+        string[] allPaths = System.Environment.GetEnvironmentVariable("PATH").Split(';');
+        // this will transform the slashes in backslashes...
+        string checkedPath = Path.GetFullPath(basePath);
+        if (checkedPath.EndsWith("\\"))
+        {
+            checkedPath = checkedPath.Remove(checkedPath.Length - 1);
+        }
+        bool found = false;
+        foreach (string item in allPaths)
+        {
+            if (item == checkedPath || item == checkedPath + "\\")
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            System.Console.WriteLine("[WARNING] Your Python installation is not in the system PATH environment variable, very probably the plugin will fail to load");
+        }
+        // first try with python3
+        for (int i = 9; i >= 0; i--)
+        {
+            string fileName = string.Format("python3{0}.lib", i);
+            string fullPath = Path.Combine(basePath, "libs", fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        // then python2
+        for (int i = 9; i >= 0; i--)
+        {
+            string fileName = string.Format("python2{0}.lib", i);
+            string fullPath = Path.Combine(basePath, "libs", fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        throw new System.Exception("Invalid Python installation, missing .lib files");
     }
 }
