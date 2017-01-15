@@ -23,7 +23,7 @@ The currently supported Unreal Engine versions are 4.12, 4.13 and 4.14
 
 Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue asking us for it [please specify the python version too]) and download it.
 
-Binary releases are in two forms: standard and embedded. Standard uses the python installation of your system, so ensure the python installation directory is in your system PATH environment variable (otherwise you will get an error while loading your project). Embedded releases includes an embedded python installation so you do not need to have python in your system.
+Binary releases are in two forms: standard and embedded. Standard uses the python installation of your system, so ensure the python installation directory is in your system PATH environment variable (otherwise you will get an error while loading your project). Embedded releases include an embedded python installation so you do not need to have python in your system.
 
 Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
 
