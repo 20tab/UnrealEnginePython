@@ -1001,7 +1001,13 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, PyObject * args) {
+	
+	GEditor->TakeHighResScreenShots();
 
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 #endif
 
