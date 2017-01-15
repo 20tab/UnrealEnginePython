@@ -477,6 +477,23 @@ PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * ar
 	return bitmap_tuple;
 }
 
+PyObject *py_unreal_engine_get_viewport_size(PyObject *self, PyObject * args) {
+
+	if (!GEngine->GameViewport) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	FViewport *viewport = GEngine->GameViewport->Viewport;
+	PyObject *tuple_size = PyTuple_New(2);
+	FIntPoint point = viewport->GetSizeXY();
+
+	PyTuple_SetItem(tuple_size, 0, PyLong_FromLong(point.X));
+	PyTuple_SetItem(tuple_size, 1, PyLong_FromLong(point.Y));
+
+	return tuple_size;
+}
+
 #if WITH_EDITOR
 PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self, PyObject * args) {
 
@@ -502,6 +519,25 @@ PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self,
 	return bitmap_tuple;
 }
 
+PyObject *py_unreal_engine_editor_get_active_viewport_size(PyObject *self, PyObject * args) {
+
+
+	FViewport *viewport = GEditor->GetActiveViewport();
+	if (!viewport) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	PyObject *tuple_size = PyTuple_New(2);
+
+	FIntPoint point = viewport->GetSizeXY();
+
+	PyTuple_SetItem(tuple_size, 0, PyLong_FromLong(point.X));
+	PyTuple_SetItem(tuple_size, 1, PyLong_FromLong(point.Y));
+
+	return tuple_size;
+}
+
 PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, PyObject * args) {
 
 	FViewport *viewport = GEditor->GetPIEViewport();
@@ -524,6 +560,23 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, Py
 	}
 
 	return bitmap_tuple;
+}
+
+PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *self, PyObject * args) {
+
+
+	FViewport *viewport = GEditor->GetPIEViewport();
+	if (!viewport) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	PyObject *tuple_size = PyTuple_New(2);
+	FIntPoint point = viewport->GetSizeXY();
+
+	PyTuple_SetItem(tuple_size, 0, PyLong_FromLong(point.X));
+	PyTuple_SetItem(tuple_size, 1, PyLong_FromLong(point.Y));
+	return tuple_size;
 }
 #endif
 

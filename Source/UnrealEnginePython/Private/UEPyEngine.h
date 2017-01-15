@@ -39,10 +39,14 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject *, PyObject *
 PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_viewport_size(PyObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_editor_get_active_viewport_size(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *, PyObject *);
 #endif
 
 

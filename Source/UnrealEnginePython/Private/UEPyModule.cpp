@@ -198,10 +198,14 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_engine_defined_action_mappings", py_unreal_engine_get_engine_defined_action_mappings, METH_VARARGS, "" },
 
 	{ "get_viewport_screenshot", py_unreal_engine_get_viewport_screenshot, METH_VARARGS, "" },
+	{ "get_viewport_size", py_unreal_engine_get_viewport_size, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "editor_get_active_viewport_screenshot", py_unreal_engine_editor_get_active_viewport_screenshot, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_screenshot", py_unreal_engine_editor_get_pie_viewport_screenshot, METH_VARARGS, "" },
+
+	{ "editor_get_active_viewport_size", py_unreal_engine_editor_get_active_viewport_size, METH_VARARGS, "" },
+	{ "editor_get_pie_viewport_size", py_unreal_engine_editor_get_pie_viewport_size, METH_VARARGS, "" },
 
 	{ "editor_take_high_res_screen_shots", py_unreal_engine_editor_take_high_res_screen_shots, METH_VARARGS, "" },
 #endif
