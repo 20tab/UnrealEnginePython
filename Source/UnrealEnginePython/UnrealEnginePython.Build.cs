@@ -19,6 +19,13 @@ public class UnrealEnginePython : ModuleRules
         "C:/Python27"
     };
 
+    private string[] macKnownPaths =
+    {
+        "/Library/Frameworks/Python.framework/Versions/3.6",
+        "/Library/Frameworks/Python.framework/Versions/3.5",
+        "/Library/Frameworks/Python.framework/Versions/2.7",
+    };
+
     public UnrealEnginePython(TargetInfo Target)
     {
 
@@ -97,20 +104,18 @@ public class UnrealEnginePython : ModuleRules
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
-            if (pythonHome == "python35")
+            if (pythonHome == "")
             {
-                string mac_python = "/Library/Frameworks/Python.framework/Versions/3.5/";
-                PublicIncludePaths.Add(Path.Combine(mac_python, "include"));
-                PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython3.5m.dylib"));
-                Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC=3"));
+                pythonHome = DiscoverPythonPath(macKnownPaths);
+                if (pythonHome == "")
+                {
+                    throw new System.Exception("Unable to find Python installation");
+                }
             }
-            else if (pythonHome == "python27")
-            {
-                string mac_python = "/Library/Frameworks/Python.framework/Versions/2.7/";
-                PublicIncludePaths.Add(Path.Combine(mac_python, "include"));
-                PublicAdditionalLibraries.Add(Path.Combine(mac_python, "lib", "libpython2.7.dylib"));
-                Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC=2"));
-            }
+            System.Console.WriteLine("Using Python at: " + pythonHome);
+            PublicIncludePaths.Add(pythonHome);
+            PublicAdditionalLibraries.Add(GetMacPythonLibFile(pythonHome));
+            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -146,6 +151,45 @@ public class UnrealEnginePython : ModuleRules
             }
         }
         return "";
+    }
+
+    private string GetMacPythonLibFile(string basePath)
+    {
+        // first try with python3
+        for (int i = 9; i >= 0; i--)
+        {
+            string fileName = string.Format("libpython3.{0}.dylib", i);
+            string fullPath = Path.Combine(basePath, "lib", fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+            fileName = string.Format("libpython3.{0}m.dylib", i);
+            fullPath = Path.Combine(basePath, "lib", fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        // then python2
+        for (int i = 9; i >= 0; i--)
+        {
+            string fileName = string.Format("libpython2.{0}.dylib", i);
+            string fullPath = Path.Combine(basePath, "lib", fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+            fileName = string.Format("libpython2.{0}m.dylib", i);
+            fullPath = Path.Combine(basePath, "lib", fileName);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        throw new System.Exception("Invalid Python installation, missing .dylib files");
     }
 
     private string GetWindowsPythonLibFile(string basePath)
