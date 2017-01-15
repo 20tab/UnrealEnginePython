@@ -48,6 +48,7 @@ public:
 
 	void SetPythonBox(SPythonConsoleInputBox *box) {
 		SPythonConsoleEditableText *PythonEditableText = (SPythonConsoleEditableText *)EditableText.Get();
+		box->HistoryPosition = 0;
 		PythonEditableText->PythonConsoleInputBox = box;
 	}
 
@@ -98,7 +99,7 @@ private:
 				return FReply::Handled();
 			}
 			else if (InKeyEvent.GetKey() == EKeys::Down) {
-				if (PythonConsoleInputBox->HistoryPosition < PythonConsoleInputBox->History.Num() - 2) {
+				if (PythonConsoleInputBox->HistoryPosition < PythonConsoleInputBox->History.Num() - 1) {
 					PythonConsoleInputBox->HistoryPosition++;
 					this->SetText(FText::FromString(PythonConsoleInputBox->History[PythonConsoleInputBox->HistoryPosition]));
 				}
