@@ -10,6 +10,8 @@ public class UnrealEnginePython : ModuleRules
     private string pythonHome = "";
     // otherwise specify the path of your python installation
     //private string pythonHome = "C:/Program Files/Python36";
+    // this is an example for Homebrew on Mac 
+    //private string pythonHome = "/usr/local/Cellar/python3/3.6.0/Frameworks/Python.framework/Versions/3.6/";
 
 
     private string[] windowsKnownPaths =
