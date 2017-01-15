@@ -65,9 +65,7 @@ If you want to package without python, just remember to change the UnrealEngineP
 
 # Installation from sources on MacOSX
 
-On the Mac the installation is easier, as the final user is currently forced to install python on its system (there are obviously dozens of workarounds but at this stage of the project we prefer focusing on the api).
-
-* install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/3.5" directory).
+* install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/X.Y" directory).
 * create a new unreal engine blank c++ project (NOT a blueprint one, otherwise XCode will not be initialized)
 * create a Plugins directory in the project directory
 * move to the Plugins directory and clone the plugin repository
@@ -80,8 +78,9 @@ git clone https://github.com/20tab/UnrealEnginePython
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
 * Once the plugin is built, go to the output log console and filter for 'Python'. You should see the Python VM banner.
 
+The build procedure will try to automatically discover python installations. If you need custom paths, just edit here:
 
-For python 2 just change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
+https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/UnrealEnginePython.Build.cs#L10
 
 Upgrading on MacOSX
 -------------------
@@ -94,10 +93,10 @@ git pull
 ```
 
 * move to UnrealEnginePython/Binaries/Mac from the Plugin directory
-* remove the plugin library UE4Editor-UnrealEnginePython.dylib to warn UnrealEngine to recompile the plugin
+* remove the plugin libraries to warn UnrealEngine to recompile the plugin
 
 ```sh
-rm UE4Editor-UnrealEnginePython.dylib
+rm *.dylib
 ```
 
 * restart the editor and a popup should appear asking your for confirmation of the build of the plugin.
