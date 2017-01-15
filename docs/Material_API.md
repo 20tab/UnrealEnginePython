@@ -58,6 +58,40 @@ material_instance = ue.create_material_instance(new_material)
 Creating a Material Instance Dynamic
 ------------------------------------
 
+You can create a MID (Material Instance Dynamic) from a ,aterial instance:
+
+```py
+mid = self.uobject.create_material_instance_dynamic(material_instance)
+```
+
 
 Listing, getting and chaning available material properties
 ----------------------------------------------------------
+
+To modify a material's property you need to know its name.
+
+You cannot access the property list from a material instance, you need to get it from the parent:
+
+```py
+parent_material = material_instance.Parent
+
+for expression in parent_material.Expressions:
+    parameter_name = expression.ParameterName
+    parameter_group = expression.Group
+```
+
+
+Once you have the property name you can get/set parameters values
+
+```py
+# retuns a float
+material_instance.get_material_scalar_parameter('Parameter name')
+# returns a FVector
+material_instance.get_material_vector_parameter('Parameter name')
+# returns a Texture
+material_instance.get_material_texture_parameter('Parameter name')
+
+material_instance.set_material_scalar_parameter('Parameter name', float)
+material_instance.set_material_vector_parameter('Parameter name', FVector)
+material_instance.set_material_texture_parameter('Parameter name', Texture)
+```
