@@ -23,7 +23,7 @@ The currently supported Unreal Engine versions are 4.12, 4.13 and 4.14
 
 Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue asking us for it [please specify the python version too]) and download it.
 
-Binary releases includes an embedded python version, so you do not need to install it in the system.
+Binary releases are in two forms: standard and embedded. Standard uses the python installation of your system, so ensure the python installation directory is in your system PATH environment variable (otherwise you will get an error while loading your project). Embedded releases includes an embedded python installation so you do not need to have python in your system.
 
 Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
 
@@ -33,31 +33,27 @@ Restart your project and you should see the PythonConsole under the "Window/Deve
 
 # Installation from sources on Windows (64 bit)
 
-The installation is pretty long (and boring) as you do not want the final users of the product to be required to install python, so we need to use the 'embedded python distribution' (available for windows in the official python site). Unfortunately the embedded distribution does not contain the python development headers so we need the official system-wide installation too.
+Currently python3.6, python3.5 and python2.7 are supported. It is highly suggested to have a python system wide installation (by default the official python distributions are installed in user's home directory) with the PATH environment variable including it (if you change the PATH variable remember to reboot the system before running the build procedure, this is not strictly required but will ensure the PATH is updated). If the PATH variable does not contain the path of your python installation you will see a warning in the build log/output.
 
-* install Unreal Engine and Python 3.5 as a system user
-* run the unreal editor and create a new blank c++ project (NOT a blueprint one, otherwise visual studio will not be initialized)
-* once the project is setup, close both unreal and visual studio
-* move to the project directory (you can right click the project from the epic launcher and choose 'show in explorer')
-* create a 'Plugins' directory into the project directory
-* move into the just created Plugins directory and clone the repository:
+Download a source official release or simply clone the repository for latest updates:
 
 ```sh
 git clone https://github.com/20tab/UnrealEnginePython
 ```
 
-* from the explorer right click on the project main file and choose 'generate visual studio project files'
-* open again visual studio, you should now see Plugins/UnrealEnginePython in your solution explorer
-* before running the plugin build process you need to copy development headers and libs in the plugin directory (Plugins/UnrealEnginePython).
-* create the directory Plugins/UnrealEnginePython/python35 (this is where the build script expects to find headers and static libs)
-* copy "C:/Program Files/Python35/include" and "C:/Program Files/Python35/libs" into Plugins/UnrealEnginePython/python35
+By default the build procedure will try to discover your python installation looking at hardcoded known paths. If you want to specify a custom python installation (or the autodetection simply fails) you can change it in the Source/UnrealEnginePython/UnrealEnginePython.Build.cs file at this line: https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/UnrealEnginePython.Build.cs#L10
+
+
+choose a project you want to install the plugin into, open the file explorer (you can do it from the epic launcher too) and:
+
+* create a Plugins/ directory (if it does not exist) in your project and copy the directory UnrealEnginePython into it
+* from the file explorer right click on the project main file and choose 'generate visual studio project files'
+* open visual studio, you should now see Plugins/UnrealEnginePython in your solution explorer
 * run the compilation from visual studio
-* once the compilation ends, copy the python35.dll (from "C:/Program Files/Python35" or from the embeded distribution) into the Binaries/Win64 directory of your project (you will find the plugin dll too in this directory)
+* once the compilation ends, double check the python libraries can be found by the plugin (they must be in the system PATH like previously described, or brutally copy them in the Binaries/Win64 directory of the just built plugin)
 * now you can re-run the unreal engine editor
 
-If all goes well, open the output log and search for the string "Python". You should see the Python VM initialization message. It means your editor has now full python support.
-
-To use python 2, follow the same approach but with a python27 directory (instead of python35) and change the pythonHome variable in /Source/UnrealEnginePython/UnrealEnginePython.Build.cs to "python27"
+If all goes well, you will see 'Python Console' in the "Window/Developer Tools" menu
 
 # Installation from sources on MacOSX
 
