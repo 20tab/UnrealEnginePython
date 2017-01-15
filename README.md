@@ -31,6 +31,10 @@ Open your project and go to the Edit/Plugins menu. Go to the bottom and under "P
 
 Restart your project and you should see the PythonConsole under the "Window/Developer Tools" menu
 
+Binary releases are mainly useful for editor scripting, if you want to package your project for distribution and you need the python runtime, you need a source release (see below).
+
+If instead, you want to package your project without python, just remember to change the UnrealEnginePython.uplugin to have this line: https://github.com/20tab/UnrealEnginePython/blob/master/UnrealEnginePython.uplugin#L20 set as "Editor" instead of "Runtime"
+
 # Installation from sources on Windows (64 bit)
 
 Currently python3.6, python3.5 and python2.7 are supported. It is highly suggested to have a python system wide installation (by default the official python distributions are installed in user's home directory) with the PATH environment variable including it (if you change the PATH variable remember to reboot the system before running the build procedure, this is not strictly required but will ensure the PATH is updated). If the PATH variable does not contain the path of your python installation you will see a warning in the build log/output.
@@ -54,6 +58,10 @@ choose a project you want to install the plugin into, open the file explorer (yo
 * now you can re-run the unreal engine editor
 
 If all goes well, you will see 'Python Console' in the "Window/Developer Tools" menu
+
+If you want to package your project (it is required only if you need to have a python VM at runtime, read: your game logic is programmed in python) ensure the Content/Scripts/ue_site.py file is in your project (it can be empty). At the end of the build procedure ensure to copy all of your required python scripts in the final directory. Remember that unless you add an embedded python in your final build, the final users of your project will require python installed in his/her system.
+
+If you want to package without python, just remember to change the UnrealEnginePython.uplugin to have this line: https://github.com/20tab/UnrealEnginePython/blob/master/UnrealEnginePython.uplugin#L20 set as "Editor" instead of "Runtime"
 
 # Installation from sources on MacOSX
 
