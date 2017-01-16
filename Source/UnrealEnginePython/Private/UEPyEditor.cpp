@@ -851,8 +851,42 @@ PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * ar
 	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(bp, FName(UTF8_TO_TCHAR(name)), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 	FBlueprintEditorUtils::AddFunctionGraph<UClass>(bp, graph, true, nullptr);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+}
+
+PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args) {
+	PyObject *py_blueprint;
+
+	if (!PyArg_ParseTuple(args, "O:blueprint_graphs", &py_blueprint)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	PyObject *py_graphs = PyList_New(0);
+
+	TArray<UEdGraph*> graphs;
+
+	bp->GetAllGraphs(graphs);
+
+	for (UEdGraph *graph : graphs) {
+		ue_PyUObject *item = ue_get_python_wrapper(graph);
+		if (item)
+			PyList_Append(py_graphs, (PyObject *)item);
+	}
+
+	return py_graphs;
 }
 
 PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject * args) {

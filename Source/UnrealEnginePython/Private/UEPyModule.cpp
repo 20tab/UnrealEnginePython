@@ -27,6 +27,7 @@
 #include "UEPyMaterial.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
+#include "UEPyEdGraph.h"
 #endif
 
 
@@ -295,6 +296,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "asset_reimport", (PyCFunction)py_ue_asset_reimport, METH_VARARGS, "" },
 
 	{ "factory_create_new", (PyCFunction)py_ue_factory_create_new, METH_VARARGS, "" },
+
+	{ "graph_add_node_call_function", (PyCFunction)py_ue_graph_add_node_call_function, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
