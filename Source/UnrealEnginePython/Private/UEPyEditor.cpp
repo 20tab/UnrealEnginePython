@@ -831,6 +831,30 @@ PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject 
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_function", &py_blueprint, &name)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(bp, FName(UTF8_TO_TCHAR(name)), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	FBlueprintEditorUtils::AddFunctionGraph<UClass>(bp, graph, true, nullptr);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject * args) {
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:editor_on_asset_post_import", &py_callable)) {
@@ -1002,7 +1026,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 }
 
 PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, PyObject * args) {
-	
+
 	GEditor->TakeHighResScreenShots();
 
 	Py_INCREF(Py_None);
