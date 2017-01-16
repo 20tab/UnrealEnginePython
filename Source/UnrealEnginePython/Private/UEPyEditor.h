@@ -50,6 +50,7 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *, PyObject *);
 PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_blueprint_add_function(PyObject *, PyObject *);
+PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject *, PyObject *);
 
 // efeng additional functions
 PyObject *py_unreal_engine_create_material_instance(PyObject *, PyObject *);

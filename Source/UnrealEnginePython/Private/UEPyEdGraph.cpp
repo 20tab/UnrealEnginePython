@@ -5,13 +5,13 @@
 #include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_CallFunction.h"
 #include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2.h"
+#include "Editor/BlueprintGraph/Classes/K2Node_CustomEvent.h"
 
 PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *py_function = NULL;
-	char *name = nullptr;
 	int x = 0;
 	int y = 0;
 	if (!PyArg_ParseTuple(args, "O|ii:graph_add_node_call_function", &py_function, &x, &y)) {
@@ -48,6 +48,43 @@ PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * arg
 	node->CreateNewGuid();
 	node->PostPlacedNewNode();
 	node->SetFromFunction(function);
+	node->SetFlags(RF_Transactional);
+	node->AllocateDefaultPins();
+	node->NodePosX = x;
+	node->NodePosY = y;
+	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
+	graph->AddNode(node);
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+
+}
+
+PyObject *py_ue_graph_add_node_custom_event(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name = nullptr;
+	int x = 0;
+	int y = 0;
+	if (!PyArg_ParseTuple(args, "s|ii:graph_add_node_custom_event", &name, &x, &y)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UEdGraph>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
+	}
+
+	UEdGraph *graph = (UEdGraph *)self->ue_object;
+
+	UK2Node_CustomEvent *node = NewObject<UK2Node_CustomEvent>(graph);
+
+	node->CreateNewGuid();
+	node->PostPlacedNewNode();
+	node->CustomFunctionName = name;
 	node->SetFlags(RF_Transactional);
 	node->AllocateDefaultPins();
 	node->NodePosX = x;

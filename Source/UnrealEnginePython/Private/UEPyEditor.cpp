@@ -858,6 +858,33 @@ PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * ar
 	return ret;
 }
 
+PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_ubergraph_page", &py_blueprint, &name)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(bp, FName(UTF8_TO_TCHAR(name)), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	FBlueprintEditorUtils::AddUbergraphPage(bp, graph);
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+}
+
 PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args) {
 	PyObject *py_blueprint;
 
