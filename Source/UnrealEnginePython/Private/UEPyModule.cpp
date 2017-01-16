@@ -300,6 +300,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "graph_add_node_call_function", (PyCFunction)py_ue_graph_add_node_call_function, METH_VARARGS, "" },
 	{ "graph_add_node_custom_event", (PyCFunction)py_ue_graph_add_node_custom_event, METH_VARARGS, "" },
+	{ "graph_add_node_variable_get", (PyCFunction)py_ue_graph_add_node_variable_get, METH_VARARGS, "" },
+	{ "graph_add_node_variable_set", (PyCFunction)py_ue_graph_add_node_variable_set, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
@@ -528,7 +530,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
+}
 }
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
