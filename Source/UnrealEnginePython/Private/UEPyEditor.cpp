@@ -335,6 +335,47 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * args) {
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:get_long_package_path", &path)) {
+		return NULL;
+	}
+
+	const FString package_path = FPackageName::GetLongPackagePath(UTF8_TO_TCHAR(path));
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(package_path)));
+}
+
+PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args) {
+	char *path;
+	char *package_name;
+	char *object_name;
+	if (!PyArg_ParseTuple(args, "sss:rename_asset", &path, &package_name, &object_name)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
+	if (!asset.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
+
+	UObject *u_object = asset.GetAsset();
+	
+	u_object->Rename(UTF8_TO_TCHAR(object_name));
+	u_object->MarkPackageDirty();
+
+	u_object->GetOutermost()->Rename(UTF8_TO_TCHAR(package_name));
+	u_object->GetOutermost()->MarkPackageDirty();
+
+	FAssetRegistryModule::AssetRenamed(u_object, UTF8_TO_TCHAR(path));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	char *path;
 	PyObject *py_recursive = nullptr;

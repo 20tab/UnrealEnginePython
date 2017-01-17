@@ -141,6 +141,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_selected_assets", py_unreal_engine_get_selected_assets, METH_VARARGS, "" },
 	{ "get_assets_by_class", py_unreal_engine_get_assets_by_class, METH_VARARGS, "" },
 
+	{ "rename_asset", py_unreal_engine_rename_asset, METH_VARARGS, "" },
+
+	{ "get_long_package_path", py_unreal_engine_get_long_package_path, METH_VARARGS, "" },
+
 	{ "editor_command_build", py_unreal_engine_editor_command_build, METH_VARARGS, "" },
 	{ "editor_command_build_lighting", py_unreal_engine_editor_command_build_lighting, METH_VARARGS, "" },
 	{ "editor_command_save_current_level", py_unreal_engine_editor_command_save_current_level, METH_VARARGS, "" },

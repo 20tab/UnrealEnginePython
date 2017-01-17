@@ -459,6 +459,15 @@ PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * ar
 		return Py_None;
 	}
 
+	PyObject *py_bool = nullptr;
+	bool as_int_list = false;
+	if (!PyArg_ParseTuple(args, "|O:get_viewport_screenshot", &py_bool)) {
+		return NULL;
+	}
+
+	if (py_bool && PyObject_IsTrue(py_bool))
+		as_int_list = true;
+
 	FViewport *viewport = GEngine->GameViewport->Viewport;
 	TArray<FColor> bitmap;
 
@@ -467,6 +476,17 @@ PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * ar
 	if (!success) {
 		Py_INCREF(Py_None);
 		return Py_None;
+	}
+
+	if (as_int_list) {
+		PyObject *bitmap_tuple = PyTuple_New(bitmap.Num() * 4);
+		for (int i = 0; i < bitmap.Num(); i++) {
+			PyTuple_SetItem(bitmap_tuple, i * 4, PyLong_FromLong(bitmap[i].R));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 1, PyLong_FromLong(bitmap[i].G));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 2, PyLong_FromLong(bitmap[i].B));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 3, PyLong_FromLong(bitmap[i].A));
+		}
+		return bitmap_tuple;
 	}
 
 	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
@@ -502,6 +522,16 @@ PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self,
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
+
+	PyObject *py_bool = nullptr;
+	bool as_int_list = false;
+	if (!PyArg_ParseTuple(args, "|O:editor_get_active_viewport_screenshot", &py_bool)) {
+		return NULL;
+	}
+
+	if (py_bool && PyObject_IsTrue(py_bool))
+		as_int_list = true;
+
 	TArray<FColor> bitmap;
 
 	bool success = GetViewportScreenShot(viewport, bitmap);
@@ -509,6 +539,17 @@ PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self,
 	if (!success) {
 		Py_INCREF(Py_None);
 		return Py_None;
+	}
+
+	if (as_int_list) {
+		PyObject *bitmap_tuple = PyTuple_New(bitmap.Num() * 4);
+		for (int i = 0; i < bitmap.Num(); i++) {
+			PyTuple_SetItem(bitmap_tuple, i * 4, PyLong_FromLong(bitmap[i].R));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 1, PyLong_FromLong(bitmap[i].G));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 2, PyLong_FromLong(bitmap[i].B));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 3, PyLong_FromLong(bitmap[i].A));
+		}
+		return bitmap_tuple;
 	}
 
 	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
@@ -545,6 +586,16 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, Py
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
+
+	PyObject *py_bool = nullptr;
+	bool as_int_list = false;
+	if (!PyArg_ParseTuple(args, "|O:editor_get_pie_viewport_screenshot", &py_bool)) {
+		return NULL;
+	}
+
+	if (py_bool && PyObject_IsTrue(py_bool))
+		as_int_list = true;
+
 	TArray<FColor> bitmap;
 
 	bool success = GetViewportScreenShot(viewport, bitmap);
@@ -552,6 +603,17 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, Py
 	if (!success) {
 		Py_INCREF(Py_None);
 		return Py_None;
+	}
+
+	if (as_int_list) {
+		PyObject *bitmap_tuple = PyTuple_New(bitmap.Num() * 4);
+		for (int i = 0; i < bitmap.Num(); i++) {
+			PyTuple_SetItem(bitmap_tuple, i * 4, PyLong_FromLong(bitmap[i].R));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 1, PyLong_FromLong(bitmap[i].G));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 2, PyLong_FromLong(bitmap[i].B));
+			PyTuple_SetItem(bitmap_tuple, i * 4 + 3, PyLong_FromLong(bitmap[i].A));
+		}
+		return bitmap_tuple;
 	}
 
 	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());

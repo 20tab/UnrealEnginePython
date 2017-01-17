@@ -18,6 +18,10 @@ PyObject *py_unreal_engine_get_assets_by_class(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_assets_by_filter(PyObject *, PyObject *, PyObject *);
 PyObject *py_unreal_engine_set_fbx_import_option(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_rename_asset(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_get_long_package_path(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_compile_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);
