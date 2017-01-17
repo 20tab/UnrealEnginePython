@@ -379,6 +379,66 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args) {
+	char *path;
+	char *package_name;
+	char *object_name;
+	if (!PyArg_ParseTuple(args, "sss:duplicate_asset", &path, &package_name, &object_name)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
+	if (!asset.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
+
+	UObject *u_object = asset.GetAsset();
+	ObjectTools::FPackageGroupName pgn;
+	pgn.ObjectName = UTF8_TO_TCHAR(object_name);
+	pgn.GroupName = FString("");
+	pgn.PackageName = UTF8_TO_TCHAR(package_name);
+
+	TSet<UPackage *> refused_packages;
+	FText error_text;
+	UObject *new_asset = ObjectTools::DuplicateSingleObject(u_object, pgn, refused_packages, false);
+	if (!new_asset) {
+		return PyErr_Format(PyExc_Exception, "unable to duplicate asset %s", path);
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(new_asset);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:delete_asset", &path)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
+	if (!asset.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
+
+	UObject *u_object = asset.GetAsset();
+
+	if (!ObjectTools::DeleteSingleObject(u_object)) {
+		return PyErr_Format(PyExc_Exception, "unable to delete asset %s", path);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	char *path;
 	PyObject *py_recursive = nullptr;
