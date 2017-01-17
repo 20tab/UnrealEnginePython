@@ -52,3 +52,12 @@ by default the call will not be recursive (read: it will not scan subdirectories
 ```py
 materials = ue.get_assets('/Game/Materials', True)
 ```
+
+You can get a list of all the assets inheriting for a specified class (passed as a string !). As get_assets(), the second argument specify recursion.
+
+```py
+# get all assets of the class Material
+materials = ue.get_assets_by_class('Material')
+```
+
+
