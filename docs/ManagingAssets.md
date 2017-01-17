@@ -47,3 +47,8 @@ To get a list of all the assets under a specific path:
 materials = ue.get_assets('/Game/Materials')
 ```
 
+by default the call will not be recursive (read: it will not scan subdirectories), to enable recursive mode just pass True as the second argument:
+
+```py
+materials = ue.get_assets('/Game/Materials', True)
+```
