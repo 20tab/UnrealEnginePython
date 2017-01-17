@@ -795,10 +795,11 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 		if (!name) {
 			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
 		}
-		if (StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true)) {
-			return PyErr_Format(PyExc_Exception, "a UPackage named %s already exists", name);
+		package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
+		// create a new package if it does not exist
+		if (!package) {
+			package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		}
-		package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		if (!package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
 		package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
