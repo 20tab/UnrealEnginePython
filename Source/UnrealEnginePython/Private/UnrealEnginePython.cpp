@@ -99,9 +99,13 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	UESetupPythonInterpeter(true);
 
-	PyObject *main_module = PyImport_AddModule("__main__");
-	main_dict = PyModule_GetDict(main_module);
+	main_module = PyImport_AddModule("__main__");
+	main_dict = PyModule_GetDict((PyObject*)main_module);
 	local_dict = main_dict;// PyDict_New();
+
+	// Redirecting stdout
+	char const* code = "import sys\r\nclass StdoutCatcher :\r\n\tdef __init__(self) :\r\n\t\tself.data = ''\r\n\tdef flush(self) :\r\n\t\tself.data = ''\r\n\tdef write(self, stuff) :\r\n\t\tif(stuff.strip()!=''):\r\n\t\t\tself.data = self.data+'python: '+ stuff\r\ncatcher = StdoutCatcher()\r\nsys.stdout = catcher";
+	PyRun_SimpleString(code);
 
 	if (PyImport_ImportModule("ue_site")) {
 		UE_LOG(LogPython, Log, TEXT("ue_site Python module successfully imported"));
@@ -139,6 +143,17 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 	if (!eval_ret) {
 		unreal_engine_py_log_error();
 		return;
+	}else{
+		//Get stdout output information
+		PyObject* catcher = PyObject_GetAttrString((PyObject*)main_module, "catcher");
+		PyObject* output = PyObject_GetAttrString(catcher, "data");
+		char * buffer = PyString_AsString(output);
+		UE_LOG(LogPython, Log, TEXT("%s"), ANSI_TO_TCHAR(buffer));
+
+		PyRun_SimpleString("sys.stdout.flush()");
+		Py_DECREF(catcher);
+		Py_DECREF(output);
+
 	}
 	Py_DECREF(eval_ret);
 }
