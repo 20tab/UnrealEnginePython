@@ -94,3 +94,22 @@ will remove the /Game/NewMaterials/Mat001.FooBarUpdated asset
 
 Importing Assets
 -
+
+This is probably the most important feature for task automation. It allows you to import an external resource (like textures, meshes, animation ...) into the editor.
+
+To import a file in an asset folder:
+
+```py
+asset = ue.import_asset('/Users/FooBar/Desktop/texture001.png', '/Game/Textures')
+```
+
+this will result in the texture001 asset in the /Game/Textures folder
+
+You can even import multiple assets in a single round:
+
+```py
+files_to_import = ['/Users/FooBar/Desktop/texture001.png', '/Users/FooBar/Desktop/texture002.png', '/Users/FooBar/Desktop/texture001.png', '/Users/FooBar/Desktop/texture003,png']
+asset = ue.import_asset(files_to_import,  '/Game/Textures')
+```
+
+
