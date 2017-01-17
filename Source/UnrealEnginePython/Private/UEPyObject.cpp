@@ -110,7 +110,7 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
 	if (!ue_is_pyuobject(obj)) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
-	
+
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
 	if (!py_obj->ue_object->IsA<UClass>())
@@ -128,17 +128,17 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_ue_post_edit_change( ue_PyUObject *self, PyObject * args ) {
-    ue_py_check( self );
+PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
 
-    if ( !self->ue_object ) {
-        return PyErr_Format( PyExc_Exception, "uobject is not valid" );
-    }
+	if (!self->ue_object) {
+		return PyErr_Format(PyExc_Exception, "uobject is not valid");
+	}
 #if WITH_EDITOR
-    self->ue_object->PostEditChange();
+	self->ue_object->PostEditChange();
 #endif
-    Py_INCREF( Py_None );
-    return Py_None;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 
@@ -191,7 +191,7 @@ PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args) {
 		FString value = u_field->GetMetaData(FName(UTF8_TO_TCHAR(metadata_key)));
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
 	}
-	
+
 	return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
 }
 
@@ -281,6 +281,10 @@ PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:set_name", &name)) {
 		return NULL;
+	}
+
+	if (!self->ue_object->Rename(UTF8_TO_TCHAR(name), self->ue_object->GetOutermost(), REN_Test)) {
+		return PyErr_Format(PyExc_Exception, "cannot set name %s", name);
 	}
 
 	if (self->ue_object->Rename(UTF8_TO_TCHAR(name))) {
@@ -447,7 +451,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
 
 	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
-			return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(property_name));
+		return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(property_name));
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
@@ -650,7 +654,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient | CPF_ZeroConstructor;
 
 	// TODO manage replication
-	/* 
+	/*
 	if (replicate && PyObject_IsTrue(replicate)) {
 		flags |= CPF_Net;
 	}*/
@@ -757,13 +761,13 @@ PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args) {
 PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	/*
-	
+
 		Here we have the following cases to manage:
-	
+
 		calling on a UObject without an outer
 		calling on a UObject with an outer
 		calling on a UObject with an outer and a name arg
-	
+
 	*/
 
 	ue_py_check(self);
@@ -790,6 +794,9 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	if (!package || name) {
 		if (!name) {
 			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
+		}
+		if (StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true)) {
+			return PyErr_Format(PyExc_Exception, "a UPackage named %s already exists", name);
 		}
 		package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		if (!package)

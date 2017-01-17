@@ -363,11 +363,14 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
 
 	UObject *u_object = asset.GetAsset();
-	
-	u_object->Rename(UTF8_TO_TCHAR(object_name));
-	u_object->MarkPackageDirty();
+
+	if (StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(package_name), true)) {
+		return PyErr_Format(PyExc_Exception, "a UPackage named %s already exists", package_name);
+	}
 
 	u_object->GetOutermost()->Rename(UTF8_TO_TCHAR(package_name));
+	u_object->Rename(UTF8_TO_TCHAR(object_name), u_object->GetOutermost());
+
 	u_object->GetOutermost()->MarkPackageDirty();
 
 	FAssetRegistryModule::AssetRenamed(u_object, UTF8_TO_TCHAR(path));

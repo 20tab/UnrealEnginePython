@@ -668,6 +668,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		}
 		int num_args = py_name ? 3 : 1;
 		PyObject *py_args = PyTuple_New(num_args);
+		Py_INCREF((PyObject *)self);
 		PyTuple_SetItem(py_args, 0, (PyObject *)self);
 		if (py_name) {
 			PyTuple_SetItem(py_args, 1, py_outer);
