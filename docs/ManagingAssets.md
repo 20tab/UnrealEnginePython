@@ -187,4 +187,17 @@ particle_system.save_package('/Game/Funny')
 material.save_package('/Game/Funny')
 ```
 
+Using a factory allows to create empty assets:
 
+```py
+from unreal_engine.classes import AnimBlueprintFactory
+
+# get a reference to a skeleton asset (required for anim blueprint)
+skeleton = ue.get_asset('/Game/Skeleton.Skeleton001')
+anim_blueprint_factory = AnimBlueprintFactory()
+
+anim_blueprint_factory.TargetSkeleton = skeleton
+
+# create the asset
+anim_blueprint = anim_blueprint_factory.factory_create_new('/Game/anim001')
+```
