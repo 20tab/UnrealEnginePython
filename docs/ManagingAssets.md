@@ -137,3 +137,19 @@ factory.ImportUI.bImportAsSkeletal = True
 
 asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', factory)
 ```
+
+Reimporting assets
+-
+
+There are assets that could require re-importing (for example when you have a new texture image or fbx). In such a case you can do:
+
+```py
+asset002.asset_reimport()
+```
+
+Before reimporting you can check if an asset supports it:
+
+```py
+if asset002.asset_can_reimport():
+   asset002.asset_reimport()
+```
