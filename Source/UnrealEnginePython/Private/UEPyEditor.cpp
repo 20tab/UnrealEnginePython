@@ -1105,7 +1105,7 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to create package");
 
 	UFactory *factory = (UFactory *)self->ue_object;
-	UClass *u_class = self->ue_object->GetClass();
+	UClass *u_class = factory->GetSupportedClass();
 
 	char *obj_name = strrchr(name, '/') + 1;
 	if (strlen(obj_name) < 1) {
