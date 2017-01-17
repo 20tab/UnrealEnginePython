@@ -119,3 +119,5 @@ from unreal_engine.classes import TextureFactory, FbxFactory
 asset001 = ue.import_asset('/Users/FooBar/Desktop/texture001.png', '/Game/Textures', TextureFactory)
 asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', FbxFactory)
 ```
+
+Note that FbxFactory is the default importer for fbx, but it will trigger a dialog. For automating tasks a better factory would be the included PyFbxFactory
