@@ -109,7 +109,13 @@ You can even import multiple assets in a single round:
 
 ```py
 files_to_import = ['/Users/FooBar/Desktop/texture001.png', '/Users/FooBar/Desktop/texture002.png', '/Users/FooBar/Desktop/texture001.png', '/Users/FooBar/Desktop/texture003,png']
-asset = ue.import_asset(files_to_import,  '/Game/Textures')
+assets = ue.import_asset(files_to_import,  '/Game/Textures')
 ```
 
+The previous functions trigger auto-discovery of the UFactory (a factory describes how to load a file, there are factories for each supported file format). If auto-discovery of the right factory fails, you can specify it
 
+```py
+from unreal_engine.classes import TextureFactory, FbxFactory
+asset001 = ue.import_asset('/Users/FooBar/Desktop/texture001.png', '/Game/Textures', TextureFactory)
+asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', FbxFactory)
+```
