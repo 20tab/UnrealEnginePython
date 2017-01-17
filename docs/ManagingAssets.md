@@ -121,3 +121,19 @@ asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes
 ```
 
 Note that FbxFactory is the default importer for fbx, but it will trigger a dialog. For automating tasks a better factory would be the included PyFbxFactory
+
+```py
+from unreal_engine.classes import PyFbxFactory
+asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', PyFbxFactory)
+```
+
+If the factory supports options, you can instantiate a factory before use:
+
+```py
+from unreal_engine.classes import PyFbxFactory
+
+factory = PyFbxFactory()
+factory.ImportUI.bImportAsSkeletal = True
+
+asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', factory)
+```
