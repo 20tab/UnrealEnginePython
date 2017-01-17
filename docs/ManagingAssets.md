@@ -153,3 +153,36 @@ Before reimporting you can check if an asset supports it:
 if asset002.asset_can_reimport():
    asset002.asset_reimport()
 ```
+
+Creating Assets
+-
+
+You can create new asset manually or via a factory (if required):
+
+```py
+from unreal_engine.classes import ParticleSystem, Material
+
+particle_system = ParticleSystem()
+particle_system.set_name('ParticleSystemForDummies')
+
+# special form of the constructor taking the object name
+material = Material('FunnyMaterial')
+
+# this will save particle_system into /Game/Particles.ParticleSystemForDummies
+particle_system.save_package('/Game/Particles')
+
+# this will save material into /Game/FunnyMaterials.FunnyMaterial
+material.save_package('/Game/FunnyMaterials')
+```
+
+the previous approach is the blessed one where each asset is stored in a different package.
+
+If you want to store multiple assets in the same package you can simply pass the same name in save_package
+
+```py
+# this will save particle_system into /Game/Funny.ParticleSystemForDummies
+particle_system.save_package('/Game/Funny')
+
+# this will save material into /Game/Funny.FunnyMaterial
+material.save_package('/Game/Funny')
+```
