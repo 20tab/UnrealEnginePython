@@ -29,3 +29,15 @@ As an example a Material named 'FooBar' packaged in '/Game/Materials/Mat001' can
 (this means a Mat001.uasset will be available in the /Content/Materials directory of the project filesystem)
 
 
+To get a reference to the asset from python you can use:
+
+```py
+import unreal_engine as ue
+# get the Mat001.Foobar asset
+material = ue.get_asset('/Game/Materials/Mat001.Foobar')
+# print material repr
+ue.log(material)
+# print material properties
+ue.log(material.properties())
+```
+
