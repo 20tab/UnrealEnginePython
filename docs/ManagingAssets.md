@@ -41,7 +41,7 @@ ue.log(material)
 ue.log(material.properties())
 ```
 
-To get a list of all the assets under a specific Path:
+To get a list of all the assets under a specific path:
 
 ```py
 materials = ue.get_assets('/Game/Materials')
