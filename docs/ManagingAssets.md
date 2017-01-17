@@ -60,4 +60,33 @@ You can get a list of all the assets inheriting for a specified class (passed as
 materials = ue.get_assets_by_class('Material')
 ```
 
+Moving/Renaming assets
+-
 
+The rename_asset() function allows you to change the package and object name of an asset:
+
+```py
+ue.rename_asset('/Game/Materials/Mat001.Foobar', '/Game/NewMaterials/Mat001', 'FooBarUpdated')
+```
+
+this will result in the /Game/NewMaterials/Mat001.FooBarUpdated asset. Beware, as the unreal editor retain the so called 'Redirector Object' that is basically a reference to the original object, so you will not be able to re-use the old name until you reload the editor.
+
+Duplicating assets
+-
+
+Works like renaming:
+
+```py
+ue.duplicate_asset('/Game/Materials/Mat001.Foobar', '/Game/NewMaterials/Mat001', 'FooBarUpdated')
+```
+
+This will result in /Game/NewMaterials/Mat001.FooBarUpdated being a copy of the original asset without destroying it
+
+Deleting assets
+-
+
+```py
+ue.delete_asset('/Game/NewMaterials/Mat001.FooBarUpdated')
+```
+
+will remove the /Game/NewMaterials/Mat001.FooBarUpdated asset
