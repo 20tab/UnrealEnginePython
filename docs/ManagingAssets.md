@@ -90,3 +90,7 @@ ue.delete_asset('/Game/NewMaterials/Mat001.FooBarUpdated')
 ```
 
 will remove the /Game/NewMaterials/Mat001.FooBarUpdated asset
+
+
+Importing Assets
+-
