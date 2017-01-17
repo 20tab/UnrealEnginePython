@@ -9,6 +9,7 @@
 #include "Editor/BlueprintGraph/Classes/K2Node_VariableGet.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_VariableSet.h"
 #include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
+#include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2_Actions.h"
 
 PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * args) {
 
@@ -143,7 +144,8 @@ PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args
 	node->NodePosY = y;
 	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, FBlueprintEditorUtils::FindBlueprintForGraph(graph));
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
-	graph->AddNode(node);
+	FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableGet>(graph, node, FVector2D(x, y));
+	//graph->AddNode(node);
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
@@ -193,7 +195,8 @@ PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args
 	node->NodePosY = y;
 	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, FBlueprintEditorUtils::FindBlueprintForGraph(graph));
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
-	graph->AddNode(node);
+	FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableSet>(graph, node, FVector2D(x, y));
+	//graph->AddNode(node);
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
