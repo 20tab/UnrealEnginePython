@@ -137,6 +137,16 @@ Currently only Windows, MacOSX and Linux are supported. We are investigating And
 
 # Using Python with Unreal Engine (finally)
 
+If your objective is to script the editor, you can directly jump to
+
+https://github.com/20tab/UnrealEnginePython/tree/master/docs
+
+and
+
+https://github.com/20tab/UnrealEnginePython/tree/master/examples
+
+The first directory contains the official documentation for specific areas, while the second one is a collection of python scripts doing any sort of 'magic' with your project ;)
+
 Creating a new blueprint class managed by python
 ------------------------------------------------
 
