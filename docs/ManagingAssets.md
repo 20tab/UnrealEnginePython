@@ -1,4 +1,4 @@
-Managing your Assets with python
+Managing your Assets with Python
 =
 
 Naming conventions
@@ -15,5 +15,17 @@ Referencing assets
 -
 
 To load/reference an asset, you need to use a special naming convention:
+
+```
+PackagePath.AssetName
+```
+
+As an example a Material named 'FooBar' packaged in '/Game/Materials/Mat001' can be referenced as:
+
+```
+/Game/Materials/Mat001.Foobar
+```
+
+(this means a Mat001.uasset will be available in the /Content/Materials directory of the project filesystem)
 
 
