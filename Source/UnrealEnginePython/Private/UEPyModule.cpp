@@ -313,6 +313,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "graph_add_node_variable_get", (PyCFunction)py_ue_graph_add_node_variable_get, METH_VARARGS, "" },
 	{ "graph_add_node_variable_set", (PyCFunction)py_ue_graph_add_node_variable_set, METH_VARARGS, "" },
 
+	{ "graph_add_node", (PyCFunction)py_ue_graph_add_node, METH_VARARGS, "" },
+
 	{ "node_pins", (PyCFunction)py_ue_node_pins, METH_VARARGS, "" },
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
 #endif

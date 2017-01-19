@@ -4,6 +4,7 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
+#include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
 
 static PyObject *py_ue_edgraphpin_make_link_to(ue_PyEdGraphPin *self, PyObject * args) {
 	PyObject *other_pin;
@@ -18,7 +19,8 @@ static PyObject *py_ue_edgraphpin_make_link_to(ue_PyEdGraphPin *self, PyObject *
 
 	self->pin->MakeLinkTo(py_other_pin->pin);
 
-	self->pin->Modify(true);
+	UBlueprint *bp = (UBlueprint *)self->pin->GetOwningNode()->GetGraph()->GetOuter();
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -37,7 +39,8 @@ static PyObject *py_ue_edgraphpin_break_link_to(ue_PyEdGraphPin *self, PyObject 
 
 	self->pin->BreakLinkTo(py_other_pin->pin);
 
-	self->pin->Modify(true);
+	UBlueprint *bp = (UBlueprint *)self->pin->GetOwningNode()->GetGraph()->GetOuter();
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
 	Py_INCREF(Py_None);
 	return Py_None;
