@@ -82,7 +82,7 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	PyObject *py_path = PyDict_GetItemString(py_sys_dict, "path");
 
-	char *zip_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("python35.zip")));
+	char *zip_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("ue_python.zip")));
 	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
 	PyList_Insert(py_path, 0, py_zip_path);
 
@@ -145,8 +145,9 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 	{
 		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
 	}
+#if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
-	
+
 #if PLATFORM_WINDOWS
 	if (fopen_s(&fd, full_path, "r") != 0) {
 		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
@@ -159,6 +160,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 		return;
 	}
 #endif
+
 	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	fclose(fd);
 	if (!eval_ret) {
@@ -166,6 +168,16 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 		return;
 	}
 	Py_DECREF(eval_ret);
+#else
+	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
+	FString command = FString::Printf(TEXT("execfile(\"%s\")"), UTF8_TO_TCHAR(full_path));
+	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+}
+#endif
+
 }
 
 #undef LOCTEXT_NAMESPACE
