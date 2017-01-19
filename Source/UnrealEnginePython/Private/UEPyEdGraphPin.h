@@ -13,7 +13,7 @@ typedef struct {
 } ue_PyEdGraphPin;
 
 PyObject *py_ue_new_edgraphpin(UEdGraphPin *);
-ue_PyEdGraphPin *py_ue_is_edgrahpin(PyObject *);
+ue_PyEdGraphPin *py_ue_is_edgraphpin(PyObject *);
 
 void ue_python_init_edgraphpin(PyObject *);
 #endif

@@ -6,12 +6,46 @@
 #include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
 
 static PyObject *py_ue_edgraphpin_make_link_to(ue_PyEdGraphPin *self, PyObject * args) {
+	PyObject *other_pin;
+	if (!PyArg_ParseTuple(args, "O:make_link_to", &other_pin)) {
+		return NULL;
+	}
+
+	ue_PyEdGraphPin *py_other_pin = py_ue_is_edgraphpin(other_pin);
+	if (!py_other_pin) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UEdGraphPin");
+	}
+
+	self->pin->MakeLinkTo(py_other_pin->pin);
+
+	self->pin->Modify(true);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_edgraphpin_break_link_to(ue_PyEdGraphPin *self, PyObject * args) {
+	PyObject *other_pin;
+	if (!PyArg_ParseTuple(args, "O:break_link_to", &other_pin)) {
+		return NULL;
+	}
+
+	ue_PyEdGraphPin *py_other_pin = py_ue_is_edgraphpin(other_pin);
+	if (!py_other_pin) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UEdGraphPin");
+	}
+
+	self->pin->BreakLinkTo(py_other_pin->pin);
+
+	self->pin->Modify(true);
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyMethodDef ue_PyEdGraphPin_methods[] = {
 	{ "make_link_to", (PyCFunction)py_ue_edgraphpin_make_link_to, METH_VARARGS, "" },
+	{ "break_link_to", (PyCFunction)py_ue_edgraphpin_break_link_to, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -19,8 +53,18 @@ static PyObject *py_ue_edgraphpin_get_name(ue_PyEdGraphPin *self, void *closure)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName)));
 }
 
+static PyObject *py_ue_edgraphpin_get_category(ue_PyEdGraphPin *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory)));
+}
+
+static PyObject *py_ue_edgraphpin_get_sub_category(ue_PyEdGraphPin *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory)));
+}
+
 static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 	{ (char*)"name", (getter)py_ue_edgraphpin_get_name, NULL, (char *)"", NULL },
+	{ (char*)"category", (getter)py_ue_edgraphpin_get_category, NULL, (char *)"", NULL },
+	{ (char*)"sub_category", (getter)py_ue_edgraphpin_get_sub_category, NULL, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 

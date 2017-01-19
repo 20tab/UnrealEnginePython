@@ -59,6 +59,8 @@ PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * arg
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 	graph->AddNode(node);
 
+	node->MarkPackageDirty();
+
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -95,6 +97,8 @@ PyObject *py_ue_graph_add_node_custom_event(ue_PyUObject * self, PyObject * args
 	node->NodePosY = y;
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 	graph->AddNode(node);
+
+	node->MarkPackageDirty();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
@@ -147,6 +151,8 @@ PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args
 	FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableGet>(graph, node, FVector2D(x, y));
 	//graph->AddNode(node);
 
+	node->MarkPackageDirty();
+
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -198,6 +204,8 @@ PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args
 	FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableSet>(graph, node, FVector2D(x, y));
 	//graph->AddNode(node);
 
+	node->MarkPackageDirty();
+
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -221,5 +229,30 @@ PyObject *py_ue_node_pins(ue_PyUObject * self, PyObject * args) {
 		PyList_Append(pins_list, (PyObject *)py_ue_new_edgraphpin(pin));
 	}
 	return pins_list;
+}
+
+PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name = nullptr;
+	if (!PyArg_ParseTuple(args, "s:node_find_pin", &name)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UEdGraphNode>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+	}
+
+	UEdGraphNode *node = (UEdGraphNode *)self->ue_object;
+
+	UEdGraphPin *pin = node->FindPin(UTF8_TO_TCHAR(name));
+	if (!pin) {
+		return PyErr_Format(PyExc_Exception, "unable to find pin \"%s\"", name);
+	}
+
+	PyObject *ret = py_ue_new_edgraphpin(pin);
+	Py_INCREF(ret);
+	return ret;
 }
 #endif
