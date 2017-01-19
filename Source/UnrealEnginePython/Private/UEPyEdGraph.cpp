@@ -205,4 +205,21 @@ PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args
 	return ret;
 
 }
+
+PyObject *py_ue_node_pins(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<UEdGraphNode>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+	}
+
+	UEdGraphNode *node = (UEdGraphNode *)self->ue_object;
+
+	PyObject *pins_list = PyList_New(0);
+	for (UEdGraphPin *pin : node->Pins) {
+		PyList_Append(pins_list, (PyObject *)py_ue_new_edgraphpin(pin));
+	}
+	return pins_list;
+}
 #endif
