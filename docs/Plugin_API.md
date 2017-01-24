@@ -25,7 +25,7 @@ The unreal_engine.IPlugin class represents a plugin
 IPlugin methods
 -
 
-```py
+```python
 import unreal_engine
 
 paper2d = ue.find_plugin('Paper2D')
