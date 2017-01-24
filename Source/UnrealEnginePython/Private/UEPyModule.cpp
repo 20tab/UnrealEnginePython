@@ -155,6 +155,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_save_all", py_unreal_engine_editor_save_all, METH_VARARGS, "" },
 
 	{ "get_discovered_plugins", py_unreal_engine_get_discovered_plugins, METH_VARARGS, "" },
+	{ "get_enabled_plugins", py_unreal_engine_get_enabled_plugins, METH_VARARGS, "" },
+	{ "find_plugin", py_unreal_engine_find_plugin, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },

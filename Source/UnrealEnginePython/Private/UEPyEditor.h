@@ -19,6 +19,8 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject *, PyObject *, PyObject
 PyObject *py_unreal_engine_set_fbx_import_option(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_get_discovered_plugins(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_enabled_plugins(PyObject *, PyObject *);
+PyObject *py_unreal_engine_find_plugin(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_rename_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_duplicate_asset(PyObject *, PyObject *);

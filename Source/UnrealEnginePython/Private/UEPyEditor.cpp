@@ -523,7 +523,7 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 }
 
 PyObject *py_unreal_engine_get_discovered_plugins(PyObject * self, PyObject * args) {
-	
+
 	PyObject *plugins_list = PyList_New(0);
 
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetDiscoveredPlugins()) {
@@ -534,6 +534,43 @@ PyObject *py_unreal_engine_get_discovered_plugins(PyObject * self, PyObject * ar
 	}
 
 	return plugins_list;
+}
+
+PyObject *py_unreal_engine_get_enabled_plugins(PyObject * self, PyObject * args) {
+
+	PyObject *plugins_list = PyList_New(0);
+
+	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins()) {
+		PyObject *ret = py_ue_new_iplugin(&plugin.Get());
+		if (ret) {
+			PyList_Append(plugins_list, ret);
+		}
+	}
+
+	return plugins_list;
+}
+
+
+PyObject *py_unreal_engine_find_plugin(PyObject * self, PyObject * args) {
+	char *name;
+
+	if (!PyArg_ParseTuple(args, "s:find_plugin", &name)) {
+		return NULL;
+	}
+
+	TSharedPtr<IPlugin> plugin = IPluginManager::Get().FindPlugin(FString(UTF8_TO_TCHAR(name)));
+
+	if (!plugin.IsValid()) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	PyObject *ret = py_ue_new_iplugin(plugin.Get());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 
 PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args) {
