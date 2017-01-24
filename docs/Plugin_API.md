@@ -60,3 +60,25 @@ json = paper2d.to_json(True)
 # load a json in the plugin descriptor
 paper2d.from_json(json_blob, True)
 ```
+
+IPlugin properties (read only)
+-
+
+```python
+.category
+.can_contain_content
+.enabled_by_default
+.installed
+.is_beta_version
+.requires_build_platform
+.created_by
+.created_by_url
+.description
+.docs_url
+.file_version
+.friendly_name
+.marketplace_url
+.support_url
+.version
+.version_name
+```
