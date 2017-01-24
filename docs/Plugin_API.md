@@ -50,3 +50,13 @@ Managing the descriptor
 -
 
 You can load/write a json string from/to the plugin descriptor
+
+The boolean argument is the bPluginTypeEnabledByDefault field (it is the 'Enabled' tick in the plugins menu of the editor)
+
+```python
+# get the current json descriptor of the plugin
+json = paper2d.to_json(True)
+
+# load a json in the plugin descriptor
+paper2d.from_json(json_blob, True)
+```
