@@ -31,7 +31,7 @@ As an example a Material named 'FooBar' packaged in '/Game/Materials/Mat001' can
 
 To get a reference to the asset from python you can use:
 
-```py
+```python
 import unreal_engine as ue
 # get the Mat001.Foobar asset
 material = ue.get_asset('/Game/Materials/Mat001.Foobar')
@@ -43,19 +43,19 @@ ue.log(material.properties())
 
 To get a list of all the assets under a specific path:
 
-```py
+```python
 materials = ue.get_assets('/Game/Materials')
 ```
 
 by default the call will not be recursive (read: it will not scan subdirectories), to enable recursive mode just pass True as the second argument:
 
-```py
+```python
 materials = ue.get_assets('/Game/Materials', True)
 ```
 
 You can get a list of all the assets inheriting for a specified class (passed as a string !). As get_assets(), the second argument specify recursion.
 
-```py
+```python
 # get all assets of the class Material
 materials = ue.get_assets_by_class('Material')
 ```
@@ -65,7 +65,7 @@ Moving/Renaming assets
 
 The rename_asset() function allows you to change the package and object name of an asset:
 
-```py
+```python
 ue.rename_asset('/Game/Materials/Mat001.Foobar', '/Game/NewMaterials/Mat001', 'FooBarUpdated')
 ```
 
@@ -76,7 +76,7 @@ Duplicating assets
 
 Works like renaming:
 
-```py
+```python
 ue.duplicate_asset('/Game/Materials/Mat001.Foobar', '/Game/NewMaterials/Mat001', 'FooBarUpdated')
 ```
 
@@ -85,7 +85,7 @@ This will result in /Game/NewMaterials/Mat001.FooBarUpdated being a copy of the 
 Deleting assets
 -
 
-```py
+```python
 ue.delete_asset('/Game/NewMaterials/Mat001.FooBarUpdated')
 ```
 
@@ -99,7 +99,7 @@ This is probably the most important feature for task automation. It allows you t
 
 To import a file in an asset folder:
 
-```py
+```python
 asset = ue.import_asset('/Users/FooBar/Desktop/texture001.png', '/Game/Textures')
 ```
 
@@ -107,14 +107,14 @@ this will result in the texture001 asset in the /Game/Textures folder
 
 You can even import multiple assets in a single round:
 
-```py
+```python
 files_to_import = ['/Users/FooBar/Desktop/texture001.png', '/Users/FooBar/Desktop/texture002.png', '/Users/FooBar/Desktop/texture001.png', '/Users/FooBar/Desktop/texture003,png']
 assets = ue.import_asset(files_to_import,  '/Game/Textures')
 ```
 
 The previous functions trigger auto-discovery of the UFactory (a factory describes how to load a file, there are factories for each supported file format). If auto-discovery of the right factory fails, you can specify it
 
-```py
+```python
 from unreal_engine.classes import TextureFactory, FbxFactory
 asset001 = ue.import_asset('/Users/FooBar/Desktop/texture001.png', '/Game/Textures', TextureFactory)
 asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', FbxFactory)
@@ -122,14 +122,14 @@ asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes
 
 Note that FbxFactory is the default importer for fbx, but it will trigger a dialog. For automating tasks a better factory would be the included PyFbxFactory
 
-```py
+```python
 from unreal_engine.classes import PyFbxFactory
 asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', PyFbxFactory)
 ```
 
 If the factory supports options, you can instantiate a factory before use:
 
-```py
+```python
 from unreal_engine.classes import PyFbxFactory
 
 factory = PyFbxFactory()
@@ -143,13 +143,13 @@ Reimporting assets
 
 There are assets that could require re-importing (for example when you have a new texture image or fbx). In such a case you can do:
 
-```py
+```python
 asset002.asset_reimport()
 ```
 
 Before reimporting you can check if an asset supports it:
 
-```py
+```python
 if asset002.asset_can_reimport():
    asset002.asset_reimport()
 ```
@@ -159,7 +159,7 @@ Creating Assets
 
 You can create new asset manually or via a factory (if required):
 
-```py
+```python
 from unreal_engine.classes import ParticleSystem, Material
 
 particle_system = ParticleSystem()
@@ -179,7 +179,7 @@ the previous approach is the blessed one where each asset is stored in a differe
 
 If you want to store multiple assets in the same package you can simply pass the same name in save_package
 
-```py
+```python
 # this will save particle_system into /Game/Funny.ParticleSystemForDummies
 particle_system.save_package('/Game/Funny')
 
@@ -189,7 +189,7 @@ material.save_package('/Game/Funny')
 
 Using a factory allows to create empty assets:
 
-```py
+```python
 from unreal_engine.classes import AnimBlueprintFactory
 
 # get a reference to a skeleton asset (required for anim blueprint)
