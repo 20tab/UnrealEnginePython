@@ -6,7 +6,7 @@ This API allows access to the Unreal Engine 4 plugin system (IPluginManager, and
 Discovering/Listing/Referencing plugins
 -
 
-```py
+```python
 import unreal_engine
 
 # get the list of all discovered plugins
