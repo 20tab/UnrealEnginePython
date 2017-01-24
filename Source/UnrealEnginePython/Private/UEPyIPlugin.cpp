@@ -45,11 +45,11 @@ static PyObject *py_ue_iplugin_is_enabled(ue_PyIPlugin *self, PyObject * args) {
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_write(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_to_json(ue_PyIPlugin *self, PyObject * args) {
 
-	char *json;
+
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "sO:write", &json, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "O:to_json", &py_bool)) {
 		return NULL;
 	}
 
@@ -59,17 +59,17 @@ static PyObject *py_ue_iplugin_write(ue_PyIPlugin *self, PyObject * args) {
 	}
 
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
-	FString text = FString(UTF8_TO_TCHAR(json));
+	FString text;
 	descriptor.Write(text, enabled_by_default);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*text));
 }
 
-static PyObject *py_ue_iplugin_read(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args) {
 
+	char *json;
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "O:read", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "sO:from_json", &json, &py_bool)) {
 		return NULL;
 	}
 
@@ -79,13 +79,14 @@ static PyObject *py_ue_iplugin_read(ue_PyIPlugin *self, PyObject * args) {
 	}
 
 	FText error;
-	FString text;
+	FString text = FString(UTF8_TO_TCHAR(json));
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
 	if (!descriptor.Read(text, enabled_by_default, error)) {
-		return PyErr_Format(PyExc_Exception, "unable to read json descriptor");
+		return PyErr_Format(PyExc_Exception, "unable to update descriptor from json");
 	}
 
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*text));
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyMethodDef ue_PyIPlugin_methods[] = {
@@ -96,8 +97,8 @@ static PyMethodDef ue_PyIPlugin_methods[] = {
 	{ "get_mounted_asset_path", (PyCFunction)py_ue_iplugin_get_mounted_asset_path, METH_VARARGS, "" },
 	{ "can_contain_content", (PyCFunction)py_ue_iplugin_can_contain_content, METH_VARARGS, "" },
 	{ "is_enabled", (PyCFunction)py_ue_iplugin_is_enabled, METH_VARARGS, "" },
-	{ "read", (PyCFunction)py_ue_iplugin_read, METH_VARARGS, "" },
-	{ "write", (PyCFunction)py_ue_iplugin_write, METH_VARARGS, "" },
+	{ "to_json", (PyCFunction)py_ue_iplugin_to_json, METH_VARARGS, "" },
+	{ "from_json", (PyCFunction)py_ue_iplugin_from_json, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
