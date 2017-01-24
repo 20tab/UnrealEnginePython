@@ -87,7 +87,8 @@ public class UnrealEnginePython : ModuleRules
             PrivateDependencyModuleNames.AddRange(new string[]{
                 "UnrealEd",
                 "LevelEditor",
-                "BlueprintGraph"
+                "BlueprintGraph",
+                "Projects"
             });
         }
 

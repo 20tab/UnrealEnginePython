@@ -13,6 +13,7 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Editor/LevelEditor/Public/LevelEditorActions.h"
 #include "Editor/UnrealEd/Public/EditorLevelUtils.h"
+#include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
 #include "ObjectTools.h"
 
 
@@ -519,6 +520,20 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 	}
 
 	return assets_list;
+}
+
+PyObject *py_unreal_engine_get_discovered_plugins(PyObject * self, PyObject * args) {
+	
+	PyObject *plugins_list = PyList_New(0);
+
+	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetDiscoveredPlugins()) {
+		PyObject *ret = py_ue_new_iplugin(&plugin.Get());
+		if (ret) {
+			PyList_Append(plugins_list, ret);
+		}
+	}
+
+	return plugins_list;
 }
 
 PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args) {

@@ -153,6 +153,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_command_save_all_levels", py_unreal_engine_editor_command_save_all_levels, METH_VARARGS, "" },
 
 	{ "editor_save_all", py_unreal_engine_editor_save_all, METH_VARARGS, "" },
+
+	{ "get_discovered_plugins", py_unreal_engine_get_discovered_plugins, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
@@ -1048,6 +1050,7 @@ void unreal_engine_init_py_module() {
 	ue_python_init_farfilter(new_unreal_engine_module);
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
+	ue_python_init_iplugin(new_unreal_engine_module);
 #endif
 
 	PyObject *py_sys = PyImport_ImportModule("sys");
