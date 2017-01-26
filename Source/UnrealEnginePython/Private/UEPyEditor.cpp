@@ -1250,5 +1250,155 @@ PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, Py
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_begin_transaction(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	char *description;
+	if (!PyArg_ParseTuple(args, "s:begin_transaction", &description)) {
+		return NULL;
+	}
+
+	int ret = GEditor->BeginTransaction(FText::FromString(UTF8_TO_TCHAR(description)));
+
+	return PyLong_FromLong(ret);
+}
+
+PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	int tid;
+	if (!PyArg_ParseTuple(args, "i:cancel_transaction", &tid)) {
+		return NULL;
+	}
+
+	GEditor->CancelTransaction(tid);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_end_transaction(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+
+	int ret = GEditor->EndTransaction();
+
+	return PyLong_FromLong(ret);
+}
+
+PyObject *py_unreal_engine_get_transaction_name(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+
+	FText text = GEditor->GetTransactionName();
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(text.ToString())));
+}
+
+PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+
+	bool is_active = GEditor->IsTransactionActive();
+
+	if (is_active) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+
+	bool redo = GEditor->RedoTransaction();
+
+	if (redo) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	char *reason;
+	if (!PyArg_ParseTuple(args, "s:reset_transaction", &reason)) {
+		return NULL;
+	}
+
+	GEditor->ResetTransaction(FText::FromString(UTF8_TO_TCHAR(reason)));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args) {
+
+	if (!GEditor || !GEditor->Trans)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	if (GEditor->Trans->Undo()) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_unreal_engine_editor_redo(PyObject * self, PyObject * args) {
+
+	if (!GEditor || !GEditor->Trans)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	if (GEditor->Trans->Redo()) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+
+PyObject *py_unreal_engine_transactions(PyObject * self, PyObject * args) {
+
+	if (!GEditor || !GEditor->Trans)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *transactions = PyList_New(0);
+
+
+	int32 nums = GEditor->Trans->GetQueueLength();
+
+	for (int32 i = 0; i < nums; i++) {
+		const FTransaction *transaction = GEditor->Trans->GetTransaction(i);
+		PyList_Append(transactions, PyUnicode_FromString(TCHAR_TO_UTF8(*transaction->GetTitle().ToString())));
+	}
+
+	return transactions;
+}
+
 #endif
 

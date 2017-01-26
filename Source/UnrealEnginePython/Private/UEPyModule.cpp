@@ -190,6 +190,20 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "move_selected_actors_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
 
 	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
+
+
+	// transactions
+	{ "begin_transaction", py_unreal_engine_begin_transaction, METH_VARARGS, "" },
+	{ "cancel_transaction", py_unreal_engine_cancel_transaction, METH_VARARGS, "" },
+	{ "end_transaction", py_unreal_engine_end_transaction, METH_VARARGS, "" },
+	{ "get_transaction_name", py_unreal_engine_get_transaction_name, METH_VARARGS, "" },
+	{ "is_transaction_active", py_unreal_engine_is_transaction_active, METH_VARARGS, "" },
+	{ "redo_transaction", py_unreal_engine_redo_transaction, METH_VARARGS, "" },
+	{ "reset_transaction", py_unreal_engine_reset_transaction, METH_VARARGS, "" },
+	{ "transactions", py_unreal_engine_transactions, METH_VARARGS, "" },
+
+	{ "editor_undo", py_unreal_engine_editor_undo, METH_VARARGS, "" },
+	{ "editor_redo", py_unreal_engine_editor_redo, METH_VARARGS, "" },
 #endif
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },

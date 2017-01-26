@@ -51,8 +51,8 @@ PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject *, PyObject *
 
 PyObject *py_unreal_engine_editor_save_all(PyObject *, PyObject *);
 
-PyObject *py_unreal_engine_add_level_to_world(ue_PyUObject *, PyObject *);
-PyObject *py_unreal_engine_move_selected_actors_to_level(ue_PyUObject *, PyObject *);
+PyObject *py_unreal_engine_add_level_to_world(PyObject *, PyObject *);
+PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *, PyObject *);
 
 
 PyObject *py_ue_factory_create_new(ue_PyUObject *, PyObject *);
@@ -64,5 +64,19 @@ PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject *, PyObject *);
 
 // efeng additional functions
 PyObject *py_unreal_engine_create_material_instance(PyObject *, PyObject *);
+
+
+
+// transactions
+PyObject *py_unreal_engine_begin_transaction(PyObject *, PyObject *);
+PyObject *py_unreal_engine_cancel_transaction(PyObject *, PyObject *);
+PyObject *py_unreal_engine_end_transaction(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_transaction_name(PyObject *, PyObject *);
+PyObject *py_unreal_engine_is_transaction_active(PyObject *, PyObject *);
+PyObject *py_unreal_engine_redo_transaction(PyObject *, PyObject *);
+PyObject *py_unreal_engine_reset_transaction(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_undo(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_redo(PyObject *, PyObject *);
+PyObject *py_unreal_engine_transactions(PyObject *, PyObject *);
 
 #endif
