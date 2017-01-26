@@ -1067,6 +1067,10 @@ void unreal_engine_init_py_module() {
 	Py_INCREF(u_enums_importer);
 	PyDict_SetItemString(py_sys_modules, "unreal_engine.enums", u_enums_importer);
 
+	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MAJOR_VERSION", PyLong_FromLong(ENGINE_MAJOR_VERSION));
+	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MINOR_VERSION", PyLong_FromLong(ENGINE_MINOR_VERSION));
+	PyDict_SetItemString(unreal_engine_dict, "ENGINE_PATCH_VERSION", PyLong_FromLong(ENGINE_PATCH_VERSION));
+
 	// Collision channels
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_CAMERA", PyLong_FromLong(ECollisionChannel::ECC_Camera));
 	PyDict_SetItemString(unreal_engine_dict, "COLLISION_CHANNEL_DESTRUCTIBLE", PyLong_FromLong(ECollisionChannel::ECC_Destructible));
