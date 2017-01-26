@@ -38,3 +38,38 @@ ue.editor_undo()
 # redo the last one
 ue.editor_redo()
 ```
+
+Functions
+-
+
+```py
+# begin a new transaction with the psecified description (returns the transaction id)
+transaction_id = unreal_engine.begin_transaction(description)
+
+# cancel the current transaction
+unreal_engine.cancel_transaction()
+
+# end the transaction (returns the next transaction id)
+tid = unreal_engine.end_transaction()
+
+# returns True if we are currently into a transaction
+is_active = unreal_engine.is_transaction_active()
+
+# get the current transaction name
+name = unreal_engine.get_transaction_name()
+
+# redo the current transaction
+unreal_engine.redo_transaction()
+
+# reset the current transaction
+unreal_engine.reset_transaction()
+
+# get the list of transactions
+transactions = unreal_engine.transactions()
+
+# undo (return True on success)
+success = unreal_engine.editor_undo()
+
+# red (return True on success)
+success = unreal_engine.editor_redo()
+```
