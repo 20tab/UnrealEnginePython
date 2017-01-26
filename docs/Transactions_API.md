@@ -34,4 +34,7 @@ ue.end_transaction()
 # undo the two transactions
 ue.editor_undo()
 ue.editor_undo()
+
+# redo the last one
+ue.editor_redo()
 ```
