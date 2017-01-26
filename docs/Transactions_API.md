@@ -42,7 +42,7 @@ ue.editor_redo()
 Functions
 -
 
-```py
+```python
 # begin a new transaction with the psecified description (returns the transaction id)
 transaction_id = unreal_engine.begin_transaction(description)
 
