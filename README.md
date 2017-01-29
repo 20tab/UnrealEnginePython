@@ -7,7 +7,7 @@ This is a plugin embedding a whole Python VM (versions 3.x [the default and sugg
 
 The Python VM tries to give easy access to all of the UE4 internal api + its reflection system. This means you can use the plugin to write other plugins, to automate tasks and to implement gameplay elements.
 
-It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;)
+It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;). If your development pipeline is already python-based (Maya, Blender, ...), this plugin could easily help you in intgrating unreal into it.
 
 Another funny feature is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
