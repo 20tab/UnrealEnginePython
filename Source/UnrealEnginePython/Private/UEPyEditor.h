@@ -65,7 +65,8 @@ PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject *, PyObject *);
 // efeng additional functions
 PyObject *py_unreal_engine_create_material_instance(PyObject *, PyObject *);
 
-
+PyObject *py_unreal_engine_get_asset_referencers(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_asset_dependencies(PyObject *, PyObject *);
 
 // transactions
 PyObject *py_unreal_engine_begin_transaction(PyObject *, PyObject *);

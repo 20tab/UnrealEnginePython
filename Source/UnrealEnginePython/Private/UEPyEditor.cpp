@@ -337,6 +337,48 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * args) {
+	char *path;
+
+	if (!PyArg_ParseTuple(args, "s:get_asset_referencers", &path)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	TArray<FName> referencers;
+	AssetRegistryModule.Get().GetReferencers(UTF8_TO_TCHAR(path), referencers);
+
+	PyObject *referencers_list = PyList_New(0);
+	for (FName name : referencers) {
+		PyList_Append(referencers_list, PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString())));
+	}
+	return referencers_list;
+}
+
+PyObject *py_unreal_engine_get_asset_dependencies(PyObject * self, PyObject * args) {
+	char *path;
+
+	if (!PyArg_ParseTuple(args, "s:get_asset_dependencies", &path)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	TArray<FName> dependencies;
+	AssetRegistryModule.Get().GetDependencies(UTF8_TO_TCHAR(path), dependencies);
+
+	PyObject *dependencies_list = PyList_New(0);
+	for (FName name : dependencies) {
+		PyList_Append(dependencies_list, PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString())));
+	}
+	return dependencies_list;
+}
+
 PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * args) {
 	char *path;
 	if (!PyArg_ParseTuple(args, "s:get_long_package_path", &path)) {
