@@ -55,7 +55,7 @@ static PyTypeObject ue_PyEnumsImporterType = {
 	0,
 };
 
-void ue_python_init_Enumsimporter(PyObject *ue_module) {
+void ue_python_init_enumsimporter(PyObject *ue_module) {
 	ue_PyEnumsImporterType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyEnumsImporterType) < 0)

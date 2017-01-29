@@ -436,7 +436,7 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_classes(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args) {
 
 	PyObject *ret = PyList_New(0);
 

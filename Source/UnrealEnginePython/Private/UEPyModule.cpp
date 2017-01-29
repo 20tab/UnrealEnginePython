@@ -214,7 +214,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "get_mutable_default", py_unreal_engine_get_mutable_default, METH_VARARGS, "" },
 
-	{ "classes", (PyCFunction)py_unreal_engine_classes, METH_VARARGS, "" },
+	{ "all_classes", (PyCFunction)py_unreal_engine_all_classes, METH_VARARGS, "" },
 
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
@@ -1066,6 +1066,9 @@ void unreal_engine_init_py_module() {
 	ue_python_init_callable(new_unreal_engine_module);
 
 	ue_python_init_uclassesimporter(new_unreal_engine_module);
+	ue_python_init_enumsimporter(new_unreal_engine_module);
+	ue_python_init_ustructsimporter(new_unreal_engine_module);
+
 
 #if WITH_EDITOR
 	ue_python_init_swidget(new_unreal_engine_module);
@@ -1086,6 +1089,10 @@ void unreal_engine_init_py_module() {
 	PyObject *u_enums_importer = py_ue_new_enumsimporter();
 	Py_INCREF(u_enums_importer);
 	PyDict_SetItemString(py_sys_modules, "unreal_engine.enums", u_enums_importer);
+
+	PyObject *u_structs_importer = py_ue_new_ustructsimporter();
+	Py_INCREF(u_structs_importer);
+	PyDict_SetItemString(py_sys_modules, "unreal_engine.structs", u_structs_importer);
 
 	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MAJOR_VERSION", PyLong_FromLong(ENGINE_MAJOR_VERSION));
 	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MINOR_VERSION", PyLong_FromLong(ENGINE_MINOR_VERSION));
@@ -1336,7 +1343,9 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return PyErr_Format(PyExc_Exception, "invalid UClass type for %s", TCHAR_TO_UTF8(*casted_prop->GetName()));
 	}
 
-	// map a UStruct to a dictionary (if possible)
+	
+
+	// try to manage known struct first
 	if (auto casted_prop = Cast<UStructProperty>(prop)) {
 		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct)) {
 			// check for FVector

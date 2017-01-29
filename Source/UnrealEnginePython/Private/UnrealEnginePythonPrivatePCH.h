@@ -38,6 +38,7 @@
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
 #include "UEPyEnumsImporter.h"
+#include "UEPyUStructsImporter.h"
 
 #if WITH_EDITOR
 #include "UEPyFAssetData.h"

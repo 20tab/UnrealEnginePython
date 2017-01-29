@@ -27,7 +27,7 @@ PyObject *py_unreal_engine_load_enum(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 
-PyObject *py_unreal_engine_classes(PyObject *, PyObject *);
+PyObject *py_unreal_engine_all_classes(PyObject *, PyObject *);
 
 
 PyObject *py_unreal_engine_new_object(PyObject *, PyObject *);
