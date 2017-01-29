@@ -482,6 +482,7 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+
 PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	char *path;
 	PyObject *py_recursive = nullptr;

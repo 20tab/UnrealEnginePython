@@ -321,7 +321,6 @@ PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
-
 }
 
 
@@ -370,6 +369,35 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 	new_object->PostLoad();
 
 	ue_PyUObject *ret = ue_get_python_wrapper(new_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args) {
+
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
+
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+
+	UClass *obj_class = (UClass *)py_obj->ue_object;
+
+	UObject *mutable_object = GetMutableDefault<UObject>(obj_class);
+	if (!mutable_object)
+		return PyErr_Format(PyExc_Exception, "unable to create object");
+
+	ue_PyUObject *ret = ue_get_python_wrapper(mutable_object);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);

@@ -211,6 +211,9 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
 
+
+	{ "get_mutable_default", py_unreal_engine_get_mutable_default, METH_VARARGS, "" },
+
 	{ "classes", (PyCFunction)py_unreal_engine_classes, METH_VARARGS, "" },
 
 
