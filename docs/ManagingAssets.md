@@ -201,3 +201,15 @@ anim_blueprint_factory.TargetSkeleton = skeleton
 # create the asset
 anim_blueprint = anim_blueprint_factory.factory_create_new('/Game/anim001')
 ```
+
+Asset dependencies/referencers
+-
+
+Each Asset has a list of other assets referencing to it (referencers) and asset on which it depends (dependencies).
+
+You can access those lists with:
+
+```python
+list_of_referencers = ue.get_asset_referencers('/Game/FooBar')
+list_of_dependencies = ue.get_asset_dependencies('/Game/FooBar')
+```
