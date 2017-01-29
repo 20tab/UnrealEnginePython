@@ -571,8 +571,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-}
-}
+		}
+	}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -715,7 +715,6 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		Py_DECREF(py_args);
 		return (PyObject *)ret;
 	}
-
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
 }
 
@@ -1065,6 +1064,8 @@ void unreal_engine_init_py_module() {
 
 	ue_python_init_callable(new_unreal_engine_module);
 
+	ue_python_init_uscriptstruct(new_unreal_engine_module);
+
 	ue_python_init_uclassesimporter(new_unreal_engine_module);
 	ue_python_init_enumsimporter(new_unreal_engine_module);
 	ue_python_init_ustructsimporter(new_unreal_engine_module);
@@ -1236,7 +1237,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
@@ -1343,8 +1344,6 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return PyErr_Format(PyExc_Exception, "invalid UClass type for %s", TCHAR_TO_UTF8(*casted_prop->GetName()));
 	}
 
-	
-
 	// try to manage known struct first
 	if (auto casted_prop = Cast<UStructProperty>(prop)) {
 		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct)) {
@@ -1373,11 +1372,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				FLinearColor color = *casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer);
 				return py_ue_new_flinearcolor(color);
 			}
-			ue_PyUObject *ret = ue_get_python_wrapper(casted_struct);
-			if (!ret)
-				return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-			Py_INCREF(ret);
-			return (PyObject *)ret;
+			return (PyObject *)py_ue_new_uscriptstruct(casted_struct, casted_prop->ContainerPtrToValuePtr<uint8>(buffer));
 		}
 		return PyErr_Format(PyExc_TypeError, "unsupported UStruct type");
 	}
@@ -1530,10 +1525,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return false;
 	}
 
-	// TODO encode a dictionary to a struct
-	if (PyDict_Check(py_obj)) {
-		return false;
-	}
+	// structs
 
 	if (ue_PyFVector *py_vec = py_ue_is_fvector(py_obj)) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
@@ -1589,6 +1581,18 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == FHitResult::StaticStruct()) {
 				*casted_prop->ContainerPtrToValuePtr<FHitResult>(buffer) = py_hit->hit;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// generic structs
+	if (py_ue_is_uscriptstruct(py_obj)) {
+		ue_PyUScriptStruct *py_u_struct = (ue_PyUScriptStruct *)py_obj;
+		if (auto casted_prop = Cast<UStructProperty>(prop)) {
+			if (casted_prop->Struct == py_u_struct->u_struct) {
+				*casted_prop->ContainerPtrToValuePtr<uint8 *>(buffer) = py_u_struct->data;
 				return true;
 			}
 		}

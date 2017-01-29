@@ -477,7 +477,7 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UStruct>()) {
+	if (self->ue_object->IsA<UClass>()) {
 		u_struct = (UStruct *)self->ue_object;
 	}
 	else {

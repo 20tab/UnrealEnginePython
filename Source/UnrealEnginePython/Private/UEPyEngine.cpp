@@ -230,7 +230,7 @@ PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
 		return NULL;
 	}
 
-	UStruct *u_struct = FindObject<UStruct>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
+	UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR(name));
 
 	if (!u_struct)
 		return PyErr_Format(PyExc_Exception, "unable to find struct %s", name);
@@ -254,7 +254,7 @@ PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
 	if (filename)
 		t_filename = UTF8_TO_TCHAR(filename);
 
-	UObject *u_struct = StaticLoadObject(UStruct::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
+	UObject *u_struct = StaticLoadObject(UScriptStruct::StaticClass(), NULL, UTF8_TO_TCHAR(name), t_filename);
 
 	if (!u_struct)
 		return PyErr_Format(PyExc_Exception, "unable to find struct %s", name);
