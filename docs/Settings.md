@@ -13,8 +13,8 @@ from unreal_engine.classes import EditorProjectAppearanceSettings
 from unreal_engine.enums import EUnit
 
 # access the editor appearance settings
-
 appearance_settings = ue.get_mutable_default(EditorProjectAppearanceSettings)
+
 # print properties
 ue.log(appearance_settings.properties())
 
