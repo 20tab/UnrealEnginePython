@@ -715,6 +715,16 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		Py_DECREF(py_args);
 		return (PyObject *)ret;
 	}
+	// if it is a uscriptstruct, instantiate a new struct
+	if (self->ue_object->IsA<UScriptStruct>()) {
+		UScriptStruct *u_script_struct = (UScriptStruct *)self->ue_object;
+		uint8 *data = (uint8*)FMemory_Alloca(u_script_struct->GetStructureSize());
+		u_script_struct->InitializeStruct(data);
+#if WITH_EDITOR
+		u_script_struct->InitializeDefaultValue(data);
+#endif
+		return py_ue_new_uscriptstruct(u_script_struct, data);
+	}
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
 }
 
@@ -1404,13 +1414,13 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		FScriptArrayHelper_InContainer array_helper(casted_prop, buffer);
 		PyObject *py_list = PyList_New(0);
 		UProperty *array_prop = casted_prop->Inner;
-		if (array_prop->IsA<UStructProperty>()) {
-			uint8 *array_buffer = (uint8 *)FMemory_Alloca(array_prop->GetSize());
+		/*if (array_prop->IsA<UStructProperty>()) {
+			uint8 *array_buffer = (uint8 *)FMemory::Malloc(array_prop->GetSize());
+			array_prop->InitializeValue(array_buffer);
 			for (int i = 0; i < array_helper.Num(); i++) {
-				array_prop->InitializeValue(array_buffer);
 				array_prop->CopyCompleteValueFromScriptVM(array_buffer, array_helper.GetRawPtr(i));
 				PyObject *item = ue_py_convert_property(array_prop, array_buffer);
-				array_prop->DestroyValue(array_buffer);
+				//array_prop->DestroyValue(array_buffer);
 				if (!item) {
 					Py_DECREF(py_list);
 					return NULL;
@@ -1419,17 +1429,17 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				Py_DECREF(item);
 			}
 		}
-		else {
-			for (int i = 0; i < array_helper.Num(); i++) {
-				PyObject *item = ue_py_convert_property(array_prop, array_helper.GetRawPtr(i));
-				if (!item) {
-					Py_DECREF(py_list);
-					return NULL;
-				}
-				PyList_Append(py_list, item);
-				Py_DECREF(item);
+		else {*/
+		for (int i = 0; i < array_helper.Num(); i++) {
+			PyObject *item = ue_py_convert_property(array_prop, array_helper.GetRawPtr(i));
+			if (!item) {
+				Py_DECREF(py_list);
+				return NULL;
 			}
+			PyList_Append(py_list, item);
+			Py_DECREF(item);
 		}
+		//}
 		return py_list;
 	}
 
@@ -1511,6 +1521,19 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 				helper.RemoveValues(pylist_len, helper.Num() - pylist_len);
 			}
 
+			/*if (array_prop->IsA<UStructProperty>()) {
+				for (int i = 0; i < (int)pylist_len; i++) {
+					PyObject *py_item = PyList_GetItem(py_obj, i);
+					// ensure py_item is a UScriptStruct
+					if (ue_PyUScriptStruct *u_struct = py_ue_is_uscriptstruct(py_item)) {
+						array_prop->CopySingleValue(helper.GetRawPtr(i), u_struct->data);
+					}
+					Py_DECREF(py_item);
+				}
+				return true;
+			}
+			else {*/
+
 			for (int i = 0; i < (int)pylist_len; i++) {
 				uint8 *item_buf = helper.GetRawPtr(i);
 				PyObject *py_item = PyList_GetItem(py_obj, i);
@@ -1520,8 +1543,10 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 				}
 				Py_DECREF(py_item);
 			}
+			//}
 			return true;
 		}
+
 		return false;
 	}
 
@@ -1592,7 +1617,8 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		ue_PyUScriptStruct *py_u_struct = (ue_PyUScriptStruct *)py_obj;
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == py_u_struct->u_struct) {
-				*casted_prop->ContainerPtrToValuePtr<uint8 *>(buffer) = py_u_struct->data;
+				uint8 *dest = *casted_prop->ContainerPtrToValuePtr<uint8 *>(buffer);
+				FMemory::Memcpy(dest, py_u_struct->data, py_u_struct->u_struct->GetStructureSize());
 				return true;
 			}
 		}
