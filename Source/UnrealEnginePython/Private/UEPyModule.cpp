@@ -1618,7 +1618,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		ue_PyUScriptStruct *py_u_struct = (ue_PyUScriptStruct *)py_obj;
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == py_u_struct->u_struct) {
-				uint8 *dest = *casted_prop->ContainerPtrToValuePtr<uint8 *>(buffer);
+				uint8 *dest = casted_prop->ContainerPtrToValuePtr<uint8>(buffer);
 				FMemory::Memcpy(dest, py_u_struct->data, py_u_struct->u_struct->GetStructureSize());
 				return true;
 			}
