@@ -319,6 +319,16 @@ PyObject *py_ue_get_path_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetPathName())));
 }
 
+PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	self->ue_object->SaveConfig();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

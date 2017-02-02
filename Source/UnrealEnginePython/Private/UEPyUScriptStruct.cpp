@@ -74,13 +74,31 @@ static PyObject *ue_PyUScriptStruct_str(ue_PyUScriptStruct *self)
 		TCHAR_TO_UTF8(*self->u_struct->GetName()), self->u_struct->GetStructureSize());
 }
 
+static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name) {
+	FString attr = UTF8_TO_TCHAR(name);
+	UProperty *u_property = u_struct->FindPropertyByName(FName(*attr));
+	if (u_property)
+		return u_property;
+	// if the property is not found, attempt to search for name_XXXX
+	attr += FString("_");
+	for (TFieldIterator<UProperty> prop(u_struct); prop; ++prop)
+	{
+		UProperty *property = *prop;
+		if (property->GetName().StartsWith(attr)) {
+			return property;
+		}
+	}
+
+	return nullptr;
+}
+
 static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject *attr_name) {
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
 	if (!ret) {
 		if (PyUnicodeOrString_Check(attr_name)) {
 			char *attr = PyUnicode_AsUTF8(attr_name);
 			// first check for property
-			UProperty *u_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
+			UProperty *u_property = get_field_from_name(self->u_struct, attr);
 			if (u_property) {
 				// swallow previous exception
 				PyErr_Clear();
@@ -96,7 +114,7 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 	if (PyUnicodeOrString_Check(attr_name)) {
 		char *attr = PyUnicode_AsUTF8(attr_name);
 		// first check for property
-		UProperty *u_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
+		UProperty *u_property = get_field_from_name(self->u_struct, attr);
 		if (u_property) {
 			if (ue_py_convert_pyobject(value, u_property, self->data)) {
 				return 0;
@@ -108,12 +126,21 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 	return PyObject_GenericSetAttr((PyObject *)self, attr_name, value);
 }
 
+// destructor
+static void ue_PyUScriptStruct_dealloc(ue_PyUScriptStruct *self) {
+#if UEPY_MEMORY_DEBUG
+	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUScriptStruct %p with size %d"), self, self->u_struct->GetStructureSize());
+#endif
+	FMemory::Free(self->data);
+	Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
 static PyTypeObject ue_PyUScriptStructType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.UScriptStruct", /* tp_name */
 	sizeof(ue_PyUScriptStruct), /* tp_basicsize */
 	0,                         /* tp_itemsize */
-	0,       /* tp_dealloc */
+	(destructor)ue_PyUScriptStruct_dealloc,       /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */

@@ -322,6 +322,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "post_edit_change", (PyCFunction)py_ue_post_edit_change, METH_VARARGS, "" },
 
 #if WITH_EDITOR
+	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
 
@@ -1383,7 +1384,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 				FLinearColor color = *casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer);
 				return py_ue_new_flinearcolor(color);
 			}
-			return (PyObject *)py_ue_new_uscriptstruct(casted_struct, casted_prop->ContainerPtrToValuePtr<uint8>(buffer));
+			return py_ue_new_uscriptstruct(casted_struct, casted_prop->ContainerPtrToValuePtr<uint8>(buffer));
 		}
 		return PyErr_Format(PyExc_TypeError, "unsupported UStruct type");
 	}
@@ -1415,22 +1416,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		FScriptArrayHelper_InContainer array_helper(casted_prop, buffer);
 		PyObject *py_list = PyList_New(0);
 		UProperty *array_prop = casted_prop->Inner;
-		/*if (array_prop->IsA<UStructProperty>()) {
-			uint8 *array_buffer = (uint8 *)FMemory::Malloc(array_prop->GetSize());
-			array_prop->InitializeValue(array_buffer);
-			for (int i = 0; i < array_helper.Num(); i++) {
-				array_prop->CopyCompleteValueFromScriptVM(array_buffer, array_helper.GetRawPtr(i));
-				PyObject *item = ue_py_convert_property(array_prop, array_buffer);
-				//array_prop->DestroyValue(array_buffer);
-				if (!item) {
-					Py_DECREF(py_list);
-					return NULL;
-				}
-				PyList_Append(py_list, item);
-				Py_DECREF(item);
-			}
-		}
-		else {*/
+
 		for (int i = 0; i < array_helper.Num(); i++) {
 			PyObject *item = ue_py_convert_property(array_prop, array_helper.GetRawPtr(i));
 			if (!item) {
@@ -1440,7 +1426,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 			PyList_Append(py_list, item);
 			Py_DECREF(item);
 		}
-		//}
+
 		return py_list;
 	}
 
@@ -1522,29 +1508,12 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 				helper.RemoveValues(pylist_len, helper.Num() - pylist_len);
 			}
 
-			/*if (array_prop->IsA<UStructProperty>()) {
-				for (int i = 0; i < (int)pylist_len; i++) {
-					PyObject *py_item = PyList_GetItem(py_obj, i);
-					// ensure py_item is a UScriptStruct
-					if (ue_PyUScriptStruct *u_struct = py_ue_is_uscriptstruct(py_item)) {
-						array_prop->CopySingleValue(helper.GetRawPtr(i), u_struct->data);
-					}
-					Py_DECREF(py_item);
-				}
-				return true;
-			}
-			else {*/
-
 			for (int i = 0; i < (int)pylist_len; i++) {
-				uint8 *item_buf = helper.GetRawPtr(i);
 				PyObject *py_item = PyList_GetItem(py_obj, i);
-				if (!ue_py_convert_pyobject(py_item, array_prop, item_buf)) {
-					Py_DECREF(py_item);
+				if (!ue_py_convert_pyobject(py_item, array_prop, helper.GetRawPtr(i))) {
 					return false;
 				}
-				Py_DECREF(py_item);
 			}
-			//}
 			return true;
 		}
 
