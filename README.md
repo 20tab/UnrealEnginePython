@@ -449,8 +449,8 @@ vec = self.uobject.GetActorLocation()
 
 Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
-The automagic UClass and UEnums mappers
----------------------------------------
+The automagic UClass, UStruct and UEnums mappers
+------------------------------------------------
 
 Instead of doing a gazilion of unreal_engine.find_class(name) calls, the plugin adds a 'magic' module called unreal_engine.classes. It allows to import unreal classes like python classes:
 
@@ -495,6 +495,20 @@ is_hitting_something, hit_result = KismetSystemLibrary.LineTraceSingle_NEW(self.
 if is_hitting_something:
     ue.log(hit_result)
 ```
+
+Structs are exposed by the unreal_engine.structs virtual module. remember that structs are copied by value, so a unreal_engine.UScriptStruct object is exposed.
+
+To create a new struct instance you can do:
+
+```python
+from unreal_engine.structs import TerrificStruct
+
+ts = TerrificStruct()
+```
+
+To access the fields of a struct just call the fields() method.
+
+A good example of struct usage is available here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Settings.md
 
 The ue_site.py file
 -------------------
