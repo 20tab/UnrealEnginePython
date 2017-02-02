@@ -11,6 +11,7 @@ PyObject *py_ue_set_material_texture_parameter(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_material_scalar_parameter(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_material_vector_parameter(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_material_texture_parameter(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_material_static_switch_parameter(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_create_material_instance_dynamic(ue_PyUObject *, PyObject *);
 

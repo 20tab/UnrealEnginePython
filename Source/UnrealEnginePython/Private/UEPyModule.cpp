@@ -540,6 +540,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_material_scalar_parameter", (PyCFunction)py_ue_get_material_scalar_parameter, METH_VARARGS, "" },
 	{ "get_material_vector_parameter", (PyCFunction)py_ue_get_material_vector_parameter, METH_VARARGS, "" },
 	{ "get_material_texture_parameter", (PyCFunction)py_ue_get_material_texture_parameter, METH_VARARGS, "" },
+	{ "get_material_static_switch_parameter", (PyCFunction)py_ue_get_material_static_switch_parameter, METH_VARARGS, "" },
 	{ "create_material_instance_dynamic", (PyCFunction)py_ue_create_material_instance_dynamic, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "set_material_parent", (PyCFunction)py_ue_set_material_parent, METH_VARARGS, "" },

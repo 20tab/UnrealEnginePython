@@ -64,6 +64,37 @@ PyObject *py_ue_get_material_scalar_parameter(ue_PyUObject *self, PyObject * arg
 
 }
 
+PyObject *py_ue_get_material_static_switch_parameter(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *switchName = nullptr;
+	if (!PyArg_ParseTuple(args, "s:get_material_static_switch_parameter", &switchName)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UMaterialInstance>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstance");
+	}
+
+	FName parameterName(UTF8_TO_TCHAR(switchName));
+
+	UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+
+	bool value = false;
+
+	FGuid guid;
+	material_instance->GetStaticSwitchParameterValue(parameterName, value, guid);
+
+	if (value) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 PyObject *py_ue_set_material_vector_parameter(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
@@ -240,7 +271,7 @@ PyObject *py_ue_create_material_instance_dynamic(ue_PyUObject *self, PyObject * 
 	}
 
 	UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)py_obj->ue_object;
-	
+
 	UMaterialInstanceDynamic *material_dynamic = UMaterialInstanceDynamic::Create(material_instance, self->ue_object);
 
 	ue_PyUObject *ret = ue_get_python_wrapper(material_dynamic);
