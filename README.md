@@ -496,7 +496,7 @@ if is_hitting_something:
     ue.log(hit_result)
 ```
 
-Structs are exposed by the unreal_engine.structs virtual module. remember that structs are copied by value, so a unreal_engine.UScriptStruct object is exposed.
+Structs are exposed by the unreal_engine.structs virtual module. Remember that structs are passed by value (not by ref like UObject's), so a dedicated unreal_engine.UScriptStruct python class is exposed.
 
 To create a new struct instance you can do:
 
