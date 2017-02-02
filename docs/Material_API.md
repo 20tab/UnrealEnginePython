@@ -15,7 +15,7 @@ Assigning a material to a primitive component
 Once your material (instanced or non instanced, constant or dynamic) is ready, you want to assign it to a PrimitiveComponent:
 
 
-```py
+```python
 component = self.uobject.get_actor_component('Mesh')
 material = ue.load_object(Material, '/Game/Materials/Iron')
 component.set_material(index, material);
@@ -24,7 +24,7 @@ component.set_material(index, material);
 Creating a Material (editor only)
 ---------------------------------
 
-```py
+```python
 from unreal_engine.classes import Material
 new_material = Material()
 new_material.set_name('New Funny Material')
@@ -38,7 +38,7 @@ You have two ways to create a instanced material:
 
 (new_material is a reference to a previously created/loaded material)
 
-```py
+```python
 from unreal_engine.classes import MaterialInstancedConstant
 
 material_instance = MaterialInstancedConstant()
@@ -49,7 +49,7 @@ material_instance.save_package('/Game/Materials/instanced')
 
 or the shortcut:
 
-```py
+```python
 import unreal_engine as ue
 # the material instance will get the name of the parent with the _inst suffix
 material_instance = ue.create_material_instance(new_material)
@@ -60,19 +60,19 @@ Creating a Material Instance Dynamic
 
 You can create a MID (Material Instance Dynamic) from a ,aterial instance:
 
-```py
+```python
 mid = self.uobject.create_material_instance_dynamic(material_instance)
 ```
 
 
-Listing, getting and chaning available material properties
-----------------------------------------------------------
+Listing, getting and changing available material properties
+-----------------------------------------------------------
 
 To modify a material's property you need to know its name.
 
 You cannot access the property list from a material instance, you need to get it from the parent:
 
-```py
+```python
 parent_material = material_instance.Parent
 
 for expression in parent_material.Expressions:
