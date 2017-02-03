@@ -446,7 +446,11 @@ PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args) {
 
 	TSet<UPackage *> refused_packages;
 	FText error_text;
+#if ENGINE_MINOR_VERSION < 14
+	UObject *new_asset = ObjectTools::DuplicateSingleObject(u_object, pgn, refused_packages);
+#else
 	UObject *new_asset = ObjectTools::DuplicateSingleObject(u_object, pgn, refused_packages, false);
+#endif
 	if (!new_asset) {
 		return PyErr_Format(PyExc_Exception, "unable to duplicate asset %s", path);
 	}

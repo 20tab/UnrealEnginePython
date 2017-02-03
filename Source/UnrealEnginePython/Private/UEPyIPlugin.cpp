@@ -60,7 +60,11 @@ static PyObject *py_ue_iplugin_to_json(ue_PyIPlugin *self, PyObject * args) {
 
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
 	FString text;
+#if ENGINE_MINOR_VERSION < 14
+	text = descriptor.ToString();
+#else
 	descriptor.Write(text, enabled_by_default);
+#endif
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*text));
 }
@@ -81,13 +85,17 @@ static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args) {
 	FText error;
 	FString text = FString(UTF8_TO_TCHAR(json));
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
+#if ENGINE_MINOR_VERSION < 14
+	if (!descriptor.Read(text, error)) {
+#else
 	if (!descriptor.Read(text, enabled_by_default, error)) {
+#endif
 		return PyErr_Format(PyExc_Exception, "unable to update descriptor from json");
 	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
+	}
 
 static PyMethodDef ue_PyIPlugin_methods[] = {
 	{ "get_name", (PyCFunction)py_ue_iplugin_get_name, METH_VARARGS, "" },
