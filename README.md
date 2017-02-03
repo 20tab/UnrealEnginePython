@@ -63,6 +63,22 @@ If you want to package your project (it is required only if you need to have a p
 
 If you want to package without python, just remember to change the UnrealEnginePython.uplugin to have this line: https://github.com/20tab/UnrealEnginePython/blob/master/UnrealEnginePython.uplugin#L20 set as "Editor" instead of "Runtime"
 
+# Binaries installation on MaxOSX
+
+Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue asking us for it [please specify the python version too]) and download it.
+
+Binary releases for MacOSX expects an official python installation (the packages you get from python.org).
+
+Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
+
+Open your project and go to the Edit/Plugins menu. Go to the bottom and under "Project/Scripting Languages" enable UnrealEnginePython.
+
+Restart your project and you should see the PythonConsole under the "Window/Developer Tools" menu
+
+Binary releases are mainly useful for editor scripting, if you want to package your project for distribution and you need the python runtime, you need a source release (see below).
+
+If instead, you want to package your project without python, just remember to change the UnrealEnginePython.uplugin to have this line: https://github.com/20tab/UnrealEnginePython/blob/master/UnrealEnginePython.uplugin#L20 set as "Editor" instead of "Runtime"
+
 # Installation from sources on MacOSX
 
 * install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/X.Y" directory).
