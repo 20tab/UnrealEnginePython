@@ -172,6 +172,7 @@ void SPythonConsoleInputBox::Construct(const FArguments& InArgs)
 
 	SPythonConsoleEditableTextBox *TextBox = (SPythonConsoleEditableTextBox *)InputText.Get();
 	TextBox->SetPythonBox(this);
+	IsMultiline = false;
 }
 void SPythonConsoleInputBox::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
@@ -211,9 +212,29 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 			// Here run the python code
 			//
 			FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-			PythonModule.RunString(TCHAR_TO_UTF8(*ExecString));
 
+			if (IsMultiline) {
+				if (ExecString.StartsWith(" ")) {
+					MultilineString += FString("\n") + ExecString;
+				}
+				else {
+					IsMultiline = false;
+					PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
+				}
+			}
+			else if (ExecString.EndsWith(":")) {
+				IsMultiline = true;
+				MultilineString = ExecString;
+			}
+			else {
+				PythonModule.RunString(TCHAR_TO_UTF8(*ExecString));
+			}
 
+		}
+		else if (IsMultiline) {
+			IsMultiline = false;
+			FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+			PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
 		}
 
 	}

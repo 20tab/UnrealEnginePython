@@ -64,6 +64,9 @@ public:
 	TArray<FString> History;
 	int HistoryPosition;
 
+	FString MultilineString;
+	bool IsMultiline;
+
 
 protected:
 
