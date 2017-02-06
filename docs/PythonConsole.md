@@ -7,7 +7,7 @@ This is a plugin module giving you a shell for running python commands. It is th
 
 In this screenshot you can see how to get access to the editor world, and how to add actors to it.
 
-The console is still in early stage of development (it is really raw, do not expected a good user experience)
+The console supports history
 
 Running python scripts
 ----------------------
@@ -25,10 +25,12 @@ ue.exec('yourscript.py')
 
 python scripts are searched from the /Content/Scripts directory
 
-Editor scripting
-----------------
+Note: on python2 ue.exec is not a valid function, you need to use ue.py_exec
 
-The following functions allows access to editor internals:
+Editor scripting example
+------------------------
+
+This is an example of editor scripting from the python console
 
 ```py
 # get access to the editor world
@@ -47,8 +49,8 @@ unreal_engine.editor_select_actor(an_actor)
 new_asset = unreal_engine.import_asset(filename, package[, factory_class])
 ```
 
-Asset importing
----------------
+Asset importing example
+-----------------------
 
 The following code shows how to import an asset from python (an image as a texture):
 
@@ -86,8 +88,8 @@ factory_obj.set_property('bRGBToEmissive', True)
 new_object = ue.import_asset('C:/Users/Tester/Desktop/logo.png', '/Game/FooBar/20tab', factory_obj)
 ```
 
-Reimporting
------------
+Reimporting example
+-------------------
 
 You can reimport an object with the asset_reimport() method:
 
@@ -95,8 +97,8 @@ You can reimport an object with the asset_reimport() method:
 uobject.asset_reimport([ask_for_new_file, show_notification, filename])
 ```
 
-Assets listing
---------------
+Assets listing example
+----------------------
 
 ```py
 # get the assets under the specified path
@@ -169,3 +171,8 @@ ret = ue.message_dialog_open(ue.APP_MSG_TYPE_YES_NO, "Do you want to shot ?")
 if ret == ue.APP_RETURN_TYPE_YES:
     ue.log('You choose "YES"')
 ```
+
+Multiline mode
+--------------
+
+If a statement ends with ':' the python console will assume an 'incomplete' commands and will wait for the next line NOT starting with a space to issue the instructions. This mode allows you to enter functions, classes, cycles in the console.
