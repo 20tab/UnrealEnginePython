@@ -526,6 +526,16 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass derived from AActor");
+	}
+
+	UClass *u_class = (UClass *)py_obj->ue_object;
+
+	if (!u_class->IsChildOf<AActor>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass derived from AActor");
+	}
+
 	FVector location = FVector(0,0,0);
 	FRotator rotation = FRotator(0,0,0);
 
