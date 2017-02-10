@@ -95,7 +95,7 @@ static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args) {
 
 	Py_INCREF(Py_None);
 	return Py_None;
-	}
+}
 
 static PyMethodDef ue_PyIPlugin_methods[] = {
 	{ "get_name", (PyCFunction)py_ue_iplugin_get_name, METH_VARARGS, "" },
