@@ -15,6 +15,9 @@
 #include "Editor/UnrealEd/Public/EditorLevelUtils.h"
 #include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
 #include "ObjectTools.h"
+#include "Developer/AssetTools/Public/IAssetTools.h"
+#include "Editor/ContentBrowser/Public/IContentBrowserSingleton.h"
+#include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -256,7 +259,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		char * filename = PyString_AsString(PyObject_Str(assetsObject));
 #endif
 		files.Add(UTF8_TO_TCHAR(filename));
-	}
+}
 	else {
 		return PyErr_Format(PyExc_Exception, "Not a string nor valid list of string");
 	}
@@ -964,8 +967,13 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 	bool is_array = false;
 	if (py_is_array && PyObject_IsTrue(py_is_array))
 		is_array = true;
-
+#if ENGINE_MINOR_VERSION > 14
+	FEdGraphPinType pin;
+	pin.PinCategory = UTF8_TO_TCHAR(in_type);
+	pin.bIsArray = is_array;
+#else
 	FEdGraphPinType pin(UTF8_TO_TCHAR(in_type), FString(""), nullptr, is_array, false);
+#endif
 
 	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin)) {
 		Py_INCREF(Py_True);

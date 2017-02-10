@@ -104,7 +104,9 @@ public class UnrealEnginePython : ModuleRules
             }
             System.Console.WriteLine("Using Python at: " + pythonHome);
             PublicIncludePaths.Add(pythonHome);
-            PublicAdditionalLibraries.Add(GetWindowsPythonLibFile(pythonHome));
+            string libPath = GetWindowsPythonLibFile(pythonHome);
+            PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
+            PublicAdditionalLibraries.Add(libPath);
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
@@ -118,7 +120,9 @@ public class UnrealEnginePython : ModuleRules
             }
             System.Console.WriteLine("Using Python at: " + pythonHome);
             PublicIncludePaths.Add(pythonHome);
-            PublicDelayLoadDLLs.Add(GetMacPythonLibFile(pythonHome));
+            string libPath = GetMacPythonLibFile(pythonHome);
+            PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
+            PublicDelayLoadDLLs.Add(libPath);
             Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)

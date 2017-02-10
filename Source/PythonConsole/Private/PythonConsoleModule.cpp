@@ -5,6 +5,7 @@
 #include "SPythonLog.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
 #include "SDockTab.h"
+#include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
 
 IMPLEMENT_MODULE( FPythonConsoleModule, PythonLog );
 
