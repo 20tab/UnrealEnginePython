@@ -1010,7 +1010,15 @@ In addition to this, every time a uobject has to return its UObject mapping, it 
 Unit Testing
 ------------
 
-The repository includes a TestingActor asset and a tests.py script. Just add the asset and the script to your project and the test suite will be run. The test suite is still a prototype it will be improved soon.
+The repository includes the tests/ directory from which unit tests will be run.
+
+To run the unit tests (ensure to run them on an empty/useless project to avoid messing with assets) run the following commands from the ue4 python console:
+
+```python
+import unreal_engine as ue
+ue.sandbox_exec(ue.find_plugin('UnrealEnginePython').get_base_dir() + '/run_tests.py')
+```
+if you plan to add new features to the plugin, including a test suite in your pull request will be really appreciated ;)
 
 Threading (Experimental)
 ------------------------
