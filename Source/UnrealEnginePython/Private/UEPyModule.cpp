@@ -92,6 +92,17 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+static PyObject *py_unreal_engine_sandbox_exec(PyObject * self, PyObject * args) {
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "s:sandbox_exec", &filename)) {
+		return NULL;
+	}
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	PythonModule.RunFileSandboxed(filename);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -231,6 +242,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
 #endif
 	{ "py_exec", py_unreal_engine_exec, METH_VARARGS, "" },
+
+	{ "sandbox_exec", py_unreal_engine_sandbox_exec, METH_VARARGS, "" },
 
 	{ "get_engine_defined_action_mappings", py_unreal_engine_get_engine_defined_action_mappings, METH_VARARGS, "" },
 

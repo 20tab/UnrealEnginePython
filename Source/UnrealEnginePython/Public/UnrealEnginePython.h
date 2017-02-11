@@ -19,6 +19,7 @@ public:
 
 	void RunString(char *);
 	void RunFile(char *);
+	void RunFileSandboxed(char *);
 
 private:
 	void *ue_python_gil;

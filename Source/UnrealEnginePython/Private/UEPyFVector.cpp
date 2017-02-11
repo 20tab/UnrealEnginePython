@@ -267,10 +267,38 @@ static int ue_py_fvector_init(ue_PyFVector *self, PyObject *args, PyObject *kwar
 	return 0;
 }
 
+static PyObject *ue_py_fvector_richcompare(ue_PyFVector *vec1, PyObject *b, int op) {
+	ue_PyFVector *vec2 = py_ue_is_fvector(b);
+	if (!vec2 || (op != Py_EQ && op != Py_NE)) {
+		return PyErr_Format(PyExc_NotImplementedError, "can only compare with another FVector");
+	}
+
+	if (op == Py_EQ) {
+		if (vec1->vec.X == vec2->vec.X &&
+			vec1->vec.Y == vec2->vec.Y &&
+			vec1->vec.Z == vec2->vec.Z) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	if (vec1->vec.X == vec2->vec.X &&
+		vec1->vec.Y == vec2->vec.Y &&
+		vec1->vec.Z == vec2->vec.Z) {
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+	Py_INCREF(Py_True);
+	return Py_True;
+}
+
 void ue_python_init_fvector(PyObject *ue_module) {
 	ue_PyFVectorType.tp_new = PyType_GenericNew;
 
 	ue_PyFVectorType.tp_init = (initproc)ue_py_fvector_init;
+	ue_PyFVectorType.tp_richcompare = (richcmpfunc)ue_py_fvector_richcompare;
 
 	memset(&ue_PyFVector_number_methods, 0, sizeof(PyNumberMethods));
 	ue_PyFVectorType.tp_as_number = &ue_PyFVector_number_methods;

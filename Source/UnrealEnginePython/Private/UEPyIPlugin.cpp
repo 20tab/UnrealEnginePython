@@ -226,7 +226,7 @@ static PyGetSetDef ue_PyIPlugin_getseters[] = {
 
 static PyObject *ue_PyIPlugin_str(ue_PyIPlugin *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.EdGraphPin {'name': '%s'}>",
+	return PyUnicode_FromFormat("<unreal_engine.IPlugin {'name': '%s'}>",
 		TCHAR_TO_UTF8(*self->plugin->GetName()));
 }
 
