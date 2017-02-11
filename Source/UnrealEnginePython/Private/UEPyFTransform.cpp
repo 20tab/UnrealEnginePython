@@ -62,8 +62,17 @@ static PyTypeObject ue_PyFTransformType = {
 	ue_PyFTransform_getseters,
 };
 
+static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject *kwargs) {
+	// ensure scaling is set to 1,1,1
+	FVector scale(1, 1, 1);
+	self->transform.SetScale3D(scale);
+	return 0;
+}
+
 void ue_python_init_ftransform(PyObject *ue_module) {
 	ue_PyFTransformType.tp_new = PyType_GenericNew;
+
+	ue_PyFTransformType.tp_init = (initproc)ue_py_ftransform_init;
 
 	if (PyType_Ready(&ue_PyFTransformType) < 0)
 		return;
