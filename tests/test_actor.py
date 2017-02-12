@@ -12,7 +12,7 @@ class TestActor(unittest.TestCase):
 
     def test_spawn(self):
     	new_actor = self.world.actor_spawn(Actor)
-    	actor_label = 'ActorTest_' + str(time.time())
+    	actor_label = 'ActorTest_' + str(int(time.time()))
     	new_actor.set_actor_label(actor_label)
     	found_actor = self.world.find_actor_by_label(actor_label)
     	self.assertEqual(found_actor, new_actor)
@@ -36,7 +36,7 @@ class TestActor(unittest.TestCase):
 
     def test_destroy(self):
     	new_actor = self.world.actor_spawn(Actor)
-    	actor_label = 'ActorDestroyTest_' + str(time.time())
+    	actor_label = 'ActorDestroyTest_' + str(int(time.time()))
     	new_actor.set_actor_label(actor_label)
     	found_actor = self.world.find_actor_by_label(actor_label)
     	self.assertEqual(found_actor, new_actor)
