@@ -1,7 +1,6 @@
 import unittest
 import unreal_engine as ue
-from unreal_engine.classes import Material, Character
-from unreal_engine import FVector, FRotator
+from unreal_engine.classes import Material
 import time
 import math
 

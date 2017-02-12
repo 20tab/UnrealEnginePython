@@ -1,6 +1,6 @@
 import unittest
 import unreal_engine as ue
-from unreal_engine.classes import Actor, Character
+from unreal_engine.classes import Actor, Character, CharacterMovementComponent, CapsuleComponent
 from unreal_engine import FVector, FRotator
 import time
 import math
@@ -43,6 +43,18 @@ class TestActor(unittest.TestCase):
     	new_actor.actor_destroy()
     	found_actor = self.world.find_actor_by_label(actor_label)
     	self.assertIsNone(found_actor)
+
+    def test_has_component(self):
+    	new_actor = self.world.actor_spawn(Character, FVector(100, 200, 300))
+    	self.assertTrue(new_actor.actor_has_component_of_type(CapsuleComponent))
+
+    def test_get_component(self):
+    	new_actor = self.world.actor_spawn(Character, FVector(100, 200, 300))
+    	self.assertTrue(new_actor.get_actor_component_by_type(CharacterMovementComponent).bIsActive)
+
+    def test_get_components(self):
+    	new_actor = self.world.actor_spawn(Character, FVector(100, 200, 300))
+    	self.assertTrue(len(new_actor.get_actor_components()), 4)
 
 
 
