@@ -97,7 +97,7 @@ static int py_ue_edgraphpin_set_default_object(ue_PyEdGraphPin *self, PyObject *
 		self->pin->DefaultObject = py_obj->ue_object;
 		return 0;
 	}
-	PyErr_SetString(PyExc_TypeError, "value is not a string");
+	PyErr_SetString(PyExc_TypeError, "value is not a UObject");
 	return -1;
 }
 
