@@ -142,6 +142,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_content_dir", py_unreal_engine_get_content_dir, METH_VARARGS, "" },
 	{ "convert_relative_path_to_full", py_unreal_engine_convert_relative_path_to_full, METH_VARARGS, "" },
 #if WITH_EDITOR
+	{ "allow_actor_script_execution_in_editor", py_unreal_engine_allow_actor_script_execution_in_editor , METH_VARARGS, "" },
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
 	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
@@ -586,8 +587,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
 	}
+}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -1262,7 +1263,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

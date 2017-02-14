@@ -33,6 +33,26 @@ PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * self, PyObject * args) {
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *obj = nullptr;
+	if (!PyArg_ParseTuple(args, "O:allow_actor_script_execution_in_editor", &obj)) {
+		return NULL;
+	}
+
+	bool enable = false;
+	if (PyObject_IsTrue(obj))
+		enable = true;
+
+	GAllowActorScriptExecutionInEditor = enable;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject * args) {
 

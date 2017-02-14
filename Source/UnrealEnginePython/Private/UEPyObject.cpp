@@ -461,7 +461,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
 
 	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
-		return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(property_name));
+		return PyErr_Format(PyExc_Exception, "unable to find event property %s", property_name);
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
