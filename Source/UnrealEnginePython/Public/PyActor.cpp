@@ -202,14 +202,14 @@ APyActor::~APyActor()
 
 	ue_pydelegates_cleanup(py_uobject);
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	if (py_actor_instance && py_actor_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python AActor wrapper refcnt = %d"), py_actor_instance->ob_refcnt);
 	}
 #endif
 	Py_XDECREF(py_actor_instance);
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Python AActor %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
 #endif
 

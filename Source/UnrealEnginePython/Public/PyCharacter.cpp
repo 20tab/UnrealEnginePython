@@ -365,14 +365,14 @@ APyCharacter::~APyCharacter()
 
 	ue_pydelegates_cleanup(py_uobject);
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	if (py_character_instance && py_character_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python ACharacter wrapper refcnt = %d"), py_character_instance->ob_refcnt);
 	}
 #endif
 	Py_XDECREF(py_character_instance);
 	
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Python ACharacter (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
 #endif
 

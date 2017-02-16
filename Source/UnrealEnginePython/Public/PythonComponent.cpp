@@ -426,14 +426,14 @@ UPythonComponent::~UPythonComponent()
 
 	ue_pydelegates_cleanup(py_uobject);
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	if (py_component_instance && py_component_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UActorComponent wrapper refcnt = %d"), py_component_instance->ob_refcnt);
 	}
 #endif
 	Py_XDECREF(py_component_instance);
 	
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
 #endif
 

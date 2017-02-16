@@ -128,7 +128,7 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 
 // destructor
 static void ue_PyUScriptStruct_dealloc(ue_PyUScriptStruct *self) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUScriptStruct %p with size %d"), self, self->u_struct->GetStructureSize());
 #endif
 	FMemory::Free(self->data);

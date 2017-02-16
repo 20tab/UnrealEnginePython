@@ -72,14 +72,14 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	{
 #if PY_MAJOR_VERSION >= 3
 		argv[i] = (wchar_t*)malloc(PyArgv[i].Len()+1);
-#if UNREAL_ENGINE_PYTHON_ON_MAC || UNREAL_ENGINE_PYTHON_ON_LINUX
+#if defined(UNREAL_ENGINE_PYTHON_ON_MAC) || defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
 		wcsncpy(argv[i], *PyArgv[i].ReplaceEscapedCharWithChar(), PyArgv[i].Len() + 1);
 #else
 		wcscpy_s(argv[i], PyArgv[i].Len() + 1, *PyArgv[i].ReplaceEscapedCharWithChar());
 #endif
 #else
 		argv[i] = (char*)malloc(PyArgv[i].Len() + 1);
-#if UNREAL_ENGINE_PYTHON_ON_MAC || UNREAL_ENGINE_PYTHON_ON_LINUX
+#if defined(UNREAL_ENGINE_PYTHON_ON_MAC) || defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
 		strncpy(argv[i], TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()), PyArgv[i].Len()+1);
 #else
 		strcpy_s(argv[i], PyArgv[i].Len()+1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));

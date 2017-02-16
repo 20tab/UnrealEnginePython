@@ -2,7 +2,7 @@
 
 // destructor
 static void ue_pycallable_dealloc(ue_PyCallable *self) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyCallable %p mapped to UFunction %p"), self, self->u_function);
 #endif
 	Py_TYPE(self)->tp_free((PyObject *)self);

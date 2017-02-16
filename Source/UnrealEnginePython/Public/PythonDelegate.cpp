@@ -127,7 +127,7 @@ UPythonDelegate::~UPythonDelegate()
 {
 	FScopePythonGIL gil;
 	Py_XDECREF(py_callable);
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("PythonDelegate callable XDECREF'ed"));
 #endif
 }

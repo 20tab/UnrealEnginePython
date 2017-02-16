@@ -4,7 +4,7 @@
 
 void unreal_engine_init_py_module();
 
-#if UNREAL_ENGINE_PYTHON_ON_LINUX
+#if defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
 const char *ue4_module_options = "linux_global_symbols";
 #endif
 
@@ -43,7 +43,7 @@ bool PyUnicodeOrString_Check(PyObject *py_obj) {
 
 
 void FUnrealEnginePythonModule::PythonGILRelease() {
-#if UEPY_THREADING
+#if defined(UEPY_THREADING)
 	if (PyGILState_Check() == 1) {
 		ue_python_gil = PyEval_SaveThread();
 	}
@@ -51,7 +51,7 @@ void FUnrealEnginePythonModule::PythonGILRelease() {
 }
 
 bool FUnrealEnginePythonModule::PythonGILAcquire() {
-#if UEPY_THREADING
+#if defined(UEPY_THREADING)
 	if (PyGILState_Check() == 0) {
 		PyEval_RestoreThread((PyThreadState *)ue_python_gil);
 		return true;

@@ -179,7 +179,7 @@ APyPawn::~APyPawn()
 
 	ue_pydelegates_cleanup(py_uobject);
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	if (py_pawn_instance && py_pawn_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python APawn wrapper refcnt = %d"), py_pawn_instance->ob_refcnt);
 	}
@@ -187,7 +187,7 @@ APyPawn::~APyPawn()
 	Py_XDECREF(py_pawn_instance);
 	
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Python APawn (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
 #endif
 

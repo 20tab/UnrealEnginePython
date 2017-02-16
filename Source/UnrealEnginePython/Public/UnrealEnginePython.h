@@ -31,7 +31,7 @@ private:
 struct FScopePythonGIL {
 	FScopePythonGIL()
 	{
-#if UEPY_THREADING
+#if defined(UEPY_THREADING)
 		UnrealEnginePythonModule = FModuleManager::LoadModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
 		safeForRelease = UnrealEnginePythonModule.PythonGILAcquire();
 #endif
@@ -39,7 +39,7 @@ struct FScopePythonGIL {
 
 	~FScopePythonGIL()
 	{
-#if UEPY_THREADING
+#if defined(UEPY_THREADING)
 		if (safeForRelease) {
 			UnrealEnginePythonModule.PythonGILRelease();
 		}

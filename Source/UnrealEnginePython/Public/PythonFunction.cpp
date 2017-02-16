@@ -26,7 +26,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
 	}
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Initializing %d parameters"), argn);
 #endif
 	PyObject *py_args = PyTuple_New(argn);
@@ -101,7 +101,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	// get return value (if required)
 	UProperty *return_property = function->GetReturnProperty();
 	if (return_property && function->ReturnValueOffset != MAX_uint16) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("FOUND RETURN VALUE"));
 #endif
 		if (ue_py_convert_pyobject(ret, return_property, frame)) {
@@ -118,7 +118,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 UPythonFunction::~UPythonFunction()
 {
 	Py_XDECREF(py_callable);
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("PythonFunction callable XDECREF'ed"));
 #endif
 }

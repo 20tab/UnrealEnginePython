@@ -61,12 +61,12 @@ std::map<UObject *, ue_PyUObject *> ue_python_gc;
 static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args) {
 	std::list<UObject *> broken_list;
 	for (auto it : ue_python_gc) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("Checking for UObject at %p"), it.first);
 #endif
 		UObject *u_obj = it.first;
 		if (!u_obj || !u_obj->IsValidLowLevel() || u_obj->IsPendingKillOrUnreachable()) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 			UE_LOG(LogPython, Warning, TEXT("Removing UObject at %p (refcnt: %d)"), it.first, it.second->ob_base.ob_refcnt);
 #endif
 			broken_list.push_back(u_obj);
@@ -583,7 +583,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 		return;
 	for (UPythonDelegate *py_delegate : *(self->python_delegates_gc)) {
 		if (py_delegate && py_delegate->IsValidLowLevel()) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
@@ -598,7 +598,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 
 // destructor
 static void ue_pyobject_dealloc(ue_PyUObject *self) {
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
 #endif
 	ue_pydelegates_cleanup(self);
@@ -1189,7 +1189,7 @@ ue_PyUObject *ue_get_python_wrapper(UObject *ue_obj) {
 
 		ue_python_gc[ue_obj] = ue_py_object;
 
-#if UEPY_MEMORY_DEBUG
+#if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p %s"), ue_py_object, ue_obj, *ue_obj->GetName());
 #endif
 		//Py_INCREF(ue_py_object);

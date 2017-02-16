@@ -15,10 +15,10 @@
 
 #include "Runtime/Launch/Resources/Version.h"
 
-#if UNREAL_ENGINE_PYTHON_ON_MAC
+#if defined(UNREAL_ENGINE_PYTHON_ON_MAC)
 #include <Headers/Python.h>
 #include <Headers/structmember.h>
-#elif UNREAL_ENGINE_PYTHON_ON_LINUX
+#elif defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
 #include <Python.h>
 #include <structmember.h>
 #else
