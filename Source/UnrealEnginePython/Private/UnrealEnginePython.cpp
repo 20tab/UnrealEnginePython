@@ -193,22 +193,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 	{
 		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
 	}
-#if PY_MAJOR_VERSION >= 3
-	FILE *fd = nullptr;
-
-#if PLATFORM_WINDOWS
-	if (fopen_s(&fd, full_path, "r") != 0) {
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
-		return;
-	}
-#else
-	fd = fopen(full_path, "r");
-	if (!fd) {
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
-		return;
-	}
-#endif
-
+	
 	PyThreadState *_main = PyThreadState_Get();
 
 	PyThreadState *py_new_state = Py_NewInterpreter();
@@ -229,7 +214,22 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 		return;
 	}
 	PyObject *global_dict = PyModule_GetDict(m);
+	
+#if PY_MAJOR_VERSION >= 3
+	FILE *fd = nullptr;
 
+#if PLATFORM_WINDOWS
+	if (fopen_s(&fd, full_path, "r") != 0) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+	}
+#else
+	fd = fopen(full_path, "r");
+	if (!fd) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+	}
+#endif
 	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, global_dict, global_dict);
 	fclose(fd);
 	if (!eval_ret) {
