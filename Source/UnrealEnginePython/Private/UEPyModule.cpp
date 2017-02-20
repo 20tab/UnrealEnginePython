@@ -25,6 +25,8 @@
 #include "UEPyAssetUserData.h"
 #include "UEPyTexture.h"
 #include "UEPyMaterial.h"
+#include "UEPyPawn.h"
+#include "UEPyController.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #include "UEPyEdGraph.h"
@@ -510,6 +512,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 
+	// Pawn
+	{ "get_controller", (PyCFunction)py_ue_pawn_get_controller, METH_VARARGS, "" },
+
+	// Controller
+	{ "posses", (PyCFunction)py_ue_controller_posses, METH_VARARGS, "" },
+	{ "unposses", (PyCFunction)py_ue_controller_unposses, METH_VARARGS, "" },
+
 
 	// Attaching
 
@@ -587,8 +596,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
+		}
 	}
-}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -1263,7 +1272,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

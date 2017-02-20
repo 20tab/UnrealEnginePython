@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
+
 PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -536,8 +537,8 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass derived from AActor");
 	}
 
-	FVector location = FVector(0,0,0);
-	FRotator rotation = FRotator(0,0,0);
+	FVector location = FVector(0, 0, 0);
+	FRotator rotation = FRotator(0, 0, 0);
 
 	if (py_obj_location) {
 		ue_PyFVector *py_location = py_ue_is_fvector(py_obj_location);
