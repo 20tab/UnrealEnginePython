@@ -5,7 +5,6 @@
 #include "SPythonProjectEditor.h"
 #include "SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
-#include "SPythonLog.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"
 #define LOCTEXT_NAMESPACE "PythonEditor"
@@ -26,7 +25,6 @@ namespace PythonEditorTabs
 	// Tab identifiers
 	static const FName ProjectViewID(TEXT("ProjectView"));
 	static const FName PythonViewID(TEXT("Document"));
-	static const FName PythonLogViewID(TEXT("Log"));
 };
 
 struct FPythonTabSummoner : public FDocumentTabFactoryForObjects<UPythonProjectItem>
@@ -45,21 +43,21 @@ public:
 	virtual void OnTabActivated(TSharedPtr<SDockTab> Tab) const override
 	{
 		TSharedRef<SPythonEditor> PythonEditor = StaticCastSharedRef<SPythonEditor>(Tab->GetContent());
-	//	InPythonProjectEditorPtr.Pin()->OnPythonEditorFocused(PythonEditor);
+		//	InPythonProjectEditorPtr.Pin()->OnPythonEditorFocused(PythonEditor);
 	}
 
 	virtual void OnTabRefreshed(TSharedPtr<SDockTab> Tab) const override
 	{
 		TSharedRef<SPythonEditor> GraphEditor = StaticCastSharedRef<SPythonEditor>(Tab->GetContent());
-	//	GraphEditor->NotifyItemChanged();
+		//	GraphEditor->NotifyItemChanged();
 	}
 
 	virtual void SaveState(TSharedPtr<SDockTab> Tab, TSharedPtr<FTabPayload> Payload) const override
 	{
 		TSharedRef<SPythonEditor> GraphEditor = StaticCastSharedRef<SPythonEditor>(Tab->GetContent());
 
-	//	UPythonProjectItem* Graph = FTabPayload_UObject::CastChecked<UPythonProjectItem>(Payload);
-	//	BlueprintEditorPtr.Pin()->GetBlueprintObj()->LastEditedDocuments.Add(FEditedDocumentInfo(Graph, ViewLocation, ZoomAmount));
+		//	UPythonProjectItem* Graph = FTabPayload_UObject::CastChecked<UPythonProjectItem>(Payload);
+		//	BlueprintEditorPtr.Pin()->GetBlueprintObj()->LastEditedDocuments.Add(FEditedDocumentInfo(Graph, ViewLocation, ZoomAmount));
 	}
 
 protected:
@@ -79,10 +77,10 @@ protected:
 		return FPythonEditorStyle::Get().GetBrush("ProjectEditor.Icon.File");
 	}
 
-/*	virtual TSharedRef<FGenericTabHistory> CreateTabHistoryNode(TSharedPtr<FTabPayload> Payload) override
-	{
-		return MakeShareable(new FSourceTabHistory(SharedThis(this), Payload));
-	}*/
+	/*	virtual TSharedRef<FGenericTabHistory> CreateTabHistoryNode(TSharedPtr<FTabPayload> Payload) override
+		{
+			return MakeShareable(new FSourceTabHistory(SharedThis(this), Payload));
+		}*/
 
 protected:
 	TWeakPtr<class FPythonProjectEditor> PythonProjectEditorPtr;
@@ -107,31 +105,9 @@ public:
 	virtual TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override
 	{
 		TSharedPtr<FPythonProjectEditor> PythonEditorPtr = StaticCastSharedPtr<FPythonProjectEditor>(HostingApp.Pin());
-		return SAssignNew(MyPythonProjectEditor,SPythonProjectEditor, PythonEditorPtr->GetPythonProjectBeingEdited());
+		return SAssignNew(MyPythonProjectEditor, SPythonProjectEditor, PythonEditorPtr->GetPythonProjectBeingEdited());
 	}
 };
-
-struct FPythonLogViewSummoner : public FWorkflowTabFactory
-{
-public:
-	FPythonLogViewSummoner(TSharedPtr<class FAssetEditorToolkit> InHostingApp)
-		: FWorkflowTabFactory(PythonEditorTabs::PythonLogViewID, InHostingApp)
-	{
-		TabLabel = LOCTEXT("ProjectLogTabLabel", "OutptutLog");
-
-		bIsSingleton = true;
-
-		ViewMenuDescription = LOCTEXT("ProjectLogTabMenu_Description", "OutptutLog");
-		ViewMenuTooltip = LOCTEXT("ProjectLogTabMenu_ToolTip", "Shows the OutptutLog panel");
-	}
-
-	virtual TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override
-	{
-		TSharedPtr<FPythonProjectEditor> PythonEditorPtr = StaticCastSharedPtr<FPythonProjectEditor>(HostingApp.Pin());
-		return SNew(SPythonLog);
-	}
-};
-
 
 
 class FBasicPythonEditorMode : public FApplicationMode
@@ -146,7 +122,6 @@ public:
 protected:
 	TWeakPtr<FPythonProjectEditor> MyPythonEditor;
 	FWorkflowAllowedTabSet ProjectViewTabFactories;
-	FWorkflowAllowedTabSet ProjectLogViewTabFactories;
 
 };
 
@@ -156,7 +131,6 @@ FBasicPythonEditorMode::FBasicPythonEditorMode(TSharedPtr<class FPythonProjectEd
 	MyPythonEditor = InPythonEditor;
 
 	ProjectViewTabFactories.RegisterFactory(MakeShareable(new FProjectViewSummoner(InPythonEditor)));
-	ProjectLogViewTabFactories.RegisterFactory(MakeShareable(new FPythonLogViewSummoner(InPythonEditor)));
 
 	TabLayout = FTabManager::NewLayout("Standalone_PythonEditor_Layout_v1.01")
 		->AddArea
@@ -169,41 +143,9 @@ FBasicPythonEditorMode::FBasicPythonEditorMode(TSharedPtr<class FPythonProjectEd
 				->SetSizeCoefficient(0.1f)
 				->SetHideTabWell(true)
 				->AddTab(InPythonEditor->GetToolbarTabId(), ETabState::OpenedTab)
-			)
-			->Split
-			(
-				FTabManager::NewSplitter()
-				->SetSizeCoefficient(0.9f)
-				->SetOrientation(Orient_Horizontal)
-				->Split
-				(
-					FTabManager::NewStack()
-					->SetSizeCoefficient(0.2f)
-					->SetHideTabWell(true)
-					->AddTab(PythonEditorTabs::ProjectViewID, ETabState::OpenedTab)
 				)
-				->Split
-				(
-					FTabManager::NewSplitter()
-					->SetSizeCoefficient(0.8f)
-					->SetOrientation(Orient_Vertical)
-					->Split
-					(
-						FTabManager::NewStack()
-						->SetSizeCoefficient(0.7f)
-						->SetHideTabWell(false)
-						->AddTab(PythonEditorTabs::PythonViewID, ETabState::OpenedTab)
-					)
-					->Split
-					(
-						FTabManager::NewStack()
-						->SetSizeCoefficient(0.3f)
-						->SetHideTabWell(true)
-						->AddTab(PythonEditorTabs::PythonLogViewID, ETabState::OpenedTab)
-					)
-				)
-			)
-		);
+
+			);
 
 	InPythonEditor->GetToolbarBuilder()->AddEditorToolbar(ToolbarExtender);
 }
@@ -211,10 +153,9 @@ FBasicPythonEditorMode::FBasicPythonEditorMode(TSharedPtr<class FPythonProjectEd
 void FBasicPythonEditorMode::RegisterTabFactories(TSharedPtr<FTabManager> InTabManager)
 {
 	TSharedPtr<FPythonProjectEditor> Editor = MyPythonEditor.Pin();
-	
+
 	Editor->RegisterToolbarTab(InTabManager.ToSharedRef());
 	Editor->PushTabFactories(ProjectViewTabFactories);
-	Editor->PushTabFactories(ProjectLogViewTabFactories);
 
 	FApplicationMode::RegisterTabFactories(InTabManager);
 }
@@ -241,7 +182,7 @@ void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const
 	PythonProjectBeingEdited = PythonProject;
 
 	TSharedPtr<FPythonProjectEditor> ThisPtr(SharedThis(this));
-	if(!DocumentManager.IsValid())
+	if (!DocumentManager.IsValid())
 	{
 		DocumentManager = MakeShareable(new FDocumentTracker);
 		DocumentManager->Initialize(ThisPtr);
@@ -267,7 +208,7 @@ void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const
 
 	// Create the modes and activate one (which will populate with a real layout)
 	AddApplicationMode(
-		PythonEditorModes::StandardMode, 
+		PythonEditorModes::StandardMode,
 		MakeShareable(new FBasicPythonEditorMode(ThisPtr, PythonEditorModes::StandardMode)));
 	SetCurrentMode(PythonEditorModes::StandardMode);
 
@@ -279,20 +220,20 @@ void FPythonProjectEditor::BindCommands()
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().New,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::New_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanNew)
-	);
+		);
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().Delete,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::Delete_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanDelete)
-	);
+		);
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().Save,
-			FExecuteAction::CreateSP(this, &FPythonProjectEditor::Save_Internal),
-			FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanSave)
-			);
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::Save_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanSave)
+		);
 
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().SaveAll,
-			FExecuteAction::CreateSP(this, &FPythonProjectEditor::SaveAll_Internal),
-			FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanSaveAll)
-			);
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::SaveAll_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanSaveAll)
+		);
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().Execute,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::Execute_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
@@ -319,7 +260,7 @@ FName FPythonProjectEditor::GetToolkitFName() const
 
 FText FPythonProjectEditor::GetBaseToolkitName() const
 {
-	return LOCTEXT( "AppLabel", "Python Editor" );
+	return LOCTEXT("AppLabel", "Python Editor");
 }
 
 FText FPythonProjectEditor::GetToolkitName() const
@@ -356,7 +297,7 @@ TSharedRef<SWidget> FPythonProjectEditor::CreatePythonEditorWidget(TSharedRef<FT
 FString FPythonProjectEditor::GetNoneRepeatName()
 {
 	UPythonProject* PythonProject = PythonProjectBeingEdited.Get();
-	
+
 	int suf = 2;
 	FString scriptName;
 	while (true)
@@ -367,28 +308,28 @@ FString FPythonProjectEditor::GetNoneRepeatName()
 		if (!FPaths::FileExists(scriptName)) {
 			return scriptName;
 		}
-		
+
 		suf++;
 	}
 }
 void FPythonProjectEditor::New_Internal()
 {
-	New(); 
+	New();
 }
 
 bool FPythonProjectEditor::New()
 {
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-	
+
 	FString scriptName = GetNoneRepeatName();
-	IFileHandle* fileHandle=PlatformFile.OpenWrite(*scriptName);
+	IFileHandle* fileHandle = PlatformFile.OpenWrite(*scriptName);
 	if (fileHandle == NULL) {
 		return false;
 	}
 	fileHandle->~IFileHandle();
 	UPythonProject* PythonProject = PythonProjectBeingEdited.Get();
 	PythonProject->RescanChildren();
-	UPythonProjectItem* item=MyPythonProjectEditor->SelectByPath(scriptName);
+	UPythonProjectItem* item = MyPythonProjectEditor->SelectByPath(scriptName);
 	OpenFileForEditing(item);
 	return true;
 }
@@ -428,7 +369,7 @@ void FPythonProjectEditor::Save_Internal()
 
 bool FPythonProjectEditor::Save()
 {
-	if(DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
+	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
 	{
 		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
 		return PythonEditorRef->Save();
@@ -439,7 +380,7 @@ bool FPythonProjectEditor::Save()
 
 bool FPythonProjectEditor::CanSave() const
 {
-	if(DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
+	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
 	{
 		TSharedRef<SWidget> Content = DocumentManager->GetActiveTab()->GetContent();
 		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(Content);
@@ -458,15 +399,15 @@ bool FPythonProjectEditor::SaveAll()
 {
 	bool bResult = true;
 
-	if(DocumentManager.IsValid())
+	if (DocumentManager.IsValid())
 	{
 		TArray<TSharedPtr<SDockTab>> AllTabs = DocumentManager->GetAllDocumentTabs();
-		for(auto& Tab : AllTabs)
+		for (auto& Tab : AllTabs)
 		{
-			if(Tab.IsValid())
+			if (Tab.IsValid())
 			{
 				TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(Tab->GetContent());
-				if(!PythonEditorRef->Save())
+				if (!PythonEditorRef->Save())
 				{
 					bResult = false;
 				}

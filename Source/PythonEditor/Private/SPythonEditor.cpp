@@ -8,7 +8,6 @@
 
 
 #define LOCTEXT_NAMESPACE "PythonEditor"
-DEFINE_LOG_CATEGORY(LogPythonEditor);
 
 void SPythonEditor::Construct(const FArguments& InArgs, UPythonProjectItem* InPythonProjectItem)
 {
@@ -97,7 +96,6 @@ void SPythonEditor::Execute() const
 	if (SelectionString.Len() == 0) {
 		SelectionString = PythonEditableText->GetText().ToString();
 	}
-	UE_LOG(LogPythonEditor, Log, TEXT(">>> %s"), *SelectionString);
 	PythonModule.RunString(TCHAR_TO_UTF8(*SelectionString));
 }
 

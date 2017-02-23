@@ -53,7 +53,7 @@ public:
 		// Add Python editor extension to main menu
 		Extender->AddMenuExtension(
 			"WindowLayout",
-			EExtensionHook::First,
+			EExtensionHook::After,
 			TSharedPtr<FUICommandList>(),
 			FMenuExtensionDelegate::CreateStatic( &Local::ExtendMenu ) );
 
