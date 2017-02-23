@@ -147,7 +147,7 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 		//Get stdout output information
 		PyObject* catcher = PyObject_GetAttrString((PyObject*)main_module, "catcher");
 		PyObject* output = PyObject_GetAttrString(catcher, "data");
-		char * buffer = PyString_AsString(output);
+		char * buffer = PyUnicode_AsUTF8(output);
 		UE_LOG(LogPython, Log, TEXT("%s"), ANSI_TO_TCHAR(buffer));
 
 		PyRun_SimpleString("sys.stdout.flush()");

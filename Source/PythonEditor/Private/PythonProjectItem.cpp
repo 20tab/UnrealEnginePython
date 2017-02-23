@@ -3,6 +3,7 @@
 #include "PythonEditorPrivatePCH.h"
 #include "PythonProjectItem.h"
 #include "DirectoryScanner.h"
+#include "Developer/DirectoryWatcher/Public/IDirectoryWatcher.h"
 
 UPythonProjectItem::UPythonProjectItem(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

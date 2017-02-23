@@ -6,6 +6,8 @@
 #include "SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
 #include "SPythonLog.h"
+#include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
+#include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"
 #define LOCTEXT_NAMESPACE "PythonEditor"
 
 TWeakPtr<FPythonProjectEditor> FPythonProjectEditor::PythonEditor;
