@@ -223,16 +223,16 @@ FPythonProjectEditor::FPythonProjectEditor()
 {
 }
 
-void FPythonProjectEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& TabManager)
+void FPythonProjectEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& NewTabManager)
 {
-	DocumentManager->SetTabManager(TabManager);
+	DocumentManager->SetTabManager(NewTabManager);
 
-	FWorkflowCentricApplication::RegisterTabSpawners(TabManager);
+	FWorkflowCentricApplication::RegisterTabSpawners(NewTabManager);
 }
 
-void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager>& TabManager)
+void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager>& NewTabManager)
 {
-	FAssetEditorToolkit::RegisterTabSpawners(TabManager);
+	FAssetEditorToolkit::RegisterTabSpawners(NewTabManager);
 }
 
 void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UPythonProject* PythonProject)
