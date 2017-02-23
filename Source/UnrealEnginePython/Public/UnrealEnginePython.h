@@ -26,6 +26,7 @@ private:
 	// used by console
 	void *main_dict;
 	void *local_dict;
+	void *main_module;
 };
 
 struct FScopePythonGIL {
