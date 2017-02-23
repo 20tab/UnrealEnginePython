@@ -4,9 +4,9 @@
 #include "SPythonEditableText.h"
 
 
-void SPythonEditableText::Construct( const FArguments& InArgs )
+void SPythonEditableText::Construct(const FArguments& InArgs)
 {
-	
+
 	SMultiLineEditableText::Construct(
 		SMultiLineEditableText::FArguments()
 		.Font(FPythonEditorStyle::Get().GetWidgetStyle<FTextBlockStyle>("TextEditor.NormalText").Font)
@@ -18,7 +18,7 @@ void SPythonEditableText::Construct( const FArguments& InArgs )
 		.HScrollBar(InArgs._HScrollBar)
 		.VScrollBar(InArgs._VScrollBar)
 		.OnTextChanged(InArgs._OnTextChanged)
-	);
+		);
 	OnExecuted = InArgs._OnExecuted;
 }
 
@@ -32,7 +32,7 @@ FReply SPythonEditableText::OnKeyChar(const FGeometry& MyGeometry, const FCharac
 		return Reply;
 	}
 	Reply = FReply::Handled();
-	if(Character == TEXT('\t'))
+	if (Character == TEXT('\t'))
 	{
 		FString String;
 		String.AppendChar(Character);
@@ -65,7 +65,7 @@ FReply SPythonEditableText::OnKeyChar(const FGeometry& MyGeometry, const FCharac
 	//}
 	else
 	{
-		Reply = SMultiLineEditableText::OnKeyChar( MyGeometry, InCharacterEvent );
+		Reply = SMultiLineEditableText::OnKeyChar(MyGeometry, InCharacterEvent);
 	}
 
 	return Reply;

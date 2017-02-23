@@ -59,6 +59,8 @@ public:
 
 	bool Execute();
 
+	bool ExecuteInSandbox();
+
 	FString GetNoneRepeatName();
 
 private:
@@ -73,6 +75,8 @@ private:
 	void SaveAll_Internal();
 
 	void Execute_Internal();
+
+	void ExecuteInSandbox_Internal();
 
 	bool CanNew() const;
 

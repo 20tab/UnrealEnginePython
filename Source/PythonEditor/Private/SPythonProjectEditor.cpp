@@ -15,36 +15,36 @@ void SPythonProjectEditor::Construct(const FArguments& InArgs, UPythonProject* I
 	PythonProject = InPythonProject;
 
 	ChildSlot
-	[
-		SNew(SBorder)
-		.BorderImage(FPythonEditorStyle::Get().GetBrush("ProjectEditor.Border"))
+		[
+			SNew(SBorder)
+			.BorderImage(FPythonEditorStyle::Get().GetBrush("ProjectEditor.Border"))
 		[
 			SNew(SOverlay)
-			+SOverlay::Slot()
-			[
-				SAssignNew(ProjectTree, STreeView<UPythonProjectItem*>)
-				.TreeItemsSource(&PythonProject->Children)
-				.OnGenerateRow(this, &SPythonProjectEditor::OnGenerateRow)
-				.OnGetChildren(this, &SPythonProjectEditor::OnGetChildren)
-				.OnMouseButtonDoubleClick(this, &SPythonProjectEditor::HandleMouseButtonDoubleClick)
-				.ClearSelectionOnClick(false)
-			]
-			+SOverlay::Slot()
-			.VAlign(VAlign_Bottom)
-			.Padding(10.0f)
-			[
-				SNew(SThrobber)
-				.Visibility(this, &SPythonProjectEditor::GetThrobberVisibility)
-			]
+			+ SOverlay::Slot()
+		[
+			SAssignNew(ProjectTree, STreeView<UPythonProjectItem*>)
+			.TreeItemsSource(&PythonProject->Children)
+		.OnGenerateRow(this, &SPythonProjectEditor::OnGenerateRow)
+		.OnGetChildren(this, &SPythonProjectEditor::OnGetChildren)
+		.OnMouseButtonDoubleClick(this, &SPythonProjectEditor::HandleMouseButtonDoubleClick)
+		.ClearSelectionOnClick(false)
 		]
-	];
+	+ SOverlay::Slot()
+		.VAlign(VAlign_Bottom)
+		.Padding(10.0f)
+		[
+			SNew(SThrobber)
+			.Visibility(this, &SPythonProjectEditor::GetThrobberVisibility)
+		]
+		]
+		];
 
 	InPythonProject->RescanChildren();
 }
 
-void SPythonProjectEditor::Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime )
+void SPythonProjectEditor::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
-	if(FDirectoryScanner::Tick())
+	if (FDirectoryScanner::Tick())
 	{
 		ProjectTree->SetTreeItemsSource(&PythonProject->Children);
 	}
@@ -54,7 +54,7 @@ void SPythonProjectEditor::Tick( const FGeometry& AllottedGeometry, const double
 
 FName SPythonProjectEditor::GetIconForItem(UPythonProjectItem* Item) const
 {
-	switch(Item->Type)
+	switch (Item->Type)
 	{
 	case EPythonProjectItemType::Project:
 		return "ProjectEditor.Icon.Project";
@@ -74,16 +74,16 @@ TSharedRef<class ITableRow> SPythonProjectEditor::OnGenerateRow(UPythonProjectIt
 		[
 			SNew(SProjectViewItem)
 			.TreeItem(Item)
-			.Text(FText::FromString(Item->Name))
-			.IconName(GetIconForItem(Item))
-			.IsSelected(this, &SPythonProjectEditor::IsTreeItemSelected, Item)
-			.OnNameChanged(this,&SPythonProjectEditor::FolderNameChanged)
+		.Text(FText::FromString(Item->Name))
+		.IconName(GetIconForItem(Item))
+		.IsSelected(this, &SPythonProjectEditor::IsTreeItemSelected, Item)
+		.OnNameChanged(this, &SPythonProjectEditor::FolderNameChanged)
 		];
-} 
+}
 UPythonProjectItem* SPythonProjectEditor::SelectByPath(FString path)
 {
 	ProjectTree->SetTreeItemsSource(&PythonProject->Children);
-	UPythonProjectItem* Item=PythonProject->GetItemByPath(path);
+	UPythonProjectItem* Item = PythonProject->GetItemByPath(path);
 	if (Item != NULL) {
 		ProjectTree->ClearSelection();
 		ProjectTree->SetItemSelection(Item, true);
@@ -96,7 +96,7 @@ void SPythonProjectEditor::RequestTreeRefresh()
 }
 bool SPythonProjectEditor::HasSelectionItem()
 {
-	int32 selNum=ProjectTree->GetNumItemsSelected();
+	int32 selNum = ProjectTree->GetNumItemsSelected();
 	return selNum > 0;
 }
 TArray<UPythonProjectItem*> SPythonProjectEditor::GetSelectedItems()
@@ -122,13 +122,13 @@ void SPythonProjectEditor::OnGetChildren(UPythonProjectItem* Item, TArray<UPytho
 }
 
 EVisibility SPythonProjectEditor::GetThrobberVisibility() const
-{ 
-	return FDirectoryScanner::IsScanning() ? EVisibility::Visible : EVisibility::Hidden; 
+{
+	return FDirectoryScanner::IsScanning() ? EVisibility::Visible : EVisibility::Hidden;
 }
 
 void SPythonProjectEditor::HandleMouseButtonDoubleClick(UPythonProjectItem* Item) const
 {
-	if(Item->Type == EPythonProjectItemType::File)
+	if (Item->Type == EPythonProjectItemType::File)
 	{
 		FPythonProjectEditor::Get()->OpenFileForEditing(Item);
 	}

@@ -143,7 +143,8 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 	if (!eval_ret) {
 		unreal_engine_py_log_error();
 		return;
-	}else{
+	}
+	else {
 		//Get stdout output information
 		PyObject* catcher = PyObject_GetAttrString((PyObject*)main_module, "catcher");
 		PyObject* output = PyObject_GetAttrString(catcher, "data");
@@ -156,6 +157,43 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 
 	}
 	Py_DECREF(eval_ret);
+}
+
+// run a python string in a new sub interpreter 
+void FUnrealEnginePythonModule::RunStringSandboxed(char *str) {
+	FScopePythonGIL gil;
+
+	PyThreadState *_main = PyThreadState_Get();
+
+	PyThreadState *py_new_state = Py_NewInterpreter();
+	if (!py_new_state) {
+		UE_LOG(LogPython, Error, TEXT("Unable to create new Python interpreter"));
+		return;
+	}
+	PyThreadState_Swap(nullptr);
+	PyThreadState_Swap(py_new_state);
+
+	UESetupPythonInterpeter(false);
+
+	PyObject *m = PyImport_AddModule("__main__");
+	if (m == NULL) {
+		UE_LOG(LogPython, Error, TEXT("Unable to create new global dict"));
+		Py_EndInterpreter(py_new_state);
+		PyThreadState_Swap(_main);
+		return;
+	}
+	PyObject *global_dict = PyModule_GetDict(m);
+
+	PyObject *eval_ret = PyRun_String(str, Py_file_input, global_dict, global_dict);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		Py_EndInterpreter(py_new_state);
+		PyThreadState_Swap(_main);
+		return;
+	}
+
+	Py_EndInterpreter(py_new_state);
+	PyThreadState_Swap(_main);
 }
 
 void FUnrealEnginePythonModule::RunFile(char *filename) {
@@ -208,7 +246,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 	{
 		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
 	}
-	
+
 	PyThreadState *_main = PyThreadState_Get();
 
 	PyThreadState *py_new_state = Py_NewInterpreter();
@@ -229,7 +267,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 		return;
 	}
 	PyObject *global_dict = PyModule_GetDict(m);
-	
+
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
 

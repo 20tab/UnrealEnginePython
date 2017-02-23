@@ -14,6 +14,7 @@ public:
 	TSharedPtr<FUICommandInfo> Save;
 	TSharedPtr<FUICommandInfo> SaveAll;
 	TSharedPtr<FUICommandInfo> Execute;
+	TSharedPtr<FUICommandInfo> ExecuteInSandbox;
 	/** Initialize commands */
 	virtual void RegisterCommands() override;
 };

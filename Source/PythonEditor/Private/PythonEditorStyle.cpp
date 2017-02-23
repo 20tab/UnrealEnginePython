@@ -57,6 +57,8 @@ void FPythonEditorStyle::Initialize()
 		StyleSet->Set("PythonEditor.SaveAll.Small", new IMAGE_BRUSH("UI/SaveAll_40x", Icon16x16));
 		StyleSet->Set("PythonEditor.Execute", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
 		StyleSet->Set("PythonEditor.Execute.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
+		StyleSet->Set("PythonEditor.ExecuteInSandbox", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
+		StyleSet->Set("PythonEditor.ExecuteInSandbox.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 	}
 
 	const FSlateFontInfo Consolas10  = TTF_FONT("Font/DroidSansMono", 9);
@@ -100,7 +102,7 @@ void FPythonEditorStyle::Initialize()
 
 		StyleSet->Set("ProjectEditor.Icon.Project", new IMAGE_BRUSH("UI/FolderClosed", Icon16x16, FLinearColor(0.25f,0.25f,0.25f,1)));
 		StyleSet->Set("ProjectEditor.Icon.Folder", new IMAGE_BRUSH("UI/FolderClosed", Icon16x16, FLinearColor(0.25f,0.25f,0.25f,1)));
-		StyleSet->Set("ProjectEditor.Icon.File", new IMAGE_BRUSH("UI/GenericFile", Icon16x16));
+		StyleSet->Set("ProjectEditor.Icon.File", new IMAGE_BRUSH("UI/PythonEditor_16x", Icon16x16));
 		StyleSet->Set("ProjectEditor.Icon.GenericFile", new IMAGE_BRUSH("UI/GenericFile", Icon16x16));
 	}
 

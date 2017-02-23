@@ -10,12 +10,12 @@
 
 void SProjectViewItem::Construct(const FArguments& InArgs)
 {
-	TreeItem=InArgs._TreeItem;
+	TreeItem = InArgs._TreeItem;
 	OnNameChanged = InArgs._OnNameChanged;
 	ChildSlot
-	[
-		SNew(SHorizontalBox)
-		+SHorizontalBox::Slot()
+		[
+			SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Center)
 		.Padding(1.0f)
@@ -24,18 +24,18 @@ void SProjectViewItem::Construct(const FArguments& InArgs)
 			SNew(SImage)
 			.Image(FPythonEditorStyle::Get().GetBrush(InArgs._IconName))
 		]
-		+SHorizontalBox::Slot()
+	+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Center)
 		.Padding(1.0f)
 		.FillWidth(1.0f)
 		[
-			SAssignNew(InlineRenameWidget,SInlineEditableTextBlock)
+			SAssignNew(InlineRenameWidget, SInlineEditableTextBlock)
 			.Text(InArgs._Text)
-			.OnTextCommitted(this, &SProjectViewItem::HandleNameCommitted)
-			.IsSelected(InArgs._IsSelected)
+		.OnTextCommitted(this, &SProjectViewItem::HandleNameCommitted)
+		.IsSelected(InArgs._IsSelected)
 		]
-	];
+		];
 }
 
 void SProjectViewItem::HandleNameCommitted(const FText& NewText, ETextCommit::Type)
@@ -48,8 +48,8 @@ void SProjectViewItem::HandleNameCommitted(const FText& NewText, ETextCommit::Ty
 	TreeItem->Path.Split(TEXT("/"), &Path, NULL, ESearchCase::CaseSensitive, ESearchDir::FromEnd);
 	FString NewPath = Path + TEXT("/") + NewText.ToString() + TEXT(".py");
 	if (!FPaths::FileExists(NewPath)) {
-		int Result = rename( TCHAR_TO_ANSI(*OldPath), TCHAR_TO_ANSI(*NewPath));
-		if (Result==0) {
+		int Result = rename(TCHAR_TO_ANSI(*OldPath), TCHAR_TO_ANSI(*NewPath));
+		if (Result == 0) {
 			TreeItem->Name = NewText.ToString();
 			TreeItem->Path = NewPath;
 			InlineRenameWidget->SetText(TreeItem->Name);

@@ -239,6 +239,11 @@ void FPythonProjectEditor::BindCommands()
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
 		);
 
+	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().ExecuteInSandbox,
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::ExecuteInSandbox_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
+		);
+
 }
 
 void FPythonProjectEditor::CloseFileForEditing(UPythonProjectItem* Item)
@@ -417,7 +422,13 @@ bool FPythonProjectEditor::SaveAll()
 
 	return bResult;
 }
+
 void FPythonProjectEditor::Execute_Internal()
+{
+	Execute();
+}
+
+void FPythonProjectEditor::ExecuteInSandbox_Internal()
 {
 	Execute();
 }
@@ -429,6 +440,17 @@ bool FPythonProjectEditor::Execute()
 	{
 		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
 		PythonEditorRef->Execute();
+	}
+
+	return true;
+}
+
+bool FPythonProjectEditor::ExecuteInSandbox()
+{
+	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
+	{
+		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
+		PythonEditorRef->ExecuteInSandbox();
 	}
 
 	return true;

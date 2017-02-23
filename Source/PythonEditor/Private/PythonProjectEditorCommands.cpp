@@ -6,7 +6,7 @@
 #define LOCTEXT_NAMESPACE "PythonProjectEditorCommands"
 
 
-FPythonProjectEditorCommands::FPythonProjectEditorCommands() 
+FPythonProjectEditorCommands::FPythonProjectEditorCommands()
 	: TCommands<FPythonProjectEditorCommands>("PythonEditor", LOCTEXT("General", "General"), NAME_None, FPythonEditorStyle::GetStyleSetName())
 {
 }
@@ -19,7 +19,8 @@ void FPythonProjectEditorCommands::RegisterCommands()
 
 	UI_COMMAND(Save, "Save", "Save the currently active document.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::S));
 	UI_COMMAND(SaveAll, "Save All", "Save all open documents.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control | EModifierKey::Shift, EKeys::S));
-	UI_COMMAND(Execute, "Execute", "Execute Current Python File.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control ,EKeys::Enter));
+	UI_COMMAND(Execute, "Execute", "Execute Current Python File.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::Enter));
+	UI_COMMAND(ExecuteInSandbox, "Execute In Sandbox", "Execute Current Python File in a Sandbox.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control | EModifierKey::Shift, EKeys::Enter));
 
 }
 

@@ -18,6 +18,7 @@ public:
 	virtual void ShutdownModule() override;
 
 	void RunString(char *);
+	void RunStringSandboxed(char *);
 	void RunFile(char *);
 	void RunFileSandboxed(char *);
 
