@@ -47,6 +47,7 @@ void FPythonEditorStyle::Initialize()
 		StyleSet->Set("PythonEditor.TabIcon", new IMAGE_BRUSH("UI/PythonEditor_16x", Icon16x16));
 
 		StyleSet->Set("PythonEditor.New", new IMAGE_BRUSH("UI/GenericFile", Icon40x40));
+		StyleSet->Set("PythonEditor.NewDirectory", new IMAGE_BRUSH("UI/GenericFile", Icon40x40));
 		StyleSet->Set("PythonEditor.New.Small", new IMAGE_BRUSH("UI/GenericFile", Icon16x16));
 		StyleSet->Set("PythonEditor.Delete", new IMAGE_BRUSH("UI/DeleteFile", Icon40x40));
 		StyleSet->Set("PythonEditor.Delete.Small", new IMAGE_BRUSH("UI/DeleteFile", Icon16x16));

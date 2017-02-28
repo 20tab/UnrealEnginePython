@@ -10,6 +10,7 @@ public:
 	FPythonProjectEditorCommands();
 
 	TSharedPtr<FUICommandInfo> New;
+	TSharedPtr<FUICommandInfo> NewDirectory;
 	TSharedPtr<FUICommandInfo> Delete;
 	TSharedPtr<FUICommandInfo> Save;
 	TSharedPtr<FUICommandInfo> SaveAll;

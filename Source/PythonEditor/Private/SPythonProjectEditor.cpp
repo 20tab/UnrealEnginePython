@@ -107,9 +107,10 @@ TArray<UPythonProjectItem*> SPythonProjectEditor::GetSelectedItems()
 
 void SPythonProjectEditor::FolderNameChanged(UPythonProjectItem* Item)
 {
-
-	FPythonProjectEditor::Get()->CloseFileForEditing(Item);
-	FPythonProjectEditor::Get()->OpenFileForEditing(Item);
+	if (Item->Type == EPythonProjectItemType::File) {
+		FPythonProjectEditor::Get()->CloseFileForEditing(Item);
+		FPythonProjectEditor::Get()->OpenFileForEditing(Item);
+	}
 }
 bool SPythonProjectEditor::IsTreeItemSelected(UPythonProjectItem* Item) const
 {

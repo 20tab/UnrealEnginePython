@@ -15,6 +15,7 @@ FPythonProjectEditorCommands::FPythonProjectEditorCommands()
 void FPythonProjectEditorCommands::RegisterCommands()
 {
 	UI_COMMAND(New, "New", "New Python Script.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::N));
+	UI_COMMAND(NewDirectory, "New Directory", "New Directory.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control | EModifierKey::Shift, EKeys::N));
 	UI_COMMAND(Delete, "Delete", "Delete Python Script.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::D));
 
 	UI_COMMAND(Save, "Save", "Save the currently active document.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::S));

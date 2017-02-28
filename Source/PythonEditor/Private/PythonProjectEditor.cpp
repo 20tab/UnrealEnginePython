@@ -221,6 +221,10 @@ void FPythonProjectEditor::BindCommands()
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::New_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanNew)
 		);
+	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().NewDirectory,
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::NewDirectory_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanNew)
+		);
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().Delete,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::Delete_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanDelete)
@@ -299,9 +303,17 @@ TSharedRef<SWidget> FPythonProjectEditor::CreatePythonEditorWidget(TSharedRef<FT
 	return SNew(SPythonEditor, Item);
 }
 
-FString FPythonProjectEditor::GetNoneRepeatName()
+FString FPythonProjectEditor::GetSafeName(bool IsDirectory)
 {
 	UPythonProject* PythonProject = PythonProjectBeingEdited.Get();
+
+	TArray<UPythonProjectItem*> selItems = MyPythonProjectEditor->GetSelectedItems();
+	FString basePath = PythonProject->Path;
+	if (selItems.Num() > 0) {
+		if (selItems[0]->Type == EPythonProjectItemType::Folder) {
+			basePath = selItems[0]->Path;
+		}
+	}
 
 	int suf = 2;
 	FString scriptName;
@@ -309,14 +321,23 @@ FString FPythonProjectEditor::GetNoneRepeatName()
 	{
 
 		FString SufStr = FString::Printf(TEXT("%d"), suf);
-		scriptName = PythonProject->Path / TEXT("PythonScript") + SufStr + TEXT(".py");
-		if (!FPaths::FileExists(scriptName)) {
-			return scriptName;
+		if (!IsDirectory) {
+			scriptName = basePath / TEXT("PythonScript") + SufStr + TEXT(".py");
+			if (!FPaths::FileExists(scriptName)) {
+				return scriptName;
+			}
+		}
+		else {
+			scriptName = basePath / TEXT("NewDirectory") + SufStr;
+			if (!FPaths::DirectoryExists(scriptName)) {
+				return scriptName;
+			}
 		}
 
 		suf++;
 	}
 }
+
 void FPythonProjectEditor::New_Internal()
 {
 	New();
@@ -326,7 +347,7 @@ bool FPythonProjectEditor::New()
 {
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 
-	FString scriptName = GetNoneRepeatName();
+	FString scriptName = GetSafeName(false);
 	IFileHandle* fileHandle = PlatformFile.OpenWrite(*scriptName);
 	if (fileHandle == NULL) {
 		return false;
@@ -335,7 +356,26 @@ bool FPythonProjectEditor::New()
 	UPythonProject* PythonProject = PythonProjectBeingEdited.Get();
 	PythonProject->RescanChildren();
 	UPythonProjectItem* item = MyPythonProjectEditor->SelectByPath(scriptName);
-	OpenFileForEditing(item);
+	if (item)
+		OpenFileForEditing(item);
+	return true;
+}
+
+void FPythonProjectEditor::NewDirectory_Internal()
+{
+	NewDirectory();
+}
+
+bool FPythonProjectEditor::NewDirectory()
+{
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+	FString dirName = GetSafeName(true);
+	if (!PlatformFile.CreateDirectory(*dirName)) {
+		return false;
+	}
+	UPythonProject* PythonProject = PythonProjectBeingEdited.Get();
+	PythonProject->RescanChildren();
 	return true;
 }
 

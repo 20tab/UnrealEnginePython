@@ -51,6 +51,8 @@ public:
 	TSharedPtr<class FPythonProjectEditorToolbar> GetToolbarBuilder() { return ToolbarBuilder; }
 	bool New();
 
+	bool NewDirectory();
+
 	bool Delete();
 
 	bool Save();
@@ -61,12 +63,14 @@ public:
 
 	bool ExecuteInSandbox();
 
-	FString GetNoneRepeatName();
+	FString GetSafeName(bool IsDirectory);
 
 private:
 	void BindCommands();
 
 	void New_Internal();
+
+	void NewDirectory_Internal();
 
 	void Delete_Internal();
 

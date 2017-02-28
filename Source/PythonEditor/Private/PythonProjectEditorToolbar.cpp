@@ -26,6 +26,7 @@ void FPythonProjectEditorToolbar::FillEditorToolbar(FToolBarBuilder& ToolbarBuil
 	ToolbarBuilder.BeginSection(TEXT("FileManagement"));
 	{
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().New);
+		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().NewDirectory);
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().Delete);
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().Save);
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().SaveAll);
