@@ -947,6 +947,17 @@ blueprint_actor = ue.load_object(BlueprintGeneratedClass, '/Game/TestBall.TestBa
 actor000 = world.actor_spawn(blueprint_actor, FVector(0, 0, 0), FRotator(0, 0, 0))
 ```
 
+The Python Editor
+-----------------
+
+Starting from version 20170301 a handy editor has been added to the plugin:
+
+![Alt text](screenshots/python_editor_screenshot001.png?raw=true "Python Editor Screenshot")
+
+It allows you to run, create, modify and delete scripts directly from the UE editor
+
+The first pull request for the editor has been issued by https://github.com/sun5471 so many thanks to him ;)
+
 Integration with PyQT
 ---------------------
 
