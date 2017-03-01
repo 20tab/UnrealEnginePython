@@ -5,15 +5,15 @@ Embed Python in Unreal Engine 4
 
 This is a plugin embedding a whole Python VM (versions 3.x [the default and suggested one] and 2.7) In Unreal Engine 4 (both the editor and runtime).
 
-The Python VM tries to give easy access to all of the UE4 internal api + its reflection system. This means you can use the plugin to write other plugins, to automate tasks and to implement gameplay elements.
+The Python VM tries to give easy access to all of the UE4 internal api + its reflection system. This means you can use the plugin to write other plugins, to automate tasks, to write unit tests and to implement gameplay elements.
 
-It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;). If your development pipeline is already python-based (Maya, Blender, ...), this plugin could easily help you in intgrating unreal into it.
+It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;). If your development pipeline is already python-based (Maya, Blender, ...), this plugin could easily help you in integrating unreal into it.
 
-Another funny feature is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
+Another funny feature (well, a side effect ;) is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
 In addition to this, the plugin automatically adds an actor class (PyActor), a pawn class (PyPawn), a character class (PyCharacter) and a component class (PythonComponent) for "gentle" integration of python in your games.
 
-In the development menu, you get access to the 'PythonConsole' too, you can use it to trigger python commands directly from the editor.
+In the development menu, you get access to the 'PythonConsole' too, you can use it to trigger python commands directly from the editor. There is even an experimental Editor/IDE included, you can run it from the Window/Layout/Python Editor menu item.
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
