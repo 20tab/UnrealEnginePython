@@ -144,7 +144,27 @@ FBasicPythonEditorMode::FBasicPythonEditorMode(TSharedPtr<class FPythonProjectEd
 				->SetHideTabWell(true)
 				->AddTab(InPythonEditor->GetToolbarTabId(), ETabState::OpenedTab)
 				)
+			->Split
+			(
+				FTabManager::NewSplitter()
+				->SetSizeCoefficient(0.9f)
+				->SetOrientation(Orient_Horizontal)
+				->Split
+				(
+					FTabManager::NewStack()
+					->SetSizeCoefficient(0.2)
+					->SetHideTabWell(true)
+					->AddTab(PythonEditorTabs::ProjectViewID, ETabState::OpenedTab)
+					)
+				->Split
+				(
+					FTabManager::NewStack()
+					->SetSizeCoefficient(0.8)
+					->SetHideTabWell(false)
+					->AddTab(PythonEditorTabs::PythonViewID, ETabState::ClosedTab)
 
+					)
+				)
 			);
 
 	InPythonEditor->GetToolbarBuilder()->AddEditorToolbar(ToolbarExtender);
