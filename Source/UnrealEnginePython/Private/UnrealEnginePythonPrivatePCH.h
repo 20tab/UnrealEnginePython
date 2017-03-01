@@ -35,6 +35,7 @@
 #include "UEPyFLinearColor.h"
 #include "UEPyFSocket.h"
 #include "UEPyUScriptStruct.h"
+#include "UEPyFRandomStream.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"

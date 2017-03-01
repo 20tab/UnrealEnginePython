@@ -1091,6 +1091,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_fcolor(new_unreal_engine_module);
 	ue_python_init_flinearcolor(new_unreal_engine_module);
 
+	ue_python_init_frandomstream(new_unreal_engine_module);
+
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
 
 	ue_python_init_fdelegatehandle(new_unreal_engine_module);
