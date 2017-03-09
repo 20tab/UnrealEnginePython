@@ -582,6 +582,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_cdo", (PyCFunction)py_ue_get_cdo, METH_VARARGS, "" },
 	{ "enum_values", (PyCFunction)py_ue_enum_values, METH_VARARGS, "" },
+	{ "enum_names", (PyCFunction)py_ue_enum_names, METH_VARARGS, "" },
+#if ENGINE_MINOR_VERSION >= 15
+	{ "enum_user_defined_names", (PyCFunction)py_ue_enum_user_defined_names, METH_VARARGS, "" },
+#endif
 	{ NULL }  /* Sentinel */
 };
 
@@ -596,7 +600,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
+}
 	}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
@@ -660,6 +664,18 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 
 			// last hope, is it an enum ?
 			if (!function) {
+#if ENGINE_MINOR_VERSION >= 15
+				if (self->ue_object->IsA<UUserDefinedEnum>()) {
+					UUserDefinedEnum *u_enum = (UUserDefinedEnum *)self->ue_object;
+					PyErr_Clear();
+					FString attr_as_string = FString(UTF8_TO_TCHAR(attr));
+					for (auto item : u_enum->DisplayNameMap) {
+						if (item.Value.ToString() == attr_as_string) {
+							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
+						}
+					}
+				}
+#endif
 				if (self->ue_object->IsA<UEnum>()) {
 					UEnum *u_enum = (UEnum *)self->ue_object;
 					PyErr_Clear();
@@ -1274,7 +1290,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

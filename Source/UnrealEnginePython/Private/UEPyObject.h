@@ -25,6 +25,10 @@ PyObject *py_ue_save_config(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_cdo(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enum_values(ue_PyUObject *, PyObject *);
+PyObject *py_ue_enum_names(ue_PyUObject *, PyObject *);
+#if ENGINE_MINOR_VERSION >= 15
+PyObject *py_ue_enum_user_defined_names(ue_PyUObject *, PyObject *);
+#endif
 
 
 PyObject *py_ue_bind_event(ue_PyUObject *, PyObject *);
