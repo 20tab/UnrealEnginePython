@@ -91,7 +91,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *home = (wchar_t *)*PyHome;
 #else
-		char *home = TCHAR_TO_UTF8(*home);
+		char *home = TCHAR_TO_UTF8(*PyHome);
 #endif
 
 		Py_SetPythonHome(home);
