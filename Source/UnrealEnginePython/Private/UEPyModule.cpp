@@ -600,7 +600,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-}
+		}
 	}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
@@ -1290,7 +1290,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
@@ -1342,9 +1342,19 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		return PyLong_FromLong(value);
 	}
 
+	if (auto casted_prop = Cast<UUInt32Property>(prop)) {
+		uint32 value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyLong_FromUnsignedLong(value);
+	}
+
 	if (auto casted_prop = Cast<UInt64Property>(prop)) {
 		long long value = casted_prop->GetPropertyValue_InContainer(buffer);
 		return PyLong_FromLongLong(value);
+	}
+
+	if (auto casted_prop = Cast<UUInt64Property>(prop)) {
+		uint64 value = casted_prop->GetPropertyValue_InContainer(buffer);
+		return PyLong_FromUnsignedLongLong(value);
 	}
 
 	if (auto casted_prop = Cast<UFloatProperty>(prop)) {
@@ -1356,6 +1366,14 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 		int8 value = casted_prop->GetPropertyValue_InContainer(buffer);
 		return PyLong_FromLong(value);
 	}
+
+#if ENGINE_MINOR_VERSION >= 15
+	if (auto casted_prop = Cast<UEnumProperty>(prop)) {
+		UEnum *value = casted_prop->GetEnum();
+		uint64 enum_index = casted_prop->GetUnderlyingProperty()->GetUnsignedIntPropertyValue(buffer);
+		return PyLong_FromUnsignedLong(enum_index);
+	}
+#endif
 
 	if (auto casted_prop = Cast<UStrProperty>(prop)) {
 		FString value = casted_prop->GetPropertyValue_InContainer(buffer);
@@ -1470,6 +1488,41 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 
 		return py_list;
 	}
+
+#if ENGINE_MINOR_VERSION >= 15
+	if (auto casted_prop = Cast<UMapProperty>(prop)) {
+		FScriptMapHelper_InContainer map_helper(casted_prop, buffer);
+
+		PyObject *py_dict = PyDict_New();
+
+		int32 num = map_helper.Num();
+		for (int32 i = 0; num; i++) {
+			if (map_helper.IsValidIndex(i)) {
+				num--;
+
+				uint8 *key = map_helper.GetKeyPtr(i);
+				PyObject *py_key = ue_py_convert_property(map_helper.KeyProp, key);
+				if (!py_key) {
+					Py_DECREF(py_dict);
+					return NULL;
+				}
+
+				uint8 *value = map_helper.GetValuePtr(i);
+				PyObject *py_value = ue_py_convert_property(map_helper.ValueProp, value);
+				if (!py_value) {
+					Py_DECREF(py_dict);
+					return NULL;
+				}
+
+				PyDict_SetItem(py_dict, py_key, py_value);
+				Py_DECREF(py_key);
+				Py_DECREF(py_value);
+			}
+		}
+
+		return py_dict;
+	}
+#endif
 
 	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
 }
