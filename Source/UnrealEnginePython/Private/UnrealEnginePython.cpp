@@ -86,6 +86,16 @@ static void UESetupPythonInterpeter(bool verbose) {
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	FString PyHome;
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PyHome, GEngineIni)) {
+#if PY_MAJOR_VERSION >= 3
+		wchar_t *home = (wchar_t *)*PyHome;
+#else
+		char *home = TCHAR_TO_UTF8(*home);
+#endif
+
+		Py_SetPythonHome(home);
+	}
 
 	Py_Initialize();
 #if PY_MAJOR_VERSION >= 3
@@ -234,7 +244,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 	}
 #endif
 
-	}
+}
 
 // run a python script in a new sub interpreter (useful for unit tests)
 void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
