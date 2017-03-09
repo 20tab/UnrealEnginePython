@@ -764,9 +764,14 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
 	UStruct *u_struct = nullptr;
+	UObject *u_object = self->ue_object;
 
 	if (self->ue_object->IsA<UStruct>()) {
 		u_struct = (UStruct *)self->ue_object;
+		if (self->ue_object->IsA<UClass>()) {
+			UClass *u_class = (UClass *)self->ue_object;
+			u_object = u_class->GetDefaultObject();
+		}
 	}
 	else {
 		u_struct = (UStruct *)self->ue_object->GetClass();
@@ -775,7 +780,7 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 	PyObject *py_struct_dict = PyDict_New();
 	TFieldIterator<UProperty> SArgs(u_struct);
 	for (; SArgs; ++SArgs) {
-		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)self->ue_object);
+		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object);
 		if (!struct_value) {
 			Py_DECREF(py_struct_dict);
 			return NULL;
