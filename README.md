@@ -986,7 +986,12 @@ def selected_skeletal_mesh(item):
     ue.log('Ready to reimport: ' + uobject.get_name())
     uobject.asset_reimport()
 
-app = QApplication([])
+#check if an instance of the application is already running
+app = QApplication.instance()
+if app is None:
+	app = QApplication([])
+else:
+	print("App already running.")
 
 win = QWidget()
 win.setWindowTitle('Unreal Engine 4 skeletal meshes reimporter')
