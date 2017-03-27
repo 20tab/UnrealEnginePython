@@ -285,6 +285,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
 	{ "set_actor_scale", (PyCFunction)py_ue_set_actor_scale, METH_VARARGS, "" },
 
+	{ "add_actor_world_offset", (PyCFunction)py_ue_add_actor_world_offset, METH_VARARGS, "" },
+	{ "add_actor_local_offset", (PyCFunction)py_ue_add_actor_local_offset, METH_VARARGS, "" },
+	{ "add_actor_world_rotation", (PyCFunction)py_ue_add_actor_world_rotation, METH_VARARGS, "" },
+	{ "add_actor_local_rotation", (PyCFunction)py_ue_add_actor_local_rotation, METH_VARARGS, "" },
+
 
 	{ "get_world_location", (PyCFunction)py_ue_get_world_location, METH_VARARGS, "" },
 	{ "get_world_rotation", (PyCFunction)py_ue_get_world_rotation, METH_VARARGS, "" },

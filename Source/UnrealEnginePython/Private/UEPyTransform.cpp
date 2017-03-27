@@ -94,6 +94,74 @@ PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_add_actor_world_offset(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec;
+	if (!py_ue_vector_arg(args, vec))
+		return NULL;
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+	actor->AddActorWorldOffset(vec);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_ue_add_actor_local_offset(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FVector vec;
+	if (!py_ue_vector_arg(args, vec))
+		return NULL;
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+	actor->AddActorLocalOffset(vec);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_ue_add_actor_world_rotation(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
+		return NULL;
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	actor->AddActorWorldRotation(rot);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_ue_add_actor_local_rotation(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FRotator rot;
+	if (!py_ue_rotator_arg(args, rot))
+		return NULL;
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+	actor->AddActorLocalRotation(rot);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_set_actor_scale(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
