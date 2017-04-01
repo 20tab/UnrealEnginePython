@@ -24,5 +24,5 @@
 #include "PythonProjectEditorCommands.h"
 #include "PythonProjectEditor.h"
 #include "PythonProjectItem.h"
-#include "UnrealEnginePython/Public/UnrealEnginePython.h"
+#include "UnrealEnginePython.h"
 
