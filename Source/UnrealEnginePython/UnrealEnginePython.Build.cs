@@ -31,7 +31,7 @@ public class UnrealEnginePython : ModuleRules
 
     public UnrealEnginePython(TargetInfo Target)
     {
-
+		PCHUsage = PCHUsageMode.UseSharedPCHs;
 
         PublicIncludePaths.AddRange(
             new string[] {

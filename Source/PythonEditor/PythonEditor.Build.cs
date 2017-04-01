@@ -6,6 +6,8 @@ namespace UnrealBuildTool.Rules
 	{
 		public PythonEditor(TargetInfo Target)
 		{
+			PCHUsage = PCHUsageMode.UseSharedPCHs;
+
 			PrivateIncludePaths.AddRange(
 				new string[] {
 					"PythonEditor/Private",

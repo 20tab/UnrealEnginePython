@@ -9,7 +9,9 @@ public class PythonConsole : ModuleRules
 
     public PythonConsole(TargetInfo Target)
 	{
-        PrivateIncludePaths.AddRange(
+		PCHUsage = PCHUsageMode.UseSharedPCHs;
+
+		PrivateIncludePaths.AddRange(
             new string[] {
                 "PythonConsole/Private",
 				// ... add other private include paths required here ...
