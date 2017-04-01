@@ -10,7 +10,7 @@ public class UnrealEnginePython : ModuleRules
     private string pythonHome = "";
     // otherwise specify the path of your python installation
     //private string pythonHome = "C:/Program Files/Python36";
-    // this is an example for Homebrew on Mac 
+    // this is an example for Homebrew on Mac
     //private string pythonHome = "/usr/local/Cellar/python3/3.6.0/Frameworks/Python.framework/Versions/3.6/";
 
 
@@ -31,12 +31,12 @@ public class UnrealEnginePython : ModuleRules
 
     public UnrealEnginePython(TargetInfo Target)
     {
-		PCHUsage = PCHUsageMode.UseSharedPCHs;
+        PCHUsage = PCHUsageMode.UseSharedPCHs;
 
         PublicIncludePaths.AddRange(
             new string[] {
                 "UnrealEnginePython/Public",
-				// ... add public include paths required here ...
+                // ... add public include paths required here ...
             }
             );
 
@@ -44,8 +44,8 @@ public class UnrealEnginePython : ModuleRules
         PrivateIncludePaths.AddRange(
             new string[] {
                 "UnrealEnginePython/Private",
-				// ... add other private include paths required here ...
-			}
+                // ... add other private include paths required here ...
+            }
             );
 
 
@@ -55,8 +55,8 @@ public class UnrealEnginePython : ModuleRules
                 "Core",
                 "Sockets",
                 "Networking"
-				// ... add other public dependencies that you statically link with here ...
-			}
+                // ... add other public dependencies that you statically link with here ...
+            }
             );
 
 
@@ -70,16 +70,16 @@ public class UnrealEnginePython : ModuleRules
                 "SlateCore",
                 "MovieScene",
                 "LevelSequence",
-				// ... add private dependencies that you statically link with here ...
-			}
+                // ... add private dependencies that you statically link with here ...
+            }
             );
 
 
         DynamicallyLoadedModuleNames.AddRange(
             new string[]
             {
-				// ... add any modules that your module loads dynamically here ...
-			}
+                // ... add any modules that your module loads dynamically here ...
+            }
             );
 
 

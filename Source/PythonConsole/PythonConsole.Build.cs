@@ -8,30 +8,30 @@ public class PythonConsole : ModuleRules
 
 
     public PythonConsole(TargetInfo Target)
-	{
-		PCHUsage = PCHUsageMode.UseSharedPCHs;
+    {
+        PCHUsage = PCHUsageMode.UseSharedPCHs;
 
-		PrivateIncludePaths.AddRange(
+        PrivateIncludePaths.AddRange(
             new string[] {
                 "PythonConsole/Private",
-				// ... add other private include paths required here ...
-			}
+                // ... add other private include paths required here ...
+            }
         );
 
         PrivateDependencyModuleNames.AddRange(
-			new string[] {
-				"Core",
-				"CoreUObject", // @todo Mac: for some reason it's needed to link in debug on Mac
-				"Engine",
+            new string[] {
+                "Core",
+                "CoreUObject", // @todo Mac: for some reason it's needed to link in debug on Mac
+                "Engine",
                 "InputCore",
-				"UnrealEd",
-				"Slate",
-				"SlateCore",
+                "UnrealEd",
+                "Slate",
+                "SlateCore",
                 "EditorStyle",
                 "TargetPlatform",
                 "UnrealEnginePython"
             }
-		);
+        );
 
     }
 }
