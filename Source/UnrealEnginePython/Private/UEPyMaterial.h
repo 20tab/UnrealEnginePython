@@ -24,4 +24,6 @@ PyObject *py_ue_set_material_parent(ue_PyUObject *, PyObject *);
 PyObject *py_ue_static_mesh_set_collision_for_lod(ue_PyUObject *, PyObject *);
 PyObject *py_ue_static_mesh_set_shadow_for_lod(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_get_material_graph(ue_PyUObject *, PyObject *);
+
 #endif

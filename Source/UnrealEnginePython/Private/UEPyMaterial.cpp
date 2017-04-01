@@ -418,4 +418,21 @@ PyObject *py_ue_static_mesh_set_shadow_for_lod(ue_PyUObject *self, PyObject * ar
 	return Py_None;
 }
 
+PyObject *py_ue_get_material_graph(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<UMaterialInterface>()) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	}
+
+	UMaterialInterface *material_interface = (UMaterialInterface *)self->ue_object;
+
+	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)material_interface->GetMaterial()->MaterialGraph);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 #endif

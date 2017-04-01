@@ -353,6 +353,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "asset_reimport", (PyCFunction)py_ue_asset_reimport, METH_VARARGS, "" },
 
 	{ "factory_create_new", (PyCFunction)py_ue_factory_create_new, METH_VARARGS, "" },
+	{ "factory_import_object", (PyCFunction)py_ue_factory_import_object, METH_VARARGS, "" },
 
 	{ "graph_add_node_call_function", (PyCFunction)py_ue_graph_add_node_call_function, METH_VARARGS, "" },
 	{ "graph_add_node_custom_event", (PyCFunction)py_ue_graph_add_node_custom_event, METH_VARARGS, "" },
@@ -365,6 +366,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "node_pins", (PyCFunction)py_ue_node_pins, METH_VARARGS, "" },
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
+
+	{ "get_material_graph", (PyCFunction)py_ue_get_material_graph, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },

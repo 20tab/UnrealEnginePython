@@ -1261,6 +1261,45 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *filename = nullptr;
+	char *name = nullptr;
+	if (!PyArg_ParseTuple(args, "ss:factory_import_object", &filename, &name)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UFactory>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a Factory");
+
+	UFactory *factory = (UFactory *)self->ue_object;
+
+	FString object_name = ObjectTools::SanitizeObjectName(FPaths::GetBaseFilename(UTF8_TO_TCHAR(filename)));
+	FString pkg_name = FString(UTF8_TO_TCHAR(name)) + TEXT("/") + object_name;
+
+	UPackage *outer = CreatePackage(nullptr, *pkg_name);
+	if (!outer)
+		return PyErr_Format(PyExc_Exception, "unable to create package");
+
+	bool canceled = false;
+	UObject *u_object = factory->ImportObject(factory->ResolveSupportedClass(), outer, FName(*object_name), RF_Public | RF_Standalone, UTF8_TO_TCHAR(filename), nullptr, canceled);
+
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "unable to create new object from factory");
+
+	FAssetRegistryModule::AssetCreated(u_object);
+	outer->MarkPackageDirty();
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
 
 	PyObject *py_world;

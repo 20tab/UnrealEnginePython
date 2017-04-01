@@ -56,6 +56,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *, PyObject *)
 
 
 PyObject *py_ue_factory_create_new(ue_PyUObject *, PyObject *);
+PyObject *py_ue_factory_import_object(ue_PyUObject *, PyObject *);
 
 PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject *, PyObject *);
 
