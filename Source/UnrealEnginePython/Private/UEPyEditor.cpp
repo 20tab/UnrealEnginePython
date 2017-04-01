@@ -199,7 +199,8 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	PyObject * assetsObject = nullptr;
 	char *destination;
 	PyObject *obj = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|O:import_asset", &assetsObject, &destination, &obj)) {
+	PyObject *py_sync = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|OO:import_asset", &assetsObject, &destination, &obj, &py_sync)) {
 		return NULL;
 	}
 
@@ -211,6 +212,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 
 	UClass *factory_class = nullptr;
 	UFactory *factory = nullptr;
+	bool sync_to_browser = false;
 
 	if (!obj || obj == Py_None) {
 		factory_class = nullptr;
@@ -279,13 +281,17 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		char * filename = PyString_AsString(PyObject_Str(assetsObject));
 #endif
 		files.Add(UTF8_TO_TCHAR(filename));
-}
+	}
 	else {
 		return PyErr_Format(PyExc_Exception, "Not a string nor valid list of string");
 	}
 
+	if (py_sync && PyObject_IsTrue(py_sync)) {
+		sync_to_browser = true;
+	}
+
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
-	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, false);
+	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, sync_to_browser);
 
 	if (objects.Num() == 1) {
 

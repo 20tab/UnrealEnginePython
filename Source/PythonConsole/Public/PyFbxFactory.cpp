@@ -11,7 +11,7 @@ UPyFbxFactory::UPyFbxFactory(const FObjectInitializer& ObjectInitializer)
 
 bool UPyFbxFactory::ConfigureProperties() {
 	bDetectImportTypeOnImport = true;
-	bShowOption = false;	
+	bShowOption = false;
 
 	return true;
 }

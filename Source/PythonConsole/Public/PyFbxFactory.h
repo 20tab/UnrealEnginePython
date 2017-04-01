@@ -6,7 +6,7 @@
 
 
 
-UCLASS(hidecategories=Object)
+UCLASS(hidecategories = Object)
 class UPyFbxFactory : public UFbxFactory
 {
 	GENERATED_BODY()
