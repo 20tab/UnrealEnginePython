@@ -341,6 +341,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_py_proxy", (PyCFunction)py_ue_get_py_proxy, METH_VARARGS, "" },
 
 	{ "post_edit_change", (PyCFunction)py_ue_post_edit_change, METH_VARARGS, "" },
+	{ "pre_edit_change", (PyCFunction)py_ue_pre_edit_change, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },

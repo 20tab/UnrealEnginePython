@@ -346,7 +346,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 
 	FName f_name = NAME_None;
 
-	if (name) {
+	if (name && strlen(name) > 0) {
 		f_name = FName(UTF8_TO_TCHAR(name));
 	}
 
