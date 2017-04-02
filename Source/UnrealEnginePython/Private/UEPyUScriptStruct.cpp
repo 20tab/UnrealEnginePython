@@ -59,11 +59,16 @@ static PyObject *py_ue_uscriptstruct_get_struct(ue_PyUScriptStruct *self, PyObje
 	return (PyObject *)ret;
 }
 
+static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * args) {
+	return py_ue_new_uscriptstruct(self->u_struct, self->data);
+}
+
 static PyMethodDef ue_PyUScriptStruct_methods[] = {
 	{ "get_field", (PyCFunction)py_ue_uscriptstruct_get_field, METH_VARARGS, "" },
 	{ "set_field", (PyCFunction)py_ue_uscriptstruct_set_field, METH_VARARGS, "" },
 	{ "fields", (PyCFunction)py_ue_uscriptstruct_fields, METH_VARARGS, "" },
 	{ "get_struct", (PyCFunction)py_ue_uscriptstruct_get_struct, METH_VARARGS, "" },
+	{ "clone", (PyCFunction)py_ue_uscriptstruct_clone, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
