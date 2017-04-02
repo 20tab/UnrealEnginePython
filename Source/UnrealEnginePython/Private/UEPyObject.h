@@ -49,6 +49,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_post_edit_change( ue_PyUObject *, PyObject * );
 PyObject *py_ue_pre_edit_change(ue_PyUObject *, PyObject *);
+PyObject *py_ue_modify(ue_PyUObject *, PyObject *);
 
 
 #if WITH_EDITOR

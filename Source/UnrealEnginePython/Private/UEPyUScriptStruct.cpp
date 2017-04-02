@@ -92,6 +92,10 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name) {
 	return nullptr;
 }
 
+UProperty *ue_struct_get_field_from_name(UScriptStruct *u_struct, char *name) {
+	return get_field_from_name(u_struct, name);
+}
+
 static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject *attr_name) {
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
 	if (!ret) {

@@ -141,6 +141,19 @@ PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_modify(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	if (!self->ue_object) {
+		return PyErr_Format(PyExc_Exception, "uobject is not valid");
+	}
+#if WITH_EDITOR
+	self->ue_object->Modify();
+#endif
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 

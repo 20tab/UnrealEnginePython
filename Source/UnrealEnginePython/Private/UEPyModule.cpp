@@ -342,6 +342,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "post_edit_change", (PyCFunction)py_ue_post_edit_change, METH_VARARGS, "" },
 	{ "pre_edit_change", (PyCFunction)py_ue_pre_edit_change, METH_VARARGS, "" },
+	{ "modify", (PyCFunction)py_ue_modify, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },
@@ -775,6 +776,37 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 #if WITH_EDITOR
 		u_script_struct->InitializeDefaultValue(data);
 #endif
+		if (kw) {
+			PyObject *struct_keys = PyObject_GetIter(kw);
+			for (;;) {
+				PyObject *key = PyIter_Next(struct_keys);
+				if (!key) {
+					if (PyErr_Occurred())
+						return PyErr_Format(PyExc_Exception, "unable to build struct from dictionary");
+					break;
+				}
+				if (!PyUnicodeOrString_Check(key))
+					continue;
+				char *struct_key = PyUnicode_AsUTF8(key);
+
+				PyObject *value = PyDict_GetItem(kw, key);
+				if (!value) {
+					if (PyErr_Occurred())
+						return PyErr_Format(PyExc_Exception, "unable to build struct from dictionary");
+					break;
+				}
+
+				UProperty *u_property = ue_struct_get_field_from_name(u_script_struct, struct_key);
+				if (u_property) {
+					if (!ue_py_convert_pyobject(value, u_property, data)) {
+						return PyErr_Format(PyExc_Exception, "invalid value for UProperty");
+					}
+				}
+				else {
+					return PyErr_Format(PyExc_Exception, "UProperty %s not found", struct_key);
+				}
+			}
+		}
 		return py_ue_new_uscriptstruct(u_script_struct, data);
 	}
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
