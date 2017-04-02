@@ -758,7 +758,9 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		Py_INCREF((PyObject *)self);
 		PyTuple_SetItem(py_args, 0, (PyObject *)self);
 		if (py_name) {
+			Py_INCREF(py_outer);
 			PyTuple_SetItem(py_args, 1, py_outer);
+			Py_INCREF(py_name);
 			PyTuple_SetItem(py_args, 2, py_name);
 		}
 		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
@@ -1299,7 +1301,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
