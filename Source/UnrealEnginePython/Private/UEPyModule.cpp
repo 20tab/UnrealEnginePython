@@ -1754,6 +1754,20 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		}
 	}
 
+	if (py_obj == Py_None) {
+		auto casted_prop_class = Cast<UClassProperty>(prop);
+		if (casted_prop_class) {
+			casted_prop_class->SetPropertyValue_InContainer(buffer, nullptr);
+			return true;
+		}
+		auto casted_prop = Cast<UObjectPropertyBase>(prop);
+		if (casted_prop) {
+			casted_prop->SetObjectPropertyValue_InContainer(buffer, nullptr);
+			return true;
+		}
+		return false;
+	}
+
 	return false;
 
 }
