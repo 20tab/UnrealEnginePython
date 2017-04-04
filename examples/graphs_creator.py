@@ -1,5 +1,6 @@
 import unreal_engine as ue
 from unreal_engine.classes import K2Node_InputKey, K2Node_SpawnActorFromClass, Actor, Character, KismetMathLibrary
+from unreal_engine.structs import Key
 
 # create  a new blueprint
 new_blueprint = ue.create_blueprint(Actor, '/Game/StrangeBlueprint')
@@ -44,8 +45,7 @@ make_transform = uber_page.graph_add_node_call_function(KismetMathLibrary.MakeTr
 make_transform.node_find_pin('ReturnValue').make_link_to(spawn_actor_node.node_find_pin('SpawnTransform'))
 
 input_key = K2Node_InputKey()
-# TODO implement the FKey struct
-#input_key.InputKey = ???
+input_key.InputKey = Key(KeyName='SpaceBar')
 input_key_node = uber_page.graph_add_node(input_key, 400, 400)
 
 # compile the blueprint
