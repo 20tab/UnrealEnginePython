@@ -493,12 +493,18 @@ PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args) {
 
 PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 	char *path;
-	if (!PyArg_ParseTuple(args, "s:delete_asset", &path)) {
+	PyObject *py_show_confirmation = nullptr;
+	if (!PyArg_ParseTuple(args, "s|O:delete_asset", &path, &py_show_confirmation)) {
 		return NULL;
 	}
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	bool show_confirmation = false;
+	if (py_show_confirmation && PyObject_IsTrue(py_show_confirmation)) {
+		show_confirmation = true;
+	}
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
@@ -507,7 +513,10 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 
 	UObject *u_object = asset.GetAsset();
 
-	if (!ObjectTools::DeleteSingleObject(u_object)) {
+	TArray<UObject *> objects;
+	objects.Add(u_object);
+
+	if (ObjectTools::ForceDeleteObjects(objects, show_confirmation) < 1) {
 		return PyErr_Format(PyExc_Exception, "unable to delete asset %s", path);
 	}
 
