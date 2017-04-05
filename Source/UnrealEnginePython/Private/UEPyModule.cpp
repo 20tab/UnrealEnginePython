@@ -192,9 +192,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 
 	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
-
-	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
+	{ "add_menu_extension", (PyCFunction)py_unreal_engine_add_menu_extension, METH_VARARGS | METH_KEYWORDS, "" },
+	{ "add_toolbar_extension", py_unreal_engine_add_toolbar_extension, METH_VARARGS, "" },
 	{ "add_nomad_tab", py_unreal_engine_add_nomad_tab, METH_VARARGS, "" },
+	{ "add_image_brush", py_unreal_engine_add_image_brush, METH_VARARGS, "" },
 
 	{ "slate_text_block", py_unreal_engine_slate_text_block, METH_VARARGS, "" },
 	{ "slate_box", py_unreal_engine_slate_box, METH_VARARGS, "" },
@@ -1235,6 +1237,13 @@ void unreal_engine_init_py_module() {
 	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_RETRY", PyLong_FromLong(EAppReturnType::Retry));
 	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_CONTINUE", PyLong_FromLong(EAppReturnType::Continue));
 	PyDict_SetItemString(unreal_engine_dict, "APP_RETURN_TYPE_CANCEL", PyLong_FromLong(EAppReturnType::Cancel));
+
+	PyDict_SetItemString(unreal_engine_dict, "SKELETAL_MESH_EDITOR", PyLong_FromLong(FPythonSlateToolBar::Editors::SkeletalMeshEditor));
+	PyDict_SetItemString(unreal_engine_dict, "STATIC_MESH_EDITOR", PyLong_FromLong(FPythonSlateToolBar::Editors::StaticMeshEditor));
+	PyDict_SetItemString(unreal_engine_dict, "ANIMATION_EDITOR", PyLong_FromLong(FPythonSlateToolBar::Editors::AnimationEditor));
+	PyDict_SetItemString(unreal_engine_dict, "BLUEPRINT_EDITOR", PyLong_FromLong(FPythonSlateToolBar::Editors::BlueprintEditor));
+	PyDict_SetItemString(unreal_engine_dict, "MATERIAL_EDITOR", PyLong_FromLong(FPythonSlateToolBar::Editors::MaterialEditor));
+	PyDict_SetItemString(unreal_engine_dict, "LEVEL_EDITOR", PyLong_FromLong(FPythonSlateToolBar::Editors::LevelEditor));
 
 #endif
 }

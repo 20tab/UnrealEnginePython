@@ -135,6 +135,9 @@ void FUnrealEnginePythonModule::StartupModule()
 		unreal_engine_py_log_error();
 	}
 
+	// This style is used for adding custom python icons.
+	FUEPyStyle::Initialize();
+
 #if WITH_EDITOR
 	// register commands (after importing ue_site)
 	FPythonSlateCommands::Register();
@@ -151,7 +154,7 @@ void FUnrealEnginePythonModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
-
+	FUEPyStyle::Shutdown();
 	UE_LOG(LogPython, Log, TEXT("Goodbye Python"));
 	PythonGILAcquire();
 	Py_Finalize();
