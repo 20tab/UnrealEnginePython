@@ -178,6 +178,33 @@ PyObject *py_ue_get_material_vector_parameter(ue_PyUObject *self, PyObject * arg
 	return py_ue_new_flinearcolor(vec);
 }
 
+PyObject *py_ue_get_all_texture_parameter_names(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	//UMaterial *material = (UMaterial *)self->ue_object;
+	TArray<FName> out_names;
+	TArray<FGuid> out_guids;
+	
+	if (self->ue_object->IsA<UMaterialInstance>()) {
+		UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+		material_instance->GetMaterial()->GetAllTextureParameterNames(out_names, out_guids);
+	}
+
+	if (self->ue_object->IsA<UMaterial>()) {
+		UMaterial *material_instance = (UMaterial*)self->ue_object;
+		material_instance->GetAllTextureParameterNames(out_names, out_guids);
+	}
+
+	PyObject *ret = PyList_New(out_names.Num());
+	for (int i = 0; i < out_names.Num(); i++) {
+		PyObject *tup = PyTuple_New(2);
+		PyTuple_SetItem(tup, 0, PyUnicode_FromString(TCHAR_TO_UTF8(*out_names[i].ToString())));
+		PyTuple_SetItem(tup, 1, PyUnicode_FromString(TCHAR_TO_UTF8(*out_guids[i].ToString())));
+		PyList_SetItem(ret, i, (PyObject *)tup);
+	}
+	Py_INCREF(ret);
+	return ret;
+}
 
 PyObject *py_ue_set_material_texture_parameter(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
