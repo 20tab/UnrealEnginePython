@@ -22,7 +22,7 @@
 #include "UEPySequencer.h"
 #include "UEPySlate.h"
 #include "UEPyPackage.h"
-#include "UEPyAssetUserData.h"
+#include "UEPyAssetImportData.h"
 #include "UEPyTexture.h"
 #include "UEPyMaterial.h"
 #include "UEPyPawn.h"
@@ -392,7 +392,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 #if WITH_EDITOR
 	// AssetUserData
-	{ "asset_import_data", (PyCFunction)py_ue_asset_import_data, METH_VARARGS, "" },
+	{ "get_asset_import_data", (PyCFunction)py_ue_get_assetimportdata, METH_VARARGS, "" },
 
 	// AnimSequence
 	{ "anim_sequence_get_skeleton", (PyCFunction)py_ue_anim_sequence_get_skeleton, METH_VARARGS, "" },
@@ -445,8 +445,6 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "component_is_registered", (PyCFunction)py_ue_component_is_registered, METH_VARARGS, "" },
 	{ "register_component", (PyCFunction)py_ue_register_component, METH_VARARGS, "" },
-
-
 
 	{ "actor_create_default_subobject", (PyCFunction)py_ue_actor_create_default_subobject, METH_VARARGS, "" },
 
@@ -1171,6 +1169,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_swidget(new_unreal_engine_module);
 	ue_python_init_farfilter(new_unreal_engine_module);
 	ue_python_init_fassetdata(new_unreal_engine_module);
+	ue_python_init_fassetimportinfo(new_unreal_engine_module);
+	ue_python_init_assetimportdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
 	ue_python_init_iplugin(new_unreal_engine_module);
 #endif
