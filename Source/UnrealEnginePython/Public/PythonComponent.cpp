@@ -95,7 +95,7 @@ void UPythonComponent::BeginPlay()
 	// ...
 
 	InitializePythonComponent();
-	
+
 }
 
 
@@ -383,12 +383,12 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		PyObject *py_uobject = (PyObject *)ue_get_python_wrapper(arg);
-        	if (!py_uobject) {
-                	unreal_engine_py_log_error();
-                	return nullptr;
-        	}
-		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"O", py_uobject);
+		PyObject *py_arg_uobject = (PyObject *)ue_get_python_wrapper(arg);
+		if (!py_arg_uobject) {
+			unreal_engine_py_log_error();
+			return nullptr;
+		}
+		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"O", py_arg_uobject);
 	}
 
 	if (!ret) {
@@ -466,7 +466,7 @@ UPythonComponent::~UPythonComponent()
 	}
 #endif
 	Py_XDECREF(py_component_instance);
-	
+
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
 #endif

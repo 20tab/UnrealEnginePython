@@ -89,7 +89,10 @@ public class UnrealEnginePython : ModuleRules
                 "UnrealEd",
                 "LevelEditor",
                 "BlueprintGraph",
-                "Projects"
+                "Projects",
+                "Sequencer",
+                "SequencerWidgets",
+                "UMGEditor",
             });
         }
 

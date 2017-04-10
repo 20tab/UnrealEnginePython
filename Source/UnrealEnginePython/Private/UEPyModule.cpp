@@ -566,6 +566,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_find_possessable", (PyCFunction)py_ue_sequencer_find_possessable, METH_VARARGS, "" },
 	{ "sequencer_add_master_track", (PyCFunction)py_ue_sequencer_add_master_track, METH_VARARGS, "" },
 
+	{ "sequencer_add_track", (PyCFunction)py_ue_sequencer_add_track, METH_VARARGS, "" },
+	{ "sequencer_add_actor", (PyCFunction)py_ue_sequencer_add_actor, METH_VARARGS, "" },
+
+	{ "sequencer_add_possessable", (PyCFunction)py_ue_sequencer_add_possessable, METH_VARARGS, "" },
+	{ "sequencer_track_add_section", (PyCFunction)py_ue_sequencer_track_add_section, METH_VARARGS, "" },
+
 	// Material
 	{ "set_material", (PyCFunction)py_ue_set_material, METH_VARARGS, "" },
 	{ "set_material_scalar_parameter", (PyCFunction)py_ue_set_material_scalar_parameter, METH_VARARGS, "" },
@@ -610,8 +616,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
 	}
+}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
