@@ -86,14 +86,21 @@ static void UESetupPythonInterpeter(bool verbose) {
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	FString PyHome;
+	FString PyHome; 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PyHome, GEngineIni)) {
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *home = (wchar_t *)*PyHome;
 #else
+		if (PyHome.Contains(UTF8_TO_TCHAR((char *)"<"))) {
+			PyHome = PyHome.Replace(UTF8_TO_TCHAR((char *)"<CurrentPluginDir>"), *IPluginManager::Get().FindPlugin(TEXT("UnrealEnginePython"))->GetBaseDir());
+			PyHome = PyHome.Replace(UTF8_TO_TCHAR((char *)"<GameContentDir>"), *FPaths::GameContentDir());
+		}
 		char *home = TCHAR_TO_UTF8(*PyHome);
 #endif
-
+		if (!FPaths::DirectoryExists(PyHome)) {
+			UE_LOG(LogPython, Error, TEXT("Python home is missing, aborting: %s"), *PyHome);
+			return;
+		}
 		Py_SetPythonHome(home);
 	}
 
