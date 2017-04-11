@@ -1,3 +1,4 @@
+# the Sequencer API support has been sponsored by Matthew Whelan (http://www.mattwhelan.com/)
 import unreal_engine as ue
 
 from unreal_engine.classes import MovieSceneAudioTrack, LevelSequenceFactoryNew, MovieSceneSkeletalAnimationTrack, Character, SkeletalMesh, MovieScene3DTransformTrack, CineCameraActor
