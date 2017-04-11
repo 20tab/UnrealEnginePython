@@ -18,12 +18,39 @@ static PyObject *py_ue_ftransform_get_rotation(ue_PyFTransform *self, void *clos
 	return py_ue_new_frotator(self->transform.GetRotation().Rotator());
 }
 
+static int py_ue_ftransform_set_translation(ue_PyFTransform *self, PyObject *value, void *closure) {
+	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
+		self->transform.SetLocation(py_vec->vec);
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a vector");
+	return -1;
+}
+
+static int py_ue_ftransform_set_rotation(ue_PyFTransform *self, PyObject *value, void *closure) {
+	if (ue_PyFRotator *py_rot = py_ue_is_frotator(value)) {
+		self->transform.SetRotation(py_rot->rot.Quaternion());
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a rotator");
+	return -1;
+}
+
+static int py_ue_ftransform_set_scale(ue_PyFTransform *self, PyObject *value, void *closure) {
+	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
+		self->transform.SetScale3D(py_vec->vec);
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a vector");
+	return -1;
+}
+
 
 
 static PyGetSetDef ue_PyFTransform_getseters[] = {
-	{(char *) "translation", (getter)py_ue_ftransform_get_translation, NULL, (char *)"", NULL },
-	{(char *) "scale", (getter)py_ue_ftransform_get_scale, NULL, (char *)"", NULL },
-	{(char *) "rotation", (getter)py_ue_ftransform_get_rotation, NULL, (char *)"", NULL },
+	{(char *) "translation", (getter)py_ue_ftransform_get_translation, (setter)py_ue_ftransform_set_translation, (char *)"", NULL },
+	{(char *) "scale", (getter)py_ue_ftransform_get_scale, (setter)py_ue_ftransform_set_scale, (char *)"", NULL },
+	{(char *) "rotation", (getter)py_ue_ftransform_get_rotation, (setter)py_ue_ftransform_set_rotation, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 
@@ -63,8 +90,33 @@ static PyTypeObject ue_PyFTransformType = {
 };
 
 static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject *kwargs) {
+	PyObject *py_translation = nullptr;
+	PyObject *py_rotation = nullptr;
+	PyObject *py_scale = nullptr;
+	if (!PyArg_ParseTuple(args, "|OOO:__init__", &py_translation, &py_rotation, &py_scale)) {
+		return NULL;
+	}
+
+	if (py_translation) {
+		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_translation)) {
+			self->transform.SetTranslation(py_vec->vec);
+		}
+	}
+
+	if (py_rotation) {
+		if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_rotation)) {
+			self->transform.SetRotation(py_rot->rot.Quaternion());
+		}
+	}
+
 	// ensure scaling is set to 1,1,1
 	FVector scale(1, 1, 1);
+
+	if (py_scale) {
+		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_scale)) {
+			scale = py_vec->vec;
+		}
+	}
 	self->transform.SetScale3D(scale);
 	return 0;
 }

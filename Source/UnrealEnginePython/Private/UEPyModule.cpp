@@ -577,6 +577,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_add_possessable", (PyCFunction)py_ue_sequencer_add_possessable, METH_VARARGS, "" },
 	{ "sequencer_track_add_section", (PyCFunction)py_ue_sequencer_track_add_section, METH_VARARGS, "" },
 
+	{ "sequencer_section_add_key", (PyCFunction)py_ue_sequencer_section_add_key, METH_VARARGS, "" },
+
 	// Material
 	{ "set_material", (PyCFunction)py_ue_set_material, METH_VARARGS, "" },
 	{ "set_material_scalar_parameter", (PyCFunction)py_ue_set_material_scalar_parameter, METH_VARARGS, "" },

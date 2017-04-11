@@ -13,6 +13,11 @@
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
 #include "Private/LevelSequenceEditorToolkit.h"
 #include "Tracks/MovieSceneCameraCutTrack.h"
+#include "Sections/IKeyframeSection.h"
+#include "Sections/MovieSceneFloatSection.h"
+#include "Sections/MovieSceneBoolSection.h"
+#include "Sections/MovieScene3DTransformSection.h"
+#include "Sections/MovieSceneVectorSection.h"
 #endif
 
 #if WITH_EDITOR
@@ -31,7 +36,7 @@ PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
 
 	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
-	
+
 	if (py_bool && PyObject_IsTrue(py_bool)) {
 		// try to open the editor for the asset
 		FAssetEditorManager::Get().OpenEditorForAsset(seq);
@@ -407,6 +412,95 @@ PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *self, PyObject * args) 
 
 	Py_INCREF(ret);
 	return ret;
+}
+
+PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float time;
+	PyObject *py_value;
+	int interpolation = 0;
+	if (!PyArg_ParseTuple(args, "fO|i:sequencer_section_add_key", &time, &py_value, &interpolation)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<UMovieSceneSection>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a MovieSceneSection");
+
+	UMovieSceneSection *section = (UMovieSceneSection *)self->ue_object;
+
+	if (auto section_float = Cast<UMovieSceneFloatSection>(section)) {
+		if (PyNumber_Check(py_value)) {
+			PyObject *f_value = PyNumber_Float(py_value);
+			float value = PyFloat_AsDouble(f_value);
+			Py_DECREF(f_value);
+			section_float->AddKey(time, value, (EMovieSceneKeyInterpolation)interpolation);
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	else if (auto section_bool = Cast<UMovieSceneBoolSection>(section)) {
+		if (PyBool_Check(py_value)) {
+			bool value = false;
+			if (PyObject_IsTrue(py_value))
+				value = true;
+			section_bool->AddKey(time, value, (EMovieSceneKeyInterpolation)interpolation);
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	else if (auto section_transform = Cast<UMovieScene3DTransformSection>(section)) {
+		if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_value)) {
+			bool unwind = false;
+			FTransform transform = py_transform->transform;
+
+
+			FTransformKey tx = FTransformKey(EKey3DTransformChannel::Translation, EAxis::X, transform.GetLocation().X, unwind);
+			FTransformKey ty = FTransformKey(EKey3DTransformChannel::Translation, EAxis::Y, transform.GetLocation().Y, unwind);
+			FTransformKey tz = FTransformKey(EKey3DTransformChannel::Translation, EAxis::Z, transform.GetLocation().Z, unwind);
+			section_transform->AddKey(time, tx, (EMovieSceneKeyInterpolation)interpolation);
+			section_transform->AddKey(time, ty, (EMovieSceneKeyInterpolation)interpolation);
+			section_transform->AddKey(time, tz, (EMovieSceneKeyInterpolation)interpolation);
+
+			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().X, unwind);
+			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Y, unwind);
+			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Z, unwind);
+			section_transform->AddKey(time, rx, (EMovieSceneKeyInterpolation)interpolation);
+			section_transform->AddKey(time, ry, (EMovieSceneKeyInterpolation)interpolation);
+			section_transform->AddKey(time, rz, (EMovieSceneKeyInterpolation)interpolation);
+
+			FTransformKey sx = FTransformKey(EKey3DTransformChannel::Scale, EAxis::X, transform.GetScale3D().X, unwind);
+			FTransformKey sy = FTransformKey(EKey3DTransformChannel::Scale, EAxis::Y, transform.GetScale3D().Y, unwind);
+			FTransformKey sz = FTransformKey(EKey3DTransformChannel::Scale, EAxis::Z, transform.GetScale3D().Z, unwind);
+			section_transform->AddKey(time, sx, (EMovieSceneKeyInterpolation)interpolation);
+			section_transform->AddKey(time, sy, (EMovieSceneKeyInterpolation)interpolation);
+			section_transform->AddKey(time, sz, (EMovieSceneKeyInterpolation)interpolation);
+
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	else if (auto section_vector = Cast<UMovieSceneVectorSection>(section)) {
+		if (ue_PyFVector *py_vector = py_ue_is_fvector(py_value)) {
+			FVector vec = py_vector->vec;
+			FVectorKey vx = FVectorKey(EKeyVectorChannel::X, vec.X);
+			FVectorKey vy = FVectorKey(EKeyVectorChannel::Y, vec.Y);
+			FVectorKey vz = FVectorKey(EKeyVectorChannel::Z, vec.Z);
+
+			section_vector->AddKey(time, vx, (EMovieSceneKeyInterpolation)interpolation);
+			section_vector->AddKey(time, vy, (EMovieSceneKeyInterpolation)interpolation);
+			section_vector->AddKey(time, vz, (EMovieSceneKeyInterpolation)interpolation);
+
+			Py_INCREF(Py_None);
+			return Py_None;
+		}
+	}
+
+	return PyErr_Format(PyExc_Exception, "unsupported section type: %s", TCHAR_TO_UTF8(*section->GetClass()->GetName()));
 }
 
 PyObject *py_ue_sequencer_add_camera_cut_track(ue_PyUObject *self, PyObject * args) {
