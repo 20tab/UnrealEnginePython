@@ -92,6 +92,12 @@ public class UnrealEnginePython : ModuleRules
                 "Projects",
                 "Sequencer",
                 "SequencerWidgets",
+                "AssetTools",
+                "LevelSequenceEditor",
+                "MovieSceneTools",
+                "MovieSceneTracks",
+                "CinematicCamera",
+                "EditorStyle",
                 "UMGEditor",
             });
         }

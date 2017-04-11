@@ -304,6 +304,22 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
 
 }
 
+PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args) {
+	char *str;
+	if (!PyArg_ParseTuple(args, "s:string_to_guid", &str)) {
+		return NULL;
+	}
+
+	FGuid guid;
+
+	if (FGuid::Parse(FString(str), guid)) {
+		return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+	}
+
+	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
+
+}
+
 
 PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
 	char *name;

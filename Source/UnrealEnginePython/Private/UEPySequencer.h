@@ -11,12 +11,17 @@ PyObject *py_ue_sequencer_track_sections(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_folders(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_display_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_get_display_name(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_changed(ue_PyUObject *, PyObject *);
 #endif
 PyObject *py_ue_sequencer_sections(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_possessables(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_possessables_guid(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *, PyObject *);
+
+
+PyObject *py_ue_sequencer_add_camera_cut_track(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *, PyObject *);
 
