@@ -201,7 +201,11 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args) {
 
 	UObject& u_obj = *actors[0];
 
+#if ENGINE_MINOR_VERSION < 15
+	FGuid new_guid = seq->FindPossessableObjectId(u_obj);
+#else
 	FGuid new_guid = seq->FindPossessableObjectId(u_obj, u_obj.GetWorld());
+#endif
 	if (!new_guid.IsValid()) {
 		return PyErr_Format(PyExc_Exception, "unable to find guid");
 	}
