@@ -326,8 +326,9 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 	graph->AddNode(node);
 
-	UBlueprint *bp = (UBlueprint *)node->GetGraph()->GetOuter();
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
