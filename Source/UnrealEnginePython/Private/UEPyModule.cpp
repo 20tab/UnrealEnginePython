@@ -193,6 +193,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 
+	{ "create_new_graph", py_unreal_engine_create_new_graph, METH_VARARGS, "" },
+
 	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
 
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },

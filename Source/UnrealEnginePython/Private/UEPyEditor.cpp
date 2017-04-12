@@ -1131,6 +1131,56 @@ PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObjec
 	return ret;
 }
 
+PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
+
+	PyObject *py_object;
+	char *name;
+	PyObject *py_graph_class;
+	PyObject *py_graph_schema;
+	if (!PyArg_ParseTuple(args, "OsOO:create_new_graph", &py_object, &name, &py_graph_class, &py_graph_schema)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_object)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_object;
+
+	if (!ue_is_pyuobject(py_graph_class)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+	ue_PyUObject *py_class_obj = (ue_PyUObject *)py_graph_class;
+	if (!py_class_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	}
+	UClass *u_class = (UClass *)py_class_obj->ue_object;
+	if (!u_class->IsChildOf<UEdGraph>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraph");
+	}
+
+	if (!ue_is_pyuobject(py_graph_schema)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+	ue_PyUObject *py_class_schema = (ue_PyUObject *)py_graph_schema;
+	if (!py_class_schema->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	}
+	UClass *u_class_schema = (UClass *)py_class_schema->ue_object;
+	if (!u_class_schema->IsChildOf<UEdGraphSchema>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphSchema");
+	}
+
+	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(py_obj->ue_object, FName(UTF8_TO_TCHAR(name)), u_class, u_class_schema);
+	if (!graph) {
+		return PyErr_Format(PyExc_Exception, "unable to create graph");
+	}
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+}
+
 PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args) {
 	PyObject *py_blueprint;
 
