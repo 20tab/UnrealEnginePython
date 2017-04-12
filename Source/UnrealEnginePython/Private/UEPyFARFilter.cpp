@@ -320,7 +320,7 @@ void py_ue_sync_farfilter(PyObject *pyobj)
 }
 
 PyObject *py_ue_new_farfilter(FARFilter filter) {
-	ue_PyFARFilter *ret = (ue_PyFARFilter *)PyObject_New(ue_PyFARFilter, &ue_PyFARFilterType);
+	ue_PyFARFilter *ret = (ue_PyFARFilter *)PyObject_CallObject((PyObject *)&ue_PyFARFilterType, NULL);
 	ret->filter = filter;
 	return (PyObject *)ret;
 }
