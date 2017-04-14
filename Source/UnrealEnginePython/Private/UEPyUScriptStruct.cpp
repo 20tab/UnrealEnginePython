@@ -202,9 +202,36 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 	return 0;
 }
 
+static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, PyObject *py_obj, int op) {
+	ue_PyUScriptStruct *u_struct2 = py_ue_is_uscriptstruct(py_obj);
+	if (!u_struct2 || (op != Py_EQ && op != Py_NE)) {
+		return PyErr_Format(PyExc_NotImplementedError, "can only compare with another UScriptStruct");
+	}
+
+	bool equals = (u_struct1->u_struct == u_struct2->u_struct && !memcmp(u_struct1->data, u_struct2->data, u_struct1->u_struct->GetStructureSize()));
+
+	if (op == Py_EQ) {
+		if (equals) {
+			Py_INCREF(Py_True);
+			return Py_True;
+		}
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	if (equals) {
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+	Py_INCREF(Py_True);
+	return Py_True;
+}
+
 
 void ue_python_init_uscriptstruct(PyObject *ue_module) {
 	ue_PyUScriptStructType.tp_new = PyType_GenericNew;
+
+	ue_PyUScriptStructType.tp_richcompare = (richcmpfunc)ue_py_uscriptstruct_richcompare;
 
 	ue_PyUScriptStructType.tp_init = (initproc)ue_py_uscriptstruct_init;
 

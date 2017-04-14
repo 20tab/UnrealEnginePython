@@ -18,6 +18,8 @@
 #include "Sections/MovieSceneBoolSection.h"
 #include "Sections/MovieScene3DTransformSection.h"
 #include "Sections/MovieSceneVectorSection.h"
+#include "Runtime/MovieScene/Public/MovieSceneFolder.h"
+#include "Runtime/MovieScene/Public/MovieSceneSpawnable.h"
 #endif
 
 #if WITH_EDITOR
@@ -129,6 +131,32 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args) 
 	return ret;
 }
 
+PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *guid;
+	if (!PyArg_ParseTuple(args, "s:sequencer_find_spawnable", &guid)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid)) {
+		return PyErr_Format(PyExc_Exception, "invalid GUID");
+	}
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+	FMovieSceneSpawnable *spawnable = seq->MovieScene->FindSpawnable(f_guid);
+	PyObject *ret = py_ue_new_uscriptstruct(spawnable->StaticStruct(), (uint8 *)spawnable);
+	Py_INCREF(ret);
+	return ret;
+}
+
+#if WITH_EDITOR
 PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -213,6 +241,45 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
 }
 
+PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:sequencer_add_spawnable", &py_obj)) {
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	ue_PyUObject *py_ue_obj = ue_is_pyuobject(py_obj);
+	if (!py_ue_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a uobject");
+
+	if (!py_ue_obj->ue_object->IsA<AActor>())
+		return PyErr_Format(PyExc_Exception, "argument is not an actor");
+
+	AActor *actor = (AActor *)py_ue_obj->ue_object;
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+	// try to open the editor for the asset
+	FAssetEditorManager::Get().OpenEditorForAsset(seq);
+
+	IAssetEditorInstance *editor = FAssetEditorManager::Get().FindEditorForAsset(seq, true);
+	if (!editor) {
+		return PyErr_Format(PyExc_Exception, "unable to access sequencer");
+	}
+
+	FLevelSequenceEditorToolkit *toolkit = (FLevelSequenceEditorToolkit *)editor;
+	ISequencer *sequencer = toolkit->GetSequencer().Get();
+	FGuid new_guid = sequencer->MakeNewSpawnable(*actor);
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
+}
+#endif
+
 PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -287,12 +354,35 @@ PyObject *py_ue_sequencer_folders(ue_PyUObject *self, PyObject * args) {
 	if (!self->ue_object->IsA<ULevelSequence>())
 		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
 
+	PyObject *py_obj = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:sequencer_folders", &py_obj)) {
+		return NULL;
+	}
+
+	UMovieSceneFolder *parent_folder = nullptr;
+
+	if (py_obj) {
+		ue_PyUObject *ue_py_obj = ue_is_pyuobject(py_obj);
+		if (!ue_py_obj) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		}
+		parent_folder = Cast<UMovieSceneFolder>(ue_py_obj->ue_object);
+		if (!parent_folder) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UMovieSceneFolder");
+		}
+	}
+
 	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
 	UMovieScene	*scene = seq->GetMovieScene();
 
 	PyObject *py_folders = PyList_New(0);
 
-	TArray<UMovieSceneFolder *> folders = scene->GetRootFolders();
+	TArray<UMovieSceneFolder *> folders;
+	if (!parent_folder)
+		folders = scene->GetRootFolders();
+	else {
+		folders = parent_folder->GetChildFolders();
+	}
 
 	for (UMovieSceneFolder *folder : folders) {
 		ue_PyUObject *ret = ue_get_python_wrapper((UObject *)folder);
@@ -304,6 +394,54 @@ PyObject *py_ue_sequencer_folders(ue_PyUObject *self, PyObject * args) {
 	}
 
 	return py_folders;
+}
+
+PyObject *py_ue_sequencer_create_folder(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	PyObject *py_obj = nullptr;
+	char *name;
+	if (!PyArg_ParseTuple(args, "s|O:sequencer_create_folder", &name, &py_obj)) {
+		return NULL;
+	}
+
+	UMovieSceneFolder *parent_folder = nullptr;
+
+	if (py_obj) {
+		ue_PyUObject *ue_py_obj = ue_is_pyuobject(py_obj);
+		if (!ue_py_obj) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		}
+		parent_folder = Cast<UMovieSceneFolder>(ue_py_obj->ue_object);
+		if (!parent_folder) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UMovieSceneFolder");
+		}
+	}
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	UMovieSceneFolder *new_folder = NewObject<UMovieSceneFolder>(scene, NAME_None, RF_Transactional);
+	new_folder->SetFolderName(FName(name));
+
+	if (parent_folder) {
+		parent_folder->Modify();
+		parent_folder->AddChildFolder(new_folder);
+	}
+	else {
+		scene->Modify();
+		scene->GetRootFolders().Add(new_folder);
+	}
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(new_folder);
+	if (!ret) {
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	}
+	return ret;
 }
 #endif
 
@@ -358,6 +496,7 @@ PyObject *py_ue_sequencer_track_sections(ue_PyUObject *self, PyObject * args) {
 	return py_sections;
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_sequencer_track_add_section(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -378,6 +517,7 @@ PyObject *py_ue_sequencer_track_add_section(ue_PyUObject *self, PyObject * args)
 	Py_INCREF(ret);
 	return ret;
 }
+#endif
 
 PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *self, PyObject * args) {
 
@@ -418,6 +558,7 @@ PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *self, PyObject * args) 
 	return ret;
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -526,6 +667,7 @@ PyObject *py_ue_sequencer_add_camera_cut_track(ue_PyUObject *self, PyObject * ar
 	Py_INCREF(ret);
 	return ret;
 }
+#endif
 
 PyObject *py_ue_sequencer_add_track(ue_PyUObject *self, PyObject * args) {
 

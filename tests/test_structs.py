@@ -1,6 +1,6 @@
 import unittest
 import unreal_engine as ue
-from unreal_engine.structs import ColorMaterialInput
+from unreal_engine.structs import ColorMaterialInput, Key
 
 
 class TestStructs(unittest.TestCase):
@@ -31,6 +31,11 @@ class TestStructs(unittest.TestCase):
         self.assertEqual(material_input2.MaskG, 1)
         self.assertEqual(material_input2.MaskB, 0)
         self.assertEqual(material_input2.MaskA, 1)
+
+    def test_cmp(self):
+        key1 = Key(KeyName='SpaceBar')
+        key2 = Key(KeyName='SpaceBar')
+        self.assertEqual(key1, key2)
 
    
 
