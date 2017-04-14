@@ -76,6 +76,29 @@ Adding Keyframes to sections
 Managing the camera cut track
 -----------------------------
 
+Folders
+-------
+
+listing folders
+
+```python
+
+# get the root folders
+root_folders = seq.sequencer_folders()
+
+# get subfolders
+sub_folders = seq.sequencer_folders(root_folders[0])
+```
+
+creating folders
+
+```python
+new_folder = seq.sequencer_create_folder('Folder001')
+
+# create subfolder
+new_sub_folder = seq.sequencer_create_folder('SubFolder001', new_folder)
+```
+
 Notify changes to the editor
 ----------------------------
 
@@ -85,7 +108,7 @@ Some of the sequencer api operations do not update the editor, if you need to fo
 seq.sequencer_changed(True)
 ```
 
-the boolean argument (if true) move the editor focus to the sequencer
+the boolean argument (if True) move the editor focus to the sequencer
 
 Example
 -------
