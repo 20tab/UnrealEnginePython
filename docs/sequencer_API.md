@@ -16,3 +16,78 @@ from unreal_engine.classes import LevelSequenceFactoryNew
 factory = LevelSequenceFactoryNew()
 seq = factory.factory_create_new('/Game/MovieMaster')
 ```
+
+Adding a master track to a Level Sequence
+-----------------------------------------
+
+In the following example we add a MovieSceneAudioTrack as a master track
+
+```python
+from unreal_engine.classes import MovieSceneAudioTrack
+
+audio_track = seq.sequencer_add_master_track(MovieSceneAudioTrack)
+```
+
+Getting the list of master tracks
+---------------------------------
+
+```python
+tracks = seq.sequencer_master_tracks()
+```
+
+Possessables and Spawnables
+---------------------------
+
+Adding tracks
+-------------
+
+Adding a section to a track
+---------------------------
+
+This is a pretty complex example, we add a skeletal animation track and then we add a bunch of sections (each of them should point to an animation asset using the AnimSequence field)
+
+```python
+from unreal_engine.classes import MovieSceneSkeletalAnimationTrack
+
+# add an animation track mapped to the just added actor
+anim = seq.sequencer_add_track(MovieSceneSkeletalAnimationTrack, guid)
+
+# create 3 animations sections (assign AnimSequence field to set the animation to play)
+anim_sequence = anim.sequencer_track_add_section()
+anim_sequence.StartTime = 1
+anim_sequence.EndTime = 3
+anim_sequence.RowIndex = 0
+
+anim_sequence2 = anim.sequencer_track_add_section()
+anim_sequence2.RowIndex = 1
+anim_sequence2.StartTime = 2
+anim_sequence2.EndTime = 5
+
+anim_sequence3 = anim.sequencer_track_add_section()
+anim_sequence3.RowIndex = 1
+anim_sequence3.SlotName = 'Hello'
+anim_sequence3.StartTIme = 0
+anim_sequence3.EndTime = 30
+```
+
+Adding keyframes to sections
+----------------------------
+
+Managing the camera cut track
+-----------------------------
+
+Notify changes to the editor
+----------------------------
+
+Some of the sequencer api operations do not update the editor, if you need to force an update you can use
+
+```python
+seq.sequencer_changed(True)
+```
+
+the boolean argument (if true) move the editor focus to the sequencer
+
+Example
+-------
+
+Check it here: https://github.com/20tab/UnrealEnginePython/blob/master/examples/sequencer_scripting.py
