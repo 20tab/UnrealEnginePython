@@ -70,7 +70,7 @@ anim_sequence3.StartTIme = 0
 anim_sequence3.EndTime = 30
 ```
 
-Adding keyframes to sections
+Adding Keyframes to sections
 ----------------------------
 
 Managing the camera cut track
