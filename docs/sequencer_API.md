@@ -28,6 +28,18 @@ from unreal_engine.classes import MovieSceneAudioTrack
 audio_track = seq.sequencer_add_master_track(MovieSceneAudioTrack)
 ```
 
+Getting the available track classes
+-----------------------------------
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import MovieSceneTrack
+
+for uclass in ue.all_classes():
+    if uclass.is_child_of(MovieSceneTrack):
+        print(uclass.get_name())
+```
+
 Getting the list of master tracks
 ---------------------------------
 
