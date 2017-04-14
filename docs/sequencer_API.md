@@ -31,6 +31,8 @@ audio_track = seq.sequencer_add_master_track(MovieSceneAudioTrack)
 Getting the available track classes
 -----------------------------------
 
+the following snippet prints the name of the MovieSceneTrack classes
+
 ```python
 import unreal_engine as ue
 from unreal_engine.classes import MovieSceneTrack
