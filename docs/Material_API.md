@@ -70,6 +70,21 @@ import unreal_engine as ue
 material_instance = ue.create_material_instance(new_material)
 ```
 
+Or the factory way:
+
+```python
+from unreal_engine.classes import Material, MaterialInstanceConstantFactoryNew
+
+factory = MaterialInstanceConstantFactoryNew()
+
+# get a reference to a parent material
+parent_material = ue.load_object(Material, '/Game/MainMaterial')
+
+factory.InitialParent = parent_material
+
+child_material = factory.factory_create_new('/Game/ChildMaterial')
+```
+
 Creating a Material Instance Dynamic
 ------------------------------------
 
