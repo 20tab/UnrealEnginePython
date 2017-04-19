@@ -24,11 +24,26 @@ component.set_material(index, material);
 Creating a Material (editor only)
 ---------------------------------
 
+This is the 'raw' way for creating a Material
+
 ```python
 from unreal_engine.classes import Material
 new_material = Material()
 new_material.set_name('New Funny Material')
 new_material.save_package('/Game/Materials/NewFunnyMaterial')
+```
+
+Even better, you can use the MaterialFactoryNew class
+
+```python
+from unreal_engine.classes import MaterialFactoryNew
+import unreal_engine as ue
+
+factory = MaterialFactoryNew()
+new_material = factory.factory_create_new('/Game/Materials/NewFunnyMaterial')
+
+# destroy the asset
+ue.delete_asset(new_material.get_path_name())
 ```
 
 Creating a Material Instance (editor only)
