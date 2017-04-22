@@ -11,12 +11,12 @@ typedef struct {
 	PyObject_HEAD
 		/* Type-specific fields go here. */
 		UObject *ue_object;
-		// reference to proxy class (can be null)
-		PyObject *py_proxy;
-		// list of exposed delegates
-		std::list<UPythonDelegate*> *python_delegates_gc;
-		// the __dict__
-		PyObject *py_dict;
+	// reference to proxy class (can be null)
+	PyObject *py_proxy;
+	// list of exposed delegates
+	std::list<UPythonDelegate*> *python_delegates_gc;
+	// the __dict__
+	PyObject *py_dict;
 } ue_PyUObject;
 
 
@@ -37,3 +37,30 @@ void ue_pydelegates_cleanup(ue_PyUObject *);
 
 UClass *unreal_engine_new_uclass(char *, UClass *);
 UFunction *unreal_engine_add_function(UClass *, char *, PyObject *, uint32);
+
+
+template <typename T> T *ue_py_check_type(PyObject *py_obj) {
+	ue_PyUObject *ue_py_obj = ue_is_pyuobject(py_obj);
+	if (!ue_py_obj) {
+		return nullptr;
+	}
+
+	return Cast<T>(ue_py_obj->ue_object);
+}
+
+template <typename T> T *ue_py_check_type(ue_PyUObject *py_obj) {
+	return Cast<T>(py_obj->ue_object);
+}
+
+template <typename T> T *ue_py_check_struct(PyObject *py_obj) {
+	ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_obj);
+	if (!ue_py_struct) {
+		return nullptr;
+	}
+
+	if (ue_py_struct->u_struct == T::StaticStruct()) {
+		return (T*)ue_py_struct->data;
+	}
+
+	return nullptr;
+}

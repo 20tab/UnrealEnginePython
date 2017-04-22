@@ -378,4 +378,46 @@ PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return ret;
 }
+
+PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int pin_direction;
+	PyObject *pin_type;
+	char *name = nullptr;
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "iOs|i:node_create_pin", &pin_direction, &pin_type, &name, &index)) {
+		return nullptr;
+	}
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	FEdGraphPinType *pin_struct = ue_py_check_struct<FEdGraphPinType>(pin_type);
+	if (!pin_type)
+		return PyErr_Format(PyExc_Exception, "argument is not a FEdGraphPinType");
+
+	UEdGraphPin *pin = nullptr;
+
+	if (node->IsA<UK2Node_EditablePinBase>()) {
+		UK2Node_EditablePinBase *node_base = (UK2Node_EditablePinBase *)node;
+		pin = node_base->CreateUserDefinedPin(UTF8_TO_TCHAR(name), *pin_struct, (EEdGraphPinDirection)pin_direction);
+	}
+	else {
+		pin = node->CreatePin((EEdGraphPinDirection)pin_direction, *pin_struct, UTF8_TO_TCHAR(name), index);
+	}
+	if (!pin) {
+		return PyErr_Format(PyExc_Exception, "unable to create pin \"%s\"", name);
+	}
+
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	PyObject *ret = py_ue_new_edgraphpin(pin);
+	Py_INCREF(ret);
+	return ret;
+}
 #endif

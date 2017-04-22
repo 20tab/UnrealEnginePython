@@ -16,4 +16,5 @@ PyObject *py_ue_graph_get_good_place_for_new_node(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_node_pins(ue_PyUObject *, PyObject *);
 PyObject *py_ue_node_find_pin(ue_PyUObject *, PyObject *);
+PyObject *py_ue_node_create_pin(ue_PyUObject *, PyObject *);
 #endif

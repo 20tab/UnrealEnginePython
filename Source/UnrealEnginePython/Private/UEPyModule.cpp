@@ -184,6 +184,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "reload_blueprint", py_unreal_engine_reload_blueprint, METH_VARARGS, "" },
 	{ "compile_blueprint", py_unreal_engine_compile_blueprint, METH_VARARGS, "" },
 	{ "blueprint_add_member_variable", py_unreal_engine_blueprint_add_member_variable, METH_VARARGS, "" },
+	{ "blueprint_add_event_dispatcher", py_unreal_engine_blueprint_add_event_dispatcher, METH_VARARGS, "" },
 	{ "blueprint_add_new_timeline", py_unreal_engine_blueprint_add_new_timeline, METH_VARARGS, "" },
 	{ "blueprint_set_variable_visibility", py_unreal_engine_blueprint_set_variable_visibility, METH_VARARGS, "" },
 	{ "blueprint_add_function", py_unreal_engine_blueprint_add_function, METH_VARARGS, "" },
@@ -372,6 +373,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "node_pins", (PyCFunction)py_ue_node_pins, METH_VARARGS, "" },
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
+	{ "node_create_pin", (PyCFunction)py_ue_node_create_pin, METH_VARARGS, "" },
 
 	{ "get_material_graph", (PyCFunction)py_ue_get_material_graph, METH_VARARGS, "" },
 #endif

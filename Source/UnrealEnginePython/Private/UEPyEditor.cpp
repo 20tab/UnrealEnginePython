@@ -970,8 +970,6 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 		bp->SimpleConstructionScript->AddNode(node);
 	}
 
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
-
 	ue_PyUObject *ret = ue_get_python_wrapper(node->ComponentTemplate);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -1104,6 +1102,53 @@ PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * ar
 	return ret;
 }
 
+PyObject *py_unreal_engine_blueprint_add_event_dispatcher(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	char *name;
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_event_dispatcher", &py_blueprint, &name)) {
+		return NULL;
+	}
+
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "argument is not a UBlueprint");
+
+	FName multicast_name = FName(UTF8_TO_TCHAR(name));
+
+	bp->Modify();
+
+	const UEdGraphSchema_K2 *state = GetDefault<UEdGraphSchema_K2>();
+
+	FEdGraphPinType multicast_type;
+	multicast_type.PinCategory = state->PC_MCDelegate;
+
+	if (!FBlueprintEditorUtils::AddMemberVariable(bp, multicast_name, multicast_type)) {
+		return PyErr_Format(PyExc_Exception, "unable to create multicast variable");
+	}
+
+	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(bp, multicast_name, UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	if (!graph) {
+		return PyErr_Format(PyExc_Exception, "unable to create graph");
+	}
+
+	graph->bEditable = false;
+
+	state->CreateDefaultNodesForGraph(*graph);
+	state->CreateFunctionGraphTerminators(*graph, (UClass *)nullptr);
+	state->AddExtraFunctionFlags(graph, (FUNC_BlueprintCallable | FUNC_BlueprintEvent | FUNC_Public));
+	state->MarkFunctionEntryAsEditable(graph, true);
+
+	bp->DelegateSignatureGraphs.Add(graph);
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+}
+
 PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObject * args) {
 
 	PyObject *py_blueprint;
@@ -1145,7 +1190,7 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_object;
-
+	
 	if (!ue_is_pyuobject(py_graph_class)) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
