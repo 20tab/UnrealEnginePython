@@ -67,6 +67,8 @@ PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_create_new_graph(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_blueprint_mark_as_structurally_modified(PyObject *, PyObject *);
+
 // efeng additional functions
 PyObject *py_unreal_engine_create_material_instance(PyObject *, PyObject *);
 

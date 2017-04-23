@@ -1150,6 +1150,23 @@ PyObject *py_unreal_engine_blueprint_add_event_dispatcher(PyObject * self, PyObj
 	return ret;
 }
 
+PyObject *py_unreal_engine_blueprint_mark_as_structurally_modified(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+	if (!PyArg_ParseTuple(args, "O:blueprint_add_event_dispatcher", &py_blueprint)) {
+		return NULL;
+	}
+
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "argument is not a UBlueprint");
+
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObject * args) {
 
 	PyObject *py_blueprint;
