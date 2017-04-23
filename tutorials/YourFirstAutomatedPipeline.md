@@ -11,11 +11,25 @@ Technically i am showing the "editor scripting" features of the plugin, not its 
 Installing UnrealEnginePython
 -
 
+Obviously the first step is install the UnrealEnginePyton plugin.
+
+Just take a binary release for your operating system/ue4 version combo and unzip it in the Plugins directory of your project (create it if it does not exist). It is highly suggested to get an embedded one so you do not need to install python in your system.
+
 Importing the Mesh FBX
 -
 
+Once you have access to the PythonConsole, you can start issuing python commands.
+
+```python
+from unreal_engine.classe import PyFbxFactory
+```
+
 Creating the Materials
 -
+
+```python
+from unreal_engine.classes import MaterialFactoryNew
+```
 
 Importing Animations
 -
@@ -31,6 +45,14 @@ Filling the Event Graph
 
 The BlackBoard
 -
+
+```python
+from unreal_engine.classes import BlackBoardDataFactory
+from unreal_engine.classes import BlackboardKeyType_Bool, BlackboardKeyType_String
+
+from unreal_engine.structs import BlackboardEntry
+
+```
 
 The Behavior Tree Graph
 -
