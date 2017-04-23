@@ -10,6 +10,8 @@
 #include "Editor/BlueprintGraph/Classes/K2Node_VariableSet.h"
 #include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
 #include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2_Actions.h"
+#include "Editor/AIGraph/Classes/AIGraph.h"
+#include "Editor/AIGraph/Classes/AIGraphNode.h"
 
 PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * args) {
 
@@ -281,7 +283,9 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	PyObject *py_node_class;
 	int x = 0;
 	int y = 0;
-	if (!PyArg_ParseTuple(args, "O|ii:graph_add_node", &py_node_class, &x, &y)) {
+	PyObject *py_data = nullptr;
+	char *metadata = nullptr;
+	if (!PyArg_ParseTuple(args, "O|iiOs:graph_add_node", &py_node_class, &x, &y, &py_data, &metadata)) {
 		return NULL;
 	}
 
@@ -323,7 +327,25 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	node->AllocateDefaultPins();
 	node->NodePosX = x;
 	node->NodePosY = y;
-	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
+
+	// do something with data, based on the node type
+	if (node->IsA<UAIGraphNode>()) {
+		UAIGraphNode *ai_node = (UAIGraphNode *)node;
+		FGraphNodeClassData *class_data = ue_py_check_struct<FGraphNodeClassData>(py_data);
+		if (class_data == nullptr) {
+			UE_LOG(LogPython, Warning, TEXT("Unable to manage data argument for UAIGraphNode"));
+		}
+		else {
+			ai_node->ClassData = *class_data;
+		}
+	}
+
+	if (metadata == nullptr || strlen(metadata) == 0) {
+		UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
+	}
+	else {
+		UEdGraphSchema_K2::SetNodeMetaData(node, FName(UTF8_TO_TCHAR(metadata)));
+	}
 	graph->AddNode(node);
 
 	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {

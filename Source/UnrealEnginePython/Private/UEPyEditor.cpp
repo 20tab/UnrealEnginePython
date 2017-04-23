@@ -18,6 +18,7 @@
 #include "Developer/AssetTools/Public/IAssetTools.h"
 #include "Editor/ContentBrowser/Public/IContentBrowserSingleton.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
+#include "Runtime/Engine/Classes/EdGraph/EdGraphSchema.h"
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -1182,7 +1183,8 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
 	char *name;
 	PyObject *py_graph_class;
 	PyObject *py_graph_schema;
-	if (!PyArg_ParseTuple(args, "OsOO:create_new_graph", &py_object, &name, &py_graph_class, &py_graph_schema)) {
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "OsOO|O:create_new_graph", &py_object, &name, &py_graph_class, &py_graph_schema, &py_bool)) {
 		return NULL;
 	}
 
@@ -1190,7 +1192,7 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_object;
-	
+
 	if (!ue_is_pyuobject(py_graph_class)) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
@@ -1219,6 +1221,11 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
 	if (!graph) {
 		return PyErr_Format(PyExc_Exception, "unable to create graph");
 	}
+
+	if (py_bool && PyObject_IsTrue(py_bool)) {
+		graph->GetSchema()->CreateDefaultNodesForGraph(*graph);
+	}
+
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");

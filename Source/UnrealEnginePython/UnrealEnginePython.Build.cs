@@ -99,6 +99,7 @@ public class UnrealEnginePython : ModuleRules
                 "CinematicCamera",
                 "EditorStyle",
                 "UMGEditor",
+                "AIGraph",
             });
         }
 

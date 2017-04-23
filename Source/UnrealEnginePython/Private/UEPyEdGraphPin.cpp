@@ -19,8 +19,9 @@ static PyObject *py_ue_edgraphpin_make_link_to(ue_PyEdGraphPin *self, PyObject *
 
 	self->pin->MakeLinkTo(py_other_pin->pin);
 
-	UBlueprint *bp = (UBlueprint *)self->pin->GetOwningNode()->GetGraph()->GetOuter();
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	if (UBlueprint *bp = Cast<UBlueprint>(self->pin->GetOwningNode()->GetGraph()->GetOuter())) {
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -39,8 +40,9 @@ static PyObject *py_ue_edgraphpin_break_link_to(ue_PyEdGraphPin *self, PyObject 
 
 	self->pin->BreakLinkTo(py_other_pin->pin);
 
-	UBlueprint *bp = (UBlueprint *)self->pin->GetOwningNode()->GetGraph()->GetOuter();
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	if (UBlueprint *bp = Cast<UBlueprint>(self->pin->GetOwningNode()->GetGraph()->GetOuter())) {
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
 
 	Py_INCREF(Py_None);
 	return Py_None;
