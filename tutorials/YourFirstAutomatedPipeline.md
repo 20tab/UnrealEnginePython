@@ -2,10 +2,9 @@ Your First Automated Pipeline with UnrealEnginePython
 =
 
 In this tutorial i will try to show how you can build a python script that can generate
-a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials, animations and a simple sensing AI.
+a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials, animations and a simple sensing AI based on Behavior Trees.
 
-Running the script from the Unreal Engine Python Console will result in a native Blueprint that does not require the python plugin
-to work.
+Running the script from the Unreal Engine Python Console will result in a native Blueprint (as well as meshes, animations, a blackboard and a behaviour tree graph) that does not require the python plugin to work.
 
 Technically i am showing the "editor scripting" features of the plugin, not its "gameplay scripting" mode.
 
@@ -28,6 +27,15 @@ Put it all in a new Blueprint
 -
 
 Filling the Event Graph
+-
+
+The BlackBoard
+-
+
+The Behavior Tree Graph
+-
+
+The Kaiju AIController
 -
 
 Testing it
