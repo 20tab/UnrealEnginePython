@@ -40,6 +40,8 @@ Creating the AnimationBlueprint
 Put it all in a new Blueprint
 -
 
+Now it is time to create a Character Blueprint
+
 Filling the Event Graph
 -
 
