@@ -285,7 +285,7 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	int y = 0;
 	PyObject *py_data = nullptr;
 	char *metadata = nullptr;
-	if (!PyArg_ParseTuple(args, "O|iiOs:graph_add_node", &py_node_class, &x, &y, &py_data, &metadata)) {
+	if (!PyArg_ParseTuple(args, "O|iisO:graph_add_node", &py_node_class, &x, &y, &metadata, &py_data)) {
 		return NULL;
 	}
 
@@ -331,12 +331,14 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	// do something with data, based on the node type
 	if (node->IsA<UAIGraphNode>()) {
 		UAIGraphNode *ai_node = (UAIGraphNode *)node;
-		FGraphNodeClassData *class_data = ue_py_check_struct<FGraphNodeClassData>(py_data);
-		if (class_data == nullptr) {
-			UE_LOG(LogPython, Warning, TEXT("Unable to manage data argument for UAIGraphNode"));
-		}
-		else {
-			ai_node->ClassData = *class_data;
+		if (py_data) {
+			FGraphNodeClassData *class_data = ue_py_check_struct<FGraphNodeClassData>(py_data);
+			if (class_data == nullptr) {
+				UE_LOG(LogPython, Warning, TEXT("Unable to manage data argument for UAIGraphNode"));
+			}
+			else {
+				ai_node->ClassData = *class_data;
+			}
 		}
 	}
 
