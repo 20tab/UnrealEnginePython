@@ -167,10 +167,8 @@ PyObject *py_ue_graph_add_node_event(ue_PyUObject * self, PyObject * args) {
 		node = NewObject<UK2Node_Event>(graph);
 		UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 		node->EventReference.SetExternalMember(UTF8_TO_TCHAR(name), u_class);
-		FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_Event>(graph, node, FVector2D(x, y));
-		//graph->AddNode(node);
+		node = FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_Event>(graph, node, FVector2D(x, y));
 	}
-	node->AllocateDefaultPins();
 
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
@@ -212,17 +210,14 @@ PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args
 		u_struct = (UStruct *)ue_py_struct->ue_object;
 	}
 
-	UK2Node_VariableGet *node = NewObject<UK2Node_VariableGet>(graph);
+	UK2Node_VariableGet *node = NewObject<UK2Node_VariableGet>();
 
-	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, FBlueprintEditorUtils::FindBlueprintForGraph(graph));
-	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
-	FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableGet>(graph, node, FVector2D(x, y));
-	//graph->AddNode(node);
-	node->AllocateDefaultPins();
+	UBlueprint *bp = FBlueprintEditorUtils::FindBlueprintForGraph(graph);
 
-	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
-		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
-	}
+	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, bp);
+	node = FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableGet>(graph, node, FVector2D(x, y));
+	
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
@@ -262,17 +257,14 @@ PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args
 		u_struct = (UStruct *)ue_py_struct->ue_object;
 	}
 
-	UK2Node_VariableSet *node = NewObject<UK2Node_VariableSet>(graph);
+	UK2Node_VariableSet *node = NewObject<UK2Node_VariableSet>();
 
-	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, FBlueprintEditorUtils::FindBlueprintForGraph(graph));
-	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
-	FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableSet>(graph, node, FVector2D(x, y));
-	//graph->AddNode(node);
-	node->AllocateDefaultPins();
+	UBlueprint *bp = FBlueprintEditorUtils::FindBlueprintForGraph(graph);
 
-	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
-		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
-	}
+	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, bp);
+	node = FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableSet>(graph, node, FVector2D(x, y));
+
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
 	if (!ret)
