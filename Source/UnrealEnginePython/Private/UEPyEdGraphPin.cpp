@@ -27,6 +27,29 @@ static PyObject *py_ue_edgraphpin_make_link_to(ue_PyEdGraphPin *self, PyObject *
 	return Py_None;
 }
 
+static PyObject *py_ue_edgraphpin_connect(ue_PyEdGraphPin *self, PyObject * args) {
+	PyObject *other_pin;
+	if (!PyArg_ParseTuple(args, "O:connect", &other_pin)) {
+		return NULL;
+	}
+
+	ue_PyEdGraphPin *py_other_pin = py_ue_is_edgraphpin(other_pin);
+	if (!py_other_pin) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UEdGraphPin");
+	}
+
+	if (!self->pin->GetSchema()->TryCreateConnection(self->pin, py_other_pin->pin)) {
+		return PyErr_Format(PyExc_Exception, "unable to connect pins");
+	}
+
+	if (UBlueprint *bp = Cast<UBlueprint>(self->pin->GetOwningNode()->GetGraph()->GetOuter())) {
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *py_ue_edgraphpin_break_link_to(ue_PyEdGraphPin *self, PyObject * args) {
 	PyObject *other_pin;
 	if (!PyArg_ParseTuple(args, "O:break_link_to", &other_pin)) {
@@ -51,6 +74,7 @@ static PyObject *py_ue_edgraphpin_break_link_to(ue_PyEdGraphPin *self, PyObject 
 static PyMethodDef ue_PyEdGraphPin_methods[] = {
 	{ "make_link_to", (PyCFunction)py_ue_edgraphpin_make_link_to, METH_VARARGS, "" },
 	{ "break_link_to", (PyCFunction)py_ue_edgraphpin_break_link_to, METH_VARARGS, "" },
+	{ "connect", (PyCFunction)py_ue_edgraphpin_connect, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
