@@ -48,7 +48,7 @@ PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args) {
 	if (editor) {
 		FLevelSequenceEditorToolkit *toolkit = (FLevelSequenceEditorToolkit *)editor;
 		ISequencer *sequencer = toolkit->GetSequencer().Get();
-#if EDITOR_MINOR_VERSION < 14
+#if ENGINE_MINOR_VERSION < 13
 		sequencer->NotifyMovieSceneDataChanged();
 #else
 		sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::Unknown);
