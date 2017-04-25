@@ -16,6 +16,8 @@ If this is the first time you use the UnrealEnginePython plugin you should take 
 
 * Python scripts are stored in the '/Game/Scripts' folder of the project
 
+* The Python code is pretty verbose and repeat itself constantly to show the biggest possible number of api features, i strongly suggest you to reorganize it if you plan to build something for your own pipeline
+
 Installing UnrealEnginePython
 -
 
