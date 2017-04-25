@@ -27,7 +27,7 @@ Just take a binary release for your operating system/ue4 version combo and unzip
 
 Ensure the plugin is enabled
 
-Initializing the script
+Initializing the environment
 -
 
 Create a new python script (just click New in the python editor, or just create a new file in your favourite editor under the Scripts project directory), call it kaiju_slicer_pipeline.py with the following content
@@ -38,10 +38,12 @@ import unreal_engine as ue
 # ensure we cleanup the Kaiju/Slicer folder at each run
 ```
 
+Then download the https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/Kaiju_Assets.zip file and unzip it in your Desktop folder. These are the original files (fbx, tga, ...) we will import in the project using a python script.
+
 Importing the Mesh FBX
 -
 
-Once you have access to the PythonConsole, you can start issuing python commands.
+Once you have access to the PythonConsole (or the Editor), you can start issuing python commands.
 
 ```python
 from unreal_engine.classe import PyFbxFactory
