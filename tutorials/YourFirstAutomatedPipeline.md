@@ -27,6 +27,17 @@ Just take a binary release for your operating system/ue4 version combo and unzip
 
 Ensure the plugin is enabled
 
+Initializing the script
+-
+
+Create a new python script (just click New in the python editor, or just create a new file in your favourite editor under the Scripts project directory), call it kaiju_slicer_pipeline.py with the following content
+
+```python
+import unreal_engine as ue
+
+# ensure we cleanup the Kaiju/Slicer folder at each run
+```
+
 Importing the Mesh FBX
 -
 
