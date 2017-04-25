@@ -23,9 +23,19 @@ Installing UnrealEnginePython
 
 Obviously the first step is installing the UnrealEnginePyton plugin.
 
-Just take a binary release for your operating system/ue4 version combo and unzip it in the Plugins directory of your project (create it if it does not exist). It is highly suggested to get an embedded one so you do not need to install python in your system. You can start with a Blueprint or a C++ project, both will work.
+Just take a binary release for your operating system/ue4 version combo and unzip it in the Plugins directory of your project (create it if it does not exist). 
 
-Ensure the plugin is enabled
+You can download binary versions from here:
+
+https://github.com/20tab/UnrealEnginePython/releases
+
+It is highly suggested to get an embedded one so you do not need to install python in your system. You can start with a Blueprint or a C++ project, both will work.
+
+Once you have unzipped the zip file into the Plugins directory, you can run your project
+
+Ensure the plugin is enabled by opening the Edit/Plugins menu:
+
+![Check Plugin](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/check_plugin.png)
 
 Initializing the environment
 -
