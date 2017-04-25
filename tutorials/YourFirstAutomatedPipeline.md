@@ -19,9 +19,11 @@ If this is the first time you use the UnrealEnginePython plugin you should take 
 Installing UnrealEnginePython
 -
 
-Obviously the first step is install the UnrealEnginePyton plugin.
+Obviously the first step is installing the UnrealEnginePyton plugin.
 
-Just take a binary release for your operating system/ue4 version combo and unzip it in the Plugins directory of your project (create it if it does not exist). It is highly suggested to get an embedded one so you do not need to install python in your system.
+Just take a binary release for your operating system/ue4 version combo and unzip it in the Plugins directory of your project (create it if it does not exist). It is highly suggested to get an embedded one so you do not need to install python in your system. You can start with a Blueprint or a C++ project, both will work.
+
+Ensure the plugin is enabled
 
 Importing the Mesh FBX
 -
