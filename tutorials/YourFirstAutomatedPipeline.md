@@ -37,6 +37,12 @@ Ensure the plugin is enabled by opening the Edit/Plugins menu:
 
 ![Check Plugin](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/check_plugin.png)
 
+tick the 'Enabled' checkbox and confirm the editor restart.
+
+If all goes well, you will get a new option under the Window menu, called the 'Python Console':
+
+![Screenshot of Window menu](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/screenshot_window_menu.png)
+
 Initializing the environment
 -
 
