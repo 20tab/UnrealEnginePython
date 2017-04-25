@@ -49,7 +49,7 @@ Run it, and ensure your python environment works:
 
 In the Window menu, you will find another tool (optional), the Python Editor. It is a very simple editor for managing your project scripts. Obviously feel free to use your favourite editor.
 
-[Python Editor](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/python_editor.png)
+![Python Editor](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/python_editor.png)
 
 Initializing the environment
 -
