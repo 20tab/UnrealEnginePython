@@ -102,7 +102,7 @@ from unreal_engine.structs import BlackboardEntry
 The Behavior Tree Graph
 -
 
-The Kaiju AIController
+The Kaiju Brain
 -
 
 Testing it
