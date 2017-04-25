@@ -56,8 +56,29 @@ material_body = material_factory.factory_create_new('/Game/Kaiju/Slicer/Body_Mat
 Importing Animations
 -
 
+Importing Animations uses the same factory for Fbx meshes.
+
+Now we want to create a BlendShape1D asset. It will be composed by the 3 locomotion-related animations (idle, walk, run) and it will be governed by a variable (the X) called Speed, with a minimum value of 0 and a max of 300.
+
+
+
 Creating the AnimationBlueprint
 -
+
+
+Once our assets are ready we can start creating the Animation blueprint.
+
+The animation blueprint wil contain a state machine switching between:
+
+* Locomotion (the blend space we created before)
+
+* Attack (attack with blades)
+
+* Roar (a kind of taunt)
+
+* Bored (when idle for more than 10 seconds, starts looking around)
+
+Its event graph manages the Speed variable for the blend space and the idle timer triggering the 'Bored' state.
 
 Put it all in a new Blueprint
 -
