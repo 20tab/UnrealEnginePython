@@ -37,8 +37,18 @@ from unreal_engine.classe import PyFbxFactory
 Creating the Materials
 -
 
+We are going to create two different materials, one for the blades and the other for the kaiju body.
+
+Both materials are based on Substance Designer textures, the second one will include the ability to 'blink' the emissive texture using a sin function/node.
+
 ```python
 from unreal_engine.classes import MaterialFactoryNew
+
+material_factory = MaterialFactoryNew()
+
+material_blades = material_factory.factory_create_new('/Game/Kaiju/Slicer/Blades_Material')
+
+material_body = material_factory.factory_create_new('/Game/Kaiju/Slicer/Body_Material')
 ```
 
 Importing Animations
