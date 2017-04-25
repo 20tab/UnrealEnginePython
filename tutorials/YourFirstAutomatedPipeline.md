@@ -59,8 +59,21 @@ Create a new python script (just click New in the python editor, or just create 
 ```python
 import unreal_engine as ue
 
-# ensure we cleanup the Kaiju/Slicer folder at each run
+print('Hello i am your pipeline automator')
 ```
+
+![First script in editor](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/first_script_editor.png)
+
+save thh script and click on 'Execute' to run the script.
+
+If you are not using the embedded editor, you can run python scripts from the console with the py_exec command
+
+```python
+import unreal_engine as ue
+ue.py_exec('name_of_script.py')
+```
+
+![First script in console](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/first_script_console.png)
 
 Then download the https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/Kaiju_Assets.zip file and unzip it in your Desktop folder. These are the original files (fbx, tga, ...) we will import in the project using a python script.
 
