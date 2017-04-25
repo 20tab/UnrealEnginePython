@@ -1,12 +1,20 @@
 Your First Automated Pipeline with UnrealEnginePython
 =
 
-In this tutorial i will try to show how you can build a python script that can generate
-a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials, animations and a simple sensing AI based on Behavior Trees.
+In this tutorial i will try to show you how to build a python script that can generate
+a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials, animations and a simple AI based on Behavior Trees.
 
 Running the script from the Unreal Engine Python Console will result in a native Blueprint (as well as meshes, animations, a blackboard and a behaviour tree graph) that does not require the python plugin to work.
 
 Technically i am showing the "editor scripting" features of the plugin, not its "gameplay scripting" mode.
+
+If this is the first time you use the UnrealEnginePython plugin you should take in account the following notes:
+
+* when you see CamelCase in the python code (for attributes and function calls) it means the UE4 reflection system is being used. Albeit CamelCase for variables and functions is not 'pythonic', you should see it as a 'signal' of jumping into UE4 reflection system.
+
+* in this tutorial i use the embedded python editor. It is pretty raw, if you want you can use your favourite editor (Vim, Sublime, Emacs...). Anything that can edit python files will be good.
+
+* Python scripts are stored in the '/Game/Scripts' folder of the project
 
 Installing UnrealEnginePython
 -
