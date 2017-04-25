@@ -94,7 +94,7 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	PyObject *py_rotation = nullptr;
 	PyObject *py_scale = nullptr;
 	if (!PyArg_ParseTuple(args, "|OOO:__init__", &py_translation, &py_rotation, &py_scale)) {
-		return NULL;
+		return -1;
 	}
 
 	if (py_translation) {
