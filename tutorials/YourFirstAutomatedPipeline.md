@@ -43,6 +43,10 @@ If all goes well, you will get a new option under the Window menu, called the 'P
 
 ![Screenshot of Window menu](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/screenshot_window_menu.png)
 
+Run it, and ensure your python environment works:
+
+![Python Console](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/python_console.png)
+
 Initializing the environment
 -
 
