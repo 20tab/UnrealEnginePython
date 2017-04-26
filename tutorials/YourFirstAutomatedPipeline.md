@@ -378,22 +378,22 @@ anim_factory.ImportUI.bImportTextures = False
 # remember to scale them as you did with the base mesh
 anim_factory.ImportUI.AnimSequenceImportData.ImportUniformScale = 0.1;
 
-slider_idle_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_idle.fbx')
+slicer_idle_fbx = os.path.join(kaiju_assets_dir, 'Animations/slicer_idle.fbx')
 animation_idle = anim_factory.factory_import_object(slicer_idle_fbx, '/Game/Kaiju/Slicer/Animations')
 
-slider_bored_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_bored.fbx')
+slicer_bored_fbx = os.path.join(kaiju_assets_dir, 'Animations/slicer_bored.fbx')
 animation_bored = anim_factory.factory_import_object(slicer_bored_fbx, '/Game/Kaiju/Slicer/Animations')
 
-slider_attack_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_attack.fbx')
+slicer_attack_fbx = os.path.join(kaiju_assets_dir, 'Animations/slicer_attack.fbx')
 animation_attack = anim_factory.factory_import_object(slicer_attack_fbx, '/Game/Kaiju/Slicer/Animations')
 
-slider_roaring_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_roaring.fbx')
+slicer_roaring_fbx = os.path.join(kaiju_assets_dir, 'Animations/slicer_roaring.fbx')
 animation_roaring = anim_factory.factory_import_object(slicer_roaring_fbx, '/Game/Kaiju/Slicer/Animations')
 
-slider_run_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_run.fbx')
+slicer_run_fbx = os.path.join(kaiju_assets_dir, 'Animations/slicer_run.fbx')
 animation_run = anim_factory.factory_import_object(slicer_run_fbx, '/Game/Kaiju/Slicer/Animations')
 
-slider_walk_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_walk.fbx')
+slicer_walk_fbx = os.path.join(kaiju_assets_dir, 'Animations/slicer_walk.fbx')
 animation_walk = anim_factory.factory_import_object(slicer_walk_fbx, '/Game/Kaiju/Slicer/Animations')
 ```
 
