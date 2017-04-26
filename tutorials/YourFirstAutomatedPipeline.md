@@ -443,13 +443,20 @@ It will contain a state machine switching between:
 
 * Attack (attack with blades)
 
-* Roar (a kind of taunt)
+* Roar (a kind of taunt, happens randomly 30% of the times)
 
 * Bored (when idle for more than 10 seconds, starts looking around)
 
 Its event graph manages the Speed variable for the blend space and the idle timer triggering the 'Bored' state.
 
+```python
+from unreal_engine.classes import AnimBlueprintFactory
 
+anim_bp_factory = AnimBlueprintFactory()
+anim_bp_factory.TargetSkeleton = slicer_mesh.Skeleton
+
+anim_bp = anim_bp_factory.factory_create_new('/Game/Kaiju/Slicer/slicer_AnimBP')
+```
 
 Put it all in a new Blueprint
 -
