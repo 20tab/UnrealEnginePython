@@ -466,21 +466,75 @@ anim_bp = anim_bp_factory.factory_create_new('/Game/Kaiju/Slicer/slicer_AnimBP')
 
 unfortunately, as you can see, we need a hack when creating new blueprints. Generating a Blueprint with the same name of another one will trigger a crash. We are investigating a better api to avoid that tricky exception.
 
-Once the blueprint is created, we need to assign a custom event 'DoAttack' (triggered when the Kaiju is near a Pawn), 2 bool variables (Attack, Bored) and a float one (Speed):
+Once the blueprint is created, we need to assign a custom event 'DoAttack' (triggered when the Kaiju is near a Pawn), anpther one called 'Boring' (triggered when the kaiju is stationary/idle for more than 10 seconds), 2 bool variables (Attack, Bored) and a float one (Speed):
 
 ```python
 # DoAttack custom event
-node_do_attack = anim_bp.UberGraphPages[0].graph_add_node_custom_event('DoAttack')
+node_do_attack = anim_bp.UberGraphPages[0].graph_add_node_custom_event('DoAttack', 0, -200)
+
+# Boring custom event
+node_boring = anim_bp.UberGraphPages[0].graph_add_node_custom_event('Boring', 0, -400)
 
 # bool variables
 ue.blueprint_add_member_variable(anim_bp, 'Attack', 'bool')
-ue.blueprint_add_member_variable(anim_bp, 'Roar', 'bool')
+ue.blueprint_add_member_variable(anim_bp, 'Bored', 'bool')
 
 # float variable
 ue.blueprint_add_member_variable(anim_bp, 'Speed', 'float')
 ```
 
 ![The Kaiju Animation Blueprint](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_anim_blueprint.png)
+
+We can now add the graph nodes:
+
+```python
+# add nodes to the graph
+from unreal_engine.classes import KismetSystemLibrary, KismetMathLibrary
+
+# set Attack to True
+node_set_attack001 = anim_bp.UberGraphPages[0].graph_add_node_variable_set('Attack', None, 300, -200)
+node_set_attack001.node_find_pin('Attack').default_value = 'true'
+
+# Delay of 2 seconds (cooldown)
+from unreal_engine.classes import KismetSystemLibrary
+node_delay_2_seconds = anim_bp.UberGraphPages[0].graph_add_node_call_function(KismetSystemLibrary.Delay, 600, -200)
+node_delay_2_seconds.node_find_pin('Duration').default_value = '2.0'
+
+# set Attack to False
+node_set_attack002 = anim_bp.UberGraphPages[0].graph_add_node_variable_set('Attack', None, 900, -200)
+node_set_attack002.node_find_pin('Attack').default_value = 'false'
+
+# set Bored to True
+node_set_bored001 = anim_bp.UberGraphPages[0].graph_add_node_variable_set('Bored', None, 300, -400)
+node_set_bored001.node_find_pin('Bored').default_value = 'true'
+
+# Delay of 5 seconds (cooldown)
+from unreal_engine.classes import KismetSystemLibrary
+node_delay_5_seconds = anim_bp.UberGraphPages[0].graph_add_node_call_function(KismetSystemLibrary.Delay, 600, -400)
+node_delay_5_seconds.node_find_pin('Duration').default_value = '5.0'
+
+# set Attack to False
+node_set_bored002 = anim_bp.UberGraphPages[0].graph_add_node_variable_set('Bored', None, 900, -400)
+node_set_bored002.node_find_pin('Bored').default_value = 'false'
+
+# link nodes
+
+# DoAttack to Set Attack True
+node_do_attack.node_find_pin('then').make_link_to(node_set_attack001.node_find_pin('execute'))
+# Set Attack True to Delay
+node_set_attack001.node_find_pin('then').make_link_to(node_delay_2_seconds.node_find_pin('execute'))
+# Delay to Set Attack False
+node_delay_2_seconds.node_find_pin('then').make_link_to(node_set_attack002.node_find_pin('execute'))
+
+# Boring to Set Bored True
+node_boring.node_find_pin('then').make_link_to(node_set_bored001.node_find_pin('execute'))
+# Set Attack True to Delay
+node_set_bored001.node_find_pin('then').make_link_to(node_delay_5_seconds.node_find_pin('execute'))
+# Delay to Set Attack False
+node_delay_5_seconds.node_find_pin('then').make_link_to(node_set_bored002.node_find_pin('execute'))
+```
+
+![The Kaiju Animation Blueprint with Nodes](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_anim_blueprint_with_nodes.png)
 
 Put it all in a new Blueprint
 -
