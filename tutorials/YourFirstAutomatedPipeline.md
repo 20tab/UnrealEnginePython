@@ -551,21 +551,47 @@ def find_event_node(graph, name):
     for node in graph.Nodes:
         if node.is_a(K2Node_Event):
             if node.EventReference.MemberName == name:
-                return True
-    return False
+                return node
+    return None
     
 def find_function_node(graph, name):
     for node in graph.Nodes:
         if node.is_a(K2Node_CallFunction):
             if node.FunctionReference.MemberName == name:
-                return True
-    return False
+                return node
+    return None
 
 update_animation_event = find_event_node(anim_bp.UberGraphPages[0], 'BlueprintUpdateAnimation')
 try_get_pawn_owner = find_function_node(anim_bp.UberGraphPages[0], 'TryGetPawnOwner')
 ```
 
 We can now add the 'GetVelocity' node and the 'VectorLength' one. Its return value will be stored into the Speed variable
+
+```python
+node_get_velocity = anim_bp.UberGraphPages[0].graph_add_node_call_function(Actor.GetVelocity, 300, 200)
+# note the functions is called VSize albeit the graph editor reports it as VectorLength
+node_vector_length = anim_bp.UberGraphPages[0].graph_add_node_call_function(KismetMathLibrary.VSize, 600, 200)
+node_speed_set = anim_bp.UberGraphPages[0].graph_add_node_variable_set('Speed', None, 900, 0)
+
+
+#link nodes
+
+# BlueprintUpdateAnimation to Speed Set
+update_animation_event.node_find_pin('then').make_link_to(node_speed_set.node_find_pin('execute'))
+
+# TryGetPawnOwner to GetVelocity
+try_get_pawn_owner.node_find_pin('ReturnValue').make_link_to(node_get_velocity.node_find_pin('self'))
+
+# GetVelocity to VectorLength
+node_get_velocity.node_find_pin('ReturnValue').make_link_to(node_vector_length.node_find_pin('A'))
+
+# VectorLength to Speed Set
+node_vector_length.node_find_pin('ReturnValue').make_link_to(node_speed_set.node_find_pin('Speed'))
+```
+
+![The Kaiju Animation Blueprint Event Graph](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_anim_blueprint_event_graph.png)
+
+We have done with the event graph, we can now move to the AnimGraph and define a State Machine
 
 Put it all in a new Blueprint
 -
