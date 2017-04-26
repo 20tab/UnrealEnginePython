@@ -441,9 +441,7 @@ It will contain a state machine switching between:
 
 * Locomotion (the blend space we created before)
 
-* Attack (attack with blades)
-
-* Roar (a kind of taunt, happens randomly 30% of the times)
+* Attack (attack with blades or a taunting roar happining randomly 30% of the times)
 
 * Bored (when idle for more than 10 seconds, starts looking around)
 
@@ -455,7 +453,31 @@ from unreal_engine.classes import AnimBlueprintFactory
 anim_bp_factory = AnimBlueprintFactory()
 anim_bp_factory.TargetSkeleton = slicer_mesh.Skeleton
 
+# ensure no blueprint with the same name exists
+# get_asset() returns an exception, maybe it is time to implement a asset_exists() api function ?
+try:
+    bp_exists = ue.get_asset('/Game/Kaiju/Slicer/slicer_AnimBP.slicer_AnimBP')
+    ue.delete_asset(bp_exists.get_path_name())
+except:
+    pass
+
 anim_bp = anim_bp_factory.factory_create_new('/Game/Kaiju/Slicer/slicer_AnimBP')
+```
+
+unfortunately, as you can see, we need a hack when creating new blueprints. Generating a Blueprint with the same name of another one will trigger a crash. We are investigating a better api to avoid that tricky exception.
+
+Once the blueprint is created, we need to assign a custom event 'DoAttack' (triggered when the Kaiju is near a Pawn), 2 bool variables (Attack, Bored) and a float one (Speed):
+
+```python
+# DoAttack custom event
+node_do_attack = anim_bp.UberGraphPages[0].graph_add_node_custom_event('DoAttack')
+
+# bool variables
+ue.blueprint_add_member_variable('Attack', 'bool')
+ue.blueprint_add_member_variable('Roar', 'bool')
+
+# float variable
+ue.blueprint_add_member_variable('Speed', 'float')
 ```
 
 Put it all in a new Blueprint
