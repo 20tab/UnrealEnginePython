@@ -343,7 +343,11 @@ And this is the body material result:
 one last step missing: assigning materials to the slicer mesh:
 
 ```python
-slicer_mesh.Materials = [material_blades, material_body]
+from unreal_engine.structs import SkeletalMaterial
+
+# SkeletalMaterial is a struct holding information about material mappings
+# the Materials property is the array of assigned materials
+slicer_mesh.Materials = [SkeletalMaterial(MaterialInterface=material_blades, MaterialSlotName='Blades'), SkeletalMaterial(MaterialInterface=material_body, MaterialSlotName='Body')]
 
 # and save them all
 slicer_mesh.save_package()
