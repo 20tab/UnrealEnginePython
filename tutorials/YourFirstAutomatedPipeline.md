@@ -16,7 +16,7 @@ If this is the first time you use the UnrealEnginePython plugin you should take 
 
 * Python scripts are stored in the '/Game/Scripts' folder of the project
 
-* The Python code is pretty verbose and repeat itself constantly to show the biggest possible number of api features, i strongly suggest you to reorganize it if you plan to build something for your own pipeline
+* The Python code is pretty verbose and repeat itself constantly to show the biggest possible number of api features, i strongly suggest you to reorganize/refactor it if you plan to build something for your own pipeline
 
 Installing UnrealEnginePython
 -
@@ -54,24 +54,68 @@ In the Window menu, you will find another tool (optional), the Python Editor. It
 Initializing the environment
 -
 
-Create a new python script (just click New in the python editor, or just create a new file in your favourite editor under the Scripts project directory), call it kaiju_slicer_pipeline.py with the following content
+Create a new python script (just click `New` in the python editor, or just create a new file in your favourite editor under the `Scripts` project directory), call it kaiju_slicer_pipeline.py with the following content
 
 ```python
 import unreal_engine as ue
 
-# ensure we cleanup the Kaiju/Slicer folder at each run
+print('Hello i am your pipeline automator')
 ```
 
-Then download the https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/Kaiju_Assets.zip file and unzip it in your Desktop folder. These are the original files (fbx, tga, ...) we will import in the project using a python script.
+![First script in editor](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/first_script_editor.png)
+
+save the script and click on 'Execute' to run the script.
+
+If you are not using the embedded editor, you can run python scripts from the console with the py_exec command
+
+```python
+import unreal_engine as ue
+ue.py_exec('name_of_script.py')
+```
+
+![First script in console](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/first_script_console.png)
+
+Finally, download the https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/Kaiju_Assets.zip file and unzip it in your Desktop folder. These are the original files (fbx, tga, ...) we will import in the project using a python script.
 
 Importing the Mesh FBX
 -
 
-Once you have access to the PythonConsole (or the Editor), you can start issuing python commands.
+Let's start with importing our kaiju mesh (~/Desktop/Kaiju_Assets/Slicer/slicer.fbx) into Unreal Engine. For importing assets we need a 'Factory' (it is a UE4 class).
+
+There is a basically a Factory for each asset type. The FbxFactory is the one dedicated at importing Fbx files.
+
+Unfortunately, by default this factory opens a configuration wizard whenever you try to import an fbx, so an alternative class (PyFbxFactory) will be used.
+
+It is a factory included in the UnrealUnginePython plugin, and it is a simple subclass of FbxFactory, but without the wizard. 
 
 ```python
-from unreal_engine.classe import PyFbxFactory
+import os.path
+from unreal_engine.classes import PyFbxFactory
+
+# instantiate a new factory
+fbx_factory = PyFbxFactory()
+
+# build the path for the fbx file
+kaiju_assets_dir = os.path.join(os.path.expanduser('~/Desktop'), 'Kaiju_Assets/Slicer')
+
+slicer_fbx = os.path.join(kaiju_assets_dir, 'slicer.fbx')
+
+# configure the factory
+fbx_factory.ImportUI.bCreatePhysicsAsset = False
+fbx_factory.ImportUI.bImportMaterials = False
+fbx_factory.ImportUI.bImportTextures = False
+fbx_factory.ImportUI.bImportAnimations = False
+# scale the mesh (the Kaiju is 30 meters high !)
+fbx_factory.ImportUI.SkeletalMeshImportData.ImportUniformScale = 0.1;
+
+# import the mesh
+slicer_mesh = fbx_factory.factory_import_object(slicer_fbx, '/Game/Kaiju/Slicer')
 ```
+
+Run the script, and if all goes well your Kaiju will be imported in your content browser:
+
+![Kaiju in ContentBrowser](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_mesh.png)
+
 
 Creating the Materials
 -
