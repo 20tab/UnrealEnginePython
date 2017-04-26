@@ -254,13 +254,75 @@ material_blades.Roughness = ScalarMaterialInput(Expression=material_blades_orm, 
 material_blades.Metallic = ScalarMaterialInput(Expression=material_blades_orm, Mask=1, MaskB=1)
 material_blades.AmbientOcclusion = ScalarMaterialInput(Expression=material_blades_orm, Mask=1, MaskR=1)
 
-# run material compilatiom
+# run material compilation
 material_blades.post_edit_change()
 ```
 
 This is what we have just generated:
 
 ![The Kaiju Blades Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_blades_material.png)
+
+The body material will be a bit more complex as we want to 'blink/beam' the emissive texture
+
+```python
+from unreal_engine.classes import MaterialExpressionSine, MaterialExpressionMultiply, MaterialExpressionTime
+from unreal_engine.structs import ExpressionInput
+
+# inform the editor we want to modify the material
+material_body.modify()
+
+# build the material graph
+sample_base_color = MaterialExpressionTextureSample('', material_body)
+sample_base_color.Texture = slicer_texture_base_color
+sample_base_color.MaterialExpressionEditorX = -400
+sample_base_color.MaterialExpressionEditorY = 0
+
+sample_normal = MaterialExpressionTextureSample('', material_body)
+sample_normal.Texture = imported_textures[2]
+sample_normal.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Normal
+sample_normal.MaterialExpressionEditorX = -400
+sample_normal.MaterialExpressionEditorY = 400
+
+sample_emissive = MaterialExpressionTextureSample('', material_body)
+sample_emissive.Texture = slicer_texture_base_color
+sample_emissive.MaterialExpressionEditorX = -600
+sample_emissive.MaterialExpressionEditorY = 0
+
+
+
+sample_orm = MaterialExpressionTextureSample('', material_body)
+sample_orm.Texture = imported_textures[3]
+sample_orm.MaterialExpressionEditorX = -600
+sample_orm.MaterialExpressionEditorY = 400
+
+sine = MaterialExpressionSine('', material_body)
+sine.MaterialExpressionEditorX = -1000
+sine.MaterialExpressionEditorY = 0
+
+time = MaterialExpressionTime('', material_body)
+time.MaterialExpressionEditorX = -1200
+time.MaterialExpressionEditorY = 0
+
+multiply = MaterialExpressionMultiply('', material_body)
+multiply.MaterialExpressionEditorX = -800
+multiply.MaterialExpressionEditorY = 0
+
+material_body.Expressions = [sample_base_color, sample_emissive, sample_normal, sample_orm, time, sine, multiply]
+
+sine.Input = ExpressionInput(Expression=time)
+multiply.A = ExpressionInput(Expression=sample_emissive)
+multiply.B = ExpressionInput(Expression=sine)
+
+material_body.BaseColor = ColorMaterialInput(Expression=sample_base_color)
+material_body.EmissiveColor = ColorMaterialInput(Expression=multiply)
+material_body.Normal = VectorMaterialInput(Expression=sample_normal)
+material_body.Roughness = ScalarMaterialInput(Expression=sample_orm, Mask=1, MaskG=1)
+material_body.Metallic = ScalarMaterialInput(Expression=sample_orm, Mask=1, MaskB=1)
+material_body.AmbientOcclusion = ScalarMaterialInput(Expression=sample_orm, Mask=1, MaskR=1)
+
+# run material compilatiom
+material_body.post_edit_change()
+```
 
 Importing Animations
 -
