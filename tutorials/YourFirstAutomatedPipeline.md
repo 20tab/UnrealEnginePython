@@ -473,11 +473,11 @@ Once the blueprint is created, we need to assign a custom event 'DoAttack' (trig
 node_do_attack = anim_bp.UberGraphPages[0].graph_add_node_custom_event('DoAttack')
 
 # bool variables
-ue.blueprint_add_member_variable('Attack', 'bool')
-ue.blueprint_add_member_variable('Roar', 'bool')
+ue.blueprint_add_member_variable(anim_bp, 'Attack', 'bool')
+ue.blueprint_add_member_variable(anim_bp, 'Roar', 'bool')
 
 # float variable
-ue.blueprint_add_member_variable('Speed', 'float')
+ue.blueprint_add_member_variable(anim_bp, 'Speed', 'float')
 ```
 
 Put it all in a new Blueprint
