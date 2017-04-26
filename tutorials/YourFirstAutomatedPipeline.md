@@ -401,6 +401,27 @@ animation_walk = anim_factory.factory_import_object(slicer_walk_fbx, '/Game/Kaij
 
 Now we want to create a BlendShape1D asset. It will be composed by the 3 locomotion-related animations (idle, walk, run) and it will be governed by a variable (the X) called Speed, with a minimum value of 0 and a max of 300.
 
+```python
+from unreal_engine.classes import BlendSpaceFactory1D
+from unreal_engine.structs import BlendSample, BlendParameter
+from unreal_engine import FVector
+
+blend_space_factory = BlendSpaceFactory1D()
+# you need to assign the related Skeleton
+blend_space_factory.TargetSkeleton = slicer_mesh.Skeleton
+
+# create the asset
+slicer_locomotion = blend_space_factory.factory_create_new('/Game/Kaiju/Slicer/Animations/slicer_locomotion')
+
+# set blend parameters
+slicer_locomotion.BlendParameters = BlendParameter(DisplayName='Speed', Min=0, Max=300, GridNum=3)
+
+# assign animations
+slicer_locomotion.SampleData = [BlendSample(Animation=animation_idle, SampleValue=FVector(0, 0, 0)), BlendSample(Animation=animation_walk, SampleValue=FVector(150, 0, 0)), BlendSample(Animation=animation_run, SampleValue=FVector(300, 0, 0))]
+
+# save
+slicer_locomotion.save_package()
+```
 
 
 Creating the AnimationBlueprint
