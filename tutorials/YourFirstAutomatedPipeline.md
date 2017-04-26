@@ -183,7 +183,7 @@ slicer_texture_normal_tga = os.path.join(kaiju_assets_dir, 'Textures/slicer_Norm
 slicer_texture_normal = texture_factory.factory_import_object(slicer_texture_normal_tga, '/Game/Kaiju/Slicer/Textures')
 
 slicer_texture_emissive_tga = os.path.join(kaiju_assets_dir, 'Textures/slicer_Emissive.tga')
-slicer_texture_emissive = texture_factory.factory_import_object(slicer_blade_emissive_tga, '/Game/Kaiju/Slicer/Textures')
+slicer_texture_emissive = texture_factory.factory_import_object(slicer_texture_emissive_tga, '/Game/Kaiju/Slicer/Textures')
 
 # orm stands for OcclusionRoughnessMetallic
 slicer_texture_orm_tga = os.path.join(kaiju_assets_dir, 'Textures/slicer_OcclusionRoughnessMetallic.tga')
@@ -192,6 +192,42 @@ slicer_texture_orm = texture_factory.factory_import_object(slicer_texture_orm_tg
 
 ![The Kaiju textures](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_textures.png)
 
+The textures are ready, we can start "programming" our materials adding nodes to the graphs.
+
+Let's start with the blades. The only two things to take into account is that the OcclusionRoughnessMetallic textures must have the sRGB flag turned off, and each of its channel will be mapped to a different channel:
+
+* Green -> Roughness
+* Blue -> Metallic
+* Red -> Ambient Occlusion
+
+```python
+# setup the slicer blades material
+
+# turn sRGB off for orm textures
+slicer_blade_texture_orm.SRGB = False
+
+from unreal_engine.classes import MaterialExpressionTextureSample
+from unreal_engine.enums import EMaterialSamplerType
+from unreal_engine.structs import ColorMaterialInput
+
+# notify the editor we are about to modify the material
+material_blades.modify()
+
+# create the BaseColor node
+material_blades_base_color = MaterialExpressionTextureSample('', material_blades)
+material_blades_base_color.Texture = slicer_blade_texture_base_color
+material_blades_base_color.MaterialExpressionEditorX = -400
+material_blades_base_color.MaterialExpressionEditorY = 0
+
+# assign nodes to the material
+material_blades.Expressions = [material_blades_base_color]
+
+# link nodes
+material_blades.BaseColor = ColorMaterialInput(Expression=material_blades_base_color)
+
+# run material compilatiom
+material_blades.post_edit_change()
+```
 
 Importing Animations
 -
