@@ -357,7 +357,7 @@ material_body.save_package()
 
 The final result:
 
-![The Kaiju With Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_with_material.png)
+![The Kaiju With Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_with_materials.png)
 
 Importing Animations
 -
