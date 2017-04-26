@@ -430,14 +430,14 @@ slicer_locomotion.save_package()
 slicer_locomotion.post_edit_change()
 ```
 
+![The Kaiju Locomotion BlendSpace](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_locomotion.png)
 
 Creating the AnimationBlueprint
 -
 
+Our animation assets are ready, so we can start creating the Animation blueprint.
 
-Once our assets are ready we can start creating the Animation blueprint.
-
-The animation blueprint wil contain a state machine switching between:
+It will contain a state machine switching between:
 
 * Locomotion (the blend space we created before)
 
@@ -448,6 +448,8 @@ The animation blueprint wil contain a state machine switching between:
 * Bored (when idle for more than 10 seconds, starts looking around)
 
 Its event graph manages the Speed variable for the blend space and the idle timer triggering the 'Bored' state.
+
+
 
 Put it all in a new Blueprint
 -
