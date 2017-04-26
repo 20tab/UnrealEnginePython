@@ -364,6 +364,39 @@ Importing Animations
 
 Importing Animations uses the same factory for Fbx meshes.
 
+We have 6 animations to import: idle, bored, attack, roaring, run and walk
+
+It will be an easy task:
+
+```python
+anim_factory = PyFbxFactory()
+# you need to set the skeleton before importing animations
+anim_factory.ImportUI.Skeleton = slicer_mesh.Skeleton
+anim_factory.ImportUI.bImportMesh = False
+anim_factory.ImportUI.bImportMaterials = False
+anim_factory.ImportUI.bImportTextures = False
+# remember to scale them as you did with the base mesh
+anim_factory.ImportUI.AnimSequenceImportData.ImportUniformScale = 0.1;
+
+slider_idle_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_idle.fbx')
+animation_idle = anim_factory.factory_import_object(slicer_idle_fbx, '/Game/Kaiju/Slicer/Animations')
+
+slider_bored_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_bored.fbx')
+animation_bored = anim_factory.factory_import_object(slicer_bored_fbx, '/Game/Kaiju/Slicer/Animations')
+
+slider_attack_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_attack.fbx')
+animation_attack = anim_factory.factory_import_object(slicer_attack_fbx, '/Game/Kaiju/Slicer/Animations')
+
+slider_roaring_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_roaring.fbx')
+animation_roaring = anim_factory.factory_import_object(slicer_roaring_fbx, '/Game/Kaiju/Slicer/Animations')
+
+slider_run_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_run.fbx')
+animation_run = anim_factory.factory_import_object(slicer_run_fbx, '/Game/Kaiju/Slicer/Animations')
+
+slider_walk_fbx = os.path.join(kaiju_assets_dir, 'Animations/slider_walk.fbx')
+animation_walk = anim_factory.factory_import_object(slicer_walk_fbx, '/Game/Kaiju/Slicer/Animations')
+```
+
 Now we want to create a BlendShape1D asset. It will be composed by the 3 locomotion-related animations (idle, walk, run) and it will be governed by a variable (the X) called Speed, with a minimum value of 0 and a max of 300.
 
 
