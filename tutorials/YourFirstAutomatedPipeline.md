@@ -1,4 +1,4 @@
-Your First Automated Pipeline with UnrealEnginePython
+Your First Automated Pipeline with UnrealEnginePython (WORK IN PROGRESS)
 =
 
 In this tutorial i will try to show you how to build a python script that can generate
@@ -645,6 +645,7 @@ bored_player.node_find_pin('Pose').make_link_to(bored_state.BoundGraph.Nodes[0].
 
 ![The Kaiju Animation Blueprint State Bored](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_bored.png)
 
+TODO: the other states, connection between states, compile the blueprint
 
 Put it all in a new Blueprint
 -
@@ -653,6 +654,8 @@ Now it is time to create a Character Blueprint
 
 Filling the Event Graph
 -
+
+TODO: implement the idle timer triggering the bored state
 
 The BlackBoard
 -
