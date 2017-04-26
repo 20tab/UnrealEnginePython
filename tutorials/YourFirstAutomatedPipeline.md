@@ -219,11 +219,37 @@ material_blades_base_color.Texture = slicer_blade_texture_base_color
 material_blades_base_color.MaterialExpressionEditorX = -400
 material_blades_base_color.MaterialExpressionEditorY = 0
 
+# create the Normal node
+material_blades_normal = MaterialExpressionTextureSample('', material_blades)
+material_blades_normal.Texture = slicer_blade_texture_normal
+material_blades_normal.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Normal
+material_blades_normal.MaterialExpressionEditorX = -400
+material_blades_normal.MaterialExpressionEditorY = 400
+
+# create the Emissive node
+material_blades_emissive = MaterialExpressionTextureSample('', material_blades)
+material_blades_emissive.Texture = slicer_blade_texture_emissive
+material_blades_emissive.MaterialExpressionEditorX = -400
+material_blades_emissive.MaterialExpressionEditorY = 600
+
+# create the OcclusionRoughnessMetallic node
+material_blades_orm = MaterialExpressionTextureSample('', material_blades)
+material_blades_orm.Texture = slicer_blade_texture_normal
+material_blades_orm.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Linear
+material_blades_orm.MaterialExpressionEditorX = -400
+material_blades_orm.MaterialExpressionEditorY = 800
+
 # assign nodes to the material
-material_blades.Expressions = [material_blades_base_color]
+material_blades.Expressions = [material_blades_base_color, material_blades_normal, material_blades_emissive, material_blades_orm]
 
 # link nodes
 material_blades.BaseColor = ColorMaterialInput(Expression=material_blades_base_color)
+material_blades.Normal = VectorMaterialInput(Expression=material_blades_normal)
+material_blades.EmissiveColor = ColorMaterialInput(Expression=material_blades_emissive)
+# use masking for orm nodes, it turns on/off specific channels
+material_blades.Roughness = ScalarMaterialInput(Expression=material_blades_orm, Mask=1, MaskG=1)
+material_blades.Metallic = ScalarMaterialInput(Expression=material_blades_orm, Mask=1, MaskB=1)
+material_blades.AmbientOcclusion = ScalarMaterialInput(Expression=material_blades_orm, Mask=1, MaskR=1)
 
 # run material compilatiom
 material_blades.post_edit_change()
