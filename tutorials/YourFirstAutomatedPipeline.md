@@ -593,6 +593,22 @@ node_vector_length.node_find_pin('ReturnValue').make_link_to(node_speed_set.node
 
 We have done with the event graph, we can now move to the AnimGraph and define a State Machine
 
+```python
+# create the State Machine
+from unreal_engine.classes import AnimGraphNode_StateMachine
+
+state_machine = anim_bp.FunctionGraphs[0].graph_add_node(AnimGraphNode_StateMachine, -300, 0)
+# assign a name to the state machine
+state_machine.EditorStateMachineGraph.set_name('Slicer State Machine')
+
+# connect the state machine to the first node of the anim graph
+state_machine.node_find_pin('Pose').make_link_to(anim_bp.FunctionGraphs[0].Nodes[0].node_find_pin('Result'))
+```
+
+![The Kaiju Animation Blueprint State Machine](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_state_machine.png)
+
+(the Warning you get is because the state machine is empty)
+
 Put it all in a new Blueprint
 -
 
