@@ -630,6 +630,22 @@ bored_state.BoundGraph.set_name('Bored')
 
 ![The Kaiju Animation Blueprint States](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states.png)
 
+
+We start with the 'Bored' state, as it is a simple one (just play an animation looply)
+
+```python
+# The Bored State -> simply play an animation
+from unreal_engine.classes import AnimGraphNode_SequencePlayer
+from unreal_engine.structs import AnimNode_SequencePlayer
+
+bored_player = bored_state.BoundGraph.graph_add_node(AnimGraphNode_SequencePlayer, -300, 0)
+bored_player.Node = AnimNode_SequencePlayer(Sequence=animation_bored, bLoopAnimation=True)
+bored_player.node_find_pin('Pose').make_link_to(bored_state.BoundGraph.Nodes[0].node_find_pin('Result'))
+```
+
+![The Kaiju Animation Blueprint State Bored](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_bored.png)
+
+
 Put it all in a new Blueprint
 -
 
