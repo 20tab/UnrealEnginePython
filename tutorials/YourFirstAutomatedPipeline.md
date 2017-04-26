@@ -417,7 +417,11 @@ slicer_locomotion = blend_space_factory.factory_create_new('/Game/Kaiju/Slicer/A
 slicer_locomotion.BlendParameters = BlendParameter(DisplayName='Speed', Min=0, Max=300, GridNum=3)
 
 # assign animations
-slicer_locomotion.SampleData = [BlendSample(Animation=animation_idle, SampleValue=FVector(0, 0, 0)), BlendSample(Animation=animation_walk, SampleValue=FVector(150, 0, 0)), BlendSample(Animation=animation_run, SampleValue=FVector(300, 0, 0))]
+# 0 -> idle
+# 150 -> walk
+# 300 -> run
+# mark them as 'valid' explicitely !
+slicer_locomotion.SampleData = [BlendSample(Animation=animation_idle, SampleValue=FVector(0, 0, 0), bIsValid=True), BlendSample(Animation=animation_walk, SampleValue=FVector(150, 0, 0), bIsValid=True), BlendSample(Animation=animation_run, SampleValue=FVector(300, 0, 0), bIsValid=True)]
 
 # save
 slicer_locomotion.save_package()
