@@ -190,6 +190,9 @@ slicer_texture_orm_tga = os.path.join(kaiju_assets_dir, 'Textures/slicer_Occlusi
 slicer_texture_orm = texture_factory.factory_import_object(slicer_texture_orm_tga, '/Game/Kaiju/Slicer/Textures')
 ```
 
+![The Kaiju textures](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_textures.png)
+
+
 Importing Animations
 -
 
