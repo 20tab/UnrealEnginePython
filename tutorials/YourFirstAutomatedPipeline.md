@@ -120,12 +120,24 @@ Scary, isn't it ?
 
 ![The Kaiju model](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_without_materials.png)
 
+Just a note about this line:
+
+```python
+fbx_factory.ImportUI.SkeletalMeshImportData.ImportUniformScale = 0.1;
+```
+
+The Kaiju original model is 30 meters high, so we scale it down to use it in a context different from "Tokyo under attack".
+
 Creating the Materials
 -
 
-We are going to create two different materials, one for the blades and the other for the kaiju body.
+The models looks good from a geometry point of view, but you can not (on the top left of the previous screenshot) that not material is assigned to the mesh.
 
-Both materials are based on Substance Designer textures, the second one will include the ability to 'blink' the emissive texture using a sin function/node.
+We are going to create two different materials, one for the blades (Element 0) and the other for the kaiju body (Element 1)
+
+Both materials are based on `Substance Designer` textures, the second one will include the ability to 'blink' the emissive texture using a sin function/node.
+
+Add this code to your script
 
 ```python
 from unreal_engine.classes import MaterialFactoryNew
@@ -136,6 +148,10 @@ material_blades = material_factory.factory_create_new('/Game/Kaiju/Slicer/Blades
 
 material_body = material_factory.factory_create_new('/Game/Kaiju/Slicer/Body_Material')
 ```
+
+and run it, you will end with two new assets:
+
+![The Kaiju materials](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_materials.png)
 
 Importing Animations
 -
