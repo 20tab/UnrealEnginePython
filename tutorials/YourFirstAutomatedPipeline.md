@@ -153,6 +153,18 @@ and run it, you will end with two new assets:
 
 ![The Kaiju materials](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_materials.png)
 
+Before editing materials, we need to import the 8 required Textures (4 for the blades, 4 for the body):
+
+```python
+from unreal_engine.classes import TextureFactory
+
+# instantiate a factory for importing textures
+texture_factory = TextureFactory()
+
+slicer_blade_texture_base_color_tga = os.path.join(kaiju_assets_dir, 'Textures/slicer_blade_BaseColor.tga')
+slicer_blase_texture_base_color = texture_factory.factory_import_object(slicer_blade_texture_base_color_tga, '/Game/Kaiju/Slicer/Textures')
+```
+
 Importing Animations
 -
 
