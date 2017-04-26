@@ -268,60 +268,87 @@ The body material will be a bit more complex as we want to 'blink/beam' the emis
 from unreal_engine.classes import MaterialExpressionSine, MaterialExpressionMultiply, MaterialExpressionTime
 from unreal_engine.structs import ExpressionInput
 
+# turn sRGB off for orm textures
+slicer_texture_orm.SRGB = False
+
 # inform the editor we want to modify the material
 material_body.modify()
 
 # build the material graph
-sample_base_color = MaterialExpressionTextureSample('', material_body)
-sample_base_color.Texture = slicer_texture_base_color
-sample_base_color.MaterialExpressionEditorX = -400
-sample_base_color.MaterialExpressionEditorY = 0
 
-sample_normal = MaterialExpressionTextureSample('', material_body)
-sample_normal.Texture = imported_textures[2]
-sample_normal.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Normal
-sample_normal.MaterialExpressionEditorX = -400
-sample_normal.MaterialExpressionEditorY = 400
+# start with texture samples (as we did with the blades material)
+material_body_base_color = MaterialExpressionTextureSample('', material_body)
+material_body_base_color.Texture = slicer_texture_base_color
+material_body_base_color.MaterialExpressionEditorX = -400
+material_body_base_color.MaterialExpressionEditorY = 0
 
-sample_emissive = MaterialExpressionTextureSample('', material_body)
-sample_emissive.Texture = slicer_texture_base_color
-sample_emissive.MaterialExpressionEditorX = -600
-sample_emissive.MaterialExpressionEditorY = 0
+material_body_normal = MaterialExpressionTextureSample('', material_body)
+material_body_normal.Texture = slicer_texture_normal
+material_body_normal.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Normal
+material_body_normal.MaterialExpressionEditorX = -400
+material_body_normal.MaterialExpressionEditorY = 200
 
+material_body_emissive = MaterialExpressionTextureSample('', material_body)
+material_body_emissive.Texture = slicer_texture_emissive
+material_body_emissive.MaterialExpressionEditorX = -400
+material_body_emissive.MaterialExpressionEditorY = 400
 
+material_body_orm = MaterialExpressionTextureSample('', material_body)
+material_body_orm.Texture = slicer_texture_orm
+material_body_orm.SamplerType = EMaterialSamplerType.SAMPLERTYPE_LinearColor
+material_body_orm.MaterialExpressionEditorX = -400
+material_body_orm.MaterialExpressionEditorY = 600
 
-sample_orm = MaterialExpressionTextureSample('', material_body)
-sample_orm.Texture = imported_textures[3]
-sample_orm.MaterialExpressionEditorX = -600
-sample_orm.MaterialExpressionEditorY = 400
+# create a Sine node
+material_body_sine = MaterialExpressionSine('', material_body)
+material_body_sine.MaterialExpressionEditorX = -1000
+material_body_sine.MaterialExpressionEditorY = 0
 
-sine = MaterialExpressionSine('', material_body)
-sine.MaterialExpressionEditorX = -1000
-sine.MaterialExpressionEditorY = 0
+# create a Time node
+material_body_time = MaterialExpressionTime('', material_body)
+material_body_time.MaterialExpressionEditorX = -1200
+material_body_time.MaterialExpressionEditorY = 0
 
-time = MaterialExpressionTime('', material_body)
-time.MaterialExpressionEditorX = -1200
-time.MaterialExpressionEditorY = 0
+# create a Multiply node
+material_body_multiply = MaterialExpressionMultiply('', material_body)
+material_body_multiply.MaterialExpressionEditorX = -800
+material_body_multiply.MaterialExpressionEditorY = 0
 
-multiply = MaterialExpressionMultiply('', material_body)
-multiply.MaterialExpressionEditorX = -800
-multiply.MaterialExpressionEditorY = 0
+# assign nodes to the graph
+material_body.Expressions = [material_body_base_color, material_body_normal, material_body_emissive, material_body_orm, material_body_time, material_body_sine, material_body_multiply]
 
-material_body.Expressions = [sample_base_color, sample_emissive, sample_normal, sample_orm, time, sine, multiply]
+# connect Time to Sine Input
+material_body_sine.Input = ExpressionInput(Expression=material_body_time)
+# connect the Emissive Texture to the Multiply pin A
+material_body_multiply.A = ExpressionInput(Expression=material_body_emissive)
+# connect the Sine to the Multiply pin B
+material_body_multiply.B = ExpressionInput(Expression=material_body_sine)
 
-sine.Input = ExpressionInput(Expression=time)
-multiply.A = ExpressionInput(Expression=sample_emissive)
-multiply.B = ExpressionInput(Expression=sine)
-
-material_body.BaseColor = ColorMaterialInput(Expression=sample_base_color)
-material_body.EmissiveColor = ColorMaterialInput(Expression=multiply)
-material_body.Normal = VectorMaterialInput(Expression=sample_normal)
-material_body.Roughness = ScalarMaterialInput(Expression=sample_orm, Mask=1, MaskG=1)
-material_body.Metallic = ScalarMaterialInput(Expression=sample_orm, Mask=1, MaskB=1)
-material_body.AmbientOcclusion = ScalarMaterialInput(Expression=sample_orm, Mask=1, MaskR=1)
+# link nodes 
+material_body.BaseColor = ColorMaterialInput(Expression=material_body_base_color)
+material_body.EmissiveColor = ColorMaterialInput(Expression=material_body_multiply)
+material_body.Normal = VectorMaterialInput(Expression=material_body_normal)
+material_body.Roughness = ScalarMaterialInput(Expression=material_body_orm, Mask=1, MaskG=1)
+material_body.Metallic = ScalarMaterialInput(Expression=material_body_orm, Mask=1, MaskB=1)
+material_body.AmbientOcclusion = ScalarMaterialInput(Expression=material_body_orm, Mask=1, MaskR=1)
 
 # run material compilatiom
 material_body.post_edit_change()
+```
+
+And this is the body material result:
+
+![The Kaiju Body Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_body_material.png)
+
+one last step missing: assigning materials to the slicer mesh:
+
+```python
+slicer_mesh.Materials = [material_blades, material_body]
+
+# and save them all
+slicer_mesh.save_package()
+material_blades.save_package()
+material_body.save_package()
 ```
 
 Importing Animations
