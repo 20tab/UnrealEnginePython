@@ -480,7 +480,7 @@ ue.blueprint_add_member_variable(anim_bp, 'Roar', 'bool')
 ue.blueprint_add_member_variable(anim_bp, 'Speed', 'float')
 ```
 
-![The Kaiju Animation Blueprint](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_animation_blueprint.png)
+![The Kaiju Animation Blueprint](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_anim_blueprint.png)
 
 Put it all in a new Blueprint
 -
