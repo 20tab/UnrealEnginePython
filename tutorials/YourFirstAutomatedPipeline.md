@@ -609,6 +609,27 @@ state_machine.node_find_pin('Pose').make_link_to(anim_bp.FunctionGraphs[0].Nodes
 
 (the Warning you get is because the state machine is empty)
 
+Time to add 'States':
+
+```python
+# adding states
+from unreal_engine.classes import AnimStateNode
+
+# Locomotion
+locomotion_state = state_machine.EditorStateMachineGraph.graph_add_node(AnimStateNode, 200, 0)
+locomotion_state.BoundGraph.set_name('Locomotion')
+
+# Locomotion
+attack_state = state_machine.EditorStateMachineGraph.graph_add_node(AnimStateNode, 400, -150)
+attack_state.BoundGraph.set_name('Attack')
+
+# Locomotion
+bored_state = state_machine.EditorStateMachineGraph.graph_add_node(AnimStateNode, 400, 150)
+bored_state.BoundGraph.set_name('Bored')
+```
+
+![The Kaiju Animation Blueprint States](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states.png)
+
 Put it all in a new Blueprint
 -
 
