@@ -105,12 +105,17 @@ fbx_factory.ImportUI.bCreatePhysicsAsset = False
 fbx_factory.ImportUI.bImportMaterials = False
 fbx_factory.ImportUI.bImportTextures = False
 fbx_factory.ImportUI.bImportAnimations = False
-# scale the mesh
+# scale the mesh (the Kaiju is 30 meters high !)
 fbx_factory.ImportUI.SkeletalMeshImportData.ImportUniformScale = 0.1;
 
 # import the mesh
 slicer_mesh = fbx_factory.factory_import_object(slicer_fbx, '/Game/Kaiju/Slicer')
 ```
+
+Run the script, and if all goes well your Kaiju will be imported in your content browser:
+
+![Kaiju in ContentBrowser](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_mesh.png)
+
 
 Creating the Materials
 -
