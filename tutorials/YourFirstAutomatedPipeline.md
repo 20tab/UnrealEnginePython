@@ -619,11 +619,11 @@ from unreal_engine.classes import AnimStateNode
 locomotion_state = state_machine.EditorStateMachineGraph.graph_add_node(AnimStateNode, 200, 0)
 locomotion_state.BoundGraph.set_name('Locomotion')
 
-# Locomotion
+# Attack
 attack_state = state_machine.EditorStateMachineGraph.graph_add_node(AnimStateNode, 400, -150)
 attack_state.BoundGraph.set_name('Attack')
 
-# Locomotion
+# Bored
 bored_state = state_machine.EditorStateMachineGraph.graph_add_node(AnimStateNode, 400, 150)
 bored_state.BoundGraph.set_name('Bored')
 ```
