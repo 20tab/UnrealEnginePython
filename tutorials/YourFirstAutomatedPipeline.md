@@ -236,8 +236,8 @@ material_blades_emissive.MaterialExpressionEditorY = 400
 # create the OcclusionRoughnessMetallic node
 material_blades_orm = MaterialExpressionTextureSample('', material_blades)
 material_blades_orm.Texture = slicer_blade_texture_orm
-# force the sampler to 'Linear' (remember you turned off sRGB)
-material_blades_orm.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Linear
+# force the sampler to 'LinearColor' (remember you turned off sRGB)
+material_blades_orm.SamplerType = EMaterialSamplerType.SAMPLERTYPE_LinearColor
 material_blades_orm.MaterialExpressionEditorX = -400
 material_blades_orm.MaterialExpressionEditorY = 600
 
@@ -257,6 +257,10 @@ material_blades.AmbientOcclusion = ScalarMaterialInput(Expression=material_blade
 # run material compilatiom
 material_blades.post_edit_change()
 ```
+
+This is what we have just generated:
+
+![The Kaiju Blades Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_blades_material.png)
 
 Importing Animations
 -
