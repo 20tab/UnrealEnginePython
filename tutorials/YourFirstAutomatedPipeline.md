@@ -116,6 +116,9 @@ Run the script, and if all goes well your Kaiju will be imported in your content
 
 ![Kaiju in ContentBrowser](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_mesh.png)
 
+Scary, isn't it ?
+
+![The Kaiju model](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_without_materials.png)
 
 Creating the Materials
 -
