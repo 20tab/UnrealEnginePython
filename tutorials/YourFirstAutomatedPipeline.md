@@ -225,21 +225,21 @@ material_blades_normal.Texture = slicer_blade_texture_normal
 # force the sampler to 'Normal'
 material_blades_normal.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Normal
 material_blades_normal.MaterialExpressionEditorX = -400
-material_blades_normal.MaterialExpressionEditorY = 400
+material_blades_normal.MaterialExpressionEditorY = 200
 
 # create the Emissive node
 material_blades_emissive = MaterialExpressionTextureSample('', material_blades)
 material_blades_emissive.Texture = slicer_blade_texture_emissive
 material_blades_emissive.MaterialExpressionEditorX = -400
-material_blades_emissive.MaterialExpressionEditorY = 600
+material_blades_emissive.MaterialExpressionEditorY = 400
 
 # create the OcclusionRoughnessMetallic node
 material_blades_orm = MaterialExpressionTextureSample('', material_blades)
-material_blades_orm.Texture = slicer_blade_texture_normal
+material_blades_orm.Texture = slicer_blade_texture_orm
 # force the sampler to 'Linear' (remember you turned off sRGB)
 material_blades_orm.SamplerType = EMaterialSamplerType.SAMPLERTYPE_Linear
 material_blades_orm.MaterialExpressionEditorX = -400
-material_blades_orm.MaterialExpressionEditorY = 800
+material_blades_orm.MaterialExpressionEditorY = 600
 
 # assign nodes to the material
 material_blades.Expressions = [material_blades_base_color, material_blades_normal, material_blades_emissive, material_blades_orm]
