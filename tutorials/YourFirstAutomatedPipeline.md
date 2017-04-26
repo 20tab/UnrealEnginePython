@@ -417,7 +417,7 @@ slicer_locomotion = blend_space_factory.factory_create_new('/Game/Kaiju/Slicer/A
 slicer_locomotion.modify()
 
 # set blend parameters
-slicer_locomotion.BlendParameters = BlendParameter(DisplayName='Speed', Min=0, Max=300, GridNum=3)
+slicer_locomotion.BlendParameters = BlendParameter(DisplayName='Speed', Min=0, Max=300, GridNum=2)
 
 # assign animations
 # 0 -> idle
