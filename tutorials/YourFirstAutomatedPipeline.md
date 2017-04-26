@@ -208,7 +208,7 @@ slicer_blade_texture_orm.SRGB = False
 
 from unreal_engine.classes import MaterialExpressionTextureSample
 from unreal_engine.enums import EMaterialSamplerType
-from unreal_engine.structs import ColorMaterialInput
+from unreal_engine.structs import ColorMaterialInput, ColorMaterialInput
 
 # notify the editor we are about to modify the material
 material_blades.modify()
