@@ -80,10 +80,36 @@ Finally, download the https://github.com/20tab/UnrealEnginePython/blob/master/tu
 Importing the Mesh FBX
 -
 
-Let's start with importing our kaiju mesh (~/Desktop/Kaiju_Assets/Slicer/slicer.fbx) into Unreal Engine. For importing assets we need a 'Factory' (it is a UE4 class). There is a basically a Factory for each asset type. The FbxFactory is the one dedicated at importing Fbx files. Unfortunately by default this factory opens a configuration wizard whenever you try to import an fbx, so an alternative class (PyFbxFactory) will be used. It is a factory included in the UnrealUnginePython plugin, and it is a simple subclass of FbxFactory, but without the wizard. 
+Let's start with importing our kaiju mesh (~/Desktop/Kaiju_Assets/Slicer/slicer.fbx) into Unreal Engine. For importing assets we need a 'Factory' (it is a UE4 class).
+
+There is a basically a Factory for each asset type. The FbxFactory is the one dedicated at importing Fbx files.
+
+Unfortunately, by default this factory opens a configuration wizard whenever you try to import an fbx, so an alternative class (PyFbxFactory) will be used.
+
+It is a factory included in the UnrealUnginePython plugin, and it is a simple subclass of FbxFactory, but without the wizard. 
 
 ```python
-from unreal_engine.classe import PyFbxFactory
+import os.path
+from unreal_engine.classes import PyFbxFactory
+
+# instantiate a new factory
+fbx_factory = PyFbxFactory()
+
+# build the path for the fbx file
+kaiju_assets_dir = os.path.join(os.path.expanduser('~/Desktop'), 'Kaiju_Assets/Slicer')
+
+slicer_fbx = os.path.join(kaiju_assets_dir, 'slicer.fbx')
+
+# configure the factory
+fbx_factory.ImportUI.bCreatePhysicsAsset = False
+fbx_factory.ImportUI.bImportMaterials = False
+fbx_factory.ImportUI.bImportTextures = False
+fbx_factory.ImportUI.bImportAnimations = False
+# scale the mesh
+fbx_factory.ImportUI.SkeletalMeshImportData.ImportUniformScale = 0.1;
+
+# import the mesh
+slicer_mesh = fbx_factory.factory_import_object(slicer_fbx, '/Game/Kaiju/Slicer')
 ```
 
 Creating the Materials
