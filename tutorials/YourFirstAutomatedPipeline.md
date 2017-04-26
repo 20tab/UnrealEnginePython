@@ -516,7 +516,11 @@ node_delay_5_seconds.node_find_pin('Duration').default_value = '5.0'
 # set Attack to False
 node_set_bored002 = anim_bp.UberGraphPages[0].graph_add_node_variable_set('Bored', None, 900, -400)
 node_set_bored002.node_find_pin('Bored').default_value = 'false'
+```
 
+... and link them
+
+```python
 # link nodes
 
 # DoAttack to Set Attack True
@@ -535,6 +539,33 @@ node_delay_5_seconds.node_find_pin('then').make_link_to(node_set_bored002.node_f
 ```
 
 ![The Kaiju Animation Blueprint with Nodes](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_anim_blueprint_with_nodes.png)
+
+The last piece missing for the event graph is assigning speed to the actor velocity.
+
+As you can see the 'BlueprintUpdateAnimation' event and the 'TryGetPawnOwner' pure function are automatically added to the animation graph. For this reason we need to commodity functions to find a reference to them:
+
+```python
+from unreal_engine.classes import K2Node_Event, K2Node_CallFunction, Actor
+
+def find_event_node(graph, name):
+    for node in graph.Nodes:
+        if node.is_a(K2Node_Event):
+            if node.EventReference.MemberName == name:
+                return True
+    return False
+    
+def find_function_node(graph, name):
+    for node in graph.Nodes:
+        if node.is_a(K2Node_CallFunction):
+            if node.FunctionReference.MemberName == name:
+                return True
+    return False
+
+update_animation_event = find_event_node(anim_bp.UberGraphPages[0], 'BlueprintUpdateAnimation')
+try_get_pawn_owner = find_function_node(anim_bp.UberGraphPages[0], 'TryGetPawnOwner')
+```
+
+We can now add the 'GetVelocity' node and the 'VectorLength' one. Its return value will be stored into the Speed variable
 
 Put it all in a new Blueprint
 -
