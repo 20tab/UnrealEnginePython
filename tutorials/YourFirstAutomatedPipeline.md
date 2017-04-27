@@ -704,6 +704,35 @@ attack_state.node_find_pin('Out').connect(locomotion_state.node_find_pin('In'))
 
 ![The Kaiju Animation Blueprint State Machine Connections](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_state_machine_connections.png)
 
+Once the connections are made, we can define the transition graphs. Unfortunately the current binary release of UnrealEnginePython does not contain the node_get_title() method, so we need to reference the transition graphs by their id. Lucky enough, they are indexed in the order they are created:
+
+```python
+# get transitions graphs
+locomotion_to_bored = state_machine.EditorStateMachineGraph.SubGraphs[3]
+bored_to_locomotion = state_machine.EditorStateMachineGraph.SubGraphs[4]
+locomotion_to_attack = state_machine.EditorStateMachineGraph.SubGraphs[5]
+attack_to_locomotion = state_machine.EditorStateMachineGraph.SubGraphs[6]
+
+# locomotion to bored
+check_bored = locomotion_to_bored.graph_add_node_variable_get('Bored', None, -200, 0)
+check_bored.node_find_pin('Bored').make_link_to(locomotion_to_bored.Nodes[0].node_find_pin('bCanEnterTransition'))
+
+# bored to locomotion
+check_not_bored = bored_to_locomotion.graph_add_node_variable_get('Bored', None, -300, 0)
+check_not_bored_not_bool = bored_to_locomotion.graph_add_node_call_function(KismetMathLibrary.Not_PreBool, -150, 0)
+check_not_bored.node_find_pin('Bored').make_link_to(check_not_bored_not_bool.node_find_pin('A'))
+check_not_bored_not_bool.node_find_pin('ReturnValue').make_link_to(bored_to_locomotion.Nodes[0].node_find_pin('bCanEnterTransition'))
+
+# locomotion to attack
+check_attack = locomotion_to_attack.graph_add_node_variable_get('Attack', None, -200, 0)
+check_attack.node_find_pin('Attack').make_link_to(locomotion_to_attack.Nodes[0].node_find_pin('bCanEnterTransition'))
+
+# attack to locomotion
+check_not_attack = attack_to_locomotion.graph_add_node_variable_get('Attack', None, -300, 0)
+check_not_attack_not_bool = attack_to_locomotion.graph_add_node_call_function(KismetMathLibrary.Not_PreBool, -150, 0)
+check_not_attack.node_find_pin('Attack').make_link_to(check_not_attack_not_bool.node_find_pin('A'))
+check_not_attack_not_bool.node_find_pin('ReturnValue').make_link_to(attack_to_locomotion.Nodes[0].node_find_pin('bCanEnterTransition'))
+```
 
 TODO: compile the blueprint
 
