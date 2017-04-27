@@ -645,7 +645,41 @@ bored_player.node_find_pin('Pose').make_link_to(bored_state.BoundGraph.Nodes[0].
 
 ![The Kaiju Animation Blueprint State Bored](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_bored.png)
 
-TODO: the other states, connection between states, compile the blueprint
+Next is the 'Locomotion' state, it is a simple play of the blend space governed by the 'Speed' vairable:
+
+```python
+# The Locomotion State -> play the blendspace driven by the 'Speed' variable
+from unreal_engine.classes import AnimGraphNode_BlendSpacePlayer
+from unreal_engine.structs import AnimNode_BlendSpacePlayer
+
+locomotion_player = locomotion_state.BoundGraph.graph_add_node(AnimGraphNode_BlendSpacePlayer, -300, 0)
+locomotion_player.Node = AnimNode_BlendSpacePlayer(BlendSpace=slicer_locomotion, bLoop=True)
+
+locomotion_speed_get = locomotion_state.BoundGraph.graph_add_node_variable_get('Speed', None, -500, 0)
+
+# link nodes
+locomotion_speed_get.node_find_pin('Speed').make_link_to(locomotion_player.node_find_pin('X'))
+locomotion_player.node_find_pin('Pose').make_link_to(locomotion_state.BoundGraph.Nodes[0].node_find_pin('Result'))
+```
+
+![The Kaiju Animation Blueprint State Locomotion](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_locomotion.png)
+
+The last state is the 'Attack' one, it uses a random player, playing 70% of the time the attack animation, and 30% fallbacks to a taunt (the roaring animation)
+
+```python
+# The Attack State -> 70% of the time it will run the blades animation, the other time will run the roar one (like a taunt)
+from unreal_engine.classes import AnimGraphNode_RandomPlayer
+from unreal_engine.structs import AnimNode_RandomPlayer, RandomPlayerSequenceEntry
+
+attack_player = attack_state.BoundGraph.graph_add_node(AnimGraphNode_RandomPlayer, -300, 0)
+attack_player.Node = AnimNode_RandomPlayer(Entries=[RandomPlayerSequenceEntry(Sequence=animation_attack, ChanceToPlay=0.7), RandomPlayerSequenceEntry(Sequence=animation_roaring, ChanceToPlay=0.3)])
+
+attack_player.node_find_pin('Pose').make_link_to(attack_state.BoundGraph.Nodes[0].node_find_pin('Result'))
+```
+
+![The Kaiju Animation Blueprint State Attack](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_attack.png)
+
+TODO: Connection between states, compile the blueprint
 
 Put it all in a new Blueprint
 -
