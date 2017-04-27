@@ -747,7 +747,13 @@ anim_bp.save_package()
 Put it all in a new Blueprint
 -
 
-Now it is time to create a Character Blueprint
+Now it is time to create The Character Blueprint at which we will attach the previously created assets.
+
+```python
+from unreal_engine.classes import Character
+
+slicer_bp = ue.create_blueprint(Character, '/Game/Kaiju/Slicer/slicer_Blueprint')
+```
 
 Filling the Event Graph
 -
