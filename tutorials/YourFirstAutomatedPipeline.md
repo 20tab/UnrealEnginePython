@@ -343,11 +343,11 @@ And this is the body material result:
 one last step missing: assigning materials to the slicer mesh:
 
 ```python
-from unreal_engine.structs import SkeletalMaterial
+from unreal_engine.structs import SkeletalMaterial, MeshUVChannelInfo
 
 # SkeletalMaterial is a struct holding information about material mappings
-# the Materials property is the array of assigned materials
-slicer_mesh.Materials = [SkeletalMaterial(MaterialInterface=material_blades, MaterialSlotName='Blades'), SkeletalMaterial(MaterialInterface=material_body, MaterialSlotName='Body')]
+# the Materials property is the array of assigned materials (setting UVChannelData is required, otherwise you will get assertions)
+slicer_mesh.Materials = [SkeletalMaterial(MaterialInterface=material_blades, MaterialSlotName='Blades', UVChannelData=MeshUVChannelInfo(bInitialized=True)),SkeletalMaterial(MaterialInterface=material_body, MaterialSlotName='Body', UVChannelData=MeshUVChannelInfo(bInitialized=True))]
 
 # and save them all
 slicer_mesh.save_package()
@@ -545,7 +545,7 @@ The last piece missing for the event graph is assigning speed to the actor veloc
 As you can see the 'BlueprintUpdateAnimation' event and the 'TryGetPawnOwner' pure function are automatically added to the animation graph. For this reason we need to commodity functions to find a reference to them:
 
 ```python
-from unreal_engine.classes import K2Node_Event, K2Node_CallFunction, Actor
+from unreal_engine.classes import K2Node_Event, K2Node_CallFunction, Actor, AnimInstance
 
 def find_event_node(graph, name):
     for node in graph.Nodes:
@@ -563,6 +563,9 @@ def find_function_node(graph, name):
 
 update_animation_event = find_event_node(anim_bp.UberGraphPages[0], 'BlueprintUpdateAnimation')
 try_get_pawn_owner = find_function_node(anim_bp.UberGraphPages[0], 'TryGetPawnOwner')
+# weird enough, sometimes the TryGetPawnOwner node is not automatically added ... (is it a race condition ?)
+if not try_get_pawn_owner:
+    try_get_pawn_owner = anim_bp.UberGraphPages[0].graph_add_node_call_function(AnimInstance.TryGetPawnOwner, 0, 200)
 ```
 
 We can now add the 'GetVelocity' node and the 'VectorLength' one. Its return value will be stored into the Speed variable
