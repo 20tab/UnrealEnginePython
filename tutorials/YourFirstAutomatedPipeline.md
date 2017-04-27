@@ -18,6 +18,8 @@ If this is the first time you use the UnrealEnginePython plugin you should take 
 
 * The Python code is pretty verbose and repeat itself constantly to show the biggest possible number of api features, i strongly suggest you to reorganize/refactor it if you plan to build something for your own pipeline
 
+* It has been tested with version 4.15 of the editor and python 3.6
+
 Installing UnrealEnginePython
 -
 
