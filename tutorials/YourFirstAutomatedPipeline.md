@@ -734,6 +734,8 @@ check_not_attack.node_find_pin('Attack').make_link_to(check_not_attack_not_bool.
 check_not_attack_not_bool.node_find_pin('ReturnValue').make_link_to(attack_to_locomotion.Nodes[0].node_find_pin('bCanEnterTransition'))
 ```
 
+![The Kaiju Animation Blueprint State Machine Transitions](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_state_machine_transitions.png)
+
 TODO: compile the blueprint
 
 Put it all in a new Blueprint
