@@ -736,7 +736,13 @@ check_not_attack_not_bool.node_find_pin('ReturnValue').make_link_to(attack_to_lo
 
 ![The Kaiju Animation Blueprint State Machine Transitions](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_state_machine_transitions.png)
 
-TODO: compile the blueprint
+FInally we can compile the Animation Blueprint and save it
+
+```python
+# compile and save
+ue.compile_blueprint(anim_bp)
+anim_bp.save_package()
+```
 
 Put it all in a new Blueprint
 -
