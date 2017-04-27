@@ -684,7 +684,28 @@ attack_player.node_find_pin('Pose').make_link_to(attack_state.BoundGraph.Nodes[0
 
 ![The Kaiju Animation Blueprint State Attack](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_attack.png)
 
-TODO: Connection between states, compile the blueprint
+Now we can make connections, note that we use the 'connect()' method of the pin instead of 'make_link_to' as 'connect' will honour the node features (for state node it automatically generates a condition graph)
+
+```python
+# time to make states connections
+entry_state = state_machine.EditorStateMachineGraph.Nodes[0]
+
+# Entry to Locomotion
+entry_state.node_find_pin('Entry').connect(locomotion_state.node_find_pin('In'))
+# Locomotion to Bored
+locomotion_state.node_find_pin('Out').connect(bored_state.node_find_pin('In'))
+# Bored to Locomotion
+bored_state.node_find_pin('Out').connect(locomotion_state.node_find_pin('In'))
+# Locomotion to Attack
+locomotion_state.node_find_pin('Out').connect(attack_state.node_find_pin('In'))
+# Attack to Locomotion
+attack_state.node_find_pin('Out').connect(locomotion_state.node_find_pin('In'))
+```
+
+![The Kaiju Animation Blueprint State Machine Connections](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_machine_connections.png)
+
+
+TODO: compile the blueprint
 
 Put it all in a new Blueprint
 -
