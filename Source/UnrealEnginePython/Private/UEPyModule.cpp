@@ -373,6 +373,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "graph_get_good_place_for_new_node", (PyCFunction)py_ue_graph_get_good_place_for_new_node, METH_VARARGS, "" },
 
 	{ "node_pins", (PyCFunction)py_ue_node_pins, METH_VARARGS, "" },
+	{ "node_get_title", (PyCFunction)py_ue_node_get_title, METH_VARARGS, "" },
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
 	{ "node_create_pin", (PyCFunction)py_ue_node_create_pin, METH_VARARGS, "" },
 

@@ -377,6 +377,25 @@ PyObject *py_ue_node_pins(ue_PyUObject * self, PyObject * args) {
 	return pins_list;
 }
 
+PyObject *py_ue_node_get_title(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int title_type = ENodeTitleType::FullTitle;
+
+	if (!PyArg_ParseTuple(args, "|i:node_get_title", &title_type)) {
+		return NULL;
+	}
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	FText title = node->GetNodeTitle((ENodeTitleType::Type)title_type);
+	
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(title.ToString())));
+}
+
 PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
