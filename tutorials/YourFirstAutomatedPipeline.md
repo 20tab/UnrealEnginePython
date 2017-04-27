@@ -702,7 +702,7 @@ locomotion_state.node_find_pin('Out').connect(attack_state.node_find_pin('In'))
 attack_state.node_find_pin('Out').connect(locomotion_state.node_find_pin('In'))
 ```
 
-![The Kaiju Animation Blueprint State Machine Connections](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_states_machine_connections.png)
+![The Kaiju Animation Blueprint State Machine Connections](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_state_machine_connections.png)
 
 
 TODO: compile the blueprint
