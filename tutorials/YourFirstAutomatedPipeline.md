@@ -755,6 +755,13 @@ from unreal_engine.classes import Character
 slicer_bp = ue.create_blueprint(Character, '/Game/Kaiju/Slicer/slicer_Blueprint')
 ```
 
+```python
+slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleHalfHeight = 150
+slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleRadius = 60
+slicer_bp.GeneratedClass.get_cdo().Mesh.SkeletalMesh = slicer_mesh
+slicer_bp.GeneratedClass.get_cdo().Mesh.RelativeLocation = FVector(10, -3, -144)
+```
+
 TODO: assign the skeletal mesh, fix the capsule, assign the anim blueprint
 
 Filling the Event Graph
