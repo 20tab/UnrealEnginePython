@@ -133,7 +133,7 @@ The Kaiju original model is 30 meters high, so we scale it down to use it in a c
 Creating the Materials
 -
 
-The models looks good from a geometry point of view, but you can not (on the top left of the previous screenshot) that not material is assigned to the mesh.
+The models looks good from a geometry point of view, but you can note (on the top left of the previous screenshot) that no material is assigned to the mesh.
 
 We are going to create two different materials, one for the blades (Element 0) and the other for the kaiju body (Element 1)
 
