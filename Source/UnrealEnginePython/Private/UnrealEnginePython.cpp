@@ -73,7 +73,7 @@ static void UESetupPythonInterpeter(bool verbose) {
 	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
 	PyList_Insert(py_path, 0, py_zip_path);
 
-	char *scripts_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts")));
+	char *scripts_path = TCHAR_TO_UTF8(*FPaths::ConvertRelativePathToFull(FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"))) );
 	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
 	PyList_Insert(py_path, 0, py_scripts_path);
 
