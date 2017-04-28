@@ -438,7 +438,7 @@ PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
 
 	FEdGraphPinType *pin_struct = ue_py_check_struct<FEdGraphPinType>(pin_type);
-	if (!pin_type)
+	if (!pin_struct)
 		return PyErr_Format(PyExc_Exception, "argument is not a FEdGraphPinType");
 
 	UEdGraphPin *pin = nullptr;
