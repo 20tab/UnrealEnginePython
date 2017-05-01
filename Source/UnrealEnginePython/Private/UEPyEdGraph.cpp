@@ -396,6 +396,20 @@ PyObject *py_ue_node_get_title(ue_PyUObject * self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(title.ToString())));
 }
 
+PyObject *py_ue_node_allocate_default_pins(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	node->AllocateDefaultPins();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);

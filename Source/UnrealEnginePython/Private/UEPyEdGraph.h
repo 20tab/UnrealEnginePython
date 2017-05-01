@@ -19,4 +19,5 @@ PyObject *py_ue_node_find_pin(ue_PyUObject *, PyObject *);
 PyObject *py_ue_node_create_pin(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_node_get_title(ue_PyUObject *, PyObject *);
+PyObject *py_ue_node_allocate_default_pins(ue_PyUObject *, PyObject *);
 #endif
