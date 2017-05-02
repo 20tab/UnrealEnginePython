@@ -410,6 +410,20 @@ PyObject *py_ue_node_allocate_default_pins(ue_PyUObject * self, PyObject * args)
 	return Py_None;
 }
 
+PyObject *py_ue_node_reconstruct(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	node->GetSchema()->ReconstructNode(*node);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
