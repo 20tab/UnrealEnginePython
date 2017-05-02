@@ -43,6 +43,8 @@
 #include "UEPyUStructsImporter.h"
 
 #if WITH_EDITOR
+#include "UEPyFAssetImportInfo.h"
+#include "UEPyAssetImportData.h"
 #include "UEPyFAssetData.h"
 #include "UEPyFARFilter.h"
 #include "UEPyAnimSequence.h"
