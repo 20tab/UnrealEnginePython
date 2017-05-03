@@ -24,6 +24,8 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject *);
 PyObject *py_ue_get_overlapping_actors(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_actor_destroy_component(ue_PyUObject *, PyObject *);
+
 PyObject *py_ue_register_component(ue_PyUObject * self, PyObject *);
 PyObject *py_ue_component_is_registered(ue_PyUObject * self, PyObject *);
 PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject *);

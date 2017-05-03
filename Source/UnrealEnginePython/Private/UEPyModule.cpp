@@ -457,7 +457,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "component_is_registered", (PyCFunction)py_ue_component_is_registered, METH_VARARGS, "" },
 	{ "register_component", (PyCFunction)py_ue_register_component, METH_VARARGS, "" },
 
-
+	{ "actor_destroy_component", (PyCFunction)py_ue_actor_destroy_component, METH_VARARGS, "" },
+	{ "destroy_actor_component", (PyCFunction)py_ue_actor_destroy_component, METH_VARARGS, "" },
 
 	{ "actor_create_default_subobject", (PyCFunction)py_ue_actor_create_default_subobject, METH_VARARGS, "" },
 

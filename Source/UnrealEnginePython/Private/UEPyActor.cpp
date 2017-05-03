@@ -75,6 +75,27 @@ PyObject *py_ue_get_actor_component(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_actor_destroy_component(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
+
+	PyObject *py_component;
+	if (!PyArg_ParseTuple(args, "O:actor_destroy_component", &py_component)) {
+		return NULL;
+	}
+
+	UActorComponent *component = ue_py_check_type<UActorComponent>(py_component);
+
+	actor->K2_DestroyComponent(component);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
