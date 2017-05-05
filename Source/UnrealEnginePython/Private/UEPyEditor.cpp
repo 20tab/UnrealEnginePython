@@ -367,6 +367,29 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args) {
+	char *path;
+
+	if (!PyArg_ParseTuple(args, "s:find_asset", &path)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
+	if (!asset.IsValid()) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * args) {
 	char *path;
 

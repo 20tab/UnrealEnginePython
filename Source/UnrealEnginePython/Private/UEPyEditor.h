@@ -12,6 +12,7 @@ PyObject *py_unreal_engine_editor_deselect_actors(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_select_actor(PyObject *, PyObject *);
 PyObject *py_unreal_engine_import_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_find_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_assets(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_selected_assets(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_assets_by_class(PyObject *, PyObject *);
