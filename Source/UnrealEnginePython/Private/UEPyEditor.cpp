@@ -799,11 +799,16 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
 	if (!outer)
 		return PyErr_Format(PyExc_Exception, "unable to create package");
 
+	if (FindObject<UBlueprint>(outer, UTF8_TO_TCHAR(bp_name)) != nullptr)
+		return PyErr_Format(PyExc_Exception, "there is already a Blueprint with this name");
+
 	UBlueprint *bp = FKismetEditorUtilities::CreateBlueprint(parent, outer, UTF8_TO_TCHAR(bp_name), EBlueprintType::BPTYPE_Normal, UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
-	if (bp) {
-		FAssetRegistryModule::AssetCreated(bp);
-		outer->MarkPackageDirty();
-	}
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "unable to create Blueprint");
+
+	FAssetRegistryModule::AssetCreated(bp);
+	outer->MarkPackageDirty();
+
 
 	ue_PyUObject *ret = ue_get_python_wrapper(bp);
 	if (!ret)
