@@ -548,6 +548,39 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args) {
+	PyObject *py_obj;
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "O|O:delete_object", &py_obj, &py_bool)) {
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	UObject *u_object = ue_py_check_type<UObject>(py_obj);
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	TArray<UObject *> objects_to_delete;
+	objects_to_delete.Add(u_object);
+	
+
+	if (py_bool && PyObject_IsTrue(py_bool)) {
+		if (ObjectTools::ForceDeleteObjects(objects_to_delete, false) < 1) {
+			return PyErr_Format(PyExc_Exception, "unable to delete object");
+		}
+	}
+	else {
+		if (ObjectTools::DeleteObjects(objects_to_delete, false) < 1) {
+			return PyErr_Format(PyExc_Exception, "unable to delete asset");
+		}
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	char *path;
