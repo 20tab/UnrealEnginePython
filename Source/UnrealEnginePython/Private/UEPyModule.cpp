@@ -528,6 +528,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "world_tick", (PyCFunction)py_ue_world_tick, METH_VARARGS, "" },
 
 	{ "conditional_begin_destroy", (PyCFunction)py_ue_conditional_begin_destroy, METH_VARARGS, "" },
+	{ "create_uobject", (PyCFunction)py_ue_create_uobject, METH_VARARGS, "" },
 
 	{ "create_player", (PyCFunction)py_ue_create_player, METH_VARARGS, "" },
 	{ "get_num_players", (PyCFunction)py_ue_get_num_players, METH_VARARGS, "" },

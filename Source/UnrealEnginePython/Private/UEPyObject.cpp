@@ -61,6 +61,39 @@ PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_create_uobject(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	PyObject *class_name;
+	if (!PyArg_ParseTuple(args, "O:create_uobject", &class_name)) {
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(class_name)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)class_name;
+
+	if (!py_obj->ue_object->IsA<UClass>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	}
+
+	UClass *u_class = (UClass *)py_obj->ue_object;
+	UObject *obj = NewObject<UObject>((UObject*)GetTransientPackage(), u_class);
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(obj);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+}
+
 PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
