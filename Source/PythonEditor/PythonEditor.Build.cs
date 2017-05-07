@@ -2,35 +2,37 @@
 
 namespace UnrealBuildTool.Rules
 {
-	public class PythonEditor : ModuleRules
-	{
-		public PythonEditor(TargetInfo Target)
-		{
-			PrivateIncludePaths.AddRange(
-				new string[] {
-					"PythonEditor/Private",
-				}
-				);
+    public class PythonEditor : ModuleRules
+    {
+        public PythonEditor(TargetInfo Target)
+        {
+            PCHUsage = PCHUsageMode.UseSharedPCHs;
 
-			PrivateDependencyModuleNames.AddRange(
-				new string[]
-				{
-					"Core",
-					"CoreUObject",
-					"SlateCore",
-					"Slate",
-					"AssetTools",
-					"UnrealEd",
-					"EditorStyle",
-					"PropertyEditor",
-					"Kismet",  // for FWorkflowCentricApplication
-					"InputCore",
-					"DirectoryWatcher",
-					"LevelEditor",
+            PrivateIncludePaths.AddRange(
+                new string[] {
+                    "PythonEditor/Private",
+                }
+                );
+
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "Core",
+                    "CoreUObject",
+                    "SlateCore",
+                    "Slate",
+                    "AssetTools",
+                    "UnrealEd",
+                    "EditorStyle",
+                    "PropertyEditor",
+                    "Kismet",  // for FWorkflowCentricApplication
+                    "InputCore",
+                    "DirectoryWatcher",
+                    "LevelEditor",
                     "Projects",
                     "UnrealEnginePython"
                 }
-				);
-		}
-	}
+                );
+        }
+    }
 }
