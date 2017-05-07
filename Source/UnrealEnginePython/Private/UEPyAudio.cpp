@@ -1,5 +1,36 @@
 #include "UnrealEnginePythonPrivatePCH.h"
+#include "Sound/SoundWaveProcedural.h"
 
+PyObject *py_write_audio_to_buffer(ue_PyUObject *self, PyObject * args) {
+	// Writes from a Python buffer object to a USoundWaveProcedural class
+	ue_py_check(self);
+
+	PyObject *sound_procedural;
+	Py_buffer sound_buffer;
+
+	if (!PyArg_ParseTuple(args, "Oy*:write_audio_to_buffer", &sound_procedural, &sound_buffer)) {
+		return NULL;
+	}
+
+	// Convert to USoundWaveProcedural
+	USoundWaveProcedural *sound_wave_procedural = ue_py_check_type<USoundWaveProcedural>(sound_procedural);
+	if (!sound_wave_procedural)
+		return PyErr_Format(PyExc_Exception, "Invalid procedural sound wave object.");
+
+	// Convert the buffer
+	uint8 *buffer = (uint8 *)sound_buffer.buf;
+	if (buffer == nullptr)
+		return PyErr_Format(PyExc_Exception, "Invalid sound buffer.");
+
+	// Add the audio to the Sound Wave's audio buffer
+	sound_wave_procedural->QueueAudio(buffer, sound_buffer.len);
+
+	// Clean up
+	PyBuffer_Release(&sound_buffer);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 
