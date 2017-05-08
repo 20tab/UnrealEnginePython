@@ -120,9 +120,9 @@ static PyObject *py_ue_ihttp_request_get_elapsed_time(ue_PyIHttpRequest *self, P
 static PyObject *py_ue_ihttp_request_get_response(ue_PyIHttpRequest *self, PyObject * args) {
 	FHttpResponsePtr response = self->http_request->GetResponse();
 	if (!response.IsValid()) {
-		return PyErr_Format(PyExc_Exception, "unable to retrieve Http Response");
+		return PyErr_Format(PyExc_Exception, "unable to retrieve IHttpResponse");
 	}
-	return PyFloat_FromDouble(self->http_request->GetElapsedTime());
+	return py_ue_new_ihttp_response(response);
 }
 
 static PyMethodDef ue_PyIHttpRequest_methods[] = {
@@ -145,8 +145,13 @@ static PyMethodDef ue_PyIHttpRequest_methods[] = {
 
 static PyObject *ue_PyIHttpRequest_str(ue_PyIHttpRequest *self)
 {
+	char *s = (char*)"";
+	FString url = self->http_request->GetURL();
+	if (!url.IsEmpty()) {
+		s = TCHAR_TO_UTF8(*url);
+	}
 	return PyUnicode_FromFormat("<unreal_engine.IHttpRequest {'url': '%s'}>",
-		PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_request->GetURL())));
+		PyUnicode_FromString(s));
 }
 
 static PyTypeObject ue_PyIHttpRequestType = {

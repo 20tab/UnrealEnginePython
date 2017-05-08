@@ -61,7 +61,14 @@ bool FUnrealEnginePythonModule::PythonGILAcquire() {
 	return true;
 }
 
-static void UESetupPythonInterpeter(bool verbose) {
+static void UESetupPythonInterpreter(bool verbose) {
+#if PY_MAJOR_VERSION >= 3
+	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
+#else
+	char *argv[] = { (char *)"UnrealEngine", NULL };
+#endif
+	PySys_SetArgv(1, argv);
+
 	unreal_engine_init_py_module();
 
 	PyObject *py_sys = PyImport_ImportModule("sys");
@@ -98,16 +105,10 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	Py_Initialize();
-#if PY_MAJOR_VERSION >= 3
-	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
-#else
-	char *argv[] = { (char *)"UnrealEngine", NULL };
-#endif
-	PySys_SetArgv(1, argv);
 
 	PyEval_InitThreads();
 
-	UESetupPythonInterpeter(true);
+	UESetupPythonInterpreter(true);
 
 	main_module = PyImport_AddModule("__main__");
 	main_dict = PyModule_GetDict((PyObject*)main_module);
@@ -181,7 +182,7 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str) {
 	PyThreadState_Swap(nullptr);
 	PyThreadState_Swap(py_new_state);
 
-	UESetupPythonInterpeter(false);
+	UESetupPythonInterpreter(false);
 
 	PyObject *m = PyImport_AddModule("__main__");
 	if (m == NULL) {
@@ -265,7 +266,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 	PyThreadState_Swap(nullptr);
 	PyThreadState_Swap(py_new_state);
 
-	UESetupPythonInterpeter(false);
+	UESetupPythonInterpreter(false);
 
 	PyObject *m = PyImport_AddModule("__main__");
 	if (m == NULL) {

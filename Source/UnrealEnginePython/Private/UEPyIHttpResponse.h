@@ -10,8 +10,9 @@ struct ue_PyIHttpBaseType;
 typedef struct {
 	ue_PyIHttpBase base;
 	/* Type-specific fields go here. */
-	TSharedRef<IHttpResponse> http_response;
+	FHttpResponsePtr http_response;
 } ue_PyIHttpResponse;
 
 
 void ue_python_init_ihttp_response(PyObject *);
+PyObject *py_ue_new_ihttp_response(FHttpResponsePtr);

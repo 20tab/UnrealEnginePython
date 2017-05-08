@@ -2,133 +2,76 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
-/*
-static PyObject *py_ue_ihttp_request_set_verb(ue_PyIHttpRequest *self, PyObject * args) {
-
-	char *verb;
-	if (!PyArg_ParseTuple(args, "s:set_verb", &verb)) {
-		return NULL;
-	}
-
-	self->http_request->SetVerb(UTF8_TO_TCHAR(verb));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_set_url(ue_PyIHttpRequest *self, PyObject * args) {
-
-	char *url;
-	if (!PyArg_ParseTuple(args, "s:set_url", &url)) {
-		return NULL;
-	}
-
-	self->http_request->SetURL(UTF8_TO_TCHAR(url));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_set_header(ue_PyIHttpRequest *self, PyObject * args) {
-
-	char *key;
-	char *value;
-	if (!PyArg_ParseTuple(args, "ss:set_header", &key, &value)) {
-		return NULL;
-	}
-
-	self->http_request->SetHeader(UTF8_TO_TCHAR(key), UTF8_TO_TCHAR(value));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_append_to_header(ue_PyIHttpRequest *self, PyObject * args) {
-
-	char *key;
-	char *value;
-	if (!PyArg_ParseTuple(args, "ss:append_to_header", &key, &value)) {
-		return NULL;
-	}
-
-	self->http_request->AppendToHeader(UTF8_TO_TCHAR(key), UTF8_TO_TCHAR(value));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_set_content(ue_PyIHttpRequest *self, PyObject * args) {
-
-	PyObject *py_obj;
-	if (!PyArg_ParseTuple(args, "O:set_content", &py_obj)) {
-		return NULL;
-	}
-
-	if (PyUnicode_Check(py_obj)) {
-		self->http_request->SetContentAsString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)));
-	}
-	else if (PyBytes_Check(py_obj)) {
-		char *buf = nullptr;
-		Py_ssize_t len = 0;
-		PyBytes_AsStringAndSize(py_obj, &buf, &len);
-		TArray<uint8> data;
-		data.Append((uint8 *)buf, len);
-		self->http_request->SetContent(data);
-	}
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_tick(ue_PyIHttpRequest *self, PyObject * args) {
-
-	float delta_seconds;
-	if (!PyArg_ParseTuple(args, "f:tick", &delta_seconds)) {
-		return NULL;
-	}
-
-	self->http_request->Tick(delta_seconds);
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_process_request(ue_PyIHttpRequest *self, PyObject * args) {
-	self->http_request->ProcessRequest();
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_ihttp_request_cancel_request(ue_PyIHttpRequest *self, PyObject * args) {
-	self->http_request->CancelRequest();
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}*/
-
 static PyObject *py_ue_ihttp_base_get_content_length(ue_PyIHttpBase *self, PyObject * args) {
 	return PyLong_FromLong((int)self->http_base->GetContentLength());
 }
 
+static PyObject *py_ue_ihttp_base_get_url(ue_PyIHttpBase *self, PyObject * args) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetURL()));
+}
 
+static PyObject *py_ue_ihttp_base_get_content_type(ue_PyIHttpBase *self, PyObject * args) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetContentType()));
+}
+
+static PyObject *py_ue_ihttp_base_get_content(ue_PyIHttpBase *self, PyObject * args) {
+	TArray<uint8> data = self->http_base->GetContent();
+	return PyBytes_FromStringAndSize((char *)data.GetData(), data.Num());
+}
+
+static PyObject *py_ue_ihttp_base_get_header(ue_PyIHttpBase *self, PyObject * args) {
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:get_header", &key)) {
+		return NULL;
+	}
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetHeader(UTF8_TO_TCHAR(key))));
+}
+
+static PyObject *py_ue_ihttp_base_get_url_parameter(ue_PyIHttpBase *self, PyObject * args) {
+
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:get_url_parameter", &key)) {
+		return NULL;
+	}
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetURLParameter(UTF8_TO_TCHAR(key))));
+}
+
+static PyObject *py_ue_ihttp_base_get_all_headers(ue_PyIHttpBase *self, PyObject * args) {
+	TArray<FString> headers = self->http_base->GetAllHeaders();
+	PyObject *py_headers = PyList_New(0);
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetContentType()));
+	for (FString item : headers) {
+		PyObject *py_header = PyUnicode_FromString(TCHAR_TO_UTF8(*item));
+		PyList_Append(py_headers, py_header);
+		Py_DECREF(py_header);
+	}
+	return py_headers;
+}
 
 static PyMethodDef ue_PyIHttpBase_methods[] = {
-	//{ "get_content", (PyCFunction)py_ue_ihttp_base_get_content, METH_VARARGS, "" },
-	//{ "get_all_headers", (PyCFunction)py_ue_ihttp_base_get_all_headers, METH_VARARGS, "" },
+	{ "get_content", (PyCFunction)py_ue_ihttp_base_get_content, METH_VARARGS, "" },
+	{ "get_all_headers", (PyCFunction)py_ue_ihttp_base_get_all_headers, METH_VARARGS, "" },
 	{ "get_content_length", (PyCFunction)py_ue_ihttp_base_get_content_length, METH_VARARGS, "" },
-	//{ "get_content_type", (PyCFunction)py_ue_ihttp_base_get_content_type, METH_VARARGS, "" },
-	//{ "get_header", (PyCFunction)py_ue_ihttp_base_get_header, METH_VARARGS, "" },
-	//{ "get_url", (PyCFunction)py_ue_ihttp_base_get_url, METH_VARARGS, "" },
-	//{ "get_url_parameter", (PyCFunction)py_ue_ihttp_base_get_url_parameter, METH_VARARGS, "" },
+	{ "get_content_type", (PyCFunction)py_ue_ihttp_base_get_content_type, METH_VARARGS, "" },
+	{ "get_header", (PyCFunction)py_ue_ihttp_base_get_header, METH_VARARGS, "" },
+	{ "get_url", (PyCFunction)py_ue_ihttp_base_get_url, METH_VARARGS, "" },
+	{ "get_url_parameter", (PyCFunction)py_ue_ihttp_base_get_url_parameter, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
 
 static PyObject *ue_PyIHttpBase_str(ue_PyIHttpBase *self)
 {
+	char *s = (char*)"";
+	FString url = self->http_base->GetURL();
+	if (!url.IsEmpty()) {
+		s = TCHAR_TO_UTF8(*url);
+	}
 	return PyUnicode_FromFormat("<unreal_engine.IHttpBase {'url': '%s'}>",
-		PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetURL())));
+		PyUnicode_FromString(s));
 }
 
 PyTypeObject ue_PyIHttpBaseType = {

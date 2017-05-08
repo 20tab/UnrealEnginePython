@@ -2,38 +2,31 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
-/*
-static PyObject *py_ue_ihttp_request_get_response(ue_PyIHttpRequest *self, PyObject * args) {
-	FHttpResponsePtr response = self->http_request->GetResponse();
-	if (!response.IsValid()) {
-		return PyErr_Format(PyExc_Exception, "unable to retrieve Http Response");
-	}
-	return PyFloat_FromDouble(self->http_request->GetElapsedTime());
+
+static PyObject *py_ue_ihttp_response_get_response_code(ue_PyIHttpResponse *self, PyObject * args) {
+	return PyLong_FromLong(self->http_response->GetResponseCode());
 }
-*/
+
+static PyObject *py_ue_ihttp_response_get_content_as_string(ue_PyIHttpResponse *self, PyObject * args) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_response->GetContentAsString()));
+}
 
 static PyMethodDef ue_PyIHttpResponse_methods[] = {
-/*	{ "append_to_header", (PyCFunction)py_ue_ihttp_request_append_to_header, METH_VARARGS, "" },
-	{ "cancel_request", (PyCFunction)py_ue_ihttp_request_cancel_request, METH_VARARGS, "" },
-	{ "get_elapsed_time", (PyCFunction)py_ue_ihttp_request_get_elapsed_time, METH_VARARGS, "" },
-	{ "get_response", (PyCFunction)py_ue_ihttp_request_get_response, METH_VARARGS, "" },
-	{ "get_status", (PyCFunction)py_ue_ihttp_request_get_status, METH_VARARGS, "" },
-	{ "get_verb", (PyCFunction)py_ue_ihttp_request_get_verb, METH_VARARGS, "" },
-	{ "process_request", (PyCFunction)py_ue_ihttp_request_process_request, METH_VARARGS, "" },
-	{ "set_content", (PyCFunction)py_ue_ihttp_request_set_content, METH_VARARGS, "" },
-	{ "set_header", (PyCFunction)py_ue_ihttp_request_set_header, METH_VARARGS, "" },
-	{ "set_content", (PyCFunction)py_ue_ihttp_request_set_content, METH_VARARGS, "" },
-	{ "set_url", (PyCFunction)py_ue_ihttp_request_set_url, METH_VARARGS, "" },
-	{ "set_verb", (PyCFunction)py_ue_ihttp_request_set_verb, METH_VARARGS, "" },
-	{ "tick", (PyCFunction)py_ue_ihttp_request_tick, METH_VARARGS, "" },*/
-	{ NULL }  /* Sentinel */
+		{ "get_response_code", (PyCFunction)py_ue_ihttp_response_get_response_code, METH_VARARGS, "" },
+		{ "get_content_as_string", (PyCFunction)py_ue_ihttp_response_get_content_as_string, METH_VARARGS, "" },
+		{ NULL }  /* Sentinel */
 };
 
 
 static PyObject *ue_PyIHttpResponse_str(ue_PyIHttpResponse *self)
 {
+	char *s = (char*)"";
+	FString url = self->http_response->GetURL();
+	if (!url.IsEmpty()) {
+		s = TCHAR_TO_UTF8(*url);
+	}
 	return PyUnicode_FromFormat("<unreal_engine.IHttpResponse {'url': '%s'}>",
-		PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_response->GetURL())));
+		PyUnicode_FromString(s));
 }
 
 static PyTypeObject ue_PyIHttpResponseType = {
@@ -79,4 +72,12 @@ void ue_python_init_ihttp_response(PyObject *ue_module) {
 
 	Py_INCREF(&ue_PyIHttpResponseType);
 	PyModule_AddObject(ue_module, "IHttpResponse", (PyObject *)&ue_PyIHttpResponseType);
+}
+
+PyObject *py_ue_new_ihttp_response(FHttpResponsePtr response) {
+	ue_PyIHttpResponse *ret = (ue_PyIHttpResponse *)PyObject_New(ue_PyIHttpResponse, &ue_PyIHttpResponseType);
+	ret->http_response = response;
+	TSharedRef<IHttpBase> ref(response.Get());
+	ret->base.http_base = ref;
+	return (PyObject *)ret;
 }
