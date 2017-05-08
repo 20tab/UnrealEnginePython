@@ -42,7 +42,6 @@ static PyObject *py_ue_ihttp_base_get_url_parameter(ue_PyIHttpBase *self, PyObje
 static PyObject *py_ue_ihttp_base_get_all_headers(ue_PyIHttpBase *self, PyObject * args) {
 	TArray<FString> headers = self->http_base->GetAllHeaders();
 	PyObject *py_headers = PyList_New(0);
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_base->GetContentType()));
 	for (FString item : headers) {
 		PyObject *py_header = PyUnicode_FromString(TCHAR_TO_UTF8(*item));
 		PyList_Append(py_headers, py_header);
@@ -65,13 +64,8 @@ static PyMethodDef ue_PyIHttpBase_methods[] = {
 
 static PyObject *ue_PyIHttpBase_str(ue_PyIHttpBase *self)
 {
-	char *s = (char*)"";
-	FString url = self->http_base->GetURL();
-	if (!url.IsEmpty()) {
-		s = TCHAR_TO_UTF8(*url);
-	}
-	return PyUnicode_FromFormat("<unreal_engine.IHttpBase {'url': '%s'}>",
-		PyUnicode_FromString(s));
+	return PyUnicode_FromFormat("<unreal_engine.IHttpBase '%p'>",
+		self->http_base);
 }
 
 PyTypeObject ue_PyIHttpBaseType = {

@@ -7,7 +7,7 @@
 typedef struct {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
-	TSharedRef<IHttpBase> http_base;
+	IHttpBase *http_base;
 } ue_PyIHttpBase;
 
 

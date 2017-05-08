@@ -27,6 +27,8 @@ PyObject *py_unreal_engine_load_enum(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_string_to_guid(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_engine_tick(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_all_classes(PyObject *, PyObject *);

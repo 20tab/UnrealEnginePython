@@ -322,6 +322,20 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
+
+PyObject *py_unreal_engine_editor_tick(PyObject * self, PyObject * args) {
+	float delta_seconds;
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "fO:editor_tick", &delta_seconds, &py_bool)) {
+		return NULL;
+	}
+
+	GEditor->Tick(delta_seconds, PyObject_IsTrue(py_bool) ? true : false);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args) {
 
 	if (!GEditor)

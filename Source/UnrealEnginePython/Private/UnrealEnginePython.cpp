@@ -62,6 +62,7 @@ bool FUnrealEnginePythonModule::PythonGILAcquire() {
 }
 
 static void UESetupPythonInterpreter(bool verbose) {
+
 #if PY_MAJOR_VERSION >= 3
 	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
 #else
@@ -90,6 +91,22 @@ static void UESetupPythonInterpreter(bool verbose) {
 	}
 }
 
+static void setup_stdout_stderr() {
+	// Redirecting stdout
+	char const* code = "import sys\n"
+		"import unreal_engine as ue\n"
+		"class UnrealEngineOutput:\n"
+		"    def __init__(self, logger):\n"
+		"        self.logger = logger\n"
+		"    def write(self, buf):\n"
+		"        self.logger(buf)\n"
+		"    def flush(self):\n"
+		"        return\n"
+		"sys.stdout = UnrealEngineOutput(ue.log)\n"
+		"sys.stderr = UnrealEngineOutput(ue.log_error)\n";
+	PyRun_SimpleString(code);
+}
+
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
@@ -114,19 +131,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	main_dict = PyModule_GetDict((PyObject*)main_module);
 	local_dict = main_dict;// PyDict_New();
 
-	// Redirecting stdout
-	char const* code = "import sys\n"
-		"import unreal_engine as ue\n"
-		"class UnrealEngineOutput:\n"
-		"    def __init__(self, logger):\n"
-		"        self.logger = logger\n"
-		"    def write(self, buf):\n"
-		"        self.logger(buf)\n"
-		"    def flush(self):\n"
-		"        return\n"
-		"sys.stdout = UnrealEngineOutput(ue.log)\n"
-		"sys.stderr = UnrealEngineOutput(ue.log_error)\n";
-	PyRun_SimpleString(code);
+	setup_stdout_stderr();
 
 	if (PyImport_ImportModule("ue_site")) {
 		UE_LOG(LogPython, Log, TEXT("ue_site Python module successfully imported"));
@@ -183,6 +188,8 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str) {
 	PyThreadState_Swap(py_new_state);
 
 	UESetupPythonInterpreter(false);
+
+	setup_stdout_stderr();
 
 	PyObject *m = PyImport_AddModule("__main__");
 	if (m == NULL) {
@@ -267,6 +274,8 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 	PyThreadState_Swap(py_new_state);
 
 	UESetupPythonInterpreter(false);
+
+	setup_stdout_stderr();
 
 	PyObject *m = PyImport_AddModule("__main__");
 	if (m == NULL) {

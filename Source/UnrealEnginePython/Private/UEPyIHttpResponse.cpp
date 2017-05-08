@@ -20,13 +20,8 @@ static PyMethodDef ue_PyIHttpResponse_methods[] = {
 
 static PyObject *ue_PyIHttpResponse_str(ue_PyIHttpResponse *self)
 {
-	char *s = (char*)"";
-	FString url = self->http_response->GetURL();
-	if (!url.IsEmpty()) {
-		s = TCHAR_TO_UTF8(*url);
-	}
-	return PyUnicode_FromFormat("<unreal_engine.IHttpResponse {'url': '%s'}>",
-		PyUnicode_FromString(s));
+	return PyUnicode_FromFormat("<unreal_engine.IHttpResponse '%p'>",
+		self->http_response);
 }
 
 static PyTypeObject ue_PyIHttpResponseType = {
@@ -74,10 +69,10 @@ void ue_python_init_ihttp_response(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "IHttpResponse", (PyObject *)&ue_PyIHttpResponseType);
 }
 
-PyObject *py_ue_new_ihttp_response(FHttpResponsePtr response) {
+PyObject *py_ue_new_ihttp_response(IHttpResponse *response) {
 	ue_PyIHttpResponse *ret = (ue_PyIHttpResponse *)PyObject_New(ue_PyIHttpResponse, &ue_PyIHttpResponseType);
 	ret->http_response = response;
-	TSharedRef<IHttpBase> ref(response.Get());
-	ret->base.http_base = ref;
+	//TSharedRef<IHttpBase> ref(response);
+	//ret->base.http_base = ref;
 	return (PyObject *)ret;
 }

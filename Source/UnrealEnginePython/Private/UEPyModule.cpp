@@ -229,7 +229,11 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "editor_undo", py_unreal_engine_editor_undo, METH_VARARGS, "" },
 	{ "editor_redo", py_unreal_engine_editor_redo, METH_VARARGS, "" },
+
+	{ "editor_tick", py_unreal_engine_editor_tick, METH_VARARGS, "" },
 #endif
+
+	{ "engine_tick", py_unreal_engine_engine_tick, METH_VARARGS, "" },
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
 

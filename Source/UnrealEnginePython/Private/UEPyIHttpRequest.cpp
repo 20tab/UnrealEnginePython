@@ -1,6 +1,8 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "Runtime/Online/HTTP/Public/HttpManager.h"
+
 static PyObject *py_ue_ihttp_request_set_verb(ue_PyIHttpRequest *self, PyObject * args) {
 
 	char *verb;
@@ -85,6 +87,8 @@ static PyObject *py_ue_ihttp_request_tick(ue_PyIHttpRequest *self, PyObject * ar
 		return NULL;
 	}
 
+	FHttpModule::Get().GetHttpManager().Tick(delta_seconds);
+
 	self->http_request->Tick(delta_seconds);
 
 	Py_INCREF(Py_None);
@@ -122,7 +126,7 @@ static PyObject *py_ue_ihttp_request_get_response(ue_PyIHttpRequest *self, PyObj
 	if (!response.IsValid()) {
 		return PyErr_Format(PyExc_Exception, "unable to retrieve IHttpResponse");
 	}
-	return py_ue_new_ihttp_response(response);
+	return py_ue_new_ihttp_response(response.Get());
 }
 
 static PyMethodDef ue_PyIHttpRequest_methods[] = {
@@ -145,13 +149,8 @@ static PyMethodDef ue_PyIHttpRequest_methods[] = {
 
 static PyObject *ue_PyIHttpRequest_str(ue_PyIHttpRequest *self)
 {
-	char *s = (char*)"";
-	FString url = self->http_request->GetURL();
-	if (!url.IsEmpty()) {
-		s = TCHAR_TO_UTF8(*url);
-	}
-	return PyUnicode_FromFormat("<unreal_engine.IHttpRequest {'url': '%s'}>",
-		PyUnicode_FromString(s));
+	return PyUnicode_FromFormat("<unreal_engine.IHttpRequest '%p'>",
+		self->http_request.Get());
 }
 
 static PyTypeObject ue_PyIHttpRequestType = {
@@ -203,7 +202,7 @@ static int ue_py_ihttp_request_init(ue_PyIHttpRequest *self, PyObject *args, PyO
 		self->http_request->SetURL(UTF8_TO_TCHAR(url));
 	}
 
-	self->base.http_base = self->http_request;
+	self->base.http_base = &self->http_request.Get();
 	return 0;
 }
 

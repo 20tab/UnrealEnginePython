@@ -317,7 +317,19 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args) {
 	}
 
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
+}
 
+PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args) {
+	float delta_seconds;
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "fO:engine_tick", &delta_seconds, &py_bool)) {
+		return NULL;
+	}
+
+	GEngine->Tick(delta_seconds, PyObject_IsTrue(py_bool) ? true : false);
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 
