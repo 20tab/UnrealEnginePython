@@ -87,6 +87,25 @@ anim_sequence3.EndTime = 30
 Adding Keyframes to sections
 ----------------------------
 
+```python
+from unreal_engine import FTransform, FVector
+from unreal_engine.classes import MovieScene3DTransformTrack
+
+# possess an actor and get its binding guid
+guid = seq.sequencer_add_actor(an_actor_in_the_scene)
+
+transform_track = seq.sequencer_add_track(MovieScene3DTransformTrack, guid)
+transform_section = transform_track.sequencer_track_add_section()
+
+# set section size
+transform_section.StartTime = 0
+transform_section.EndTime = 5
+
+# adding keyframes to section
+transform_section.sequencer_section_add_key(0.0, FTransform(FVector(17, 22, 30)))
+transform_section.sequencer_section_add_key(0.17, FTransform(FVector(30, 17, 22)))
+```
+
 Managing the camera cut track
 -----------------------------
 
