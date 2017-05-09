@@ -72,7 +72,6 @@ void ue_python_init_ihttp_response(PyObject *ue_module) {
 PyObject *py_ue_new_ihttp_response(IHttpResponse *response) {
 	ue_PyIHttpResponse *ret = (ue_PyIHttpResponse *)PyObject_New(ue_PyIHttpResponse, &ue_PyIHttpResponseType);
 	ret->http_response = response;
-	//TSharedRef<IHttpBase> ref(response);
-	//ret->base.http_base = ref;
+	ret->base.http_base = response;
 	return (PyObject *)ret;
 }

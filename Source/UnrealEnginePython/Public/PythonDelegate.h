@@ -24,7 +24,7 @@ public:
 	void PyFOnAssetPostImport(UFactory *factory, UObject *u_object);
 #endif
 
-private:
+protected:
 	UFunction *signature;
 	bool signature_set;
 

@@ -129,7 +129,45 @@ static PyObject *py_ue_ihttp_request_get_response(ue_PyIHttpRequest *self, PyObj
 	return py_ue_new_ihttp_response(response.Get());
 }
 
+void UPythonHttpDelegate::OnRequestComplete(FHttpRequestPtr request, FHttpResponsePtr response, bool successful) {
+	FScopePythonGIL gil;
+
+	if (!request.IsValid() || !response.IsValid()) {
+		UE_LOG(LogPython, Error, TEXT("Unable to retrieve HTTP infos"));
+		return;
+	}
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OOO", py_http_request, py_ue_new_ihttp_response(response.Get()), successful ? Py_True : Py_False);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+static PyObject *py_ue_ihttp_request_bind_on_process_request_complete(ue_PyIHttpRequest *self, PyObject * args) {
+
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:bind_on_process_request_complete", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a callable");
+	}
+
+	UPythonHttpDelegate *py_delegate = NewObject<UPythonHttpDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	// this trick avoids generating a new python object
+	py_delegate->SetPyHttpRequest(self);
+	self->http_request->OnProcessRequestComplete().BindUObject(py_delegate, &UPythonHttpDelegate::OnRequestComplete);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef ue_PyIHttpRequest_methods[] = {
+	{ "bind_on_process_request_complete", (PyCFunction)py_ue_ihttp_request_bind_on_process_request_complete, METH_VARARGS, "" },
 	{ "append_to_header", (PyCFunction)py_ue_ihttp_request_append_to_header, METH_VARARGS, "" },
 	{ "cancel_request", (PyCFunction)py_ue_ihttp_request_cancel_request, METH_VARARGS, "" },
 	{ "get_elapsed_time", (PyCFunction)py_ue_ihttp_request_get_elapsed_time, METH_VARARGS, "" },
@@ -150,7 +188,7 @@ static PyMethodDef ue_PyIHttpRequest_methods[] = {
 static PyObject *ue_PyIHttpRequest_str(ue_PyIHttpRequest *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.IHttpRequest '%p'>",
-		self->http_request.Get());
+		&self->http_request.Get());
 }
 
 static PyTypeObject ue_PyIHttpRequestType = {
@@ -212,6 +250,9 @@ void ue_python_init_ihttp_request(PyObject *ue_module) {
 	ue_PyIHttpRequestType.tp_init = (initproc)ue_py_ihttp_request_init;
 
 	ue_PyIHttpRequestType.tp_base = &ue_PyIHttpBaseType;
+
+	ue_PyIHttpRequestType.tp_getattro = PyObject_GenericGetAttr;
+	ue_PyIHttpRequestType.tp_setattro = PyObject_GenericSetAttr;
 
 	if (PyType_Ready(&ue_PyIHttpRequestType) < 0)
 		return;
