@@ -524,7 +524,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_velocity", (PyCFunction)py_ue_get_actor_velocity, METH_VARARGS, "" },
 
 	{ "play_sound_at_location", (PyCFunction)py_ue_play_sound_at_location, METH_VARARGS, "" },
-	{ "write_audio_to_buffer", (PyCFunction)py_write_audio_to_buffer, METH_VARARGS, "" },
+	{ "queue_audio", (PyCFunction)py_queue_procedural_audio, METH_VARARGS, "" },
 
 	{ "world_tick", (PyCFunction)py_ue_world_tick, METH_VARARGS, "" },
 
