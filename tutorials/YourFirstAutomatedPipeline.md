@@ -764,14 +764,18 @@ slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleRadius = 60
 # assign the the skeletal mesh and fix its relative position
 slicer_bp.GeneratedClass.get_cdo().Mesh.SkeletalMesh = slicer_mesh
 slicer_bp.GeneratedClass.get_cdo().Mesh.RelativeLocation = FVector(10, -3, -144)
+
+# assign the animation blueprint
+slicer_bp.GeneratedClass.get_cdo().Mesh.AnimClass = anim_bp.GeneratedClass
 ```
 
 the get_cdo() method returns the 'Class Default Object', it is a special instance of a class defining the default properties and components that following instances should inherit. When you edit a blueprint class you can effectively editing its 'cdo'.
 
-TODO: assign the anim blueprint
+We can now complete the first part of the tutorial by compiling the blueprint:
 
-
-
+```python
+ue.compile_blueprint(slicer_bp)
+```
 Final notes
 -
 
