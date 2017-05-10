@@ -38,4 +38,22 @@ namespace EHttpRequestStatus
 }
 ```
 
+so any value >= 2 will be a sign of request completion:
+
+```python
+from unreal_engine import IHttpRequest
+import json
+
+request = IHttpRequest('GET', 'http://httpbin.org/user-agent')
+
+# run the request
+request.process_request()
+
+# check its status
+
+if request.get_status() >= 2:
+    response = request.get_response()
+    data = json.loads(response.get_content_as_string())
+    ue.log(data['user-agent'])
+```
 
