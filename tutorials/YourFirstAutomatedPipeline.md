@@ -436,6 +436,9 @@ slicer_locomotion.save_package()
 ue.close_editor_for_asset(slicer_locomotion)
 ```
 
+Note the ue.open_editor_for_asset(slicer_locomotion) and ue.close_editor_for_asset(slicer_locomotion) calls. They allow the blend space to be rebuilt after modifications (there is no api out of the slate interface to do it currently in UE4)
+
+
 ![The Kaiju Locomotion BlendSpace](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_locomotion.png)
 
 Creating the AnimationBlueprint
