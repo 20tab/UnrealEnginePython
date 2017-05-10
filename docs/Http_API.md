@@ -57,3 +57,24 @@ if request.get_status() >= 2:
     ue.log(data['user-agent'])
 ```
 
+If you want to call request.get_status() in a loop  ensure to 'tick' it (otherwise you will block forever as python will never give back control to unreal):
+
+```python
+from unreal_engine import IHttpRequest
+import json
+
+request = IHttpRequest('GET', 'http://httpbin.org/user-agent')
+
+# run the request
+request.process_request()
+
+# check its status
+# tick it at each iteration to avoid blocking ue forever !
+# the argument of tick is the DeltaSeconds added to the value returned by get_elapsed_time()
+while request.get_status() < 2:
+    request.tick(0.01)
+    
+response = request.get_response()
+data = json.loads(response.get_content_as_string())
+ue.log(data['user-agent'])
+```
