@@ -791,6 +791,9 @@ You can now drag and drop the blueprint in your scene or subclass it.
 You can eventually spawn it directly from python:
 
 ```python
+# get a reference to the editor world
+world = ue.get_editor_world()
+world.actor_spawn(slicer_bp.GeneratedClass, FVector(17, 22, 30))
 ```
 
 In part2 we will see how to give a 'brain' to our Kaiju.
