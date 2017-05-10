@@ -1,4 +1,5 @@
-Your First Automated Pipeline with UnrealEnginePython (Part 1)
+Your First Automated Pipeline with UnrealEnginePython
+(Part 1)
 =
 
 In this tutorial i will try to show you how to build a python script that can generate
