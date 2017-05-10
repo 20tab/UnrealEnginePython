@@ -13,7 +13,7 @@ request = IHttpRequest('Get', 'http://httpbin.org/user-agent')
 
 def response_received(request, response, success):
     data = json.loads(response.get_content_as_string())
-    ue.log(data)
+    ue.log(data['user-agent'])
 
 # bind OnProcessRequestComplete event to the response_received callable
 request.bind_on_process_request_complete(response_received)
