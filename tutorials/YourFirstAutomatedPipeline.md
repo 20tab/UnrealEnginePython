@@ -787,6 +787,9 @@ We can now complete the first part of the tutorial by compiling the blueprint:
 ue.compile_blueprint(slicer_bp)
 slicer_bp.save_package()
 ```
+
+![The Kaiju Blueprint](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_blueprint.png)
+
 Final notes
 -
 
