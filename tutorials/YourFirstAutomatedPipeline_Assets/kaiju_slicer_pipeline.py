@@ -487,3 +487,4 @@ slicer_bp.GeneratedClass.get_cdo().Mesh.RelativeLocation = FVector(10, -3, -144)
 slicer_bp.GeneratedClass.get_cdo().Mesh.AnimClass = anim_bp.GeneratedClass
 
 ue.compile_blueprint(slicer_bp)
+slicer_bp.save_package()
