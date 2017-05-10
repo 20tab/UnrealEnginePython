@@ -81,6 +81,10 @@ PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject *, Py
 PyObject *py_unreal_engine_get_asset_referencers(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_asset_dependencies(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_open_editor_for_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_close_editor_for_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_close_all_asset_editors(PyObject *, PyObject *);
+
 // transactions
 PyObject *py_unreal_engine_begin_transaction(PyObject *, PyObject *);
 PyObject *py_unreal_engine_cancel_transaction(PyObject *, PyObject *);

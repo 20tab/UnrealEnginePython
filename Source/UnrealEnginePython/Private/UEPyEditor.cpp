@@ -19,6 +19,7 @@
 #include "Editor/ContentBrowser/Public/IContentBrowserSingleton.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraphSchema.h"
+#include "Toolkits/AssetEditorManager.h"
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -554,8 +555,10 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 	TArray<UObject *> objects;
 	objects.Add(u_object);
 
-	if (ObjectTools::ForceDeleteObjects(objects, show_confirmation) < 1) {
-		return PyErr_Format(PyExc_Exception, "unable to delete asset %s", path);
+	if (ObjectTools::DeleteObjects(objects, show_confirmation) < 1) {
+		if (ObjectTools::ForceDeleteObjects(objects, show_confirmation) < 1) {
+			return PyErr_Format(PyExc_Exception, "unable to delete asset %s", path);
+		}
 	}
 
 	Py_INCREF(Py_None);
@@ -578,7 +581,7 @@ PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args) {
 
 	TArray<UObject *> objects_to_delete;
 	objects_to_delete.Add(u_object);
-	
+
 
 	if (py_bool && PyObject_IsTrue(py_bool)) {
 		if (ObjectTools::ForceDeleteObjects(objects_to_delete, false) < 1) {
@@ -786,6 +789,47 @@ PyObject *py_unreal_engine_get_selected_assets(PyObject * self, PyObject * args)
 	}
 
 	return assets_list;
+}
+
+PyObject *py_unreal_engine_open_editor_for_asset(PyObject * self, PyObject * args) {
+	PyObject *py_obj;
+
+	if (!PyArg_ParseTuple(args, "O:open_editor_for_asset", &py_obj)) {
+		return NULL;
+	}
+
+	UObject *u_obj = ue_py_check_type<UObject>(py_obj);
+	if (!u_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	if (FAssetEditorManager::Get().OpenEditorForAsset(u_obj)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+PyObject *py_unreal_engine_close_editor_for_asset(PyObject * self, PyObject * args) {
+	PyObject *py_obj;
+
+	if (!PyArg_ParseTuple(args, "O:close_editor_for_asset", &py_obj)) {
+		return NULL;
+	}
+
+	UObject *u_obj = ue_py_check_type<UObject>(py_obj);
+	if (!u_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	FAssetEditorManager::Get().CloseAllEditorsForAsset(u_obj);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_close_all_asset_editors(PyObject * self, PyObject * args) {
+	FAssetEditorManager::Get().CloseAllAssetEditors();
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * args) {
