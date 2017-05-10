@@ -1,8 +1,8 @@
-Your First Automated Pipeline with UnrealEnginePython (WORK IN PROGRESS)
+Your First Automated Pipeline with UnrealEnginePython (Part 1)
 =
 
 In this tutorial i will try to show you how to build a python script that can generate
-a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials, animations and a simple AI based on Behavior Trees.
+a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials and animations. In the second part a simple AI based on Behavior Trees will be added too.
 
 Running the script from the Unreal Engine Python Console will result in a native Blueprint (as well as meshes, animations, a blackboard and a behaviour tree graph) that does not require the python plugin to work.
 
@@ -764,36 +764,7 @@ slicer_bp.GeneratedClass.get_cdo().Mesh.RelativeLocation = FVector(10, -3, -144)
 
 TODO: assign the skeletal mesh, fix the capsule, assign the anim blueprint
 
-Filling the Event Graph
--
 
-TODO: implement the idle timer triggering the bored state
-
-The BlackBoard
--
-
-```python
-from unreal_engine.classes import BlackBoardDataFactory
-from unreal_engine.classes import BlackboardKeyType_Bool, BlackboardKeyType_String
-
-from unreal_engine.structs import BlackboardEntry
-
-```
-
-The Behavior Tree Graph
--
-
-TODO: Implement a decorator checking for pawn in a sphere, create a bt with a sequence of 'move to', 'raise event (attack)', 'wait'
-
-The Kaiju Brain
--
-
-TODO: assign the bt to the AIController of the Kaiju
-
-Testing it
--
-
-TODO: write a unit test instantiating the Kaiju with a dumb pawn and checking for pawn in its virtual sphere.
 
 Final notes
 -
