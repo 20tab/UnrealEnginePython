@@ -262,7 +262,7 @@ void ue_python_init_ihttp_request(PyObject *ue_module) {
 
 	ue_PyIHttpRequestType.tp_getattro = PyObject_GenericGetAttr;
         ue_PyIHttpRequestType.tp_setattro = PyObject_GenericSetAttr;
-        ue_PyIHttpRequestType.tp_dictoffset = offsetof(ue_PyIHttpRequestType, py_dict);
+        ue_PyIHttpRequestType.tp_dictoffset = offsetof(ue_PyIHttpRequest, py_dict);
 
 	if (PyType_Ready(&ue_PyIHttpRequestType) < 0)
 		return;
