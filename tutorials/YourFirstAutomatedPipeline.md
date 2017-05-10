@@ -779,8 +779,18 @@ We can now complete the first part of the tutorial by compiling the blueprint:
 
 ```python
 ue.compile_blueprint(slicer_bp)
+slicer_bp.save_package()
 ```
 Final notes
 -
 
-You can now drag and drop the blueprint in your scene or subclass it, in part2 we will see how to give a 'brain' to our Kaiju.
+You can get the whole script here: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/kaiju_slicer_pipeline.py
+
+You can now drag and drop the blueprint in your scene or subclass it.
+
+You can eventually spawn it directly from python:
+
+```python
+```
+
+In part2 we will see how to give a 'brain' to our Kaiju.
