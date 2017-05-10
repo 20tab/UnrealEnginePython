@@ -27,6 +27,7 @@ class UPythonHttpDelegate : public UPythonDelegate
 
 public:
 	void OnRequestComplete(FHttpRequestPtr request, FHttpResponsePtr response, bool successful);
+	void OnRequestProgress(FHttpRequestPtr request, int32 sent, int32 received);
 
 	void SetPyHttpRequest(ue_PyIHttpRequest *request) {
 		py_http_request = request;

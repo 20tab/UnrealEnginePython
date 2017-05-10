@@ -145,6 +145,22 @@ void UPythonHttpDelegate::OnRequestComplete(FHttpRequestPtr request, FHttpRespon
 	Py_DECREF(ret);
 }
 
+void UPythonHttpDelegate::OnRequestProgress(FHttpRequestPtr request, int32 sent, int32 received) {
+	FScopePythonGIL gil;
+
+	if (!request.IsValid()) {
+		UE_LOG(LogPython, Error, TEXT("Unable to retrieve HTTP infos"));
+		return;
+	}
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oii", py_http_request, sent, received);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 static PyObject *py_ue_ihttp_request_bind_on_process_request_complete(ue_PyIHttpRequest *self, PyObject * args) {
 
 	PyObject *py_callable;
@@ -166,8 +182,30 @@ static PyObject *py_ue_ihttp_request_bind_on_process_request_complete(ue_PyIHttp
 	return Py_None;
 }
 
+static PyObject *py_ue_ihttp_request_bind_on_request_progress(ue_PyIHttpRequest *self, PyObject * args) {
+
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:bind_on_request_progress", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "argument is not a callable");
+	}
+
+	UPythonHttpDelegate *py_delegate = NewObject<UPythonHttpDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	// this trick avoids generating a new python object
+	py_delegate->SetPyHttpRequest(self);
+	self->http_request->OnRequestProgress().BindUObject(py_delegate, &UPythonHttpDelegate::OnRequestProgress);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef ue_PyIHttpRequest_methods[] = {
 	{ "bind_on_process_request_complete", (PyCFunction)py_ue_ihttp_request_bind_on_process_request_complete, METH_VARARGS, "" },
+	{ "bind_on_request_progress", (PyCFunction)py_ue_ihttp_request_bind_on_request_progress, METH_VARARGS, "" },
 	{ "append_to_header", (PyCFunction)py_ue_ihttp_request_append_to_header, METH_VARARGS, "" },
 	{ "cancel_request", (PyCFunction)py_ue_ihttp_request_cancel_request, METH_VARARGS, "" },
 	{ "get_elapsed_time", (PyCFunction)py_ue_ihttp_request_get_elapsed_time, METH_VARARGS, "" },
