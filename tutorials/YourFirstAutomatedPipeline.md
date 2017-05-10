@@ -460,17 +460,16 @@ anim_bp_factory = AnimBlueprintFactory()
 anim_bp_factory.TargetSkeleton = slicer_mesh.Skeleton
 
 # ensure no blueprint with the same name exists
-# get_asset() returns an exception, maybe it is time to implement a asset_exists() api function ?
-try:
-    bp_exists = ue.get_asset('/Game/Kaiju/Slicer/slicer_AnimBP.slicer_AnimBP')
-    ue.delete_asset(bp_exists.get_path_name())
-except:
-    pass
+# find_asset() returns None if the asset does not exist
+anim_bp = ue.find_asset('/Game/Kaiju/Slicer/slicer_AnimBP.slicer_AnimBP')
+if anim_bp:    
+    ue.delete_asset(anim_bp.get_path_name())
 
 anim_bp = anim_bp_factory.factory_create_new('/Game/Kaiju/Slicer/slicer_AnimBP')
 ```
 
-unfortunately, as you can see, we need a hack when creating new blueprints. Generating a Blueprint with the same name of another one will trigger a crash. We are investigating a better api to avoid that tricky exception.
+Always take into account that creating a Blueprint (of any kind)  with a name of an existing one, will trigger an error.
+If ue.find_asset() succeeds, we destroy the already existing asset. 
 
 Once the blueprint is created, we need to assign a custom event 'DoAttack' (triggered when the Kaiju is near a Pawn), anpther one called 'Boring' (triggered when the kaiju is stationary/idle for more than 10 seconds), 2 bool variables (Attack, Bored) and a float one (Speed):
 
@@ -756,12 +755,19 @@ Now it is time to create The Character Blueprint at which we will attach the pre
 ```python
 from unreal_engine.classes import Character
 
+# always check for already existing blueprints
+slicer_bp = ue.find_asset('/Game/Kaiju/Slicer/slicer_Blueprint.slicer_Blueprint')
+if slicer_bp:
+    ue.delete_asset(slicer_bp.get_path_name())
+    
 slicer_bp = ue.create_blueprint(Character, '/Game/Kaiju/Slicer/slicer_Blueprint')
 ```
 
+time to assign values:
+
 ```python
 
-# configure teh capsule
+# configure the capsule
 slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleHalfHeight = 150
 slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleRadius = 60
 
