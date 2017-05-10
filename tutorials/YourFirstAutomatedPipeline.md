@@ -196,7 +196,7 @@ slicer_texture_orm = texture_factory.factory_import_object(slicer_texture_orm_tg
 
 The textures are ready, we can start "programming" our materials adding nodes to the graphs.
 
-Let's start with the blades. The only two things to take into account is that the OcclusionRoughnessMetallic textures must have the sRGB flag turned off, and each of its channel will be mapped to a different channel:
+Let's start with the blades. The only two things to take into account is that the OcclusionRoughnessMetallic textures must have the sRGB flag turned off, and each of its color channel will be mapped to a different material component:
 
 * Green -> Roughness
 * Blue -> Metallic
