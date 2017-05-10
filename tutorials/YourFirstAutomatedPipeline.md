@@ -1,9 +1,8 @@
-Your First Automated Pipeline with UnrealEnginePython
-(Part 1)
+Your First Automated Pipeline with UnrealEnginePython (Part 1)
 =
 
 In this tutorial i will try to show you how to build a python script that can generate
-a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials and animations. In the second part a simple AI based on Behavior Trees will be added too.
+a new Unreal Engine 4 Blueprint implementing a Kaiju (a big Japanese monster) with its materials and animations. In the second part a simple AI based on Behavior Trees will be added to the Blueprint as well as a bunch of simple unit tests..
 
 Running the script from the Unreal Engine Python Console will result in a native Blueprint (as well as meshes, animations, a blackboard and a behaviour tree graph) that does not require the python plugin to work.
 
@@ -757,16 +756,23 @@ slicer_bp = ue.create_blueprint(Character, '/Game/Kaiju/Slicer/slicer_Blueprint'
 ```
 
 ```python
+
+# configure teh capsule
 slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleHalfHeight = 150
 slicer_bp.GeneratedClass.get_cdo().CapsuleComponent.CapsuleRadius = 60
+
+# assign the the skeletal mesh and fix its relative position
 slicer_bp.GeneratedClass.get_cdo().Mesh.SkeletalMesh = slicer_mesh
 slicer_bp.GeneratedClass.get_cdo().Mesh.RelativeLocation = FVector(10, -3, -144)
 ```
 
-TODO: assign the skeletal mesh, fix the capsule, assign the anim blueprint
+the get_cdo() method returns the 'Class Default Object', it is a special instance of a class defining the default properties and components that following instances should inherit. When you edit a blueprint class you can effectively editing its 'cdo'.
+
+TODO: assign the anim blueprint
 
 
 
 Final notes
 -
 
+You can now drag and drop the blueprint in your scene or subclass it, in part2 we will see how to give a 'brain' to our Kaiju.
