@@ -14,6 +14,7 @@ typedef struct {
 	ue_PyIHttpBase base;
 	/* Type-specific fields go here. */
 	TSharedRef<IHttpRequest> http_request;
+	PyObject *py_dict;
 } ue_PyIHttpRequest;
 
 

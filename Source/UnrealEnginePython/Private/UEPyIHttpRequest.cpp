@@ -191,12 +191,20 @@ static PyObject *ue_PyIHttpRequest_str(ue_PyIHttpRequest *self)
 		&self->http_request.Get());
 }
 
+static void ue_PyIHttpRequest_dealloc(ue_PyIHttpRequest *self) {
+#if defined(UEPY_MEMORY_DEBUG)
+        UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyIHttpRequest %p mapped to IHttpRequest %p"), self, &self->http_request.Get());
+#endif
+	Py_DECREF(self->py_dict);
+        Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
 static PyTypeObject ue_PyIHttpRequestType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.IHttpRequest", /* tp_name */
 	sizeof(ue_PyIHttpRequest), /* tp_basicsize */
 	0,                         /* tp_itemsize */
-	0,       /* tp_dealloc */
+	(destructor)ue_PyIHttpRequest_dealloc,       /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */
@@ -232,6 +240,7 @@ static int ue_py_ihttp_request_init(ue_PyIHttpRequest *self, PyObject *args, PyO
 	}
 
 	self->http_request = FHttpModule::Get().CreateRequest();
+	self->py_dict = PyDict_New();
 	if (verb) {
 		self->http_request->SetVerb(UTF8_TO_TCHAR(verb));
 	}
@@ -252,7 +261,8 @@ void ue_python_init_ihttp_request(PyObject *ue_module) {
 	ue_PyIHttpRequestType.tp_base = &ue_PyIHttpBaseType;
 
 	ue_PyIHttpRequestType.tp_getattro = PyObject_GenericGetAttr;
-	ue_PyIHttpRequestType.tp_setattro = PyObject_GenericSetAttr;
+        ue_PyIHttpRequestType.tp_setattro = PyObject_GenericSetAttr;
+        ue_PyIHttpRequestType.tp_dictoffset = offsetof(ue_PyIHttpRequestType, py_dict);
 
 	if (PyType_Ready(&ue_PyIHttpRequestType) < 0)
 		return;
