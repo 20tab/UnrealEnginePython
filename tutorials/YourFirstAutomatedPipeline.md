@@ -415,7 +415,10 @@ blend_space_factory.TargetSkeleton = slicer_mesh.Skeleton
 # create the asset
 slicer_locomotion = blend_space_factory.factory_create_new('/Game/Kaiju/Slicer/Animations/slicer_locomotion')
 
+ue.open_editor_for_asset(slicer_locomotion)
+
 # set blend parameters
+slicer_locomotion.modify()
 slicer_locomotion.BlendParameters = BlendParameter(DisplayName='Speed', Min=0, Max=300, GridNum=2)
 
 # assign animations
@@ -425,11 +428,12 @@ slicer_locomotion.BlendParameters = BlendParameter(DisplayName='Speed', Min=0, M
 # mark them as 'valid' explicitely !
 slicer_locomotion.SampleData = [BlendSample(Animation=animation_idle, SampleValue=FVector(0, 0, 0), bIsValid=True, RateScale=1), BlendSample(Animation=animation_walk, SampleValue=FVector(150, 0, 0), bIsValid=True, RateScale=1), BlendSample(Animation=animation_run, SampleValue=FVector(300, 0, 0), bIsValid=True, RateScale=1)]
 
-# save
-slicer_locomotion.save_package()
-
 # compute blend space and update the editor preview
 slicer_locomotion.post_edit_change()
+
+slicer_locomotion.save_package()
+
+ue.close_editor_for_asset(slicer_locomotion)
 ```
 
 ![The Kaiju Locomotion BlendSpace](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_locomotion.png)
