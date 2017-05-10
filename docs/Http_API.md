@@ -1,5 +1,5 @@
 The HTTP API
--
+=
 
 The IHttpRequest and IHttpResponse interfaces are exposed as Python classes (both inheriting from IHttpBase)
 
@@ -78,3 +78,67 @@ response = request.get_response()
 data = json.loads(response.get_content_as_string())
 ue.log(data['user-agent'])
 ```
+
+In case of long running requests, another event can be bound:
+
+```python
+from unreal_engine import IHttpRequest
+import json
+
+request = IHttpRequest('GET', 'http://httpbin.org/user-agent')
+
+def response_received(request, response, success):
+    data = json.loads(response.get_content_as_string())
+    ue.log(data['user-agent'])
+    
+def request_progress(request, sent, received):
+    ue.log(sent)
+    ue.log(received)
+
+# bind OnProcessRequestComplete event to the response_received callable
+request.bind_on_process_request_complete(response_received)
+
+request.bind_on_request_progress(response_received)
+
+# run the request
+request.process_request()
+```
+
+Exposed methods for IHttpBase (inherited by IHttpRequest and IHttpResponse)
+-
+
+
+### get_content()
+
+returns the payload of the request/response
+
+### get_all_headers()
+
+returns a the list of headers as a list of string, with each item as 'HeaderKey: HeaderValue'
+
+### get_content_length()
+
+returns the request/response body length
+
+### get_content_type()
+
+returns the request/response body content type
+
+### get_header(name)
+
+returns the value of the specified request/response header
+
+### get_url()
+
+returns the url
+
+### get_url_parameter(name)
+
+get the value of a url query string item
+
+
+Exposed methods for IHttpRequest
+-
+
+Exposed methods for IHttpResponse
+-
