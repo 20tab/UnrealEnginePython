@@ -142,3 +142,11 @@ Exposed methods for IHttpRequest
 
 Exposed methods for IHttpResponse
 -
+
+### get_response_code()
+
+returns the response status code
+
+### get_content_as_string()
+
+returns the response body as a string
