@@ -3,6 +3,7 @@
 #include "UnrealEnginePython.h"
 
 #include "Runtime/Online/HTTP/Public/HttpModule.h"
+#include "Runtime/Online/HTTP/Public/Interfaces/IHttpBase.h"
 
 typedef struct {
 	PyObject_HEAD
