@@ -10,11 +10,14 @@ from unreal_engine import IHttpRequest
 import json
 
 request = IHttpRequest('Get', 'http://httpbin.org/user-agent')
+
+def response_received(request, response, success):
+    data = json.loads(response.get_content_as_string())
+    ue.log(data)
+
+# bind OnProcessRequestComplete event to the response_received callable
+request.bind_on_process_request_complete(response_received)
+
+# run the request
 request.process_request()
-
-response = request.get_response()
-
-data = json.loads(response.get_content_as_string())
-
-ue.log(data)
 ```
