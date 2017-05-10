@@ -9,15 +9,17 @@ The Python VM tries to give easy access to all of the UE4 internal api + its ref
 
 It is not meant as a way to avoid blueprints or c++ but as a good companion to them (albeit reducing the amount of c++ required for coding a game could be an interesting thing ;). If your development pipeline is already python-based (Maya, Blender, ...), this plugin could easily help you in integrating unreal into it.
 
-Another funny feature (well, a side effect ;) is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
+If you want to have an idea of what the plugin can do, jump here: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline.md
 
 In addition to this, the plugin automatically adds an actor class (PyActor), a pawn class (PyPawn), a character class (PyCharacter) and a component class (PythonComponent) for "gentle" integration of python in your games.
 
-In the development menu, you get access to the 'PythonConsole' too, you can use it to trigger python commands directly from the editor. There is even an experimental Editor/IDE included, you can run it from the Window/Layout/Python Editor menu item.
+Another funny feature (well, a side effect ;) is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
+
+Once the plugin is installed and enabled, you get access to the 'PythonConsole' item in the 'Development Menu', you can use it to trigger python commands directly from the editor. There is even an experimental Editor/IDE included, you can run it from the Window/Layout/Python Editor menu item.
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
-The currently supported Unreal Engine versions are 4.12, 4.13, 4.14 and 4.15
+The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15 and 4.16
 
 # Binary installation on Windows (64 bit)
 
@@ -46,6 +48,8 @@ git clone https://github.com/20tab/UnrealEnginePython
 ```
 
 By default the build procedure will try to discover your python installation looking at hardcoded known paths. If you want to specify a custom python installation (or the autodetection simply fails) you can change it in the Source/UnrealEnginePython/UnrealEnginePython.Build.cs file at this line: https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/UnrealEnginePython.Build.cs#L10
+
+Note: ensure you have a 64bit python installation
 
 
 choose a project you want to install the plugin into, open the file explorer (you can do it from the epic launcher too) and:
