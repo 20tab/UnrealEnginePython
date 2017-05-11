@@ -1,9 +1,18 @@
-Filling the Event Graph
+# Your First Automated Pipeline with UnrealEnginePython (Part 2)
+
+In this tutorial we will see how to reference the previously created assets, and how to create an AI using Behavior Trees and a BlackBoard.
+
+Finally we will add a unit test for the Kaiju.
+
+WORK IN PROGRESS
+
+
+## Filling the Blueprint Event Graph
 -
 
 TODO: implement the idle timer triggering the bored state
 
-The BlackBoard
+## The BlackBoard
 -
 
 ```python
