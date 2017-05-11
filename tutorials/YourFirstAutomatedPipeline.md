@@ -361,7 +361,7 @@ The final result:
 
 ![The Kaiju With Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_with_materials.png)
 
-Importing Animations
+Importing Animations and creating a new monodimensional BlendSpace for locomotion
 -
 
 Importing Animations uses the same factory for Fbx meshes.
@@ -401,7 +401,7 @@ animation_walk = anim_factory.factory_import_object(slicer_walk_fbx, '/Game/Kaij
 
 ![The Kaiju With Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/YourFirstAutomatedPipeline_Assets/slicer_animations.png)
 
-Now we want to create a BlendShape1D asset. It will be composed by the 3 locomotion-related animations (idle, walk, run) and it will be governed by a variable (the X) called Speed, with a minimum value of 0 and a max of 300.
+Now we want to create a BlendSpace1D asset. It will be composed by the 3 locomotion-related animations (idle, walk, run) and it will be governed by a variable (the X) called Speed, with a minimum value of 0 and a max of 300.
 
 ```python
 from unreal_engine.classes import BlendSpaceFactory1D
