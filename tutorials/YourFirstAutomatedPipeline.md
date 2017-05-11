@@ -334,7 +334,7 @@ material_body.Roughness = ScalarMaterialInput(Expression=material_body_orm, Mask
 material_body.Metallic = ScalarMaterialInput(Expression=material_body_orm, Mask=1, MaskB=1)
 material_body.AmbientOcclusion = ScalarMaterialInput(Expression=material_body_orm, Mask=1, MaskR=1)
 
-# run material compilatiom
+# run material compilation
 material_body.post_edit_change()
 ```
 
