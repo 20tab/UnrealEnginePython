@@ -6,9 +6,13 @@
 #include "UEPySlate.h"
 #include "LevelEditor.h"
 
+#include "Editor/Persona/Public/IPersonaToolkit.h"
+#include "Editor/SkeletalMeshEditor/Public/ISkeletalMeshEditorModule.h"
+
 // ugly global map to hold the list/mappings of new commands
 // we cannot rely on FPythonSlateCommands as it is initialiazed too late for us
 std::map<FString, std::list<FPythonSlateCommand *> *> *python_commands;
+std::list<FPythonSlateToolBar *> *python_toolbar_commands;
 
 void FPythonSlateCommands::RegisterCommands()
 {
@@ -38,7 +42,6 @@ void FPythonSlateCommand::Builder(FMenuBuilder& Builder) {
 	Builder.AddMenuEntry(PythonSlateAction);
 }
 
-
 void FPythonSlateCommand::Callback() {
 	FScopePythonGIL gil;
 	PyObject *ret = PyObject_CallObject(py_callable, NULL);
@@ -47,6 +50,122 @@ void FPythonSlateCommand::Callback() {
 		return;
 	}
 	Py_DECREF(ret);
+}
+
+void FPythonSlateCommand::GenerateMenuSection(FMenuBuilder& MenuBuilder, const TArray<FAssetData> SelectedAssets, PyObject *menu_definition) {
+	if (PyDict_Contains(menu_definition, PyUnicode_FromString((char *)"menus"))) {
+		PyObject *menus = PyDict_GetItemString(menu_definition, "menus");
+		for (int i = 0; i < PyList_Size(menus); i++) {
+			PyObject *menu = PyList_GetItem(menus, i);
+			PyObject *menu_name = PyDict_GetItemString(menu, (char *)"name");
+			PyObject *menu_tooltip = PyDict_GetItemString(menu, (char *)"tooltip");
+			PyObject *menu_icon = PyDict_GetItemString(menu, (char *)"icon");
+			FSlateIcon slate_icon;
+			if (menu_icon)
+				slate_icon = FSlateIcon("UnrealEnginePython", PyUnicode_AsUTF8(menu_icon));
+			else
+				slate_icon = FSlateIcon();
+
+			MenuBuilder.AddSubMenu(
+				FText::FromString(PyUnicode_AsUTF8(menu_name)),
+				FText::FromString(PyUnicode_AsUTF8(menu_tooltip)),
+				FNewMenuDelegate::CreateRaw(this, &FPythonSlateCommand::GenerateMenu, SelectedAssets, menu),
+				false,
+				slate_icon
+			);
+		}
+	}
+
+	if (PyDict_Contains(menu_definition, PyUnicode_FromString((char *)"actions"))) {
+		PyObject *actions = PyDict_GetItemString(menu_definition, (char *)"actions");
+		for (int i = 0; i < PyList_Size(actions); i++) {
+			PyObject *action = PyList_GetItem(actions, i);
+			PyObject *name = PyDict_GetItemString(action, (char *)"name");
+			PyObject *tooltip = PyDict_GetItemString(action, (char *)"tooltip");
+			PyObject *callback = PyDict_GetItemString(action, (char *)"callback");
+			PyObject *menu_icon = PyDict_GetItemString(action, (char *)"icon");
+			FSlateIcon slate_icon;
+			if (menu_icon)
+				slate_icon = FSlateIcon("UnrealEnginePython", PyUnicode_AsUTF8(menu_icon));
+			else
+				slate_icon = FSlateIcon();
+
+			//add a menu entry that will invoke that uiaction
+			MenuBuilder.AddMenuEntry(
+				FText::FromString(PyUnicode_AsUTF8(name)),
+				FText::FromString(PyUnicode_AsUTF8(tooltip)),
+				slate_icon,
+				FUIAction(FExecuteAction::CreateLambda([callback, SelectedAssets]()
+				{
+					FScopePythonGIL gil;
+					PyObject *selected_assets = PyList_New(SelectedAssets.Num());
+					for (int x = 0; x < SelectedAssets.Num(); x++)
+						PyList_SetItem(selected_assets, x, py_ue_new_fassetdata(const_cast<FAssetData *>(&SelectedAssets[x])));
+
+					if (!selected_assets) {
+						PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+						return;
+					}
+					Py_INCREF(selected_assets);
+					PyObject *ret = PyObject_CallObject(callback, Py_BuildValue("(O)", selected_assets));
+					Py_DECREF(selected_assets);
+					if (!ret) {
+						unreal_engine_py_log_error();
+						return;
+					}
+					Py_DECREF(ret);
+				})),
+				NAME_None,
+			EUserInterfaceActionType::Button);
+		}
+    }
+}
+
+void FPythonSlateCommand::GenerateMenu(FMenuBuilder& MenuBuilder, const TArray<FAssetData> SelectedAssets, PyObject *menu_definition) {
+	FScopePythonGIL gil;
+	if (PyDict_Contains(menu_definition, PyUnicode_FromString((char *)"section"))) {
+		PyObject *section = PyDict_GetItemString(menu_definition, (char *)"section");
+		PyObject *name = PyDict_GetItemString(section, (char *)"name");
+		PyObject *caption = PyDict_GetItemString(section, (char *)"caption");
+		MenuBuilder.BeginSection(PyUnicode_AsUTF8(name), FText::FromString(PyUnicode_AsUTF8(caption)));
+		{
+			GenerateMenuSection(MenuBuilder, SelectedAssets, menu_definition);
+		}
+		MenuBuilder.EndSection();
+	}
+	else
+		GenerateMenuSection(MenuBuilder, SelectedAssets, menu_definition);
+}
+
+TSharedRef<FExtender> FPythonSlateCommand::OnExtendContentBrowserAssetSelectionMenu(const TArray<FAssetData>& SelectedAssets, TSharedPtr<class FUICommandList> CommandList) {
+	TSharedRef<FExtender> Extender(new FExtender());
+	PyObject *py_objs = PyList_New(SelectedAssets.Num());
+	for (int i = 0; i < SelectedAssets.Num(); i++)
+		PyList_SetItem(py_objs, i, (PyObject *)py_ue_new_fassetdata(const_cast<FAssetData *>(&SelectedAssets[i])));
+	
+	FScopePythonGIL gil;
+	PyObject *ret = PyObject_CallObject(py_callable, Py_BuildValue("(O)", py_objs));
+	if (ret) {
+		if (PyDict_Check(ret)) {
+			FName hook = FName(PyUnicode_AsUTF8(PyDict_GetItemString(ret, (char *)"extension_hook")));
+			Extender->AddMenuExtension(
+				hook,
+				static_cast<EExtensionHook::Position>(PyLong_AsLong(PyDict_GetItemString(ret, (char *)"position"))),
+				CommandList,
+				FMenuExtensionDelegate::CreateRaw(this, &FPythonSlateCommand::GenerateMenu, SelectedAssets, ret)
+			);
+		}
+		else {
+			Py_DECREF(ret);
+		}
+	}
+	else {
+		unreal_engine_py_log_error();
+	}
+		
+	
+	return Extender;
+
 }
 
 void FPythonSlateMenuBar::Filler(FMenuBuilder& Builder) {
@@ -63,58 +182,216 @@ void FPythonSlateMenuBar::Builder(FMenuBarBuilder& MenuBarBuilder) {
 		);
 }
 
+TSharedRef<FExtender> FPythonSlateToolBar::GetSkeletalMeshEditorToolbarExtender(const TSharedRef<FUICommandList> CommandList, TSharedRef<ISkeletalMeshEditor> InSkeletalMeshEditor)
+{
+	TSharedRef<FExtender> Extender = MakeShareable(new FExtender);
+
+	//MeshComponent* MeshComponent = Cast<UMeshComponent>(InSkeletalMeshEditor->GetPersonaToolkit()->GetPreviewMeshComponent());
+	USkeletalMesh *SkeletalMesh = InSkeletalMeshEditor->GetPersonaToolkit()->GetPreviewMesh();
+
+	Extender->AddToolBarExtension(
+		"Asset",
+		EExtensionHook::After,
+		CommandList,
+		FToolBarExtensionDelegate::CreateRaw(this, &FPythonSlateToolBar::SkeletalMeshEditorToolbarBuilder, SkeletalMesh)
+	);
+
+	return Extender;
+}
+
+void FPythonSlateToolBar::SkeletalMeshEditorToolbarBuilder(FToolBarBuilder& ParentToolbarBuilder, USkeletalMesh* InSkeletalMesh)
+{
+	FSlateIcon slate_icon;
+	if (image_brush.IsValid())
+		slate_icon = FSlateIcon("UnrealEnginePython", image_brush);
+	else
+		slate_icon = FSlateIcon();
+	
+	//TAttribute<FSlateIcon>::Create(&FSourceControlStatus::GetSourceControlIcon)
+	ParentToolbarBuilder.AddToolBarButton(
+		FUIAction(FExecuteAction::CreateLambda([this, InSkeletalMesh]()
+		{
+			FScopePythonGIL gil;
+			
+			ue_PyUObject *mesh = ue_get_python_wrapper((UObject *)InSkeletalMesh);
+			if (!mesh) {
+				PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+				return;
+			}
+			Py_INCREF(mesh);
+			PyObject *ret = PyObject_CallObject(py_callable, Py_BuildValue("(O)", mesh));
+			Py_DECREF(mesh);
+			if (!ret) {
+				unreal_engine_py_log_error();
+				return;
+			}
+			Py_DECREF(ret);
+		})),
+		NAME_None,
+		FText::FromString(name),
+		FText::FromString(tooltip),
+		slate_icon
+		);
+}
+
+void FPythonSlateToolBar::StaticMeshEditorToolbarBuilder(FToolBarBuilder& ParentToolbarBuilder)
+{
+	FSlateIcon slate_icon;
+	if (image_brush.IsValid())
+		slate_icon = FSlateIcon("UnrealEnginePython", image_brush);
+	else
+		slate_icon = FSlateIcon();
+
+	//TAttribute<FSlateIcon>::Create(&FSourceControlStatus::GetSourceControlIcon)
+	ParentToolbarBuilder.AddToolBarButton(
+		FUIAction(FExecuteAction::CreateLambda([this]()
+		{
+			FScopePythonGIL gil;
+
+			/*ue_PyUObject *mesh = ue_get_python_wrapper((UObject *)InStaticMesh);
+			if (!mesh) {
+				PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+				return;
+			}
+			Py_INCREF(mesh);*/
+			//PyObject *ret = PyObject_CallObject(py_callable, Py_BuildValue("(O)", mesh));
+			//Py_DECREF(mesh);
+			/*if (!ret) {
+				unreal_engine_py_log_error();
+				return;
+			}
+			Py_DECREF(ret);*/
+		})),
+		NAME_None,
+		FText::FromString(name),
+		FText::FromString(tooltip),
+		slate_icon
+		);
+}
+
 void FPythonSlateCommands::ApplyPythonExtenders() {
 
-	if (!python_commands)
-		return;
+	if (python_commands) {
 
-	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+		FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+		TSharedPtr<class FUICommandList> PythonSlateCommands = MakeShareable(new FUICommandList);
+		FContentBrowserModule& ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
+		TArray<FContentBrowserMenuExtender_SelectedAssets>& ContentBrowserExtenders = ContentBrowserModule.GetAllAssetViewContextMenuExtenders();
 
-	TSharedPtr<class FUICommandList> PythonSlateCommands = MakeShareable(new FUICommandList);
+		for (auto cmd_map : *python_commands) {
+			if (cmd_map.first.Compare(FString("")) == 0) {
+				for (FPythonSlateCommand *cmd : *cmd_map.second) {
+					PythonSlateCommands->MapAction(
+						cmd->PythonSlateAction,
+						FExecuteAction::CreateRaw(cmd, &FPythonSlateCommand::Callback),
+						FCanExecuteAction());
+					if (cmd->content_browser) {
+						FContentBrowserMenuExtender_SelectedAssets ContentBrowserExtender = FContentBrowserMenuExtender_SelectedAssets::CreateRaw(cmd, &FPythonSlateCommand::OnExtendContentBrowserAssetSelectionMenu, PythonSlateCommands);
+						ContentBrowserExtenders.Add(ContentBrowserExtender);
+					}
+					else {
+						TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
+						MenuExtender->AddMenuExtension("WindowLayout", EExtensionHook::After, PythonSlateCommands,
+							FMenuExtensionDelegate::CreateRaw(cmd, &FPythonSlateCommand::Builder));
+						LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
+					}
+				}
+			}
+			// create a menubar
+			else {
+				FPythonSlateMenuBar *menu_bar = new FPythonSlateMenuBar;
+				menu_bar->name = cmd_map.first;
+				menu_bar->commands = cmd_map.second;
 
-	for (auto cmd_map : *python_commands) {
-		if (cmd_map.first.Compare(FString("")) == 0) {
-			for (FPythonSlateCommand *cmd : *cmd_map.second) {
-				
+				for (FPythonSlateCommand *cmd : *cmd_map.second) {
+					PythonSlateCommands->MapAction(
+						cmd->PythonSlateAction,
+						FExecuteAction::CreateRaw(cmd, &FPythonSlateCommand::Callback),
+						FCanExecuteAction());
+				}
 
-				PythonSlateCommands->MapAction(
-					cmd->PythonSlateAction,
-					FExecuteAction::CreateRaw(cmd, &FPythonSlateCommand::Callback),
-					FCanExecuteAction());
-
-				TSharedPtr<FExtender> MenuExtender = MakeShareable(new FExtender());
-				MenuExtender->AddMenuExtension("WindowLayout", EExtensionHook::After, PythonSlateCommands,
-					FMenuExtensionDelegate::CreateRaw(cmd, &FPythonSlateCommand::Builder));
-				LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuExtender);
+				TSharedPtr<FExtender> MenuBarExtender = MakeShareable(new FExtender());
+				MenuBarExtender->AddMenuBarExtension("Help", EExtensionHook::After, PythonSlateCommands,
+					FMenuBarExtensionDelegate::CreateRaw(menu_bar, &FPythonSlateMenuBar::Builder));
+				LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuBarExtender);
 			}
 		}
-		// create a menubar
-		else {
-			FPythonSlateMenuBar *menu_bar = new FPythonSlateMenuBar;
-			menu_bar->name = cmd_map.first;
-			menu_bar->commands = cmd_map.second;
+	}
 
-			for (FPythonSlateCommand *cmd : *cmd_map.second) {
-				PythonSlateCommands->MapAction(
-					cmd->PythonSlateAction,
-					FExecuteAction::CreateRaw(cmd, &FPythonSlateCommand::Callback),
-					FCanExecuteAction());
+	if (python_toolbar_commands) {
+		for (FPythonSlateToolBar *cmd : *python_toolbar_commands) {
+			TSharedPtr<FExtender> ToolbarExtender = MakeShareable(new FExtender());
+
+			if (cmd->module == FPythonSlateToolBar::Editors::SkeletalMeshEditor) {
+				ISkeletalMeshEditorModule& SkeletalMeshEditorModule = FModuleManager::Get().LoadModuleChecked<ISkeletalMeshEditorModule>("SkeletalMeshEditor");
+				auto& ToolbarExtenders = SkeletalMeshEditorModule.GetAllSkeletalMeshEditorToolbarExtenders();
+				ToolbarExtenders.Add(ISkeletalMeshEditorModule::FSkeletalMeshEditorToolbarExtender::CreateRaw(cmd, &FPythonSlateToolBar::GetSkeletalMeshEditorToolbarExtender));
 			}
-			
-			TSharedPtr<FExtender> MenuBarExtender = MakeShareable(new FExtender());
-			MenuBarExtender->AddMenuBarExtension("Help", EExtensionHook::After, PythonSlateCommands,
-				FMenuBarExtensionDelegate::CreateRaw(menu_bar, &FPythonSlateMenuBar::Builder));
-			LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MenuBarExtender);
+			if (cmd->module == FPythonSlateToolBar::Editors::StaticMeshEditor) {
+				IStaticMeshEditorModule& StaticMeshEditorModule = FModuleManager::LoadModuleChecked<IStaticMeshEditorModule>("StaticMeshEditor");
+				TSharedRef<FExtender> Extender = MakeShareable(new FExtender);
+				Extender->AddToolBarExtension(
+					"Asset",
+					EExtensionHook::After,
+					NULL,
+					FToolBarExtensionDelegate::CreateRaw(cmd, &FPythonSlateToolBar::StaticMeshEditorToolbarBuilder)
+				);
+				StaticMeshEditorModule.GetToolBarExtensibilityManager()->AddExtender(Extender);
+			}
 		}
 	}
 }
 
-PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_add_toolbar_extension(PyObject * self, PyObject * args) {
+	
+	int module;
+	char *name;
+	char *tooltip;
+	PyObject *py_obj;
+	char *image_brush = nullptr;
+	if (!PyArg_ParseTuple(args, "issO|s:add_toolbar_extension", &module, &name, &tooltip, &py_obj, &image_brush)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_obj)) {
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	Py_INCREF(py_obj);
+
+	FPythonSlateToolBar *cmd = new FPythonSlateToolBar;
+
+	cmd->PythonSlateAction = nullptr;
+	cmd->name = FString(UTF8_TO_TCHAR(name));
+	cmd->tooltip = FString(UTF8_TO_TCHAR(tooltip));
+	cmd->py_callable = py_obj;
+	cmd->module = module;
+	if (image_brush)
+		cmd->image_brush = FName(UTF8_TO_TCHAR(image_brush));
+
+	if (!python_toolbar_commands)
+		python_toolbar_commands = new std::list<FPythonSlateToolBar *>;
+
+	python_toolbar_commands->push_back(cmd);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args, PyObject * kwargs) {
 
 	char *name;
 	char *menu_bar = (char*)"";
 	PyObject *py_obj;
-	if (!PyArg_ParseTuple(args, "sO|s:add_menu_extension", &name, &py_obj, &menu_bar)) {
+	PyObject *content_browser = nullptr;
+
+	//if (!PyArg_ParseTuple(args, "sO|sO:add_menu_extension", &name, &py_obj, &menu_bar)) {
+	//	return NULL;
+	//}
+
+	static char *kw_names[] = { (char *)"name", (char *)"callback", (char *)"menu_bar", (char *)"content_browser", NULL };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sO|sO:add_menu_extension", kw_names, &name, &py_obj, &menu_bar, &content_browser)) {
 		return NULL;
 	}
 
@@ -130,6 +407,8 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	cmd->command_name = FString(UTF8_TO_TCHAR(name));
 	cmd->py_callable = py_obj;
 	cmd->menu_bar = FString(UTF8_TO_TCHAR(menu_bar));
+	if (content_browser)
+		cmd->content_browser = PyObject_IsTrue(content_browser);
 
 	if (!python_commands)
 		python_commands = new std::map<FString, std::list<FPythonSlateCommand *> *>;

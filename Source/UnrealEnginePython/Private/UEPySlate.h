@@ -2,11 +2,13 @@
 
 #include "UnrealEnginePython.h"
 
-
 #if WITH_EDITOR
 #include "SlateBasics.h"
 #include "SlateExtras.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
+#include "Editor/SkeletalMeshEditor/Public/ISkeletalMeshEditor.h"
+#include "Editor/StaticMeshEditor/Public/StaticMeshEditorModule.h"
+#include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 #include <map>
 #include <list>
 
@@ -22,8 +24,12 @@ struct FPythonSlateCommand {
 	FString command_name;
 	PyObject *py_callable;
 	FString menu_bar;
+	int content_browser = 0;
 	void Builder(FMenuBuilder& Builder);
 	void Callback();
+	TSharedRef<FExtender> OnExtendContentBrowserAssetSelectionMenu(const TArray<FAssetData>& SelectedAssets, TSharedPtr<class FUICommandList> CommandList);
+	void GenerateMenu(FMenuBuilder& MenuBuilder, const TArray<FAssetData> SelectedAssets, PyObject *menu_definition);
+	void GenerateMenuSection(FMenuBuilder& MenuBuilder, const TArray<FAssetData> SelectedAssets, PyObject *menu_definition);
 };
 
 
@@ -32,6 +38,22 @@ struct FPythonSlateMenuBar {
 	std::list<FPythonSlateCommand *> *commands;
 	void Builder(FMenuBarBuilder& MenuBarBuilder);
 	void Filler(FMenuBuilder& Builder);
+};
+
+struct FPythonSlateToolBar {
+	enum Editors { SkeletalMeshEditor, StaticMeshEditor, AnimationEditor, BlueprintEditor, MaterialEditor, LevelEditor};
+	TSharedPtr<class FUICommandInfo> PythonSlateAction;
+	int module;
+	FString name;
+	FString tooltip;
+	PyObject *py_callable;
+	FName image_brush;
+	std::list<FPythonSlateCommand *> *commands;
+	TSharedRef<FExtender> GetSkeletalMeshEditorToolbarExtender(const TSharedRef<FUICommandList> CommandList, TSharedRef<ISkeletalMeshEditor> InSkeletalMeshEditor);
+	void SkeletalMeshEditorToolbarBuilder(FToolBarBuilder& ToolbarBuilder, USkeletalMesh* InSkeletalMesh);
+
+	//TSharedRef<FExtender> GetStaticMeshEditorToolbarExtender(const TSharedRef<FUICommandList> CommandList, TSharedRef<IStaticMeshEditor> InStaticMeshEditor);
+	void FPythonSlateToolBar::StaticMeshEditorToolbarBuilder(FToolBarBuilder& ToolbarBuilder);
 };
 
 class FPythonSlateCommands : public TCommands<FPythonSlateCommands>
@@ -47,11 +69,12 @@ public:
 	virtual void RegisterCommands() override;
 
 	static void ApplyPythonExtenders();
+	
 };
 
-PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
+PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *, PyObject *);
 
-
+PyObject *py_unreal_engine_add_toolbar_extension(PyObject *, PyObject *);
 
 typedef struct {
 	PyObject_HEAD

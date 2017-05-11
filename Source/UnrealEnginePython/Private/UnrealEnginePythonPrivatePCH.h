@@ -48,6 +48,7 @@
 #include "UEPyAnimSequence.h"
 #include "UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
+#include "UEPyStyle.h"
 #endif
 
 #include "UEPyIHttpBase.h"
