@@ -140,6 +140,62 @@ get the value of a url query string item
 Exposed methods for IHttpRequest
 -
 
+### bind_on_process_request_complete(callable)
+
+Assign a python callable to the OnProcessRequestComplete event
+
+### bind_on_request_progress(callable)
+
+Assign a python callable to the OnRequestProcess event
+
+### append_to_header(key, value)
+
+append a new value to an already existent request header
+
+### cancel_request()
+
+cancel a running request
+
+### get_elapsed_time()
+
+get the amount of seconds the request took to complete (governed by tick)
+
+### get_response()
+
+get the IHttpResponse of the request (if available)
+
+### get_status()
+
+get the status of the request (see above for possible values)
+
+### get_verb()
+
+get the http METHOD of the request (if set)
+
+### process_request()
+
+run the request
+
+### set_content(body)
+
+set the request body (as string or bytes)
+
+### set_header(key, value)
+
+set a request header
+
+### set_url(url)
+
+assign the url to the request
+
+### set_verb(http_method)
+
+assign the http METHOD to the request
+
+### tick(delta_seconds)
+
+'tick' the http engine
+
 Exposed methods for IHttpResponse
 -
 
