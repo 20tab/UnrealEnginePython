@@ -3,6 +3,8 @@ The HTTP API
 
 The IHttpRequest and IHttpResponse interfaces are exposed as Python classes (both inheriting from IHttpBase)
 
+Unit tests available here: https://github.com/20tab/UnrealEnginePython/blob/master/tests/test_http.py
+
 The usage is pretty 'pythonic' and support both polling and evented approaches:
 
 ```python
