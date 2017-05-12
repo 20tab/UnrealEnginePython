@@ -141,13 +141,6 @@ void FUnrealEnginePythonModule::StartupModule()
 		unreal_engine_py_log_error();
 	}
 
-#if WITH_EDITOR
-	// register commands (after importing ue_site)
-	FPythonSlateCommands::Register();
-	// apply extenders
-	FPythonSlateCommands::ApplyPythonExtenders();
-#endif
-
 	// release the GIL
 	PythonGILRelease();
 

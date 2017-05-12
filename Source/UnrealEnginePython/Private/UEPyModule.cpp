@@ -20,7 +20,7 @@
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
-#include "UEPySlate.h"
+
 #include "UEPyPackage.h"
 #include "UEPyAssetUserData.h"
 #include "UEPyTexture.h"
@@ -29,13 +29,15 @@
 #include "UEPyController.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
-#include "UEPyEdGraph.h"
+#include "Blueprint/UEPyEdGraph.h"
 #endif
 
 
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
 #include "PythonClass.h"
+
+#include "Slate/UEPySlate.h"
 
 
 DEFINE_LOG_CATEGORY(LogPython);
@@ -203,16 +205,6 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_new_graph", py_unreal_engine_create_new_graph, METH_VARARGS, "" },
 
 	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
-
-	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
-	{ "add_nomad_tab", py_unreal_engine_add_nomad_tab, METH_VARARGS, "" },
-
-	{ "slate_text_block", py_unreal_engine_slate_text_block, METH_VARARGS, "" },
-	{ "slate_box", py_unreal_engine_slate_box, METH_VARARGS, "" },
-	{ "slate_window", py_unreal_engine_slate_window, METH_VARARGS, "" },
-	{ "slate_button", py_unreal_engine_slate_button, METH_VARARGS, "" },
-
-	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 
 	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
 	{ "move_selected_actors_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },

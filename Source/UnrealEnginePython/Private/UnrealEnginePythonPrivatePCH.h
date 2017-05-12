@@ -46,13 +46,13 @@
 #include "UEPyFAssetData.h"
 #include "UEPyFARFilter.h"
 #include "UEPyAnimSequence.h"
-#include "UEPyEdGraphPin.h"
+#include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
+#include "Slate/UEPySlate.h"
 #endif
 
-#include "UEPyIHttpBase.h"
-#include "UEPyIHttpRequest.h"
-#include "UEPyIHttpResponse.h"
+#include "Http/UEPyIHttp.h"
+
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
 							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
