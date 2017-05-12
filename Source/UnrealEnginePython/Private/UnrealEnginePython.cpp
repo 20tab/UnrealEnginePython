@@ -94,7 +94,7 @@ static void UESetupPythonInterpreter(bool verbose) {
 static void setup_stdout_stderr() {
 	// Redirecting stdout
 	char const* code = "import sys\n"
-		"import unreal_engine as ue\n"
+		"import unreal_engine\n"
 		"class UnrealEngineOutput:\n"
 		"    def __init__(self, logger):\n"
 		"        self.logger = logger\n"
@@ -102,8 +102,8 @@ static void setup_stdout_stderr() {
 		"        self.logger(buf)\n"
 		"    def flush(self):\n"
 		"        return\n"
-		"sys.stdout = UnrealEngineOutput(ue.log)\n"
-		"sys.stderr = UnrealEngineOutput(ue.log_error)\n";
+		"sys.stdout = UnrealEngineOutput(unreal_engine.log)\n"
+		"sys.stderr = UnrealEngineOutput(unreal_engine.log_error)\n";
 	PyRun_SimpleString(code);
 }
 

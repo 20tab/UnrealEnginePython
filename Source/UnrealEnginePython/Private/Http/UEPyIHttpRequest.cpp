@@ -215,7 +215,6 @@ static PyMethodDef ue_PyIHttpRequest_methods[] = {
 	{ "process_request", (PyCFunction)py_ue_ihttp_request_process_request, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_ihttp_request_set_content, METH_VARARGS, "" },
 	{ "set_header", (PyCFunction)py_ue_ihttp_request_set_header, METH_VARARGS, "" },
-	{ "set_content", (PyCFunction)py_ue_ihttp_request_set_content, METH_VARARGS, "" },
 	{ "set_url", (PyCFunction)py_ue_ihttp_request_set_url, METH_VARARGS, "" },
 	{ "set_verb", (PyCFunction)py_ue_ihttp_request_set_verb, METH_VARARGS, "" },
 	{ "tick", (PyCFunction)py_ue_ihttp_request_tick, METH_VARARGS, "" },
