@@ -4,7 +4,7 @@
 
 #if WITH_EDITOR
 
-struct ue_PySWidgetType;
+extern PyTypeObject ue_PySWidgetType;
 
 typedef struct {
 	PyObject_HEAD
@@ -15,4 +15,5 @@ typedef struct {
 
 void ue_python_init_swidget(PyObject *);
 
+ue_PySWidget *py_ue_is_swidget(PyObject *);
 #endif

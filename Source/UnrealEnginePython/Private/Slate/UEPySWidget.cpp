@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
-
-
 #include "UEPySWidget.h"
 
 static PyObject *ue_PySWidget_str(ue_PySWidget *self)
@@ -21,9 +19,56 @@ static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args)
 	return py_list;
 }
 
+static PyObject *py_ue_swidget_set_tooltip_text(ue_PySWidget *self, PyObject * args) {
+	char *text;
+	if (!PyArg_ParseTuple(args, "s:set_tooltip_text", &text)) {
+		return NULL;
+	}
+
+	self->s_widget->SetToolTipText(FText::FromString(UTF8_TO_TCHAR(text)));
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyObject * args) {
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_down", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	FPointerEventHandler handler;
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseButtonDown);
+
+	self->s_widget->SetOnMouseButtonDown(handler);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args) {
+	
+	if (self->s_widget->HasKeyboardFocus()) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
 
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
+	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },
+	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
+	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -68,5 +113,10 @@ void ue_python_init_swidget(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "SWidget", (PyObject *)&ue_PySWidgetType);
 }
 
+ue_PySWidget *py_ue_is_swidget(PyObject *obj) {
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySWidgetType))
+		return nullptr;
+	return (ue_PySWidget *)obj;
+}
 
 #endif

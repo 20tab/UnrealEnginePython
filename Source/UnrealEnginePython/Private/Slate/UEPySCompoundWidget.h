@@ -7,7 +7,7 @@
 
 #include "UEPySWidget.h"
 
-struct ue_PySCompoundWidgetType;
+extern PyTypeObject ue_PySCompoundWidgetType;
 
 typedef struct {
 	ue_PySWidget s_widget;

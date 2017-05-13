@@ -1204,6 +1204,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
 	ue_python_init_iplugin(new_unreal_engine_module);
+
+	ue_python_init_slate(new_unreal_engine_module);
 #endif
 
 	ue_python_init_ihttp_base(new_unreal_engine_module);

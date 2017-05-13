@@ -4,13 +4,25 @@
 
 #include "UEPySCompoundWidget.h"
 
+#define GET_s_compound_widget TSharedRef<SCompoundWidget> s_compound_widget = StaticCastSharedRef<SCompoundWidget>(self->s_widget.s_widget)
+
 static PyObject *ue_PySCompoundWidget_str(ue_PySCompoundWidget *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SCompoundWidget '%p'>",
 		&self->s_widget.s_widget.Get());
 }
 
+static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args) {
+
+	GET_s_compound_widget;
+
+	FLinearColor color = s_compound_widget->GetColorAndOpacity();
+
+	return py_ue_new_flinearcolor(color);
+}
+
 static PyMethodDef ue_PySCompoundWidget_methods[] = {
+	{ "get_color_and_opacity", (PyCFunction)py_ue_scompound_widget_get_color_and_opacity, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -46,12 +58,10 @@ PyTypeObject ue_PySCompoundWidgetType = {
 	ue_PySCompoundWidget_methods,             /* tp_methods */
 };
 
-extern struct ue_PySWidgetType;
-
 void ue_python_init_scompound_widget(PyObject *ue_module) {
 	ue_PySCompoundWidgetType.tp_new = PyType_GenericNew;
 
-	//ue_PySCompoundWidgetType.tp_base = &ue_PySWidgetType;
+	ue_PySCompoundWidgetType.tp_base = &ue_PySWidgetType;
 
 	if (PyType_Ready(&ue_PySCompoundWidgetType) < 0)
 		return;

@@ -4,7 +4,7 @@
 
 #include "UEPySWindow.h"
 
-#include "Runtime/SlateCore/Public/Widgets/SWindow.h"
+
 
 #define GET_s_window TSharedRef<SWindow> s_window = StaticCastSharedRef<SWindow>(self->s_compound_widget.s_widget.s_widget)
 
@@ -16,8 +16,45 @@ static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args) {
 
 	GET_s_window;
 
-	s_window.Get().SetTitle(FText::FromString(UTF8_TO_TCHAR(title)));
+	s_window->SetTitle(FText::FromString(UTF8_TO_TCHAR(title)));
 
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swindow_resize(ue_PySWindow *self, PyObject * args) {
+	int width;
+	int height;
+	if (!PyArg_ParseTuple(args, "ii:resize", &width, &height)) {
+		return NULL;
+	}
+
+	GET_s_window;
+
+	s_window->Resize(FVector2D(width, height));
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args) {
+	PyObject *py_content;
+	if (!PyArg_ParseTuple(args, "O:set_content", &py_content)) {
+		return NULL;
+	}
+
+	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
+	if (!py_swidget) {
+		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+	}
+	// TODO: decrement reference when destroying parent
+	Py_INCREF(py_swidget);
+
+	GET_s_window;
+
+	s_window->SetContent(py_swidget->s_widget);
+
+	Py_INCREF(self);
 	return (PyObject *)self;
 }
 
@@ -29,6 +66,9 @@ static PyObject *ue_PySWindow_str(ue_PySWindow *self)
 
 static PyMethodDef ue_PySWindow_methods[] = {
 	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
+	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
+	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
+	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -65,6 +105,11 @@ PyTypeObject ue_PySWindowType = {
 
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
 	self->s_compound_widget.s_widget.s_widget = TSharedRef<SWindow>(SNew(SWindow));
+
+	GET_s_window;
+
+	FSlateApplication::Get().AddWindow(s_window, true);
+
 	return 0;
 }
 
