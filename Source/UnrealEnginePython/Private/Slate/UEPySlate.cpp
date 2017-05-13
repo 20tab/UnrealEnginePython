@@ -51,6 +51,11 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sleaf_widget(module);
 	ue_python_init_stext_block(module);
 	ue_python_init_seditable_text_box(module);
+	ue_python_init_smulti_line_editable_text(module);
+	ue_python_init_spanel(module);
+	ue_python_init_sgrid_panel(module);
+	ue_python_init_sbox_panel(module);
+	ue_python_init_shorizontal_box(module);
 }
 
 

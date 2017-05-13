@@ -42,6 +42,20 @@ static PyObject *py_ue_seditable_text_box_get_text(ue_PySEditableTextBox *self, 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*text.ToString()));
 }
 
+static PyObject *py_ue_seditable_text_box_set_text(ue_PySEditableTextBox *self, PyObject * args) {
+	char *text;
+	if (!PyArg_ParseTuple(args, "s:set_text", &text)) {
+		return NULL;
+	}
+
+	GET_s_editable_text_box;
+
+	s_editable_text_box->SetText(FText::FromString(UTF8_TO_TCHAR(text)));
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *ue_PySEditableTextBox_str(ue_PySEditableTextBox *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SEditableTextBox '%p'>",
@@ -53,6 +67,7 @@ static PyMethodDef ue_PySEditableTextBox_methods[] = {
 	{ "clear_selection", (PyCFunction)py_ue_seditable_text_box_clear_selection, METH_VARARGS, "" },
 	{ "get_selected_text", (PyCFunction)py_ue_seditable_text_box_get_selected_text, METH_VARARGS, "" },
 	{ "get_text", (PyCFunction)py_ue_seditable_text_box_get_text, METH_VARARGS, "" },
+	{ "set_text", (PyCFunction)py_ue_seditable_text_box_set_text, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

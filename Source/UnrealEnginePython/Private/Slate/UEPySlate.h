@@ -15,6 +15,11 @@
 #include "UEPySLeafWidget.h"
 #include "UEPySTextBlock.h"
 #include "UEPySEditableTextBox.h"
+#include "UEPySMultiLineEditableText.h"
+#include "UEPySPanel.h"
+#include "UEPySGridPanel.h"
+#include "UEPySBoxPanel.h"
+#include "UEPySHorizontalBox.h"
 
 #include "UEPySlate.generated.h"
 
