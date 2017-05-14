@@ -6,7 +6,7 @@
 
 
 
-#define GET_s_editable_text_box TSharedRef<SEditableTextBox> s_editable_text_box = StaticCastSharedRef<SEditableTextBox>(self->s_border.s_compound_widget.s_widget.s_widget)
+#define GET_s_editable_text_box SEditableTextBox *s_editable_text_box = (SEditableTextBox *)self->s_border.s_compound_widget.s_widget.s_widget
 
 static PyObject *py_ue_seditable_text_box_select_all_text(ue_PySEditableTextBox *self, PyObject * args) {
 	GET_s_editable_text_box;
@@ -59,7 +59,7 @@ static PyObject *py_ue_seditable_text_box_set_text(ue_PySEditableTextBox *self, 
 static PyObject *ue_PySEditableTextBox_str(ue_PySEditableTextBox *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SEditableTextBox '%p'>",
-		&self->s_border.s_compound_widget.s_widget.s_widget.Get());
+		self->s_border.s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySEditableTextBox_methods[] = {
@@ -103,7 +103,7 @@ PyTypeObject ue_PySEditableTextBoxType = {
 };
 
 static int ue_py_seditable_text_box_init(ue_PySEditableTextBox *self, PyObject *args, PyObject *kwargs) {
-	self->s_border.s_compound_widget.s_widget.s_widget = TSharedRef<SEditableTextBox>(SNew(SEditableTextBox));
+	ue_py_snew(SEditableTextBox, s_border.s_compound_widget.s_widget);
 	return 0;
 }
 

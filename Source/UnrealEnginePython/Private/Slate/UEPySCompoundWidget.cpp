@@ -4,12 +4,12 @@
 
 #include "UEPySCompoundWidget.h"
 
-#define GET_s_compound_widget TSharedRef<SCompoundWidget> s_compound_widget = StaticCastSharedRef<SCompoundWidget>(self->s_widget.s_widget)
+#define GET_s_compound_widget SCompoundWidget *s_compound_widget = (SCompoundWidget*)self->s_widget.s_widget
 
 static PyObject *ue_PySCompoundWidget_str(ue_PySCompoundWidget *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SCompoundWidget '%p'>",
-		&self->s_widget.s_widget.Get());
+		self->s_widget.s_widget);
 }
 
 static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args) {

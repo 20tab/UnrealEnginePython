@@ -5,7 +5,7 @@
 #include "UEPySBoxPanel.h"
 
 
-#define GET_s_box_panel TSharedRef<SBoxPanel> s_box_panel = StaticCastSharedRef<SBoxPanel>(self->s_panel.s_widget.s_widget)
+#define GET_s_box_panel SBoxPanel *s_box_panel = (SBoxPanel*)self->s_panel.s_widget.s_widget;
 
 static PyObject *py_ue_sbox_panel_clear_children(ue_PySGridPanel *self, PyObject * args) {
 	GET_s_box_panel;
@@ -19,7 +19,7 @@ static PyObject *py_ue_sbox_panel_clear_children(ue_PySGridPanel *self, PyObject
 static PyObject *ue_PySBoxPanel_str(ue_PySBoxPanel *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SBoxPanel '%p'>",
-		&self->s_panel.s_widget.s_widget.Get());
+		self->s_panel.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySBoxPanel_methods[] = {

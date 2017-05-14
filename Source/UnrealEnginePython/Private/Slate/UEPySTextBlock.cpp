@@ -6,7 +6,7 @@
 
 
 
-#define GET_s_text_block TSharedRef<STextBlock> s_text_block = StaticCastSharedRef<STextBlock>(self->s_leaf_widget.s_widget.s_widget)
+#define GET_s_text_block STextBlock *s_text_block = (STextBlock *)self->s_leaf_widget.s_widget.s_widget
 
 static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * args) {
 	char *text;
@@ -25,7 +25,7 @@ static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * ar
 static PyObject *ue_PySTextBlock_str(ue_PySTextBlock *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.STextBlock '%p'>",
-		&self->s_leaf_widget.s_widget.s_widget.Get());
+		self->s_leaf_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySTextBlock_methods[] = {
@@ -65,7 +65,7 @@ PyTypeObject ue_PySTextBlockType = {
 };
 
 static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs) {
-	self->s_leaf_widget.s_widget.s_widget = TSharedRef<STextBlock>(SNew(STextBlock));
+	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
 	return 0;
 }
 

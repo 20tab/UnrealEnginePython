@@ -6,7 +6,7 @@
 
 
 
-#define GET_s_button TSharedRef<SButton> s_button = StaticCastSharedRef<SButton>(self->s_border.s_compound_widget.s_widget.s_widget)
+#define GET_s_button SButton *s_button =(SButton *)self->s_border.s_compound_widget.s_widget.s_widget
 
 static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args) {
 	GET_s_button;
@@ -24,7 +24,7 @@ static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args) {
 static PyObject *ue_PySButton_str(ue_PySButton *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SButton '%p'>",
-		&self->s_border.s_compound_widget.s_widget.s_widget.Get());
+		self->s_border.s_compound_widget.s_widget.s_widget);
 }
 
 static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * args) {
@@ -89,7 +89,7 @@ PyTypeObject ue_PySButtonType = {
 };
 
 static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwargs) {
-	self->s_border.s_compound_widget.s_widget.s_widget = TSharedRef<SButton>(SNew(SButton));
+	ue_py_snew(SButton, s_border.s_compound_widget.s_widget);
 	return 0;
 }
 

@@ -7,7 +7,7 @@
 static PyObject *ue_PySPanel_str(ue_PySPanel *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SPanel '%p'>",
-		&self->s_widget.s_widget.Get());
+		self->s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySPanel_methods[] = {

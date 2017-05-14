@@ -6,7 +6,7 @@
 
 
 
-#define GET_s_multi_line_editable_text TSharedRef<SMultiLineEditableText> s_multi_line_editable_text = StaticCastSharedRef<SMultiLineEditableText>(self->s_widget.s_widget)
+#define GET_s_multi_line_editable_text SMultiLineEditableText *s_multi_line_editable_text = (SMultiLineEditableText *)self->s_widget.s_widget
 
 static PyObject *py_ue_smulti_line_editable_text_select_all_text(ue_PySMultiLineEditableText *self, PyObject * args) {
 	GET_s_multi_line_editable_text;
@@ -67,7 +67,7 @@ static PyObject *py_ue_smulti_line_editable_text_set_text(ue_PySMultiLineEditabl
 static PyObject *ue_PySMultiLineEditableText_str(ue_PySMultiLineEditableText *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SMultiLineEditableText '%p'>",
-		&self->s_widget.s_widget.Get());
+		self->s_widget.s_widget);
 }
 
 
@@ -114,7 +114,7 @@ PyTypeObject ue_PySMultiLineEditableTextType = {
 };
 
 static int ue_py_smulti_line_editable_text_init(ue_PySMultiLineEditableText *self, PyObject *args, PyObject *kwargs) {
-	self->s_widget.s_widget = TSharedRef<SMultiLineEditableText>(SNew(SMultiLineEditableText));
+	ue_py_snew(SMultiLineEditableText, s_widget);
 	return 0;
 }
 

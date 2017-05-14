@@ -5,13 +5,13 @@
 #include "UEPySHorizontalBox.h"
 
 
-#define GET_s_horizontal_box TSharedRef<SHorizontalBox> s_horizontal_box = StaticCastSharedRef<SHorizontalBox>(self->s_box_panel.s_panel.s_widget.s_widget)
+#define GET_s_horizontal_box SHorizontalBox *s_horizontal_box = (SHorizontalBox *)self->s_box_panel.s_panel.s_widget.s_widget
 
 
 static PyObject *ue_PySHorizontalBox_str(ue_PySHorizontalBox *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SHorizontalBox '%p'>",
-		&self->s_box_panel.s_panel.s_widget.s_widget.Get());
+		self->s_box_panel.s_panel.s_widget.s_widget);
 }
 
 static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObject * args, PyObject *kwargs) {
@@ -42,7 +42,7 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 	GET_s_horizontal_box;
 
 	SHorizontalBox::FSlot &fslot = s_horizontal_box->AddSlot();
-	fslot.AttachWidget(py_swidget->s_widget);
+	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (max_width != 0)
 		fslot.MaxWidth(max_width);
@@ -97,7 +97,7 @@ PyTypeObject ue_PySHorizontalBoxType = {
 };
 
 static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs) {
-	self->s_box_panel.s_panel.s_widget.s_widget = TSharedRef<SHorizontalBox>(SNew(SHorizontalBox));
+	ue_py_snew(SHorizontalBox, s_box_panel.s_panel.s_widget);
 	return 0;
 }
 

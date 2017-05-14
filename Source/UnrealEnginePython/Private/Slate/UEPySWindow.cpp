@@ -4,9 +4,7 @@
 
 #include "UEPySWindow.h"
 
-
-
-#define GET_s_window TSharedRef<SWindow> s_window = StaticCastSharedRef<SWindow>(self->s_compound_widget.s_widget.s_widget)
+#define GET_s_window SWindow *s_window = (SWindow*)self->s_compound_widget.s_widget.s_widget
 
 static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args) {
 	char *title;
@@ -52,16 +50,23 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args) 
 
 	GET_s_window;
 
-	s_window->SetContent(py_swidget->s_widget);
+	s_window->SetContent(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_swindow_get_handle(ue_PySWindow *self, PyObject * args) {
+
+	GET_s_window;
+
+	return PyLong_FromLongLong((long long)s_window->GetNativeWindow()->GetOSWindowHandle());
+}
+
 static PyObject *ue_PySWindow_str(ue_PySWindow *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SWindow '%p'>",
-		&self->s_compound_widget.s_widget.s_widget.Get());
+		self->s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySWindow_methods[] = {
@@ -69,6 +74,7 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
+	{ "get_handle", (PyCFunction)py_ue_swindow_get_handle, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -104,11 +110,11 @@ PyTypeObject ue_PySWindowType = {
 };
 
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
-	self->s_compound_widget.s_widget.s_widget = TSharedRef<SWindow>(SNew(SWindow));
+	ue_py_snew(SWindow, s_compound_widget.s_widget);
 
 	GET_s_window;
 
-	FSlateApplication::Get().AddWindow(s_window, true);
+	FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(s_window->AsShared()), true);
 
 	return 0;
 }

@@ -6,7 +6,7 @@
 
 
 
-#define GET_s_border TSharedRef<SBorder> s_border = StaticCastSharedRef<SBorder>(self->s_compound_widget.s_widget.s_widget)
+#define GET_s_border SBorder *s_border = (SBorder *)self->s_compound_widget.s_widget.s_widget
 
 static PyObject *py_ue_sborder_clear_content(ue_PySBorder *self, PyObject * args) {
 	GET_s_border;
@@ -32,7 +32,7 @@ static PyObject *py_ue_sborder_set_content(ue_PySBorder *self, PyObject * args) 
 
 	GET_s_border;
 
-	s_border->SetContent(py_swidget->s_widget);
+	s_border->SetContent(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -40,8 +40,8 @@ static PyObject *py_ue_sborder_set_content(ue_PySBorder *self, PyObject * args) 
 
 static PyObject *ue_PySBorder_str(ue_PySBorder *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.SWindow '%p'>",
-		&self->s_compound_widget.s_widget.s_widget.Get());
+	return PyUnicode_FromFormat("<unreal_engine.SBorder '%p'>",
+		self->s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySBorder_methods[] = {
@@ -81,8 +81,8 @@ PyTypeObject ue_PySBorderType = {
 	ue_PySBorder_methods,             /* tp_methods */
 };
 
-static int ue_py_sborder_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
-	self->s_compound_widget.s_widget.s_widget = TSharedRef<SBorder>(SNew(SBorder));
+static int ue_py_sborder_init(ue_PySBorder *self, PyObject *args, PyObject *kwargs) {
+	ue_py_snew(SBorder, s_compound_widget.s_widget);
 	return 0;
 }
 

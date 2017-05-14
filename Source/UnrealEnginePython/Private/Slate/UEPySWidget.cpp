@@ -4,10 +4,9 @@
 
 #include "UEPySWidget.h"
 
-static PyObject *ue_PySWidget_str(ue_PySWidget *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SWidget '%p'>",
-		&self->s_widget.Get());
+static PyObject *ue_PySWidget_str(ue_PySWidget *self) {
+	return PyUnicode_FromFormat("<unreal_engine.SWidget '%p' (%s)>",
+		self->s_widget, TCHAR_TO_UTF8(*self->s_widget->GetTypeAsString()));
 }
 
 static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args) {
@@ -15,6 +14,9 @@ static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args)
 	PyObject *py_list = PyList_New(0);
 	for (int32 i = 0; i < children->Num(); i++) {
 		TSharedRef<SWidget> widget = children->GetChildAt(i);
+		PyObject *item = (PyObject *)ue_py_get_swidget(widget);
+		PyList_Append(py_list, item);
+		Py_DECREF(item);
 	}
 	return py_list;
 }
@@ -54,7 +56,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyO
 }
 
 static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args) {
-	
+
 	if (self->s_widget->HasKeyboardFocus()) {
 		Py_INCREF(Py_True);
 		return Py_True;
@@ -64,8 +66,15 @@ static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject *
 	return Py_False;
 }
 
+static PyObject *py_ue_swidget_get_type(ue_PySWidget *self, PyObject * args) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->s_widget->GetTypeAsString()));
+}
+
+
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
+	{ "get_type", (PyCFunction)py_ue_swidget_get_type, METH_VARARGS, "" },
 	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
@@ -118,5 +127,7 @@ ue_PySWidget *py_ue_is_swidget(PyObject *obj) {
 		return nullptr;
 	return (ue_PySWidget *)obj;
 }
+
+
 
 #endif

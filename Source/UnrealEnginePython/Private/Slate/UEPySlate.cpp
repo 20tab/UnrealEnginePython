@@ -2,7 +2,7 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
-
+#include "LevelEditor.h"
 
 #include "UEPySlate.h"
 
@@ -40,8 +40,35 @@ FReply UPythonSlateDelegate::OnClicked() {
 	return FReply::Handled();
 }
 
+static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
+
+ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget) {
+	ue_PySWidget *ret = nullptr;
+	auto it = py_slate_mapping->find(s_widget.Get());
+	// not found, it means it is an SWidget not generated from python
+	if (it == py_slate_mapping->end()) {
+		if (s_widget->GetType() == FName("SWindow")) {
+			ret = py_ue_new_swidget<ue_PySWindow>(s_widget.Get(), &ue_PySWindowType);
+		}
+		else {
+			ret = py_ue_new_swidget<ue_PySWidget>(s_widget.Get(), &ue_PySWidgetType);
+		}
+	}
+	else {
+		ret = it->second;
+	}
+	Py_INCREF(ret);
+	return ret;
+}
+
+void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget) {
+	(*py_slate_mapping)[s_widget] = py_s_widget;
+}
 
 void ue_python_init_slate(PyObject *module) {
+
+	py_slate_mapping = new std::map<SWidget *, ue_PySWidget *>();
+
 	ue_python_init_swidget(module);
 	ue_python_init_scompound_widget(module);
 	ue_python_init_swindow(module);
@@ -56,7 +83,18 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sgrid_panel(module);
 	ue_python_init_sbox_panel(module);
 	ue_python_init_shorizontal_box(module);
+	ue_python_init_sviewport(module);
+	ue_python_init_seditor_viewport(module);
+	ue_python_init_spython_editor_viewport(module);
 }
 
+PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
+
+	if (!FGlobalTabmanager::Get()->GetRootWindow().IsValid()) {
+		return PyErr_Format(PyExc_Exception, "no RootWindow found");
+	}
+	
+	return (PyObject *)ue_py_get_swidget(FGlobalTabmanager::Get()->GetRootWindow());
+}
 
 #endif

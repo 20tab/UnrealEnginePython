@@ -8,7 +8,7 @@
 static PyObject *ue_PySLeafWidget_str(ue_PySLeafWidget *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SLeafWidget '%p'>",
-		&self->s_widget.s_widget.Get());
+		self->s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySLeafWidget_methods[] = {
