@@ -3,6 +3,8 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "LevelEditor.h"
+#include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
+#include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 
 #include "UEPySlate.h"
 
@@ -93,8 +95,106 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
 	if (!FGlobalTabmanager::Get()->GetRootWindow().IsValid()) {
 		return PyErr_Format(PyExc_Exception, "no RootWindow found");
 	}
-	
+
 	return (PyObject *)ue_py_get_swidget(FGlobalTabmanager::Get()->GetRootWindow());
+}
+
+class FPythonSlateCommands : public TCommands<FPythonSlateCommands>
+{
+public:
+
+	FPythonSlateCommands()
+		: TCommands<FPythonSlateCommands>(TEXT("UnrealEnginePython"), NSLOCTEXT("Contexts", "UnrealEnginePython", "UnrealEnginePython"), NAME_None, "EditorStyle")
+	{
+		UE_LOG(LogPython, Warning, TEXT("BULDING COMMAND"));
+		
+	}
+
+	void Setup(char *command_name, PyObject *py_object) {
+		py_callable = py_object;
+		Py_INCREF(py_callable);
+
+		name = FString(command_name);
+	}
+
+	// TCommands<> interface
+	virtual void RegisterCommands() override {
+		UE_LOG(LogPython, Warning, TEXT("REGISTERING COMMAND"));
+		commands = MakeShareable(new FUICommandList);
+
+		extender = MakeShareable(new FExtender());
+
+		UI_COMMAND_Function(this, command, nullptr, *name, *name, TCHAR_TO_UTF8(*name), *name, *name, EUserInterfaceActionType::Button, FInputGesture());
+		commands->MapAction(command, FExecuteAction::CreateRaw(this, &FPythonSlateCommands::Callback), FCanExecuteAction());
+
+		extender->AddMenuExtension("WindowLayout", EExtensionHook::After, commands, FMenuExtensionDelegate::CreateRaw(this, &FPythonSlateCommands::Builder));
+
+		FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+		LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(extender);
+
+		CommandsChanged.Broadcast(*this);
+	}
+
+	void Callback() {
+		FScopePythonGIL gil;
+		PyObject *ret = PyObject_CallObject(py_callable, nullptr);
+		if (!ret) {
+			unreal_engine_py_log_error();
+			return;
+		}
+		Py_DECREF(ret);
+	}
+
+	void Builder(FMenuBuilder &Builder) {
+		UE_LOG(LogPython, Warning, TEXT("BULDING MENU %s"), *command->GetCommandName().ToString());
+		Builder.AddMenuEntry(command);
+	}
+
+	TSharedPtr<FExtender> GetExtender() {
+		return extender;
+	}
+
+	TSharedPtr<FUICommandList> GetCommands() {
+		return commands;
+	}
+private:
+	TSharedPtr<FUICommandList> commands;
+	TSharedPtr<FUICommandInfo> command;
+	TSharedPtr<FExtender> extender;
+	PyObject *py_callable;
+
+	FString name;
+};
+
+PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) {
+
+	char *command_name;
+	PyObject *py_callable;
+	int interface_type = EUserInterfaceActionType::Button;
+
+	char *menu_bar = nullptr;
+
+	if (!PyArg_ParseTuple(args, "sO|s:add_menu_extension", &command_name, &py_callable, &menu_bar)) {
+		return NULL;
+	}
+
+	UE_LOG(LogPython, Warning, TEXT("STARTIIIING !!!"));
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+	
+
+	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
+
+	commands->Setup(command_name, py_callable);
+
+	commands->RegisterCommands();
+
+	UE_LOG(LogPython, Warning, TEXT("EXTENSION ADDED"));
+
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 #endif
