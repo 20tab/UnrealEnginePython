@@ -131,8 +131,6 @@ public:
 
 		FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 		LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(extender);
-
-		CommandsChanged.Broadcast(*this);
 	}
 
 	void Callback() {
