@@ -8,10 +8,8 @@
 
 #include "UEPySlate.h"
 
-FReply UPythonSlateDelegate::OnMouseButtonDown(const FGeometry &geometry, const FPointerEvent &pointer_event) {
+FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event) {
 	FScopePythonGIL gil;
-
-	UE_LOG(LogPython, Warning, TEXT("MOUSE BUTTON DOWN"));
 
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_uscriptstruct(FGeometry::StaticStruct(), (uint8 *)&geometry), py_ue_new_uscriptstruct(FPointerEvent::StaticStruct(), (uint8 *)&pointer_event));
 	if (!ret) {

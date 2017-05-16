@@ -63,7 +63,7 @@ class UPythonSlateDelegate : public UPythonDelegate
 	GENERATED_BODY()
 
 public:
-	FReply OnMouseButtonDown(const FGeometry &geometry, const FPointerEvent &pointer_event);
+	FReply OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event);
 	FReply OnClicked();
 };
 

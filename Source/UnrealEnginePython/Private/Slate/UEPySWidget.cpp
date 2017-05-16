@@ -47,13 +47,81 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyO
 	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
 	py_delegate->SetPyCallable(py_callable);
 	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseButtonDown);
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
 
 	self->s_widget->SetOnMouseButtonDown(handler);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
 }
+
+static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObject * args) {
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_up", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	FPointerEventHandler handler;
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+
+	self->s_widget->SetOnMouseButtonUp(handler);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swidget_bind_on_mouse_double_click(ue_PySWidget *self, PyObject * args) {
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_double_click", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	FPointerEventHandler handler;
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+
+	self->s_widget->SetOnMouseDoubleClick(handler);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject * args) {
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_move", &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable)) {
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	FPointerEventHandler handler;
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+
+	self->s_widget->SetOnMouseMove(handler);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+
 
 static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args) {
 
@@ -78,6 +146,9 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
+	{ "bind_on_mouse_button_up", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
+	{ "bind_on_mouse_double_click", (PyCFunction)py_ue_swidget_bind_on_mouse_double_click, METH_VARARGS, "" },
+	{ "bind_on_mouse_move", (PyCFunction)py_ue_swidget_bind_on_mouse_move, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
