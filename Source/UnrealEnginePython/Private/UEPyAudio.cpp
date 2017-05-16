@@ -12,13 +12,18 @@ PyObject *py_ue_queue_audio(ue_PyUObject *self, PyObject * args) {
 	}
 
 	USoundWaveProcedural *sound_wave_procedural = ue_py_check_type<USoundWaveProcedural>(self);
-	if (!sound_wave_procedural)
+	if (!sound_wave_procedural) {
+		// Clean up
+		PyBuffer_Release(&sound_buffer);
 		return PyErr_Format(PyExc_Exception, "UObject is not a USoundWaveProcedural.");
-
+	}
 	// Convert the buffer
 	uint8 *buffer = (uint8 *)sound_buffer.buf;
-	if (buffer == nullptr)
+	if (buffer == nullptr) {
+		// Clean up
+		PyBuffer_Release(&sound_buffer);
 		return PyErr_Format(PyExc_Exception, "Invalid sound buffer.");
+	}
 
 	// Add the audio to the Sound Wave's audio buffer
 	sound_wave_procedural->QueueAudio(buffer, sound_buffer.len);

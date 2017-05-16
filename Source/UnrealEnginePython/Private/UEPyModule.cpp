@@ -145,6 +145,10 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "get_content_dir", py_unreal_engine_get_content_dir, METH_VARARGS, "" },
 	{ "convert_relative_path_to_full", py_unreal_engine_convert_relative_path_to_full, METH_VARARGS, "" },
+
+	{ "compress_image_array", py_unreal_engine_compress_image_array, METH_VARARGS, "" },
+	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
+
 #if WITH_EDITOR
 
 	// slate
@@ -571,6 +575,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	// Texture
 	{ "texture_get_data", (PyCFunction)py_ue_texture_get_data, METH_VARARGS, "" },
 	{ "texture_set_data", (PyCFunction)py_ue_texture_set_data, METH_VARARGS, "" },
+	{ "texture_get_width", (PyCFunction)py_ue_texture_get_width, METH_VARARGS, "" },
+	{ "texture_get_height", (PyCFunction)py_ue_texture_get_height, METH_VARARGS, "" },
 
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },

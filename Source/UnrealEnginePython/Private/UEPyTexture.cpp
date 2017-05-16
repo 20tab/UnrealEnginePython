@@ -1,5 +1,29 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "Runtime/Engine/Public/ImageUtils.h"
+#include "Runtime/Engine/Classes/Engine/Texture.h"
+
+PyObject *py_ue_texture_get_width(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UTexture2D *texture = ue_py_check_type<UTexture2D>(self);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "object is not a Texture");
+
+	return PyLong_FromLong(texture->GetSizeX());
+}
+
+PyObject *py_ue_texture_get_height(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UTexture2D *texture = ue_py_check_type<UTexture2D>(self);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "object is not a Texture");
+
+	return PyLong_FromLong(texture->GetSizeY());
+}
 
 PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 
@@ -11,10 +35,9 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UTexture2D>())
+	UTexture2D *tex = ue_py_check_type<UTexture2D>(self);
+	if (!tex)
 		return PyErr_Format(PyExc_Exception, "object is not a Texture2D");
-
-	UTexture2D *tex = (UTexture2D *)self->ue_object;
 
 	if (mipmap >= tex->GetNumMips())
 		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
@@ -29,32 +52,33 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	PyObject *byte_array;
+	Py_buffer py_buf;
 	int mipmap = 0;
 
-	if (!PyArg_ParseTuple(args, "O|i:texture_get_data", &byte_array, &mipmap)) {
+	if (!PyArg_ParseTuple(args, "z*|i:texture_set_data", &py_buf, &mipmap)) {
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UTexture2D>())
+	UTexture2D *tex = ue_py_check_type<UTexture2D>(self);
+	if (!tex)
 		return PyErr_Format(PyExc_Exception, "object is not a Texture2D");
 
-	UTexture2D *tex = (UTexture2D *)self->ue_object;
 
-	if (!PyByteArray_Check(byte_array))
-		return PyErr_Format(PyExc_Exception, "argument is not a bytearray");
+	if (!py_buf.buf)
+		return PyErr_Format(PyExc_Exception, "invalid data");
 
 	if (mipmap >= tex->GetNumMips())
 		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
 
 	char *blob = (char*)tex->PlatformData->Mips[mipmap].BulkData.Lock(LOCK_READ_WRITE);
 	int32 len = tex->PlatformData->Mips[mipmap].BulkData.GetBulkDataSize();
-	Py_ssize_t byte_array_size = PyByteArray_Size(byte_array);
+	int32 wanted_len = py_buf.len;
 	// avoid making mess
-	if (byte_array_size > len)
-		byte_array_size = len;
-	char *byte_array_blob = PyByteArray_AsString(byte_array);
-	FMemory::Memcpy(blob, byte_array_blob, byte_array_size);
+	if (wanted_len > len) {
+		UE_LOG(LogPython, Warning, TEXT("truncating buffer to %d bytes"), len);
+		wanted_len = len;
+	}
+	FMemory::Memcpy(blob, py_buf.buf, wanted_len);
 	tex->PlatformData->Mips[mipmap].BulkData.Unlock();
 
 	tex->MarkPackageDirty();
@@ -62,11 +86,60 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	tex->PostEditChange();
 #endif
 
-	// ensure compatibility between 4.12 and 4.14
-	//tex->UpdateResourceW();
+	tex->UpdateResource();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_compress_image_array(PyObject * self, PyObject * args) {
+	int width;
+	int height;
+	Py_buffer py_buf;
+	if (!PyArg_ParseTuple(args, "iiz*:compress_image_array", &width, &height, &py_buf)) {
+		return NULL;
+	}
+
+	if (py_buf.buf == nullptr || py_buf.len <= 0) {
+		PyBuffer_Release(&py_buf);
+		return PyErr_Format(PyExc_Exception, "invalid image data");
+	}
+
+	TArray<FColor> colors;
+	uint8 *buf = (uint8 *)py_buf.buf;
+	for (int32 i = 0; i < py_buf.len; i += 4) {
+		colors.Add(FColor(buf[i], buf[1 + 1], buf[i + 2], buf[i + 3]));
+	}
+
+	TArray<uint8> output;
+
+	FImageUtils::CompressImageArray(width, height, colors, output);
+
+	return PyBytes_FromStringAndSize((char *)output.GetData(), output.Num());
+}
+
+PyObject *py_unreal_engine_create_checkerboard_texture(PyObject * self, PyObject * args) {
+	PyObject *py_color_one;
+	PyObject *py_color_two;
+	int checker_size;
+	if (!PyArg_ParseTuple(args, "OOi:create_checkboard_texture", &py_color_one, &py_color_two, &checker_size)) {
+		return NULL;
+	}
+
+	ue_PyFColor *color_one = py_ue_is_fcolor(py_color_one);
+	if (!color_one)
+		return PyErr_Format(PyExc_Exception, "argument is not a FColor");
+
+	ue_PyFColor *color_two = py_ue_is_fcolor(py_color_two);
+	if (!color_two)
+		return PyErr_Format(PyExc_Exception, "argument is not a FColor");
+
+	UTexture2D *texture = FImageUtils::CreateCheckerboardTexture(color_one->color, color_two->color, checker_size);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(texture);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
 

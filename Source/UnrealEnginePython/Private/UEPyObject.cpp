@@ -871,6 +871,13 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 		if (!name) {
 			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
 		}
+		if (!has_package) {
+			// unmark transient object
+			if (u_object->HasAnyFlags(RF_Transient)) {
+				u_object->ClearFlags(RF_Transient);
+				u_object->SetFlags(RF_Public | RF_Standalone);
+			}
+		}
 		package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 		// create a new package if it does not exist
 		if (!package) {
@@ -889,6 +896,9 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 		}
 		else {
 			// move to object into the new package
+			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package, REN_Test)) {
+				return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
+			}
 			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package)) {
 				return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
 			}
