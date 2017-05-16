@@ -11,6 +11,8 @@
 FReply UPythonSlateDelegate::OnMouseButtonDown(const FGeometry &geometry, const FPointerEvent &pointer_event) {
 	FScopePythonGIL gil;
 
+	UE_LOG(LogPython, Warning, TEXT("MOUSE BUTTON DOWN"));
+
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_uscriptstruct(FGeometry::StaticStruct(), (uint8 *)&geometry), py_ue_new_uscriptstruct(FPointerEvent::StaticStruct(), (uint8 *)&pointer_event));
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -88,6 +90,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sviewport(module);
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
+	ue_python_init_simage(module);
 }
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {

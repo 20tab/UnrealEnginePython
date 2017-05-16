@@ -26,6 +26,7 @@
 #include "UEPySViewport.h"
 #include "UEPySEditorViewport.h"
 #include "UEPySPythonEditorViewport.h"
+#include "UEPySImage.h"
 
 #include "UEPySlate.generated.h"
 
