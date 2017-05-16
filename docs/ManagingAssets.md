@@ -197,6 +197,8 @@ particle_system.save_package('/Game/Funny')
 material.save_package('/Game/Funny')
 ```
 
+Take into account that if you call save_package() on a transient object (read: an object that is marked as not being storable to disk), the object flags will be overwritten to include RF_Public|RF_Standalone, while RF_Transient will be removed
+
 Using a factory allows to create empty assets:
 
 ```python
