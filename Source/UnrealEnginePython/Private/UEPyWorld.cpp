@@ -14,9 +14,13 @@ PyObject *py_ue_console_exec(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	bool success = world->Exec(world, UTF8_TO_TCHAR(command));
+	if (success) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_INCREF(Py_False);
+	return Py_False;
 }
 
 PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {

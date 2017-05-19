@@ -28,6 +28,8 @@
 #include "UEPySPythonEditorViewport.h"
 #include "UEPySImage.h"
 
+#include "UEPyFTabSpawnerEntry.h"
+
 #include "UEPySlate.generated.h"
 
 
@@ -65,6 +67,8 @@ class UPythonSlateDelegate : public UPythonDelegate
 public:
 	FReply OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event);
 	FReply OnClicked();
+
+	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 };
 
 #endif

@@ -42,6 +42,29 @@ FReply UPythonSlateDelegate::OnClicked() {
 	return FReply::Handled();
 }
 
+TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return SNew(SDockTab);
+	}
+	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
+	if (!s_widget) {
+		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
+		return SNew(SDockTab);
+	}
+
+	if (s_widget->s_widget_owned->GetType() == FName("SDockTab")) {
+		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
+		return SNew(SDockTab);
+	}
+
+	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(s_widget->s_widget_owned);
+	// dec'referencing it is useless (and maybe dangerous :P)
+	//Py_DECREF(ret);
+	return dock_tab;
+}
+
 static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
 
 ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget) {
@@ -89,6 +112,9 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_simage(module);
+	ue_python_init_sdock_tab(module);
+
+	ue_python_init_ftab_spawner_entry(module);
 }
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
@@ -108,7 +134,7 @@ public:
 		: TCommands<FPythonSlateCommands>(TEXT("UnrealEnginePython"), NSLOCTEXT("Contexts", "UnrealEnginePython", "UnrealEnginePython"), NAME_None, "EditorStyle")
 	{
 		UE_LOG(LogPython, Warning, TEXT("BULDING COMMAND"));
-		
+
 	}
 
 	void Setup(char *command_name, PyObject *py_object) {
@@ -182,7 +208,38 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
-	
+
+
+	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
+
+	commands->Setup(command_name, py_callable);
+
+	commands->RegisterCommands();
+
+	UE_LOG(LogPython, Warning, TEXT("EXTENSION ADDED"));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject * args) {
+
+	char *command_name;
+	PyObject *py_callable;
+	int interface_type = EUserInterfaceActionType::Button;
+
+	char *menu_bar = nullptr;
+
+	if (!PyArg_ParseTuple(args, "sO|s:add_menu_extension", &command_name, &py_callable, &menu_bar)) {
+		return NULL;
+	}
+
+	UE_LOG(LogPython, Warning, TEXT("STARTIIIING !!!"));
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+
 
 	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
 
