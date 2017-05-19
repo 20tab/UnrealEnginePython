@@ -1,6 +1,23 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+PyObject *py_ue_console_exec(ue_PyUObject *self, PyObject * args) {
 
+	ue_py_check(self);
+
+	char *command;
+	if (!PyArg_ParseTuple(args, "s:console_exec", &command)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	bool success = world->Exec(world, UTF8_TO_TCHAR(command));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 
