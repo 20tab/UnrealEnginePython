@@ -154,6 +154,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	// slate
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
+	//{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
+	
 
 	{ "open_editor_for_asset", py_unreal_engine_open_editor_for_asset, METH_VARARGS, "" },
 	{ "close_editor_for_asset", py_unreal_engine_close_editor_for_asset, METH_VARARGS, "" },

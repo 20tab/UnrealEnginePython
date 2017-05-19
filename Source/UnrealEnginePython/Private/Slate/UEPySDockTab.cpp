@@ -73,7 +73,7 @@ static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *k
 void ue_python_init_sdock_tab(PyObject *ue_module) {
 	ue_PySDockTabType.tp_new = PyType_GenericNew;
 
-	ue_PySButtonType.tp_init = (initproc)ue_py_sdock_tab_init;
+	ue_PySDockTabType.tp_init = (initproc)ue_py_sdock_tab_init;
 
 	ue_PySDockTabType.tp_base = &ue_PySDockTabType;
 

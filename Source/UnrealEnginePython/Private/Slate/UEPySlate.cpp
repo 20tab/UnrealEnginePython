@@ -112,7 +112,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_simage(module);
-	ue_python_init_sdock_tab(module);
+	//ue_python_init_sdock_tab(module);
 
 	ue_python_init_ftab_spawner_entry(module);
 }
@@ -223,31 +223,6 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 }
 
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject * args) {
-
-	char *command_name;
-	PyObject *py_callable;
-	int interface_type = EUserInterfaceActionType::Button;
-
-	char *menu_bar = nullptr;
-
-	if (!PyArg_ParseTuple(args, "sO|s:add_menu_extension", &command_name, &py_callable, &menu_bar)) {
-		return NULL;
-	}
-
-	UE_LOG(LogPython, Warning, TEXT("STARTIIIING !!!"));
-
-	if (!PyCallable_Check(py_callable))
-		return PyErr_Format(PyExc_Exception, "argument is not callable");
-
-
-
-	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
-
-	commands->Setup(command_name, py_callable);
-
-	commands->RegisterCommands();
-
-	UE_LOG(LogPython, Warning, TEXT("EXTENSION ADDED"));
 
 	Py_INCREF(Py_None);
 	return Py_None;

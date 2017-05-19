@@ -57,8 +57,6 @@ static PyTypeObject ue_PyFTabSpawnerEntryType = {
 	0,                         /* tp_iter */
 	0,                         /* tp_iternext */
 	ue_PyFTabSpawnerEntry_methods,             /* tp_methods */
-	0,
-	0,
 };
 
 
