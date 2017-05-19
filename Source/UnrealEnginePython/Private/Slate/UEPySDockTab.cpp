@@ -1,15 +1,14 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
+
 #include "UEPySDockTab.h"
-
-
 
 #define GET_s_dock_tab SDockTab *s_dock_tab =(SDockTab *)self->s_border.s_compound_widget.s_widget.s_widget
 
 
-static PyObject *ue_PySDockTab_str(ue_PySButton *self)
+static PyObject *ue_PySDockTab_str(ue_PySDockTab *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SDockTab '%p'>",
 		self->s_border.s_compound_widget.s_widget.s_widget);
@@ -75,7 +74,7 @@ void ue_python_init_sdock_tab(PyObject *ue_module) {
 
 	ue_PySDockTabType.tp_init = (initproc)ue_py_sdock_tab_init;
 
-	ue_PySDockTabType.tp_base = &ue_PySDockTabType;
+	ue_PySDockTabType.tp_base = &ue_PySBorderType;
 
 	if (PyType_Ready(&ue_PySDockTabType) < 0)
 		return;

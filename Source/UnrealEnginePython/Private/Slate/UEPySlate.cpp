@@ -112,7 +112,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_simage(module);
-	//ue_python_init_sdock_tab(module);
+	ue_python_init_sdock_tab(module);
 
 	ue_python_init_ftab_spawner_entry(module);
 }
