@@ -65,7 +65,11 @@ PyTypeObject ue_PySDockTabType = {
 };
 
 static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SDockTab, s_border.s_compound_widget.s_widget);
+	int tab_role;
+	if (!PyArg_ParseTuple(args, "i", &tab_role))
+		return -1;
+	self->s_border.s_compound_widget.s_widget.s_widget_owned = SNew(SDockTab).TabRole((ETabRole)tab_role);
+	self->s_border.s_compound_widget.s_widget.s_widget = &self->s_border.s_compound_widget.s_widget.s_widget_owned.Get();
 	return 0;
 }
 

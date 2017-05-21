@@ -5,6 +5,7 @@
 #include "LevelEditor.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
+#include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
 
 #include "UEPySlate.h"
 
@@ -46,22 +47,22 @@ TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
 	if (!ret) {
 		unreal_engine_py_log_error();
-		return SNew(SDockTab);
+		return SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	}
 	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
 	if (!s_widget) {
 		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
-		return SNew(SDockTab);
+		return SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	}
 
-	if (s_widget->s_widget_owned->GetType() == FName("SDockTab")) {
+	if (s_widget->s_widget_owned->GetType() != FName("SDockTab")) {
 		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
-		return SNew(SDockTab);
+		return SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	}
 
 	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(s_widget->s_widget_owned);
-	// dec'referencing it is useless (and maybe dangerous :P)
-	//Py_DECREF(ret);
+	// increase dock reference counting
+	Py_INCREF(ret);
 	return dock_tab;
 }
 
@@ -203,12 +204,8 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 		return NULL;
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("STARTIIIING !!!"));
-
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
-
-
 
 	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
 
@@ -216,16 +213,47 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 
 	commands->RegisterCommands();
 
-	UE_LOG(LogPython, Warning, TEXT("EXTENSION ADDED"));
-
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject * args) {
 
+	char *name;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "sO:register_nomad_tab_spawner", &name, &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+	FOnSpawnTab spawn_tab;
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	spawn_tab.BindUObject(py_delegate, &UPythonSlateDelegate::SpawnPythonTab);
+
+	UE_LOG(LogPython, Warning, TEXT("SPAWNING !!"));
+	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab);
+
+	PyObject *ret = py_ue_new_ftab_spawner_entry(spawner_entry);
+	Py_INCREF(ret);
+	return ret;
+}
+
+PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObject * args) {
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:unregister_nomad_tab_spawner", &name)) {
+		return NULL;
+	}
+
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(UTF8_TO_TCHAR(name));
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
 
 #endif

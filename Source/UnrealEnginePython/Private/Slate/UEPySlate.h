@@ -27,6 +27,7 @@
 #include "UEPySEditorViewport.h"
 #include "UEPySPythonEditorViewport.h"
 #include "UEPySImage.h"
+#include "UEPySDockTab.h"
 
 #include "UEPyFTabSpawnerEntry.h"
 
@@ -36,6 +37,7 @@
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
+PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 
 template<typename T> TSharedRef<T> ue_py_init_swidget(ue_PySWidget *py_swidget) {
 	TSharedRef<T> new_swidget = TSharedRef<T>(SNew(T));

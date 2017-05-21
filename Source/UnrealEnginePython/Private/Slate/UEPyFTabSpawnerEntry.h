@@ -16,5 +16,4 @@ PyObject *py_ue_new_ftab_spawner_entry(FTabSpawnerEntry *);
 
 void ue_python_init_ftab_spawner_entry(PyObject *);
 
-
 #endif

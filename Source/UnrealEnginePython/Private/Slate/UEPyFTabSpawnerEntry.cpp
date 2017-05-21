@@ -13,10 +13,21 @@ static PyObject *py_ue_ftab_spawner_entry_set_display_name(ue_PyFTabSpawnerEntry
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_ftab_spawner_entry_set_tooltip_text(ue_PyFTabSpawnerEntry *self, PyObject * args) {
+	char *tooltip;
+	if (!PyArg_ParseTuple(args, "s:set_tooltip_text", &tooltip))
+		return NULL;
+
+	self->spawner_entry->SetTooltipText(FText::FromString(UTF8_TO_TCHAR(tooltip)));
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyMethodDef ue_PyFTabSpawnerEntry_methods[] = {
 	{ "set_display_name", (PyCFunction)py_ue_ftab_spawner_entry_set_display_name, METH_VARARGS, "" },
+	{ "set_tooltip_text", (PyCFunction)py_ue_ftab_spawner_entry_set_tooltip_text, METH_VARARGS, "" },
 	//{ "set_group", (PyCFunction)py_ue_ftab_spawner_entry_set_group, METH_VARARGS, "" },
-	//{ "set_tooltip_text", (PyCFunction)py_ue_ftab_spawner_entry_set_tooltip_text, METH_VARARGS, "" },
 	//{ "set_icon", (PyCFunction)py_ue_ftab_spawner_entry_set_icon, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
@@ -60,31 +71,8 @@ static PyTypeObject ue_PyFTabSpawnerEntryType = {
 };
 
 
-
-
-static int ue_py_ftab_spawner_entry_init(ue_PyFTabSpawnerEntry *self, PyObject *args, PyObject *kwargs) {
-	char *name;
-	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "sO", &name, &py_callable))
-		return -1;
-
-	if (!PyCallable_Check(py_callable)) {
-		PyErr_SetString(PyExc_ValueError, "argument is not callable");
-		return -1;
-	}
-
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	self->spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), FOnSpawnTab::CreateUObject(py_delegate, &UPythonSlateDelegate::SpawnPythonTab));
-
-	return 0;
-}
-
 void ue_python_init_ftab_spawner_entry(PyObject *ue_module) {
 	ue_PyFTabSpawnerEntryType.tp_new = PyType_GenericNew;
-
-	ue_PyFTabSpawnerEntryType.tp_init = (initproc)ue_py_ftab_spawner_entry_init;
 
 	if (PyType_Ready(&ue_PyFTabSpawnerEntryType) < 0)
 		return;
