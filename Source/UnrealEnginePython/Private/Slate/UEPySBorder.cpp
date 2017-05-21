@@ -38,6 +38,59 @@ static PyObject *py_ue_sborder_set_content(ue_PySBorder *self, PyObject * args) 
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_sborder_set_padding(ue_PySBorder *self, PyObject * args) {
+	PyObject *py_padding;
+	if (!PyArg_ParseTuple(args, "O:set_padding", &py_padding)) {
+		return NULL;
+	}
+
+	FMargin *margin = ue_py_check_struct<FMargin>(py_padding);
+	if (!margin) {
+		if (!PyNumber_Check(py_padding)) {
+			return PyErr_Format(PyExc_Exception, "argument is not a FMargin or a number");
+		}
+		PyObject *py_float = PyNumber_Float(py_padding);
+		FMargin new_margin(PyFloat_AsDouble(py_float));
+		margin = &new_margin;
+		Py_DECREF(py_float);
+	}
+
+	GET_s_border;
+
+	s_border->SetPadding(*margin);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_sborder_set_h_align(ue_PySBorder *self, PyObject * args) {
+	int align;
+	if (!PyArg_ParseTuple(args, "i:set_h_align", &align)) {
+		return NULL;
+	}
+
+	GET_s_border;
+
+	s_border->SetHAlign((EHorizontalAlignment)align);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_sborder_set_v_align(ue_PySBorder *self, PyObject * args) {
+	int align;
+	if (!PyArg_ParseTuple(args, "i:set_v_align", &align)) {
+		return NULL;
+	}
+
+	GET_s_border;
+
+	s_border->SetVAlign((EVerticalAlignment)align);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *ue_PySBorder_str(ue_PySBorder *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SBorder '%p'>",
@@ -47,6 +100,9 @@ static PyObject *ue_PySBorder_str(ue_PySBorder *self)
 static PyMethodDef ue_PySBorder_methods[] = {
 	{ "clear_content", (PyCFunction)py_ue_sborder_clear_content, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_sborder_set_content, METH_VARARGS, "" },
+	{ "set_padding", (PyCFunction)py_ue_sborder_set_padding, METH_VARARGS, "" },
+	{ "set_h_align", (PyCFunction)py_ue_sborder_set_h_align, METH_VARARGS, "" },
+	{ "set_v_align", (PyCFunction)py_ue_sborder_set_v_align, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
