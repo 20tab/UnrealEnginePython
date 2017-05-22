@@ -52,7 +52,9 @@ TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	if (!ret) {
 		unreal_engine_py_log_error();
 	}
-	Py_XDECREF(ret);
+	else {
+		Py_DECREF(ret);
+	}
 	return dock_tab;
 }
 
@@ -124,6 +126,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sdock_tab(module);
 	ue_python_init_stable_view_base(module);
 	ue_python_init_slist_view(module);
+	ue_python_init_spython_list_view(module);
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
 

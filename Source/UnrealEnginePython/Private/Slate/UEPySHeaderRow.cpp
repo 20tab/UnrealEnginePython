@@ -6,14 +6,70 @@
 
 #define GET_s_header_row SHeaderRow *s_header_row =(SHeaderRow *)self->s_border.s_compound_widget.s_widget.s_widget
 
-static PyObject *ue_PySHeaderRow_str(ue_PySButton *self)
+static PyObject *ue_PySHeaderRow_str(ue_PySHeaderRow *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.SButton '%p'>",
+	return PyUnicode_FromFormat("<unreal_engine.SHeaderRow '%p'>",
 		self->s_border.s_compound_widget.s_widget.s_widget);
 }
 
+static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject * args, PyObject *kwargs) {
+
+	int cell_h_align = 0;
+	int cell_v_align = 0;
+	char *column_id;
+	char *default_label = nullptr;
+	char *default_tooltip = nullptr;
+	float fill_width = 0;
+
+
+	char *kwlist[] = {
+		(char *)"column_id",
+		(char *)"cell_h_align",
+		(char *)"cell_v_align",
+		(char *)"default_label",
+		(char *)"default_tooltip",
+		(char *)"fill_width",
+		nullptr
+	};
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|iissf:add_column", kwlist,
+		&column_id,
+		&cell_h_align,
+		&cell_v_align,
+		&default_label,
+		&default_tooltip,
+		&fill_width)) {
+		return NULL;
+	}
+
+	if (!default_label)
+		default_label = column_id;
+
+	if (!default_tooltip)
+		default_tooltip = default_label;
+
+	auto &column = SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
+		.DefaultLabel(FText::FromString(UTF8_TO_TCHAR(default_label)))
+		.DefaultTooltip(FText::FromString(UTF8_TO_TCHAR(default_tooltip)))
+		.HAlignCell((EHorizontalAlignment)cell_h_align)
+		.VAlignCell((EVerticalAlignment)cell_v_align);
+
+	if (fill_width)
+		column.FillWidth(fill_width);
+
+
+	GET_s_header_row;
+
+	s_header_row->AddColumn(column);
+
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
 
 static PyMethodDef ue_PySHeaderRow_methods[] = {
+#pragma warning(suppress: 4191)
+	{ "add_column", (PyCFunction)py_ue_sheader_row_add_column, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -54,11 +110,11 @@ static int ue_py_sheader_row_init(ue_PySHeaderRow *self, PyObject *args, PyObjec
 }
 
 void ue_python_init_sheader_row(PyObject *ue_module) {
-	ue_PySButtonType.tp_new = PyType_GenericNew;
+	ue_PySHeaderRowType.tp_new = PyType_GenericNew;
 
-	ue_PySButtonType.tp_init = (initproc)ue_py_sheader_row_init;
+	ue_PySHeaderRowType.tp_init = (initproc)ue_py_sheader_row_init;
 
-	ue_PySButtonType.tp_base = &ue_PySBorderType;
+	ue_PySHeaderRowType.tp_base = &ue_PySBorderType;
 
 	if (PyType_Ready(&ue_PySHeaderRowType) < 0)
 		return;
