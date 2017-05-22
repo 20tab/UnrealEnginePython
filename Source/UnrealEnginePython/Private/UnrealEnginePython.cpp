@@ -125,6 +125,14 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	PyEval_InitThreads();
 
+	StyleSet = MakeShareable(new FSlateStyleSet("UnrealEnginePython"));
+	StyleSet->SetContentRoot(IPluginManager::Get().FindPlugin("UnrealEnginePython")->GetBaseDir() / "Resources");
+	StyleSet->Set("ClassThumbnail.PythonScript", new FSlateImageBrush(StyleSet->RootToContentDir("Icon128.png"), FVector2D(128.0f, 128.0f)));
+	FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
+#if ENGINE_MINOR_VERSION < 13
+	FClassIconFinder::RegisterIconSource(StyleSet.Get());
+#endif
+
 	UESetupPythonInterpreter(true);
 
 	main_module = PyImport_AddModule("__main__");

@@ -11,9 +11,6 @@ class UPythonScript : public UObject
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	FString PyScript;
-
-	UPROPERTY(EditAnywhere, meta=(MultiLine), Category = "Python")
-	FString PyCode;
+	FString ScriptPath;
 };
 

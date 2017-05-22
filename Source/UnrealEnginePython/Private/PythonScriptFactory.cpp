@@ -1,15 +1,25 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "PythonScriptFactory.h"
+#include "PythonScript.h"
 
 UPythonScriptFactory::UPythonScriptFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
-	bCreateNew = true;
+
+	Formats.Add(FString("py;Python Script"));
+
+	bCreateNew = false;
 	bEditAfterNew = true;
+
+	bEditorImport = true;
+
 	SupportedClass = UPythonScript::StaticClass();
 }
 
-UObject* UPythonScriptFactory::FactoryCreateNew(UClass * Class, UObject *InParent, FName Name, EObjectFlags Flags, UObject *Context, FFeedbackContext *Warn) {
-	UPythonScript *NewAsset = NewObject<UPythonScript>(InParent, Class, Name, Flags);
+UObject* UPythonScriptFactory::FactoryCreateFile(UClass * Class, UObject *InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext *Warn, bool& bOutOperationCanceled) {
+	UPythonScript *NewAsset = NewObject<UPythonScript>(InParent, Class, InName, Flags);
 
+	NewAsset->ScriptPath = Filename;
+
+	bOutOperationCanceled = false;
 	return NewAsset;
 }

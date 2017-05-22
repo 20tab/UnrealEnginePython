@@ -4,6 +4,8 @@
 
 #include "ModuleManager.h"
 
+#include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
+
 DECLARE_LOG_CATEGORY_EXTERN(LogPython, Log, All);
 
 
@@ -28,6 +30,8 @@ private:
 	void *main_dict;
 	void *local_dict;
 	void *main_module;
+
+	TSharedPtr<FSlateStyleSet> StyleSet;
 };
 
 struct FScopePythonGIL {

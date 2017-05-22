@@ -8,6 +8,6 @@ class UPythonScriptFactory : public UFactory
 {
 	GENERATED_UCLASS_BODY()
 
-	virtual UObject* FactoryCreateNew(UClass * Class, UObject *InParent, FName Name, EObjectFlags Flags, UObject *Context, FFeedbackContext *Warn) override;
+	virtual UObject* FactoryCreateFile(UClass * Class, UObject *InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext *Warn, bool& bOutOperationCanceled) override;
 };
 
