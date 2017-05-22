@@ -140,7 +140,12 @@ public class UnrealEnginePython : ModuleRules
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
-            if (pythonHome == "python35")
+            if (pythonHome == "")
+            {
+                PublicIncludePaths.Add("/usr/include/python3.5m");
+                PublicAdditionalLibraries.Add("/usr/lib64/libpython3.5m.so");  // fixed for fedora
+            }
+            else if (pythonHome == "python35")
             {
                 PublicIncludePaths.Add("/usr/include/python3.5m");
                 PublicAdditionalLibraries.Add("/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/libpython3.5.so");
