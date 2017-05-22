@@ -124,6 +124,8 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sdock_tab(module);
 	ue_python_init_stable_view_base(module);
 	ue_python_init_slist_view(module);
+	ue_python_init_ssplitter(module);
+	ue_python_init_sheader_row(module);
 
 	ue_python_init_ftab_spawner_entry(module);
 }

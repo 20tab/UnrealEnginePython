@@ -34,6 +34,8 @@
 #include "UEPySDockTab.h"
 #include "UEPySTableViewBase.h"
 #include "UEPySListView.h"
+#include "UEPySSplitter.h"
+#include "UEPySHeaderRow.h"
 
 #include "UEPyFTabSpawnerEntry.h"
 
