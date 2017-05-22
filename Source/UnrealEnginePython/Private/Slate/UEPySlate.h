@@ -7,6 +7,10 @@
 #include "SlateBasics.h"
 #include "SlateExtras.h"
 
+#include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
+#include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
+#include "Editor/EditorStyle/Public/EditorStyleSet.h"
+
 #include <map>
 
 
@@ -28,6 +32,8 @@
 #include "UEPySPythonEditorViewport.h"
 #include "UEPySImage.h"
 #include "UEPySDockTab.h"
+#include "UEPySTableViewBase.h"
+#include "UEPySListView.h"
 
 #include "UEPyFTabSpawnerEntry.h"
 
@@ -72,6 +78,8 @@ public:
 	FReply OnClicked();
 
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
+
+	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 };
 
 #endif

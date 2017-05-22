@@ -6,6 +6,8 @@
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
+#include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
+
 
 #include "UEPySlate.h"
 
@@ -44,26 +46,29 @@ FReply UPythonSlateDelegate::OnClicked() {
 }
 
 TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
-	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
+	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_dock);
 	if (!ret) {
 		unreal_engine_py_log_error();
-		return SNew(SDockTab).TabRole(ETabRole::NomadTab);
+	}
+	Py_XDECREF(ret);
+	return dock_tab;
+}
+
+TSharedRef<ITableRow> UPythonSlateDelegate::GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable) {
+	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get());
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return SNew(STableRow<TSharedPtr<PyObject>>, OwnerTable);
 	}
 	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
 	if (!s_widget) {
 		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
-		return SNew(SDockTab).TabRole(ETabRole::NomadTab);
+		return SNew(STableRow<TSharedPtr<PyObject>>, OwnerTable);
 	}
 
-	if (s_widget->s_widget_owned->GetType() != FName("SDockTab")) {
-		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
-		return SNew(SDockTab).TabRole(ETabRole::NomadTab);
-	}
-
-	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(s_widget->s_widget_owned);
-	// increase dock reference counting
-	Py_INCREF(ret);
-	return dock_tab;
+	return SNew(STableRow<TSharedPtr<PyObject>>, OwnerTable).Content()[s_widget->s_widget_owned];
 }
 
 static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
@@ -75,6 +80,9 @@ ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget) {
 	if (it == py_slate_mapping->end()) {
 		if (s_widget->GetType() == FName("SWindow")) {
 			ret = py_ue_new_swidget<ue_PySWindow>(s_widget.Get(), &ue_PySWindowType);
+		}
+		if (s_widget->GetType() == FName("SDockTab")) {
+			ret = py_ue_new_swidget<ue_PySDockTab>(s_widget.Get(), &ue_PySDockTabType);
 		}
 		else {
 			ret = py_ue_new_swidget<ue_PySWidget>(s_widget.Get(), &ue_PySWidgetType);
@@ -114,6 +122,8 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_simage(module);
 	ue_python_init_sdock_tab(module);
+	ue_python_init_stable_view_base(module);
+	ue_python_init_slist_view(module);
 
 	ue_python_init_ftab_spawner_entry(module);
 }
@@ -234,8 +244,8 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 	py_delegate->AddToRoot();
 	spawn_tab.BindUObject(py_delegate, &UPythonSlateDelegate::SpawnPythonTab);
 
-	UE_LOG(LogPython, Warning, TEXT("SPAWNING !!"));
-	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab);
+	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
+		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory());
 
 	PyObject *ret = py_ue_new_ftab_spawner_entry(spawner_entry);
 	Py_INCREF(ret);
