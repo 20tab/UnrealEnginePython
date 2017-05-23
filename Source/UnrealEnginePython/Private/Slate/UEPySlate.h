@@ -40,6 +40,7 @@
 #include "UEPySPythonShelf.h"
 
 #include "UEPyFTabSpawnerEntry.h"
+#include "UEPyFMenuBuilder.h"
 
 #include "UEPySlate.generated.h"
 
@@ -86,6 +87,10 @@ public:
 	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 
 	void OnAssetDoubleClicked(const FAssetData& AssetData);
+	TSharedPtr<SWidget> OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets);
+
+	void SimpleExecuteAction();
+	void ExecuteAction(PyObject *py_obj);
 };
 
 #endif

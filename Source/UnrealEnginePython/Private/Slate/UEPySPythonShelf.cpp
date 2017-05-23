@@ -85,6 +85,11 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		return -1;
 	}
 
+	if (py_callable_get_context_menu && !PyCallable_Check(py_callable_get_context_menu)) {
+		PyErr_SetString(PyExc_Exception, "argument is not callable");
+		return -1;
+	}
+
 	FContentBrowserModule& module = FModuleManager::Get().LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
 
 	FAssetPickerConfig asset_picker_config;
@@ -123,6 +128,15 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		asset_picker_config.OnAssetDoubleClicked = handler;
 	}
 
+	if (py_callable_get_context_menu) {
+		FOnGetAssetContextMenu handler;
+		UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+		py_delegate->SetPyCallable(py_callable_get_context_menu);
+		py_delegate->AddToRoot();
+		handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnGetAssetContextMenu);
+
+		asset_picker_config.OnGetAssetContextMenu = handler;
+	}
 
 	self->s_compound_widget.s_widget.s_widget_owned = module.Get().CreateAssetPicker(asset_picker_config);
 	self->s_compound_widget.s_widget.s_widget = &self->s_compound_widget.s_widget.s_widget_owned.Get();

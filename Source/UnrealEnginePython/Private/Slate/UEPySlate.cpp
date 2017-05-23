@@ -55,6 +55,52 @@ void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData) {
 	Py_XDECREF(ret);
 }
 
+TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets) {
+	FScopePythonGIL gil;
+
+	PyObject *py_list = PyList_New(0);
+	for (FAssetData asset : SelectedAssets) {
+		PyList_Append(py_list, py_ue_new_fassetdata(&asset));
+	}
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_list);
+	Py_DECREF(py_list);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return nullptr;
+	}
+
+	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
+	if (!s_widget) {
+		Py_DECREF(ret);
+		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+		return nullptr;
+	}
+	TSharedPtr<SWidget> value = s_widget->s_widget_owned;
+	Py_DECREF(ret);
+	return value;
+}
+
+void UPythonSlateDelegate::SimpleExecuteAction() {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+	}
+	Py_XDECREF(ret);
+}
+
+void UPythonSlateDelegate::ExecuteAction(PyObject *py_obj) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_obj);
+	if (!ret) {
+		unreal_engine_py_log_error();
+	}
+	Py_XDECREF(ret);
+}
+
 TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
@@ -142,6 +188,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_spython_shelf(module);
 
 	ue_python_init_ftab_spawner_entry(module);
+	ue_python_init_fmenu_builder(module);
 }
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
