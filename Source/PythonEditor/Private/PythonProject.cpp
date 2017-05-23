@@ -6,7 +6,8 @@
 UPythonProject::UPythonProject(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	Path = FPaths::GameContentDir() / TEXT("Scripts");
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	Path = PythonModule.ScriptsPath;
 	if (!FPaths::DirectoryExists(Path)) {
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 		PlatformFile.CreateDirectory(*Path);

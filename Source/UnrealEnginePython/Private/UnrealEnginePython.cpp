@@ -61,7 +61,7 @@ bool FUnrealEnginePythonModule::PythonGILAcquire() {
 	return true;
 }
 
-static void UESetupPythonInterpreter(bool verbose) {
+void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose) {
 
 #if PY_MAJOR_VERSION >= 3
 	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
@@ -77,11 +77,11 @@ static void UESetupPythonInterpreter(bool verbose) {
 
 	PyObject *py_path = PyDict_GetItemString(py_sys_dict, "path");
 
-	char *zip_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("ue_python.zip")));
+	char *zip_path = TCHAR_TO_UTF8(*ZipPath);
 	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
 	PyList_Insert(py_path, 0, py_zip_path);
 
-	char *scripts_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts")));
+	char *scripts_path = TCHAR_TO_UTF8(*ScriptsPath);
 	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
 	PyList_Insert(py_path, 0, py_scripts_path);
 
@@ -110,15 +110,39 @@ static void setup_stdout_stderr() {
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	FString PyHome;
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PyHome, GEngineIni)) {
+	FString IniValue;
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), IniValue, GEngineIni)) {
 #if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*PyHome;
+		wchar_t *home = (wchar_t *)*IniValue;
 #else
-		char *home = TCHAR_TO_UTF8(*PyHome);
+		char *home = TCHAR_TO_UTF8(*IniValue);
 #endif
 
 		Py_SetPythonHome(home);
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni)) {
+		ScriptsPath = IniValue;
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni)) {
+		ScriptsPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ZipPath"), IniValue, GEngineIni)) {
+		ZipPath = IniValue;
+}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeZipPath"), IniValue, GEngineIni)) {
+		ZipPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+	}
+
+	if (ScriptsPath.IsEmpty()) {
+		ScriptsPath = FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"));
+	}
+
+	if (ZipPath.IsEmpty()) {
+		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("ue_python.zip"));
 	}
 
 	Py_Initialize();
@@ -211,14 +235,14 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str) {
 
 	Py_EndInterpreter(py_new_state);
 	PyThreadState_Swap(_main);
-}
+	}
 
 void FUnrealEnginePythonModule::RunFile(char *filename) {
 	FScopePythonGIL gil;
 	char *full_path = filename;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(ScriptsPath, UTF8_TO_TCHAR(filename)));
 	}
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
@@ -261,7 +285,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 	char *full_path = filename;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"), *FString("/"), UTF8_TO_TCHAR(filename)));
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(ScriptsPath, UTF8_TO_TCHAR(filename)));
 	}
 
 	PyThreadState *_main = PyThreadState_Get();

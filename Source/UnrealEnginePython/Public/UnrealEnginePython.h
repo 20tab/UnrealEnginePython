@@ -24,6 +24,11 @@ public:
 	void RunFile(char *);
 	void RunFileSandboxed(char *);
 
+	void UESetupPythonInterpreter(bool);
+
+	FString ScriptsPath;
+	FString ZipPath;
+
 private:
 	void *ue_python_gil;
 	// used by console
