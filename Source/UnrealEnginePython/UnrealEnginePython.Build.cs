@@ -2,6 +2,7 @@
 
 using UnrealBuildTool;
 using System.IO;
+using System.Collections.Generic;
 
 public class UnrealEnginePython : ModuleRules
 {
@@ -157,7 +158,13 @@ public class UnrealEnginePython : ModuleRules
 
     private string DiscoverPythonPath(string[] knownPaths)
     {
-        foreach (string path in knownPaths)
+        // insert the PYTHONHOME content as the first known path
+        List<string> paths = new List<string>(knownPaths);
+        string environmentPath = System.Environment.GetEnvironmentVariable("PYTHONHOME");
+        if (!string.IsNullOrEmpty(environmentPath))
+            paths.Insert(0, environmentPath);
+
+        foreach (string path in paths)
         {
             string headerFile = Path.Combine(path, "include", "Python.h");
             if (File.Exists(headerFile))
