@@ -37,6 +37,7 @@
 #include "UEPySPythonListView.h"
 #include "UEPySSplitter.h"
 #include "UEPySHeaderRow.h"
+#include "UEPySPythonShelf.h"
 
 #include "UEPyFTabSpawnerEntry.h"
 
@@ -83,6 +84,8 @@ public:
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 
 	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable);
+
+	void OnAssetDoubleClicked(const FAssetData& AssetData);
 };
 
 #endif

@@ -45,6 +45,16 @@ FReply UPythonSlateDelegate::OnClicked() {
 	return FReply::Handled();
 }
 
+void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata((FAssetData *)&AssetData));
+	if (!ret) {
+		unreal_engine_py_log_error();
+	}
+	Py_XDECREF(ret);
+}
+
 TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
@@ -129,6 +139,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_spython_list_view(module);
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
+	ue_python_init_spython_shelf(module);
 
 	ue_python_init_ftab_spawner_entry(module);
 }
