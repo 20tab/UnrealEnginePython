@@ -50,6 +50,8 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 
+void ue_py_register_swidget(SWidget *, ue_PySWidget *);
+
 template<typename T> TSharedRef<T> ue_py_init_swidget(ue_PySWidget *py_swidget) {
 	TSharedRef<T> new_swidget = TSharedRef<T>(SNew(T));
 	ue_py_register_swidget(&new_swidget.Get(), py_swidget);
@@ -69,7 +71,7 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(SWidget *s_widget, PyTypeOb
 
 ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget);
 
-void ue_py_register_swidget(SWidget *, ue_PySWidget *);
+
 
 void ue_python_init_slate(PyObject *);
 
