@@ -3,6 +3,8 @@
 #if WITH_EDITOR
 
 #include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
+#include "Developer/AssetTools/Public/AssetToolsModule.h"
+#include "Developer/AssetTools/Public/IAssetTools.h"
 
 static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args) {
 	char *name;
@@ -77,6 +79,37 @@ static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self,
 	return Py_None;
 }
 
+static PyObject *py_ue_fmenu_builder_add_asset_actions(ue_PyFMenuBuilder *self, PyObject * args) {
+	PyObject *py_assets;
+
+	if (!PyArg_ParseTuple(args, "O:add_asset_actions", &py_assets))
+		return NULL;
+
+	py_assets = PyObject_GetIter(py_assets);
+	if (!py_assets) {
+		return PyErr_Format(PyExc_Exception, "argument is not iterable");
+	}
+
+	TArray<UObject *> u_objects;
+	while (PyObject *item = PyIter_Next(py_assets)) {
+		UObject *u_object = ue_py_check_type<UObject>(item);
+		if (u_object) {
+			u_objects.Add(u_object);
+		}
+	}
+	Py_DECREF(py_assets);
+
+	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools"));
+	bool addedSomething = AssetToolsModule.Get().GetAssetActions(u_objects, *self->menu_builder, true);
+	if (addedSomething) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
 static PyObject *py_ue_fmenu_builder_add_search_widget(ue_PyFMenuBuilder *self, PyObject * args) {
 	self->menu_builder->AddSearchWidget();
 
@@ -91,6 +124,7 @@ static PyMethodDef ue_PyFMenuBuilder_methods[] = {
 	{ "add_menu_entry", (PyCFunction)py_ue_fmenu_builder_add_menu_entry, METH_VARARGS, "" },
 	{ "add_menu_separator", (PyCFunction)py_ue_fmenu_builder_add_menu_separator, METH_VARARGS, "" },
 	{ "add_search_widget", (PyCFunction)py_ue_fmenu_builder_add_search_widget, METH_VARARGS, "" },
+	{ "add_asset_actions", (PyCFunction)py_ue_fmenu_builder_add_asset_actions, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
