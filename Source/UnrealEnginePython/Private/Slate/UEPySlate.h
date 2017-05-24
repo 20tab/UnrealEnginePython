@@ -38,6 +38,7 @@
 #include "UEPySSplitter.h"
 #include "UEPySHeaderRow.h"
 #include "UEPySPythonShelf.h"
+#include "UEPySGraphEditor.h"
 
 #include "UEPyFTabSpawnerEntry.h"
 #include "UEPyFMenuBuilder.h"

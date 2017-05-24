@@ -186,6 +186,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
 	ue_python_init_spython_shelf(module);
+	ue_python_init_sgraph_editor(module);
 
 	ue_python_init_ftab_spawner_entry(module);
 	ue_python_init_fmenu_builder(module);
