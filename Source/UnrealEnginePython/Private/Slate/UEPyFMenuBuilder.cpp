@@ -60,11 +60,37 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	return Py_None;
 }
 
+static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self, PyObject * args) {
+	char *name = nullptr;
+
+	if (!PyArg_ParseTuple(args, "|s:add_menu_separator", &name))
+		return NULL;
+
+	FName f_name = NAME_None;
+
+	if (name)
+		f_name = FName(UTF8_TO_TCHAR(name));
+
+	self->menu_builder->AddMenuSeparator(f_name);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_fmenu_builder_add_search_widget(ue_PyFMenuBuilder *self, PyObject * args) {
+	self->menu_builder->AddSearchWidget();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef ue_PyFMenuBuilder_methods[] = {
 	{ "begin_section", (PyCFunction)py_ue_fmenu_builder_begin_section, METH_VARARGS, "" },
 	{ "end_section", (PyCFunction)py_ue_fmenu_builder_end_section, METH_VARARGS, "" },
 	{ "make_widget", (PyCFunction)py_ue_fmenu_builder_make_widget, METH_VARARGS, "" },
 	{ "add_menu_entry", (PyCFunction)py_ue_fmenu_builder_add_menu_entry, METH_VARARGS, "" },
+	{ "add_menu_separator", (PyCFunction)py_ue_fmenu_builder_add_menu_separator, METH_VARARGS, "" },
+	{ "add_search_widget", (PyCFunction)py_ue_fmenu_builder_add_search_widget, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
