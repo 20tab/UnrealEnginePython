@@ -19,8 +19,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Python")
 	TArray<FString> FunctionArgs;
 
-	//void Run();
-	//void RunSandboxed();
+	UFUNCTION()
+	void Run();
+
+	UFUNCTION()
+	void RunSandboxed();
 
 };
 
