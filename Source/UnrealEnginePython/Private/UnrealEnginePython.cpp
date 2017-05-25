@@ -282,7 +282,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 }
 
 // run a python script in a new sub interpreter (useful for unit tests)
-void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
+void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void (*callback)(void *arg), void *arg) {
 	FScopePythonGIL gil;
 	char *full_path = filename;
 	if (!FPaths::FileExists(filename))
@@ -348,6 +348,10 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename) {
 		return;
 	}
 #endif
+
+	if (callback)
+		callback(arg);
+
 	Py_EndInterpreter(py_new_state);
 	PyThreadState_Swap(_main);
 }

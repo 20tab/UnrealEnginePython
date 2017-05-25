@@ -22,7 +22,7 @@ public:
 	void RunString(char *);
 	void RunStringSandboxed(char *);
 	void RunFile(char *);
-	void RunFileSandboxed(char *);
+	void RunFileSandboxed(char *, void(*callback)(void *arg), void *arg);
 
 	void UESetupPythonInterpreter(bool);
 

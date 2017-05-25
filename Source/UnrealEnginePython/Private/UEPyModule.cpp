@@ -102,7 +102,7 @@ static PyObject *py_unreal_engine_sandbox_exec(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFileSandboxed(filename);
+	PythonModule.RunFileSandboxed(filename, nullptr, nullptr);
 	Py_INCREF(Py_None);
 	return Py_None;
 }
