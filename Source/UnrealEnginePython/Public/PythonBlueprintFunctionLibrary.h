@@ -6,7 +6,7 @@
 
 
 UCLASS()
-class UPythonBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
+class UNREALENGINEPYTHON_API UPythonBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
