@@ -27,24 +27,29 @@
 #endif
 
 #include "UEPyModule.h"
-#include "UEPyFVector.h"
-#include "UEPyFHitResult.h"
-#include "UEPyFRotator.h"
-#include "UEPyFTransform.h"
-#include "UEPyFColor.h"
-#include "UEPyFLinearColor.h"
-#include "UEPyFSocket.h"
-#include "UEPyUScriptStruct.h"
-#include "UEPyFRandomStream.h"
+
+#include "Wrappers/UEPyFVector.h"
+#include "Wrappers/UEPyFHitResult.h"
+#include "Wrappers/UEPyFRotator.h"
+#include "Wrappers/UEPyFTransform.h"
+#include "Wrappers/UEPyFColor.h"
+#include "Wrappers/UEPyFLinearColor.h"
+#include "Wrappers/UEPyFSocket.h"
+
+#include "Wrappers/UEPyFRandomStream.h"
+
+#include "Wrappers/UEPyFPythonOutputDevice.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
 #include "UEPyEnumsImporter.h"
 #include "UEPyUStructsImporter.h"
 
+#include "UEPyUScriptStruct.h"
+
 #if WITH_EDITOR
-#include "UEPyFAssetData.h"
-#include "UEPyFARFilter.h"
+#include "Wrappers/UEPyFAssetData.h"
+#include "Wrappers/UEPyFARFilter.h"
 #include "UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
