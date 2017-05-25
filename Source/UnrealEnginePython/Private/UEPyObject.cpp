@@ -508,7 +508,6 @@ PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
 
 	Py_INCREF(Py_None);
 	return Py_None;
-
 }
 
 PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {

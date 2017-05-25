@@ -50,6 +50,7 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	py_delegate->AddToRoot();
 
 	if (py_obj) {
+		Py_INCREF(py_obj);
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::ExecuteAction, py_obj);
 	}
 	else {
