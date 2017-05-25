@@ -32,6 +32,30 @@ static PyObject *py_ue_swidget_set_tooltip_text(ue_PySWidget *self, PyObject * a
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_swidget_set_cursor(ue_PySWidget *self, PyObject * args) {
+	int cursor;
+	if (!PyArg_ParseTuple(args, "i:set_cursor", &cursor)) {
+		return NULL;
+	}
+
+	self->s_widget->SetCursor((EMouseCursor::Type)cursor);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_swidget_set_enabled(ue_PySWidget *self, PyObject * args) {
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "O:set_enabled", &py_bool)) {
+		return NULL;
+	}
+
+	self->s_widget->SetEnabled(PyObject_IsTrue(py_bool) ? true : false);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyObject * args) {
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_down", &py_callable)) {
@@ -143,6 +167,8 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
 	{ "get_type", (PyCFunction)py_ue_swidget_get_type, METH_VARARGS, "" },
 	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },
+	{ "set_cursor", (PyCFunction)py_ue_swidget_set_cursor, METH_VARARGS, "" },
+	{ "set_enabled", (PyCFunction)py_ue_swidget_set_enabled, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_up", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
