@@ -19,15 +19,26 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 	float max_width = 0;
 	float padding = 0;
 	int v_align = 0;
+	float fill_width = 0;
+	PyObject *py_auto_width = nullptr;
 
-	char *kwlist[] = { (char *)"widget", (char *)"h_align", (char *)"max_width", (char *)"padding", (char *)"v_align", nullptr };
+	char *kwlist[] = { (char *)"widget",
+		(char *)"h_align",
+		(char *)"max_width",
+		(char *)"padding",
+		(char *)"v_align",
+		(char *)"fill_width",
+		(char *)"auto_width",
+		nullptr };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|iffi:add_slot", kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|iffifO:add_slot", kwlist,
 		&py_content,
 		&h_align,
 		&max_width,
 		&padding,
-		&v_align)) {
+		&v_align,
+		&fill_width,
+		&py_auto_width)) {
 		return NULL;
 	}
 
@@ -45,8 +56,12 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (max_width != 0)
 		fslot.MaxWidth(max_width);
+	if (fill_width)
+		fslot.FillWidth(fill_width);
 	fslot.Padding(padding);
 	fslot.VAlign((EVerticalAlignment)v_align);
+	if (py_auto_width && PyObject_IsTrue(py_auto_width))
+		fslot.AutoWidth();
 
 	Py_INCREF(self);
 	return (PyObject *)self;
