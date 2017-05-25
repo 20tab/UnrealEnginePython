@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySCompoundWidget.h"
 
 #include "Runtime/SlateCore/Public/Widgets/SWindow.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySWindow;
 
 void ue_python_init_swindow(PyObject *);
-
-#endif

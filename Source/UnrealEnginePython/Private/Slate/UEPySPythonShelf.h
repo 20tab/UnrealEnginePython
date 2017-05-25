@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySCompoundWidget.h"
 
 extern PyTypeObject ue_PySPythonShelfType;
@@ -14,5 +12,3 @@ typedef struct {
 } ue_PySPythonShelf;
 
 void ue_python_init_spython_shelf(PyObject *);
-
-#endif

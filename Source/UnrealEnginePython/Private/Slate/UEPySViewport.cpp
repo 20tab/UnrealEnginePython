@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -82,6 +81,3 @@ void ue_python_init_sviewport(PyObject *ue_module) {
 	Py_INCREF(&ue_PySViewportType);
 	PyModule_AddObject(ue_module, "SViewport", (PyObject *)&ue_PySViewportType);
 }
-
-
-#endif

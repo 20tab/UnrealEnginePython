@@ -3,7 +3,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySWidget.h"
 
@@ -16,4 +15,3 @@ typedef struct {
 
 void ue_python_init_spanel(PyObject *);
 
-#endif

@@ -92,7 +92,7 @@ PyObject *py_ue_get_socket_actor_transform(ue_PyUObject *self, PyObject * args) 
 	return py_ue_new_ftransform(transform);
 }
 
-static PyObject *py_ue_get_all_child_actors(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_all_child_actors(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 	PyObject *py_include_descendants = NULL;
@@ -122,10 +122,10 @@ static PyObject *py_ue_get_all_child_actors(ue_PyUObject * self, PyObject * args
 	return py_children;
 }
 
-static PyObject *py_ue_get_attached_actors(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_attached_actors(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
-	
+
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "cannot retrieve actor from UObject");
@@ -143,15 +143,15 @@ static PyObject *py_ue_get_attached_actors(ue_PyUObject * self, PyObject * args)
 	return py_children;
 }
 
-static PyObject *py_ue_attach_to_actor(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_attach_to_actor(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *obj;
 	char *socket_name = (char *)"";
-	int location_rule = (int) EAttachmentRule::SnapToTarget;
-	int rotation_rule = (int) EAttachmentRule::KeepWorld;
-	int scale_rule = (int) EAttachmentRule::SnapToTarget;
+	int location_rule = (int)EAttachmentRule::SnapToTarget;
+	int rotation_rule = (int)EAttachmentRule::KeepWorld;
+	int scale_rule = (int)EAttachmentRule::SnapToTarget;
 	PyObject *py_weld = nullptr;
 	if (!PyArg_ParseTuple(args, "O|siiiO:attach_to_actor", &obj, &socket_name, &location_rule, &rotation_rule, &scale_rule, &py_weld)) {
 		return NULL;
@@ -176,13 +176,13 @@ static PyObject *py_ue_attach_to_actor(ue_PyUObject * self, PyObject * args) {
 		weld = true;
 
 	actor->AttachToActor(other, FAttachmentTransformRules((EAttachmentRule)location_rule, (EAttachmentRule)rotation_rule, (EAttachmentRule)scale_rule, weld), UTF8_TO_TCHAR(socket_name));
-	
+
 	Py_INCREF(Py_None);
 	return Py_None;
 
 }
 
-static PyObject *py_ue_attach_to_component(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_attach_to_component(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 

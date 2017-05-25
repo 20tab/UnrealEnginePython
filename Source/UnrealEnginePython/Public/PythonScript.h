@@ -3,7 +3,7 @@
 
 #include "PythonScript.generated.h"
 
-UCLASS()
+UCLASS(MinimalAPI)
 class UPythonScript : public UObject
 {
 	GENERATED_BODY()

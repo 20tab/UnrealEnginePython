@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -57,6 +56,3 @@ void ue_python_init_spanel(PyObject *ue_module) {
 	Py_INCREF(&ue_PySPanelType);
 	PyModule_AddObject(ue_module, "SPanel", (PyObject *)&ue_PySPanelType);
 }
-
-
-#endif

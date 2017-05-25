@@ -2,14 +2,14 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "SlateBasics.h"
 #include "SlateExtras.h"
 
+#if WITH_EDITOR
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
 #include "Editor/EditorStyle/Public/EditorStyleSet.h"
+#endif
 
 #include <map>
 
@@ -28,8 +28,7 @@
 #include "UEPySBoxPanel.h"
 #include "UEPySHorizontalBox.h"
 #include "UEPySViewport.h"
-#include "UEPySEditorViewport.h"
-#include "UEPySPythonEditorViewport.h"
+
 #include "UEPySImage.h"
 #include "UEPySDockTab.h"
 #include "UEPySTableViewBase.h"
@@ -37,11 +36,18 @@
 #include "UEPySPythonListView.h"
 #include "UEPySSplitter.h"
 #include "UEPySHeaderRow.h"
-#include "UEPySPythonShelf.h"
-#include "UEPySGraphEditor.h"
+
+
 
 #include "UEPyFTabSpawnerEntry.h"
 #include "UEPyFMenuBuilder.h"
+
+#if WITH_EDITOR
+#include "UEPySEditorViewport.h"
+#include "UEPySPythonEditorViewport.h"
+#include "UEPySGraphEditor.h"
+#include "UEPySPythonShelf.h"
+#endif
 
 #include "UEPySlate.generated.h"
 
@@ -89,12 +95,13 @@ public:
 
 	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 
+#if WITH_EDITOR
 	void OnAssetDoubleClicked(const FAssetData& AssetData);
 	TSharedPtr<SWidget> OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets);
+#endif
 
 	void SimpleExecuteAction();
 	void ExecuteAction(PyObject *py_obj);
 };
 
-#endif
 

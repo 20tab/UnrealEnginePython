@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySWidget.h"
 
 #include "Runtime/Slate/Public/Widgets/Text/SMultiLineEditableText.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySMultiLineEditableText;
 
 void ue_python_init_smulti_line_editable_text(PyObject *);
-
-#endif

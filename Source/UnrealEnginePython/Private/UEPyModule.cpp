@@ -149,14 +149,15 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "compress_image_array", py_unreal_engine_compress_image_array, METH_VARARGS, "" },
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
 
-#if WITH_EDITOR
+
 
 	// slate
-	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
-	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
+
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "unregister_nomad_tab_spawner", py_unreal_engine_unregister_nomad_tab_spawner, METH_VARARGS, "" },
-	
+#if WITH_EDITOR
+	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
+	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
 
 	{ "open_editor_for_asset", py_unreal_engine_open_editor_for_asset, METH_VARARGS, "" },
 	{ "close_editor_for_asset", py_unreal_engine_close_editor_for_asset, METH_VARARGS, "" },
@@ -657,8 +658,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
 	}
+}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -1220,9 +1221,10 @@ void unreal_engine_init_py_module() {
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
 	ue_python_init_iplugin(new_unreal_engine_module);
+#endif
 
 	ue_python_init_slate(new_unreal_engine_module);
-#endif
+
 
 	ue_python_init_ihttp_base(new_unreal_engine_module);
 	ue_python_init_ihttp_request(new_unreal_engine_module);
@@ -1386,7 +1388,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

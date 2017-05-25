@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -69,6 +68,3 @@ void ue_python_init_sbox_panel(PyObject *ue_module) {
 	Py_INCREF(&ue_PySGridPanelType);
 	PyModule_AddObject(ue_module, "SBoxPanel", (PyObject *)&ue_PySBoxPanelType);
 }
-
-
-#endif

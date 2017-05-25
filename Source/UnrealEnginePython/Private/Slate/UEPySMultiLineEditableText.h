@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySBorder.h"
 
 #include "Runtime/Slate/Public/Widgets/Input/SEditableTextBox.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySEditableTextBox;
 
 void ue_python_init_seditable_text_box(PyObject *);
-
-#endif

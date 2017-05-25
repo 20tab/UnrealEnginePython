@@ -1,8 +1,10 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
 #include "LevelEditor.h"
+#endif
+
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
@@ -45,6 +47,7 @@ FReply UPythonSlateDelegate::OnClicked() {
 	return FReply::Handled();
 }
 
+#if WITH_EDITOR
 void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData) {
 	FScopePythonGIL gil;
 
@@ -80,6 +83,7 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 	Py_DECREF(ret);
 	return value;
 }
+#endif
 
 void UPythonSlateDelegate::SimpleExecuteAction() {
 	FScopePythonGIL gil;
@@ -176,8 +180,6 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sbox_panel(module);
 	ue_python_init_shorizontal_box(module);
 	ue_python_init_sviewport(module);
-	ue_python_init_seditor_viewport(module);
-	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_simage(module);
 	ue_python_init_sdock_tab(module);
 	ue_python_init_stable_view_base(module);
@@ -185,8 +187,14 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_spython_list_view(module);
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
-	ue_python_init_spython_shelf(module);
+	
+
+#if WITH_EDITOR
+	ue_python_init_seditor_viewport(module);
+	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_sgraph_editor(module);
+	ue_python_init_spython_shelf(module);
+#endif
 
 	ue_python_init_ftab_spawner_entry(module);
 	ue_python_init_fmenu_builder(module);
@@ -201,6 +209,7 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
 	return (PyObject *)ue_py_get_swidget(FGlobalTabmanager::Get()->GetRootWindow());
 }
 
+// TODO: better understand the extender system
 class FPythonSlateCommands : public TCommands<FPythonSlateCommands>
 {
 public:
@@ -231,8 +240,10 @@ public:
 
 		extender->AddMenuExtension("WindowLayout", EExtensionHook::After, commands, FMenuExtensionDelegate::CreateRaw(this, &FPythonSlateCommands::Builder));
 
+#if WITH_EDITOR
 		FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 		LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(extender);
+#endif
 	}
 
 	void Callback() {
@@ -309,7 +320,11 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 	spawn_tab.BindUObject(py_delegate, &UPythonSlateDelegate::SpawnPythonTab);
 
 	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
-		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory());
+// TODO: more generic way to set teh group
+#if WITH_EDITOR
+		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory())
+#endif
+	;
 
 	PyObject *ret = py_ue_new_ftab_spawner_entry(spawner_entry);
 	Py_INCREF(ret);
@@ -328,6 +343,3 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
-
-#endif

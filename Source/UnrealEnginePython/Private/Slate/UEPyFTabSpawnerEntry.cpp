@@ -1,6 +1,5 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-#if WITH_EDITOR
 
 static PyObject *py_ue_ftab_spawner_entry_set_display_name(ue_PyFTabSpawnerEntry *self, PyObject * args) {
 	char *name;
@@ -86,5 +85,3 @@ PyObject *py_ue_new_ftab_spawner_entry(FTabSpawnerEntry *spawner_entry) {
 	ret->spawner_entry = spawner_entry;
 	return (PyObject *)ret;
 }
-
-#endif

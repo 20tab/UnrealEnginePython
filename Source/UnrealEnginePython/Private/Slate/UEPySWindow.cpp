@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -132,6 +131,3 @@ void ue_python_init_swindow(PyObject *ue_module) {
 	Py_INCREF(&ue_PySWindowType);
 	PyModule_AddObject(ue_module, "SWindow", (PyObject *)&ue_PySWindowType);
 }
-
-
-#endif

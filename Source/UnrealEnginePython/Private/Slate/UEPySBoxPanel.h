@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySPanel.h"
 
@@ -16,5 +15,3 @@ typedef struct {
 } ue_PySBoxPanel;
 
 void ue_python_init_sbox_panel(PyObject *);
-
-#endif

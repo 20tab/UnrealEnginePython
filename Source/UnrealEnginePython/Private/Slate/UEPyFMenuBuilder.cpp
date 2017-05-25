@@ -1,6 +1,6 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-#if WITH_EDITOR
+#include "UEPyFMenuBuilder.h"
 
 #include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
@@ -192,5 +192,3 @@ void ue_python_init_fmenu_builder(PyObject *ue_module) {
 	Py_INCREF(&ue_PyFMenuBuilderType);
 	PyModule_AddObject(ue_module, "FMenuBuilder", (PyObject *)&ue_PyFMenuBuilderType);
 }
-
-#endif

@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySListView.h"
 
 extern PyTypeObject ue_PySPythonListViewType;
@@ -25,5 +23,3 @@ typedef struct {
 } ue_PySPythonListView;
 
 void ue_python_init_spython_list_view(PyObject *);
-
-#endif

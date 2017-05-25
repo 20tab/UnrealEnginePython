@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "PythonConsolePrivatePCH.h"
 
 #include "PythonScriptFactory.h"
 #include "PythonScript.h"

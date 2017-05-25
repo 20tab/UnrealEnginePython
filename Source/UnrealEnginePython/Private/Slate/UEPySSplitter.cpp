@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -90,6 +89,3 @@ void ue_python_init_ssplitter(PyObject *ue_module) {
 	Py_INCREF(&ue_PySSplitterType);
 	PyModule_AddObject(ue_module, "SSplitter", (PyObject *)&ue_PySSplitterType);
 }
-
-
-#endif

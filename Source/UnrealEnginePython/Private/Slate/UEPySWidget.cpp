@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -199,6 +198,3 @@ ue_PySWidget *py_ue_is_swidget(PyObject *obj) {
 	return (ue_PySWidget *)obj;
 }
 
-
-
-#endif

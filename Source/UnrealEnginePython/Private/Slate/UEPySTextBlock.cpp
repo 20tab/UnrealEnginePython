@@ -1,9 +1,7 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySTextBlock.h"
-
 
 
 #define GET_s_text_block STextBlock *s_text_block = (STextBlock *)self->s_leaf_widget.s_widget.s_widget
@@ -82,6 +80,3 @@ void ue_python_init_stext_block(PyObject *ue_module) {
 	Py_INCREF(&ue_PySTextBlockType);
 	PyModule_AddObject(ue_module, "STextBlock", (PyObject *)&ue_PySTextBlockType);
 }
-
-
-#endif

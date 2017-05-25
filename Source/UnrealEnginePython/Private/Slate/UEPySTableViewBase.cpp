@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -90,6 +89,3 @@ void ue_python_init_stable_view_base(PyObject *ue_module) {
 	Py_INCREF(&ue_PySTableViewBaseType);
 	PyModule_AddObject(ue_module, "STableViewBase", (PyObject *)&ue_PySTableViewBaseType);
 }
-
-
-#endif

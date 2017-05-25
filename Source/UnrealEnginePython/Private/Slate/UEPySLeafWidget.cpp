@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -57,6 +56,3 @@ void ue_python_init_sleaf_widget(PyObject *ue_module) {
 	Py_INCREF(&ue_PySLeafWidgetType);
 	PyModule_AddObject(ue_module, "SLeafWidget", (PyObject *)&ue_PySLeafWidgetType);
 }
-
-
-#endif

@@ -1,5 +1,4 @@
 #if WITH_EDITOR
-
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySGraphEditor.h"
@@ -68,6 +67,4 @@ void ue_python_init_sgraph_editor(PyObject *ue_module) {
 	Py_INCREF(&ue_PySGraphEditorType);
 	PyModule_AddObject(ue_module, "SGraphEditor", (PyObject *)&ue_PySGraphEditorType);
 }
-
-
 #endif

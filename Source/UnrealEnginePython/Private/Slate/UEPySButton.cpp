@@ -1,4 +1,4 @@
-#if WITH_EDITOR
+
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -106,6 +106,3 @@ void ue_python_init_sbutton(PyObject *ue_module) {
 	Py_INCREF(&ue_PySButtonType);
 	PyModule_AddObject(ue_module, "SButton", (PyObject *)&ue_PySButtonType);
 }
-
-
-#endif

@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySPanel.h"
 
@@ -17,4 +16,3 @@ typedef struct {
 
 void ue_python_init_sgrid_panel(PyObject *);
 
-#endif

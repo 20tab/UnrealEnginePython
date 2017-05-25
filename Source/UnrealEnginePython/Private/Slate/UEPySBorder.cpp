@@ -1,9 +1,7 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySBorder.h"
-
 
 
 #define GET_s_border SBorder *s_border = (SBorder *)self->s_compound_widget.s_widget.s_widget
@@ -155,6 +153,3 @@ void ue_python_init_sborder(PyObject *ue_module) {
 	Py_INCREF(&ue_PySBorderType);
 	PyModule_AddObject(ue_module, "SBorder", (PyObject *)&ue_PySBorderType);
 }
-
-
-#endif

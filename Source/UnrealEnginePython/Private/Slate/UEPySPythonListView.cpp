@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -121,6 +120,3 @@ void ue_python_init_spython_list_view(PyObject *ue_module) {
 	Py_INCREF(&ue_PySListViewType);
 	PyModule_AddObject(ue_module, "SPythonListView", (PyObject *)&ue_PySPythonListViewType);
 }
-
-
-#endif

@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySPanel.h"
 
 #include "Runtime/Slate/Public/Widgets/Layout/SSplitter.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySSplitter;
 
 void ue_python_init_ssplitter(PyObject *);
-
-#endif

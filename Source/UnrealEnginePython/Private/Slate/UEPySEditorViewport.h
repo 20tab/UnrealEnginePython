@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySCompoundWidget.h"
 
@@ -16,5 +15,3 @@ typedef struct {
 } ue_PySEditorViewport;
 
 void ue_python_init_seditor_viewport(PyObject *);
-
-#endif

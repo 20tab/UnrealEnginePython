@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySBorder.h"
 
 #include "Runtime/Slate/Public/Widgets/Views/SHeaderRow.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySHeaderRow;
 
 void ue_python_init_sheader_row(PyObject *);
-
-#endif

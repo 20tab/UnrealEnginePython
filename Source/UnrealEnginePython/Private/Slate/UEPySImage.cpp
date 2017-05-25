@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -85,6 +84,3 @@ void ue_python_init_simage(PyObject *ue_module) {
 	Py_INCREF(&ue_PySImageType);
 	PyModule_AddObject(ue_module, "SImage", (PyObject *)&ue_PySImageType);
 }
-
-
-#endif

@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySLeafWidget.h"
 
@@ -17,5 +16,3 @@ typedef struct {
 } ue_PySImage;
 
 void ue_python_init_simage(PyObject *);
-
-#endif

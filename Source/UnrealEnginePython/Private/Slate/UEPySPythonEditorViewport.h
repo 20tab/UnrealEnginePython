@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySEditorViewport.h"
 
@@ -27,5 +26,3 @@ public:
 protected:
 	virtual TSharedRef<FEditorViewportClient> MakeEditorViewportClient() override;
 };
-
-#endif

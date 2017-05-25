@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -131,6 +130,3 @@ void ue_python_init_smulti_line_editable_text(PyObject *ue_module) {
 	Py_INCREF(&ue_PySMultiLineEditableTextType);
 	PyModule_AddObject(ue_module, "SMultiLineEditableText", (PyObject *)&ue_PySMultiLineEditableTextType);
 }
-
-
-#endif

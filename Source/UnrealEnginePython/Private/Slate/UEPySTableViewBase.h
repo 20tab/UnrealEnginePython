@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySCompoundWidget.h"
 
 #include "Runtime/Slate/Public/Widgets/Views/STableViewBase.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySTableViewBase;
 
 void ue_python_init_stable_view_base(PyObject *);
-
-#endif

@@ -1,5 +1,4 @@
 #if WITH_EDITOR
-
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySPythonEditorViewport.h"
@@ -155,6 +154,4 @@ void ue_python_init_spython_editor_viewport(PyObject *ue_module) {
 	Py_INCREF(&ue_PySPythonEditorViewportType);
 	PyModule_AddObject(ue_module, "SPythonEditorViewport", (PyObject *)&ue_PySPythonEditorViewportType);
 }
-
-
 #endif

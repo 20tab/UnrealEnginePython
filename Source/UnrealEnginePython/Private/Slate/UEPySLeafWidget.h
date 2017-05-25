@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySWidget.h"
 
 #include "Runtime/SlateCore/Public/Widgets/SLeafWidget.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySLeafWidget;
 
 void ue_python_init_sleaf_widget(PyObject *);
-
-#endif

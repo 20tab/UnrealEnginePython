@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -103,5 +102,3 @@ void ue_python_init_sgrid_panel(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "SGridPanel", (PyObject *)&ue_PySGridPanelType);
 }
 
-
-#endif

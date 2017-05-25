@@ -1,7 +1,6 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
-#if WITH_EDITOR
 
 #include "UEPySDockTab.h"
 
@@ -75,6 +74,3 @@ void ue_python_init_sdock_tab(PyObject *ue_module) {
 	Py_INCREF(&ue_PySDockTabType);
 	PyModule_AddObject(ue_module, "SDockTab", (PyObject *)&ue_PySDockTabType);
 }
-
-
-#endif

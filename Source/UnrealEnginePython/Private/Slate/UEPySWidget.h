@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 extern PyTypeObject ue_PySWidgetType;
 
 typedef struct {
@@ -22,4 +20,3 @@ void ue_python_init_swidget(PyObject *);
 
 ue_PySWidget *py_ue_is_swidget(PyObject *);
 
-#endif

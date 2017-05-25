@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySLeafWidget.h"
 
@@ -16,5 +15,3 @@ typedef struct {
 } ue_PySTextBlock;
 
 void ue_python_init_stext_block(PyObject *);
-
-#endif

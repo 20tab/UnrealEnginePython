@@ -48,9 +48,9 @@
 #include "UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
-#include "Slate/UEPySlate.h"
 #endif
 
+#include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
 
 

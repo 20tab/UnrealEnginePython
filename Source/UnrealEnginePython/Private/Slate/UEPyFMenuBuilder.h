@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "Runtime/Slate/Public/Framework/MultiBox/MultiBoxBuilder.h"
 
 typedef struct {
@@ -13,5 +11,3 @@ typedef struct {
 } ue_PyFMenuBuilder;
 
 void ue_python_init_fmenu_builder(PyObject *);
-
-#endif

@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySBoxPanel.h"
 
@@ -16,5 +15,3 @@ typedef struct {
 } ue_PySHorizontalBox;
 
 void ue_python_init_shorizontal_box(PyObject *);
-
-#endif

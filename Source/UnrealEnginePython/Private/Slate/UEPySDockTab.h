@@ -2,7 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
 
 #include "UEPySBorder.h"
 
@@ -16,5 +15,3 @@ typedef struct {
 } ue_PySDockTab;
 
 void ue_python_init_sdock_tab(PyObject *);
-
-#endif

@@ -1,4 +1,4 @@
-#if WITH_EDITOR
+
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -123,5 +123,3 @@ void ue_python_init_sheader_row(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "SHeaderRow", (PyObject *)&ue_PySHeaderRowType);
 }
 
-
-#endif

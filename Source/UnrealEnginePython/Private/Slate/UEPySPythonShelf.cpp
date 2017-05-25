@@ -1,5 +1,4 @@
 #if WITH_EDITOR
-
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySPythonShelf.h"
@@ -156,6 +155,4 @@ void ue_python_init_spython_shelf(PyObject *ue_module) {
 	Py_INCREF(&ue_PySPythonShelfType);
 	PyModule_AddObject(ue_module, "SPythonShelf", (PyObject *)&ue_PySPythonShelfType);
 }
-
-
 #endif

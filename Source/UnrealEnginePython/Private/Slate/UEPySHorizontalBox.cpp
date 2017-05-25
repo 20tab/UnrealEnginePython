@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -115,6 +114,3 @@ void ue_python_init_shorizontal_box(PyObject *ue_module) {
 	Py_INCREF(&ue_PySHorizontalBoxType);
 	PyModule_AddObject(ue_module, "SHorizontalBox", (PyObject *)&ue_PySHorizontalBoxType);
 }
-
-
-#endif

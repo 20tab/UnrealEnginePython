@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySTableViewBase.h"
 
 #include "Runtime/Slate/Public/Widgets/Views/SListView.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySListView;
 
 void ue_python_init_slist_view(PyObject *);
-
-#endif

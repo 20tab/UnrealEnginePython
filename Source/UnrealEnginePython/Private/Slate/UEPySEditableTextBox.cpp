@@ -1,4 +1,3 @@
-#if WITH_EDITOR
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
@@ -121,5 +120,3 @@ void ue_python_init_seditable_text_box(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "SEditableTextBox", (PyObject *)&ue_PySEditableTextBoxType);
 }
 
-
-#endif

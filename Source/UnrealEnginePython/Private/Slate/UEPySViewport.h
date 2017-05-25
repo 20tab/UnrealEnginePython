@@ -2,8 +2,6 @@
 
 #include "UnrealEnginePython.h"
 
-#if WITH_EDITOR
-
 #include "UEPySCompoundWidget.h"
 
 #include "Runtime/Slate/Public/Widgets/SViewport.h"
@@ -16,5 +14,3 @@ typedef struct {
 } ue_PySViewport;
 
 void ue_python_init_sviewport(PyObject *);
-
-#endif
