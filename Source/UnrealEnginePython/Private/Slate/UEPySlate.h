@@ -99,6 +99,7 @@ public:
 #if WITH_EDITOR
 	void OnAssetDoubleClicked(const FAssetData& AssetData);
 	TSharedPtr<SWidget> OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets);
+	void OnAssetSelected(const FAssetData& AssetData);
 #endif
 
 	void SimpleExecuteAction();

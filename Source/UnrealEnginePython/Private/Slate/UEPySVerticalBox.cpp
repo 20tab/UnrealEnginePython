@@ -13,7 +13,7 @@ static PyObject *ue_PySVerticalBox_str(ue_PySVerticalBox *self)
 		self->s_box_panel.s_panel.s_widget.s_widget);
 }
 
-static PyObject *py_ue_svertical_box_add_slot(ue_PySHorizontalBox *self, PyObject * args, PyObject *kwargs) {
+static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject * args, PyObject *kwargs) {
 	PyObject *py_content;
 	int h_align = 0;
 	float max_height = 0;

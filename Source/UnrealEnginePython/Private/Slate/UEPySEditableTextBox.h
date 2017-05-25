@@ -2,15 +2,16 @@
 
 #include "UnrealEnginePython.h"
 
-#include "UEPySWidget.h"
+#include "UEPySBorder.h"
 
-#include "Runtime/Slate/Public/Widgets/Text/SMultiLineEditableText.h"
+#include "Runtime/Slate/Public/Widgets/Input/SEditableTextBox.h"
 
-extern PyTypeObject ue_PySMultiLineEditableTextType;
+extern PyTypeObject ue_PySEditableTextBoxType;
 
 typedef struct {
-	ue_PySWidget s_widget;
+	ue_PySBorder s_border;
 	/* Type-specific fields go here. */
-} ue_PySMultiLineEditableText;
+} ue_PySEditableTextBox;
 
-void ue_python_init_smulti_line_editable_text(PyObject *);
+void ue_python_init_seditable_text_box(PyObject *);
+

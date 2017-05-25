@@ -5,6 +5,7 @@
 
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 #include "Editor/ContentBrowser/Public/IContentBrowserSingleton.h"
+#include "Editor/ContentBrowser/Private/SAssetPicker.h"
 
 static PyObject *ue_PySPythonShelf_str(ue_PySPythonShelf *self)
 {
@@ -53,13 +54,20 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 
 	PyObject *py_callable_double_clicked = nullptr;
 	PyObject *py_callable_get_context_menu = nullptr;
+	PyObject *py_callable_asset_selected = nullptr;
 
-	char *kwlist[] = { (char *)"classes", (char *)"collections", (char *)"on_asset_double_clicked", (char *)"on_get_asset_context_menu", nullptr };
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOO", kwlist,
+	char *kwlist[] = { (char *)"classes",
+		(char *)"collections",
+		(char *)"on_asset_double_clicked",
+		(char *)"on_get_asset_context_menu",
+		(char *)"on_asset_selected",
+		nullptr };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOO", kwlist,
 		&py_classes_iterable,
 		&py_collections_iterable,
 		&py_callable_double_clicked,
-		&py_callable_get_context_menu)) {
+		&py_callable_get_context_menu,
+		&py_callable_asset_selected)) {
 		return -1;
 	}
 
@@ -85,6 +93,11 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 	}
 
 	if (py_callable_get_context_menu && !PyCallable_Check(py_callable_get_context_menu)) {
+		PyErr_SetString(PyExc_Exception, "argument is not callable");
+		return -1;
+	}
+
+	if (py_callable_asset_selected && !PyCallable_Check(py_callable_asset_selected)) {
 		PyErr_SetString(PyExc_Exception, "argument is not callable");
 		return -1;
 	}
@@ -135,6 +148,16 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnGetAssetContextMenu);
 
 		asset_picker_config.OnGetAssetContextMenu = handler;
+	}
+
+	if (py_callable_asset_selected) {
+		FOnAssetSelected handler;
+		UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+		py_delegate->SetPyCallable(py_callable_asset_selected);
+		py_delegate->AddToRoot();
+		handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnAssetSelected);
+
+		asset_picker_config.OnAssetSelected = handler;
 	}
 
 	self->s_compound_widget.s_widget.s_widget_owned = module.Get().CreateAssetPicker(asset_picker_config);
