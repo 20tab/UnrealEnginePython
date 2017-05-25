@@ -50,7 +50,18 @@ PyTypeObject ue_PySGraphEditorType = {
 };
 
 static int ue_py_sgraph_editor_init(ue_PySGraphEditor *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SGraphEditor, s_compound_widget.s_widget);
+	PyObject *py_graph;
+	if (!PyArg_ParseTuple(args, "O", &py_graph)) {
+		return -1;
+	}
+
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(py_graph);
+	if (!graph) {
+		PyErr_SetString(PyExc_Exception, "argument is not a EdGraph");
+		return -1;
+	}
+	self->s_compound_widget.s_widget.s_widget_owned = SNew(SGraphEditor).GraphToEdit(graph);
+	self->s_compound_widget.s_widget.s_widget = &self->s_compound_widget.s_widget.s_widget_owned.Get();
 	return 0;
 }
 
