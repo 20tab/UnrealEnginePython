@@ -860,7 +860,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
 }
 
-static PyTypeObject ue_PyUObjectType = {
+PyTypeObject ue_PyUObjectType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.UObject",             /* tp_name */
 	sizeof(ue_PyUObject), /* tp_basicsize */
