@@ -170,7 +170,6 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_swindow(module);
 	ue_python_init_sborder(module);
 	ue_python_init_sbutton(module);
-	ue_python_init_sbutton(module);
 	ue_python_init_sleaf_widget(module);
 	ue_python_init_stext_block(module);
 	ue_python_init_seditable_text_box(module);
@@ -179,6 +178,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sgrid_panel(module);
 	ue_python_init_sbox_panel(module);
 	ue_python_init_shorizontal_box(module);
+	ue_python_init_svertical_box(module);
 	ue_python_init_sviewport(module);
 	ue_python_init_simage(module);
 	ue_python_init_sdock_tab(module);

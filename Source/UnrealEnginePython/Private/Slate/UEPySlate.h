@@ -27,6 +27,7 @@
 #include "UEPySGridPanel.h"
 #include "UEPySBoxPanel.h"
 #include "UEPySHorizontalBox.h"
+#include "UEPySVerticalBox.h"
 #include "UEPySViewport.h"
 
 #include "UEPySImage.h"
