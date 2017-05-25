@@ -33,7 +33,6 @@ public class UnrealEnginePython : ModuleRules
     public UnrealEnginePython(TargetInfo Target)
     {
 
-
         PublicIncludePaths.AddRange(
             new string[] {
                 "UnrealEnginePython/Public",

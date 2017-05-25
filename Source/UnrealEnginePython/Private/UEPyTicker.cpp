@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "UEPyTicker.h"
+
 // destructor
 static void ue_pyfdelegatehandle_dealloc(ue_PyFDelegateHandle *self) {
 	Py_DECREF(self->py_callable);

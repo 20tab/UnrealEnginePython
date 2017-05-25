@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "UEPyTimer.h"
+
 static PyObject *py_ue_ftimerhandle_clear(ue_PyFTimerHandle *self, PyObject * args) {
 	self->world->GetTimerManager().ClearTimer(self->thandle);
 	Py_INCREF(Py_None);
