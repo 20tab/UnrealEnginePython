@@ -28,7 +28,7 @@ protected:
 	virtual void Serialize(const TCHAR * V, ELogVerbosity::Type Verbosity, const class FName& Category) override {
 		if (!py_serialize)
 			return;
-		PyObject *ret = PyObject_CallFunction(py_serialize, (char *)"sis", PyUnicode_FromString(TCHAR_TO_UTF8(V)), PyLong_FromLong(Verbosity), PyUnicode_FromString(TCHAR_TO_UTF8(*Category.ToString())));
+		PyObject *ret = PyObject_CallFunction(py_serialize, (char *)"sis", TCHAR_TO_UTF8(V), Verbosity, TCHAR_TO_UTF8(*Category.ToString()));
 		if (!ret) {
 			unreal_engine_py_log_error();
 		}
