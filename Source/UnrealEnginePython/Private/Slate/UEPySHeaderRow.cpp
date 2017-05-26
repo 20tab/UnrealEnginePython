@@ -1,5 +1,3 @@
-
-
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySHeaderRow.h"
@@ -14,9 +12,9 @@ static PyObject *ue_PySHeaderRow_str(ue_PySHeaderRow *self)
 
 static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject * args, PyObject *kwargs) {
 
+	char *column_id;
 	int cell_h_align = 0;
 	int cell_v_align = 0;
-	char *column_id;
 	char *default_label = nullptr;
 	char *default_tooltip = nullptr;
 	float fill_width = 0;
@@ -61,7 +59,6 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject * 
 	GET_s_header_row;
 
 	s_header_row->AddColumn(column);
-
 
 	Py_INCREF(self);
 	return (PyObject *)self;
