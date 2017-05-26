@@ -10,33 +10,32 @@ static PyObject *ue_PySHeaderRow_str(ue_PySHeaderRow *self)
 		self->s_border.s_compound_widget.s_widget.s_widget);
 }
 
-static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject * args, PyObject *kwargs) {
+static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *args, PyObject *kwargs) {
 
 	char *column_id;
+	float fixed_width = 0;
 	int cell_h_align = 0;
 	int cell_v_align = 0;
 	char *default_label = nullptr;
 	char *default_tooltip = nullptr;
-	float fill_width = 0;
-
 
 	char *kwlist[] = {
 		(char *)"column_id",
+		(char *)"fixed_width",
 		(char *)"cell_h_align",
 		(char *)"cell_v_align",
 		(char *)"default_label",
 		(char *)"default_tooltip",
-		(char *)"fill_width",
 		nullptr
 	};
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|iissf:add_column", kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sf|iiss:add_column", kwlist,
 		&column_id,
+		&fixed_width,
 		&cell_h_align,
 		&cell_v_align,
 		&default_label,
-		&default_tooltip,
-		&fill_width)) {
+		&default_tooltip)) {
 		return NULL;
 	}
 
@@ -46,15 +45,15 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject * 
 	if (!default_tooltip)
 		default_tooltip = default_label;
 
-	auto &column = SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
+	SHeaderRow::FColumn column = SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
 		.DefaultLabel(FText::FromString(UTF8_TO_TCHAR(default_label)))
 		.DefaultTooltip(FText::FromString(UTF8_TO_TCHAR(default_tooltip)))
+		.FixedWidth(fixed_width)
 		.HAlignCell((EHorizontalAlignment)cell_h_align)
 		.VAlignCell((EVerticalAlignment)cell_v_align);
 
-	if (fill_width)
-		column.FillWidth(fill_width);
-
+	//if (width > 0)
+	//	column.Width = width;
 
 	GET_s_header_row;
 
