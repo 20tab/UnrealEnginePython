@@ -8,23 +8,38 @@
 
 #define GET_s_python_list_view SPythonListView *s_python_list_view = (SPythonListView *)self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget
 
-/*static PyObject *py_ue_spython_list_view_is_item_visible(ue_PySPythonListView *self, PyObject * args) {
-	PyObject *py_item;
-	if (!PyArg_ParseTuple(args, "O:is_item_visible", &py_item)) {
-		return NULL;
-	}
+static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args) {
 
 	GET_s_python_list_view;
 
-	if (s_python_list_view->IsItemVisible(TSharedPtr<FPythonItem>(py_item))) {
-		Py_INCREF(Py_True);
-		return Py_True;
+	PyObject *py_list = PyList_New(0);
+
+	TArray<TSharedPtr<FPythonItem>> items = s_python_list_view->GetSelectedItems();
+
+	for (auto item : items) {
+		PyList_Append(py_list, item->py_object);
 	}
-	else {
-		Py_INCREF(Py_False);
-		return Py_False;
-	}
-}*/
+
+	return py_list;
+}
+
+static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *self, PyObject * args) {
+
+	GET_s_python_list_view;
+
+	s_python_list_view->ClearSelection();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+
+}
+
+static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonListView *self, PyObject * args) {
+
+	GET_s_python_list_view;
+
+	return PyLong_FromLong(s_python_list_view->GetNumItemsSelected());
+}
 
 static PyObject *ue_PySPythonListView_str(ue_PySPythonListView *self)
 {
@@ -33,7 +48,9 @@ static PyObject *ue_PySPythonListView_str(ue_PySPythonListView *self)
 }
 
 static PyMethodDef ue_PySPythonListView_methods[] = {
-	//{ "is_item_visible", (PyCFunction)py_ue_spython_list_view_is_item_visible, METH_VARARGS, "" },
+	{ "get_selected_items", (PyCFunction)py_ue_spython_list_view_get_selected_items, METH_VARARGS, "" },
+	{ "get_num_items_selected", (PyCFunction)py_ue_spython_list_view_get_num_items_selected, METH_VARARGS, "" },
+	{ "clear_selection", (PyCFunction)py_ue_spython_list_view_clear_selection, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -87,6 +104,7 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 		return -1;
 	}
 
+	// this will be destroyed by the SPythonListView
 	auto items = new TArray<TSharedPtr<FPythonItem>>();
 
 	while (PyObject *item = PyIter_Next(py_iterable)) {

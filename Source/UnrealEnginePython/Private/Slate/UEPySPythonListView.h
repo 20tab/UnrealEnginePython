@@ -7,6 +7,10 @@
 extern PyTypeObject ue_PySPythonListViewType;
 
 class SPythonListView : public SListView<TSharedPtr<struct FPythonItem>> {
+public:
+	~SPythonListView() {
+		delete(ItemsSource);
+	}
 };
 
 typedef struct {
