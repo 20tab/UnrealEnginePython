@@ -117,7 +117,16 @@ void FUnrealEnginePythonModule::StartupModule()
 #else
 		char *home = TCHAR_TO_UTF8(*IniValue);
 #endif
+		Py_SetPythonHome(home);
+	}
 
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
+		IniValue = FPaths::Combine(FPaths::GameContentDir(), IniValue);	
+#if PY_MAJOR_VERSION >= 3
+		wchar_t *home = (wchar_t *)*IniValue;
+#else
+		char *home = TCHAR_TO_UTF8(*IniValue);
+#endif
 		Py_SetPythonHome(home);
 	}
 
