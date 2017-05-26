@@ -8,7 +8,7 @@
 
 #define GET_s_python_list_view SPythonListView *s_python_list_view = (SPythonListView *)self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget
 
-static PyObject *py_ue_spython_list_view_is_item_visible(ue_PySPythonListView *self, PyObject * args) {
+/*static PyObject *py_ue_spython_list_view_is_item_visible(ue_PySPythonListView *self, PyObject * args) {
 	PyObject *py_item;
 	if (!PyArg_ParseTuple(args, "O:is_item_visible", &py_item)) {
 		return NULL;
@@ -16,7 +16,7 @@ static PyObject *py_ue_spython_list_view_is_item_visible(ue_PySPythonListView *s
 
 	GET_s_python_list_view;
 
-	if (s_python_list_view->IsItemVisible(TSharedPtr<PyObject>(py_item))) {
+	if (s_python_list_view->IsItemVisible(TSharedPtr<FPythonItem>(py_item))) {
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -24,7 +24,7 @@ static PyObject *py_ue_spython_list_view_is_item_visible(ue_PySPythonListView *s
 		Py_INCREF(Py_False);
 		return Py_False;
 	}
-}
+}*/
 
 static PyObject *ue_PySPythonListView_str(ue_PySPythonListView *self)
 {
@@ -33,7 +33,7 @@ static PyObject *ue_PySPythonListView_str(ue_PySPythonListView *self)
 }
 
 static PyMethodDef ue_PySPythonListView_methods[] = {
-	{ "is_item_visible", (PyCFunction)py_ue_spython_list_view_is_item_visible, METH_VARARGS, "" },
+	//{ "is_item_visible", (PyCFunction)py_ue_spython_list_view_is_item_visible, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -87,11 +87,11 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 		return -1;
 	}
 
-	TArray<TSharedPtr<PyObject>> items;
+	auto items = new TArray<TSharedPtr<FPythonItem>>();
 
 	while (PyObject *item = PyIter_Next(py_iterable)) {
 		Py_INCREF(item);
-		items.Add(TSharedPtr<PyObject>(item));
+		items->Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
 	}
 
 	Py_DECREF(py_iterable);
@@ -102,7 +102,7 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	py_delegate->AddToRoot();
 	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateWidgetForList);
 
-	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned = SNew(SPythonListView).ListItemsSource(&items).OnGenerateRow(handler);
+	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned = SNew(SPythonListView).ListItemsSource(items).OnGenerateRow(handler);
 	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget = &self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned.Get();
 	return 0;
 }

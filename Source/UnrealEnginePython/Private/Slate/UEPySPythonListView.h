@@ -6,15 +6,7 @@
 
 extern PyTypeObject ue_PySPythonListViewType;
 
-class SPythonListView : public SListView<TSharedPtr<PyObject>> {
-public:
-	void SetPyCallable(PyObject *py_obj) {
-		Py_INCREF(py_obj);
-		py_callable = py_obj;
-	}
-protected:
-	PyObject *py_items;
-	PyObject *py_callable;
+class SPythonListView : public SListView<TSharedPtr<struct FPythonItem>> {
 };
 
 typedef struct {

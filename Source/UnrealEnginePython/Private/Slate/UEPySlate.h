@@ -83,6 +83,14 @@ ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget);
 
 void ue_python_init_slate(PyObject *);
 
+struct FPythonItem {
+	PyObject *py_object;
+
+	FPythonItem(PyObject *item) {
+		py_object = item;
+	}
+};
+
 UCLASS()
 class UPythonSlateDelegate : public UPythonDelegate
 {
@@ -94,7 +102,7 @@ public:
 
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 
-	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable);
+	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 
 #if WITH_EDITOR
 	void OnAssetDoubleClicked(const FAssetData& AssetData);

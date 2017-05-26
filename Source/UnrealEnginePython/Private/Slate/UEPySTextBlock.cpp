@@ -26,7 +26,29 @@ static PyObject *ue_PySTextBlock_str(ue_PySTextBlock *self)
 		self->s_leaf_widget.s_widget.s_widget);
 }
 
+static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, PyObject * args) {
+
+	PyObject *py_color;
+
+	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color)) {
+		return NULL;
+	}
+
+	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_color);
+	if (!py_linear_color) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
+	}
+
+	GET_s_text_block;
+
+	s_text_block->SetColorAndOpacity(py_linear_color->color);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyMethodDef ue_PySTextBlock_methods[] = {
+	{ "set_color_and_opacity", (PyCFunction)py_ue_stext_block_set_color_and_opacity, METH_VARARGS, "" },
 	{ "set_text", (PyCFunction)py_ue_stext_block_set_text, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };

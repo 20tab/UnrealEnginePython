@@ -128,19 +128,19 @@ TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	return dock_tab;
 }
 
-TSharedRef<ITableRow> UPythonSlateDelegate::GenerateWidgetForList(TSharedPtr<PyObject> InItem, const TSharedRef<STableViewBase>& OwnerTable) {
-	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get());
+TSharedRef<ITableRow> UPythonSlateDelegate::GenerateWidgetForList(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable) {
+	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
 	if (!ret) {
 		unreal_engine_py_log_error();
-		return SNew(STableRow<TSharedPtr<PyObject>>, OwnerTable);
+		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
 	}
 	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
 	if (!s_widget) {
 		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
-		return SNew(STableRow<TSharedPtr<PyObject>>, OwnerTable);
+		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
 	}
 
-	return SNew(STableRow<TSharedPtr<PyObject>>, OwnerTable).Content()[s_widget->s_widget_owned];
+	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget_owned];
 }
 
 static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;

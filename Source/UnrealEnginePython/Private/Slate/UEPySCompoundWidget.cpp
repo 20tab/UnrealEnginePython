@@ -20,8 +20,30 @@ static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidg
 	return py_ue_new_flinearcolor(color);
 }
 
+static PyObject *py_ue_scompound_widget_set_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args) {
+
+	PyObject *py_color;
+
+	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color)) {
+		return NULL;
+	}
+
+	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_color);
+	if (!py_linear_color) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
+	}
+
+	GET_s_compound_widget;
+
+	s_compound_widget->SetColorAndOpacity(py_linear_color->color);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyMethodDef ue_PySCompoundWidget_methods[] = {
 	{ "get_color_and_opacity", (PyCFunction)py_ue_scompound_widget_get_color_and_opacity, METH_VARARGS, "" },
+	{ "set_color_and_opacity", (PyCFunction)py_ue_scompound_widget_set_color_and_opacity, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
