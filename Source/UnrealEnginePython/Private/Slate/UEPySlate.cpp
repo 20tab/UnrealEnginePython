@@ -128,7 +128,7 @@ TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	return dock_tab;
 }
 
-TSharedRef<ITableRow> UPythonSlateDelegate::GenerateWidgetForList(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable) {
+TSharedRef<ITableRow> UPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable) {
 	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
 	if (!ret) {
 		unreal_engine_py_log_error();
@@ -141,6 +141,27 @@ TSharedRef<ITableRow> UPythonSlateDelegate::GenerateWidgetForList(TSharedPtr<FPy
 	}
 
 	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget_owned];
+}
+
+void UPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren) {
+	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	PyObject *py_iterable = PyObject_GetIter(ret);
+	if (!py_iterable || !PyIter_Check(py_iterable)) {
+		UE_LOG(LogPython, Error, TEXT("returned value is not iterable"));
+		Py_XDECREF(py_iterable);
+		Py_DECREF(ret);
+	}
+
+	while (PyObject *item = PyIter_Next(py_iterable)) {
+		Py_INCREF(item);
+		OutChildren.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
+	}
+	Py_DECREF(py_iterable);
+	Py_DECREF(ret);
 }
 
 static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
@@ -195,9 +216,11 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_stable_view_base(module);
 	ue_python_init_slist_view(module);
 	ue_python_init_spython_list_view(module);
+	ue_python_init_stree_view(module);
+	ue_python_init_spython_tree_view(module);
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
-	
+
 
 #if WITH_EDITOR
 	ue_python_init_seditor_viewport(module);
@@ -330,11 +353,11 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 	spawn_tab.BindUObject(py_delegate, &UPythonSlateDelegate::SpawnPythonTab);
 
 	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
-// TODO: more generic way to set teh group
+		// TODO: more generic way to set teh group
 #if WITH_EDITOR
 		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory())
 #endif
-	;
+		;
 
 	PyObject *ret = py_ue_new_ftab_spawner_entry(spawner_entry);
 	Py_INCREF(ret);

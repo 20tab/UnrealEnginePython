@@ -35,6 +35,8 @@
 #include "UEPySTableViewBase.h"
 #include "UEPySListView.h"
 #include "UEPySPythonListView.h"
+#include "UEPySTreeView.h"
+#include "UEPySPythonTreeView.h"
 #include "UEPySSplitter.h"
 #include "UEPySHeaderRow.h"
 
@@ -102,7 +104,8 @@ public:
 
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 
-	TSharedRef<ITableRow> GenerateWidgetForList(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
+	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
+	void GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren);
 
 #if WITH_EDITOR
 	void OnAssetDoubleClicked(const FAssetData& AssetData);

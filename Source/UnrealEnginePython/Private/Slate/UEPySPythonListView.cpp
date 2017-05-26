@@ -118,7 +118,7 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
 	py_delegate->SetPyCallable(py_callable);
 	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateWidgetForList);
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateRow);
 
 	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned = SNew(SPythonListView).ListItemsSource(items).OnGenerateRow(handler);
 	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget = &self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned.Get();
