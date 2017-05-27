@@ -130,6 +130,25 @@ void FUnrealEnginePythonModule::StartupModule()
 		Py_SetPythonHome(home);
 	}
 
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni)) {
+#if PY_MAJOR_VERSION >= 3
+		wchar_t *program_name = (wchar_t *)*IniValue;
+#else
+		char *program_name = TCHAR_TO_UTF8(*IniValue);
+#endif
+		Py_SetProgramName(program_name);
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeProgramName"), IniValue, GEngineIni)) {
+		IniValue = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+#if PY_MAJOR_VERSION >= 3
+		wchar_t *program_name = (wchar_t *)*IniValue;
+#else
+		char *program_name = TCHAR_TO_UTF8(*IniValue);
+#endif
+		Py_SetProgramName(program_name);
+	}
+
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni)) {
 		ScriptsPath = IniValue;
 	}
