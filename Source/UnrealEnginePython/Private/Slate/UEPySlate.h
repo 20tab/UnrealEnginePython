@@ -54,9 +54,12 @@
 
 #include "UEPySlate.generated.h"
 
-
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
+
+#if WITH_EDITOR
 PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
+#endif
+
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 
