@@ -160,7 +160,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		asset_picker_config.OnAssetSelected = handler;
 	}
 
-	self->s_compound_widget.s_widget.s_widget_owned = module.Get().CreateAssetPicker(asset_picker_config);
+	new(&self->s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(module.Get().CreateAssetPicker(asset_picker_config));
 	self->s_compound_widget.s_widget.s_widget = &self->s_compound_widget.s_widget.s_widget_owned.Get();
 	return 0;
 }

@@ -77,7 +77,7 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(SWidget *s_widget, PyTypeOb
 	return ret;
 }
 
-#define ue_py_snew(T, field)  self->field.s_widget_owned = ue_py_init_swidget<T>((ue_PySWidget *)self); self->field.s_widget = &self->field.s_widget_owned.Get()
+#define ue_py_snew(T, field)  new(&self->field.s_widget_owned) TSharedRef<SWidget>(ue_py_init_swidget<T>((ue_PySWidget *)self)); self->field.s_widget = &self->field.s_widget_owned.Get()
 
 ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget);
 

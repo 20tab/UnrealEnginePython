@@ -97,7 +97,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	py_delegate_children->AddToRoot();
 	handler_children.BindUObject(py_delegate_children, &UPythonSlateDelegate::GetChildren);
 
-	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned = SNew(SPythonTreeView).TreeItemsSource(items).OnGenerateRow(handler).OnGetChildren(handler_children);
+	new(&self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(SNew(SPythonTreeView).TreeItemsSource(items).OnGenerateRow(handler).OnGetChildren(handler_children));
 	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget = &self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned.Get();
 	return 0;
 }

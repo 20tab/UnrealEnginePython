@@ -275,8 +275,7 @@ static int ue_py_ihttp_request_init(ue_PyIHttpRequest *self, PyObject *args, PyO
 	if (!PyArg_ParseTuple(args, "|ss:__init__", &verb, &url)) {
 		return -1;
 	}
-
-	self->http_request = FHttpModule::Get().CreateRequest();
+	new(&self->http_request) TSharedRef<IHttpRequest>(FHttpModule::Get().CreateRequest());
 	self->py_dict = PyDict_New();
 	if (verb) {
 		self->http_request->SetVerb(UTF8_TO_TCHAR(verb));

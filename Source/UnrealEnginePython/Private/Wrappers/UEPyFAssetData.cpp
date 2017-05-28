@@ -3,7 +3,12 @@
 #if WITH_EDITOR
 
 static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * args) {
-	return (PyObject *)ue_get_python_wrapper(self->asset_data->GetAsset());
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(self->asset_data->GetAsset());
+	if (!ret) {
+		return PyErr_Format(PyExc_Exception, "unable to get UObject from asset");
+	}
+	Py_INCREF(ret);
+	return ret;
 }
 
 static PyObject *py_ue_fassetdata_is_asset_loaded(ue_PyFAssetData *self, PyObject * args) {
@@ -96,7 +101,7 @@ void ue_python_init_fassetdata(PyObject *ue_module) {
 
 PyObject *py_ue_new_fassetdata(FAssetData *asset_data) {
 	ue_PyFAssetData *ret = (ue_PyFAssetData *)PyObject_New(ue_PyFAssetData, &ue_PyFAssetDataType);
-		
+
 	ret->asset_class = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->AssetClass.ToString()));
 	ret->asset_name = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->AssetName.ToString()));
 	ret->group_names = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->GroupNames.ToString()));
@@ -107,9 +112,9 @@ PyObject *py_ue_new_fassetdata(FAssetData *asset_data) {
 	ret->tags_and_values = PyDict_New();
 	for (auto It = asset_data->TagsAndValues.CreateConstIterator(); It; ++It)
 	{
-		PyDict_SetItem(ret->tags_and_values, 
-			           PyUnicode_FromString(TCHAR_TO_UTF8(*It->Key.ToString())), 
-					   PyUnicode_FromString(TCHAR_TO_UTF8(*It->Value)));
+		PyDict_SetItem(ret->tags_and_values,
+			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Key.ToString())),
+			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Value)));
 	}
 
 	ret->asset_data = asset_data;
