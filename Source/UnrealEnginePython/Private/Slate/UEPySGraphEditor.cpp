@@ -60,7 +60,7 @@ static int ue_py_sgraph_editor_init(ue_PySGraphEditor *self, PyObject *args, PyO
 		PyErr_SetString(PyExc_Exception, "argument is not a EdGraph");
 		return -1;
 	}
-	self->s_compound_widget.s_widget.s_widget_owned = SNew(SGraphEditor).GraphToEdit(graph);
+	new (&self->s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(SNew(SGraphEditor).GraphToEdit(graph));
 	self->s_compound_widget.s_widget.s_widget = &self->s_compound_widget.s_widget.s_widget_owned.Get();
 	return 0;
 }
