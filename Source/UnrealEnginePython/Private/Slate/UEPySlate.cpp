@@ -336,20 +336,22 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
-	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
+	TSharedRef<FPythonSlateCommands> *commands = new TSharedRef<FPythonSlateCommands>(new FPythonSlateCommands());
 
-	commands->Setup(command_name, py_callable);
+	commands->Get().Setup(command_name, py_callable);
 
-	commands->RegisterCommands();
+	commands->Get().RegisterCommands();
 
 	TSharedRef<FExtender> extender = MakeShareable(new FExtender());
-	extender->AddMenuExtension(hook, EExtensionHook::After, commands->GetCommands(), FMenuExtensionDelegate::CreateRaw(&commands.Get(), &FPythonSlateCommands::MenuBuilder));
+	extender->AddMenuExtension(hook, EExtensionHook::After, commands->Get().GetCommands(), FMenuExtensionDelegate::CreateRaw(&commands->Get(), &FPythonSlateCommands::MenuBuilder));
 
 	ExtensibleModule.GetMenuExtensibilityManager()->AddExtender(extender);
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
+
+
 
 PyObject *py_unreal_engine_add_menu_bar_extension(PyObject * self, PyObject * args) {
 
@@ -367,14 +369,14 @@ PyObject *py_unreal_engine_add_menu_bar_extension(PyObject * self, PyObject * ar
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
-	TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
+	TSharedRef<FPythonSlateCommands> *commands = new TSharedRef<FPythonSlateCommands>(new FPythonSlateCommands());
 
-	commands->Setup(command_name, py_callable);
+	commands->Get().Setup(command_name, py_callable);
 
-	commands->RegisterCommands();
+	commands->Get().RegisterCommands();
 
 	TSharedRef<FExtender> extender = MakeShareable(new FExtender());
-	extender->AddMenuBarExtension(hook, EExtensionHook::After, commands->GetCommands(), FMenuBarExtensionDelegate::CreateRaw(&commands.Get(), &FPythonSlateCommands::MenuBarBuilder));
+	extender->AddMenuBarExtension(hook, EExtensionHook::After, commands->Get().GetCommands(), FMenuBarExtensionDelegate::CreateRaw(&commands->Get(), &FPythonSlateCommands::MenuBarBuilder));
 
 	ExtensibleModule.GetMenuExtensibilityManager()->AddExtender(extender);
 
@@ -389,7 +391,7 @@ PyObject *py_unreal_engine_add_tool_bar_extension(PyObject * self, PyObject * ar
 
         char *hook = (char *)"Settings";
 
-        if (!PyArg_ParseTuple(args, "sO|s:add_menu_bar_extension", &command_name, &py_callable, &hook)) {
+        if (!PyArg_ParseTuple(args, "sO|s:add_tool_bar_extension", &command_name, &py_callable, &hook)) {
                 return NULL;
         }
 
@@ -398,14 +400,14 @@ PyObject *py_unreal_engine_add_tool_bar_extension(PyObject * self, PyObject * ar
         if (!PyCallable_Check(py_callable))
                 return PyErr_Format(PyExc_Exception, "argument is not callable");
 
-        TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
+		TSharedRef<FPythonSlateCommands> *commands = new TSharedRef<FPythonSlateCommands>(new FPythonSlateCommands());
 
-        commands->Setup(command_name, py_callable);
+        commands->Get().Setup(command_name, py_callable);
 
-        commands->RegisterCommands();
+		commands->Get().RegisterCommands();
 
         TSharedRef<FExtender> extender = MakeShareable(new FExtender());
-        extender->AddToolBarExtension(hook, EExtensionHook::After, commands->GetCommands(), FToolBarExtensionDelegate::CreateRaw(&commands.Get(), &FPythonSlateCommands::ToolBarBuilder));
+        extender->AddToolBarExtension(hook, EExtensionHook::After, commands->Get().GetCommands(), FToolBarExtensionDelegate::CreateRaw(&commands->Get(), &FPythonSlateCommands::ToolBarBuilder));
 
         ExtensibleModule.GetToolBarExtensibilityManager()->AddExtender(extender);
 

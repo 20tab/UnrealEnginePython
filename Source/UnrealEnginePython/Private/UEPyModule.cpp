@@ -149,8 +149,6 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "compress_image_array", py_unreal_engine_compress_image_array, METH_VARARGS, "" },
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
 
-
-
 	// slate
 
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
@@ -159,6 +157,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },
 	{ "add_menu_bar_extension", py_unreal_engine_add_menu_bar_extension, METH_VARARGS, "" },
+	{ "add_tool_bar_extension", py_unreal_engine_add_tool_bar_extension, METH_VARARGS, "" },
 
 	{ "open_editor_for_asset", py_unreal_engine_open_editor_for_asset, METH_VARARGS, "" },
 	{ "close_editor_for_asset", py_unreal_engine_close_editor_for_asset, METH_VARARGS, "" },

@@ -13,6 +13,14 @@ static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *se
 	return Py_None;
 }
 
+static PyObject *py_ue_fslate_style_set_register(ue_PyFSlateStyleSet *self, PyObject * args) {
+
+	FSlateStyleRegistry::RegisterSlateStyle(*self->style_set);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject * args) {
 	char *name;
 	PyObject *py_value;
@@ -68,6 +76,7 @@ static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject 
 static PyMethodDef ue_PyFSlateStyleSet_methods[] = {
 	{ "set_content_root", (PyCFunction)py_ue_fslate_style_set_set_content_root, METH_VARARGS, "" },
 	{ "set", (PyCFunction)py_ue_fslate_style_set_set, METH_VARARGS, "" },
+	{ "register", (PyCFunction)py_ue_fslate_style_set_register, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
