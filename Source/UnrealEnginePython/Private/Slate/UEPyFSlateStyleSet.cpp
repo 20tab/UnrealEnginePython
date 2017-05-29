@@ -13,8 +13,61 @@ static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *se
 	return Py_None;
 }
 
+static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject * args) {
+	char *name;
+	PyObject *py_value;
+	if (!PyArg_ParseTuple(args, "sO:set", &name, &py_value))
+		return NULL;
+
+	FSlateSound *slate_sound = ue_py_check_struct<FSlateSound>(py_value);
+	if (slate_sound) {
+		self->style_set->Set(FName(name), *slate_sound);
+		Py_RETURN_NONE;
+	}
+
+	FSlateBrush *slate_brush = ue_py_check_struct<FSlateBrush>(py_value);
+	if (slate_brush) {
+		self->style_set->Set(FName(name), slate_brush);
+		Py_RETURN_NONE;
+	}
+
+	FSlateColor *slate_color = ue_py_check_struct<FSlateColor>(py_value);
+	if (slate_brush) {
+		self->style_set->Set(FName(name), *slate_color);
+		Py_RETURN_NONE;
+	}
+
+	FSlateFontInfo *slate_font = ue_py_check_struct<FSlateFontInfo>(py_value);
+	if (slate_font) {
+		self->style_set->Set(FName(name), *slate_font);
+		Py_RETURN_NONE;
+	}
+
+	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_value);
+	if (py_linear_color) {
+		self->style_set->Set(FName(name), py_linear_color->color);
+		Py_RETURN_NONE;
+	}
+
+	ue_PyFColor *py_color = py_ue_is_fcolor(py_value);
+	if (py_color) {
+		self->style_set->Set(FName(name), py_color->color);
+		Py_RETURN_NONE;
+	}
+
+	if (PyNumber_Check(py_value)) {
+		PyObject *py_float = PyNumber_Float(py_value);
+		self->style_set->Set(FName(name), (float)PyFloat_AsDouble(py_float));
+		Py_DECREF(py_float);
+		Py_RETURN_NONE;
+	}
+
+	return PyErr_Format(PyExc_ValueError, "unsupported value type");
+}
+
 static PyMethodDef ue_PyFSlateStyleSet_methods[] = {
 	{ "set_content_root", (PyCFunction)py_ue_fslate_style_set_set_content_root, METH_VARARGS, "" },
+	{ "set", (PyCFunction)py_ue_fslate_style_set_set, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
