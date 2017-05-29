@@ -234,6 +234,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_fmenu_builder(module);
 	ue_python_init_fslate_style_set(module);
 	ue_python_init_ftool_bar_builder(module);
+	ue_python_init_fslate_icon(module);
 }
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {

@@ -46,6 +46,7 @@
 #include "UEPyFMenuBuilder.h"
 #include "UEPyFSlateStyleSet.h"
 #include "UEPyFToolBarBuilder.h"
+#include "UEPyFSlateIcon.h"
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"

@@ -1,0 +1,13 @@
+#pragma once
+
+#include "UnrealEnginePython.h"
+
+#include "Runtime/SlateCore/Public/Textures/SlateIcon.h"
+
+typedef struct {
+	PyObject_HEAD
+	/* Type-specific fields go here. */
+	FSlateIcon *icon;
+} ue_PyFSlateIcon;
+
+void ue_python_init_fslate_icon(PyObject *);
