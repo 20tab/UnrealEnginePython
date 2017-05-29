@@ -11,3 +11,5 @@ typedef struct {
 } ue_PyFMenuBuilder;
 
 void ue_python_init_fmenu_builder(PyObject *);
+
+PyObject *py_ue_new_fmenu_builder(FMenuBuilder *);

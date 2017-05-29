@@ -193,3 +193,9 @@ void ue_python_init_fmenu_builder(PyObject *ue_module) {
 	Py_INCREF(&ue_PyFMenuBuilderType);
 	PyModule_AddObject(ue_module, "FMenuBuilder", (PyObject *)&ue_PyFMenuBuilderType);
 }
+
+PyObject *py_ue_new_fmenu_builder(FMenuBuilder *menu_builder) {
+	ue_PyFMenuBuilder *ret = (ue_PyFMenuBuilder *)PyObject_New(ue_PyFMenuBuilder, &ue_PyFMenuBuilderType);
+	ret->menu_builder = menu_builder;
+	return (PyObject *)ret;
+}
