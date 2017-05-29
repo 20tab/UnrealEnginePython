@@ -6,11 +6,10 @@ static PyMethodDef ue_PyFSlateIcon_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-
 static PyObject *ue_PyFSlateIcon_str(ue_PyFSlateIcon *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SlateIcon {'name': %s}>",
-		PyUnicode_FromString(TCHAR_TO_UTF8(*self->icon->GetStyleName().ToString())));
+		TCHAR_TO_UTF8(*self->icon->GetStyleName().ToString()));
 }
 
 static PyTypeObject ue_PyFSlateIconType = {
@@ -74,4 +73,10 @@ void ue_python_init_fslate_icon(PyObject *ue_module) {
 
 	Py_INCREF(&ue_PyFSlateIconType);
 	PyModule_AddObject(ue_module, "FSlateIcon", (PyObject *)&ue_PyFSlateIconType);
+}
+
+ue_PyFSlateIcon *py_ue_is_fslate_icon(PyObject *obj) {
+        if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFSlateIconType))
+                return nullptr;
+        return (ue_PyFSlateIcon *)obj;
 }

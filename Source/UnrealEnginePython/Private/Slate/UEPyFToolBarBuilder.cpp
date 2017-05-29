@@ -26,10 +26,16 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 	char *hook;
 	char *label;
 	char *tooltip;
+	PyObject *py_icon;
 	PyObject *py_callable;
 	PyObject *py_obj = nullptr;
-	if (!PyArg_ParseTuple(args, "sssO|O:add_tool_bar_button", &hook, &label, &tooltip, &py_callable, &py_obj))
+	if (!PyArg_ParseTuple(args, "sssOO|O:add_tool_bar_button", &hook, &label, &tooltip, &py_icon, &py_callable, &py_obj))
 		return NULL;
+
+	ue_PyFSlateIcon *py_slate_icon = py_ue_is_fslate_icon(py_icon);
+	if (!py_slate_icon) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FSlateIcon");
+	}
 
 	if (!PyCallable_Check(py_callable)) {
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
@@ -48,7 +54,7 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::SimpleExecuteAction);
 	}
 
-	self->tool_bar_builder->AddToolBarButton(FUIAction(handler), FName(hook), FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon());
+	self->tool_bar_builder->AddToolBarButton(FUIAction(handler), FName(hook), FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), *py_slate_icon->icon);
 
 	Py_INCREF(Py_None);
 	return Py_None;

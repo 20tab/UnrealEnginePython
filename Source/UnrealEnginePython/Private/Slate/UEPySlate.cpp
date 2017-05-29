@@ -299,6 +299,15 @@ public:
 		Builder.AddPullDownMenu(label, label, FNewMenuDelegate::CreateRaw(this, &FPythonSlateCommands::MenuPyBuilder));
 	}
 
+	void ToolBarBuilder(FToolBarBuilder &Builder) {
+		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_ftool_bar_builder(&Builder));
+		if (!ret) {
+			unreal_engine_py_log_error();
+			return;
+		}
+		Py_DECREF(ret);
+	}
+
 	TSharedPtr<FUICommandList> GetCommands() {
 		return commands;
 	}
@@ -371,6 +380,37 @@ PyObject *py_unreal_engine_add_menu_bar_extension(PyObject * self, PyObject * ar
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_unreal_engine_add_tool_bar_extension(PyObject * self, PyObject * args) {
+
+        char *command_name;
+        PyObject *py_callable;
+
+        char *hook = (char *)"Settings";
+
+        if (!PyArg_ParseTuple(args, "sO|s:add_menu_bar_extension", &command_name, &py_callable, &hook)) {
+                return NULL;
+        }
+
+        FLevelEditorModule &ExtensibleModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+
+        if (!PyCallable_Check(py_callable))
+                return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+        TSharedRef<FPythonSlateCommands> commands = MakeShareable(new FPythonSlateCommands());
+
+        commands->Setup(command_name, py_callable);
+
+        commands->RegisterCommands();
+
+        TSharedRef<FExtender> extender = MakeShareable(new FExtender());
+        extender->AddToolBarExtension(hook, EExtensionHook::After, commands->GetCommands(), FToolBarExtensionDelegate::CreateRaw(&commands.Get(), &FPythonSlateCommands::ToolBarBuilder));
+
+        ExtensibleModule.GetToolBarExtensibilityManager()->AddExtender(extender);
+
+        Py_INCREF(Py_None);
+        return Py_None;
 }
 #endif
 
