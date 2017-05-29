@@ -233,6 +233,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_ftab_spawner_entry(module);
 	ue_python_init_fmenu_builder(module);
 	ue_python_init_fslate_style_set(module);
+	ue_python_init_ftool_bar_builder(module);
 }
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
