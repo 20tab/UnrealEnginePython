@@ -44,6 +44,7 @@
 
 #include "UEPyFTabSpawnerEntry.h"
 #include "UEPyFMenuBuilder.h"
+#include "UEPyFSlateStyleSet.h"
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"

@@ -1,6 +1,8 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
+#include "UEPyFTabSpawnerEntry.h"
+
 static PyObject *py_ue_ftab_spawner_entry_set_display_name(ue_PyFTabSpawnerEntry *self, PyObject * args) {
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:set_display_name", &name))
