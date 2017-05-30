@@ -44,8 +44,8 @@ static PyTypeObject ue_PyFSlateIconType = {
 };
 
 static int ue_py_fslate_icon_init(ue_PyFSlateIcon *self, PyObject *args, PyObject *kwargs) {
-	char *style_set;
-	char *style;
+	char *style_set = nullptr;
+	char *style = nullptr;
 	if (!PyArg_ParseTuple(args, "|ss", &style_set, &style)) {
 		return -1;
 	}

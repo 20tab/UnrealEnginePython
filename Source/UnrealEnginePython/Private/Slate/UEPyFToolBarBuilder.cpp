@@ -92,6 +92,13 @@ static PyObject *py_ue_ftool_bar_builder_end_block_group(ue_PyFToolBarBuilder *s
 	return Py_None;
 }
 
+static PyObject *py_ue_ftool_bar_builder_make_widget(ue_PyFToolBarBuilder *self, PyObject * args) {
+    ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
+    new (&ret->s_widget_owned) TSharedRef<SWidget>(self->tool_bar_builder->MakeWidget());
+    ret->s_widget = &ret->s_widget_owned.Get();
+    return (PyObject *)ret;
+}
+
 static PyMethodDef ue_PyFToolBarBuilder_methods[] = {
 	{ "begin_section", (PyCFunction)py_ue_ftool_bar_builder_begin_section, METH_VARARGS, "" },
 	{ "end_section", (PyCFunction)py_ue_ftool_bar_builder_end_section, METH_VARARGS, "" },
@@ -99,6 +106,7 @@ static PyMethodDef ue_PyFToolBarBuilder_methods[] = {
 	{ "add_separator", (PyCFunction)py_ue_ftool_bar_builder_add_separator, METH_VARARGS, "" },
 	{ "begin_block_group", (PyCFunction)py_ue_ftool_bar_builder_begin_block_group, METH_VARARGS, "" },
 	{ "end_block_group", (PyCFunction)py_ue_ftool_bar_builder_end_block_group, METH_VARARGS, "" },
+    { "make_widget", (PyCFunction)py_ue_ftool_bar_builder_make_widget, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -150,8 +158,8 @@ static PyTypeObject ue_PyFToolBarBuilderType = {
 };
 
 static int ue_py_ftool_bar_builder_init(ue_PyFToolBarBuilder *self, PyObject *args, PyObject *kwargs) {
-	PyErr_SetString(PyExc_ValueError, "manually instantiating a new FToolBarBuilder is not supported");
-	return -1;
+    self->tool_bar_builder = new FToolBarBuilder(nullptr, FMultiBoxCustomization::None);
+	return 0;
 }
 
 

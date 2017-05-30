@@ -5,7 +5,7 @@
 #include "Runtime/Online/HTTP/Public/Interfaces/IHttpResponse.h"
 #include "Runtime/Online/HTTP/Public/HttpModule.h"
 
-struct ue_PyIHttpBaseType;
+extern PyTypeObject ue_PyIHttpBaseType;
 
 typedef struct {
 	ue_PyIHttpBase base;
