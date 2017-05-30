@@ -164,6 +164,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "close_all_asset_editors", py_unreal_engine_close_all_asset_editors, METH_VARARGS, "" },
 	{ "allow_actor_script_execution_in_editor", py_unreal_engine_allow_actor_script_execution_in_editor , METH_VARARGS, "" },
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
+	{ "console_exec", py_unreal_engine_console_exec, METH_VARARGS, "" },
 	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
@@ -488,7 +489,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "play", (PyCFunction)py_ue_play, METH_VARARGS, "" },
 
-	{ "console_exec", (PyCFunction)py_ue_console_exec, METH_VARARGS, "" },
+	{ "world_exec", (PyCFunction)py_ue_world_exec, METH_VARARGS, "" },
 
 	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
 

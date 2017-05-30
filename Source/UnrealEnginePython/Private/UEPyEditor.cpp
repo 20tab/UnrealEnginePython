@@ -35,6 +35,23 @@ PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args) {
+
+	char *command;
+
+        if (!GEditor)
+                return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	if (!PyArg_ParseTuple(args, "s:console_exec", &command)) {
+                return NULL;
+        }
+
+	GEditor->Exec(GEditor->GetEditorWorldContext().World(), UTF8_TO_TCHAR(command), *GLog);
+
+        Py_INCREF(Py_None);
+        return Py_None;
+}
+
 PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * self, PyObject * args) {
 
 	if (!GEditor)

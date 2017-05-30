@@ -1,11 +1,11 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-PyObject *py_ue_console_exec(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
 	char *command;
-	if (!PyArg_ParseTuple(args, "s:console_exec", &command)) {
+	if (!PyArg_ParseTuple(args, "s:world_exec", &command)) {
 		return NULL;
 	}
 
