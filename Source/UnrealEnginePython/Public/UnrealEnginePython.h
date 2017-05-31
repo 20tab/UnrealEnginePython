@@ -2,7 +2,9 @@
 
 #pragma once
 
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
+#endif
 
 #include "ModuleManager.h"
 
