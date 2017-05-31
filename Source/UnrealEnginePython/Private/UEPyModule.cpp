@@ -20,6 +20,7 @@
 #include "UEPyPhysics.h"
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
+#include "UEPyViewport.h"
 
 #include "UEPyPackage.h"
 #include "UEPyAssetUserData.h"
@@ -274,7 +275,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_viewport_screenshot", py_unreal_engine_get_viewport_screenshot, METH_VARARGS, "" },
 	{ "get_viewport_size", py_unreal_engine_get_viewport_size, METH_VARARGS, "" },
 
+	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #if WITH_EDITOR
+	{ "get_editor_game_viewport_client", py_unreal_engine_get_editor_game_viewport_client, METH_VARARGS, "" },
 	{ "editor_get_active_viewport_screenshot", py_unreal_engine_editor_get_active_viewport_screenshot, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_screenshot", py_unreal_engine_editor_get_pie_viewport_screenshot, METH_VARARGS, "" },
 
@@ -632,7 +635,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "static_mesh_set_shadow_for_lod", (PyCFunction)py_ue_static_mesh_set_shadow_for_lod, METH_VARARGS, "" },
 #endif
 
-
+	// Viewport
+	{ "add_viewport_widget_client", (PyCFunction)py_ue_add_viewport_widget_client, METH_VARARGS, "" },
 
 #if PY_MAJOR_VERSION >= 3
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
