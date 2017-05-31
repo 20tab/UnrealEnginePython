@@ -335,6 +335,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "set_property", (PyCFunction)py_ue_set_property, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
+	{ "get_property_class", (PyCFunction)py_ue_get_property_class, METH_VARARGS, "" },
 
 
 	{ "functions", (PyCFunction)py_ue_functions, METH_VARARGS, "" },
