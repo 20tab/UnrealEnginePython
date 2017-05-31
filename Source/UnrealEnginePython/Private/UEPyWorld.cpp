@@ -137,6 +137,26 @@ PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 }
 
+PyObject *py_ue_get_game_viewport(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	UGameViewportClient *viewport_client = world->GetGameViewport();
+	if (!viewport_client)
+		return PyErr_Format(PyExc_Exception, "world has no GameViewportClient");
+
+	ue_PyUObject *ret = ue_get_python_wrapper(viewport_client);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
+}
+
 PyObject *py_ue_has_world(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

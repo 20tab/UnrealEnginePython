@@ -28,13 +28,14 @@ PyObject *py_unreal_engine_get_editor_game_viewport_client(PyObject * self, PyOb
 }
 #endif
 
-PyObject *py_ue_add_viewport_widget_client(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *py_widget;
+	int z_order = 0;
 
-	if (!PyArg_ParseTuple(args, "O:add_viewport_widget_client", &py_widget)) {
+	if (!PyArg_ParseTuple(args, "O|i:add_viewport_widget_content", &py_widget, &z_order)) {
 		return NULL;
 	}
 
@@ -49,9 +50,49 @@ PyObject *py_ue_add_viewport_widget_client(ue_PyUObject *self, PyObject * args) 
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	viewport->AddViewportWidgetContent(py_swidget->s_widget_owned);
+	viewport->AddViewportWidgetContent(py_swidget->s_widget_owned, z_order);
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
+PyObject *py_ue_remove_viewport_widget_content(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_widget;
+
+	if (!PyArg_ParseTuple(args, "O:remove_viewport_widget_content", &py_widget)) {
+		return NULL;
+	}
+
+	UGameViewportClient *viewport = ue_py_check_type<UGameViewportClient>(self);
+	if (!viewport)
+		return PyErr_Format(PyExc_Exception, "object is not a GameViewportClient");
+
+	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
+	if (!py_swidget) {
+		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+	}
+	Py_DECREF(py_swidget);
+
+	viewport->RemoveViewportWidgetContent(py_swidget->s_widget_owned);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyObject *py_ue_remove_all_viewport_widgets(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UGameViewportClient *viewport = ue_py_check_type<UGameViewportClient>(self);
+	if (!viewport)
+		return PyErr_Format(PyExc_Exception, "object is not a GameViewportClient");
+
+	
+	viewport->RemoveAllViewportWidgets();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}

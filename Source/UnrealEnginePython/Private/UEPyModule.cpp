@@ -537,6 +537,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 
+	{ "get_game_viewport", (PyCFunction)py_ue_get_game_viewport, METH_VARARGS, "" },
+
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
 	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },
 
@@ -636,7 +638,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #endif
 
 	// Viewport
-	{ "add_viewport_widget_client", (PyCFunction)py_ue_add_viewport_widget_client, METH_VARARGS, "" },
+	{ "add_viewport_widget_content", (PyCFunction)py_ue_add_viewport_widget_content, METH_VARARGS, "" },
+	{ "remove_viewport_widget_content", (PyCFunction)py_ue_remove_viewport_widget_content, METH_VARARGS, "" },
+	{ "remove_all_viewport_widgets", (PyCFunction)py_ue_remove_all_viewport_widgets, METH_VARARGS, "" },
 
 #if PY_MAJOR_VERSION >= 3
 	{ "add_function", (PyCFunction)py_ue_add_function, METH_VARARGS, "" },
