@@ -2,6 +2,8 @@
 
 #pragma once
 
+#pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
+
 #include "ModuleManager.h"
 
 #include "Runtime/SlateCore/Public/Styling/SlateStyle.h"

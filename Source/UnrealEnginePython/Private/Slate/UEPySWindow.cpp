@@ -63,7 +63,11 @@ static PyObject *py_ue_swindow_set_sizing_rule(ue_PySWindow *self, PyObject * ar
 
 	GET_s_window;
 
+#if ENGINE_MINOR_VERSION > 15
+	s_window->SetSizingRule((ESizingRule)rule);
+#else
 	s_window->SetSizingRule((ESizingRule::Type)rule);
+#endif
 
 	Py_INCREF(self);
 	return (PyObject *)self;
