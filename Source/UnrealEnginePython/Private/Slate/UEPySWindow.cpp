@@ -55,6 +55,20 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args) 
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_swindow_set_sizing_rule(ue_PySWindow *self, PyObject * args) {
+	int rule;
+	if (!PyArg_ParseTuple(args, "i:set_sizing_rule", &rule)) {
+		return NULL;
+	}
+
+	GET_s_window;
+
+	s_window->SetSizingRule((ESizingRule::Type)rule);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *py_ue_swindow_get_handle(ue_PySWindow *self, PyObject * args) {
 
 	GET_s_window;
@@ -70,6 +84,7 @@ static PyObject *ue_PySWindow_str(ue_PySWindow *self)
 
 static PyMethodDef ue_PySWindow_methods[] = {
 	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
+	{ "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
