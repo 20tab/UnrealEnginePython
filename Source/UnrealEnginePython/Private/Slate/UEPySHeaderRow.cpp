@@ -2,13 +2,7 @@
 
 #include "UEPySHeaderRow.h"
 
-#define GET_s_header_row SHeaderRow *s_header_row =(SHeaderRow *)self->s_border.s_compound_widget.s_widget.s_widget
-
-static PyObject *ue_PySHeaderRow_str(ue_PySHeaderRow *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SHeaderRow '%p'>",
-		self->s_border.s_compound_widget.s_widget.s_widget);
-}
+#define sw_header_row StaticCastSharedRef<SHeaderRow>(self->s_border.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *args, PyObject *kwargs) {
 
@@ -52,12 +46,7 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *a
 		.HAlignCell((EHorizontalAlignment)cell_h_align)
 		.VAlignCell((EVerticalAlignment)cell_v_align);
 
-	//if (width > 0)
-	//	column.Width = width;
-
-	GET_s_header_row;
-
-	s_header_row->AddColumn(column);
+	sw_header_row->AddColumn(column);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -85,7 +74,7 @@ PyTypeObject ue_PySHeaderRowType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySHeaderRow_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -106,7 +95,6 @@ static int ue_py_sheader_row_init(ue_PySHeaderRow *self, PyObject *args, PyObjec
 }
 
 void ue_python_init_sheader_row(PyObject *ue_module) {
-	ue_PySHeaderRowType.tp_new = PyType_GenericNew;
 
 	ue_PySHeaderRowType.tp_init = (initproc)ue_py_sheader_row_init;
 

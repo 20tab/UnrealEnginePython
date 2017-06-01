@@ -3,19 +3,11 @@
 
 #include "UEPySCompoundWidget.h"
 
-#define GET_s_compound_widget SCompoundWidget *s_compound_widget = (SCompoundWidget*)self->s_widget.s_widget
-
-static PyObject *ue_PySCompoundWidget_str(ue_PySCompoundWidget *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SCompoundWidget '%p'>",
-		self->s_widget.s_widget);
-}
+#define sw_compound_widget StaticCastSharedRef<SCompoundWidget>(self->s_widget.s_widget)
 
 static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args) {
 
-	GET_s_compound_widget;
-
-	FLinearColor color = s_compound_widget->GetColorAndOpacity();
+	FLinearColor color = sw_compound_widget->GetColorAndOpacity();
 
 	return py_ue_new_flinearcolor(color);
 }
@@ -33,9 +25,7 @@ static PyObject *py_ue_scompound_widget_set_color_and_opacity(ue_PySCompoundWidg
 		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
 	}
 
-	GET_s_compound_widget;
-
-	s_compound_widget->SetColorAndOpacity(py_linear_color->color);
+	sw_compound_widget->SetColorAndOpacity(py_linear_color->color);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -64,7 +54,7 @@ PyTypeObject ue_PySCompoundWidgetType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySCompoundWidget_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -80,8 +70,6 @@ PyTypeObject ue_PySCompoundWidgetType = {
 };
 
 void ue_python_init_scompound_widget(PyObject *ue_module) {
-	ue_PySCompoundWidgetType.tp_new = PyType_GenericNew;
-
 	ue_PySCompoundWidgetType.tp_base = &ue_PySWidgetType;
 
 	if (PyType_Ready(&ue_PySCompoundWidgetType) < 0)

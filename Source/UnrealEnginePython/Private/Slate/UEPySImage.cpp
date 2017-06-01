@@ -3,7 +3,7 @@
 
 #include "UEPySImage.h"
 
-#define GET_s_image SImage *s_image = (SImage *)self->s_leaf_widget.s_widget.s_widget
+#define sw_image StaticCastSharedRef<SImage>(self->s_leaf_widget.s_widget.s_widget)
 
 static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args) {
 	PyObject *py_brush;
@@ -15,18 +15,10 @@ static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args) {
 	if (!brush)
 		return PyErr_Format(PyExc_Exception, "argument is not a FSlateBrush");
 
-	GET_s_image;
-
-	s_image->SetImage(brush);
+	sw_image->SetImage(brush);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySImage_str(ue_PySImage *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SImage '%p'>",
-		self->s_leaf_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySImage_methods[] = {
@@ -51,7 +43,7 @@ PyTypeObject ue_PySImageType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySImage_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -72,7 +64,6 @@ static int ue_py_simage_init(ue_PySImage *self, PyObject *args, PyObject *kwargs
 }
 
 void ue_python_init_simage(PyObject *ue_module) {
-	ue_PySImageType.tp_new = PyType_GenericNew;
 
 	ue_PySImageType.tp_init = (initproc)ue_py_simage_init;
 

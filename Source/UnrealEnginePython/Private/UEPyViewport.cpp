@@ -50,7 +50,7 @@ PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *self, PyObject * args)
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	viewport->AddViewportWidgetContent(py_swidget->s_widget_owned, z_order);
+	viewport->AddViewportWidgetContent(py_swidget->s_widget, z_order);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -76,7 +76,7 @@ PyObject *py_ue_remove_viewport_widget_content(ue_PyUObject *self, PyObject * ar
 	}
 	Py_DECREF(py_swidget);
 
-	viewport->RemoveViewportWidgetContent(py_swidget->s_widget_owned);
+	viewport->RemoveViewportWidgetContent(py_swidget->s_widget);
 
 	Py_INCREF(Py_None);
 	return Py_None;

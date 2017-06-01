@@ -3,7 +3,7 @@
 
 #include "UEPySSplitter.h"
 
-#define GET_s_splitter SSplitter *s_splitter = (SSplitter *)self->s_panel.s_widget.s_widget
+#define sw_splitter StaticCastSharedRef<SSplitter>(self->s_panel.s_widget.s_widget)
 
 static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args) {
 	PyObject *py_content;
@@ -19,20 +19,11 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args)
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	GET_s_splitter;
-
-	SSplitter::FSlot &fslot = s_splitter->AddSlot(index);
+	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-
-static PyObject *ue_PySSplitter_str(ue_PySSplitter *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SSplitter '%p'>",
-		self->s_panel.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySSplitter_methods[] = {
@@ -56,7 +47,7 @@ PyTypeObject ue_PySSplitterType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySSplitter_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -77,7 +68,6 @@ static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *
 }
 
 void ue_python_init_ssplitter(PyObject *ue_module) {
-	ue_PySSplitterType.tp_new = PyType_GenericNew;
 
 	ue_PySSplitterType.tp_init = (initproc)ue_py_ssplitter_init;
 

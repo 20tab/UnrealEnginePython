@@ -3,12 +3,6 @@
 
 #include "UEPySPanel.h"
 
-static PyObject *ue_PySPanel_str(ue_PySPanel *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SPanel '%p'>",
-		self->s_widget.s_widget);
-}
-
 static PyMethodDef ue_PySPanel_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -30,7 +24,7 @@ PyTypeObject ue_PySPanelType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySPanel_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -46,7 +40,6 @@ PyTypeObject ue_PySPanelType = {
 };
 
 void ue_python_init_spanel(PyObject *ue_module) {
-	ue_PySPanelType.tp_new = PyType_GenericNew;
 
 	ue_PySPanelType.tp_base = &ue_PySWidgetType;
 

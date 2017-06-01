@@ -69,6 +69,9 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 
 void ue_py_register_swidget(SWidget *, ue_PySWidget *);
+void ue_py_unregister_swidget(SWidget *);
+
+void ue_py_setup_swidget(ue_PySWidget *);
 
 template<typename T> TSharedRef<T> ue_py_init_swidget(ue_PySWidget *py_swidget) {
 	TSharedRef<T> new_swidget = TSharedRef<T>(SNew(T));
@@ -76,19 +79,18 @@ template<typename T> TSharedRef<T> ue_py_init_swidget(ue_PySWidget *py_swidget) 
 	return new_swidget;
 }
 
-template<typename T> ue_PySWidget *py_ue_new_swidget(SWidget *s_widget, PyTypeObject *py_type) {
+template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widget, PyTypeObject *py_type) {
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(T, py_type);
 
-	ret->s_widget = s_widget;
+	ue_py_setup_swidget(ret);
 
-	ue_py_register_swidget(s_widget, ret);
+	ue_py_register_swidget(&s_widget.Get(), ret);
 	return ret;
 }
 
-#define ue_py_snew(T, field)  new(&self->field.s_widget_owned) TSharedRef<SWidget>(ue_py_init_swidget<T>((ue_PySWidget *)self)); self->field.s_widget = &self->field.s_widget_owned.Get()
+#define ue_py_snew(T, field) self->field.s_widget = ue_py_init_swidget<T>((ue_PySWidget *)self); self->field.s_widget->SetDebugInfo(#T, __FILE__, __LINE__)
 
-ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget);
-
+ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 void ue_python_init_slate(PyObject *);

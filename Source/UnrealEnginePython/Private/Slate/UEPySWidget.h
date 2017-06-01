@@ -4,17 +4,21 @@
 
 extern PyTypeObject ue_PySWidgetType;
 
-typedef struct {
+class UPythonSlateDelegate;
+typedef struct ue_PySWidget ue_PySWidget;
+
+struct ue_PySWidget{
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 
-	// this field is for SWidget created by the python VM, it avoids them to be destroyed
-	TSharedRef<SWidget> s_widget_owned;
-
-	SWidget *s_widget;
+	TSharedRef<SWidget> s_widget;
 
 	PyObject *py_dict;
-} ue_PySWidget;
+
+	TArray<UPythonSlateDelegate *> delegates;
+
+	ue_PySWidget *py_swidget_content;
+};
 
 void ue_python_init_swidget(PyObject *);
 

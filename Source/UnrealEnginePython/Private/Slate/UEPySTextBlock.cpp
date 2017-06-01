@@ -4,7 +4,7 @@
 #include "UEPySTextBlock.h"
 
 
-#define GET_s_text_block STextBlock *s_text_block = (STextBlock *)self->s_leaf_widget.s_widget.s_widget
+#define sw_text_block StaticCastSharedRef<STextBlock>(self->s_leaf_widget.s_widget.s_widget)
 
 static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * args) {
 	char *text;
@@ -12,18 +12,10 @@ static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * ar
 		return NULL;
 	}
 
-	GET_s_text_block;
-
-	s_text_block->SetText(FString(UTF8_TO_TCHAR(text)));
+	sw_text_block->SetText(FString(UTF8_TO_TCHAR(text)));
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySTextBlock_str(ue_PySTextBlock *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.STextBlock '%p'>",
-		self->s_leaf_widget.s_widget.s_widget);
 }
 
 static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, PyObject * args) {
@@ -39,9 +31,7 @@ static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, 
 		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
 	}
 
-	GET_s_text_block;
-
-	s_text_block->SetColorAndOpacity(py_linear_color->color);
+	sw_text_block->SetColorAndOpacity(py_linear_color->color);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -69,7 +59,7 @@ PyTypeObject ue_PySTextBlockType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySTextBlock_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -85,13 +75,12 @@ PyTypeObject ue_PySTextBlockType = {
 };
 
 static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs) {
+
 	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
 	return 0;
 }
 
 void ue_python_init_stext_block(PyObject *ue_module) {
-	ue_PySTextBlockType.tp_new = PyType_GenericNew;
-
 	ue_PySTextBlockType.tp_init = (initproc)ue_py_stext_block_init;
 
 	ue_PySTextBlockType.tp_base = &ue_PySLeafWidgetType;

@@ -4,14 +4,8 @@
 
 #include "UEPySDockTab.h"
 
-#define GET_s_dock_tab SDockTab *s_dock_tab =(SDockTab *)self->s_border.s_compound_widget.s_widget.s_widget
+#define sw_dock_tab StaticCastSharedRef<SDockTab>(self->s_border.s_compound_widget.s_widget.s_widget)
 
-
-static PyObject *ue_PySDockTab_str(ue_PySDockTab *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SDockTab '%p'>",
-		self->s_border.s_compound_widget.s_widget.s_widget);
-}
 
 static PyObject *py_ue_sdock_tab_set_label(ue_PySButton *self, PyObject * args) {
 	char *label;
@@ -19,9 +13,7 @@ static PyObject *py_ue_sdock_tab_set_label(ue_PySButton *self, PyObject * args) 
 		return NULL;
 	}
 
-	GET_s_dock_tab;
-
-	s_dock_tab->SetLabel(FText::FromString(UTF8_TO_TCHAR(label)));
+	sw_dock_tab->SetLabel(FText::FromString(UTF8_TO_TCHAR(label)));
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -48,7 +40,7 @@ PyTypeObject ue_PySDockTabType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySDockTab_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -64,7 +56,6 @@ PyTypeObject ue_PySDockTabType = {
 };
 
 void ue_python_init_sdock_tab(PyObject *ue_module) {
-	ue_PySDockTabType.tp_new = PyType_GenericNew;
 
 	ue_PySDockTabType.tp_base = &ue_PySBorderType;
 

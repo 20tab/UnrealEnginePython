@@ -4,12 +4,11 @@
 #include "UEPySGridPanel.h"
 
 
-#define GET_s_grid_panel SGridPanel *s_grid_panel = (SGridPanel *)self->s_panel.s_widget.s_widget
+#define sw_grid_panel StaticCastSharedRef<SGridPanel>(self->s_panel.s_widget.s_widget)
 
 static PyObject *py_ue_sgrid_panel_clear_children(ue_PySGridPanel *self, PyObject * args) {
-	GET_s_grid_panel;
 
-	s_grid_panel->ClearChildren();
+	sw_grid_panel->ClearChildren();
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -31,19 +30,11 @@ static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * ar
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	GET_s_grid_panel;
-
-	SGridPanel::FSlot &fslot = s_grid_panel->AddSlot(col, row, SGridPanel::Layer(layer));
+	SGridPanel::FSlot &fslot = sw_grid_panel->AddSlot(col, row, SGridPanel::Layer(layer));
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySGridPanel_str(ue_PySGridPanel *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SGridPanel '%p'>",
-		self->s_panel.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySGridPanel_methods[] = {
@@ -68,7 +59,7 @@ PyTypeObject ue_PySGridPanelType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySGridPanel_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -89,7 +80,6 @@ static int ue_py_sgrid_panel_init(ue_PySGridPanel *self, PyObject *args, PyObjec
 }
 
 void ue_python_init_sgrid_panel(PyObject *ue_module) {
-	ue_PySGridPanelType.tp_new = PyType_GenericNew;
 
 	ue_PySGridPanelType.tp_init = (initproc)ue_py_sgrid_panel_init;
 

@@ -4,12 +4,11 @@
 #include "UEPySBorder.h"
 
 
-#define GET_s_border SBorder *s_border = (SBorder *)self->s_compound_widget.s_widget.s_widget
+#define sw_border StaticCastSharedRef<SBorder>(self->s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_sborder_clear_content(ue_PySBorder *self, PyObject * args) {
-	GET_s_border;
 
-	s_border->ClearContent();
+	sw_border->ClearContent();
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -28,9 +27,7 @@ static PyObject *py_ue_sborder_set_content(ue_PySBorder *self, PyObject * args) 
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	GET_s_border;
-
-	s_border->SetContent(py_swidget->s_widget->AsShared());
+	sw_border->SetContent(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -53,9 +50,7 @@ static PyObject *py_ue_sborder_set_padding(ue_PySBorder *self, PyObject * args) 
 		Py_DECREF(py_float);
 	}
 
-	GET_s_border;
-
-	s_border->SetPadding(*margin);
+	sw_border->SetPadding(*margin);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -67,9 +62,7 @@ static PyObject *py_ue_sborder_set_h_align(ue_PySBorder *self, PyObject * args) 
 		return NULL;
 	}
 
-	GET_s_border;
-
-	s_border->SetHAlign((EHorizontalAlignment)align);
+	sw_border->SetHAlign((EHorizontalAlignment)align);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -81,18 +74,10 @@ static PyObject *py_ue_sborder_set_v_align(ue_PySBorder *self, PyObject * args) 
 		return NULL;
 	}
 
-	GET_s_border;
-
-	s_border->SetVAlign((EVerticalAlignment)align);
+	sw_border->SetVAlign((EVerticalAlignment)align);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySBorder_str(ue_PySBorder *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SBorder '%p'>",
-		self->s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySBorder_methods[] = {
@@ -120,7 +105,7 @@ PyTypeObject ue_PySBorderType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySBorder_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -141,7 +126,6 @@ static int ue_py_sborder_init(ue_PySBorder *self, PyObject *args, PyObject *kwar
 }
 
 void ue_python_init_sborder(PyObject *ue_module) {
-	ue_PySBorderType.tp_new = PyType_GenericNew;
 
 	ue_PySBorderType.tp_init = (initproc)ue_py_sborder_init;
 

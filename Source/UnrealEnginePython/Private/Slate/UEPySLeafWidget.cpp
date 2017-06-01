@@ -3,13 +3,6 @@
 
 #include "UEPySLeafWidget.h"
 
-
-static PyObject *ue_PySLeafWidget_str(ue_PySLeafWidget *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SLeafWidget '%p'>",
-		self->s_widget.s_widget);
-}
-
 static PyMethodDef ue_PySLeafWidget_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -30,7 +23,7 @@ PyTypeObject ue_PySLeafWidgetType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySLeafWidget_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -46,7 +39,6 @@ PyTypeObject ue_PySLeafWidgetType = {
 };
 
 void ue_python_init_sleaf_widget(PyObject *ue_module) {
-	ue_PySLeafWidgetType.tp_new = PyType_GenericNew;
 
 	ue_PySLeafWidgetType.tp_base = &ue_PySWidgetType;
 

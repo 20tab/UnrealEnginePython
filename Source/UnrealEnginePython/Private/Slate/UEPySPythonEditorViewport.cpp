@@ -5,13 +5,11 @@
 
 
 
-#define GET_s_python_editor_viewport SPythonEditorViewport *s_python_editor_viewport = (SPythonEditorViewport *)self->s_editor_viewport.s_compound_widget.s_widget.s_widget
+#define sw_python_editor_viewport StaticCastSharedRef<SPythonEditorViewport>(self->s_editor_viewport.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_spython_editor_viewport_get_world(ue_PySPythonEditorViewport *self, PyObject * args) {
 
-	GET_s_python_editor_viewport;
-
-	ue_PyUObject *ret = ue_get_python_wrapper(s_python_editor_viewport->GetPythonWorld());
+	ue_PyUObject *ret = ue_get_python_wrapper(sw_python_editor_viewport->GetPythonWorld());
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
@@ -24,9 +22,8 @@ static PyObject *py_ue_spython_editor_viewport_set_show_bounds(ue_PySPythonEdito
 		return NULL;
 	}
 
-	GET_s_python_editor_viewport;
 
-	s_python_editor_viewport->GetViewportClient()->SetShowBounds(PyObject_IsTrue(py_bool) ? true : false);
+	sw_python_editor_viewport->GetViewportClient()->SetShowBounds(PyObject_IsTrue(py_bool) ? true : false);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -38,9 +35,8 @@ static PyObject *py_ue_spython_editor_viewport_set_show_stats(ue_PySPythonEditor
 		return NULL;
 	}
 
-	GET_s_python_editor_viewport;
 
-	s_python_editor_viewport->GetViewportClient()->SetShowStats(PyObject_IsTrue(py_bool) ? true : false);
+	sw_python_editor_viewport->GetViewportClient()->SetShowStats(PyObject_IsTrue(py_bool) ? true : false);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -52,9 +48,8 @@ static PyObject *py_ue_spython_editor_viewport_set_view_mode(ue_PySPythonEditorV
 		return NULL;
 	}
 
-	GET_s_python_editor_viewport;
 
-	s_python_editor_viewport->GetViewportClient()->SetViewMode((EViewModeIndex)mode);
+	sw_python_editor_viewport->GetViewportClient()->SetViewMode((EViewModeIndex)mode);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -71,18 +66,11 @@ static PyObject *py_ue_spython_editor_viewport_set_exposure_settings(ue_PySPytho
 		return PyErr_Format(PyExc_Exception, "argument is not a FExposureSettings");
 	}
 
-	GET_s_python_editor_viewport;
 
-	s_python_editor_viewport->GetViewportClient()->ExposureSettings = *settings;
+	sw_python_editor_viewport->GetViewportClient()->ExposureSettings = *settings;
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySPythonEditorViewport_str(ue_PySPythonEditorViewport *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SPythonEditorViewport '%p'>",
-		self->s_editor_viewport.s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
@@ -121,7 +109,7 @@ PyTypeObject ue_PySPythonEditorViewportType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySPythonEditorViewport_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -142,7 +130,6 @@ static int ue_py_spython_editor_viewport_init(ue_PySPythonEditorViewport *self, 
 }
 
 void ue_python_init_spython_editor_viewport(PyObject *ue_module) {
-	ue_PySPythonEditorViewportType.tp_new = PyType_GenericNew;
 
 	ue_PySPythonEditorViewportType.tp_init = (initproc)ue_py_spython_editor_viewport_init;
 

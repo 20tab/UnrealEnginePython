@@ -6,15 +6,13 @@
 #include "UEPySPythonListView.h"
 
 
-#define GET_s_python_list_view SPythonListView *s_python_list_view = (SPythonListView *)self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget
+#define sw_python_list_view StaticCastSharedRef<SPythonListView>(self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args) {
 
-	GET_s_python_list_view;
-
 	PyObject *py_list = PyList_New(0);
 
-	TArray<TSharedPtr<FPythonItem>> items = s_python_list_view->GetSelectedItems();
+	TArray<TSharedPtr<FPythonItem>> items = sw_python_list_view->GetSelectedItems();
 
 	for (auto item : items) {
 		PyList_Append(py_list, item->py_object);
@@ -25,9 +23,8 @@ static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView
 
 static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *self, PyObject * args) {
 
-	GET_s_python_list_view;
 
-	s_python_list_view->ClearSelection();
+	sw_python_list_view->ClearSelection();
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -36,16 +33,10 @@ static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *s
 
 static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonListView *self, PyObject * args) {
 
-	GET_s_python_list_view;
 
-	return PyLong_FromLong(s_python_list_view->GetNumItemsSelected());
+	return PyLong_FromLong(sw_python_list_view->GetNumItemsSelected());
 }
 
-static PyObject *ue_PySPythonListView_str(ue_PySPythonListView *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SPythonListView '%p'>",
-		self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget);
-}
 
 static PyMethodDef ue_PySPythonListView_methods[] = {
 	{ "get_selected_items", (PyCFunction)py_ue_spython_list_view_get_selected_items, METH_VARARGS, "" },
@@ -70,7 +61,7 @@ PyTypeObject ue_PySPythonListViewType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySPythonListView_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -119,14 +110,13 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	py_delegate->SetPyCallable(py_callable);
 	py_delegate->AddToRoot();
 	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateRow);
+	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.delegates.Add(py_delegate);
 
-	new (&self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(SNew(SPythonListView).ListItemsSource(items).OnGenerateRow(handler));
-	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget = &self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned.Get();
+	new (&self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(SNew(SPythonListView).ListItemsSource(items).OnGenerateRow(handler));
 	return 0;
 }
 
 void ue_python_init_spython_list_view(PyObject *ue_module) {
-	ue_PySPythonListViewType.tp_new = PyType_GenericNew;
 
 	ue_PySPythonListViewType.tp_init = (initproc)ue_py_spython_list_view_init;
 

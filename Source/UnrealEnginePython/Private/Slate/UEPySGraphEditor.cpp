@@ -5,14 +5,8 @@
 
 
 
-#define GET_s_graph_editor SGraphEditor *s_graph_editor = (SGraphEditor*) self->s_compound_widget.s_widget.s_widget
+#define sw_graph_editor StaticCastSharedRef<SGraphEditor>(self->s_compound_widget.s_widget.s_widget)
 
-
-static PyObject *ue_PySGraphEditor_str(ue_PySGraphEditor *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SGraphEditor '%p'>",
-		self->s_compound_widget.s_widget.s_widget);
-}
 
 static PyMethodDef ue_PySGraphEditor_methods[] = {
 	{ NULL }  /* Sentinel */
@@ -34,7 +28,7 @@ PyTypeObject ue_PySGraphEditorType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySGraphEditor_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -60,13 +54,11 @@ static int ue_py_sgraph_editor_init(ue_PySGraphEditor *self, PyObject *args, PyO
 		PyErr_SetString(PyExc_Exception, "argument is not a EdGraph");
 		return -1;
 	}
-	new (&self->s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(SNew(SGraphEditor).GraphToEdit(graph));
-	self->s_compound_widget.s_widget.s_widget = &self->s_compound_widget.s_widget.s_widget_owned.Get();
+	new (&self->s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(SNew(SGraphEditor).GraphToEdit(graph));
 	return 0;
 }
 
 void ue_python_init_sgraph_editor(PyObject *ue_module) {
-	ue_PySGraphEditorType.tp_new = PyType_GenericNew;
 
 	ue_PySGraphEditorType.tp_init = (initproc)ue_py_sgraph_editor_init;
 

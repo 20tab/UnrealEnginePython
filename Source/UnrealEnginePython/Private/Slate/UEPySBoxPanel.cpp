@@ -4,21 +4,14 @@
 #include "UEPySBoxPanel.h"
 
 
-#define GET_s_box_panel SBoxPanel *s_box_panel = (SBoxPanel*)self->s_panel.s_widget.s_widget;
+#define sw_box_panel StaticCastSharedRef<SBoxPanel>(self->s_panel.s_widget.s_widget)
 
 static PyObject *py_ue_sbox_panel_clear_children(ue_PySGridPanel *self, PyObject * args) {
-	GET_s_box_panel;
 
-	s_box_panel->ClearChildren();
+	sw_box_panel->ClearChildren();
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
-
-static PyObject *ue_PySBoxPanel_str(ue_PySBoxPanel *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SBoxPanel '%p'>",
-		self->s_panel.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySBoxPanel_methods[] = {
@@ -42,7 +35,7 @@ PyTypeObject ue_PySBoxPanelType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySBoxPanel_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -58,7 +51,6 @@ PyTypeObject ue_PySBoxPanelType = {
 };
 
 void ue_python_init_sbox_panel(PyObject *ue_module) {
-	ue_PySBoxPanelType.tp_new = PyType_GenericNew;
 
 	ue_PySBoxPanelType.tp_base = &ue_PySPanelType;
 

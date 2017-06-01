@@ -5,38 +5,34 @@
 
 
 
-#define GET_s_editable_text_box SEditableTextBox *s_editable_text_box = (SEditableTextBox *)self->s_border.s_compound_widget.s_widget.s_widget
+#define sw_editable_text_box StaticCastSharedRef<SEditableTextBox>(self->s_border.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_seditable_text_box_select_all_text(ue_PySEditableTextBox *self, PyObject * args) {
-	GET_s_editable_text_box;
 
-	s_editable_text_box->SelectAllText();
+	sw_editable_text_box->SelectAllText();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject *py_ue_seditable_text_box_clear_selection(ue_PySEditableTextBox *self, PyObject * args) {
-	GET_s_editable_text_box;
 
-	s_editable_text_box->ClearSelection();
+	sw_editable_text_box->ClearSelection();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 static PyObject *py_ue_seditable_text_box_get_selected_text(ue_PySEditableTextBox *self, PyObject * args) {
-	GET_s_editable_text_box;
 
-	FText text = s_editable_text_box->GetSelectedText();
+	FText text = sw_editable_text_box->GetSelectedText();
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*text.ToString()));
 }
 
 static PyObject *py_ue_seditable_text_box_get_text(ue_PySEditableTextBox *self, PyObject * args) {
-	GET_s_editable_text_box;
 
-	FText text = s_editable_text_box->GetText();
+	FText text = sw_editable_text_box->GetText();
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*text.ToString()));
 }
@@ -47,18 +43,10 @@ static PyObject *py_ue_seditable_text_box_set_text(ue_PySEditableTextBox *self, 
 		return NULL;
 	}
 
-	GET_s_editable_text_box;
-
-	s_editable_text_box->SetText(FText::FromString(UTF8_TO_TCHAR(text)));
+	sw_editable_text_box->SetText(FText::FromString(UTF8_TO_TCHAR(text)));
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySEditableTextBox_str(ue_PySEditableTextBox *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SEditableTextBox '%p'>",
-		self->s_border.s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySEditableTextBox_methods[] = {
@@ -86,7 +74,7 @@ PyTypeObject ue_PySEditableTextBoxType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySEditableTextBox_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -107,7 +95,6 @@ static int ue_py_seditable_text_box_init(ue_PySEditableTextBox *self, PyObject *
 }
 
 void ue_python_init_seditable_text_box(PyObject *ue_module) {
-	ue_PySEditableTextBoxType.tp_new = PyType_GenericNew;
 
 	ue_PySEditableTextBoxType.tp_init = (initproc)ue_py_seditable_text_box_init;
 

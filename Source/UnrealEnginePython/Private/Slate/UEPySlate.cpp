@@ -90,7 +90,7 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
 		return nullptr;
 	}
-	TSharedPtr<SWidget> value = s_widget->s_widget_owned;
+	TSharedPtr<SWidget> value = s_widget->s_widget;
 	Py_DECREF(ret);
 	return value;
 }
@@ -141,7 +141,7 @@ TSharedRef<ITableRow> UPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> 
 		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
 	}
 
-	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget_owned];
+	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget];
 }
 
 void UPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren) {
@@ -167,19 +167,19 @@ void UPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TS
 
 static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
 
-ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget) {
+ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget) {
 	ue_PySWidget *ret = nullptr;
-	auto it = py_slate_mapping->find(s_widget.Get());
+	auto it = py_slate_mapping->find(&s_widget.Get());
 	// not found, it means it is an SWidget not generated from python
 	if (it == py_slate_mapping->end()) {
-		if (s_widget->GetType() == FName("SWindow")) {
-			ret = py_ue_new_swidget<ue_PySWindow>(s_widget.Get(), &ue_PySWindowType);
+		if (s_widget->GetType().Compare(FName("SWindow")) == 0) {
+			return py_ue_new_swidget<ue_PySWindow>(s_widget, &ue_PySWindowType);
 		}
-		if (s_widget->GetType() == FName("SDockTab")) {
-			ret = py_ue_new_swidget<ue_PySDockTab>(s_widget.Get(), &ue_PySDockTabType);
+		if (s_widget->GetType().Compare(FName("SDockTab")) == 0) {
+			return py_ue_new_swidget<ue_PySDockTab>(s_widget, &ue_PySDockTabType);
 		}
 		else {
-			ret = py_ue_new_swidget<ue_PySWidget>(s_widget.Get(), &ue_PySWidgetType);
+			return py_ue_new_swidget<ue_PySWidget>(s_widget, &ue_PySWidgetType);
 		}
 	}
 	else {
@@ -189,8 +189,20 @@ ue_PySWidget *ue_py_get_swidget(TSharedPtr<SWidget> s_widget) {
 	return ret;
 }
 
+void ue_py_setup_swidget(ue_PySWidget *self) {
+	UE_LOG(LogPython, Warning, TEXT("Allocating new %s..."), UTF8_TO_TCHAR(self->ob_base.ob_type->tp_name));
+	self->py_dict = PyDict_New();
+	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
+	new(&self->delegates) TArray<UPythonSlateDelegate *>();
+	self->py_swidget_content = nullptr;
+}
+
 void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget) {
 	(*py_slate_mapping)[s_widget] = py_s_widget;
+}
+
+void ue_py_unregister_swidget(SWidget *s_widget) {
+	(*py_slate_mapping).erase(s_widget);
 }
 
 void ue_python_init_slate(PyObject *module) {
@@ -243,7 +255,7 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
 		return PyErr_Format(PyExc_Exception, "no RootWindow found");
 	}
 
-	return (PyObject *)ue_py_get_swidget(FGlobalTabmanager::Get()->GetRootWindow());
+	return (PyObject *)ue_py_get_swidget(FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
 }
 
 // slate commands tool class
@@ -386,33 +398,33 @@ PyObject *py_unreal_engine_add_menu_bar_extension(PyObject * self, PyObject * ar
 
 PyObject *py_unreal_engine_add_tool_bar_extension(PyObject * self, PyObject * args) {
 
-        char *command_name;
-        PyObject *py_callable;
+	char *command_name;
+	PyObject *py_callable;
 
-        char *hook = (char *)"Settings";
+	char *hook = (char *)"Settings";
 
-        if (!PyArg_ParseTuple(args, "sO|s:add_tool_bar_extension", &command_name, &py_callable, &hook)) {
-                return NULL;
-        }
+	if (!PyArg_ParseTuple(args, "sO|s:add_tool_bar_extension", &command_name, &py_callable, &hook)) {
+		return NULL;
+	}
 
-        FLevelEditorModule &ExtensibleModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	FLevelEditorModule &ExtensibleModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
-        if (!PyCallable_Check(py_callable))
-                return PyErr_Format(PyExc_Exception, "argument is not callable");
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
-		TSharedRef<FPythonSlateCommands> *commands = new TSharedRef<FPythonSlateCommands>(new FPythonSlateCommands());
+	TSharedRef<FPythonSlateCommands> *commands = new TSharedRef<FPythonSlateCommands>(new FPythonSlateCommands());
 
-        commands->Get().Setup(command_name, py_callable);
+	commands->Get().Setup(command_name, py_callable);
 
-		commands->Get().RegisterCommands();
+	commands->Get().RegisterCommands();
 
-        TSharedRef<FExtender> extender = MakeShareable(new FExtender());
-        extender->AddToolBarExtension(hook, EExtensionHook::After, commands->Get().GetCommands(), FToolBarExtensionDelegate::CreateRaw(&commands->Get(), &FPythonSlateCommands::ToolBarBuilder));
+	TSharedRef<FExtender> extender = MakeShareable(new FExtender());
+	extender->AddToolBarExtension(hook, EExtensionHook::After, commands->Get().GetCommands(), FToolBarExtensionDelegate::CreateRaw(&commands->Get(), &FPythonSlateCommands::ToolBarBuilder));
 
-        ExtensibleModule.GetToolBarExtensibilityManager()->AddExtender(extender);
+	ExtensibleModule.GetToolBarExtensibilityManager()->AddExtender(extender);
 
-        Py_INCREF(Py_None);
-        return Py_None;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 #endif
 

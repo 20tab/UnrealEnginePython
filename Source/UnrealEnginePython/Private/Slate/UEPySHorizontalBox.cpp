@@ -4,14 +4,8 @@
 #include "UEPySHorizontalBox.h"
 
 
-#define GET_s_horizontal_box SHorizontalBox *s_horizontal_box = (SHorizontalBox *)self->s_box_panel.s_panel.s_widget.s_widget
+#define sw_horizontal_box StaticCastSharedRef<SHorizontalBox>(self->s_box_panel.s_panel.s_widget.s_widget)
 
-
-static PyObject *ue_PySHorizontalBox_str(ue_PySHorizontalBox *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SHorizontalBox '%p'>",
-		self->s_box_panel.s_panel.s_widget.s_widget);
-}
 
 static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObject * args, PyObject *kwargs) {
 	PyObject *py_content;
@@ -49,9 +43,7 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	GET_s_horizontal_box;
-
-	SHorizontalBox::FSlot &fslot = s_horizontal_box->AddSlot();
+	SHorizontalBox::FSlot &fslot = sw_horizontal_box->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (max_width != 0)
@@ -68,8 +60,7 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 }
 
 static PyObject *py_ue_shorizontal_box_num_slots(ue_PySHorizontalBox *self, PyObject * args) {
-	GET_s_horizontal_box;
-	return PyLong_FromLong(s_horizontal_box->NumSlots());
+	return PyLong_FromLong(sw_horizontal_box->NumSlots());
 }
 
 static PyMethodDef ue_PySHorizontalBox_methods[] = {
@@ -95,7 +86,7 @@ PyTypeObject ue_PySHorizontalBoxType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySHorizontalBox_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -117,7 +108,6 @@ static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args,
 
 
 void ue_python_init_shorizontal_box(PyObject *ue_module) {
-	ue_PySHorizontalBoxType.tp_new = PyType_GenericNew;
 
 	ue_PySHorizontalBoxType.tp_init = (initproc)ue_py_shorizontal_box_init;
 

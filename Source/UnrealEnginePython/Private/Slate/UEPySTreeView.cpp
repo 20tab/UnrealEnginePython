@@ -4,12 +4,6 @@
 #include "UEPySTreeView.h"
 
 
-static PyObject *ue_PySTreeView_str(ue_PySTreeView *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.STreeView '%p'>",
-		self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget);
-}
-
 static PyMethodDef ue_PySTreeView_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -30,7 +24,7 @@ PyTypeObject ue_PySTreeViewType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySTreeView_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -47,7 +41,6 @@ PyTypeObject ue_PySTreeViewType = {
 
 
 void ue_python_init_stree_view(PyObject *ue_module) {
-	ue_PySTreeViewType.tp_new = PyType_GenericNew;
 
 	ue_PySTreeViewType.tp_base = &ue_PySListViewType;
 

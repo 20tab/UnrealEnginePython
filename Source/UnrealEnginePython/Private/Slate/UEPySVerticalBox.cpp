@@ -4,14 +4,7 @@
 #include "UEPySVerticalBox.h"
 
 
-#define GET_s_vertical_box SVerticalBox *s_vertical_box = (SVerticalBox *)self->s_box_panel.s_panel.s_widget.s_widget
-
-
-static PyObject *ue_PySVerticalBox_str(ue_PySVerticalBox *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SVerticalBox '%p'>",
-		self->s_box_panel.s_panel.s_widget.s_widget);
-}
+#define sw_vertical_box StaticCastSharedRef<SVerticalBox>(self->s_box_panel.s_panel.s_widget.s_widget)
 
 static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject * args, PyObject *kwargs) {
 	PyObject *py_content;
@@ -49,9 +42,7 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 	// TODO: decrement reference when destroying parent
 	Py_INCREF(py_swidget);
 
-	GET_s_vertical_box;
-
-	SVerticalBox::FSlot &fslot = s_vertical_box->AddSlot();
+	SVerticalBox::FSlot &fslot = sw_vertical_box->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (max_height != 0)
@@ -68,8 +59,7 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 }
 
 static PyObject *py_ue_svertical_box_num_slots(ue_PySHorizontalBox *self, PyObject * args) {
-	GET_s_vertical_box;
-	return PyLong_FromLong(s_vertical_box->NumSlots());
+	return PyLong_FromLong(sw_vertical_box->NumSlots());
 }
 
 static PyMethodDef ue_PySVerticalBox_methods[] = {
@@ -95,7 +85,7 @@ PyTypeObject ue_PySVerticalBoxType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySVerticalBox_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -117,7 +107,6 @@ static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, P
 
 
 void ue_python_init_svertical_box(PyObject *ue_module) {
-	ue_PySVerticalBoxType.tp_new = PyType_GenericNew;
 
 	ue_PySVerticalBoxType.tp_init = (initproc)ue_py_svertical_box_init;
 

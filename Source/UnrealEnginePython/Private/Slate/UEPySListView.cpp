@@ -3,13 +3,6 @@
 
 #include "UEPySListView.h"
 
-
-static PyObject *ue_PySListView_str(ue_PySListView *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SListView '%p'>",
-		self->s_table_view_base.s_compound_widget.s_widget.s_widget);
-}
-
 static PyMethodDef ue_PySListView_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -30,7 +23,7 @@ PyTypeObject ue_PySListViewType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySListView_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -47,7 +40,6 @@ PyTypeObject ue_PySListViewType = {
 
 
 void ue_python_init_slist_view(PyObject *ue_module) {
-	ue_PySListViewType.tp_new = PyType_GenericNew;
 
 	ue_PySListViewType.tp_base = &ue_PySTableViewBaseType;
 

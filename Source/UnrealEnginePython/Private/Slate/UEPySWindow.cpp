@@ -3,7 +3,7 @@
 
 #include "UEPySWindow.h"
 
-#define GET_s_window SWindow *s_window = (SWindow*)self->s_compound_widget.s_widget.s_widget
+#define sw_window StaticCastSharedRef<SWindow>(self->s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args) {
 	char *title;
@@ -11,9 +11,7 @@ static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args) {
 		return NULL;
 	}
 
-	GET_s_window;
-
-	s_window->SetTitle(FText::FromString(UTF8_TO_TCHAR(title)));
+	sw_window->SetTitle(FText::FromString(UTF8_TO_TCHAR(title)));
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -26,9 +24,8 @@ static PyObject *py_ue_swindow_resize(ue_PySWindow *self, PyObject * args) {
 		return NULL;
 	}
 
-	GET_s_window;
 
-	s_window->Resize(FVector2D(width, height));
+	sw_window->Resize(FVector2D(width, height));
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -44,12 +41,13 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args) 
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	// TODO: decrement reference when destroying parent
+	
+	Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
 	Py_INCREF(py_swidget);
+	self->s_compound_widget.s_widget.py_swidget_content = py_swidget;
 
-	GET_s_window;
 
-	s_window->SetContent(py_swidget->s_widget->AsShared());
+	sw_window->SetContent(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -61,12 +59,11 @@ static PyObject *py_ue_swindow_set_sizing_rule(ue_PySWindow *self, PyObject * ar
 		return NULL;
 	}
 
-	GET_s_window;
 
 #if ENGINE_MINOR_VERSION > 15
-	s_window->SetSizingRule((ESizingRule)rule);
+	sw_window->SetSizingRule((ESizingRule)rule);
 #else
-	s_window->SetSizingRule((ESizingRule::Type)rule);
+	sw_window->SetSizingRule((ESizingRule::Type)rule);
 #endif
 
 	Py_INCREF(self);
@@ -74,16 +71,7 @@ static PyObject *py_ue_swindow_set_sizing_rule(ue_PySWindow *self, PyObject * ar
 }
 
 static PyObject *py_ue_swindow_get_handle(ue_PySWindow *self, PyObject * args) {
-
-	GET_s_window;
-
-	return PyLong_FromLongLong((long long)s_window->GetNativeWindow()->GetOSWindowHandle());
-}
-
-static PyObject *ue_PySWindow_str(ue_PySWindow *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SWindow '%p'>",
-		self->s_compound_widget.s_widget.s_widget);
+	return PyLong_FromLongLong((long long)sw_window->GetNativeWindow()->GetOSWindowHandle());
 }
 
 static PyMethodDef ue_PySWindow_methods[] = {
@@ -112,7 +100,7 @@ PyTypeObject ue_PySWindowType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySWindow_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -130,15 +118,12 @@ PyTypeObject ue_PySWindowType = {
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(SWindow, s_compound_widget.s_widget);
 
-	GET_s_window;
-
-	FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(s_window->AsShared()), true);
+	FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(sw_window->AsShared()), true);
 
 	return 0;
 }
 
 void ue_python_init_swindow(PyObject *ue_module) {
-	ue_PySWindowType.tp_new = PyType_GenericNew;
 
 	ue_PySWindowType.tp_init = (initproc)ue_py_swindow_init;
 

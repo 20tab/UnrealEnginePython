@@ -7,12 +7,6 @@
 #include "Editor/ContentBrowser/Public/IContentBrowserSingleton.h"
 #include "Editor/ContentBrowser/Private/SAssetPicker.h"
 
-static PyObject *ue_PySPythonShelf_str(ue_PySPythonShelf *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SPythonShelf '%p'>",
-		self->s_compound_widget.s_widget.s_widget);
-}
-
 static PyMethodDef ue_PySPythonShelf_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -33,7 +27,7 @@ PyTypeObject ue_PySPythonShelfType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySPythonShelf_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -136,6 +130,8 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		py_delegate->SetPyCallable(py_callable_double_clicked);
 		py_delegate->AddToRoot();
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnAssetDoubleClicked);
+		self->s_compound_widget.s_widget.delegates.Add(py_delegate);
+
 
 		asset_picker_config.OnAssetDoubleClicked = handler;
 	}
@@ -146,6 +142,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		py_delegate->SetPyCallable(py_callable_get_context_menu);
 		py_delegate->AddToRoot();
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnGetAssetContextMenu);
+		self->s_compound_widget.s_widget.delegates.Add(py_delegate);
 
 		asset_picker_config.OnGetAssetContextMenu = handler;
 	}
@@ -156,17 +153,16 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		py_delegate->SetPyCallable(py_callable_asset_selected);
 		py_delegate->AddToRoot();
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnAssetSelected);
+		self->s_compound_widget.s_widget.delegates.Add(py_delegate);
 
 		asset_picker_config.OnAssetSelected = handler;
 	}
 
-	new(&self->s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(module.Get().CreateAssetPicker(asset_picker_config));
-	self->s_compound_widget.s_widget.s_widget = &self->s_compound_widget.s_widget.s_widget_owned.Get();
+	new(&self->s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(module.Get().CreateAssetPicker(asset_picker_config));
 	return 0;
 }
 
 void ue_python_init_spython_shelf(PyObject *ue_module) {
-	ue_PySPythonShelfType.tp_new = PyType_GenericNew;
 
 	ue_PySPythonShelfType.tp_init = (initproc)ue_py_spython_shelf_init;
 

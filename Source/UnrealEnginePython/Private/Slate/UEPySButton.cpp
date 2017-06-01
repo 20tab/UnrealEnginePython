@@ -1,17 +1,13 @@
 
-
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySButton.h"
 
-
-
-#define GET_s_button SButton *s_button =(SButton *)self->s_border.s_compound_widget.s_widget.s_widget
+#define sw_button StaticCastSharedRef<SButton>(self->s_border.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args) {
-	GET_s_button;
 
-	if (s_button->IsPressed()) {
+	if (sw_button->IsPressed()) {
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -20,12 +16,6 @@ static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args) {
 	return Py_False;
 }
 
-
-static PyObject *ue_PySButton_str(ue_PySButton *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SButton '%p'>",
-		self->s_border.s_compound_widget.s_widget.s_widget);
-}
 
 static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * args) {
 	PyObject *py_callable;
@@ -42,10 +32,9 @@ static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * ar
 	py_delegate->SetPyCallable(py_callable);
 	py_delegate->AddToRoot();
 	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnClicked);
+	self->s_border.s_compound_widget.s_widget.delegates.Add(py_delegate);
 
-	GET_s_button;
-
-	s_button->SetOnClicked(handler);
+	sw_button->SetOnClicked(handler);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -73,7 +62,7 @@ PyTypeObject ue_PySButtonType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySButton_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -94,7 +83,6 @@ static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwar
 }
 
 void ue_python_init_sbutton(PyObject *ue_module) {
-	ue_PySButtonType.tp_new = PyType_GenericNew;
 
 	ue_PySButtonType.tp_init = (initproc)ue_py_sbutton_init;
 

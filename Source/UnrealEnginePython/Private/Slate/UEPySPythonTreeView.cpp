@@ -6,18 +6,12 @@
 #include "UEPySPythonTreeView.h"
 
 
-#define GET_s_python_tree_view SPythonTreeView *s_python_tree_view = (SPythonTreeView *)self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget
+#define sw_python_tree_view StaticCastSharedRef<SPythonTreeView>(self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
 
 
 static PyMethodDef ue_PySPythonTreeView_methods[] = {
 	{ NULL }  /* Sentinel */
 };
-
-static PyObject *ue_PySPythonTreeView_str(ue_PySPythonTreeView *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SPythonTreeView '%p'>",
-		self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget);
-}
 
 PyTypeObject ue_PySPythonTreeViewType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
@@ -35,7 +29,7 @@ PyTypeObject ue_PySPythonTreeViewType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySPythonTreeView_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -90,20 +84,20 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	py_delegate->SetPyCallable(py_callable);
 	py_delegate->AddToRoot();
 	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateRow);
+	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.delegates.Add(py_delegate);
 
 	SPythonTreeView::FOnGetChildren handler_children;
 	UPythonSlateDelegate *py_delegate_children = NewObject<UPythonSlateDelegate>();
 	py_delegate_children->SetPyCallable(py_callable_children);
 	py_delegate_children->AddToRoot();
 	handler_children.BindUObject(py_delegate_children, &UPythonSlateDelegate::GetChildren);
+	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.delegates.Add(py_delegate);
 
-	new(&self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned) TSharedRef<SWidget>(SNew(SPythonTreeView).TreeItemsSource(items).OnGenerateRow(handler).OnGetChildren(handler_children));
-	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget = &self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget_owned.Get();
+	new(&self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(SNew(SPythonTreeView).TreeItemsSource(items).OnGenerateRow(handler).OnGetChildren(handler_children));
 	return 0;
 }
 
 void ue_python_init_spython_tree_view(PyObject *ue_module) {
-	ue_PySPythonTreeViewType.tp_new = PyType_GenericNew;
 
 	ue_PySPythonTreeViewType.tp_init = (initproc)ue_py_spython_tree_view_init;
 

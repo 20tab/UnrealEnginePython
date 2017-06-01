@@ -4,7 +4,7 @@
 #include "UEPySTableViewBase.h"
 
 
-#define GET_s_table_view_base STableViewBase *s_table_view_base = (STableViewBase *)self->s_compound_widget.s_widget.s_widget
+#define sw_table_view_base StaticCastSharedRef<STableViewBase>(self->s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_stable_view_base_set_item_height(ue_PySTableViewBase *self, PyObject * args) {
 	float size;
@@ -12,9 +12,7 @@ static PyObject *py_ue_stable_view_base_set_item_height(ue_PySTableViewBase *sel
 		return NULL;
 	}
 
-	GET_s_table_view_base;
-
-	s_table_view_base->SetItemHeight(size);
+	sw_table_view_base->SetItemHeight(size);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -27,18 +25,10 @@ static PyObject *py_ue_stable_view_base_set_item_width(ue_PySTableViewBase *self
 		return NULL;
 	}
 
-	GET_s_table_view_base;
-
-	s_table_view_base->SetItemWidth(size);
+	sw_table_view_base->SetItemWidth(size);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySTableViewBase_str(ue_PySBorder *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.STableViewBase '%p'>",
-		self->s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySTableViewBase_methods[] = {
@@ -63,7 +53,7 @@ PyTypeObject ue_PySTableViewBaseType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySTableViewBase_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -79,7 +69,6 @@ PyTypeObject ue_PySTableViewBaseType = {
 };
 
 void ue_python_init_stable_view_base(PyObject *ue_module) {
-	ue_PySTableViewBaseType.tp_new = PyType_GenericNew;
 
 	ue_PySTableViewBaseType.tp_base = &ue_PySCompoundWidgetType;
 

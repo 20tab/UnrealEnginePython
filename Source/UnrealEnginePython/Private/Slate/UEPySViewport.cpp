@@ -3,9 +3,7 @@
 
 #include "UEPySViewport.h"
 
-
-
-#define GET_s_viewport SViewport *s_viewport = (SViewport*) self->s_compound_widget.s_widget.s_widget
+#define sw_viewport StaticCastSharedRef<SViewport>(self->s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_sviewport_enable_stereo_rendering(ue_PySViewport *self, PyObject * args) {
 	PyObject *py_bool;
@@ -13,18 +11,10 @@ static PyObject *py_ue_sviewport_enable_stereo_rendering(ue_PySViewport *self, P
 		return NULL;
 	}
 
-	GET_s_viewport;
-
-	s_viewport->EnableStereoRendering(PyObject_IsTrue(py_bool) ? true : false);
+	sw_viewport->EnableStereoRendering(PyObject_IsTrue(py_bool) ? true : false);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
-}
-
-static PyObject *ue_PySViewport_str(ue_PySViewport *self)
-{
-	return PyUnicode_FromFormat("<unreal_engine.SViewport '%p'>",
-		self->s_compound_widget.s_widget.s_widget);
 }
 
 static PyMethodDef ue_PySViewport_methods[] = {
@@ -48,7 +38,7 @@ PyTypeObject ue_PySViewportType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	(reprfunc)ue_PySViewport_str,                         /* tp_str */
+	0,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -69,7 +59,6 @@ static int ue_py_sviewport_init(ue_PySViewport *self, PyObject *args, PyObject *
 }
 
 void ue_python_init_sviewport(PyObject *ue_module) {
-	ue_PySViewportType.tp_new = PyType_GenericNew;
 
 	ue_PySViewportType.tp_init = (initproc)ue_py_sviewport_init;
 
