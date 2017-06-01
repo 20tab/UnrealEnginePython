@@ -75,8 +75,16 @@ PyTypeObject ue_PySTextBlockType = {
 };
 
 static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs) {
-
 	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
+	STextBlock::FArguments arguments;
+
+	ue_py_slate_farguments_text("text", Text);
+	ue_py_slate_farguments_float("wrap_text_at", WrapTextAt);
+	ue_py_slate_farguments_enum("wrapping_policy", WrappingPolicy, ETextWrappingPolicy);
+	ue_py_slate_farguments_optional_enum("text_shaping_method", TextShapingMethod, ETextShapingMethod);
+	ue_py_slate_farguments_optional_enum("text_flow_direction", TextShapingMethod, ETextFlowDirection);
+
+	sw_text_block->Construct(arguments);
 	return 0;
 }
 

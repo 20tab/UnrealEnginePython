@@ -1,5 +1,7 @@
 #pragma once
 
+
+
 #include "UnrealEnginePython.h"
 
 #include "SlateBasics.h"
@@ -55,7 +57,11 @@
 #include "UEPySPythonShelf.h"
 #endif
 
+#include "Runtime/Core/Public/Misc/Attribute.h"
+
 #include "UEPySlate.generated.h"
+
+
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 
@@ -92,6 +98,88 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
+#define ue_py_slate_up(_type, _func, _param, _attribute) \
+{\
+	PyObject *value = PyDict_GetItemString(kwargs, _param);\
+	if (value) {\
+		if (PyCallable_Check(value)) {\
+			TAttribute<_type> handler;\
+			UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();\
+			py_delegate->SetPyCallable(value);\
+			py_delegate->AddToRoot();\
+			handler.BindUObject(py_delegate, &UPythonSlateDelegate::_func);\
+			((ue_PySWidget *)self)->delegates.Add(py_delegate);\
+			arguments._attribute(handler);\
+		}
+
+#define ue_py_slate_down(_param) else {\
+			PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " _param); \
+			return -1;\
+		}\
+	}\
+}
+
+
+
+#define ue_py_slate_farguments_text(param, attribute) ue_py_slate_up(FText, GetterFText, param, attribute)\
+	else if (PyUnicode_Check(value)) {\
+		arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
+	}\
+	ue_py_slate_down(param)
+
+		
+
+#define ue_py_slate_farguments_float(param, attribute) ue_py_slate_up(float, GetterFloat, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_float = PyNumber_Float(value);\
+			arguments.attribute(PyFloat_AsDouble(py_float)); \
+			Py_DECREF(py_float);\
+		}\
+		ue_py_slate_down(param)
+
+
+
+#define ue_py_slate_farguments_int(param, attribute) ue_py_slate_up(int, GetterInt, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((int)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
+
+
+
+#define ue_py_slate_farguments_enum(param, attribute, _type) ue_py_slate_up(_type, GetterIntT<_type>, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((_type)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
+
+
+
+#define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+		if (value) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((_type)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+}
+
+
+
+#define ue_py_slate_farguments_bool(param, attribute) ue_py_slate_up(bool, GetterBool, param, attribute)\
+		else if (PyObject_IsTrue(value)) {\
+			arguments.attribute(true); \
+		}\
+		else {\
+			arguments.attribute(false); \
+		}\
+	}\
+}
+
+
 
 void ue_python_init_slate(PyObject *);
 
@@ -125,6 +213,33 @@ public:
 
 	void SimpleExecuteAction();
 	void ExecuteAction(PyObject *py_obj);
+
+	FText GetterFText() const;
+	float GetterFloat() const;
+	int GetterInt() const;
+	bool GetterBool() const;
+
+
+	template<typename T> T UPythonSlateDelegate::GetterIntT() const {
+		FScopePythonGIL gil;
+
+		PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+		if (!ret) {
+			unreal_engine_py_log_error();
+			return (T)0;
+		}
+		if (!PyNumber_Check(ret)) {
+			PyErr_SetString(PyExc_ValueError, "returned value is not a number");
+			Py_DECREF(ret);
+			return (T)0;
+		}
+
+		PyObject *py_int = PyNumber_Long(ret);
+		int n = PyLong_AsLong(py_int);
+		Py_DECREF(py_int);
+		Py_DECREF(ret);
+		return (T)n;
+	}
 };
 
 

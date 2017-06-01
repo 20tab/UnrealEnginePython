@@ -116,6 +116,87 @@ void UPythonSlateDelegate::ExecuteAction(PyObject *py_obj) {
 	Py_XDECREF(ret);
 }
 
+FText UPythonSlateDelegate::GetterFText() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FText();
+	}
+	PyObject *str = PyObject_Str(ret);
+	if (!str) {
+		unreal_engine_py_log_error();
+		Py_DECREF(ret);
+		return FText();
+	}
+
+	FText text = FText::FromString(PyUnicode_AsUTF8(str));
+	Py_DECREF(str);
+	Py_DECREF(ret);
+	return text;
+}
+
+
+float UPythonSlateDelegate::GetterFloat() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return 0;
+	}
+	if (!PyNumber_Check(ret)) {
+		PyErr_SetString(PyExc_ValueError, "returned value is not a number");
+		Py_DECREF(ret);
+		return 0;
+	}
+
+	PyObject *py_float = PyNumber_Float(ret);
+	float n = PyFloat_AsDouble(py_float);
+	Py_DECREF(py_float);
+	Py_DECREF(ret);
+	return n;
+}
+
+int UPythonSlateDelegate::GetterInt() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return 0;
+	}
+	if (!PyNumber_Check(ret)) {
+		PyErr_SetString(PyExc_ValueError, "returned value is not a number");
+		Py_DECREF(ret);
+		return 0;
+	}
+
+	PyObject *py_int = PyNumber_Long(ret);
+	int n = PyLong_AsLong(py_int);
+	Py_DECREF(py_int);
+	Py_DECREF(ret);
+	return n;
+}
+
+bool UPythonSlateDelegate::GetterBool() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return 0;
+	}
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return true;
+	}
+
+	Py_DECREF(ret);
+	return false;
+}
+
 TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
