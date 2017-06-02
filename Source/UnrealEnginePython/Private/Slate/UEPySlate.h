@@ -305,6 +305,14 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		ue_py_slate_down(param)
 
 
+
+#define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
+	if (kwargs == nullptr)\
+		return 0;\
+	ue_py_slate_farguments_bool("is_enabled", IsEnabled);\
+	ue_py_slate_farguments_text("tool_tip_text", ToolTipText)
+	
+
 void ue_python_init_slate(PyObject *);
 
 struct FPythonItem {

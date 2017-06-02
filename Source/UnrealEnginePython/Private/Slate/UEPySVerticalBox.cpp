@@ -39,8 +39,9 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	// TODO: decrement reference when destroying parent
+	
 	Py_INCREF(py_swidget);
+	self->s_box_panel.s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SVerticalBox::FSlot &fslot = sw_vertical_box->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
@@ -102,6 +103,9 @@ PyTypeObject ue_PySVerticalBoxType = {
 
 static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(SVerticalBox, s_box_panel.s_panel.s_widget);
+	ue_py_slate_setup_farguments(SVerticalBox);
+
+	sw_vertical_box->Construct(arguments);
 	return 0;
 }
 

@@ -117,7 +117,7 @@ PyTypeObject ue_PySWindowType = {
 
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(SWindow, s_compound_widget.s_widget);
-	SWindow::FArguments arguments;
+	ue_py_slate_setup_farguments(SWindow);
 
 	ue_py_slate_farguments_optional_bool("activate_when_first_shown", ActivateWhenFirstShown);
 	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter::Type);

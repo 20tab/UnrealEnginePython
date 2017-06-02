@@ -18,6 +18,8 @@ struct ue_PySWidget{
 	TArray<UPythonSlateDelegate *> delegates;
 
 	ue_PySWidget *py_swidget_content;
+
+	TArray<ue_PySWidget *> py_swidget_slots;
 };
 
 void ue_python_init_swidget(PyObject *);

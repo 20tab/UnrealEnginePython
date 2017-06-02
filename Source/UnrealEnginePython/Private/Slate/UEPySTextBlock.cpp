@@ -83,7 +83,7 @@ PyTypeObject ue_PySTextBlockType = {
 
 static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
-	STextBlock::FArguments arguments;
+	ue_py_slate_setup_farguments(STextBlock);
 
 	ue_py_slate_farguments_bool("autowrap_text", AutoWrapText);
 	ue_py_slate_farguments_struct("color_and_opacity", ColorAndOpacity, FSlateColor);

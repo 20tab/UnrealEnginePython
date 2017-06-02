@@ -188,6 +188,9 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
 	for (UPythonSlateDelegate *item : self->delegates) {
 		item->RemoveFromRoot();
 	}
+	for (ue_PySWidget *item : self->py_swidget_slots) {
+		Py_DECREF(item);
+	}
 	// decref content (if any)
 	Py_XDECREF(self->py_swidget_content);
 	ue_py_unregister_swidget(&self->s_widget.Get());

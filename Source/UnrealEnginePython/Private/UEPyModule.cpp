@@ -277,6 +277,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #if WITH_EDITOR
+	{ "editor_play_in_viewport", py_unreal_engine_editor_play_in_viewport, METH_VARARGS, "" },
 	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },
 	{ "editor_get_active_viewport_screenshot", py_unreal_engine_editor_get_active_viewport_screenshot, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_screenshot", py_unreal_engine_editor_get_pie_viewport_screenshot, METH_VARARGS, "" },

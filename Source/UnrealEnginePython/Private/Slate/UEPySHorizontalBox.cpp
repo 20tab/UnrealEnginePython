@@ -40,8 +40,9 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	// TODO: decrement reference when destroying parent
+
 	Py_INCREF(py_swidget);
+	self->s_box_panel.s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SHorizontalBox::FSlot &fslot = sw_horizontal_box->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());

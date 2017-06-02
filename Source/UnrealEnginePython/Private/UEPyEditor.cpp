@@ -20,6 +20,17 @@
 #include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraphSchema.h"
 #include "Toolkits/AssetEditorManager.h"
+#include "Editor/UnrealEd/Public/Kismet2/DebuggerCommands.h"
+
+
+PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args) {
+
+	if (FPlayWorldCommands::GlobalPlayWorldActions->GetActionForCommand(FPlayWorldCommands::Get().PlayInViewport)->Execute()) {
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
 
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
@@ -39,17 +50,17 @@ PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args) {
 
 	char *command;
 
-        if (!GEditor)
-                return PyErr_Format(PyExc_Exception, "no GEditor found");
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	if (!PyArg_ParseTuple(args, "s:console_exec", &command)) {
-                return NULL;
-        }
+		return NULL;
+	}
 
 	GEditor->Exec(GEditor->GetEditorWorldContext().World(), UTF8_TO_TCHAR(command), *GLog);
 
-        Py_INCREF(Py_None);
-        return Py_None;
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * self, PyObject * args) {
@@ -164,23 +175,11 @@ PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * ar
 
 PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
-	PyObject *obj = nullptr;
-	if (!PyArg_ParseTuple(args, "|O:editor_play", &obj)) {
-		return NULL;
+	if (FPlayWorldCommands::GlobalPlayWorldActions->GetActionForCommand(FPlayWorldCommands::Get().PlayInViewport)->Execute()) {
+		Py_RETURN_TRUE;
 	}
 
-	bool pie = true;
-
-	if (obj && !PyObject_IsTrue(obj))
-		pie = false;
-
-	GEditor->PlayInEditor(GEditor->GetEditorWorldContext().World(), pie);
-
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args) {
