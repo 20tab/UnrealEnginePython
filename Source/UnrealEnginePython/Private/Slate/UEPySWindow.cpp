@@ -120,7 +120,11 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	ue_py_slate_setup_farguments(SWindow);
 
 	ue_py_slate_farguments_optional_bool("activate_when_first_shown", ActivateWhenFirstShown);
+#if ENGINE_MINOR_VERSION > 15
+	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter);
+#else
 	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter::Type);
+#endif
 	ue_py_slate_farguments_optional_bool("drag_anywhere", bDragAnywhere);
 	ue_py_slate_farguments_optional_fvector2d("client_size", ClientSize);
 	ue_py_slate_farguments_optional_bool("create_title_bar", CreateTitleBar);
@@ -139,7 +143,11 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_bool("sane_window_placement", SaneWindowPlacement);
 	ue_py_slate_farguments_optional_fvector2d("screen_position", ScreenPosition);
 	ue_py_slate_farguments_optional_bool("should_preserve_aspect_ratio", ShouldPreserveAspectRatio);
+#if ENGINE_MINOR_VERSION > 15
+	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule);
+#else
 	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule::Type);
+#endif
 	ue_py_slate_farguments_optional_struct_ptr("style", Style, FWindowStyle);
 	ue_py_slate_farguments_optional_bool("supports_maximize", SupportsMaximize);
 	ue_py_slate_farguments_text("title", Title);
