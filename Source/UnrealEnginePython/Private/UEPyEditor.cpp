@@ -20,16 +20,44 @@
 #include "Runtime/Engine/Classes/EdGraph/EdGraphPin.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraphSchema.h"
 #include "Toolkits/AssetEditorManager.h"
-#include "Editor/UnrealEd/Public/Kismet2/DebuggerCommands.h"
+#include "LevelEditor.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args) {
 
-	if (FPlayWorldCommands::GlobalPlayWorldActions->GetActionForCommand(FPlayWorldCommands::Get().PlayInViewport)->Execute()) {
-		Py_RETURN_TRUE;
+	PyObject *py_vector = nullptr;
+	PyObject *py_rotator = nullptr;
+
+	if (!PyArg_ParseTuple(args, "|OO:editor_play_in_viewport", &py_vector, &py_rotator)) {
+		return NULL;
 	}
 
-	Py_RETURN_FALSE;
+	FVector v;
+	FRotator r;
+
+	if (py_vector) {
+		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
+		if (!vector)
+			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
+		v = vector->vec;
+	}
+
+	if (py_rotator) {
+		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
+		if (!rotator)
+			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
+		r = rotator->rot;
+	}
+
+	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+
+	if (!EditorModule.GetFirstActiveViewport().IsValid())
+		return PyErr_Format(PyExc_Exception, "no active LevelEditor Viewport");
+
+	GEditor->RequestPlaySession(py_vector == nullptr, EditorModule.GetFirstActiveViewport(), true, &v, &r);
+
+	Py_RETURN_NONE;
+
 }
 
 
@@ -175,11 +203,34 @@ PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * ar
 
 PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 
-	if (FPlayWorldCommands::GlobalPlayWorldActions->GetActionForCommand(FPlayWorldCommands::Get().PlayInViewport)->Execute()) {
-		Py_RETURN_TRUE;
+	PyObject *py_vector = nullptr;
+	PyObject *py_rotator = nullptr;
+
+	if (!PyArg_ParseTuple(args, "|OO:editor_play", &py_vector, &py_rotator)) {
+		return NULL;
 	}
 
-	Py_RETURN_FALSE;
+	FVector v;
+	FRotator r;
+
+	if (py_vector) {
+		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
+		if (!vector)
+			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
+		v = vector->vec;
+	}
+
+	if (py_rotator) {
+		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
+		if (!rotator)
+			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
+		r = rotator->rot;
+	}
+
+
+	GEditor->RequestPlaySession(&v, &r, false, false);
+	
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args) {

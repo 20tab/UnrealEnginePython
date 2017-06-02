@@ -125,6 +125,12 @@ PyTypeObject ue_PySBorderType = {
 
 static int ue_py_sborder_init(ue_PySBorder *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(SBorder, s_compound_widget.s_widget);
+	ue_py_slate_setup_farguments(SBorder);
+	ue_py_slate_farguments_struct("border_background_color", BorderBackgroundColor, FSlateColor);
+	ue_py_slate_farguments_flinear_color("color_and_opacity", ColorAndOpacity);
+
+
+	sw_border->Construct(arguments);
 	return 0;
 }
 

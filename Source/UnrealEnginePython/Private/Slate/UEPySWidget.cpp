@@ -186,7 +186,8 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
 //#endif
 	Py_DECREF(self->py_dict);
 	for (UPythonSlateDelegate *item : self->delegates) {
-		item->RemoveFromRoot();
+		if (item->IsValidLowLevel() && item->IsRooted())
+			item->RemoveFromRoot();
 	}
 	for (ue_PySWidget *item : self->py_swidget_slots) {
 		Py_DECREF(item);

@@ -48,6 +48,17 @@ FReply UPythonSlateDelegate::OnClicked() {
 	return FReply::Handled();
 }
 
+void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"i", (int)state);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 #if WITH_EDITOR
 void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData) {
 	FScopePythonGIL gil;
@@ -380,6 +391,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_spython_tree_view(module);
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
+	ue_python_init_scheck_box(module);
 
 
 #if WITH_EDITOR

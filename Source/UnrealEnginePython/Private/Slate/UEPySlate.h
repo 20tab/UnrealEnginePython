@@ -41,6 +41,7 @@
 #include "UEPySPythonTreeView.h"
 #include "UEPySSplitter.h"
 #include "UEPySHeaderRow.h"
+#include "UEPySCheckBox.h"
 
 
 
@@ -353,6 +354,7 @@ public:
 
 	FVector2D GetterFVector2D() const;
 	FLinearColor GetterFLinearColor() const;
+	void CheckBoxChanged(ECheckBoxState state);
 
 
 	template<typename T> T UPythonSlateDelegate::GetterIntT() const {
