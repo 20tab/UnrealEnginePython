@@ -98,12 +98,12 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
-#define ue_py_slate_up(_type, _func, _param, _attribute) \
+#define ue_py_slate_base_up(_base, _func, _param, _attribute) \
 {\
 	PyObject *value = PyDict_GetItemString(kwargs, _param);\
 	if (value) {\
 		if (PyCallable_Check(value)) {\
-			TAttribute<_type> handler;\
+			_base handler;\
 			UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();\
 			py_delegate->SetPyCallable(value);\
 			py_delegate->AddToRoot();\
@@ -119,7 +119,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
-
+#define ue_py_slate_up(_type, _func, _param, _attribute) ue_py_slate_base_up(TAttribute<_type>, _func, _param, _attribute)
 
 #define ue_py_slate_farguments_text(param, attribute) ue_py_slate_up(FText, GetterFText, param, attribute)\
 	else if (PyUnicode_Check(value)) {\
@@ -159,6 +159,14 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
+#define ue_py_slate_farguments_struct(param, attribute, _type) ue_py_slate_up(_type, GetterStructT<_type>, param, attribute)\
+		else if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
+			arguments.attribute((_type)*u_struct); \
+		}\
+		ue_py_slate_down(param)
+
+
+
 #define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
 		if (value) {\
 			PyObject *py_int = PyNumber_Long(value);\
@@ -179,6 +187,10 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+
+
+#define ue_py_slate_farguments_event(param, attribute, type, method) ue_py_slate_base_up(type, method, param, attribute)\
+		ue_py_slate_down(param)
 
 
 void ue_python_init_slate(PyObject *);
@@ -239,6 +251,27 @@ public:
 		Py_DECREF(py_int);
 		Py_DECREF(ret);
 		return (T)n;
+	}
+
+	template<typename T> T UPythonSlateDelegate::GetterStructT() const {
+		FScopePythonGIL gil;
+
+		PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+		if (!ret) {
+			unreal_engine_py_log_error();
+			return T();
+		}
+
+		T *u_struct = ue_py_check_struct<T>(ret);
+		if (!u_struct) {
+			PyErr_SetString(PyExc_ValueError, "returned value is not a UStruct");
+			Py_DECREF(ret);
+			return T();
+		}
+
+		T u_struct_copy = *u_struct;
+		Py_DECREF(ret);
+		return u_struct_copy;
 	}
 };
 

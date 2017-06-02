@@ -37,9 +37,16 @@ static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, 
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_stext_block_get_text(ue_PySTextBlock *self, PyObject * args) {
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*sw_text_block->GetText().ToString()));
+
+}
+
 static PyMethodDef ue_PySTextBlock_methods[] = {
 	{ "set_color_and_opacity", (PyCFunction)py_ue_stext_block_set_color_and_opacity, METH_VARARGS, "" },
 	{ "set_text", (PyCFunction)py_ue_stext_block_set_text, METH_VARARGS, "" },
+	{ "get_text", (PyCFunction)py_ue_stext_block_get_text, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -78,11 +85,21 @@ static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObjec
 	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
 	STextBlock::FArguments arguments;
 
+	ue_py_slate_farguments_bool("autowrap_text", AutoWrapText);
+	ue_py_slate_farguments_struct("color_and_opacity", ColorAndOpacity, FSlateColor);
+	ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
+	//ue_py_slate_farguments_struct("highlight_shape", HighlightShape, FSlateBrush);
+	ue_py_slate_farguments_text("highlight_text", HighlightText);
+	ue_py_slate_farguments_enum("justification", Justification, ETextJustify::Type);
+	ue_py_slate_farguments_float("line_height_percentage", LineHeightPercentage);
+	ue_py_slate_farguments_struct("margin", Margin, FMargin);
+	ue_py_slate_farguments_float("min_desired_width", MinDesiredWidth);
+	ue_py_slate_farguments_event("on_double_clicked", OnDoubleClicked, FOnClicked, OnClicked);
 	ue_py_slate_farguments_text("text", Text);
-	ue_py_slate_farguments_float("wrap_text_at", WrapTextAt);
-	ue_py_slate_farguments_enum("wrapping_policy", WrappingPolicy, ETextWrappingPolicy);
+	ue_py_slate_farguments_optional_enum("text_flow_direction", TextFlowDirection, ETextFlowDirection);
 	ue_py_slate_farguments_optional_enum("text_shaping_method", TextShapingMethod, ETextShapingMethod);
-	ue_py_slate_farguments_optional_enum("text_flow_direction", TextShapingMethod, ETextFlowDirection);
+	ue_py_slate_farguments_enum("wrapping_policy", WrappingPolicy, ETextWrappingPolicy);
+	ue_py_slate_farguments_float("wrap_text_at", WrapTextAt);
 
 	sw_text_block->Construct(arguments);
 	return 0;
