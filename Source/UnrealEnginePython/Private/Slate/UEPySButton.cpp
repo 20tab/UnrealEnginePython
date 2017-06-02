@@ -79,6 +79,18 @@ PyTypeObject ue_PySButtonType = {
 
 static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(SButton, s_border.s_compound_widget.s_widget);
+	SButton::FArguments arguments;
+
+	ue_py_slate_farguments_struct("button_color_and_opacity", ButtonColorAndOpacity, FSlateColor);
+	ue_py_slate_farguments_optional_enum("click_method", ClickMethod, EButtonClickMethod::Type);
+	ue_py_slate_farguments_struct("content_padding", ContentPadding, FMargin);
+	ue_py_slate_farguments_fvector2d("content_scale", ContentScale);
+	ue_py_slate_farguments_fvector2d("desired_size_scale", DesiredSizeScale);
+	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
+	ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
+	ue_py_slate_farguments_optional_struct("hovered_sound_override", HoveredSoundOverride, FSlateSound);
+
+	sw_button->Construct(arguments);
 	return 0;
 }
 

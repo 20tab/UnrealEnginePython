@@ -127,13 +127,30 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 	ue_py_slate_down(param)
 
-		
+
 
 #define ue_py_slate_farguments_float(param, attribute) ue_py_slate_up(float, GetterFloat, param, attribute)\
 		else if (PyNumber_Check(value)) {\
 			PyObject *py_float = PyNumber_Float(value);\
 			arguments.attribute(PyFloat_AsDouble(py_float)); \
 			Py_DECREF(py_float);\
+		}\
+		ue_py_slate_down(param)
+
+
+#define ue_py_slate_farguments_fvector2d(param, attribute) ue_py_slate_up(FVector2D, GetterFVector2D, param, attribute)\
+		else if (PyTuple_Check(value)) {\
+			if (PyTuple_Size(value) == 2) {\
+				PyObject *py_first = PyTuple_GetItem(value, 0);\
+				PyObject *py_second = PyTuple_GetItem(value, 1);\
+				if (PyNumber_Check(py_first)) {\
+					PyObject *py_x = PyNumber_Float(py_first);\
+					PyObject *py_y = PyNumber_Float(py_second);\
+					arguments.attribute(FVector2D(PyFloat_AsDouble(py_x), PyFloat_AsDouble(py_y)));\
+					Py_DECREF(py_x);\
+					Py_DECREF(py_y);\
+				}\
+			}\
 		}\
 		ue_py_slate_down(param)
 
@@ -167,11 +184,30 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
+#define ue_py_slate_farguments_optional_struct(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+		if (value) {\
+			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
+				arguments.attribute((_type)*u_struct); \
+			}\
+			else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+			}\
+		}\
+}
+
+
 #define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
 		if (value) {\
-			PyObject *py_int = PyNumber_Long(value);\
-			arguments.attribute((_type)PyLong_AsLong(py_int)); \
-			Py_DECREF(py_int);\
+			if (PyNumber_Check(value)) {\
+				PyObject *py_int = PyNumber_Long(value);\
+				arguments.attribute((_type)PyLong_AsLong(py_int));\
+				Py_DECREF(py_int);\
+			}\
+			else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+			}\
 		}\
 }
 
@@ -230,6 +266,8 @@ public:
 	float GetterFloat() const;
 	int GetterInt() const;
 	bool GetterBool() const;
+
+	FVector2D GetterFVector2D() const;
 
 
 	template<typename T> T UPythonSlateDelegate::GetterIntT() const {

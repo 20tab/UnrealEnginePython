@@ -197,6 +197,48 @@ bool UPythonSlateDelegate::GetterBool() const {
 	return false;
 }
 
+FVector2D UPythonSlateDelegate::GetterFVector2D() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FVector2D();
+	}
+
+	if (!PyTuple_Check(ret)) {
+		Py_DECREF(ret);
+		PyErr_SetString(PyExc_ValueError, "returned value is not a tuple");
+		return FVector2D();
+	}
+
+	if (PyTuple_Size(ret) != 2) {
+		Py_DECREF(ret);
+		PyErr_SetString(PyExc_ValueError, "returned value is not a 2 items tuple");
+		return FVector2D();
+	}
+
+	PyObject *first_item = PyTuple_GetItem(ret, 0);
+	if (!PyNumber_Check(first_item)) {
+		Py_DECREF(ret);
+		PyErr_SetString(PyExc_ValueError, "tuple does not contain numbers");
+		return FVector2D();
+	}
+
+	PyObject *py_x = PyNumber_Float(first_item);
+	float x = (float)PyFloat_AsDouble(py_x);
+
+	Py_DECREF(py_x);
+
+	PyObject *py_y = PyNumber_Float(PyTuple_GetItem(ret, 1));
+	float y = (float)PyFloat_AsDouble(py_y);
+
+	Py_DECREF(py_y);
+
+	Py_DECREF(ret);
+	return FVector2D(x, y);
+}
+
 TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);

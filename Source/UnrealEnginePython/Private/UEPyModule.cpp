@@ -278,8 +278,14 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "get_editor_game_viewport_client", py_unreal_engine_get_editor_game_viewport_client, METH_VARARGS, "" },
+	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },
 	{ "editor_get_active_viewport_screenshot", py_unreal_engine_editor_get_active_viewport_screenshot, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_screenshot", py_unreal_engine_editor_get_pie_viewport_screenshot, METH_VARARGS, "" },
+
+	{ "editor_set_view_mode", py_unreal_engine_editor_set_view_mode, METH_VARARGS, "" },
+	{ "editor_set_camera_speed", py_unreal_engine_editor_set_camera_speed, METH_VARARGS, "" },
+	{ "editor_set_view_location", py_unreal_engine_editor_set_view_location, METH_VARARGS, "" },
+	{ "editor_set_view_rotation", py_unreal_engine_editor_set_view_rotation, METH_VARARGS, "" },
 
 	{ "editor_get_active_viewport_size", py_unreal_engine_editor_get_active_viewport_size, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_size", py_unreal_engine_editor_get_pie_viewport_size, METH_VARARGS, "" },

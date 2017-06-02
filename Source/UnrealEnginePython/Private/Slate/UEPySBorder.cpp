@@ -9,6 +9,7 @@
 static PyObject *py_ue_sborder_clear_content(ue_PySBorder *self, PyObject * args) {
 
 	sw_border->ClearContent();
+	Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -24,8 +25,10 @@ static PyObject *py_ue_sborder_set_content(ue_PySBorder *self, PyObject * args) 
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	// TODO: decrement reference when destroying parent
+	
+	Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
 	Py_INCREF(py_swidget);
+	self->s_compound_widget.s_widget.py_swidget_content = py_swidget;
 
 	sw_border->SetContent(py_swidget->s_widget->AsShared());
 
