@@ -89,6 +89,20 @@ static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
 	ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
 	ue_py_slate_farguments_optional_struct("hovered_sound_override", HoveredSoundOverride, FSlateSound);
+	ue_py_slate_farguments_optional_bool("is_focusable", IsFocusable);
+	ue_py_slate_farguments_event("on_clicked", OnClicked, FOnClicked, OnClicked);
+	ue_py_slate_farguments_event("on_hovered", OnHovered, FSimpleDelegate, SimpleExecuteAction);
+	ue_py_slate_farguments_event("on_pressed", OnPressed, FSimpleDelegate, SimpleExecuteAction);
+	ue_py_slate_farguments_event("on_released", OnReleased, FSimpleDelegate, SimpleExecuteAction);
+	ue_py_slate_farguments_event("on_unhovered", OnUnhovered, FSimpleDelegate, SimpleExecuteAction);
+	ue_py_slate_farguments_optional_struct("pressed_sound_override", PressedSoundOverride, FSlateSound);
+	ue_py_slate_farguments_optional_enum("press_method", PressMethod, EButtonPressMethod::Type);
+	ue_py_slate_farguments_text("text", Text);
+	ue_py_slate_farguments_optional_enum("text_flow_direction", TextFlowDirection, ETextFlowDirection);
+	ue_py_slate_farguments_optional_enum("text_shaping_method", TextShapingMethod, ETextShapingMethod);
+	ue_py_slate_farguments_optional_struct_ptr("text_style", TextStyle, FTextBlockStyle);
+	ue_py_slate_farguments_optional_enum("touch_method", TouchMethod, EButtonTouchMethod::Type);
+	ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
 
 	sw_button->Construct(arguments);
 	return 0;

@@ -88,16 +88,20 @@ static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObjec
 	ue_py_slate_farguments_bool("autowrap_text", AutoWrapText);
 	ue_py_slate_farguments_struct("color_and_opacity", ColorAndOpacity, FSlateColor);
 	ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
-	//ue_py_slate_farguments_struct("highlight_shape", HighlightShape, FSlateBrush);
+	ue_py_slate_farguments_flinear_color("highlight_color", HighlightColor);
+	ue_py_slate_farguments_optional_struct_ptr("highlight_shape", HighlightShape, FSlateBrush);
 	ue_py_slate_farguments_text("highlight_text", HighlightText);
 	ue_py_slate_farguments_enum("justification", Justification, ETextJustify::Type);
 	ue_py_slate_farguments_float("line_height_percentage", LineHeightPercentage);
 	ue_py_slate_farguments_struct("margin", Margin, FMargin);
 	ue_py_slate_farguments_float("min_desired_width", MinDesiredWidth);
 	ue_py_slate_farguments_event("on_double_clicked", OnDoubleClicked, FOnClicked, OnClicked);
+	ue_py_slate_farguments_flinear_color("shadow_color_and_opacity", ShadowColorAndOpacity);
+	ue_py_slate_farguments_fvector2d("shadow_offset", ShadowOffset);
 	ue_py_slate_farguments_text("text", Text);
 	ue_py_slate_farguments_optional_enum("text_flow_direction", TextFlowDirection, ETextFlowDirection);
 	ue_py_slate_farguments_optional_enum("text_shaping_method", TextShapingMethod, ETextShapingMethod);
+	ue_py_slate_farguments_optional_struct_ptr("text_style", TextStyle, FTextBlockStyle);
 	ue_py_slate_farguments_enum("wrapping_policy", WrappingPolicy, ETextWrappingPolicy);
 	ue_py_slate_farguments_float("wrap_text_at", WrapTextAt);
 

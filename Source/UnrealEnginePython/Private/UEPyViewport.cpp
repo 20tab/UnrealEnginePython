@@ -33,19 +33,6 @@ PyObject *py_unreal_engine_get_editor_pie_game_viewport_client(PyObject * self, 
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_get_editor_game_viewport_client(PyObject * self, PyObject * args) {
-
-	UGameViewportClient *viewport_client = GEditor->GetEditorWorldContext().GameViewport;
-	if (!viewport_client) {
-		return PyErr_Format(PyExc_Exception, "no editor GameViewport found");
-	}
-	ue_PyUObject *ret = ue_get_python_wrapper(viewport_client);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-}
-
 PyObject *py_unreal_engine_editor_set_view_mode(PyObject * self, PyObject * args) {
 
 	int mode;

@@ -239,6 +239,29 @@ FVector2D UPythonSlateDelegate::GetterFVector2D() const {
 	return FVector2D(x, y);
 }
 
+FLinearColor UPythonSlateDelegate::GetterFLinearColor() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FLinearColor();
+	}
+
+	ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(ret);
+
+	if (!py_color) {
+		Py_DECREF(ret);
+		PyErr_SetString(PyExc_ValueError, "returned value is not a FLinearColor");
+		return FLinearColor();
+	}
+
+	FLinearColor color = py_color->color;
+
+	Py_DECREF(ret);
+	return color;
+}
+
 TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args) {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);

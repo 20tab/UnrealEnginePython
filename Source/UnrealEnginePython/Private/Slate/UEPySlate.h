@@ -156,6 +156,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
+
+
 #define ue_py_slate_farguments_int(param, attribute) ue_py_slate_up(int, GetterInt, param, attribute)\
 		else if (PyNumber_Check(value)) {\
 			PyObject *py_int = PyNumber_Long(value);\
@@ -171,6 +173,14 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 			PyObject *py_int = PyNumber_Long(value);\
 			arguments.attribute((_type)PyLong_AsLong(py_int)); \
 			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
+
+
+
+#define ue_py_slate_farguments_flinear_color(param, attribute) ue_py_slate_up(FLinearColor, GetterFLinearColor, param, attribute)\
+		else if (ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(value)) {\
+			arguments.attribute(py_color->color); \
 		}\
 		ue_py_slate_down(param)
 
@@ -197,6 +207,44 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
+#define ue_py_slate_farguments_optional_struct_ptr(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+		if (value) {\
+			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
+				arguments.attribute((_type *)u_struct); \
+			}\
+			else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+			}\
+		}\
+}
+
+
+
+
+#define ue_py_slate_farguments_optional_fvector2d(param, attribute) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+	if (value) {\
+		if (PyTuple_Check(value)) {\
+			if (PyTuple_Size(value) == 2) {\
+				PyObject *py_first = PyTuple_GetItem(value, 0);\
+				PyObject *py_second = PyTuple_GetItem(value, 1);\
+				if (PyNumber_Check(py_first)) {\
+					PyObject *py_x = PyNumber_Float(py_first);\
+					PyObject *py_y = PyNumber_Float(py_second);\
+					arguments.attribute(FVector2D(PyFloat_AsDouble(py_x), PyFloat_AsDouble(py_y)));\
+					Py_DECREF(py_x);\
+					Py_DECREF(py_y);\
+				}\
+			}\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
+
 #define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
 		if (value) {\
 			if (PyNumber_Check(value)) {\
@@ -213,8 +261,36 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
+#define ue_py_slate_farguments_optional_float(param, attribute) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+	if (value) {\
+		if (PyNumber_Check(value)) {\
+			PyObject *py_float = PyNumber_Float(value);\
+			arguments.attribute(PyFloat_AsDouble(py_float)); \
+			Py_DECREF(py_float);\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
+
+
 #define ue_py_slate_farguments_bool(param, attribute) ue_py_slate_up(bool, GetterBool, param, attribute)\
 		else if (PyObject_IsTrue(value)) {\
+			arguments.attribute(true); \
+		}\
+		else {\
+			arguments.attribute(false); \
+		}\
+	}\
+}
+
+
+#define ue_py_slate_farguments_optional_bool(param, attribute) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+	if (value) {\
+		if (PyObject_IsTrue(value)) {\
 			arguments.attribute(true); \
 		}\
 		else {\
@@ -268,6 +344,7 @@ public:
 	bool GetterBool() const;
 
 	FVector2D GetterFVector2D() const;
+	FLinearColor GetterFLinearColor() const;
 
 
 	template<typename T> T UPythonSlateDelegate::GetterIntT() const {

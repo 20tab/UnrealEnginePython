@@ -117,6 +117,38 @@ PyTypeObject ue_PySWindowType = {
 
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
 	ue_py_snew(SWindow, s_compound_widget.s_widget);
+	SWindow::FArguments arguments;
+
+	ue_py_slate_farguments_optional_bool("activate_when_first_shown", ActivateWhenFirstShown);
+	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter::Type);
+	ue_py_slate_farguments_optional_bool("drag_anywhere", bDragAnywhere);
+	ue_py_slate_farguments_optional_fvector2d("client_size", ClientSize);
+	ue_py_slate_farguments_optional_bool("create_title_bar", CreateTitleBar);
+	ue_py_slate_farguments_optional_bool("focus_when_first_shown", FocusWhenFirstShown);
+	ue_py_slate_farguments_optional_bool("has_close_button", HasCloseButton);
+	ue_py_slate_farguments_optional_float("initial_opacity", InitialOpacity);
+	ue_py_slate_farguments_optional_bool("is_initially_maximized", IsInitiallyMaximized);
+	ue_py_slate_farguments_optional_bool("is_initially_minimized", IsInitiallyMinimized);
+	ue_py_slate_farguments_optional_bool("is_popup_window", IsPopupWindow);
+	ue_py_slate_farguments_optional_bool("is_topmost_window", IsTopmostWindow);
+	ue_py_slate_farguments_optional_struct("layout_border", LayoutBorder, FMargin);
+	ue_py_slate_farguments_optional_float("max_height", MaxHeight);
+	ue_py_slate_farguments_optional_float("max_width", MaxWidth);
+	ue_py_slate_farguments_optional_float("min_height", MinHeight);
+	ue_py_slate_farguments_optional_float("min_width", MinWidth);
+	ue_py_slate_farguments_optional_bool("sane_window_placement", SaneWindowPlacement);
+	ue_py_slate_farguments_optional_fvector2d("screen_position", ScreenPosition);
+	ue_py_slate_farguments_optional_bool("should_preserve_aspect_ratio", ShouldPreserveAspectRatio);
+	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule::Type);
+	ue_py_slate_farguments_optional_struct_ptr("style", Style, FWindowStyle);
+	ue_py_slate_farguments_optional_bool("supports_maximize", SupportsMaximize);
+	ue_py_slate_farguments_optional_struct("supports_transparency", SupportsTransparency, FWindowTransparency);
+	ue_py_slate_farguments_text("title", Title);
+	ue_py_slate_farguments_optional_enum("type", Type, EWindowType);
+	ue_py_slate_farguments_optional_bool("use_os_window_border", UseOSWindowBorder);
+	ue_py_slate_farguments_optional_struct("user_resize_border", UserResizeBorder, FMargin);
+
+	sw_window->Construct(arguments);
 
 	FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(sw_window->AsShared()), true);
 
