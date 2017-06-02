@@ -142,7 +142,6 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule::Type);
 	ue_py_slate_farguments_optional_struct_ptr("style", Style, FWindowStyle);
 	ue_py_slate_farguments_optional_bool("supports_maximize", SupportsMaximize);
-	ue_py_slate_farguments_optional_struct("supports_transparency", SupportsTransparency, FWindowTransparency);
 	ue_py_slate_farguments_text("title", Title);
 	ue_py_slate_farguments_optional_enum("type", Type, EWindowType);
 	ue_py_slate_farguments_optional_bool("use_os_window_border", UseOSWindowBorder);
