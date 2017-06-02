@@ -168,7 +168,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	PyObject *obj = nullptr;
-	if (!PyArg_ParseTuple(args, "O:editor_play", &obj)) {
+	if (!PyArg_ParseTuple(args, "|O:editor_play", &obj)) {
 		return NULL;
 	}
 
