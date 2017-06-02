@@ -181,9 +181,9 @@ static PyMethodDef ue_PySWidget_methods[] = {
 };
 
 static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
-//#if defined(UEPY_MEMORY_DEBUG)
+	//#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySWidget %p mapped to %s %p (slate refcount: %d)"), self, *self->s_widget->GetTypeAsString(), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount());
-//#endif
+	//#endif
 	Py_DECREF(self->py_dict);
 	for (UPythonSlateDelegate *item : self->delegates) {
 		if (item->IsValidLowLevel() && item->IsRooted())
@@ -196,7 +196,13 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
 	Py_XDECREF(self->py_swidget_content);
 	ue_py_unregister_swidget(&self->s_widget.Get());
 	// decrement widget reference count
-	self->s_widget = SNullWidget::NullWidget;
+	// but only if python vm is still fully active (hack to avoid crashes on editor shutdown)
+	if (Py_IsInitialized()) {
+		self->s_widget = SNullWidget::NullWidget;
+	}
+	else {
+		UE_LOG(LogPython, Warning, TEXT("Python VM is being destroyed, skipping ue_PySWidget destruction"));
+	}
 	Py_TYPE(self)->tp_free((PyObject *)self);
 
 }

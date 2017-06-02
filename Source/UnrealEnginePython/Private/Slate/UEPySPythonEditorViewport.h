@@ -22,7 +22,21 @@ class SPythonEditorViewport : public SEditorViewport {
 
 public:
 	UWorld *GetPythonWorld();
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime);
+
+	void Simulate(bool start) {
+		if (start) {
+			if (!bSimulate) {
+				bSimulate = true;
+				GetWorld()->BeginPlay();
+			}
+		}
+		else {
+			bSimulate = false;
+		}
+	}
 
 protected:
 	virtual TSharedRef<FEditorViewportClient> MakeEditorViewportClient() override;
+	bool bSimulate;
 };

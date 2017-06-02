@@ -24,8 +24,18 @@ PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args) {
 
 	Py_INCREF(Py_False);
 	return Py_False;
+}
 
+PyObject *py_ue_actor_begin_play(ue_PyUObject * self, PyObject * args) {
 
+	ue_py_check(self);
+
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+
+	actor->DispatchBeginPlay();
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args) {

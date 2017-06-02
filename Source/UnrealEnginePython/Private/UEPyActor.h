@@ -5,6 +5,7 @@
 #include "UnrealEnginePython.h"
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_actor_begin_play(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_bounds(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_destroy(ue_PyUObject *, PyObject *);

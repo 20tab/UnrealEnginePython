@@ -53,6 +53,7 @@
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"
+#include "UEPySLevelViewport.h"
 #include "UEPySPythonEditorViewport.h"
 #include "UEPySGraphEditor.h"
 #include "UEPySPythonShelf.h"

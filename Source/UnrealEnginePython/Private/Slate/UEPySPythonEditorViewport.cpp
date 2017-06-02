@@ -73,7 +73,19 @@ static PyObject *py_ue_spython_editor_viewport_set_exposure_settings(ue_PySPytho
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_spython_editor_viewport_simulate(ue_PySPythonEditorViewport *self, PyObject * args) {
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "O:simulate", &py_bool)) {
+		return NULL;
+	}
+
+	sw_python_editor_viewport->Simulate(PyObject_IsTrue(py_bool) != 0);
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
+	{ "simulate", (PyCFunction)py_ue_spython_editor_viewport_simulate, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_spython_editor_viewport_get_world, METH_VARARGS, "" },
 	{ "set_show_bounds", (PyCFunction)py_ue_spython_editor_viewport_set_show_bounds, METH_VARARGS, "" },
 	{ "set_show_stats", (PyCFunction)py_ue_spython_editor_viewport_set_show_stats, METH_VARARGS, "" },
@@ -91,6 +103,14 @@ TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClien
 	client->SetRealtime(true);
 
 	return client.ToSharedRef();
+}
+
+void SPythonEditorViewport::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) {
+	SEditorViewport::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (bSimulate) {
+		GetWorld()->Tick(ELevelTick::LEVELTICK_All, InDeltaTime);
+	}
 }
 
 PyTypeObject ue_PySPythonEditorViewportType = {

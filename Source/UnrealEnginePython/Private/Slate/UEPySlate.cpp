@@ -396,6 +396,7 @@ void ue_python_init_slate(PyObject *module) {
 
 #if WITH_EDITOR
 	ue_python_init_seditor_viewport(module);
+	ue_python_init_slevel_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_sgraph_editor(module);
 	ue_python_init_spython_shelf(module);

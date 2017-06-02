@@ -487,6 +487,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "actor_create_default_subobject", (PyCFunction)py_ue_actor_create_default_subobject, METH_VARARGS, "" },
 
+	{ "actor_begin_play", (PyCFunction)py_ue_actor_begin_play, METH_VARARGS, "" },
+
 	{ "broadcast", (PyCFunction)py_ue_broadcast, METH_VARARGS, "" },
 
 #if WITH_EDITOR
