@@ -358,7 +358,7 @@ public:
 	void CheckBoxChanged(ECheckBoxState state);
 
 
-	template<typename T> T UPythonSlateDelegate::GetterIntT() const {
+	template<typename T> T GetterIntT() const {
 		FScopePythonGIL gil;
 
 		PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
@@ -379,7 +379,7 @@ public:
 		return (T)n;
 	}
 
-	template<typename T> T UPythonSlateDelegate::GetterStructT() const {
+	template<typename T> T GetterStructT() const {
 		FScopePythonGIL gil;
 
 		PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
