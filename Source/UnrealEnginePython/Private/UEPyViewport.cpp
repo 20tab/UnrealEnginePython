@@ -135,15 +135,22 @@ PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *self, PyObject * args)
 	}
 
 	UGameViewportClient *viewport = ue_py_check_type<UGameViewportClient>(self);
-	if (!viewport)
-		return PyErr_Format(PyExc_Exception, "object is not a GameViewportClient");
+	if (!viewport) {
+		UWorld *world = ue_py_check_type<UWorld>(self);
+		if (!world)
+			return PyErr_Format(PyExc_Exception, "object is not a GameViewportClient or a UWorld");
+		viewport = world->GetGameViewport();
+		if (!viewport)
+			return PyErr_Format(PyExc_Exception, "cannot retrieve GameViewportClient from UWorld");
+	}
 
 	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	// TODO: decrement reference when destroying parent
-	Py_INCREF(py_swidget);
+	// Do not increment reference count as it is assumed this function is used in a PyComponent/PyActor/ that can holds reference to
+	// it in various ways
+	// Py_INCREF(py_swidget);
 
 	viewport->AddViewportWidgetContent(py_swidget->s_widget, z_order);
 
