@@ -14,6 +14,7 @@
 #include "UEPyMovements.h"
 #include "UEPyAttaching.h"
 #include "UEPySkeletal.h"
+#include "UEPyStaticMesh.h"
 #include "UEPyTraceAndSweep.h"
 #include "UEPyTimer.h"
 #include "UEPyTicker.h"
@@ -432,6 +433,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// AnimSequence
 	{ "anim_sequence_get_skeleton", (PyCFunction)py_ue_anim_sequence_get_skeleton, METH_VARARGS, "" },
+#endif
+
+	// StaticMesh
+#if WITH_EDITOR
+	{ "static_mesh_build", (PyCFunction)py_ue_static_mesh_build, METH_VARARGS, "" },
+	{ "static_mesh_create_body_setup", (PyCFunction)py_ue_static_mesh_create_body_setup, METH_VARARGS, "" },
 #endif
 
 	// Input
@@ -1240,6 +1247,7 @@ void unreal_engine_init_py_module() {
 	ue_python_init_farfilter(new_unreal_engine_module);
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
+	ue_python_init_fraw_mesh(new_unreal_engine_module);
 	ue_python_init_iplugin(new_unreal_engine_module);
 #endif
 

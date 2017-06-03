@@ -142,6 +142,7 @@ public class UnrealEnginePython : ModuleRules
                 "GraphEditor",
                 "UMGEditor",
                 "AIGraph",
+                "RawMesh",
             });
         }
 

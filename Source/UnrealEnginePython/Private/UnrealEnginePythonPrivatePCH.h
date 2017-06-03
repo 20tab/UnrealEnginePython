@@ -50,6 +50,7 @@
 #if WITH_EDITOR
 #include "Wrappers/UEPyFAssetData.h"
 #include "Wrappers/UEPyFARFilter.h"
+#include "Wrappers/UEPyFRawMesh.h"
 #include "UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
