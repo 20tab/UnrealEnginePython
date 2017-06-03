@@ -10,6 +10,7 @@ PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
 	
+	mesh->ImportVersion = EImportStaticMeshVersion::LastVersion;
 	mesh->Build();
 
 	Py_RETURN_NONE;

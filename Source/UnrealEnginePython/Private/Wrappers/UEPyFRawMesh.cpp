@@ -142,9 +142,9 @@ static PyObject *py_ue_fraw_mesh_save_to_static_mesh_source_model(ue_PyFRawMesh 
 	if (self->raw_mesh->WedgeIndices.Num() >= 3) {
 		// set default sane values (read: 0) to face materials and smoothing groups
 		if (self->raw_mesh->FaceSmoothingMasks.Num() == 0)
-			self->raw_mesh->FaceSmoothingMasks.AddDefaulted(self->raw_mesh->WedgeIndices.Num() / 3);
+			self->raw_mesh->FaceSmoothingMasks.AddZeroed(self->raw_mesh->WedgeIndices.Num() / 3);
 		if (self->raw_mesh->FaceMaterialIndices.Num() == 0)
-			self->raw_mesh->FaceMaterialIndices.AddDefaulted(self->raw_mesh->WedgeIndices.Num() / 3);
+			self->raw_mesh->FaceMaterialIndices.AddZeroed(self->raw_mesh->WedgeIndices.Num() / 3);
 	}
 
 	if (!self->raw_mesh->IsValidOrFixable())
