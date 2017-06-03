@@ -9,6 +9,10 @@
 static PyObject *py_ue_sbox_panel_clear_children(ue_PySGridPanel *self, PyObject * args) {
 
 	sw_box_panel->ClearChildren();
+	for (ue_PySWidget *item : self->s_panel.s_widget.py_swidget_slots) {
+		Py_DECREF(item);
+	}
+	self->s_panel.s_widget.py_swidget_slots.Empty();
 
 	Py_INCREF(Py_None);
 	return Py_None;

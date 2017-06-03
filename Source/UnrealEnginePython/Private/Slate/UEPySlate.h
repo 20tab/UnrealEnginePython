@@ -43,6 +43,7 @@
 #include "UEPySHeaderRow.h"
 #include "UEPySCheckBox.h"
 #include "UEPySNumericEntryBox.h"
+#include "UEPySCanvas.h"
 
 
 
