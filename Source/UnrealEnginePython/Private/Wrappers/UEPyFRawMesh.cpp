@@ -139,18 +139,29 @@ static PyObject *py_ue_fraw_mesh_save_to_static_mesh_source_model(ue_PyFRawMesh 
 	if (!source_model)
 		return PyErr_Format(PyExc_Exception, "argument is not a FStaticMeshSourceModel");
 
+	if (self->raw_mesh->WedgeIndices.Num() >= 3) {
+		// set default sane values (read: 0) to face materials and smoothing groups
+		if (self->raw_mesh->FaceSmoothingMasks.Num() == 0)
+			self->raw_mesh->FaceSmoothingMasks.AddDefaulted(self->raw_mesh->WedgeIndices.Num() / 3);
+		if (self->raw_mesh->FaceMaterialIndices.Num() == 0)
+			self->raw_mesh->FaceMaterialIndices.AddDefaulted(self->raw_mesh->WedgeIndices.Num() / 3);
+	}
+
+	if (!self->raw_mesh->IsValidOrFixable())
+		return PyErr_Format(PyExc_Exception, "FRawMesh is not valid or fixable");
+
 	source_model->RawMeshBulkData->SaveRawMesh(*self->raw_mesh);
 
 	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_fraw_mesh_get_wedge_position(ue_PyFRawMesh *self, PyObject * args) {
-	int index ;
+	int index;
 	if (!PyArg_ParseTuple(args, "i:get_wedge_position", &index)) {
 		return nullptr;
 	}
 
-	if (index > self->raw_mesh->WedgeIndices.Num()-1 || index < 0)
+	if (index > self->raw_mesh->WedgeIndices.Num() - 1 || index < 0)
 		return PyErr_Format(PyExc_IndexError, "wedge index error");
 
 	FVector vec = self->raw_mesh->GetWedgePosition(index);
