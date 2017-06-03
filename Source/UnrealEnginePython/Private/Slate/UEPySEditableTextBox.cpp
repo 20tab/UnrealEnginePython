@@ -90,7 +90,34 @@ PyTypeObject ue_PySEditableTextBoxType = {
 };
 
 static int ue_py_seditable_text_box_init(ue_PySEditableTextBox *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew_simple(SEditableTextBox, s_border.s_compound_widget.s_widget);
+	ue_py_slate_setup_farguments(SEditableTextBox);
+
+	ue_py_slate_farguments_bool("allow_context_menu", AllowContextMenu);
+	ue_py_slate_farguments_struct("background_color", BackgroundColor, FSlateColor);
+	ue_py_slate_farguments_bool("clear_keyboard_focus_on_commit", ClearKeyboardFocusOnCommit);
+	ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
+	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
+	ue_py_slate_farguments_text("hint_text", HintText);
+	ue_py_slate_farguments_bool("is_caret_moved_when_gain_focus", IsCaretMovedWhenGainFocus);
+	ue_py_slate_farguments_bool("is_password", IsPassword);
+	ue_py_slate_farguments_bool("is_read_only", IsReadOnly);
+	ue_py_slate_farguments_float("min_desired_width", MinDesiredWidth);
+	ue_py_slate_farguments_event("on_context_menu_opening", OnContextMenuOpening, FOnContextMenuOpening, OnContextMenuOpening);
+	ue_py_slate_farguments_event("on_key_down_handler", OnKeyDownHandler, FOnKeyDown, OnKeyDown);
+	ue_py_slate_farguments_event("on_text_changed", OnTextChanged, FOnTextChanged, OnTextChanged);
+	ue_py_slate_farguments_event("on_text_committed", OnTextCommitted, FOnTextCommitted, OnTextCommitted);
+	ue_py_slate_farguments_struct("padding", Padding, FMargin);
+	ue_py_slate_farguments_struct("read_only_foreground_color", ReadOnlyForegroundColor, FSlateColor);
+	ue_py_slate_farguments_bool("revert_text_on_escape", RevertTextOnEscape);
+	ue_py_slate_farguments_bool("select_all_text_on_commit", SelectAllTextOnCommit);
+	ue_py_slate_farguments_bool("select_all_text_when_focused", SelectAllTextWhenFocused);
+	ue_py_slate_farguments_optional_struct_ptr("style", Style, FEditableTextBoxStyle);
+	ue_py_slate_farguments_text("text", Text);
+	ue_py_slate_farguments_optional_enum("text_flow_direction", TextFlowDirection, ETextFlowDirection);
+	ue_py_slate_farguments_optional_enum("text_shaping_method", TextShapingMethod, ETextShapingMethod);
+	ue_py_slate_farguments_enum("virtual_keyboard_type", VirtualKeyboardType, EKeyboardType);
+
+	ue_py_snew(SEditableTextBox, s_border.s_compound_widget.s_widget);
 	return 0;
 }
 

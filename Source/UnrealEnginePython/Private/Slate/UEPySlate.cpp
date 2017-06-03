@@ -31,6 +31,23 @@ FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPoin
 	return FReply::Handled();
 }
 
+FReply UPythonSlateDelegate::OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_uscriptstruct(FGeometry::StaticStruct(), (uint8 *)&geometry), py_ue_new_uscriptstruct(FKeyEvent::StaticStruct(), (uint8 *)&key_event));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FReply::Unhandled();
+	}
+
+	if (ret == Py_False) {
+		Py_DECREF(ret);
+		return FReply::Unhandled();
+	}
+	Py_DECREF(ret);
+	return FReply::Handled();
+}
+
 FReply UPythonSlateDelegate::OnClicked() {
 	FScopePythonGIL gil;
 
@@ -46,6 +63,28 @@ FReply UPythonSlateDelegate::OnClicked() {
 	}
 	Py_DECREF(ret);
 	return FReply::Handled();
+}
+
+void UPythonSlateDelegate::OnTextChanged(const FText& text) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"s", TCHAR_TO_UTF8(*text.ToString()));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+void UPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type commit_type) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"si", TCHAR_TO_UTF8(*text.ToString()), (int)commit_type);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
 }
 
 void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state) {
@@ -106,6 +145,26 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 	return value;
 }
 #endif
+
+TSharedPtr<SWidget> UPythonSlateDelegate::OnContextMenuOpening() {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return nullptr;
+	}
+
+	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
+	if (!s_widget) {
+		Py_DECREF(ret);
+		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+		return nullptr;
+	}
+	TSharedPtr<SWidget> value = s_widget->s_widget;
+	Py_DECREF(ret);
+	return value;
+}
 
 void UPythonSlateDelegate::SimpleExecuteAction() {
 	FScopePythonGIL gil;

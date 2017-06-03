@@ -332,6 +332,10 @@ public:
 	FReply OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event);
 	FReply OnClicked();
 
+	FReply OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event);
+	void OnTextChanged(const FText &text);
+	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
+
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 
 	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
@@ -342,6 +346,8 @@ public:
 	TSharedPtr<SWidget> OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets);
 	void OnAssetSelected(const FAssetData& AssetData);
 #endif
+
+	TSharedPtr<SWidget> OnContextMenuOpening();
 
 	void SimpleExecuteAction();
 	void ExecuteAction(PyObject *py_obj);
