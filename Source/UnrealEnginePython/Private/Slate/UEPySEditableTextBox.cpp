@@ -90,7 +90,7 @@ PyTypeObject ue_PySEditableTextBoxType = {
 };
 
 static int ue_py_seditable_text_box_init(ue_PySEditableTextBox *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SEditableTextBox, s_border.s_compound_widget.s_widget);
+	ue_py_snew_simple(SEditableTextBox, s_border.s_compound_widget.s_widget);
 	return 0;
 }
 

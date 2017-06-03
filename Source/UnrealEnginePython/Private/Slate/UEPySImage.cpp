@@ -59,7 +59,7 @@ PyTypeObject ue_PySImageType = {
 };
 
 static int ue_py_simage_init(ue_PySImage *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SImage, s_leaf_widget.s_widget);
+	ue_py_snew_simple(SImage, s_leaf_widget.s_widget);
 	return 0;
 }
 

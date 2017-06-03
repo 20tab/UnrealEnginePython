@@ -145,7 +145,7 @@ PyTypeObject ue_PySPythonEditorViewportType = {
 };
 
 static int ue_py_spython_editor_viewport_init(ue_PySPythonEditorViewport *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SPythonEditorViewport, s_editor_viewport.s_compound_widget.s_widget);
+	ue_py_snew_simple(SPythonEditorViewport, s_editor_viewport.s_compound_widget.s_widget);
 	return 0;
 }
 

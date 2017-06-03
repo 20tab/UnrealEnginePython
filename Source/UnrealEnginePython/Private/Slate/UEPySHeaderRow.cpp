@@ -90,7 +90,7 @@ PyTypeObject ue_PySHeaderRowType = {
 };
 
 static int ue_py_sheader_row_init(ue_PySHeaderRow *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SHeaderRow, s_border.s_compound_widget.s_widget);
+	ue_py_snew_simple(SHeaderRow, s_border.s_compound_widget.s_widget);
 	return 0;
 }
 

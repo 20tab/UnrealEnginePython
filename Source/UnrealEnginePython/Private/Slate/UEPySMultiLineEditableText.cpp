@@ -101,7 +101,7 @@ PyTypeObject ue_PySMultiLineEditableTextType = {
 };
 
 static int ue_py_smulti_line_editable_text_init(ue_PySMultiLineEditableText *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SMultiLineEditableText, s_widget);
+	ue_py_snew_simple(SMultiLineEditableText, s_widget);
 	return 0;
 }
 

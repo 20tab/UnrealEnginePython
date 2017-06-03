@@ -78,7 +78,7 @@ PyTypeObject ue_PySButtonType = {
 };
 
 static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SButton, s_border.s_compound_widget.s_widget);
+	
 	ue_py_slate_setup_farguments(SButton);
 
 	ue_py_slate_farguments_struct("button_color_and_opacity", ButtonColorAndOpacity, FSlateColor);
@@ -104,7 +104,7 @@ static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_enum("touch_method", TouchMethod, EButtonTouchMethod::Type);
 	ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
 
-	sw_button->Construct(arguments);
+	ue_py_snew(SButton, s_border.s_compound_widget.s_widget);
 	return 0;
 }
 

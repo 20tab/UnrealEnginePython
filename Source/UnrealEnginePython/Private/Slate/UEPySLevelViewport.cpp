@@ -121,13 +121,20 @@ PyTypeObject ue_PySLevelViewportType = {
 };
 
 static int ue_py_slevel_viewport_init(ue_PySLevelViewport *self, PyObject *args, PyObject *kwargs) {
-	// here we cannot rely on shortcuts as Construct() do lot of allocations and calling it a second time will trigger an assert
+
 	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-	TSharedRef<SLevelViewport> level_viewport = SNew(SLevelViewport).ParentLevelEditor(EditorModule.GetFirstLevelEditor().ToSharedRef()).Realtime(true).ViewportType(ELevelViewportType::LVT_Perspective).IsEnabled(true);
 
-	new (&self->s_editor_viewport.s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(level_viewport);
+	ue_py_slate_setup_farguments(SLevelViewport);
 
-	EditorModule.GetFirstLevelEditor()->AddStandaloneLevelViewport(level_viewport);
+	arguments.ParentLevelEditor(EditorModule.GetFirstLevelEditor().ToSharedRef());
+
+	ue_py_slate_farguments_optional_bool("realtime", Realtime);
+	ue_py_slate_farguments_optional_enum("viewport_type", ViewportType, ELevelViewportType);
+	
+	ue_py_snew(SLevelViewport, s_editor_viewport.s_compound_widget.s_widget);
+
+	EditorModule.GetFirstLevelEditor()->AddStandaloneLevelViewport(sw_level_viewport);
+
 	return 0;
 }
 

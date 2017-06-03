@@ -54,7 +54,7 @@ PyTypeObject ue_PySViewportType = {
 };
 
 static int ue_py_sviewport_init(ue_PySViewport *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SViewport, s_compound_widget.s_widget);
+	ue_py_snew_simple(SViewport, s_compound_widget.s_widget);
 	return 0;
 }
 

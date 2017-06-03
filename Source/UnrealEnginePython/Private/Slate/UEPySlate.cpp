@@ -409,6 +409,12 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_fslate_icon(module);
 }
 
+PyObject *ue_py_dict_get_item(PyObject *dict, const char *key) {
+	if (dict == nullptr)
+		return nullptr;
+	return PyDict_GetItemString(dict, key);
+}
+
 PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args) {
 
 	if (!FGlobalTabmanager::Get()->GetRootWindow().IsValid()) {

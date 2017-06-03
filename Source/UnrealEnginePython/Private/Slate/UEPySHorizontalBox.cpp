@@ -103,7 +103,7 @@ PyTypeObject ue_PySHorizontalBoxType = {
 };
 
 static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SHorizontalBox, s_box_panel.s_panel.s_widget);
+	ue_py_snew_simple(SHorizontalBox, s_box_panel.s_panel.s_widget);
 	return 0;
 }
 

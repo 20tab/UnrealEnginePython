@@ -82,7 +82,7 @@ PyTypeObject ue_PySTextBlockType = {
 };
 
 static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
+	
 	ue_py_slate_setup_farguments(STextBlock);
 
 	ue_py_slate_farguments_bool("autowrap_text", AutoWrapText);
@@ -105,7 +105,7 @@ static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObjec
 	ue_py_slate_farguments_enum("wrapping_policy", WrappingPolicy, ETextWrappingPolicy);
 	ue_py_slate_farguments_float("wrap_text_at", WrapTextAt);
 
-	sw_text_block->Construct(arguments);
+	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
 	return 0;
 }
 

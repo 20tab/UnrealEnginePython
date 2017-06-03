@@ -75,7 +75,7 @@ PyTypeObject ue_PySGridPanelType = {
 };
 
 static int ue_py_sgrid_panel_init(ue_PySGridPanel *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SGridPanel, s_panel.s_widget);
+	ue_py_snew_simple(SGridPanel, s_panel.s_widget);
 	return 0;
 }
 

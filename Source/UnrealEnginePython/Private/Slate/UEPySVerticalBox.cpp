@@ -102,10 +102,10 @@ PyTypeObject ue_PySVerticalBoxType = {
 };
 
 static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SVerticalBox, s_box_panel.s_panel.s_widget);
+	
 	ue_py_slate_setup_farguments(SVerticalBox);
 
-	sw_vertical_box->Construct(arguments);
+	ue_py_snew(SVerticalBox, s_box_panel.s_panel.s_widget);
 	return 0;
 }
 

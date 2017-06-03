@@ -52,14 +52,14 @@ PyTypeObject ue_PySCheckBoxType = {
 };
 
 static int ue_py_scheck_box_init(ue_PySCheckBox *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SCheckBox, s_compound_widget.s_widget);
+	
 	ue_py_slate_setup_farguments(SCheckBox);
 	ue_py_slate_farguments_struct("border_background_color", BorderBackgroundColor, FSlateColor);
 	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
 	ue_py_slate_farguments_enum("is_checked", IsChecked, ECheckBoxState);
 	ue_py_slate_farguments_event("on_check_state_changed", OnCheckStateChanged, FOnCheckStateChanged, CheckBoxChanged);
 
-	sw_check_box->Construct(arguments);
+	ue_py_snew(SCheckBox, s_compound_widget.s_widget);
 	return 0;
 }
 

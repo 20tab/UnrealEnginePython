@@ -81,11 +81,7 @@ void ue_py_unregister_swidget(SWidget *);
 
 void ue_py_setup_swidget(ue_PySWidget *);
 
-template<typename T> TSharedRef<T> ue_py_init_swidget(ue_PySWidget *py_swidget) {
-	TSharedRef<T> new_swidget = TSharedRef<T>(SNew(T));
-	ue_py_register_swidget(&new_swidget.Get(), py_swidget);
-	return new_swidget;
-}
+PyObject *ue_py_dict_get_item(PyObject *, const char *);
 
 template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widget, PyTypeObject *py_type) {
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(T, py_type);
@@ -96,13 +92,17 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 	return ret;
 }
 
-#define ue_py_snew(T, field) self->field.s_widget = ue_py_init_swidget<T>((ue_PySWidget *)self); self->field.s_widget->SetDebugInfo(#T, __FILE__, __LINE__)
+#define ue_py_snew_base(T, field, arguments) self->field.s_widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs()) <<= arguments); ue_py_register_swidget((SWidget *)&self->field.s_widget.Get(), (ue_PySWidget *)self)
+
+#define ue_py_snew_simple(T, field) ue_py_snew_base(T, field, T::FArguments())
+
+#define ue_py_snew(T, field) ue_py_snew_base(T, field, arguments)
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_base_up(_base, _func, _param, _attribute) \
 {\
-	PyObject *value = PyDict_GetItemString(kwargs, _param);\
+	PyObject *value = ue_py_dict_get_item(kwargs, _param);\
 	if (value) {\
 		if (PyCallable_Check(value)) {\
 			_base handler;\
@@ -196,7 +196,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
-#define ue_py_slate_farguments_optional_struct(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+#define ue_py_slate_farguments_optional_struct(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
 			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
 				arguments.attribute((_type)*u_struct); \
@@ -209,7 +209,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
-#define ue_py_slate_farguments_optional_struct_ptr(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+#define ue_py_slate_farguments_optional_struct_ptr(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
 			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
 				arguments.attribute((_type *)u_struct); \
@@ -224,7 +224,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
-#define ue_py_slate_farguments_optional_fvector2d(param, attribute) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+#define ue_py_slate_farguments_optional_fvector2d(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyTuple_Check(value)) {\
 			if (PyTuple_Size(value) == 2) {\
@@ -247,7 +247,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
-#define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+#define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
 			if (PyNumber_Check(value)) {\
 				PyObject *py_int = PyNumber_Long(value);\
@@ -263,7 +263,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
-#define ue_py_slate_farguments_optional_float(param, attribute) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+#define ue_py_slate_farguments_optional_float(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyNumber_Check(value)) {\
 			PyObject *py_float = PyNumber_Float(value);\
@@ -290,7 +290,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
-#define ue_py_slate_farguments_optional_bool(param, attribute) { PyObject *value = PyDict_GetItemString(kwargs, param);\
+#define ue_py_slate_farguments_optional_bool(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyObject_IsTrue(value)) {\
 			arguments.attribute(true); \
@@ -309,11 +309,9 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 #define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
-	if (kwargs == nullptr)\
-		return 0;\
 	ue_py_slate_farguments_bool("is_enabled", IsEnabled);\
 	ue_py_slate_farguments_text("tool_tip_text", ToolTipText)
-	
+
 
 void ue_python_init_slate(PyObject *);
 

@@ -63,7 +63,7 @@ PyTypeObject ue_PySSplitterType = {
 };
 
 static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew(SSplitter, s_panel.s_widget);
+	ue_py_snew_simple(SSplitter, s_panel.s_widget);
 	return 0;
 }
 
