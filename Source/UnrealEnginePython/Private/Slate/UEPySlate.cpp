@@ -87,6 +87,28 @@ void UPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type 
 	Py_DECREF(ret);
 }
 
+void UPythonSlateDelegate::OnFloatChanged(float value) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"f", value);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+void UPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commit_type) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"fi", value, (int)commit_type);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state) {
 	FScopePythonGIL gil;
 
@@ -209,6 +231,27 @@ FText UPythonSlateDelegate::GetterFText() const {
 
 
 float UPythonSlateDelegate::GetterFloat() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return 0;
+	}
+	if (!PyNumber_Check(ret)) {
+		PyErr_SetString(PyExc_ValueError, "returned value is not a number");
+		Py_DECREF(ret);
+		return 0;
+	}
+
+	PyObject *py_float = PyNumber_Float(ret);
+	float n = PyFloat_AsDouble(py_float);
+	Py_DECREF(py_float);
+	Py_DECREF(ret);
+	return n;
+}
+
+TOptional<float> UPythonSlateDelegate::GetterTFloat() const {
 	FScopePythonGIL gil;
 
 	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
@@ -451,6 +494,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_ssplitter(module);
 	ue_python_init_sheader_row(module);
 	ue_python_init_scheck_box(module);
+	ue_python_init_snumeric_entry_box(module);
 
 
 #if WITH_EDITOR

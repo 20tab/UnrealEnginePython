@@ -42,6 +42,7 @@
 #include "UEPySSplitter.h"
 #include "UEPySHeaderRow.h"
 #include "UEPySCheckBox.h"
+#include "UEPySNumericEntryBox.h"
 
 
 
@@ -135,6 +136,15 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		else if (PyNumber_Check(value)) {\
 			PyObject *py_float = PyNumber_Float(value);\
 			arguments.attribute(PyFloat_AsDouble(py_float)); \
+			Py_DECREF(py_float);\
+		}\
+		ue_py_slate_down(param)
+
+
+#define ue_py_slate_farguments_tfloat(param, attribute) ue_py_slate_up(TOptional<float>, GetterTFloat, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_float = PyNumber_Float(value);\
+			arguments.attribute((TOptional<float>)PyFloat_AsDouble(py_float)); \
 			Py_DECREF(py_float);\
 		}\
 		ue_py_slate_down(param)
@@ -277,6 +287,17 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_optional_text(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (PyUnicode_Check(value)) {\
+			arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
 
 
 #define ue_py_slate_farguments_bool(param, attribute) ue_py_slate_up(bool, GetterBool, param, attribute)\
@@ -335,6 +356,8 @@ public:
 	FReply OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event);
 	void OnTextChanged(const FText &text);
 	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
+	void OnFloatChanged(float value);
+	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
 
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 
@@ -354,6 +377,7 @@ public:
 
 	FText GetterFText() const;
 	float GetterFloat() const;
+	TOptional<float> GetterTFloat() const;
 	int GetterInt() const;
 	bool GetterBool() const;
 
