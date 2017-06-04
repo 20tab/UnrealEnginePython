@@ -496,6 +496,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_scheck_box(module);
 	ue_python_init_snumeric_entry_box(module);
 	ue_python_init_scanvas(module);
+	ue_python_init_sslider(module);
 
 
 #if WITH_EDITOR

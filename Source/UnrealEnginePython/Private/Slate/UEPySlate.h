@@ -44,6 +44,7 @@
 #include "UEPySCheckBox.h"
 #include "UEPySNumericEntryBox.h"
 #include "UEPySCanvas.h"
+#include "UEPySSlider.h"
 
 
 
