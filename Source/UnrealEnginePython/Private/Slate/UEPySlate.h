@@ -60,6 +60,7 @@
 #include "UEPySPythonEditorViewport.h"
 #include "UEPySGraphEditor.h"
 #include "UEPySPythonShelf.h"
+#include "UEPySFilePathPicker.h"
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
@@ -129,6 +130,13 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 #define ue_py_slate_farguments_text(param, attribute) ue_py_slate_up(FText, GetterFText, param, attribute)\
 	else if (PyUnicode_Check(value)) {\
 		arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
+	}\
+	ue_py_slate_down(param)
+
+
+#define ue_py_slate_farguments_string(param, attribute) ue_py_slate_up(FString, GetterFString, param, attribute)\
+	else if (PyUnicode_Check(value)) {\
+		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
 	}\
 	ue_py_slate_down(param)
 
@@ -361,6 +369,8 @@ public:
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
 
+	void OnStringChanged(const FString &text);
+
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
 
 	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
@@ -378,6 +388,7 @@ public:
 	void ExecuteAction(PyObject *py_obj);
 
 	FText GetterFText() const;
+	FString GetterFString() const;
 	float GetterFloat() const;
 	TOptional<float> GetterTFloat() const;
 	int GetterInt() const;

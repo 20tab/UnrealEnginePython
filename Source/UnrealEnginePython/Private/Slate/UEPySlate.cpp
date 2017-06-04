@@ -76,6 +76,17 @@ void UPythonSlateDelegate::OnTextChanged(const FText& text) {
 	Py_DECREF(ret);
 }
 
+void UPythonSlateDelegate::OnStringChanged(const FString& text) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"s", TCHAR_TO_UTF8(*text));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 void UPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type commit_type) {
 	FScopePythonGIL gil;
 
@@ -229,6 +240,26 @@ FText UPythonSlateDelegate::GetterFText() const {
 	return text;
 }
 
+FString UPythonSlateDelegate::GetterFString() const {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FString();
+	}
+	PyObject *str = PyObject_Str(ret);
+	if (!str) {
+		unreal_engine_py_log_error();
+		Py_DECREF(ret);
+		return FString();
+	}
+
+	FString fstr = UTF8_TO_TCHAR(PyUnicode_AsUTF8(str));
+	Py_DECREF(str);
+	Py_DECREF(ret);
+	return fstr;
+}
 
 float UPythonSlateDelegate::GetterFloat() const {
 	FScopePythonGIL gil;
@@ -505,6 +536,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_sgraph_editor(module);
 	ue_python_init_spython_shelf(module);
+	ue_python_init_sfile_path_picker(module);
 #endif
 
 	ue_python_init_ftab_spawner_entry(module);
