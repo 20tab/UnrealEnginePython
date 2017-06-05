@@ -17,6 +17,7 @@ PyObject *py_ue_set_property(ue_PyUObject *, PyObject *);
 PyObject *py_ue_properties(ue_PyUObject *, PyObject *);
 PyObject *py_ue_call(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_uproperty(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property_class(ue_PyUObject *, PyObject *);
 PyObject *py_ue_has_property(ue_PyUObject *, PyObject *);
 PyObject *py_ue_is_rooted(ue_PyUObject *, PyObject *);

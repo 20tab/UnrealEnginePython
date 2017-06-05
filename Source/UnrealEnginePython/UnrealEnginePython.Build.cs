@@ -143,7 +143,7 @@ public class UnrealEnginePython : ModuleRules
                 "UMGEditor",
                 "AIGraph",
                 "RawMesh",
-                "DesktopWidgets"
+                "DesktopWidgets",
             });
         }
 

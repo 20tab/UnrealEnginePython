@@ -561,6 +561,36 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
 }
 
+PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_uproperty", &property_name)) {
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UClass>()) {
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+	
+	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+	
+}
+
 PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

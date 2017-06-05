@@ -45,6 +45,7 @@
 #include "UEPySNumericEntryBox.h"
 #include "UEPySCanvas.h"
 #include "UEPySSlider.h"
+#include "UEPySVectorInputBox.h"
 
 
 
@@ -96,11 +97,13 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 	return ret;
 }
 
-#define ue_py_snew_base(T, field, arguments) self->field.s_widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs()) <<= arguments); ue_py_register_swidget((SWidget *)&self->field.s_widget.Get(), (ue_PySWidget *)self)
+#define ue_py_snew_base(T, field, required, arguments) self->field.s_widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments); ue_py_register_swidget((SWidget *)&self->field.s_widget.Get(), (ue_PySWidget *)self)
 
-#define ue_py_snew_simple(T, field) ue_py_snew_base(T, field, T::FArguments())
+#define ue_py_snew_simple(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), T::FArguments())
 
-#define ue_py_snew(T, field) ue_py_snew_base(T, field, arguments)
+#define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
+
+#define ue_py_snew_with_args(T, field, args) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(args), arguments)
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
