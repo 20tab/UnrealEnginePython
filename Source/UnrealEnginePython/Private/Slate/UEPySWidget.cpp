@@ -194,6 +194,9 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
 	}
 	// decref content (if any)
 	Py_XDECREF(self->py_swidget_content);
+	for (PyObject *item : self->py_refs) {
+		Py_DECREF(item);
+	}
 	ue_py_unregister_swidget(&self->s_widget.Get());
 	// decrement widget reference count
 	// but only if python vm is still fully active (hack to avoid crashes on editor shutdown)

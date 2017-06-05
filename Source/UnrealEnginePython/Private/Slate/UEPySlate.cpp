@@ -485,6 +485,7 @@ void ue_py_setup_swidget(ue_PySWidget *self) {
 	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
 	new(&self->delegates) TArray<UPythonSlateDelegate *>();
 	new(&self->py_swidget_slots) TArray<ue_PySWidget *>();
+	new(&self->py_refs) TArray<PyObject *>();
 	self->py_swidget_content = nullptr;
 }
 

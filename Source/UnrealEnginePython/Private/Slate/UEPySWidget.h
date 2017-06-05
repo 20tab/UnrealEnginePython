@@ -20,6 +20,8 @@ struct ue_PySWidget{
 	ue_PySWidget *py_swidget_content;
 
 	TArray<ue_PySWidget *> py_swidget_slots;
+
+	TArray<PyObject *> py_refs;
 };
 
 void ue_python_init_swidget(PyObject *);
