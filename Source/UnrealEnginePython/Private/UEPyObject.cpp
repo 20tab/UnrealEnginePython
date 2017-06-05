@@ -19,6 +19,34 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_property_struct", &property_name)) {
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UClass>()) {
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else {
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	UStructProperty *prop = Cast<UStructProperty>(u_property);
+	if (!prop)
+		return PyErr_Format(PyExc_Exception, "object is not a StructProperty");
+	return py_ue_new_uscriptstruct(prop->Struct, prop->ContainerPtrToValuePtr<uint8>(self->ue_object));
+}
+
 PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
