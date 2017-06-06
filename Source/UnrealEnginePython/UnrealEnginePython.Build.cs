@@ -110,7 +110,8 @@ public class UnrealEnginePython : ModuleRules
                 "SlateCore",
                 "MovieScene",
                 "LevelSequence",
-                "HTTP"
+                "HTTP",
+                "UMG"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
