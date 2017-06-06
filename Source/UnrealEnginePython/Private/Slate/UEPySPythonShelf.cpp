@@ -159,6 +159,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 	}
 
 	new(&self->s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(module.Get().CreateAssetPicker(asset_picker_config));
+	ue_py_register_swidget((SWidget *)&self->s_compound_widget.s_widget.s_widget.Get(), (ue_PySWidget *)self);
 	return 0;
 }
 
