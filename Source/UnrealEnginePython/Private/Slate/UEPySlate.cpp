@@ -179,6 +179,37 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 }
 #endif
 
+TSharedRef<SWidget> UPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonItem> py_item) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_item.Get()->py_object);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return SNullWidget::NullWidget;
+	}
+
+	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
+	if (!s_widget) {
+		Py_DECREF(ret);
+		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+		return SNullWidget::NullWidget;
+	}
+	TSharedRef<SWidget> value = s_widget->s_widget;
+	Py_DECREF(ret);
+	return value;
+}
+
+void UPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", py_item.Get()->py_object, (int)select_type);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 TSharedPtr<SWidget> UPythonSlateDelegate::OnContextMenuOpening() {
 	FScopePythonGIL gil;
 
@@ -530,6 +561,8 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_scanvas(module);
 	ue_python_init_sslider(module);
 	ue_python_init_svector_input_box(module);
+	ue_python_init_srotator_input_box(module);
+	ue_python_init_spython_combo_box(module);
 
 
 #if WITH_EDITOR

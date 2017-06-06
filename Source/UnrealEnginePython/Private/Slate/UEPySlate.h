@@ -46,6 +46,8 @@
 #include "UEPySCanvas.h"
 #include "UEPySSlider.h"
 #include "UEPySVectorInputBox.h"
+#include "UEPySRotatorInputBox.h"
+#include "UEPySPythonComboBox.h"
 
 
 
@@ -388,6 +390,8 @@ public:
 #endif
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
+	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
+	void OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type);
 
 	void SimpleExecuteAction();
 	void ExecuteAction(PyObject *py_obj);
