@@ -84,7 +84,7 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 	ue_py_slate_setup_farguments(SPythonComboBox);
 
 	// first of all check for values
-	PyObject *values = ue_py_dict_get_item(kwargs, "values");
+	PyObject *values = ue_py_dict_get_item(kwargs, "options_source");
 	if (!values) {
 		PyErr_SetString(PyExc_Exception, "you must specify the combo box items");
 		return -1;

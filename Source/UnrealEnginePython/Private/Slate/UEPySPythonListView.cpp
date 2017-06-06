@@ -77,42 +77,44 @@ PyTypeObject ue_PySPythonListViewType = {
 };
 
 static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *args, PyObject *kwargs) {
-	PyObject *py_iterable;
-	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "OO", &py_iterable, &py_callable)) {
+
+	ue_py_slate_setup_farguments(SPythonListView);
+
+	// first of all check for values
+	PyObject *values = ue_py_dict_get_item(kwargs, "list_items_source");
+	if (!values) {
+		PyErr_SetString(PyExc_Exception, "you must specify list items");
 		return -1;
 	}
 
-	py_iterable = PyObject_GetIter(py_iterable);
-
-	if (!py_iterable || !PyIter_Check(py_iterable)) {
-		PyErr_SetString(PyExc_Exception, "argument is not an iterable");
+	values = PyObject_GetIter(values);
+	if (!values) {
+		PyErr_SetString(PyExc_Exception, "values field is not an iterable");
 		return -1;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
-		PyErr_SetString(PyExc_Exception, "argument is not a callable");
-		return -1;
-	}
-
-	// this will be destroyed by the SPythonListView
-	auto items = new TArray<TSharedPtr<FPythonItem>>();
-
-	while (PyObject *item = PyIter_Next(py_iterable)) {
+	TArray<TSharedPtr<FPythonItem>> *items = new TArray<TSharedPtr<FPythonItem>>();
+	while (PyObject *item = PyIter_Next(values)) {
 		Py_INCREF(item);
+		// keep track of items
+		self->s_list_view.s_table_view_base.s_compound_widget.s_widget.py_refs.Add(item);
 		items->Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
 	}
+	Py_DECREF(values);
 
-	Py_DECREF(py_iterable);
+	arguments.ListItemsSource(items);
 
-	SPythonListView::FOnGenerateRow handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateRow);
-	self->s_list_view.s_table_view_base.s_compound_widget.s_widget.delegates.Add(py_delegate);
+	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
+	ue_py_slate_farguments_optional_bool("clear_selection_on_click", ClearSelectionOnClick);
+	ue_py_slate_farguments_optional_enum("consume_mouse_wheel", ConsumeMouseWheel, EConsumeMouseWheel);
+	ue_py_slate_farguments_optional_bool("handle_gamepad_events", HandleGamepadEvents);
+	ue_py_slate_farguments_float("item_height", ItemHeight);
+	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
+	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
+	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
+	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
 
-	new (&self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(SNew(SPythonListView).ListItemsSource(items).OnGenerateRow(handler));
+	ue_py_snew(SPythonListView, s_list_view.s_table_view_base.s_compound_widget.s_widget);
 	return 0;
 }
 

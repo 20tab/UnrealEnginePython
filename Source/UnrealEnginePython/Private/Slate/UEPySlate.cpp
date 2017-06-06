@@ -458,7 +458,7 @@ TSharedRef<ITableRow> UPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> 
 	}
 	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
 	if (!s_widget) {
-		UE_LOG(LogPython, Error, TEXT("python callable did not return a SDockTab object"));
+		UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
 		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
 	}
 
@@ -476,6 +476,7 @@ void UPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TS
 		UE_LOG(LogPython, Error, TEXT("returned value is not iterable"));
 		Py_XDECREF(py_iterable);
 		Py_DECREF(ret);
+		return;
 	}
 
 	while (PyObject *item = PyIter_Next(py_iterable)) {
@@ -563,6 +564,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_svector_input_box(module);
 	ue_python_init_srotator_input_box(module);
 	ue_python_init_spython_combo_box(module);
+	ue_python_init_sscroll_box(module);
 
 
 #if WITH_EDITOR

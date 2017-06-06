@@ -45,55 +45,44 @@ PyTypeObject ue_PySPythonTreeViewType = {
 };
 
 static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *args, PyObject *kwargs) {
-	PyObject *py_iterable;
-	PyObject *py_callable;
-	PyObject *py_callable_children;
-	if (!PyArg_ParseTuple(args, "OOO", &py_iterable, &py_callable, &py_callable_children)) {
+
+	ue_py_slate_setup_farguments(SPythonTreeView);
+
+	// first of all check for values
+	PyObject *values = ue_py_dict_get_item(kwargs, "tree_items_source");
+	if (!values) {
+		PyErr_SetString(PyExc_Exception, "you must specify tree items");
 		return -1;
 	}
 
-	py_iterable = PyObject_GetIter(py_iterable);
-
-	if (!py_iterable || !PyIter_Check(py_iterable)) {
-		PyErr_SetString(PyExc_Exception, "argument is not an iterable");
+	values = PyObject_GetIter(values);
+	if (!values) {
+		PyErr_SetString(PyExc_Exception, "values field is not an iterable");
 		return -1;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
-		PyErr_SetString(PyExc_Exception, "argument is not a callable");
-		return -1;
-	}
-
-	if (!PyCallable_Check(py_callable_children)) {
-		PyErr_SetString(PyExc_Exception, "argument is not a callable");
-		return -1;
-	}
-
-	// this will be destroyed by the SPythonListView
-	auto items = new TArray<TSharedPtr<FPythonItem>>();
-
-	while (PyObject *item = PyIter_Next(py_iterable)) {
+	TArray<TSharedPtr<FPythonItem>> *items = new TArray<TSharedPtr<FPythonItem>>();
+	while (PyObject *item = PyIter_Next(values)) {
 		Py_INCREF(item);
+		// keep track of items
+		self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.py_refs.Add(item);
 		items->Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
 	}
+	Py_DECREF(values);
 
-	Py_DECREF(py_iterable);
+	arguments.TreeItemsSource(items);
 
-	SPythonTreeView::FOnGenerateRow handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::GenerateRow);
-	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.delegates.Add(py_delegate);
+	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
+	ue_py_slate_farguments_optional_bool("clear_selection_on_click", ClearSelectionOnClick);
+	ue_py_slate_farguments_optional_enum("consume_mouse_wheel", ConsumeMouseWheel, EConsumeMouseWheel);
+	ue_py_slate_farguments_float("item_height", ItemHeight);
+	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
+	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
+	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
+	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
+	ue_py_slate_farguments_event("on_get_children", OnGetChildren, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGetChildren, GetChildren);
 
-	SPythonTreeView::FOnGetChildren handler_children;
-	UPythonSlateDelegate *py_delegate_children = NewObject<UPythonSlateDelegate>();
-	py_delegate_children->SetPyCallable(py_callable_children);
-	py_delegate_children->AddToRoot();
-	handler_children.BindUObject(py_delegate_children, &UPythonSlateDelegate::GetChildren);
-	self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.delegates.Add(py_delegate);
-
-	new(&self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(SNew(SPythonTreeView).TreeItemsSource(items).OnGenerateRow(handler).OnGetChildren(handler_children));
+	ue_py_snew(SPythonTreeView, s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget);
 	return 0;
 }
 

@@ -48,6 +48,7 @@
 #include "UEPySVectorInputBox.h"
 #include "UEPySRotatorInputBox.h"
 #include "UEPySPythonComboBox.h"
+#include "UEPySScrollBox.h"
 
 
 
@@ -249,28 +250,30 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
-
-
 #define ue_py_slate_farguments_optional_fvector2d(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
-	if (value) {\
-		if (PyTuple_Check(value)) {\
-			if (PyTuple_Size(value) == 2) {\
-				PyObject *py_first = PyTuple_GetItem(value, 0);\
-				PyObject *py_second = PyTuple_GetItem(value, 1);\
-				if (PyNumber_Check(py_first)) {\
-					PyObject *py_x = PyNumber_Float(py_first);\
-					PyObject *py_y = PyNumber_Float(py_second);\
-					arguments.attribute(FVector2D(PyFloat_AsDouble(py_x), PyFloat_AsDouble(py_y)));\
-					Py_DECREF(py_x);\
-					Py_DECREF(py_y);\
+		if (value) {\
+			if (PyTuple_Check(value)) {\
+				if (PyTuple_Size(value) == 2) {\
+					PyObject *py_first = PyTuple_GetItem(value, 0);\
+					PyObject *py_second = PyTuple_GetItem(value, 1);\
+					if (PyNumber_Check(py_first)) {\
+						PyObject *py_x = PyNumber_Float(py_first);\
+						PyObject *py_y = PyNumber_Float(py_second);\
+						arguments.attribute(FVector2D(PyFloat_AsDouble(py_x), PyFloat_AsDouble(py_y)));\
+						Py_DECREF(py_x);\
+						Py_DECREF(py_y);\
+					}\
+				}\
+				else {\
+					PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+					return -1;\
 				}\
 			}\
-		}\
-		else {\
+			else {\
 				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
 				return -1;\
+			}\
 		}\
-	}\
 }
 
 
