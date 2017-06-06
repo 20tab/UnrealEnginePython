@@ -96,6 +96,8 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 
 	ue_py_setup_swidget(ret);
 
+	ret->s_widget = s_widget;
+
 	ue_py_register_swidget(&s_widget.Get(), ret);
 	return ret;
 }
