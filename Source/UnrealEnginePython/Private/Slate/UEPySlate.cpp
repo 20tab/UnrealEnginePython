@@ -566,6 +566,8 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_srotator_input_box(module);
 	ue_python_init_spython_combo_box(module);
 	ue_python_init_sscroll_box(module);
+    ue_python_init_scolor_block(module);
+
 
 
 #if WITH_EDITOR

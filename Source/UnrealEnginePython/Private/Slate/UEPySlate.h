@@ -49,6 +49,7 @@
 #include "UEPySRotatorInputBox.h"
 #include "UEPySPythonComboBox.h"
 #include "UEPySScrollBox.h"
+#include "UEPySColorBlock.h"
 
 
 
