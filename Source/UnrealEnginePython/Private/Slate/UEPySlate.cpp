@@ -10,6 +10,7 @@
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
 #include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
+#include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 
 
 #include "UEPySlate.h"
@@ -702,7 +703,6 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
 
 
 PyObject *py_unreal_engine_add_menu_bar_extension(PyObject * self, PyObject * args) {
