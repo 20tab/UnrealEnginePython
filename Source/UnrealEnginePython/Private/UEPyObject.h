@@ -43,6 +43,7 @@ PyObject *py_ue_as_dict(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_outer(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_outermost(ue_PyUObject *, PyObject *);
+PyObject *py_ue_create_uobject(ue_PyUObject *self, PyObject * args);
 PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_super_class(ue_PyUObject *, PyObject *);
