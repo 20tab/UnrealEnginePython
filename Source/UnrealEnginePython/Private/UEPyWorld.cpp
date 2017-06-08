@@ -1,4 +1,5 @@
 #include "UnrealEnginePythonPrivatePCH.h"
+extern PyTypeObject ue_PyUObjectType;
 
 PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args) {
 
