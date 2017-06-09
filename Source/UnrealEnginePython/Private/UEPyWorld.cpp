@@ -121,6 +121,31 @@ PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
+PyObject *py_ue_find_object(ue_PyUObject *self, PyObject * args) {
+
+    ue_py_check(self);
+
+    char *name;
+    if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
+        return NULL;
+    }
+
+    UWorld *world = ue_get_uworld(self);
+    if (!world)
+        return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+    UObject *u_object = FindObject<UObject>(world->GetOutermost(), UTF8_TO_TCHAR(name));
+
+    if (!u_object)
+        return PyErr_Format(PyExc_Exception, "unable to find object %s", name);
+
+    ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+    if (!ret)
+        return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+    Py_INCREF(ret);
+    return (PyObject *)ret;
+}
+
 PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
