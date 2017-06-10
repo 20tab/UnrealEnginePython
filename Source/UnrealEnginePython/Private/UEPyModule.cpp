@@ -278,6 +278,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_viewport_size", py_unreal_engine_get_viewport_size, METH_VARARGS, "" },
 
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
+
+	{ "open_color_picker", py_unreal_engine_open_color_picker, METH_VARARGS, "" },
+	{ "destroy_color_picker", py_unreal_engine_destroy_color_picker, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "editor_play_in_viewport", py_unreal_engine_editor_play_in_viewport, METH_VARARGS, "" },
 	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },

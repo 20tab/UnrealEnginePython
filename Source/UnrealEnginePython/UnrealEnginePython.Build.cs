@@ -111,7 +111,8 @@ public class UnrealEnginePython : ModuleRules
                 "MovieScene",
                 "LevelSequence",
                 "HTTP",
-                "UMG"
+                "UMG",
+                "AppFramework"
 				// ... add private dependencies that you statically link with here ...
 			}
             );

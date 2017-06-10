@@ -94,7 +94,8 @@ static PyObject *py_ue_ftool_bar_builder_end_block_group(ue_PyFToolBarBuilder *s
 
 static PyObject *py_ue_ftool_bar_builder_make_widget(ue_PyFToolBarBuilder *self, PyObject * args) {
     ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
-    new (&ret->s_widget) TSharedRef<SWidget>(self->tool_bar_builder->MakeWidget());
+	ue_py_setup_swidget(ret);
+    ret->s_widget = self->tool_bar_builder->MakeWidget();
     return (PyObject *)ret;
 }
 

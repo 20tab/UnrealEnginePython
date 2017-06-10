@@ -41,7 +41,17 @@ PyTypeObject ue_PySColorBlockType = {
 };
 
 static int ue_py_scolor_block_init(ue_PySColorBlock *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew_simple(SColorBlock, s_leaf_widget.s_widget);
+	ue_py_slate_setup_farguments(SColorBlock);
+
+	ue_py_slate_farguments_flinear_color("color", Color);
+	ue_py_slate_farguments_bool("color_is_hsv", ColorIsHSV);
+	ue_py_slate_farguments_bool("ignore_alpha", IgnoreAlpha);
+	ue_py_slate_farguments_event("on_mouse_button_down", OnMouseButtonDown, FPointerEventHandler, OnMouseEvent);
+	ue_py_slate_farguments_bool("show_background_for_alpha", ShowBackgroundForAlpha);
+	ue_py_slate_farguments_fvector2d("size", Size);
+	ue_py_slate_farguments_bool("use_srgb", UseSRGB);
+
+	ue_py_snew(SColorBlock, s_leaf_widget.s_widget);
 	return 0;
 }
 
