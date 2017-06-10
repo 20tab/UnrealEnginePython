@@ -12,6 +12,8 @@
 #include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 
+#include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
+
 
 #include "UEPySlate.h"
 
@@ -103,6 +105,17 @@ void UPythonSlateDelegate::OnFloatChanged(float value) {
 	FScopePythonGIL gil;
 
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"f", value);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+void UPythonSlateDelegate::OnLinearColorChanged(FLinearColor color) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_flinearcolor(color));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -810,4 +823,40 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+
+PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs) {
+
+	PyObject *py_callable_on_color_committed = nullptr;
+
+	char *kwlist[] = {
+		(char *)"on_color_committed",
+		nullptr };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:open_color_picker", kwlist,
+		&py_callable_on_color_committed)) {
+		return nullptr;
+	}
+
+	if (!PyCallable_Check(py_callable_on_color_committed)) {
+		return PyErr_Format(PyExc_Exception, "on_color_committed must be a callable");
+	}
+
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable_on_color_committed);
+	// TODO: this memory should be freed...
+	py_delegate->AddToRoot();
+
+	FColorPickerArgs color_args;
+	color_args.OnColorCommitted.BindUObject(py_delegate, &UPythonSlateDelegate::OnLinearColorChanged);
+
+	if (OpenColorPicker(color_args)) {
+		Py_RETURN_TRUE;
+	}
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_unreal_engine_destroy_color_picker(PyObject *self, PyObject * args) {
+	DestroyColorPicker();
+	Py_RETURN_NONE;
 }

@@ -3,7 +3,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
+
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
 	PyObject *py_message;
@@ -701,15 +701,3 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *self, PyObject
 #endif
 
 
-PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject * args) {
-	FColorPickerArgs color_args;
-	if (OpenColorPicker(color_args)) {
-		Py_RETURN_TRUE;
-	}
-	Py_RETURN_FALSE;
-}
-
-PyObject *py_unreal_engine_destroy_color_picker(PyObject *self, PyObject * args) {
-	DestroyColorPicker();
-	Py_RETURN_NONE;
-}

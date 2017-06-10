@@ -85,6 +85,9 @@ PyObject *py_unreal_engine_add_tool_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_open_color_picker(PyObject *, PyObject *, PyObject *);
+PyObject *py_unreal_engine_destroy_color_picker(PyObject *, PyObject *);
+
 void ue_py_register_swidget(SWidget *, ue_PySWidget *);
 void ue_py_unregister_swidget(SWidget *);
 
@@ -110,6 +113,8 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 #define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
 
 #define ue_py_snew_with_args(T, field, args) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(args), arguments)
+
+
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
@@ -381,6 +386,8 @@ public:
 	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
+
+	void OnLinearColorChanged(FLinearColor color);
 
 	void OnStringChanged(const FString &text);
 
