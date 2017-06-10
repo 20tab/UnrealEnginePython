@@ -10,6 +10,7 @@
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
 #include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
+#include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 
 
 #include "UEPySlate.h"
@@ -565,6 +566,8 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_srotator_input_box(module);
 	ue_python_init_spython_combo_box(module);
 	ue_python_init_sscroll_box(module);
+    ue_python_init_scolor_block(module);
+
 
 
 #if WITH_EDITOR
@@ -702,7 +705,6 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
 
 
 PyObject *py_unreal_engine_add_menu_bar_extension(PyObject * self, PyObject * args) {

@@ -29,8 +29,6 @@ PyObject *py_unreal_engine_string_to_guid(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_engine_tick(PyObject *, PyObject *);
 
-PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
-
 PyObject *py_unreal_engine_all_classes(PyObject *, PyObject *);
 
 
@@ -46,6 +44,9 @@ PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject *, PyObject *)
 
 PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_viewport_size(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_open_color_picker(PyObject *, PyObject *);
+PyObject *py_unreal_engine_destroy_color_picker(PyObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *, PyObject *);

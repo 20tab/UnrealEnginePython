@@ -14,6 +14,7 @@ PyObject *py_ue_world_tick(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_all_objects(ue_PyUObject *, PyObject *);
 PyObject *py_ue_all_actors(ue_PyUObject *, PyObject *);
+PyObject *py_ue_find_object(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_world(ue_PyUObject *, PyObject *);
 PyObject *py_ue_has_world(ue_PyUObject *, PyObject *);
 

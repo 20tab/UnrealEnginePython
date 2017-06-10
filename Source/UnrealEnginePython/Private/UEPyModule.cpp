@@ -278,6 +278,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_viewport_size", py_unreal_engine_get_viewport_size, METH_VARARGS, "" },
 
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
+
+	{ "open_color_picker", py_unreal_engine_open_color_picker, METH_VARARGS, "" },
+	{ "destroy_color_picker", py_unreal_engine_destroy_color_picker, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "editor_play_in_viewport", py_unreal_engine_editor_play_in_viewport, METH_VARARGS, "" },
 	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },
@@ -384,6 +387,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
 
+	{ "get_editor_world_counterpart_actor", (PyCFunction)py_ue_get_editor_world_counterpart_actor, METH_VARARGS, "" },
+	
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
 	{ "asset_can_reimport", (PyCFunction)py_ue_asset_can_reimport, METH_VARARGS, "" },
@@ -552,6 +557,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_physics_linear_velocity", (PyCFunction)py_ue_get_physics_linear_velocity, METH_VARARGS, "" },
 	{ "set_physics_angular_velocity", (PyCFunction)py_ue_set_physics_angular_velocity, METH_VARARGS, "" },
 	{ "get_physics_angular_velocity", (PyCFunction)py_ue_get_physics_angular_velocity, METH_VARARGS, "" },
+    { "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 

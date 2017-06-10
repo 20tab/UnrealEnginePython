@@ -635,3 +635,24 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args) {
 	}
 	return py_overlapping_actors;
 }
+
+#if WITH_EDITOR
+PyObject *py_ue_get_editor_world_counterpart_actor(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve actor from UObject");
+
+	AActor *editor_actor = EditorUtilities::GetEditorWorldCounterpartActor(actor);
+	if (!editor_actor)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve editor counterpart actor");
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(editor_actor);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
+}
+#endif

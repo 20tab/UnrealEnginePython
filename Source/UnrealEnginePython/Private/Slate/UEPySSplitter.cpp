@@ -16,8 +16,9 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args)
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	// TODO: decrement reference when destroying parent
+
 	Py_INCREF(py_swidget);
+	self->s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
@@ -63,7 +64,16 @@ PyTypeObject ue_PySSplitterType = {
 };
 
 static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew_simple(SSplitter, s_panel.s_widget);
+	ue_py_slate_setup_farguments(SSplitter);
+
+	ue_py_slate_farguments_optional_float("hit_detection_splitter_handle_size", HitDetectionSplitterHandleSize);
+	ue_py_slate_farguments_event("on_splitter_finished_resizing", OnSplitterFinishedResizing, FSimpleDelegate, SimpleExecuteAction);
+	ue_py_slate_farguments_optional_enum("orientation", Orientation, EOrientation);
+	ue_py_slate_farguments_optional_float("physical_splitter_handle_size", PhysicalSplitterHandleSize);
+	ue_py_slate_farguments_optional_enum("resize_mode", ResizeMode, ESplitterResizeMode::Type);
+	ue_py_slate_farguments_optional_struct_ptr("style", Style, FSplitterStyle);
+
+	ue_py_snew(SSplitter, s_panel.s_widget);
 	return 0;
 }
 
