@@ -143,3 +143,22 @@ PyObject *py_unreal_engine_create_checkerboard_texture(PyObject * self, PyObject
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * args) {
+	int width;
+	int height;
+	int format = PF_B8G8R8A8;
+	if (!PyArg_ParseTuple(args, "ii|i:create_transient_texture", &width, &height, &format)) {
+		return NULL;
+	}
+
+
+	UTexture2D *texture = UTexture2D::CreateTransient(width, height, (EPixelFormat)format);
+	texture->UpdateResource();
+
+	ue_PyUObject *ret = ue_get_python_wrapper(texture);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
