@@ -7,10 +7,12 @@
 #include "SlateBasics.h"
 #include "SlateExtras.h"
 
+
 #if WITH_EDITOR
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
 #include "Editor/EditorStyle/Public/EditorStyleSet.h"
+#include "UnrealEdMisc.h"
 #endif
 
 #include <map>

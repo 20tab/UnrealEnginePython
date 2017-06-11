@@ -588,7 +588,9 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_slevel_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_sgraph_editor(module);
+#if ENGINE_MINOR_VERSION > 14
 	ue_python_init_spython_shelf(module);
+#endif
 	ue_python_init_sfile_path_picker(module);
 #endif
 

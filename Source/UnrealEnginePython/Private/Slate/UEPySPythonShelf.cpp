@@ -1,11 +1,15 @@
 #if WITH_EDITOR
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if ENGINE_MINOR_VERSION > 14
+
 #include "UEPySPythonShelf.h"
 
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
+
 #include "Editor/ContentBrowser/Public/IContentBrowserSingleton.h"
 #include "Editor/ContentBrowser/Private/SAssetPicker.h"
+
 
 static PyMethodDef ue_PySPythonShelf_methods[] = {
 	{ NULL }  /* Sentinel */
@@ -175,4 +179,5 @@ void ue_python_init_spython_shelf(PyObject *ue_module) {
 	Py_INCREF(&ue_PySPythonShelfType);
 	PyModule_AddObject(ue_module, "SPythonShelf", (PyObject *)&ue_PySPythonShelfType);
 }
+#endif
 #endif

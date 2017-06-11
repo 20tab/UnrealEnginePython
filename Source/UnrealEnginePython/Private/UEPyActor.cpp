@@ -34,7 +34,11 @@ PyObject *py_ue_actor_begin_play(ue_PyUObject * self, PyObject * args) {
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 
+#if ENGINE_MINOR_VERSION > 14
 	actor->DispatchBeginPlay();
+#else
+	actor->BeginPlay();
+#endif
 	Py_RETURN_NONE;
 }
 

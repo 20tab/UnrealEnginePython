@@ -8,6 +8,8 @@
 
 #include "ModuleManager.h"
 
+#include "Engine.h"
+#include "Runtime/SlateCore/Public/Styling/ISlateStyle.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogPython, Log, All);
