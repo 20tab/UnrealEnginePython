@@ -87,6 +87,10 @@ void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose) {
 	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
 	PyList_Insert(py_path, 0, py_scripts_path);
 
+	char *additional_modules_path = TCHAR_TO_UTF8(*AdditionalModulesPath);
+	PyObject *py_additional_modules_path = PyUnicode_FromString(additional_modules_path);
+	PyList_Insert(py_path, 0, py_additional_modules_path);
+
 	if (verbose) {
 		UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
 		UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
@@ -104,6 +108,8 @@ static void setup_stdout_stderr() {
 		"        self.logger(buf)\n"
 		"    def flush(self):\n"
 		"        return\n"
+		"    def isatty(self):\n"
+		"        return False\n"
 		"sys.stdout = UnrealEngineOutput(unreal_engine.log)\n"
 		"sys.stderr = UnrealEngineOutput(unreal_engine.log_error)\n";
 	PyRun_SimpleString(code);
@@ -177,6 +183,14 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni)) {
 		ScriptsPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni)) {
+		AdditionalModulesPath = IniValue;
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeAdditionalModulesPath"), IniValue, GEngineIni)) {
+		AdditionalModulesPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ZipPath"), IniValue, GEngineIni)) {

@@ -32,6 +32,7 @@ public:
 
 	FString ScriptsPath;
 	FString ZipPath;
+	FString AdditionalModulesPath;
 
 private:
 	void *ue_python_gil;

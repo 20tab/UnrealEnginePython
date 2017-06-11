@@ -152,6 +152,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "compress_image_array", py_unreal_engine_compress_image_array, METH_VARARGS, "" },
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
+	{ "create_transient_texture", py_unreal_engine_create_transient_texture, METH_VARARGS, "" },
 
 	// slate
 
