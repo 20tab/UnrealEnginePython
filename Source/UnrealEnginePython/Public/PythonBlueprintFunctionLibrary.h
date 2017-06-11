@@ -11,7 +11,10 @@ class UNREALENGINEPYTHON_API UPythonBlueprintFunctionLibrary : public UBlueprint
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Python")
+	UFUNCTION(BlueprintCallable, Exec, Category = "Python")
 	static void ExecutePythonScript(FString script);
+
+    UFUNCTION(BlueprintCallable, Exec, Category = "Python")
+    static void ExecutePythonString(const FString& PythonCmd);
 };
 
