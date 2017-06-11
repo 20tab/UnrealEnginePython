@@ -149,7 +149,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
-		IniValue = FPaths::Combine(FPaths::GameContentDir(), IniValue);	
+		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);	
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *home = (wchar_t *)*IniValue;
 #else
@@ -168,7 +168,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeProgramName"), IniValue, GEngineIni)) {
-		IniValue = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *program_name = (wchar_t *)*IniValue;
 #else
@@ -182,7 +182,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni)) {
-		ScriptsPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+		ScriptsPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni)) {
@@ -190,7 +190,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeAdditionalModulesPath"), IniValue, GEngineIni)) {
-		AdditionalModulesPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+		AdditionalModulesPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ZipPath"), IniValue, GEngineIni)) {
@@ -198,7 +198,7 @@ void FUnrealEnginePythonModule::StartupModule()
 }
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeZipPath"), IniValue, GEngineIni)) {
-		ZipPath = FPaths::Combine(FPaths::GameContentDir(), IniValue);
+		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
 	}
 
 	if (ScriptsPath.IsEmpty()) {
@@ -308,7 +308,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 	char *full_path = filename;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(ScriptsPath, UTF8_TO_TCHAR(filename)));
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
 	}
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
@@ -351,7 +351,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void (*callback
 	char *full_path = filename;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(ScriptsPath, UTF8_TO_TCHAR(filename)));
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
 	}
 
 	PyThreadState *_main = PyThreadState_Get();

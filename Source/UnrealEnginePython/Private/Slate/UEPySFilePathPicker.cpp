@@ -1,4 +1,5 @@
 #if WITH_EDITOR
+#if ENGINE_MINOR_VERSION > 13
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySFilePathPicker.h"
@@ -71,4 +72,5 @@ void ue_python_init_sfile_path_picker(PyObject *ue_module) {
 	Py_INCREF(&ue_PySFilePathPickerType);
 	PyModule_AddObject(ue_module, "SFilePathPicker", (PyObject *)&ue_PySFilePathPickerType);
 }
+#endif
 #endif

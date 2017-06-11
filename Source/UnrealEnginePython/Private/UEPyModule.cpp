@@ -1264,7 +1264,9 @@ void unreal_engine_init_py_module() {
 	ue_python_init_farfilter(new_unreal_engine_module);
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
+#if ENGINE_MINOR_VERSION > 13
 	ue_python_init_fraw_mesh(new_unreal_engine_module);
+#endif
 	ue_python_init_iplugin(new_unreal_engine_module);
 #endif
 

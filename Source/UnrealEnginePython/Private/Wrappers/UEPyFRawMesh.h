@@ -3,6 +3,8 @@
 
 #if WITH_EDITOR
 
+#if ENGINE_MINOR_VERSION > 13
+
 #include "Developer/RawMesh/Public/RawMesh.h"
 
 struct ue_PyFRawMesh {
@@ -14,4 +16,5 @@ struct ue_PyFRawMesh {
 
 void ue_python_init_fraw_mesh(PyObject *);
 
+#endif
 #endif

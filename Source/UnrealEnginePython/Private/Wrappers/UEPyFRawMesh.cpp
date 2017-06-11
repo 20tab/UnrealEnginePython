@@ -2,6 +2,8 @@
 
 #if WITH_EDITOR
 
+#if ENGINE_MINOR_VERSION > 13
+
 static PyObject *py_ue_fraw_mesh_set_vertex_positions(ue_PyFRawMesh *self, PyObject * args) {
 	PyObject *data;
 	if (!PyArg_ParseTuple(args, "O:set_vertex_positions", &data)) {
@@ -455,4 +457,5 @@ void ue_python_init_fraw_mesh(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FRawMesh", (PyObject *)&ue_PyFRawMeshType);
 }
 
+#endif
 #endif
