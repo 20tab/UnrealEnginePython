@@ -56,6 +56,7 @@ static PyObject *py_ue_swidget_set_enabled(ue_PySWidget *self, PyObject * args) 
 	return (PyObject *)self;
 }
 
+#if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyObject * args) {
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_down", &py_callable)) {
@@ -143,7 +144,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject *
 	Py_INCREF(self);
 	return (PyObject *)self;
 }
-
+#endif
 
 
 static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args) {
@@ -173,10 +174,12 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "set_cursor", (PyCFunction)py_ue_swidget_set_cursor, METH_VARARGS, "" },
 	{ "set_enabled", (PyCFunction)py_ue_swidget_set_enabled, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
+#if ENGINE_MINOR_VERSION > 12
 	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_up", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
 	{ "bind_on_mouse_double_click", (PyCFunction)py_ue_swidget_bind_on_mouse_double_click, METH_VARARGS, "" },
 	{ "bind_on_mouse_move", (PyCFunction)py_ue_swidget_bind_on_mouse_move, METH_VARARGS, "" },
+#endif
 	{ NULL }  /* Sentinel */
 };
 

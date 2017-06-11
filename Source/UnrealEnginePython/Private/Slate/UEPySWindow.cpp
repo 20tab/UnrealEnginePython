@@ -142,7 +142,9 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_float("min_width", MinWidth);
 	ue_py_slate_farguments_optional_bool("sane_window_placement", SaneWindowPlacement);
 	ue_py_slate_farguments_optional_fvector2d("screen_position", ScreenPosition);
+#if ENGINE_MINOR_VERSION > 12
 	ue_py_slate_farguments_optional_bool("should_preserve_aspect_ratio", ShouldPreserveAspectRatio);
+#endif
 #if ENGINE_MINOR_VERSION > 15
 	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule);
 #else

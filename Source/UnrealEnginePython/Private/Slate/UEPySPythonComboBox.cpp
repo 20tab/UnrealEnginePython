@@ -127,7 +127,9 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 #endif
 	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
 	ue_py_slate_farguments_optional_bool("has_down_arrow", HasDownArrow);
+#if ENGINE_MINOR_VERSION > 12
 	ue_py_slate_farguments_optional_struct_ptr("item_style", ItemStyle, FTableRowStyle);
+#endif
 	ue_py_slate_farguments_optional_float("max_list_height", MaxListHeight);
 	ue_py_slate_farguments_optional_enum("method", Method, EPopupMethod);
 	ue_py_slate_farguments_optional_struct("pressed_sound_override", PressedSoundOverride, FSlateSound);
