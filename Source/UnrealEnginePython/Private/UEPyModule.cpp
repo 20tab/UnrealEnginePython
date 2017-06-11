@@ -22,6 +22,7 @@
 #include "UEPyAudio.h"
 #include "UEPySequencer.h"
 #include "UEPyViewport.h"
+#include "UEPyWidget.h"
 #include "UEPyWidgetComponent.h"
 
 #include "UEPyPackage.h"
@@ -565,6 +566,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
 	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },
+
+    // Widget
+    { "take_widget", (PyCFunction)py_ue_take_widget, METH_VARARGS, "" },
 
 	// WidgetComponent
 	{ "set_slate_widget", (PyCFunction)py_ue_set_slate_widget, METH_VARARGS, "" },

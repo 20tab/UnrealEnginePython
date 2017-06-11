@@ -1,6 +1,8 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "UnrealEnginePythonPrivatePCH.h"
+#include "PythonBlueprintFunctionLibrary.h"
+#include "HAL/IConsoleManager.h"
 
 void unreal_engine_init_py_module();
 
@@ -106,6 +108,26 @@ static void setup_stdout_stderr() {
 		"sys.stderr = UnrealEngineOutput(unreal_engine.log_error)\n";
 	PyRun_SimpleString(code);
 }
+
+namespace {
+    static void consoleExecScript(const TArray<FString>& Args)
+    {
+        if (Args.Num() != 1)
+        {
+            UE_LOG(LogPython, Warning, TEXT("Usage: 'py.exec <scriptname>'."));
+            UE_LOG(LogPython, Warning, TEXT("  scriptname: Name of script, must reside in Scripts folder. Ex: myscript.py"));
+        }
+        else
+        {
+            UPythonBlueprintFunctionLibrary::ExecutePythonScript(Args[0]);
+        }
+    }
+
+}
+FAutoConsoleCommand ExecPythonScriptCommand(
+    TEXT("py.exec"),
+    *NSLOCTEXT("UnrealEnginePython", "CommandText_Exec", "Execute python script").ToString(),
+    FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecScript));
 
 void FUnrealEnginePythonModule::StartupModule()
 {
