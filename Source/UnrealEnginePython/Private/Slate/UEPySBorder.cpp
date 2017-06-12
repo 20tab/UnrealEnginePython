@@ -83,12 +83,29 @@ static PyObject *py_ue_sborder_set_v_align(ue_PySBorder *self, PyObject * args) 
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_sborder_set_border_image(ue_PySBorder *self, PyObject * args) {
+    PyObject *py_brush;
+    if (!PyArg_ParseTuple(args, "O:set_border_image", &py_brush)) {
+        return NULL;
+    }
+
+    FSlateBrush *brush = ue_py_check_struct<FSlateBrush>(py_brush);
+    if (!brush)
+        return PyErr_Format(PyExc_Exception, "argument is not a FSlateBrush");
+
+    sw_border->SetBorderImage(brush);
+
+    Py_INCREF(self);
+    return (PyObject *)self;
+}
+
 static PyMethodDef ue_PySBorder_methods[] = {
-	{ "clear_content", (PyCFunction)py_ue_sborder_clear_content, METH_VARARGS, "" },
-	{ "set_content", (PyCFunction)py_ue_sborder_set_content, METH_VARARGS, "" },
-	{ "set_padding", (PyCFunction)py_ue_sborder_set_padding, METH_VARARGS, "" },
-	{ "set_h_align", (PyCFunction)py_ue_sborder_set_h_align, METH_VARARGS, "" },
-	{ "set_v_align", (PyCFunction)py_ue_sborder_set_v_align, METH_VARARGS, "" },
+	{ "clear_content",    (PyCFunction)py_ue_sborder_clear_content, METH_VARARGS, "" },
+	{ "set_content",      (PyCFunction)py_ue_sborder_set_content, METH_VARARGS, "" },
+	{ "set_padding",      (PyCFunction)py_ue_sborder_set_padding, METH_VARARGS, "" },
+	{ "set_h_align",      (PyCFunction)py_ue_sborder_set_h_align, METH_VARARGS, "" },
+	{ "set_v_align",      (PyCFunction)py_ue_sborder_set_v_align, METH_VARARGS, "" },
+    { "set_border_image", (PyCFunction)py_ue_sborder_set_border_image, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -128,6 +145,7 @@ static int ue_py_sborder_init(ue_PySBorder *self, PyObject *args, PyObject *kwar
 	ue_py_slate_setup_farguments(SBorder);
 	ue_py_slate_farguments_struct("border_background_color", BorderBackgroundColor, FSlateColor);
 	ue_py_slate_farguments_flinear_color("color_and_opacity", ColorAndOpacity);
+    ue_py_slate_farguments_optional_struct_ptr("border_image", BorderImage, FSlateBrush);
 
 	ue_py_snew(SBorder, s_compound_widget.s_widget);
 
