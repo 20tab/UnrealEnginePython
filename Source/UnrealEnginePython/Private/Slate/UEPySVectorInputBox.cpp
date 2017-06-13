@@ -43,6 +43,8 @@ PyTypeObject ue_PySVectorInputBoxType = {
 static int ue_py_svector_input_box_init(ue_PySVectorInputBox *self, PyObject *args, PyObject *kwargs) {
 	ue_py_slate_setup_farguments(SVectorInputBox);
 
+    ue_py_slate_farguments_optional_float("delta", Delta);
+    ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
 	ue_py_slate_farguments_optional_bool("allow_responsive_layout", AllowResponsiveLayout);
 	ue_py_slate_farguments_optional_bool("color_axis_labels", bColorAxisLabels);
 	ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
