@@ -825,8 +825,13 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 
 static PyObject *ue_PyUObject_str(ue_PyUObject *self)
 {
+#if PY_MAJOR_VERSION >= 3
 	return PyUnicode_FromFormat("<unreal_engine.UObject '%s' (%p) UClass '%s' (refcnt: %d)>",
 		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()), self->ob_base.ob_refcnt);
+#else
+	return PyUnicode_FromFormat("<unreal_engine.UObject '%s' (%p) UClass '%s'>",
+		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()));
+#endif
 }
 
 static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject *kw) {
