@@ -262,6 +262,23 @@ static PyObject *py_ue_iconsole_manager_is_variable(PyObject *cls, PyObject * ar
 	Py_RETURN_TRUE;
 }
 
+static PyObject *py_ue_iconsole_manager_is_command(PyObject *cls, PyObject * args) {
+	char *key;
+	if (!PyArg_ParseTuple(args, "s:is_command", &key)) {
+		return nullptr;
+	}
+
+	IConsoleObject *c_object = IConsoleManager::Get().FindConsoleObject(UTF8_TO_TCHAR(key));
+	if (!c_object) {
+		return PyErr_Format(PyExc_Exception, "unable to find console object \"%s\"", key);
+	}
+
+	if (!c_object->AsCommand()) {
+		Py_RETURN_FALSE;
+	}
+	Py_RETURN_TRUE;
+}
+
 static PyObject *py_ue_iconsole_manager_is_variable_string(PyObject *cls, PyObject * args) {
 	char *key;
 	if (!PyArg_ParseTuple(args, "s:is_variable_string", &key)) {
@@ -417,6 +434,7 @@ static PyMethodDef ue_PyIConsoleManager_methods[] = {
 	{ "set_float", (PyCFunction)py_ue_iconsole_manager_set_float, METH_VARARGS | METH_CLASS, "" },
 	{ "set_string", (PyCFunction)py_ue_iconsole_manager_set_string, METH_VARARGS | METH_CLASS, "" },
 	{ "is_variable", (PyCFunction)py_ue_iconsole_manager_is_variable, METH_VARARGS | METH_CLASS, "" },
+	{ "is_command", (PyCFunction)py_ue_iconsole_manager_is_command, METH_VARARGS | METH_CLASS, "" },
 	{ "is_variable_string", (PyCFunction)py_ue_iconsole_manager_is_variable_string, METH_VARARGS | METH_CLASS, "" },
 	{ "is_variable_float", (PyCFunction)py_ue_iconsole_manager_is_variable_float, METH_VARARGS | METH_CLASS, "" },
 	{ "is_variable_int", (PyCFunction)py_ue_iconsole_manager_is_variable_int, METH_VARARGS | METH_CLASS, "" },
