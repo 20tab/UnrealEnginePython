@@ -131,6 +131,6 @@ void ue_python_init_spython_list_view(PyObject *ue_module) {
 	if (PyType_Ready(&ue_PySPythonListViewType) < 0)
 		return;
 
-	Py_INCREF(&ue_PySListViewType);
+	Py_INCREF(&ue_PySPythonListViewType);
 	PyModule_AddObject(ue_module, "SPythonListView", (PyObject *)&ue_PySPythonListViewType);
 }
