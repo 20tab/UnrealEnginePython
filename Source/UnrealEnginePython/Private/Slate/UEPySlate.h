@@ -72,6 +72,8 @@
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
 
+#include "PythonDelegate.h"
+
 #include "UEPySlate.generated.h"
 
 
