@@ -32,8 +32,6 @@ static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *s
 }
 
 static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonListView *self, PyObject * args) {
-
-
 	return PyLong_FromLong(sw_python_list_view->GetNumItemsSelected());
 }
 
@@ -131,6 +129,6 @@ void ue_python_init_spython_list_view(PyObject *ue_module) {
 	if (PyType_Ready(&ue_PySPythonListViewType) < 0)
 		return;
 
-	Py_INCREF(&ue_PySListViewType);
+	Py_INCREF(&ue_PySPythonListViewType);
 	PyModule_AddObject(ue_module, "SPythonListView", (PyObject *)&ue_PySPythonListViewType);
 }

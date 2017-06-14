@@ -4,8 +4,13 @@
 #include "UEPySWidget.h"
 
 static PyObject *ue_PySWidget_str(ue_PySWidget *self) {
+#if PY_MAJOR_VERSION >= 3
 	return PyUnicode_FromFormat("<unreal_engine.%s '%p' (slate ref count: %d, py ref count: %d)>",
 		TCHAR_TO_UTF8(*self->s_widget->GetTypeAsString()), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount(), self->ob_base.ob_refcnt);
+#else
+	return PyUnicode_FromFormat("<unreal_engine.%s '%p' (slate ref count: %d)>",
+		TCHAR_TO_UTF8(*self->s_widget->GetTypeAsString()), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount());
+#endif
 }
 
 static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args) {
@@ -184,9 +189,9 @@ static PyMethodDef ue_PySWidget_methods[] = {
 };
 
 static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
-	//#if defined(UEPY_MEMORY_DEBUG)
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySWidget %p mapped to %s %p (slate refcount: %d)"), self, *self->s_widget->GetTypeAsString(), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount());
-	//#endif
+#endif
 	Py_DECREF(self->py_dict);
 	for (UPythonSlateDelegate *item : self->delegates) {
 		if (item->IsValidLowLevel() && item->IsRooted())

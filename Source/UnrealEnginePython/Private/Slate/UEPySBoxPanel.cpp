@@ -61,6 +61,6 @@ void ue_python_init_sbox_panel(PyObject *ue_module) {
 	if (PyType_Ready(&ue_PySBoxPanelType) < 0)
 		return;
 
-	Py_INCREF(&ue_PySGridPanelType);
+	Py_INCREF(&ue_PySBoxPanelType);
 	PyModule_AddObject(ue_module, "SBoxPanel", (PyObject *)&ue_PySBoxPanelType);
 }

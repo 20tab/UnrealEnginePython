@@ -526,7 +526,9 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget) {
 }
 
 void ue_py_setup_swidget(ue_PySWidget *self) {
+#if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Allocating new %s..."), UTF8_TO_TCHAR(self->ob_base.ob_type->tp_name));
+#endif
 	self->py_dict = PyDict_New();
 	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
 	new(&self->delegates) TArray<UPythonSlateDelegate *>();

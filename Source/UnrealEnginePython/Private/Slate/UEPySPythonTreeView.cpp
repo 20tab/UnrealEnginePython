@@ -97,6 +97,6 @@ void ue_python_init_spython_tree_view(PyObject *ue_module) {
 	if (PyType_Ready(&ue_PySPythonTreeViewType) < 0)
 		return;
 
-	Py_INCREF(&ue_PySTreeViewType);
+	Py_INCREF(&ue_PySPythonTreeViewType);
 	PyModule_AddObject(ue_module, "SPythonTreeView", (PyObject *)&ue_PySPythonTreeViewType);
 }

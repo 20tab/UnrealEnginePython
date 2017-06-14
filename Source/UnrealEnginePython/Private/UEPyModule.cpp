@@ -826,8 +826,13 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 
 static PyObject *ue_PyUObject_str(ue_PyUObject *self)
 {
+#if PY_MAJOR_VERSION >= 3
 	return PyUnicode_FromFormat("<unreal_engine.UObject '%s' (%p) UClass '%s' (refcnt: %d)>",
 		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()), self->ob_base.ob_refcnt);
+#else
+	return PyUnicode_FromFormat("<unreal_engine.UObject '%s' (%p) UClass '%s'>",
+		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()));
+#endif
 }
 
 static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject *kw) {
@@ -1277,6 +1282,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_ihttp_base(new_unreal_engine_module);
 	ue_python_init_ihttp_request(new_unreal_engine_module);
 	ue_python_init_ihttp_response(new_unreal_engine_module);
+
+	ue_python_init_iconsole_manager(new_unreal_engine_module);
 
 	PyObject *py_sys = PyImport_ImportModule("sys");
 	PyObject *py_sys_dict = PyModule_GetDict(py_sys);

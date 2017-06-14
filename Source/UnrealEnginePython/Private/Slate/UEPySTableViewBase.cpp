@@ -72,7 +72,7 @@ void ue_python_init_stable_view_base(PyObject *ue_module) {
 
 	ue_PySTableViewBaseType.tp_base = &ue_PySCompoundWidgetType;
 
-	if (PyType_Ready(&ue_PySBorderType) < 0)
+	if (PyType_Ready(&ue_PySTableViewBaseType) < 0)
 		return;
 
 	Py_INCREF(&ue_PySTableViewBaseType);
