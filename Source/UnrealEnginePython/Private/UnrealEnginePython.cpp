@@ -392,6 +392,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void (*callback
 		return;
 	}
 #endif
+
 	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, global_dict, global_dict);
 	fclose(fd);
 	if (!eval_ret) {
