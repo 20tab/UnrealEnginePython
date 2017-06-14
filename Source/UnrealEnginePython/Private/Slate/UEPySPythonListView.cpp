@@ -32,8 +32,6 @@ static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *s
 }
 
 static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonListView *self, PyObject * args) {
-
-
 	return PyLong_FromLong(sw_python_list_view->GetNumItemsSelected());
 }
 

@@ -40,8 +40,19 @@ static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * ar
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_sscroll_box_clear_children(ue_PySScrollBox *self, PyObject * args) {
+	for (ue_PySWidget *child : self->s_compound_widget.s_widget.py_swidget_slots) {
+		Py_DECREF(child);
+	}
+	self->s_compound_widget.s_widget.py_swidget_slots.Empty();
+	sw_scroll_box->ClearChildren();
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySScrollBox_methods[] = {
 #pragma warning(suppress: 4191)
+	{ "clear_children", (PyCFunction)py_ue_sscroll_box_clear_children, METH_VARARGS, "" },
 	{ "add_slot", (PyCFunction)py_ue_sscroll_box_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
@@ -78,7 +89,7 @@ PyTypeObject ue_PySScrollBoxType = {
 };
 
 static int ue_py_sscroll_box_init(ue_PySScrollBox *self, PyObject *args, PyObject *kwargs) {
-	
+
 	ue_py_slate_setup_farguments(SScrollBox);
 
 	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
