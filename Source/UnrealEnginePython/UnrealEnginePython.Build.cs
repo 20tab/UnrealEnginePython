@@ -146,7 +146,8 @@ public class UnrealEnginePython : ModuleRules
                 "AIGraph",
                 "RawMesh",
                 "DesktopWidgets",
-                "EditorWidgets"
+                "EditorWidgets",
+                "FBX"
             });
         }
 
