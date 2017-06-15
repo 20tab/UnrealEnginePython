@@ -43,7 +43,7 @@ static PyObject *py_ue_fbx_importer_import(ue_PyFbxImporter *self, PyObject *arg
 
 static PyMethodDef ue_PyFbxImporter_methods[] = {
 	{ "initialize", (PyCFunction)py_ue_fbx_importer_initialize, METH_VARARGS, "" },
-	{ "import", (PyCFunction)py_ue_fbx_importer_import, METH_VARARGS, "" },
+	{ "_import", (PyCFunction)py_ue_fbx_importer_import, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

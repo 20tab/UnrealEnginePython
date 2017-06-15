@@ -4,7 +4,48 @@
 
 #include "UePyFbx.h"
 
+static PyObject *py_ue_fbx_node_get_child_count(ue_PyFbxNode *self, PyObject *args) {
+	return PyLong_FromLong(self->fbx_node->GetChildCount());
+}
+
+static PyObject *py_ue_fbx_node_get_name(ue_PyFbxNode *self, PyObject *args) {
+	return PyUnicode_FromString(self->fbx_node->GetName());
+}
+
+static PyObject *py_ue_fbx_node_get_local_translation(ue_PyFbxNode *self, PyObject *args) {
+	FbxDouble3 fbx_vec = self->fbx_node->LclTranslation.Get();
+	return py_ue_new_fvector(FVector(fbx_vec[0], fbx_vec[1], fbx_vec[2]));
+}
+
+static PyObject *py_ue_fbx_node_get_local_rotation(ue_PyFbxNode *self, PyObject *args) {
+	FbxDouble3 fbx_vec = self->fbx_node->LclRotation.Get();
+	return py_ue_new_fvector(FVector(fbx_vec[0], fbx_vec[1], fbx_vec[2]));
+}
+
+static PyObject *py_ue_fbx_node_get_local_scaling(ue_PyFbxNode *self, PyObject *args) {
+	FbxDouble3 fbx_vec = self->fbx_node->LclScaling.Get();
+	return py_ue_new_fvector(FVector(fbx_vec[0], fbx_vec[1], fbx_vec[2]));
+}
+
+static PyObject *py_ue_fbx_node_get_child(ue_PyFbxNode *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxNode *fbx_node = self->fbx_node->GetChild(index);
+	if (!fbx_node) {
+		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNode at index %d", index);
+	}
+	return py_ue_new_fbx_node(fbx_node);
+}
+
 static PyMethodDef ue_PyFbxNode_methods[] = {
+	{ "get_child_count", (PyCFunction)py_ue_fbx_node_get_child_count, METH_VARARGS, "" },
+	{ "get_name", (PyCFunction)py_ue_fbx_node_get_name, METH_VARARGS, "" },
+	{ "get_local_translation", (PyCFunction)py_ue_fbx_node_get_local_translation, METH_VARARGS, "" },
+	{ "get_local_rotation", (PyCFunction)py_ue_fbx_node_get_local_rotation, METH_VARARGS, "" },
+	{ "get_local_scaling", (PyCFunction)py_ue_fbx_node_get_local_scaling, METH_VARARGS, "" },
+	{ "get_child", (PyCFunction)py_ue_fbx_node_get_child, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
