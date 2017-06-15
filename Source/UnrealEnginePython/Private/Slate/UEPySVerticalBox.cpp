@@ -113,6 +113,7 @@ static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, P
 void ue_python_init_svertical_box(PyObject *ue_module) {
 
 	ue_PySVerticalBoxType.tp_init = (initproc)ue_py_svertical_box_init;
+	ue_PySVerticalBoxType.tp_call = (ternaryfunc)py_ue_svertical_box_add_slot;
 
 	ue_PySVerticalBoxType.tp_base = &ue_PySBoxPanelType;
 

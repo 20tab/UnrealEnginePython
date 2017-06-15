@@ -108,6 +108,7 @@ static int ue_py_sscroll_box_init(ue_PySScrollBox *self, PyObject *args, PyObjec
 void ue_python_init_sscroll_box(PyObject *ue_module) {
 
 	ue_PySScrollBoxType.tp_init = (initproc)ue_py_sscroll_box_init;
+	ue_PySScrollBoxType.tp_call = (ternaryfunc)py_ue_sscroll_box_add_slot;
 
 	ue_PySScrollBoxType.tp_base = &ue_PySCompoundWidgetType;
 

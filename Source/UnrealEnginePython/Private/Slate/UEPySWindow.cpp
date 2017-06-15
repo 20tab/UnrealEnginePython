@@ -46,7 +46,6 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args) 
 	Py_INCREF(py_swidget);
 	self->s_compound_widget.s_widget.py_swidget_content = py_swidget;
 
-
 	sw_window->SetContent(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
@@ -167,6 +166,7 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 void ue_python_init_swindow(PyObject *ue_module) {
 
 	ue_PySWindowType.tp_init = (initproc)ue_py_swindow_init;
+	ue_PySWindowType.tp_call = (ternaryfunc)py_ue_swindow_set_content;
 
 	ue_PySWindowType.tp_base = &ue_PySCompoundWidgetType;
 

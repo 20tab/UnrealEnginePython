@@ -155,6 +155,7 @@ static int ue_py_sborder_init(ue_PySBorder *self, PyObject *args, PyObject *kwar
 void ue_python_init_sborder(PyObject *ue_module) {
 
 	ue_PySBorderType.tp_init = (initproc)ue_py_sborder_init;
+	ue_PySBorderType.tp_call = (ternaryfunc)py_ue_sborder_set_content;
 
 	ue_PySBorderType.tp_base = &ue_PySCompoundWidgetType;
 
