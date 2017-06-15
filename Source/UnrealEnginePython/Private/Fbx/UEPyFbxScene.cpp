@@ -13,8 +13,19 @@ static PyObject *py_ue_fbx_scene_get_root_node(ue_PyFbxScene *self, PyObject *ar
 	return py_ue_new_fbx_node(fbx_node);
 }
 
+static PyObject *py_ue_fbx_scene_get_src_object_count(ue_PyFbxScene *self, PyObject *args) {
+	return PyLong_FromLong(self->fbx_scene->GetSrcObjectCount());
+}
+
+static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *args) {
+	FbxObject *fbx_object = self->fbx_scene->GetSrcObject(0);
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyFbxScene_methods[] = {
 	{ "get_root_node", (PyCFunction)py_ue_fbx_scene_get_root_node, METH_VARARGS, "" },
+	{ "get_src_object_count", (PyCFunction)py_ue_fbx_scene_get_src_object_count, METH_VARARGS, "" },
+	{ "get_src_object", (PyCFunction)py_ue_fbx_scene_get_src_object, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
