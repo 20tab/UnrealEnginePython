@@ -52,6 +52,7 @@
 #include "UEPySPythonComboBox.h"
 #include "UEPySScrollBox.h"
 #include "UEPySColorBlock.h"
+#include "UEPySBox.h"
 
 
 
@@ -310,6 +311,20 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		if (PyNumber_Check(value)) {\
 			PyObject *py_float = PyNumber_Float(value);\
 			arguments.attribute(PyFloat_AsDouble(py_float)); \
+			Py_DECREF(py_float);\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
+#define ue_py_slate_farguments_optional_foptional_size(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (PyNumber_Check(value)) {\
+			PyObject *py_float = PyNumber_Float(value);\
+			arguments.attribute(FOptionalSize(PyFloat_AsDouble(py_float))); \
 			Py_DECREF(py_float);\
 		}\
 		else {\
