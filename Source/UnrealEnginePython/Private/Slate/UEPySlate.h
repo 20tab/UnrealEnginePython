@@ -363,7 +363,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
 	ue_py_slate_farguments_bool("is_enabled", IsEnabled);\
-	ue_py_slate_farguments_text("tool_tip_text", ToolTipText)
+	ue_py_slate_farguments_text("tool_tip_text", ToolTipText);\
+    ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
 
 
 void ue_python_init_slate(PyObject *);
