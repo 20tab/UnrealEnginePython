@@ -9,6 +9,7 @@
 #include "UEPyFbxScene.h"
 #include "UEPyFbxNode.h"
 #include "UEPyFbxObject.h"
+#include "UEPyFbxProperty.h"
 
 void ue_python_init_fbx(PyObject *);
 

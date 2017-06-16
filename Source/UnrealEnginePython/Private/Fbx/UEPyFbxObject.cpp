@@ -33,11 +33,37 @@ static PyObject *py_ue_fbx_object_get_member(ue_PyFbxObject *self, PyObject *arg
 	return py_ue_new_fbx_object(fbx_collection->GetMember(index));
 }
 
+static PyObject *py_ue_fbx_object_get_next_property(ue_PyFbxObject *self, PyObject *args) {
+	PyObject *py_object;
+	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+		return nullptr;
+	}
+
+	ue_PyFbxProperty *py_fbx_property = py_ue_is_fbx_property(py_object);
+	if (!py_fbx_property) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FbxProperty");
+	}
+
+	FbxProperty fbx_property = self->fbx_object->GetNextProperty(py_fbx_property->fbx_property);
+	if (!fbx_property.IsValid())
+		Py_RETURN_NONE;
+	return py_ue_new_fbx_property(fbx_property);
+}
+
+static PyObject *py_ue_fbx_object_get_first_property(ue_PyFbxObject *self, PyObject *args) {
+	FbxProperty fbx_property = self->fbx_object->GetFirstProperty();
+	if (!fbx_property.IsValid())
+		Py_RETURN_NONE;
+	return py_ue_new_fbx_property(fbx_property);
+}
+
 static PyMethodDef ue_PyFbxObject_methods[] = {
 	{ "get_member_count", (PyCFunction)py_ue_fbx_object_get_member_count, METH_VARARGS, "" },
 	{ "get_member", (PyCFunction)py_ue_fbx_object_get_member, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_fbx_object_get_name, METH_VARARGS, "" },
 	{ "get_class_name", (PyCFunction)py_ue_fbx_object_get_class_name, METH_VARARGS, "" },
+	{ "get_first_property", (PyCFunction)py_ue_fbx_object_get_first_property, METH_VARARGS, "" },
+	{ "get_next_property", (PyCFunction)py_ue_fbx_object_get_next_property, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

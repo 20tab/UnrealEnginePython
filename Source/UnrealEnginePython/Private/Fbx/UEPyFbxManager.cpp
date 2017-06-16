@@ -97,6 +97,7 @@ void ue_python_init_fbx(PyObject *module) {
 	ue_python_init_fbx_scene(module);
 	ue_python_init_fbx_node(module);
 	ue_python_init_fbx_object(module);
+	ue_python_init_fbx_property(module);
 }
 
 
