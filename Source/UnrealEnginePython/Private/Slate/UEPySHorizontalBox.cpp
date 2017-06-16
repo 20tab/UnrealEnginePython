@@ -111,6 +111,7 @@ static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args,
 void ue_python_init_shorizontal_box(PyObject *ue_module) {
 
 	ue_PySHorizontalBoxType.tp_init = (initproc)ue_py_shorizontal_box_init;
+	ue_PySHorizontalBoxType.tp_call = (ternaryfunc)py_ue_shorizontal_box_add_slot;
 
 	ue_PySHorizontalBoxType.tp_base = &ue_PySBoxPanelType;
 

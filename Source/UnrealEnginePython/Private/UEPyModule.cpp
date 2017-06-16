@@ -34,6 +34,7 @@
 #if WITH_EDITOR
 #include "UEPyEditor.h"
 #include "Blueprint/UEPyEdGraph.h"
+#include "Fbx/UEPyFbx.h"
 #endif
 
 
@@ -1270,6 +1271,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_farfilter(new_unreal_engine_module);
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
+	ue_python_init_fstring_asset_reference(new_unreal_engine_module);
+	ue_python_init_fbx(new_unreal_engine_module);
 #if ENGINE_MINOR_VERSION > 13
 	ue_python_init_fraw_mesh(new_unreal_engine_module);
 #endif

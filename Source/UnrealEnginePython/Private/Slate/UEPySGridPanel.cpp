@@ -82,6 +82,7 @@ static int ue_py_sgrid_panel_init(ue_PySGridPanel *self, PyObject *args, PyObjec
 void ue_python_init_sgrid_panel(PyObject *ue_module) {
 
 	ue_PySGridPanelType.tp_init = (initproc)ue_py_sgrid_panel_init;
+	ue_PySGridPanelType.tp_call = (ternaryfunc)py_ue_sgrid_panel_add_slot;
 
 	ue_PySGridPanelType.tp_base = &ue_PySPanelType;
 
