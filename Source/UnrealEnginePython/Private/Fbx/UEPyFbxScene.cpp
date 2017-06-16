@@ -18,8 +18,15 @@ static PyObject *py_ue_fbx_scene_get_src_object_count(ue_PyFbxScene *self, PyObj
 }
 
 static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *args) {
-	FbxObject *fbx_object = self->fbx_scene->GetSrcObject(0);
-	Py_RETURN_NONE;
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxObject *fbx_object = self->fbx_scene->GetSrcObject(index);
+	if (!fbx_object)
+		return PyErr_Format(PyExc_Exception, "unable to find FbxObject with index %d", index);
+
+	return py_ue_new_fbx_object(fbx_object);
 }
 
 static PyMethodDef ue_PyFbxScene_methods[] = {
