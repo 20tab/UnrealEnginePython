@@ -95,6 +95,9 @@ static PyObject *py_ue_fbx_object_get_curve(ue_PyFbxObject *self, PyObject *args
 	FbxAnimCurveNode *fbx_anim_curve_node = FbxCast<FbxAnimCurveNode>(self->fbx_object);
 	if (!fbx_anim_curve_node)
 		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurveNode");
+	FbxAnimCurve *fbx_anim_curve = fbx_anim_curve_node->GetCurve(channel, index);
+	if (!fbx_anim_curve)
+		Py_RETURN_NONE;
 	return py_ue_new_fbx_object(fbx_anim_curve_node->GetCurve(channel, index));
 }
 
