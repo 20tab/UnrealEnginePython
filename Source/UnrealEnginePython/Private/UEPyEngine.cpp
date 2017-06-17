@@ -143,6 +143,21 @@ PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject * self, PyObje
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ConvertRelativePathToFull(UTF8_TO_TCHAR(path))));
 }
 
+PyObject *py_unreal_engine_create_world(PyObject * self, PyObject * args) {
+	int world_type = 0;
+	if (!PyArg_ParseTuple(args, "|i:create_world", &world_type)) {
+		return NULL;
+	}
+
+	UWorld *world = UWorld::CreateWorld((EWorldType::Type)world_type, false);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(world);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:find_class", &name)) {
