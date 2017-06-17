@@ -60,6 +60,30 @@ ue.open_editor_for_asset(texture)
 
 ## Our project: Plotting a Pie chart tracking overlap events
 
+Our objective is to have a special blueprint in our level exposing 3 cube in 3 different colors.
+
+Whenever you overlap one of the cubes with your character, their internal counter is incremented.
+
+A pie chart "carpet" is on the floor, and it is updated with overlap-counters data (the more you overlap a cube, the bigger will be its slice in the chart)
+
+### Setting up materials
+
+We need 4 materials and 1 material instance for the project:
+
+* a completely red material (just link a constant vector3 to base color)
+
+* a completely green material
+
+* a completely blue material
+
+* a material with a texture parameter linked to base color
+
+* an instance of the previous material exoosing the texture parameter (so it can be updated at runtime)
+
+### The "pie chart carpet" blueprint
+
+
+
 ```python
 import unreal_engine as ue
 from unreal_engine.enums import EPixelFormat
@@ -95,3 +119,9 @@ class PlotComponent:
         self.fig.canvas.draw()
         self.texture.texture_set_data(self.fig.canvas.buffer_rgba())
 ```
+
+### The "Plotter Platforms"
+
+### Playing it
+
+### Writing a simple unit test
