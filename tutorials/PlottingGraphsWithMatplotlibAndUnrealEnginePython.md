@@ -190,6 +190,12 @@ This function receives as the 'platform' argument the Actor triggering the event
 
 ### The "Plotter Platforms"
 
+The 'PlotterPlatforms' blueprint, implements the actor containing the 3 cubes and manages the overlapping events as well as incrementing the 3 counters.
+
+Let's start with the viewport, you need to add 3 static meshes, each with a cube and the related solid-color material we created earlier:
+
+![PlotterPlatforms Blueprint Viewport](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_viewport.png)
+
 ### Playing it
 
 ### Writing a simple unit test
