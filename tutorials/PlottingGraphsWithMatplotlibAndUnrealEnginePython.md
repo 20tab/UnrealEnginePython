@@ -55,3 +55,5 @@ texture.save_package('/Game/FirstGraphTexture')
 # open its editor
 ue.open_editor_for_asset(texture)
 ```
+
+![Texture Created](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/texture_created.png)
