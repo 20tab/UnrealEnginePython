@@ -52,6 +52,7 @@
 #include "UEPySPythonComboBox.h"
 #include "UEPySScrollBox.h"
 #include "UEPySColorBlock.h"
+#include "UEPySBox.h"
 
 
 
@@ -319,6 +320,20 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_optional_foptional_size(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (PyNumber_Check(value)) {\
+			PyObject *py_float = PyNumber_Float(value);\
+			arguments.attribute(FOptionalSize(PyFloat_AsDouble(py_float))); \
+			Py_DECREF(py_float);\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
 #define ue_py_slate_farguments_optional_text(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyUnicode_Check(value)) {\
@@ -363,7 +378,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
 	ue_py_slate_farguments_bool("is_enabled", IsEnabled);\
-	ue_py_slate_farguments_text("tool_tip_text", ToolTipText)
+	ue_py_slate_farguments_text("tool_tip_text", ToolTipText);\
+    ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
 
 
 void ue_python_init_slate(PyObject *);

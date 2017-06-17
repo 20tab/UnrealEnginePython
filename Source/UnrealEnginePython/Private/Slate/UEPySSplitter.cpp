@@ -80,6 +80,7 @@ static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *
 void ue_python_init_ssplitter(PyObject *ue_module) {
 
 	ue_PySSplitterType.tp_init = (initproc)ue_py_ssplitter_init;
+	ue_PySSplitterType.tp_call = (ternaryfunc)py_ue_ssplitter_add_slot;
 
 	ue_PySSplitterType.tp_base = &ue_PySPanelType;
 

@@ -136,6 +136,7 @@ static int ue_py_scanvas_init(ue_PySCanvas *self, PyObject *args, PyObject *kwar
 void ue_python_init_scanvas(PyObject *ue_module) {
 
 	ue_PySCanvasType.tp_base = &ue_PySPanelType;
+	ue_PySCanvasType.tp_call = (ternaryfunc)py_ue_scanvas_add_slot;
 	ue_PySCanvasType.tp_init = (initproc)ue_py_scanvas_init;
 
 	if (PyType_Ready(&ue_PySCanvasType) < 0)

@@ -51,8 +51,8 @@ static PyObject *py_ue_sscroll_box_clear_children(ue_PySScrollBox *self, PyObjec
 }
 
 static PyMethodDef ue_PySScrollBox_methods[] = {
-#pragma warning(suppress: 4191)
 	{ "clear_children", (PyCFunction)py_ue_sscroll_box_clear_children, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
 	{ "add_slot", (PyCFunction)py_ue_sscroll_box_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
@@ -108,6 +108,7 @@ static int ue_py_sscroll_box_init(ue_PySScrollBox *self, PyObject *args, PyObjec
 void ue_python_init_sscroll_box(PyObject *ue_module) {
 
 	ue_PySScrollBoxType.tp_init = (initproc)ue_py_sscroll_box_init;
+	ue_PySScrollBoxType.tp_call = (ternaryfunc)py_ue_sscroll_box_add_slot;
 
 	ue_PySScrollBoxType.tp_base = &ue_PySCompoundWidgetType;
 
