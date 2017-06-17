@@ -134,6 +134,9 @@ We need 4 materials and 1 material instance for the project:
 
 ### The "pie chart carpet" blueprint
 
+The first blueprint we are about to create, is the 'carpet' (we call it Graph_Blueprint)
+
+![Graph Blueprint](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/graph_blueprint.png)
 
 
 ```python
