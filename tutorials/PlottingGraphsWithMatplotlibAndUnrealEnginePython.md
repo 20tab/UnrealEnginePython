@@ -20,6 +20,16 @@ We will use the third person template
 
 ## Installing the Python plugin
 
+Ensure your project/editor has been closed.
+
+Download the most recent embedded binary release from here: https://github.com/20tab/UnrealEnginePython/releases
+
+You can use a non-embedded version if you already have python in your system and you are confident with it. The only difference in the tutorial is in where the matplotlib will be installed. For embedded version, the installation will happen in the plugin directory itself. For non-embedded it will be in the python system path. Obviously if your system python installation already includes matplotlib, you can simply skip the related paragraph below.
+
+Create a Plugins/ directory in your project and unzip the plugin archive into it.
+
+Re-start your project and in the Edit/Plugins menu you will be able to enable the python plugin:
+
 ![Plugin Installation](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/enable_plugin.png)
 
 ## pip-installing matplotlib
