@@ -125,3 +125,63 @@ class PlotComponent:
 ### Playing it
 
 ### Writing a simple unit test
+
+Sorry, i will never stop telling you how important unit tests are, so, even if we have deloped a really simple script, we will write a unit test too :)
+
+We need to test that when a 'ComponentOverlap' event is triggered on a cube, the right counter is incremented:
+
+```python
+import unittest
+import unreal_engine as ue
+from unreal_engine.classes import Blueprint
+
+class TestPlotterPlatform(unittest.TestCase):
+
+    def setUp(self):
+        ue.allow_actor_script_execution_in_editor(True)
+        ue.begin_transaction('test')
+        self.world = ue.get_editor_world()
+        self.blueprint = ue.load_object(Blueprint, '/Game/PlotterPlatforms.PlotterPlatforms')
+
+    def tearDown(self):
+        ue.end_transaction()
+        ue.editor_undo()
+        ue.allow_actor_script_execution_in_editor(False)
+
+    def test_red_cube_overlap(self):
+        actor = self.world.actor_spawn(self.blueprint.GeneratedClass)
+        self.assertEqual(actor.RedCubeCounter, 0)
+        actor.RedCube.broadcast('OnComponentBeginOverlap')
+        self.assertEqual(actor.RedCubeCounter, 1)
+        self.assertEqual(actor.GreenCubeCounter, 0)
+        self.assertEqual(actor.BlueCubeCounter, 0)
+
+    def test_green_cube_overlap(self):
+        actor = self.world.actor_spawn(self.blueprint.GeneratedClass)
+        self.assertEqual(actor.GreenCubeCounter, 0)
+        actor.GreenCube.broadcast('OnComponentBeginOverlap')
+        self.assertEqual(actor.RedCubeCounter, 0)
+        self.assertEqual(actor.GreenCubeCounter, 1)
+        self.assertEqual(actor.BlueCubeCounter, 0)
+
+    def test_blue_cube_overlap(self):
+        actor = self.world.actor_spawn(self.blueprint.GeneratedClass)
+        self.assertEqual(actor.BlueCubeCounter, 0)
+        actor.BlueCube.broadcast('OnComponentBeginOverlap')
+        self.assertEqual(actor.RedCubeCounter, 0)
+        self.assertEqual(actor.GreenCubeCounter, 0)
+        self.assertEqual(actor.BlueCubeCounter, 1)
+
+if __name__ == '__main__':
+    unittest.main(exit=False)
+```
+
+You can run the unit test with:
+
+```python
+ue.sandbox_exec('test_plotter_platforms.py')
+```
+
+the 'sanbox' execution, ensures a clean python subinterpeter is initialized, instead of clobberign the main one.
+
+Check how the test setUp and tearDown methods, ensure your world is cleaned up at the end (using the transaction api of unreal engine: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Transactions_API.md) 
