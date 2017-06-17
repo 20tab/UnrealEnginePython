@@ -24,9 +24,9 @@ class PlotComponent:
         self.uobject.get_owner().bind_event('OnGraphDataUpdated', self.update_graph)
 
     def update_graph(self, platform):
- 
+        # clear the current plot data
         plt.clf()
-                
+        # draw a pie chart        
         plt.pie([platform.RedCubeCounter, platform.GreenCubeCounter, platform.BlueCubeCounter], colors=['r', 'g', 'b'], labels=['RedCube', 'GreenCube', 'BlueCube'], shadow=True)
 
         self.fig.canvas.draw()
