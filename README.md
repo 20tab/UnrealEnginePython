@@ -13,6 +13,8 @@ If you want to have an idea of what the plugin can do, jump here: https://github
 
 In addition to this, the plugin automatically adds an actor class (PyActor), a pawn class (PyPawn), a character class (PyCharacter) and a component class (PythonComponent) for "gentle" integration of python in your games.
 
+In the spirit of automating tasks, even wrappers for third party libraries used by UE4 are exposed in a 'pythonic' way. As an example the FbxSdk is exposed to allow low-level interaction with Fbx files. This is an example extracting animation curves: https://github.com/20tab/UnrealEnginePython/blob/master/examples/fbx_curves_extractor.py
+
 Another funny feature (well, a side effect ;) is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
 Once the plugin is installed and enabled, you get access to the 'PythonConsole' item in the 'Development Menu', you can use it to trigger python commands directly from the editor. There is even an experimental Editor/IDE included, you can run it from the Window/Layout/Python Editor menu item.
