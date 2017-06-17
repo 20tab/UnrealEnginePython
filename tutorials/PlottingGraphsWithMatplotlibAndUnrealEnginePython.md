@@ -36,9 +36,25 @@ Re-start your project and in the Edit/Plugins menu you will be able to enable th
 
 ## pip-installing matplotlib
 
-If you installed the embedded distribution, just move to he Plugins/UnrealEnginePython/Binaries/Win64 
+If you installed the embedded distribution, just move to the Plugins/UnrealEnginePython/Binaries/Win64 directory in your terminal, and run:
+
+```sh
+./python.exe -m pip install matplotlib
+```
 
 ![pip install matplotlib](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/pip_install.png)
+
+If you are using a system python installation (or you are on Linux/Mac) just run:
+
+```sh
+pip3 install matplotlib
+```
+
+or (based on your config)
+
+```sh
+pip install matplotlib
+```
 
 ## Testing matplotlib in Unreal Engine: generating a graph-texture
 
