@@ -198,7 +198,11 @@ Let's start with the viewport, you need to add 3 static meshes, each with a cube
 
 then we define a blueprint function 'NotifyPlotter', that will trigger the event dispatcher on the Graph_Blueprint (our carpet):
 
-![PlotterPlatforms Blueprint Viewport](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_notify_plotter.png)
+![PlotterPlatforms Blueprint Notify Plotter](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_notify_plotter.png)
+
+finally we have the Event Graph, here we simply increment the related counter variables and call the 'NotifyPlotter' function:
+
+![PlotterPlatforms Blueprint Event Graph](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_event_graph.png)
 
 ### Playing it
 
