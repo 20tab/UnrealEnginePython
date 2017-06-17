@@ -196,6 +196,10 @@ Let's start with the viewport, you need to add 3 static meshes, each with a cube
 
 ![PlotterPlatforms Blueprint Viewport](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_viewport.png)
 
+then we define a blueprint function 'NotifyPlotter', that will trigger the event dispatcher on the Graph_Blueprint (our carpet):
+
+![PlotterPlatforms Blueprint Viewport](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_notify_plotter.png)
+
 ### Playing it
 
 ### Writing a simple unit test
