@@ -212,6 +212,7 @@ Drag the two blueprints (Graph_Blueprint and PlotterPlatforms) into the Level (c
 
 ![Play](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/play.png)
 
+walk over the 3 cubes and see your pie chart updating
 
 ### Writing a simple unit test
 
