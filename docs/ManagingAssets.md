@@ -127,16 +127,6 @@ from unreal_engine.classes import PyFbxFactory
 asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', PyFbxFactory)
 ```
 
-or
-
-```python
-from unreal_engine.classes import PyFbxFactory
-
-factory = PyFbxFactory()
-
-asset002 = factory.factory_import_object('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes')
-```
-
 If the factory supports options, you can instantiate a factory before use:
 
 ```python
@@ -145,7 +135,7 @@ from unreal_engine.classes import PyFbxFactory
 factory = PyFbxFactory()
 factory.ImportUI.bImportAsSkeletal = True
 
-asset002 = ue.import_asset('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes', factory)
+asset002 = factory.factory_import_object('/Users/FooBar/Desktop/warrior001.fbx', '/Game/Meshes')
 ```
 
 Reimporting assets
