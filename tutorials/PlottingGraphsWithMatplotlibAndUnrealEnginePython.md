@@ -108,7 +108,7 @@ ue.open_editor_for_asset(texture)
 ![Texture Created](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/texture_created.png)
 
 
-if you end with the texture editor opened on your new graph, you are ready for the next step
+if you ended up with the texture editor opened on your new graph, you are ready for the next steps
 
 ## Our project: Plotting a Pie chart tracking overlap events
 
