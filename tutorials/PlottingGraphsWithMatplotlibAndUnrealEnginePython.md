@@ -6,6 +6,7 @@
 
 ## Installing the Python plugin
 
+![Plugin Installation](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/plugin_enable.png)
 
 ## pip-installing matplotlib
 
