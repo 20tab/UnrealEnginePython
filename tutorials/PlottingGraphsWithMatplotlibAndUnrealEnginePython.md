@@ -204,6 +204,8 @@ finally we have the Event Graph, here we simply increment the related counter va
 
 ![PlotterPlatforms Blueprint Event Graph](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/platforms_event_graph.png)
 
+Ensure to add the 3 Integer variables (check the lower-left side of the screenshots) for the counters !
+
 ### Playing it
 
 ### Writing a simple unit test
