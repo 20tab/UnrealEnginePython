@@ -208,6 +208,11 @@ Ensure to add the 3 Integer variables (check the lower-left side of the screensh
 
 ### Playing it
 
+Drag the two blueprints (Graph_Blueprint and PlotterPlatforms) into the Level (choose good positions for them ;) and hit Play in your editor:
+
+![Play](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/play.png)
+
+
 ### Writing a simple unit test
 
 Sorry, i will never stop telling you how important unit tests are, so, even if we have deloped a really simple script, we will write a unit test too :)
