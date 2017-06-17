@@ -6,9 +6,7 @@ The module of choice is 'matplotlib' https://matplotlib.org/.
 
 From the official site:
 
-'''
-Matplotlib is a Python 2D plotting library which produces publication quality figures in a variety of hardcopy formats and interactive environments across platforms. Matplotlib can be used in Python scripts, the Python and IPython shell, the jupyter notebook, web application servers, and four graphical user interface toolkits.
-'''
+>Matplotlib is a Python 2D plotting library which produces publication quality figures in a variety of hardcopy formats and interactive environments across platforms. Matplotlib can be used in Python scripts, the Python and IPython shell, the jupyter notebook, web application servers, and four graphical user interface toolkits.
 
 So our objective will be plotting graphs into Unreal Engine textures asset, both in the editor (to pre-generate assets) and during gameplay (to dynamically update texture-graph data)
 
