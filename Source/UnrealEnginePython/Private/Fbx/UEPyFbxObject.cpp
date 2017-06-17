@@ -57,6 +57,79 @@ static PyObject *py_ue_fbx_object_get_first_property(ue_PyFbxObject *self, PyObj
 	return py_ue_new_fbx_property(fbx_property);
 }
 
+static PyObject *py_ue_fbx_object_get_channels_count(ue_PyFbxObject *self, PyObject *args) {
+	FbxAnimCurveNode *fbx_anim_curve_node = FbxCast<FbxAnimCurveNode>(self->fbx_object);
+	if (!fbx_anim_curve_node)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurveNode");
+	return PyLong_FromLong(fbx_anim_curve_node->GetChannelsCount());
+}
+
+static PyObject *py_ue_fbx_object_get_channel_name(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurveNode *fbx_anim_curve_node = FbxCast<FbxAnimCurveNode>(self->fbx_object);
+	if (!fbx_anim_curve_node)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurveNode");
+	return PyUnicode_FromString(fbx_anim_curve_node->GetChannelName(index));
+}
+
+static PyObject *py_ue_fbx_object_get_curve_count(ue_PyFbxObject *self, PyObject *args) {
+	int channel;
+	if (!PyArg_ParseTuple(args, "i", &channel)) {
+		return nullptr;
+	}
+	FbxAnimCurveNode *fbx_anim_curve_node = FbxCast<FbxAnimCurveNode>(self->fbx_object);
+	if (!fbx_anim_curve_node)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurveNode");
+	return PyLong_FromLong(fbx_anim_curve_node->GetCurveCount(channel));
+}
+
+static PyObject *py_ue_fbx_object_get_curve(ue_PyFbxObject *self, PyObject *args) {
+	int channel;
+	int index;
+	if (!PyArg_ParseTuple(args, "ii", &channel, &index)) {
+		return nullptr;
+	}
+	FbxAnimCurveNode *fbx_anim_curve_node = FbxCast<FbxAnimCurveNode>(self->fbx_object);
+	if (!fbx_anim_curve_node)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurveNode");
+	FbxAnimCurve *fbx_anim_curve = fbx_anim_curve_node->GetCurve(channel, index);
+	if (!fbx_anim_curve)
+		Py_RETURN_NONE;
+	return py_ue_new_fbx_object(fbx_anim_curve_node->GetCurve(channel, index));
+}
+
+static PyObject *py_ue_fbx_object_key_get_count(ue_PyFbxObject *self, PyObject *args) {
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+	return PyLong_FromLong(fbx_anim_curve->KeyGetCount());
+}
+
+static PyObject *py_ue_fbx_object_key_get_value(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+	return PyFloat_FromDouble(fbx_anim_curve->KeyGetValue(index));
+}
+
+static PyObject *py_ue_fbx_object_key_get_seconds(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+	return PyFloat_FromDouble(fbx_anim_curve->KeyGetTime(index).GetSecondDouble());
+}
+
 static PyMethodDef ue_PyFbxObject_methods[] = {
 	{ "get_member_count", (PyCFunction)py_ue_fbx_object_get_member_count, METH_VARARGS, "" },
 	{ "get_member", (PyCFunction)py_ue_fbx_object_get_member, METH_VARARGS, "" },
@@ -64,6 +137,13 @@ static PyMethodDef ue_PyFbxObject_methods[] = {
 	{ "get_class_name", (PyCFunction)py_ue_fbx_object_get_class_name, METH_VARARGS, "" },
 	{ "get_first_property", (PyCFunction)py_ue_fbx_object_get_first_property, METH_VARARGS, "" },
 	{ "get_next_property", (PyCFunction)py_ue_fbx_object_get_next_property, METH_VARARGS, "" },
+	{ "get_channels_count", (PyCFunction)py_ue_fbx_object_get_channels_count, METH_VARARGS, "" },
+	{ "get_channel_name", (PyCFunction)py_ue_fbx_object_get_channel_name, METH_VARARGS, "" },
+	{ "get_curve_count", (PyCFunction)py_ue_fbx_object_get_curve_count, METH_VARARGS, "" },
+	{ "get_curve", (PyCFunction)py_ue_fbx_object_get_curve, METH_VARARGS, "" },
+	{ "key_get_count", (PyCFunction)py_ue_fbx_object_key_get_count, METH_VARARGS, "" },
+	{ "key_get_value", (PyCFunction)py_ue_fbx_object_key_get_value, METH_VARARGS, "" },
+	{ "key_get_seconds", (PyCFunction)py_ue_fbx_object_key_get_seconds, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -133,4 +213,9 @@ PyObject *py_ue_new_fbx_object(FbxObject *fbx_object) {
 	return (PyObject *)ret;
 }
 
+ue_PyFbxObject *py_ue_is_fbx_object(PyObject *obj) {
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxObjectType))
+		return nullptr;
+	return (ue_PyFbxObject *)obj;
+}
 #endif

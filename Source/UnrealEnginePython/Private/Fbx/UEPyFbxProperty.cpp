@@ -8,8 +8,37 @@ static PyObject *py_ue_fbx_property_get_name(ue_PyFbxProperty *self, PyObject *a
 	return PyUnicode_FromString(self->fbx_property.GetName());
 }
 
+static PyObject *py_ue_fbx_property_is_valid(ue_PyFbxProperty *self, PyObject *args) {
+	if (self->fbx_property.IsValid()) {
+		Py_RETURN_TRUE;
+	}
+	Py_RETURN_FALSE;
+}
+
+static PyObject *py_ue_fbx_property_get_curve_node(ue_PyFbxProperty *self, PyObject *args) {
+	PyObject *py_object;
+	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+		return nullptr;
+	}
+
+	ue_PyFbxObject *py_fbx_object = py_ue_is_fbx_object(py_object);
+	if (!py_fbx_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a FbxObject");
+
+	FbxAnimLayer *fbx_anim_layer = FbxCast<FbxAnimLayer>(py_fbx_object->fbx_object);
+	if (!fbx_anim_layer)
+		return PyErr_Format(PyExc_Exception, "argument is not a FbxAnimLayer");
+
+	FbxAnimCurveNode *fbx_anim_curve_node = self->fbx_property.GetCurveNode(fbx_anim_layer);
+	if (!fbx_anim_curve_node)
+		Py_RETURN_NONE;
+	return py_ue_new_fbx_object(fbx_anim_curve_node);
+}
+
 static PyMethodDef ue_PyFbxProperty_methods[] = {
 	{ "get_name", (PyCFunction)py_ue_fbx_property_get_name, METH_VARARGS, "" },
+	{ "is_valid", (PyCFunction)py_ue_fbx_property_is_valid, METH_VARARGS, "" },
+	{ "get_curve_node", (PyCFunction)py_ue_fbx_property_get_curve_node, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
