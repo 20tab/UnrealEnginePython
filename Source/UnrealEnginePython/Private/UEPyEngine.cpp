@@ -139,6 +139,10 @@ PyObject *py_unreal_engine_get_game_saved_dir(PyObject * self, PyObject * args) 
     return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameSavedDir()));
 }
 
+PyObject * py_unreal_engine_get_game_user_developer_dir(PyObject *, PyObject *) {
+    return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameUserDeveloperDir()));
+}
+
 PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject * self, PyObject * args) {
 	char *path;
 	if (!PyArg_ParseTuple(args, "s:convert_relative_path_to_full", &path)) {
