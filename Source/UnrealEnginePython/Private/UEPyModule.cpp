@@ -156,6 +156,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
 	{ "create_transient_texture", py_unreal_engine_create_transient_texture, METH_VARARGS, "" },
 
+	{ "create_world", py_unreal_engine_create_world, METH_VARARGS, "" },
+
 	// slate
 
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },

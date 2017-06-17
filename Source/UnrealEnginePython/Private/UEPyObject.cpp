@@ -553,7 +553,8 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
-		uint8 *parms = (uint8 *)FMemory_Alloca(0);
+		uint8 *parms = (uint8 *)FMemory_Alloca(casted_prop->SignatureFunction->PropertiesSize);
+		FMemory::Memzero(parms, casted_prop->SignatureFunction->PropertiesSize);
 		multiscript_delegate.ProcessMulticastDelegate<UObject>(parms);
 	}
 	else {
