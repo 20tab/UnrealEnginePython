@@ -24,7 +24,13 @@ Ensure your project/editor has been closed.
 
 Download the most recent embedded binary release from here: https://github.com/20tab/UnrealEnginePython/releases
 
-You can use a non-embedded version if you already have python in your system and you are confident with it. The only difference in the tutorial is in where the matplotlib will be installed. For embedded version, the installation will happen in the plugin directory itself. For non-embedded it will be in the python system path. Obviously if your system python installation already includes matplotlib, you can simply skip the related paragraph below.
+You can use a non-embedded version too if you already have python installed in your system and you are confident with it.
+
+The only difference in the tutorial is in where the matplotlib module will be installed:
+
+For embedded version, the installation will happen in the plugin directory itself. For non-embedded it will be in the python system path.
+
+Obviously if your system python installation already includes matplotlib, you can simply skip the related paragraph below.
 
 >Note: on Linux and Mac system, you will use the system installation (no embedded distributions are provided) or directly the source one. The rest of the tutorial will be platform independent.
 
@@ -39,8 +45,10 @@ Re-start your project and in the Edit/Plugins menu you will be able to enable th
 If you installed the embedded distribution, just move to the Plugins/UnrealEnginePython/Binaries/Win64 directory in your terminal, and run:
 
 ```sh
-./python.exe -m pip install matplotlib
+./python.exe -m pip install --target . matplotlib
 ```
+
+(the --target . ensures the modules are not installed into the Lib/site-packages subdirectory)
 
 ![pip install matplotlib](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/pip_install.png)
 
