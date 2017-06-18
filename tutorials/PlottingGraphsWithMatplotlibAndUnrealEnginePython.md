@@ -168,6 +168,7 @@ The first blueprint we are about to create, is the 'carpet' (we call it Graph_Bl
 
 As you can see it is really simple:
 
+* inherit from standard Actor
 * add a StaticMeshComponent (as root if you want) with a plane as the mesh and the material instance you created before
 * add a Python component with the module as 'plotter' and the class as 'PlotComponent' (this is where the matplotlib part will be)
 * add an event dispatcher called 'OnGraphDataUpdated' (this will be triggered whenever the character steps over a cube)
