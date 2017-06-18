@@ -171,7 +171,7 @@ As you can see it is really simple:
 * inherit from standard Actor
 * add a StaticMeshComponent (as root if you want) with a plane as the mesh and the material instance you created before
 * add a Python component with the module as 'plotter' and the class as 'PlotComponent' (this is where the matplotlib part will be)
-* add an event dispatcher called 'OnGraphDataUpdated' (this will be triggered whenever the character steps over a cube)
+* add an event dispatcher called 'OnGraphDataUpdated' (this will be triggered whenever the character steps over a cube) taking a single input argument named 'Platform' of type 'Actor'
 
 You can now create (again into Content/Scripts) the plotter.py python script
 
