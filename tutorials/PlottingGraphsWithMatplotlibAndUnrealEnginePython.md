@@ -64,13 +64,21 @@ or (based on your config)
 pip install matplotlib
 ```
 
+In the Unreal Engine Python Console (under the 'Window/Developer Tools/Python Console' menu entry) run
+
+```python
+import matplotlib
+```
+
+if all is ok, you will not get an import error
+
 ## Testing matplotlib in Unreal Engine: generating a graph-texture
 
 Time to check if all is working well.
 
 We will start by generating a texture asset. The content of this texture will be managed by matplotlib.
 
-You can use the included python editor to edit your scripts (it is under the Window/Python Editor menu), or your favourite one (SublimeText, Vim, PyCharm...) just ensure scripts are under the Content/Scripts directory of your project.
+You can use the included python editor to edit your scripts (it is under the 'Window/Python Editor' menu entry), or your favourite one (SublimeText, Vim, PyCharm...) just ensure scripts are under the Content/Scripts directory of your project.
 
 The steps are: generating a texture in memory, plotting the graph, transferring the graph data into texture memory, save it as an asset and opening the related editor.
 
