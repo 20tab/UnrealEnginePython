@@ -636,16 +636,16 @@ You can tune your python environment adding a [Python] stanza to the Config/Defa
 
 The following parameters are supported:
 
-* Home: set the path of the python installation, useful for forcing the python vm to search modules in a specific directory (like old-style virtualenvs)
-* RelativeHome: like Home but relative to the /Content directory
-* ProgramName: set the python program name path
-* RelativeProgramName: like ProgramName, but the path is relative to the /Content directory
-* ScriptsPath: change the default path on where Unreal Engine searches for python scripts
-* RelativeScriptsPath: like ScriptsPath, but relative to the /Content directory
-* AdditionalModulesPath: add the specified directory to sys.path
-* RelativeAdditionalModulesPath: like AdditionalModulesPath, but the path is relative to the /Content directory
-* ZipPath: allow to specify a .zip file that is added to sys.path
-* RelativeZipPath: like ZipPath, but the path is relative to the /Content directory
+* '''Home''': set the path of the python installation, useful for forcing the python vm to search modules in a specific directory (like old-style virtualenvs)
+* '''RelativeHome''': like Home but relative to the /Content directory
+* '''ProgramName''': set the python program name path
+* '''RelativeProgramName''': like ProgramName, but the path is relative to the /Content directory
+* '''ScriptsPath''': change the default path on where Unreal Engine searches for python scripts
+* '''RelativeScriptsPath''': like ScriptsPath, but relative to the /Content directory
+* '''AdditionalModulesPath''': add the specified directory to sys.path
+* '''RelativeAdditionalModulesPath''': like AdditionalModulesPath, but the path is relative to the /Content directory
+* '''ZipPath''': allow to specify a .zip file that is added to sys.path
+* '''RelativeZipPath''': like ZipPath, but the path is relative to the /Content directory
 
 Example:
 
