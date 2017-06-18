@@ -695,6 +695,8 @@ class SuperHero:
         new_actor.set_property('PythonClass', 'Vertical')
 ```
 
+For more examples: https://github.com/20tab/UnrealEnginePython/tree/master/examples
+
 Spawning Notes
 --------------
 
