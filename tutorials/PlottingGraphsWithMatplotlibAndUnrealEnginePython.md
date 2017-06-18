@@ -123,10 +123,20 @@ texture.save_package('/Game/FirstGraphTexture')
 ue.open_editor_for_asset(texture)
 ```
 
+if you are using the included Python Editor, click on 'Save' and then on 'Execute'
+
+if you are using an external editor you can run the script form the python console with:
+
+```python
+import unreal_engine as ue
+ue.py_exec('name_of_your_script.py')
+```
+
 ![Texture Created](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/texture_created.png)
 
-
 if you ended up with the texture editor opened on your new graph, you are ready for the next steps
+
+
 
 ## Our project: Plotting a Pie chart tracking overlap events
 
