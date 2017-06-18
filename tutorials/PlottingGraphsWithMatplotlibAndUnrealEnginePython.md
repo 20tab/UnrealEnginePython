@@ -146,6 +146,8 @@ Whenever you overlap one of the cubes with your character, their internal counte
 
 A pie chart "carpet" is on the floor, and it is updated with overlap-counters data (the more you overlap a cube, the bigger will be its slice in the chart)
 
+At this point, i strongly suggest you to restart the editor so your python environment will be correctly setup to search for modules in the /Content/Scripts directory (this is because the python modules search path is not populated with non existent dirctories on startup, and unfortunately /Content/Scripts still does not exist when you run the plugin for the first time)
+
 ### Setting up materials
 
 We need 4 materials and 1 material instance for the project:
