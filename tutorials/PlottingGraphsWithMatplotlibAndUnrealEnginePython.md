@@ -213,7 +213,7 @@ class PlotComponent:
 
 The only relevant part is the update_graph function that is triggered by the 'OnGraphDataUpdated' event dispatcher.
 
-This function receives as the 'platform' argument the Actor triggering the event. This Actor (that we will create in the next phase), expose the counters of the overlapping cubes. We use that values to re-generate our pie chart and uploading it into texture memory whenever the event is triggered 
+This function receives as the 'platform' argument the Actor triggering the event. This Actor (that we will create in the next phase), exposes the counters of the overlapping cubes. We use that values to re-generate our pie chart and uploading it into texture memory whenever the event is triggered 
 
 ### The "Plotter Platforms"
 
