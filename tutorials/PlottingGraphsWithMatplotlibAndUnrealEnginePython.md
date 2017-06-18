@@ -45,8 +45,10 @@ Re-start your project and in the Edit/Plugins menu you will be able to enable th
 If you installed the embedded distribution, just move to the Plugins/UnrealEnginePython/Binaries/Win64 directory in your terminal, and run:
 
 ```sh
-./python.exe -m pip install matplotlib
+./python.exe -m pip install --target . matplotlib
 ```
+
+(the --target . ensures the modules are not installed into the Lib/site-packages subdirectory)
 
 ![pip install matplotlib](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/pip_install.png)
 
