@@ -156,7 +156,7 @@ We need 4 materials and 1 material instance for the project:
 
 * a completely blue material
 
-* a material with a texture parameter linked to base color (use any texture you have, it will be substituted at runtime)
+* a material with a texture parameter named 'Graph' linked to base color (use any texture you have, it will be substituted at runtime)
 
 * an instance of the previous material exposing the texture parameter (so it can be updated at runtime, again any texture will be good, even the same of the parent material)
 
