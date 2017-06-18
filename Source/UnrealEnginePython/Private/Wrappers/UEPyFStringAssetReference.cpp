@@ -20,7 +20,7 @@ static PyMethodDef ue_PyFStringAssetReference_methods[] = {
 static PyObject *ue_PyFStringAssetReference_str(ue_PyFStringAssetReference *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.FStringAssetReference {'asset_name': %s}>",
-		self->fstring_asset_reference.GetAssetName());
+		TCHAR_TO_UTF8(*self->fstring_asset_reference.GetAssetName()));
 }
 
 static PyTypeObject ue_PyFStringAssetReferenceType = {
