@@ -301,4 +301,12 @@ ue.sandbox_exec('test_plotter_platforms.py')
 
 the 'sanbox' execution, ensures a clean python subinterpeter is initialized, instead of clobberign the main one.
 
-Check how the test setUp and tearDown methods, ensure your world is cleaned up at the end (using the transaction api of unreal engine: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Transactions_API.md) 
+Check how the test setUp and tearDown methods, ensure your world is cleaned up at the end (using the transaction api of unreal engine: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Transactions_API.md)
+
+### Downloading scripts:
+
+the plotter.py Python Component: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/plotter.py
+
+the graph_texture.py example script: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/graph_texture.py
+
+the unit test for the 'Plotter Platforms' blueprint: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython_Assets/test_plotter_platforms.py
