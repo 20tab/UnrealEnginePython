@@ -140,7 +140,7 @@ if you ended up with the texture editor opened on your new graph, you are ready 
 
 ## Our project: Plotting a Pie chart tracking overlap events
 
-Our objective is to have a special blueprint in our level exposing 3 cube in 3 different colors.
+Our objective is to have a special blueprint in our level exposing 3 cubes in 3 different colors.
 
 Whenever you overlap one of the cubes with your character, their internal counter is incremented.
 
