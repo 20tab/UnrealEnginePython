@@ -2,7 +2,7 @@
 
 #if WITH_EDITOR
 
-#include "UePyFbx.h"
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_importer_initialize(ue_PyFbxImporter *self, PyObject *args) {
 	char *filename;
