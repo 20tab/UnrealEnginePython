@@ -2,7 +2,7 @@
 
 #if WITH_EDITOR
 
-#include "UePyFbx.h"
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_manager_set_io_settings(ue_PyFbxManager *self, PyObject *args) {
 	PyObject *py_object;

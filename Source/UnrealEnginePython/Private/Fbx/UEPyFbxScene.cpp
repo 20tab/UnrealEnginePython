@@ -2,7 +2,7 @@
 
 #if WITH_EDITOR
 
-#include "UePyFbx.h"
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_scene_get_root_node(ue_PyFbxScene *self, PyObject *args) {
 	FbxNode *fbx_node = self->fbx_scene->GetRootNode();
