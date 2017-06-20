@@ -153,6 +153,9 @@ PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * 
 
 
 	UTexture2D *texture = UTexture2D::CreateTransient(width, height, (EPixelFormat)format);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "unable to create texture");
+
 	texture->UpdateResource();
 
 	ue_PyUObject *ret = ue_get_python_wrapper(texture);
