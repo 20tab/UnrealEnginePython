@@ -48,6 +48,41 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 	return bytes;
 }
 
+PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int mipmap = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:render_target_get_data", &mipmap)) {
+		return NULL;
+	}
+
+	UTextureRenderTarget2D *tex = ue_py_check_type<UTextureRenderTarget2D>(self);
+	if (!tex)
+		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
+
+	FTexture2DResource *resource = nullptr;
+	if (IsInRenderingThread()) {
+		if (IsInGameThread()) {
+			resource = (FTexture2DResource *)tex->GameThread_GetRenderTargetResource();
+		}
+		else {
+			resource = (FTexture2DResource *)tex->GetRenderTargetResource();
+		}
+	}
+
+	if (!resource) {
+		return PyErr_Format(PyExc_Exception, "cannot get render target resource");
+	}
+
+	uint32 stride = 0;
+	char *data = (char *)RHILockTexture2D(resource->GetTexture2DRHI(), mipmap, RLM_ReadOnly, stride, false);
+	PyObject *bytes = PyByteArray_FromStringAndSize(data, (Py_ssize_t)(stride * resource->GetSizeY()));
+	RHIUnlockTexture2D(resource->GetTexture2DRHI(), mipmap, false);
+	return bytes;
+}
+
 PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
