@@ -595,6 +595,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_player_controller", (PyCFunction)py_ue_get_player_controller, METH_VARARGS, "" },
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
+	{ "actor_set_level_sequence", (PyCFunction)py_ue_actor_set_level_sequence, METH_VARARGS, "" },
 
 	// Pawn
 	{ "get_controller", (PyCFunction)py_ue_pawn_get_controller, METH_VARARGS, "" },
@@ -627,6 +628,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "texture_set_data", (PyCFunction)py_ue_texture_set_data, METH_VARARGS, "" },
 	{ "texture_get_width", (PyCFunction)py_ue_texture_get_width, METH_VARARGS, "" },
 	{ "texture_get_height", (PyCFunction)py_ue_texture_get_height, METH_VARARGS, "" },
+	{ "render_target_get_data", (PyCFunction)py_ue_render_target_get_data, METH_VARARGS, "" },
 
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },

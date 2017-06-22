@@ -114,7 +114,8 @@ public class UnrealEnginePython : ModuleRules
                 "LevelSequence",
                 "HTTP",
                 "UMG",
-                "AppFramework"
+                "AppFramework",
+                "RHI"
 				// ... add private dependencies that you statically link with here ...
 			}
             );

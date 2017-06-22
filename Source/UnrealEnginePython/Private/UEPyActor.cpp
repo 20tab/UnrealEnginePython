@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-
+#include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
+#include "Runtime/LevelSequence/Public/LevelSequence.h"
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args) {
 
@@ -639,6 +640,31 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args) {
 	}
 	return py_overlapping_actors;
 }
+
+PyObject *py_ue_actor_set_level_sequence(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_sequence;
+	if (!PyArg_ParseTuple(args, "O:actor_set_level_sequence", &py_sequence)) {
+		return NULL;
+	}
+
+	ALevelSequenceActor *actor = ue_py_check_type<ALevelSequenceActor>(self);
+	if (!actor) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequenceActor");
+	}
+
+	ULevelSequence *sequence = ue_py_check_type<ULevelSequence>(py_sequence);
+	if (!sequence) {
+		return PyErr_Format(PyExc_Exception, "argument is not a LevelSequence");
+	}
+
+	actor->SetSequence(sequence);
+
+	Py_RETURN_NONE;
+}
+
 
 #if WITH_EDITOR
 PyObject *py_ue_get_editor_world_counterpart_actor(ue_PyUObject * self, PyObject * args) {

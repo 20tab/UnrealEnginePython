@@ -48,6 +48,33 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 	return bytes;
 }
 
+PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int mipmap = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:render_target_get_data", &mipmap)) {
+		return NULL;
+	}
+
+	UTextureRenderTarget2D *tex = ue_py_check_type<UTextureRenderTarget2D>(self);
+	if (!tex)
+		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
+
+	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
+	if (!resource) {
+		return PyErr_Format(PyExc_Exception, "cannot get render target resource");
+	}
+
+	TArray<FColor> pixels;
+	if (!resource->ReadPixels(pixels)) {
+		return PyErr_Format(PyExc_Exception, "unable to read pixels");
+	}
+
+	return PyByteArray_FromStringAndSize((const char *)pixels.GetData(), (Py_ssize_t)(tex->GetSurfaceWidth() * 4 * tex->GetSurfaceHeight()));
+}
+
 PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -153,6 +180,9 @@ PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * 
 
 
 	UTexture2D *texture = UTexture2D::CreateTransient(width, height, (EPixelFormat)format);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "unable to create texture");
+
 	texture->UpdateResource();
 
 	ue_PyUObject *ret = ue_get_python_wrapper(texture);

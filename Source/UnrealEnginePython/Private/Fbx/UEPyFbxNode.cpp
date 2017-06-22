@@ -2,7 +2,7 @@
 
 #if WITH_EDITOR
 
-#include "UePyFbx.h"
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_node_get_child_count(ue_PyFbxNode *self, PyObject *args) {
 	return PyLong_FromLong(self->fbx_node->GetChildCount());

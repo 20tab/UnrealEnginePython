@@ -245,7 +245,7 @@ walk over the 3 cubes and see your pie chart updating
 
 ### Writing a simple unit test
 
-Sorry, i will never stop telling you how important unit tests are, so, even if we have deloped a really simple script, we will write a unit test too :)
+Sorry, i will never stop telling you how important unit tests are, so, even if we have developed a really simple script, we will write a unit test too :)
 
 We need to test that when a 'ComponentOverlap' event is triggered on a cube, the right counter is incremented:
 

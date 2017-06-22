@@ -2,7 +2,7 @@
 
 #if WITH_EDITOR
 
-#include "UePyFbx.h"
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_object_get_name(ue_PyFbxObject *self, PyObject *args) {
 	return PyUnicode_FromString(self->fbx_object->GetName());
