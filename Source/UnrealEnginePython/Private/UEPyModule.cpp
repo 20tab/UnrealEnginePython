@@ -161,6 +161,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "unregister_nomad_tab_spawner", py_unreal_engine_unregister_nomad_tab_spawner, METH_VARARGS, "" },
+	{ "invoke_tab", py_unreal_engine_invoke_tab, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },

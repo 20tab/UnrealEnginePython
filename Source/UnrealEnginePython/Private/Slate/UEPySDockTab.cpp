@@ -19,8 +19,16 @@ static PyObject *py_ue_sdock_tab_set_label(ue_PySButton *self, PyObject * args) 
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_sdock_tab_request_close_tab(ue_PySButton *self, PyObject * args) {
+
+	sw_dock_tab->RequestCloseTab();
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySDockTab_methods[] = {
 	{ "set_label", (PyCFunction)py_ue_sdock_tab_set_label, METH_VARARGS, "" },
+	{ "request_close_tab", (PyCFunction)py_ue_sdock_tab_request_close_tab, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -55,9 +63,24 @@ PyTypeObject ue_PySDockTabType = {
 	ue_PySDockTab_methods,             /* tp_methods */
 };
 
+static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *kwargs) {
+	ue_py_slate_setup_farguments(SDockTab);
+
+	ue_py_slate_farguments_struct("content_padding", ContentPadding, FMargin);
+	ue_py_slate_farguments_optional_struct_ptr("icon", Icon, FSlateBrush);
+	ue_py_slate_farguments_text("label", Label);
+	ue_py_slate_farguments_optional_bool("should_autosize", ShouldAutosize);
+	ue_py_slate_farguments_optional_enum("tab_role", TabRole, ETabRole);
+
+
+	ue_py_snew(SDockTab, s_border.s_compound_widget.s_widget);
+	return 0;
+}
+
 void ue_python_init_sdock_tab(PyObject *ue_module) {
 
 	ue_PySDockTabType.tp_base = &ue_PySBorderType;
+	ue_PySDockTabType.tp_init = (initproc)ue_py_sdock_tab_init;
 
 	if (PyType_Ready(&ue_PySDockTabType) < 0)
 		return;

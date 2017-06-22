@@ -87,6 +87,8 @@ PyObject *py_unreal_engine_add_menu_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_tool_bar_extension(PyObject *, PyObject *);
 #endif
 
+PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 

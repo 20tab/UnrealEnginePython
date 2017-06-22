@@ -832,6 +832,19 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args) {
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:invoke_tab", &name)) {
+		return NULL;
+	}
+
+	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs) {
 
