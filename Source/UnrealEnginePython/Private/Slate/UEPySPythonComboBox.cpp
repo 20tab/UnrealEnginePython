@@ -112,7 +112,7 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 	PyObject *content = ue_py_dict_get_item(kwargs, "content");
 	if (content) {
 		s_widget_content = py_ue_is_swidget(content);
-		if (!content) {
+		if (!s_widget_content) {
 			PyErr_SetString(PyExc_Exception, "content is not a SWidget");
 			return -1;
 		}
@@ -133,7 +133,7 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 	ue_py_slate_farguments_optional_float("max_list_height", MaxListHeight);
 	ue_py_slate_farguments_optional_enum("method", Method, EPopupMethod);
 	ue_py_slate_farguments_optional_struct("pressed_sound_override", PressedSoundOverride, FSlateSound);
-	ue_py_slate_farguments_optional_struct("pressed_sound_override", PressedSoundOverride, FSlateSound);
+	ue_py_slate_farguments_optional_struct("selection_change_sound_override", SelectionChangeSoundOverride, FSlateSound);
 	ue_py_slate_farguments_event("on_generate_widget", OnGenerateWidget, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateWidget, OnGenerateWidget);
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
 
