@@ -61,6 +61,7 @@
 #include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
 #include "ConsoleManager/UEPyIConsoleManager.h"
+#include "Voice/UEPyIVoiceCapture.h"
 
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\

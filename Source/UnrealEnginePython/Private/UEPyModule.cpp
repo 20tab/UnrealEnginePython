@@ -1292,6 +1292,8 @@ void unreal_engine_init_py_module() {
 
 	ue_python_init_iconsole_manager(new_unreal_engine_module);
 
+	ue_python_init_ivoice_capture(new_unreal_engine_module);
+
 	PyObject *py_sys = PyImport_ImportModule("sys");
 	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
 
