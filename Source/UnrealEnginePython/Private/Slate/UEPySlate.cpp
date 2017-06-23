@@ -583,6 +583,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sscroll_box(module);
     ue_python_init_scolor_block(module);
 	ue_python_init_sbox(module);
+	ue_python_init_sprogress_bar(module);
 
 
 

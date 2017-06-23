@@ -53,6 +53,7 @@
 #include "UEPySScrollBox.h"
 #include "UEPySColorBlock.h"
 #include "UEPySBox.h"
+#include "UEPySProgressBar.h"
 
 
 
