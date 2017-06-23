@@ -287,6 +287,7 @@ static PyMethodDef unreal_engine_methods[] = {
 #pragma warning(suppress: 4191)
 	{ "open_color_picker", (PyCFunction)py_unreal_engine_open_color_picker, METH_VARARGS| METH_KEYWORDS, "" },
 	{ "destroy_color_picker", py_unreal_engine_destroy_color_picker, METH_VARARGS, "" },
+	{ "play_sound", py_unreal_engine_play_sound, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "editor_play_in_viewport", py_unreal_engine_editor_play_in_viewport, METH_VARARGS, "" },
 	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },

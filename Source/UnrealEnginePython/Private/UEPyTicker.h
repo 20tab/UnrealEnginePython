@@ -6,7 +6,8 @@ typedef struct {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 	FDelegateHandle dhandle;
-	PyObject *py_callable;
+	UPythonDelegate *py_delegate;
+	bool garbaged;
 } ue_PyFDelegateHandle;
 
 PyObject *py_unreal_engine_add_ticker(PyObject *, PyObject *);

@@ -73,6 +73,7 @@
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
 #include "PythonDelegate.h"
 
@@ -95,6 +96,8 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_open_color_picker(PyObject *, PyObject *, PyObject *);
 PyObject *py_unreal_engine_destroy_color_picker(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_play_sound(PyObject *, PyObject *);
 
 void ue_py_register_swidget(SWidget *, ue_PySWidget *);
 void ue_py_unregister_swidget(SWidget *);

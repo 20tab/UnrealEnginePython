@@ -581,7 +581,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_srotator_input_box(module);
 	ue_python_init_spython_combo_box(module);
 	ue_python_init_sscroll_box(module);
-    ue_python_init_scolor_block(module);
+	ue_python_init_scolor_block(module);
 	ue_python_init_sbox(module);
 	ue_python_init_sprogress_bar(module);
 
@@ -879,5 +879,30 @@ PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyO
 
 PyObject *py_unreal_engine_destroy_color_picker(PyObject *self, PyObject * args) {
 	DestroyColorPicker();
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_play_sound(PyObject *self, PyObject * args) {
+	PyObject *py_sound;
+	int user_index;
+	if (!PyArg_ParseTuple(args, "O|i:play_sound", &py_sound, &user_index)) {
+		return nullptr;
+	}
+
+	FSlateSound *sound = ue_py_check_struct<FSlateSound>(py_sound);
+	if (!sound) {
+		USoundBase *u_sound = ue_py_check_type<USoundBase>(py_sound);
+		if (u_sound) {
+			FSlateSound slate_sound = FSlateSound();
+			slate_sound.SetResourceObject(u_sound);
+			sound = &slate_sound;
+		}
+	}
+
+	if (!sound) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FSlateColor or a USoundBase");
+	}
+
+	FSlateApplication::Get().PlaySound(*sound, user_index);
 	Py_RETURN_NONE;
 }
