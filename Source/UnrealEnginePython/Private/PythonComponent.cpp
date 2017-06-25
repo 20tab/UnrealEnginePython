@@ -75,6 +75,8 @@ void UPythonComponent::InitializePythonComponent() {
 	if (!PythonDisableAutoBinding)
 		ue_autobind_events_for_pyclass(py_uobject, py_component_instance);
 
+	ue_bind_events_for_py_class_by_attribute(this, py_component_instance);
+
 	if (!PyObject_HasAttrString(py_component_instance, (char *)"begin_play")) {
 		return;
 	}
@@ -82,9 +84,9 @@ void UPythonComponent::InitializePythonComponent() {
 	PyObject *bp_ret = PyObject_CallMethod(py_component_instance, (char *)"begin_play", NULL);
 	if (!bp_ret) {
 		unreal_engine_py_log_error();
-		return;
 	}
-	Py_DECREF(bp_ret);
+	Py_XDECREF(bp_ret);
+
 }
 
 // Called when the game starts
@@ -451,7 +453,7 @@ void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name,
 	}
 
 	Py_DECREF(ret);
-}
+	}
 
 
 UPythonComponent::~UPythonComponent()

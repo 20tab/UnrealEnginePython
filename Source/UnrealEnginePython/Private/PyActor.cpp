@@ -75,6 +75,7 @@ void APyActor::BeginPlay()
 	if (!PythonDisableAutoBinding)
 		ue_autobind_events_for_pyclass(py_uobject, py_actor_instance);
 
+	ue_bind_events_for_py_class_by_attribute(this, py_actor_instance);
 
 	if (!PyObject_HasAttrString(py_actor_instance, (char *)"begin_play"))
 		return;

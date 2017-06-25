@@ -30,6 +30,7 @@
 #include "UObject/UEPyMaterial.h"
 #include "UObject/UEPyPawn.h"
 #include "UObject/UEPyController.h"
+#include "UObject/UEPyHUD.h"
 
 
 
@@ -477,6 +478,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "bind_key", (PyCFunction)py_ue_bind_key, METH_VARARGS, "" },
 	{ "bind_pressed_key", (PyCFunction)py_ue_bind_pressed_key, METH_VARARGS, "" },
 	{ "bind_released_key", (PyCFunction)py_ue_bind_released_key, METH_VARARGS, "" },
+
+	// HUD
+	{ "hud_draw_2d_line", (PyCFunction)py_ue_hud_draw_2d_line, METH_VARARGS, "" },
+	{ "hud_draw_line", (PyCFunction)py_ue_hud_draw_line, METH_VARARGS, "" },
+	{ "hud_draw_texture", (PyCFunction)py_ue_hud_draw_texture, METH_VARARGS, "" },
 
 
 	// Movements
@@ -1910,6 +1916,77 @@ ue_PyUObject *ue_is_pyuobject(PyObject *obj) {
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUObjectType))
 		return nullptr;
 	return (ue_PyUObject *)obj;
+}
+
+void ue_bind_events_for_py_class_by_attribute(UObject *u_obj, PyObject *py_class) {
+	// attempt to register events
+	PyObject *attrs = PyObject_Dir(py_class);
+	if (!attrs)
+		return;
+
+	AActor *actor = Cast<AActor>(u_obj);
+	if (!actor) {
+		UActorComponent *component = Cast<UActorComponent>(u_obj);
+		if (!component)
+			return;
+		actor = component->GetOwner();
+	}
+
+	Py_ssize_t len = PyList_Size(attrs);
+	for (Py_ssize_t i = 0; i < len; i++) {
+		PyObject *py_attr_name = PyList_GetItem(attrs, i);
+		if (!py_attr_name || !PyUnicodeOrString_Check(py_attr_name))
+			continue;
+		PyObject *item = PyObject_GetAttrString(py_class, PyUnicode_AsUTF8(py_attr_name));
+		if (item && PyCallable_Check(item)) {
+			// check for ue_event signature
+			PyObject *event_signature = PyObject_GetAttrString(item, (char*)"ue_event");
+			if (event_signature) {
+				if (PyUnicode_Check(event_signature)) {
+					FString event_name = FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(event_signature)));
+					TArray<FString> parts;
+					int n = event_name.ParseIntoArray(parts, UTF8_TO_TCHAR("."));
+					if (n < 1 || n > 2) {
+						PyErr_SetString(PyExc_Exception, "invalid ue_event syntax, must be the name of an event or ComponentName.Event");
+						unreal_engine_py_log_error();
+					}
+					else {
+						if (n == 1) {
+							if (!ue_bind_pyevent(ue_get_python_wrapper(actor), parts[0], item, true)) {
+								unreal_engine_py_log_error();
+							}
+						}
+						else {
+							bool found = false;
+							for (UActorComponent *component : actor->GetComponents()) {
+								if (component->GetFName() == FName(*parts[0])) {
+									if (!ue_bind_pyevent(ue_get_python_wrapper(component), parts[1], item, true)) {
+										unreal_engine_py_log_error();
+									}
+									found = true;
+									break;
+								}
+							}
+
+							if (!found) {
+								PyErr_SetString(PyExc_Exception, "unable to find component by name");
+								unreal_engine_py_log_error();
+							}
+						}
+					}
+				}
+				else {
+					PyErr_SetString(PyExc_Exception, "ue_event attribute must be a string");
+					unreal_engine_py_log_error();
+				}
+			}
+			Py_XDECREF(event_signature);
+		}
+		Py_XDECREF(item);
+	}
+	Py_DECREF(attrs);
+
+	PyErr_Clear();
 }
 
 // automatically bind events based on class methods names
