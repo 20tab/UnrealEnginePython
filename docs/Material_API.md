@@ -88,7 +88,7 @@ child_material = factory.factory_create_new('/Game/ChildMaterial')
 Creating a Material Instance Dynamic
 ------------------------------------
 
-You can create a MID (Material Instance Dynamic) from a material instance:
+You can create a MID (Material Instance Dynamic) from a material (or material instance):
 
 ```python
 mid = self.uobject.create_material_instance_dynamic(material_instance)
