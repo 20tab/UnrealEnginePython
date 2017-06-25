@@ -262,22 +262,14 @@ PyObject *py_ue_create_material_instance_dynamic(ue_PyUObject *self, PyObject * 
 	PyObject *py_material = nullptr;
 
 	if (!PyArg_ParseTuple(args, "O:create_material_instance_dynamic", &py_material)) {
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(py_material)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
+	UMaterialInterface *material_interface = ue_py_check_type<UMaterialInterface>(py_material);
+	if (!material_interface)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
-
-	if (!py_obj->ue_object->IsA<UMaterialInstanceConstant>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInstanceConstant");
-	}
-
-	UMaterialInstanceConstant *material_instance = (UMaterialInstanceConstant *)py_obj->ue_object;
-
-	UMaterialInstanceDynamic *material_dynamic = UMaterialInstanceDynamic::Create(material_instance, self->ue_object);
+	UMaterialInstanceDynamic *material_dynamic = UMaterialInstanceDynamic::Create(material_interface, self->ue_object);
 
 	ue_PyUObject *ret = ue_get_python_wrapper(material_dynamic);
 	if (!ret)

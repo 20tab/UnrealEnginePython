@@ -779,7 +779,11 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 					FString attr_as_string = FString(UTF8_TO_TCHAR(attr));
 					for (auto item : u_enum->DisplayNameMap) {
 						if (item.Value.ToString() == attr_as_string) {
+#if ENGINE_MINOR_VERSION > 15
+							return PyLong_FromLong(u_enum->GetIndexByName(item.Key));
+#else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
+#endif
 						}
 					}
 				}
@@ -787,7 +791,11 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 				if (self->ue_object->IsA<UEnum>()) {
 					UEnum *u_enum = (UEnum *)self->ue_object;
 					PyErr_Clear();
+#if ENGINE_MINOR_VERSION > 15
+					return PyLong_FromLong(u_enum->GetIndexByName(FName(UTF8_TO_TCHAR(attr))));
+#else
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
+#endif
 				}
 			}
 
