@@ -24,6 +24,30 @@ PyObject *py_ue_get_player_controller(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_get_player_hud(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "|i:get_player_hud", &controller_id)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(controller->GetHUD());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_ue_create_player(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

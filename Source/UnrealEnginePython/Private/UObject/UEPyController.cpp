@@ -11,7 +11,7 @@ PyObject *py_ue_controller_posses(ue_PyUObject * self, PyObject * args) {
 	}
 
 	if (!self->ue_object->IsA<AController>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not an APawn");
+		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
 	}
 
 	if (!ue_is_pyuobject(obj)) {
@@ -33,12 +33,27 @@ PyObject *py_ue_controller_posses(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_controller_get_hud(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AController *controller = ue_py_check_type<AController>(self);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
+
+	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)controller);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_ue_controller_unposses(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
 	if (!self->ue_object->IsA<AController>()) {
-		return PyErr_Format(PyExc_Exception, "uobject is not an APawn");
+		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
 	}
 
 	AController *controller = (AController *)self->ue_object;

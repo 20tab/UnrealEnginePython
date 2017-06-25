@@ -599,10 +599,14 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "conditional_begin_destroy", (PyCFunction)py_ue_conditional_begin_destroy, METH_VARARGS, "" },
 
+
+	// Player
+
 	{ "create_player", (PyCFunction)py_ue_create_player, METH_VARARGS, "" },
 	{ "get_num_players", (PyCFunction)py_ue_get_num_players, METH_VARARGS, "" },
 	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
 	{ "get_player_controller", (PyCFunction)py_ue_get_player_controller, METH_VARARGS, "" },
+	{ "get_player_hud", (PyCFunction)py_ue_get_player_hud, METH_VARARGS, "" },
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 	{ "actor_set_level_sequence", (PyCFunction)py_ue_actor_set_level_sequence, METH_VARARGS, "" },
@@ -613,6 +617,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	// Controller
 	{ "posses", (PyCFunction)py_ue_controller_posses, METH_VARARGS, "" },
 	{ "unposses", (PyCFunction)py_ue_controller_unposses, METH_VARARGS, "" },
+	{ "get_hud", (PyCFunction)py_ue_controller_get_hud, METH_VARARGS, "" },
 
 
 	// Attaching

@@ -6,3 +6,4 @@
 
 PyObject *py_ue_controller_posses(ue_PyUObject *, PyObject *);
 PyObject *py_ue_controller_unposses(ue_PyUObject *, PyObject *);
+PyObject *py_ue_controller_get_hud(ue_PyUObject *, PyObject *);
