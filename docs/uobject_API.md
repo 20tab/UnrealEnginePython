@@ -211,7 +211,7 @@ It has two shortcuts, it can retrieve the actor from a component, and can get a 
 
 ---
 ```py
-components = uobject.actor_components()
+components = uobject.get_actor_components()
 ```
 
 get the list of all components mapped to the actor
