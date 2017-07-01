@@ -13,6 +13,7 @@ extern PyTypeObject ue_PySImageType;
 typedef struct {
 	ue_PySLeafWidget s_leaf_widget;
 	/* Type-specific fields go here. */
+	FSlateBrush brush;
 } ue_PySImage;
 
 void ue_python_init_simage(PyObject *);

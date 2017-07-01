@@ -85,6 +85,7 @@ PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args) {
 	ret->dhandle = dhandle;
 	ret->py_delegate = py_delegate;
 	ret->garbaged = false;
+
 	return (PyObject *)ret;
 }
 
