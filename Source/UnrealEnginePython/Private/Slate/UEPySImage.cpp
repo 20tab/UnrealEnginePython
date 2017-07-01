@@ -26,7 +26,7 @@ static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args) {
 static PyObject *py_ue_simage_set_texture(ue_PySImage *self, PyObject * args) {
 	PyObject *py_texture;
 	PyObject *py_linear_color = nullptr;
-	if (!PyArg_ParseTuple(args, "O|O:set_texture", &py_texture)) {
+	if (!PyArg_ParseTuple(args, "O|O:set_texture", &py_texture, &py_linear_color)) {
 		return NULL;
 	}
 
