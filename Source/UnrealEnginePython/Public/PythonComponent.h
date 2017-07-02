@@ -47,6 +47,9 @@ public:
 	FString CallPythonComponentMethodString(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
+	TMap<FString, FString> CallPythonComponentMethodMap(FString method_name, FString args);
+
+	UFUNCTION(BlueprintCallable, Category = "Python")
 	void CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
