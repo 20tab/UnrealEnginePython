@@ -17,22 +17,25 @@ public:
 	APyActor();
 	~APyActor();
 
+	// Called whenever the Actor is instantiated (before begin play)
+	virtual void PostInitializeComponents() override;
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
 
-	UPROPERTY(EditAnywhere , Category = "Python")
+	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	FString PythonModule;
 
-	UPROPERTY(EditAnywhere, Category = "Python")
+	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	FString PythonClass;
 
-	UPROPERTY(EditAnywhere, Category = "Python")
+	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	bool PythonTickForceDisabled;
 
-	UPROPERTY(EditAnywhere, Category = "Python")
+	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	bool PythonDisableAutoBinding;
 
 	UFUNCTION(BlueprintCallable, Category = "Python")

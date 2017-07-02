@@ -607,6 +607,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
 	{ "get_player_controller", (PyCFunction)py_ue_get_player_controller, METH_VARARGS, "" },
 	{ "get_player_hud", (PyCFunction)py_ue_get_player_hud, METH_VARARGS, "" },
+	{ "get_player_camera_manager", (PyCFunction)py_ue_get_player_camera_manager, METH_VARARGS, "" },
+	{ "get_player_pawn", (PyCFunction)py_ue_get_player_pawn, METH_VARARGS, "" },
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 	{ "actor_set_level_sequence", (PyCFunction)py_ue_actor_set_level_sequence, METH_VARARGS, "" },
@@ -634,6 +636,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// Skeletal
 	{ "get_anim_instance", (PyCFunction)py_ue_get_anim_instance, METH_VARARGS, "" },
+	{ "set_skeletal_mesh", (PyCFunction)py_ue_set_skeletal_mesh, METH_VARARGS, "" },
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },

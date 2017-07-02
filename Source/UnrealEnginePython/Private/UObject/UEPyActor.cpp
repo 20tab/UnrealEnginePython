@@ -291,13 +291,32 @@ PyObject *py_ue_component_is_registered(ue_PyUObject *self, PyObject * args) {
 	return Py_False;
 }
 
+PyObject *py_ue_setup_attachment(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_component;
+	if (!PyArg_ParseTuple(args, "O:setup_attachment", &py_component))
+		return nullptr;
+
+	USceneComponent *child = ue_py_check_type<USceneComponent>(self);
+	if (!child) {
+		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+	}
+
+	UActorComponent *parent = ue_py_check_type<UActorComponent>(py_component);
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *obj;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:add_actor_component", &obj, &name)) {
+	PyObject *py_parent = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|O:add_actor_component", &obj, &name, &py_parent)) {
 		return NULL;
 	}
 
@@ -314,12 +333,26 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
 	if (!py_obj->ue_object->IsA<UClass>()) {
-		return PyErr_Format(PyExc_Exception, "argument is not a class");
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	}
+
+	USceneComponent *parent_component = nullptr;
+
+	if (py_parent) {
+		parent_component = ue_py_check_type<USceneComponent>(py_parent);
+		if (!parent_component) {
+			return PyErr_Format(PyExc_Exception, "argument is not a USceneComponent");
+		}
 	}
 
 	UActorComponent *component = NewObject<UActorComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)));
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
+
+	if (py_parent && component->IsA<USceneComponent>()) {
+		USceneComponent *scene_component = (USceneComponent *)component;
+		scene_component->SetupAttachment(parent_component);
+	}
 
 	if (actor->GetWorld()) {
 		component->RegisterComponent();
