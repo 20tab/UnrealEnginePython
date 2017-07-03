@@ -37,6 +37,8 @@
 #include "Wrappers/UEPyFLinearColor.h"
 #include "Wrappers/UEPyFSocket.h"
 
+#include "Wrappers/UEPyFRawAnimSequenceTrack.h"
+
 #include "Wrappers/UEPyFRandomStream.h"
 
 #include "Wrappers/UEPyFPythonOutputDevice.h"
