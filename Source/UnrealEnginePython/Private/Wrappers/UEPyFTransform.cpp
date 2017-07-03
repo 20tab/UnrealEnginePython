@@ -101,11 +101,22 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_translation)) {
 			self->transform.SetTranslation(py_vec->vec);
 		}
+		else {
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+			return -1;
+		}
 	}
 
 	if (py_rotation) {
 		if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_rotation)) {
 			self->transform.SetRotation(py_rot->rot.Quaternion());
+		}
+		else if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_rotation)) {
+			self->transform.SetRotation(py_quat->quat);
+		}
+		else {
+			PyErr_SetString(PyExc_Exception, "argument is not a FRotator or a FQuat");
+			return -1;
 		}
 	}
 
@@ -115,6 +126,10 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	if (py_scale) {
 		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_scale)) {
 			scale = py_vec->vec;
+		}
+		else {
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+			return -1;
 		}
 	}
 	self->transform.SetScale3D(scale);
