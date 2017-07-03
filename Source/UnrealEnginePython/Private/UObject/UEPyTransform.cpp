@@ -26,6 +26,18 @@ PyObject *py_ue_get_actor_scale(ue_PyUObject *self, PyObject * args) {
 
 }
 
+PyObject *py_ue_get_actor_transform(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+	return py_ue_new_ftransform(actor->GetActorTransform());
+
+}
+
 PyObject *py_ue_get_actor_forward(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -199,6 +211,24 @@ PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
 }
 
 
+PyObject *py_ue_set_actor_transform(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	FTransform t;
+	if (!py_ue_transform_arg(args, t))
+		return nullptr;
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
+
+	actor->SetActorTransform(t);
+
+	Py_RETURN_NONE;
+}
+
+
 PyObject *py_ue_get_world_location(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>()) {
@@ -251,6 +281,26 @@ PyObject *py_ue_get_relative_scale(ue_PyUObject *self, PyObject * args) {
 		return py_ue_new_fvector(vec3);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+}
+
+PyObject *py_ue_get_relative_transform(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+	USceneComponent *component = ue_py_check_type<USceneComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+
+	FTransform t = component->GetRelativeTransform();
+	return py_ue_new_ftransform(t);
+}
+
+PyObject *py_ue_get_world_transform(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+	USceneComponent *component = ue_py_check_type<USceneComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+
+	FTransform t = component->GetComponentTransform();
+	return py_ue_new_ftransform(t);
 }
 
 PyObject *py_ue_get_forward_vector(ue_PyUObject *self, PyObject * args) {
@@ -319,6 +369,38 @@ PyObject *py_ue_set_world_scale(ue_PyUObject *self, PyObject * args) {
 		return Py_None;
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+}
+
+PyObject *py_ue_set_world_transform(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	FTransform t;
+
+	if (!py_ue_transform_arg(args, t))
+		return nullptr;
+
+	USceneComponent *component = ue_py_check_type<USceneComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+
+	component->SetWorldTransform(t);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_set_relative_transform(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	FTransform t;
+
+	if (!py_ue_transform_arg(args, t))
+		return nullptr;
+
+	USceneComponent *component = ue_py_check_type<USceneComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
+
+	component->SetRelativeTransform(t);
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_set_relative_location(ue_PyUObject *self, PyObject * args) {

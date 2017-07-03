@@ -322,6 +322,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_location", (PyCFunction)py_ue_get_actor_location, METH_VARARGS, "" },
 	{ "get_actor_rotation", (PyCFunction)py_ue_get_actor_rotation, METH_VARARGS, "" },
 	{ "get_actor_scale", (PyCFunction)py_ue_get_actor_scale, METH_VARARGS, "" },
+	{ "get_actor_transform", (PyCFunction)py_ue_get_actor_transform, METH_VARARGS, "" },
 
 	{ "get_actor_forward", (PyCFunction)py_ue_get_actor_forward, METH_VARARGS, "" },
 	{ "get_actor_right", (PyCFunction)py_ue_get_actor_right, METH_VARARGS, "" },
@@ -331,6 +332,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_actor_location", (PyCFunction)py_ue_set_actor_location, METH_VARARGS, "" },
 	{ "set_actor_rotation", (PyCFunction)py_ue_set_actor_rotation, METH_VARARGS, "" },
 	{ "set_actor_scale", (PyCFunction)py_ue_set_actor_scale, METH_VARARGS, "" },
+	{ "set_actor_transform", (PyCFunction)py_ue_set_actor_transform, METH_VARARGS, "" },
 
 	{ "add_actor_world_offset", (PyCFunction)py_ue_add_actor_world_offset, METH_VARARGS, "" },
 	{ "add_actor_local_offset", (PyCFunction)py_ue_add_actor_local_offset, METH_VARARGS, "" },
@@ -341,16 +343,20 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_world_location", (PyCFunction)py_ue_get_world_location, METH_VARARGS, "" },
 	{ "get_world_rotation", (PyCFunction)py_ue_get_world_rotation, METH_VARARGS, "" },
 	{ "get_world_scale", (PyCFunction)py_ue_get_world_scale, METH_VARARGS, "" },
+	{ "get_world_transform", (PyCFunction)py_ue_get_world_transform, METH_VARARGS, "" },
 	{ "get_relative_location", (PyCFunction)py_ue_get_relative_location, METH_VARARGS, "" },
 	{ "get_relative_rotation", (PyCFunction)py_ue_get_relative_rotation, METH_VARARGS, "" },
 	{ "get_relative_scale", (PyCFunction)py_ue_get_relative_scale, METH_VARARGS, "" },
+	{ "get_relative_transform", (PyCFunction)py_ue_get_relative_transform, METH_VARARGS, "" },
 
 	{ "set_world_location", (PyCFunction)py_ue_set_world_location, METH_VARARGS, "" },
 	{ "set_world_rotation", (PyCFunction)py_ue_set_world_rotation, METH_VARARGS, "" },
 	{ "set_world_scale", (PyCFunction)py_ue_set_world_scale, METH_VARARGS, "" },
+	{ "set_world_transform", (PyCFunction)py_ue_set_world_transform, METH_VARARGS, "" },
 	{ "set_relative_location", (PyCFunction)py_ue_set_relative_location, METH_VARARGS, "" },
 	{ "set_relative_rotation", (PyCFunction)py_ue_set_relative_rotation, METH_VARARGS, "" },
 	{ "set_relative_scale", (PyCFunction)py_ue_set_relative_scale, METH_VARARGS, "" },
+	{ "set_relative_transform", (PyCFunction)py_ue_set_relative_transform, METH_VARARGS, "" },
 
 	{ "get_forward_vector", (PyCFunction)py_ue_get_forward_vector, METH_VARARGS, "" },
 	{ "get_up_vector", (PyCFunction)py_ue_get_up_vector, METH_VARARGS, "" },
@@ -646,6 +652,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeleton_bones_get_num", (PyCFunction)py_ue_skeleton_bones_get_num, METH_VARARGS, "" },
 	{ "skeleton_get_bone_name", (PyCFunction)py_ue_skeleton_get_bone_name, METH_VARARGS, "" },
 	{ "skeleton_find_bone_index", (PyCFunction)py_ue_skeleton_find_bone_index, METH_VARARGS, "" },
+	{ "skeleton_get_ref_bone_pose", (PyCFunction)py_ue_skeleton_get_ref_bone_pose, METH_VARARGS, "" },
+
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },

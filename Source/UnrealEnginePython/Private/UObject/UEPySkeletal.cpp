@@ -119,3 +119,20 @@ PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(index);
 }
 
+PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int index;
+	if (!PyArg_ParseTuple(args, "i:skeleton_get_ref_bone_pose", &index))
+		return nullptr;
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	if (!skeleton->GetReferenceSkeleton().IsValidIndex(index))
+		return PyErr_Format(PyExc_Exception, "invalid bone index");
+
+	return py_ue_new_ftransform(skeleton->GetReferenceSkeleton().GetRefBonePose()[index]);
+}

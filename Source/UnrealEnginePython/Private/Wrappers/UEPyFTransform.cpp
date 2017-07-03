@@ -144,3 +144,28 @@ ue_PyFTransform *py_ue_is_ftransform(PyObject *obj) {
 		return nullptr;
 	return (ue_PyFTransform *)obj;
 }
+
+bool py_ue_transform_arg(PyObject *args, FTransform &t) {
+
+	if (PyTuple_Size(args) == 1) {
+		PyObject *arg = PyTuple_GetItem(args, 0);
+		ue_PyFTransform *py_t = py_ue_is_ftransform(arg);
+		if (!py_t) {
+			PyErr_Format(PyExc_TypeError, "argument is not a FTransform");
+			return false;
+		}
+		t = py_t->transform;
+		return true;
+	}
+
+	float x, y, z;
+	float roll, pitch, yaw;
+	float sx, sy, sz;
+	if (!PyArg_ParseTuple(args, "fffffffff", &x, &y, &z, &roll, &pitch, &yaw, &sx, &sy, &sz))
+		return false;
+
+	t.SetLocation(FVector(x, y, z));
+	t.SetRotation(FRotator(pitch, yaw, roll).Quaternion());
+	t.SetScale3D(FVector(sx, sy, sz));
+	return true;
+}
