@@ -36,6 +36,7 @@
 #include "Wrappers/UEPyFColor.h"
 #include "Wrappers/UEPyFLinearColor.h"
 #include "Wrappers/UEPyFSocket.h"
+#include "Wrappers/UEPyFQuat.h"
 
 #include "Wrappers/UEPyFRawAnimSequenceTrack.h"
 

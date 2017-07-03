@@ -20,6 +20,16 @@ static PyObject *py_ue_fraw_anim_sequence_track_get_scale_keys(ue_PyFRawAnimSequ
 	return py_list;
 }
 
+static PyObject *py_ue_fraw_anim_sequence_track_get_rot_keys(ue_PyFRawAnimSequenceTrack *self, void *closure) {
+	PyObject *py_list = PyList_New(0);
+	for (FQuat quat : self->raw_anim_sequence_track.RotKeys) {
+		PyObject *py_quat = py_ue_new_fquat(quat);
+		PyList_Append(py_list, py_quat);
+		Py_DECREF(py_quat);
+	}
+	return py_list;
+}
+
 static int py_ue_fraw_anim_sequence_track_set_pos_keys(ue_PyFRawAnimSequenceTrack *self, PyObject *value, void *closure) {
 	TArray<FVector> pos;
 	if (value) {
@@ -70,10 +80,35 @@ static int py_ue_fraw_anim_sequence_track_set_scale_keys(ue_PyFRawAnimSequenceTr
 	return -1;
 }
 
+static int py_ue_fraw_anim_sequence_track_set_rot_keys(ue_PyFRawAnimSequenceTrack *self, PyObject *value, void *closure) {
+	TArray<FQuat> rot;
+	if (value) {
+		PyObject *py_iter = PyObject_GetIter(value);
+		if (py_iter) {
+			bool failed = false;
+			while (PyObject *py_item = PyIter_Next(py_iter)) {
+				ue_PyFQuat *py_quat = py_ue_is_fquat(py_item);
+				if (!py_quat) {
+					failed = true;
+					break;
+				}
+				rot.Add(py_quat->quat);
+			}
+			Py_DECREF(py_iter);
+			if (!failed) {
+				self->raw_anim_sequence_track.RotKeys = rot;
+				return 0;
+			}
+		}
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not an iterable of FQuat's");
+	return -1;
+}
+
 
 static PyGetSetDef ue_PyFRawAnimSequenceTrack_getseters[] = {
 	{(char *) "pos_keys", (getter)py_ue_fraw_anim_sequence_track_get_pos_keys, (setter)py_ue_fraw_anim_sequence_track_set_pos_keys, (char *)"", NULL },
-	//{(char *) "rot_keys", (getter)py_ue_fraw_anim_sequence_track_get_rot_keys, (setter)py_ue_fraw_anim_sequence_track_set_rot_keys, (char *)"", NULL },
+	{(char *) "rot_keys", (getter)py_ue_fraw_anim_sequence_track_get_rot_keys, (setter)py_ue_fraw_anim_sequence_track_set_rot_keys, (char *)"", NULL },
 	{(char *) "scale_keys", (getter)py_ue_fraw_anim_sequence_track_get_scale_keys, (setter)py_ue_fraw_anim_sequence_track_set_scale_keys, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };

@@ -31,6 +31,7 @@
 #include "UObject/UEPyPawn.h"
 #include "UObject/UEPyController.h"
 #include "UObject/UEPyHUD.h"
+#include "UObject/UEPyAnimSequence.h"
 
 
 
@@ -449,10 +450,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	// AssetUserData
 	{ "asset_import_data", (PyCFunction)py_ue_asset_import_data, METH_VARARGS, "" },
+#endif
 
 	// AnimSequence
 	{ "anim_sequence_get_skeleton", (PyCFunction)py_ue_anim_sequence_get_skeleton, METH_VARARGS, "" },
-#endif
+	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
+	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
+
 
 	// StaticMesh
 #if WITH_EDITOR
@@ -1277,6 +1281,7 @@ void unreal_engine_init_py_module() {
 	ue_python_init_fhitresult(new_unreal_engine_module);
 	ue_python_init_fcolor(new_unreal_engine_module);
 	ue_python_init_flinearcolor(new_unreal_engine_module);
+	ue_python_init_fquat(new_unreal_engine_module);
 
 	ue_python_init_frandomstream(new_unreal_engine_module);
 
