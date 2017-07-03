@@ -115,7 +115,7 @@ static PyGetSetDef ue_PyFRawAnimSequenceTrack_getseters[] = {
 
 static PyObject *ue_PyFRawAnimSequenceTrack_str(ue_PyFRawAnimSequenceTrack *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.FRawAnimSequenceTrack {'pos': %d, 'rot': %d, 'scale': %d>",
+	return PyUnicode_FromFormat("<unreal_engine.FRawAnimSequenceTrack {'pos': %d, 'rot': %d, 'scale': %d}>",
 		self->raw_anim_sequence_track.PosKeys.Num(), self->raw_anim_sequence_track.RotKeys.Num(), self->raw_anim_sequence_track.ScaleKeys.Num());
 }
 
@@ -170,6 +170,6 @@ void ue_python_init_fraw_anim_sequence_track(PyObject *ue_module) {
 
 PyObject *py_ue_new_fraw_anim_sequence_track(FRawAnimSequenceTrack raw_anim_sequence_track) {
 	ue_PyFRawAnimSequenceTrack *ret = (ue_PyFRawAnimSequenceTrack *)PyObject_New(ue_PyFRawAnimSequenceTrack, &ue_PyFRawAnimSequenceTrackType);
-	ret->raw_anim_sequence_track = raw_anim_sequence_track;
+	new(&ret->raw_anim_sequence_track) FRawAnimSequenceTrack(raw_anim_sequence_track);
 	return (PyObject *)ret;
 }
