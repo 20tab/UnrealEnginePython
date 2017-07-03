@@ -53,3 +53,69 @@ PyObject *py_ue_set_skeletal_mesh(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_skeleton_get_parent_index(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int index;
+	if (!PyArg_ParseTuple(args, "i:skeleton_get_parent_index", &index))
+		return nullptr;
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	if (!skeleton->GetReferenceSkeleton().IsValidIndex(index))
+		return PyErr_Format(PyExc_Exception, "invalid bone index");
+
+	return PyLong_FromLong(skeleton->GetReferenceSkeleton().GetParentIndex(index));
+}
+
+PyObject *py_ue_skeleton_bones_get_num(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	return PyLong_FromLong(skeleton->GetReferenceSkeleton().GetNum());
+}
+
+PyObject *py_ue_skeleton_get_bone_name(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int index;
+	if (!PyArg_ParseTuple(args, "i:skeleton_get_bone_name", &index))
+		return nullptr;
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	if (!skeleton->GetReferenceSkeleton().IsValidIndex(index))
+		return PyErr_Format(PyExc_Exception, "invalid bone index");
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*skeleton->GetReferenceSkeleton().GetBoneName(index).ToString()));
+}
+
+PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:skeleton_find_bone_index", &name))
+		return nullptr;
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	int32 index = skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name)));
+	if (!skeleton->GetReferenceSkeleton().IsValidIndex(index))
+		return PyErr_Format(PyExc_Exception, "unable to find bone");
+
+	return PyLong_FromLong(index);
+}
+

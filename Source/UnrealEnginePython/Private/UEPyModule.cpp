@@ -642,6 +642,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_anim_instance", (PyCFunction)py_ue_get_anim_instance, METH_VARARGS, "" },
 	{ "set_skeletal_mesh", (PyCFunction)py_ue_set_skeletal_mesh, METH_VARARGS, "" },
 
+	{ "skeleton_get_parent_index", (PyCFunction)py_ue_skeleton_get_parent_index, METH_VARARGS, "" },
+	{ "skeleton_bones_get_num", (PyCFunction)py_ue_skeleton_bones_get_num, METH_VARARGS, "" },
+	{ "skeleton_get_bone_name", (PyCFunction)py_ue_skeleton_get_bone_name, METH_VARARGS, "" },
+	{ "skeleton_find_bone_index", (PyCFunction)py_ue_skeleton_find_bone_index, METH_VARARGS, "" },
+
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
 
