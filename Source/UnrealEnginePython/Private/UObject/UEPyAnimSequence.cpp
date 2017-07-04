@@ -52,5 +52,8 @@ PyObject *py_ue_anim_sequence_get_raw_animation_track(ue_PyUObject * self, PyObj
 	if (!anim_seq)
 		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimSequence.");
 
+	if (index < 0 || index >= anim_seq->GetAnimationTrackNames().Num())
+		return PyErr_Format(PyExc_Exception, "invalid track index %d", index);
+
 	return py_ue_new_fraw_anim_sequence_track(anim_seq->GetRawAnimationTrack(index));
 }

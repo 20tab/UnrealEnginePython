@@ -236,7 +236,7 @@ static PyObject *ue_py_fquat_seq_item(ue_PyFQuat *self, Py_ssize_t i) {
 PySequenceMethods ue_PyFQuat_sequence_methods;
 
 static int ue_py_fquat_init(ue_PyFQuat *self, PyObject *args, PyObject *kwargs) {
-	float x = 0, y = 0, z = 0, w = 0;
+	float x = 0, y = 0, z = 0, w = 1;
 	if (!PyArg_ParseTuple(args, "|ffff", &x, &y, &z, &w))
 		return -1;
 

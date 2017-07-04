@@ -54,6 +54,24 @@ static PyGetSetDef ue_PyFTransform_getseters[] = {
 	{ NULL }  /* Sentinel */
 };
 
+static PyObject *ue_PyFTransform_str(ue_PyFTransform *self)
+{
+	FVector vec = self->transform.GetTranslation();
+	FRotator rot = self->transform.Rotator();
+	FVector scale = self->transform.GetScale3D();
+
+	return PyUnicode_FromFormat("<unreal_engine.FTransform {'translation': (%S, %S, %S), 'rotation': (%S, %S, %S), 'scale': (%S, %S, %S)}>",
+		PyFloat_FromDouble(vec.X),
+		PyFloat_FromDouble(vec.Y),
+		PyFloat_FromDouble(vec.Z),
+		PyFloat_FromDouble(rot.Roll),
+		PyFloat_FromDouble(rot.Pitch),
+		PyFloat_FromDouble(rot.Yaw),
+		PyFloat_FromDouble(scale.X),
+		PyFloat_FromDouble(scale.Y),
+		PyFloat_FromDouble(scale.Z)
+		);
+}
 
 
 static PyTypeObject ue_PyFTransformType = {
@@ -72,7 +90,7 @@ static PyTypeObject ue_PyFTransformType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	0,                         /* tp_str */
+	(reprfunc)ue_PyFTransform_str,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -119,6 +137,9 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 			return -1;
 		}
 	}
+	else {
+		self->transform.SetRotation(FQuat::Identity);
+	}
 
 	// ensure scaling is set to 1,1,1
 	FVector scale(1, 1, 1);
@@ -136,10 +157,30 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	return 0;
 }
 
+static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value) {
+	FTransform t = self->transform;
+	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+		t *= py_quat->quat;
+	}
+	else if (ue_PyFTransform *py_transform = py_ue_is_ftransform(value)) {
+		t *= py_transform->transform;
+	}
+	else {
+		return PyErr_Format(PyExc_TypeError, "FTransform can be multiplied only for an FQuat or an FTransform");
+	}
+	return py_ue_new_ftransform(t);
+}
+
+PyNumberMethods ue_PyFTransform_number_methods;
+
 void ue_python_init_ftransform(PyObject *ue_module) {
 	ue_PyFTransformType.tp_new = PyType_GenericNew;
 
 	ue_PyFTransformType.tp_init = (initproc)ue_py_ftransform_init;
+
+	memset(&ue_PyFTransform_number_methods, 0, sizeof(PyNumberMethods));
+	ue_PyFTransformType.tp_as_number = &ue_PyFTransform_number_methods;
+	ue_PyFTransform_number_methods.nb_multiply = (binaryfunc)ue_py_ftransform_mul;
 
 	if (PyType_Ready(&ue_PyFTransformType) < 0)
 		return;
