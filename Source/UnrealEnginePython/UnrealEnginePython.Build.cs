@@ -149,7 +149,8 @@ public class UnrealEnginePython : ModuleRules
                 "RawMesh",
                 "DesktopWidgets",
                 "EditorWidgets",
-                "FBX"
+                "FBX",
+                "Persona"
             });
         }
 
