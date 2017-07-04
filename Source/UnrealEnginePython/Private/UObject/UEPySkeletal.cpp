@@ -8,7 +8,7 @@ PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args) {
 
 	if (!self->ue_object->IsA<USkeletalMeshComponent>())
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMeshComponent");
-	
+
 	USkeletalMeshComponent *skeletal = (USkeletalMeshComponent *)self->ue_object;
 
 	UAnimInstance *anim = skeletal->GetAnimInstance();
@@ -135,4 +135,36 @@ PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args) 
 		return PyErr_Format(PyExc_Exception, "invalid bone index");
 
 	return py_ue_new_ftransform(skeleton->GetReferenceSkeleton().GetRefBonePose()[index]);
+}
+
+PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	int parent_index;
+	PyObject *py_transform;
+	if (!PyArg_ParseTuple(args, "siO:skeleton_add_bone", &name, &parent_index, &py_transform))
+		return nullptr;
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	skeleton->PreEditChange(nullptr);
+
+	{
+		const FReferenceSkeleton &ref = skeleton->GetReferenceSkeleton();
+		// horrible hack to modify the skeleton in place
+		FReferenceSkeletonModifier modifier((FReferenceSkeleton &)ref, skeleton);
+
+		TCHAR *bone_name = UTF8_TO_TCHAR(name);
+
+		modifier.Add(FMeshBoneInfo(FName(bone_name), FString(bone_name), parent_index), FTransform());
+	}
+
+	skeleton->PostEditChange();
+	skeleton->MarkPackageDirty();
+
+	Py_RETURN_NONE;
 }

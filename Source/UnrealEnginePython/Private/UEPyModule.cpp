@@ -654,6 +654,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeleton_find_bone_index", (PyCFunction)py_ue_skeleton_find_bone_index, METH_VARARGS, "" },
 	{ "skeleton_get_ref_bone_pose", (PyCFunction)py_ue_skeleton_get_ref_bone_pose, METH_VARARGS, "" },
 
+	{ "skeleton_add_bone", (PyCFunction)py_ue_skeleton_add_bone, METH_VARARGS, "" },
+
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },

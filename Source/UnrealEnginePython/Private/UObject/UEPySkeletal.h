@@ -12,3 +12,4 @@ PyObject *py_ue_skeleton_bones_get_num(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_get_bone_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeleton_add_bone(ue_PyUObject *, PyObject *);
