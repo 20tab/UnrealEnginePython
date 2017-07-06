@@ -15,7 +15,45 @@ static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args) {
 	if (!brush)
 		return PyErr_Format(PyExc_Exception, "argument is not a FSlateBrush");
 
-	sw_image->SetImage(brush);
+	self->brush = *brush;
+
+	sw_image->SetImage(&self->brush);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_simage_set_texture(ue_PySImage *self, PyObject * args) {
+	PyObject *py_texture;
+	PyObject *py_linear_color = nullptr;
+	if (!PyArg_ParseTuple(args, "O|O:set_texture", &py_texture, &py_linear_color)) {
+		return NULL;
+	}
+
+	UTexture2D *texture = ue_py_check_type<UTexture2D>(py_texture);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "argument is not a Texture");
+
+	FLinearColor tint(1, 1, 1, 1);
+
+	if (py_linear_color) {
+		ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(py_linear_color);
+		if (!py_color) {
+			return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
+		}
+		tint = py_color->color;
+	}
+
+#if ENGINE_MINOR_VERSION > 15
+	self->brush = FSlateImageBrush(texture, FVector2D(texture->GetSurfaceWidth(), texture->GetSurfaceHeight()), tint);
+#else
+	self->brush = FSlateBrush();
+	self->brush.ImageSize = FVector2D(texture->GetSurfaceWidth(), texture->GetSurfaceHeight());
+	self->brush.SetResourceObject(texture);
+	self->brush.TintColor = tint;
+#endif
+
+	sw_image->SetImage(&self->brush);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -24,6 +62,7 @@ static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args) {
 static PyMethodDef ue_PySImage_methods[] = {
 	{ "set_brush", (PyCFunction)py_ue_simage_set_brush, METH_VARARGS, "" },
 	{ "set_image", (PyCFunction)py_ue_simage_set_brush, METH_VARARGS, "" },
+	{ "set_texture", (PyCFunction)py_ue_simage_set_texture, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -59,7 +98,13 @@ PyTypeObject ue_PySImageType = {
 };
 
 static int ue_py_simage_init(ue_PySImage *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew_simple(SImage, s_leaf_widget.s_widget);
+	ue_py_slate_setup_farguments(SImage);
+
+	ue_py_slate_farguments_struct("color_and_opacity", ColorAndOpacity, FSlateColor);
+	ue_py_slate_farguments_optional_struct_ptr("image", Image, FSlateBrush);
+	ue_py_slate_farguments_event("on_mouse_button_down", OnMouseButtonDown, FPointerEventHandler, OnMouseEvent);
+
+	ue_py_snew(SImage, s_leaf_widget.s_widget);
 	return 0;
 }
 

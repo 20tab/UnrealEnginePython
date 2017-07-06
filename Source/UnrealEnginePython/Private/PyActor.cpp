@@ -12,13 +12,10 @@ APyActor::APyActor()
 
 }
 
-
-// Called when the game starts
-void APyActor::BeginPlay()
+void APyActor::PostInitializeComponents()
 {
-	Super::BeginPlay();
+	Super::PostInitializeComponents();
 
-	// ...
 
 	if (PythonModule.IsEmpty())
 		return;
@@ -67,7 +64,6 @@ void APyActor::BeginPlay()
 
 	PyObject_SetAttrString(py_actor_instance, (char*)"uobject", (PyObject *)py_uobject);
 
-
 	if (!PyObject_HasAttrString(py_actor_instance, (char *)"tick") || PythonTickForceDisabled) {
 		SetActorTickEnabled(false);
 	}
@@ -75,6 +71,26 @@ void APyActor::BeginPlay()
 	if (!PythonDisableAutoBinding)
 		ue_autobind_events_for_pyclass(py_uobject, py_actor_instance);
 
+	ue_bind_events_for_py_class_by_attribute(this, py_actor_instance);
+
+	if (!PyObject_HasAttrString(py_actor_instance, (char *)"post_initialize_components"))
+		return;
+
+	PyObject *pic_ret = PyObject_CallMethod(py_actor_instance, (char *)"post_initialize_components", NULL);
+	if (!pic_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(pic_ret);
+}
+
+// Called when the game starts
+void APyActor::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!py_actor_instance)
+		return;
 
 	if (!PyObject_HasAttrString(py_actor_instance, (char *)"begin_play"))
 		return;

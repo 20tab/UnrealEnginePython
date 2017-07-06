@@ -51,6 +51,30 @@ PyObject *py_ue_sound_get_data(ue_PyUObject *self, PyObject * args) {
 	return py_data;
 }
 
+PyObject *py_ue_sound_set_data(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	Py_buffer sound_buffer;
+
+	if (!PyArg_ParseTuple(args, "y*:sound_set_data", &sound_buffer)) {
+		return NULL;
+	}
+
+	USoundWave *sound = ue_py_check_type<USoundWave>(self);
+	if (!sound)
+		return PyErr_Format(PyExc_Exception, "UObject is not a USoundWave.");
+
+	sound->FreeResources();
+	sound->InvalidateCompressedData();
+
+	sound->RawData.Lock(LOCK_READ_WRITE);
+	void *data = sound->RawData.Realloc(sound_buffer.len);
+	FMemory::Memcpy(data, sound_buffer.buf, sound_buffer.len);
+	sound->RawData.Unlock();
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

@@ -4,6 +4,9 @@
 #if WITH_EDITOR
 #include "LevelEditor.h"
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorToolkit.h"
+#include "Editor/Persona/Public/PersonaModule.h"
+#include "Editor/AnimationEditor/Public/IAnimationEditorModule.h"
+#include "Editor/StaticMeshEditor/Public/StaticMeshEditorModule.h"
 #endif
 
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
@@ -581,8 +584,9 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_srotator_input_box(module);
 	ue_python_init_spython_combo_box(module);
 	ue_python_init_sscroll_box(module);
-    ue_python_init_scolor_block(module);
+	ue_python_init_scolor_block(module);
 	ue_python_init_sbox(module);
+	ue_python_init_sprogress_bar(module);
 
 
 
@@ -701,12 +705,37 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	PyObject *py_callable;
 
 	char *hook = (char *)"WindowLayout";
+	char *module = (char*)"LevelEditor";
 
-	if (!PyArg_ParseTuple(args, "sO|s:add_menu_extension", &command_name, &py_callable, &hook)) {
+	if (!PyArg_ParseTuple(args, "sO|ss:add_menu_extension", &command_name, &py_callable, &hook, &module)) {
 		return NULL;
 	}
 
-	FLevelEditorModule &ExtensibleModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	if (!FModuleManager::Get().ModuleExists(UTF8_TO_TCHAR(module)))
+		return PyErr_Format(PyExc_Exception, "module %s does not exist", module);
+
+	// unfortunately we need to manually check for module names :(
+	IHasMenuExtensibility *menu_extension_interface = nullptr;
+
+	if (!strcmp(module, (char *)"LevelEditor")) {
+		FLevelEditorModule &Module = FModuleManager::LoadModuleChecked<FLevelEditorModule>(module);
+		menu_extension_interface = (IHasMenuExtensibility *)&Module;
+	}
+	else if (!strcmp(module, (char *)"Persona")) {
+		FPersonaModule &Module = FModuleManager::LoadModuleChecked<FPersonaModule>(module);
+		menu_extension_interface = (IHasMenuExtensibility *)&Module;
+	}
+	else if (!strcmp(module, (char *)"AnimationEditor")) {
+		IAnimationEditorModule &Module = FModuleManager::LoadModuleChecked<IAnimationEditorModule>(module);
+		menu_extension_interface = (IHasMenuExtensibility *)&Module;
+	}
+	else if (!strcmp(module, (char *)"StaticMeshEditor")) {
+		IStaticMeshEditorModule &Module = FModuleManager::LoadModuleChecked<IStaticMeshEditorModule>(module);
+		menu_extension_interface = (IHasMenuExtensibility *)&Module;
+	}
+
+	if (!menu_extension_interface)
+		return PyErr_Format(PyExc_Exception, "module %s is not supported", module);
 
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
@@ -720,10 +749,9 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 	TSharedRef<FExtender> extender = MakeShareable(new FExtender());
 	extender->AddMenuExtension(hook, EExtensionHook::After, commands->Get().GetCommands(), FMenuExtensionDelegate::CreateRaw(&commands->Get(), &FPythonSlateCommands::MenuBuilder));
 
-	ExtensibleModule.GetMenuExtensibilityManager()->AddExtender(extender);
+	menu_extension_interface->GetMenuExtensibilityManager()->AddExtender(extender);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 
@@ -832,6 +860,19 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args) {
+
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:invoke_tab", &name)) {
+		return NULL;
+	}
+
+	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 
 PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs) {
 
@@ -865,5 +906,30 @@ PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyO
 
 PyObject *py_unreal_engine_destroy_color_picker(PyObject *self, PyObject * args) {
 	DestroyColorPicker();
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_play_sound(PyObject *self, PyObject * args) {
+	PyObject *py_sound;
+	int user_index;
+	if (!PyArg_ParseTuple(args, "O|i:play_sound", &py_sound, &user_index)) {
+		return nullptr;
+	}
+
+	FSlateSound *sound = ue_py_check_struct<FSlateSound>(py_sound);
+	if (!sound) {
+		USoundBase *u_sound = ue_py_check_type<USoundBase>(py_sound);
+		if (u_sound) {
+			FSlateSound slate_sound = FSlateSound();
+			slate_sound.SetResourceObject(u_sound);
+			sound = &slate_sound;
+		}
+	}
+
+	if (!sound) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FSlateColor or a USoundBase");
+	}
+
+	FSlateApplication::Get().PlaySound(*sound, user_index);
 	Py_RETURN_NONE;
 }

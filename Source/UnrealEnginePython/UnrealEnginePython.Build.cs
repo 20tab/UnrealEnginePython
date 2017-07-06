@@ -115,7 +115,8 @@ public class UnrealEnginePython : ModuleRules
                 "HTTP",
                 "UMG",
                 "AppFramework",
-                "RHI"
+                "RHI",
+                "Voice"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
@@ -150,7 +151,8 @@ public class UnrealEnginePython : ModuleRules
                 "RawMesh",
                 "DesktopWidgets",
                 "EditorWidgets",
-                "FBX"
+                "FBX",
+                "Persona"
             });
         }
 

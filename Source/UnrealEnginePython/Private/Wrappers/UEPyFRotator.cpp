@@ -108,7 +108,11 @@ static PyTypeObject ue_PyFRotatorType = {
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
+#if PY_MAJOR_VERSION < 3
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES,        /* tp_flags */
+#else
 	Py_TPFLAGS_DEFAULT,        /* tp_flags */
+#endif
 	"Unreal Engine FRotator",           /* tp_doc */
 	0,                         /* tp_traverse */
 	0,                         /* tp_clear */

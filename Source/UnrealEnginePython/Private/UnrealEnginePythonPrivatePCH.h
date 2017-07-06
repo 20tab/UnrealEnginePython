@@ -36,6 +36,9 @@
 #include "Wrappers/UEPyFColor.h"
 #include "Wrappers/UEPyFLinearColor.h"
 #include "Wrappers/UEPyFSocket.h"
+#include "Wrappers/UEPyFQuat.h"
+
+#include "Wrappers/UEPyFRawAnimSequenceTrack.h"
 
 #include "Wrappers/UEPyFRandomStream.h"
 
@@ -53,7 +56,7 @@
 #include "Wrappers/UEPyFARFilter.h"
 #include "Wrappers/UEPyFRawMesh.h"
 #include "Wrappers/UEPyFStringAssetReference.h"
-#include "UEPyAnimSequence.h"
+#include "UObject/UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
 #endif
@@ -61,6 +64,7 @@
 #include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
 #include "ConsoleManager/UEPyIConsoleManager.h"
+#include "Voice/UEPyIVoiceCapture.h"
 
 
 #define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\

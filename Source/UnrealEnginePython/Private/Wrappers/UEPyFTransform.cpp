@@ -54,6 +54,24 @@ static PyGetSetDef ue_PyFTransform_getseters[] = {
 	{ NULL }  /* Sentinel */
 };
 
+static PyObject *ue_PyFTransform_str(ue_PyFTransform *self)
+{
+	FVector vec = self->transform.GetTranslation();
+	FRotator rot = self->transform.Rotator();
+	FVector scale = self->transform.GetScale3D();
+
+	return PyUnicode_FromFormat("<unreal_engine.FTransform {'translation': (%S, %S, %S), 'rotation': (%S, %S, %S), 'scale': (%S, %S, %S)}>",
+		PyFloat_FromDouble(vec.X),
+		PyFloat_FromDouble(vec.Y),
+		PyFloat_FromDouble(vec.Z),
+		PyFloat_FromDouble(rot.Roll),
+		PyFloat_FromDouble(rot.Pitch),
+		PyFloat_FromDouble(rot.Yaw),
+		PyFloat_FromDouble(scale.X),
+		PyFloat_FromDouble(scale.Y),
+		PyFloat_FromDouble(scale.Z)
+		);
+}
 
 
 static PyTypeObject ue_PyFTransformType = {
@@ -72,7 +90,7 @@ static PyTypeObject ue_PyFTransformType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	0,                         /* tp_str */
+	(reprfunc)ue_PyFTransform_str,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -101,12 +119,26 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_translation)) {
 			self->transform.SetTranslation(py_vec->vec);
 		}
+		else {
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+			return -1;
+		}
 	}
 
 	if (py_rotation) {
 		if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_rotation)) {
 			self->transform.SetRotation(py_rot->rot.Quaternion());
 		}
+		else if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_rotation)) {
+			self->transform.SetRotation(py_quat->quat);
+		}
+		else {
+			PyErr_SetString(PyExc_Exception, "argument is not a FRotator or a FQuat");
+			return -1;
+		}
+	}
+	else {
+		self->transform.SetRotation(FQuat::Identity);
 	}
 
 	// ensure scaling is set to 1,1,1
@@ -116,15 +148,39 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_scale)) {
 			scale = py_vec->vec;
 		}
+		else {
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+			return -1;
+		}
 	}
 	self->transform.SetScale3D(scale);
 	return 0;
 }
 
+static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value) {
+	FTransform t = self->transform;
+	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+		t *= py_quat->quat;
+	}
+	else if (ue_PyFTransform *py_transform = py_ue_is_ftransform(value)) {
+		t *= py_transform->transform;
+	}
+	else {
+		return PyErr_Format(PyExc_TypeError, "FTransform can be multiplied only for an FQuat or an FTransform");
+	}
+	return py_ue_new_ftransform(t);
+}
+
+PyNumberMethods ue_PyFTransform_number_methods;
+
 void ue_python_init_ftransform(PyObject *ue_module) {
 	ue_PyFTransformType.tp_new = PyType_GenericNew;
 
 	ue_PyFTransformType.tp_init = (initproc)ue_py_ftransform_init;
+
+	memset(&ue_PyFTransform_number_methods, 0, sizeof(PyNumberMethods));
+	ue_PyFTransformType.tp_as_number = &ue_PyFTransform_number_methods;
+	ue_PyFTransform_number_methods.nb_multiply = (binaryfunc)ue_py_ftransform_mul;
 
 	if (PyType_Ready(&ue_PyFTransformType) < 0)
 		return;
@@ -143,4 +199,29 @@ ue_PyFTransform *py_ue_is_ftransform(PyObject *obj) {
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFTransformType))
 		return nullptr;
 	return (ue_PyFTransform *)obj;
+}
+
+bool py_ue_transform_arg(PyObject *args, FTransform &t) {
+
+	if (PyTuple_Size(args) == 1) {
+		PyObject *arg = PyTuple_GetItem(args, 0);
+		ue_PyFTransform *py_t = py_ue_is_ftransform(arg);
+		if (!py_t) {
+			PyErr_Format(PyExc_TypeError, "argument is not a FTransform");
+			return false;
+		}
+		t = py_t->transform;
+		return true;
+	}
+
+	float x, y, z;
+	float roll, pitch, yaw;
+	float sx, sy, sz;
+	if (!PyArg_ParseTuple(args, "fffffffff", &x, &y, &z, &roll, &pitch, &yaw, &sx, &sy, &sz))
+		return false;
+
+	t.SetLocation(FVector(x, y, z));
+	t.SetRotation(FRotator(pitch, yaw, roll).Quaternion());
+	t.SetScale3D(FVector(sx, sy, sz));
+	return true;
 }

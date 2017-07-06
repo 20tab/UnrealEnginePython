@@ -111,7 +111,16 @@ static void setup_stdout_stderr() {
 		"    def isatty(self):\n"
 		"        return False\n"
 		"sys.stdout = UnrealEngineOutput(unreal_engine.log)\n"
-		"sys.stderr = UnrealEngineOutput(unreal_engine.log_error)\n";
+		"sys.stderr = UnrealEngineOutput(unreal_engine.log_error)\n"
+		"\n"
+		"class event:\n"
+		"    def __init__(self, event_signature):\n"
+		"        self.event_signature = event_signature\n"
+		"    def __call__(self, f):\n"
+		"        f.ue_event = self.event_signature\n"
+		"        return f\n"
+		"\n"
+		"unreal_engine.event = event";
 	PyRun_SimpleString(code);
 }
 
