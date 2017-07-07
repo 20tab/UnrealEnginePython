@@ -147,26 +147,31 @@ FAutoConsoleCommand ExecPythonScriptCommand(
 void FUnrealEnginePythonModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	FString PythonHome;
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni)) {
+#if PY_MAJOR_VERSION >= 3
+		wchar_t *home = (wchar_t *)*PythonHome;
+#else
+		char *home = TCHAR_TO_UTF8(*PythonHome);
+#endif
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
+		Py_SetPythonHome(home);
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), PythonHome, GEngineIni)) {
+		PythonHome = FPaths::Combine(*FPaths::GameContentDir(), *PythonHome);
+		FPaths::NormalizeFilename(PythonHome);
+		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
+#if PY_MAJOR_VERSION >= 3
+		wchar_t *home = (wchar_t *)*PythonHome;
+#else
+		char *home = TCHAR_TO_UTF8(*PythonHome);
+#endif
+
+		Py_SetPythonHome(home);
+	}
+
 	FString IniValue;
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), IniValue, GEngineIni)) {
-#if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*IniValue;
-#else
-		char *home = TCHAR_TO_UTF8(*IniValue);
-#endif
-		Py_SetPythonHome(home);
-	}
-
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
-		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);	
-#if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*IniValue;
-#else
-		char *home = TCHAR_TO_UTF8(*IniValue);
-#endif
-		Py_SetPythonHome(home);
-	}
-
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni)) {
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *program_name = (wchar_t *)*IniValue;
@@ -178,6 +183,8 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeProgramName"), IniValue, GEngineIni)) {
 		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
+		FPaths::NormalizeFilename(IniValue);
+		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *program_name = (wchar_t *)*IniValue;
 #else
@@ -216,6 +223,45 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (ZipPath.IsEmpty()) {
 		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("ue_python.zip"));
+	}
+
+	// To ensure there are no path conflicts, if we have a valid python home at this point,
+	// we override the current environment entirely with the environment we want to use,
+	// removing any paths to other python environments we aren't using.
+	if (PythonHome.Len() > 0)
+	{
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
+
+		const int32 MaxPathVarLen = 32768;
+		FString OrigPathVar = FString::ChrN(MaxPathVarLen, TEXT('\0'));
+		FPlatformMisc::GetEnvironmentVariable(TEXT("PATH"), OrigPathVar.GetCharArray().GetData(), MaxPathVarLen);
+
+		// Get the current path and remove elements with python in them, we don't want any conflicts
+		const TCHAR* PathDelimiter = FPlatformMisc::GetPathVarDelimiter();
+		TArray<FString> PathVars;
+		OrigPathVar.ParseIntoArray(PathVars, PathDelimiter, true);
+		for (int32 PathRemoveIndex = PathVars.Num() - 1; PathRemoveIndex >= 0; --PathRemoveIndex)
+		{
+			if (PathVars[PathRemoveIndex].Contains(TEXT("python"), ESearchCase::IgnoreCase))
+			{
+				UE_LOG(LogPython, Verbose, TEXT("Removing other python Path: '%s'"), *PathVars[PathRemoveIndex]);
+				PathVars.RemoveAt(PathRemoveIndex);
+			}
+		}
+
+		// Setup our own paths for PYTHONPATH
+		TArray<FString> OurPythonPaths = {
+			PythonHome,
+			FPaths::Combine(PythonHome, TEXT("Lib")),
+			FPaths::Combine(PythonHome, TEXT("Lib/site-packages")),
+		};
+		FString PythonPathVars = FString::Join(OurPythonPaths, PathDelimiter);
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONPATH"), *PythonPathVars);
+
+		// Also add our paths to PATH, just so any searching will find our local python
+		PathVars.Append(OurPythonPaths);
+		FString ModifiedPath = FString::Join(PathVars, PathDelimiter);
+		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
 	}
 
 	Py_Initialize();
