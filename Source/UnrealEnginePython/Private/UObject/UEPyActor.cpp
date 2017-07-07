@@ -339,7 +339,7 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 	UClass *u_class = (UClass *)py_obj->ue_object;
 
 	if (!u_class->IsChildOf<UActorComponent>()) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UClass derived from AActor");
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass derived from UActorComponent");
 	}
 
 	USceneComponent *parent_component = nullptr;
