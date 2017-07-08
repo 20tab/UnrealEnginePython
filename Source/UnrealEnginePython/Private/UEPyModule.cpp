@@ -460,10 +460,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// AnimSequence
 	{ "anim_sequence_get_skeleton", (PyCFunction)py_ue_anim_sequence_get_skeleton, METH_VARARGS, "" },
+	{ "anim_sequence_set_skeleton", (PyCFunction)py_ue_anim_sequence_set_skeleton, METH_VARARGS, "" },
+
+#if WITH_EDITOR
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
-	{ "set_skeleton", (PyCFunction)py_ue_anim_sequence_set_skeleton, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
+#endif
 
 
 	// StaticMesh

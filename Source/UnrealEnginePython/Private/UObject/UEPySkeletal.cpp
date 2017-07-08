@@ -151,7 +151,9 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 	if (!skeleton)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
 
+#if WITH_EDITOR
 	skeleton->PreEditChange(nullptr);
+#endif
 
 	{
 		const FReferenceSkeleton &ref = skeleton->GetReferenceSkeleton();
@@ -163,7 +165,9 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 		modifier.Add(FMeshBoneInfo(FName(bone_name), FString(bone_name), parent_index), FTransform());
 	}
 
+#if WITH_EDITOR
 	skeleton->PostEditChange();
+#endif
 	skeleton->MarkPackageDirty();
 
 	Py_RETURN_NONE;

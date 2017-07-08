@@ -23,6 +23,7 @@ PyObject *py_ue_anim_sequence_get_skeleton(ue_PyUObject * self, PyObject * args)
 }
 
 
+#if WITH_EDITOR
 PyObject *py_ue_anim_sequence_get_raw_animation_data(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
@@ -93,12 +94,13 @@ PyObject *py_ue_anim_sequence_add_new_raw_track(ue_PyUObject * self, PyObject * 
 
 	return PyLong_FromLong(index);
 }
+#endif
 
 PyObject *py_ue_anim_sequence_set_skeleton(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
 	PyObject *py_skeleton;
-	if (!PyArg_ParseTuple(args, "O:set_skeleton", &py_skeleton))
+	if (!PyArg_ParseTuple(args, "O:anim_sequence_set_skeleton", &py_skeleton))
 		return nullptr;
 
 	UAnimSequence *anim_seq = ue_py_check_type<UAnimSequence>(self);
