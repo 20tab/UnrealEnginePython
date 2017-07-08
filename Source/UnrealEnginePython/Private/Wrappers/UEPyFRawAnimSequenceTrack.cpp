@@ -168,6 +168,12 @@ void ue_python_init_fraw_anim_sequence_track(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FRawAnimSequenceTrack", (PyObject *)&ue_PyFRawAnimSequenceTrackType);
 }
 
+ue_PyFRawAnimSequenceTrack *py_ue_is_fraw_anim_sequence_track(PyObject *obj) {
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFRawAnimSequenceTrackType))
+		return nullptr;
+	return (ue_PyFRawAnimSequenceTrack *)obj;
+}
+
 PyObject *py_ue_new_fraw_anim_sequence_track(FRawAnimSequenceTrack raw_anim_sequence_track) {
 	ue_PyFRawAnimSequenceTrack *ret = (ue_PyFRawAnimSequenceTrack *)PyObject_New(ue_PyFRawAnimSequenceTrack, &ue_PyFRawAnimSequenceTrackType);
 	new(&ret->raw_anim_sequence_track) FRawAnimSequenceTrack(raw_anim_sequence_track);

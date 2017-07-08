@@ -13,3 +13,5 @@ typedef struct {
 PyObject *py_ue_new_fraw_anim_sequence_track(FRawAnimSequenceTrack);
 
 void ue_python_init_fraw_anim_sequence_track(PyObject *);
+
+ue_PyFRawAnimSequenceTrack *py_ue_is_fraw_anim_sequence_track(PyObject *);

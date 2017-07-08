@@ -336,6 +336,12 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 	}
 
+	UClass *u_class = (UClass *)py_obj->ue_object;
+
+	if (!u_class->IsChildOf<UActorComponent>()) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass derived from UActorComponent");
+	}
+
 	USceneComponent *parent_component = nullptr;
 
 	if (py_parent) {
@@ -345,7 +351,7 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 		}
 	}
 
-	UActorComponent *component = NewObject<UActorComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)));
+	UActorComponent *component = NewObject<UActorComponent>(actor, u_class, FName(UTF8_TO_TCHAR(name)));
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 
