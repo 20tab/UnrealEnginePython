@@ -2,6 +2,8 @@
 
 #include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
 #include "Runtime/LevelSequence/Public/LevelSequence.h"
+#include "PythonComponent.h"
+#include "UEPyObject.h"
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args) {
 
@@ -309,6 +311,30 @@ PyObject *py_ue_setup_attachment(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_unregister_component(ue_PyUObject * self, PyObject * args) {
+	ue_py_check(self);
+
+	UActorComponent *component = ue_py_check_type<UActorComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
+
+	component->UnregisterComponent();
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_destroy_component(ue_PyUObject * self, PyObject * args) {
+	ue_py_check(self);
+
+	UActorComponent *component = ue_py_check_type<UActorComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
+
+	component->DestroyComponent();
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
@@ -369,7 +395,40 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return ret;
+}
 
+PyObject *py_ue_add_python_component(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *name;
+	char *module_name;
+	char *class_name;
+	if (!PyArg_ParseTuple(args, "sss:add_python_component", &name, &module_name, &class_name)) {
+		return NULL;
+	}
+
+	AActor *actor = ue_py_check_type<AActor >(self);
+	if (!actor) {
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	UPythonComponent *component = NewObject<UPythonComponent>(actor, FName(UTF8_TO_TCHAR(name)));
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "unable to create component");
+
+	component->PythonModule = FString(UTF8_TO_TCHAR(module_name));
+	component->PythonClass = FString(UTF8_TO_TCHAR(class_name));
+
+	if (actor->GetWorld()) {
+		component->RegisterComponent();
+	}
+
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return ret;
 }
 
 PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * args) {
@@ -580,7 +639,7 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 }
 
 
-PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwargs) {
 
 	ue_py_check(self);
 
@@ -629,9 +688,39 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args) {
 		rotation = py_rotation->rot;
 	}
 
-	AActor *actor = world->SpawnActor((UClass *)py_obj->ue_object, &location, &rotation);
+	AActor *actor = nullptr;
+	PyObject *ret = nullptr;
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(actor);
+	if (kwargs && PyDict_Size(kwargs) > 0) {
+		FTransform transform;
+		transform.SetTranslation(location);
+		transform.SetRotation(rotation.Quaternion());
+		actor = world->SpawnActorDeferred<AActor>((UClass *)py_obj->ue_object, transform);
+		if (!actor)
+			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
+		ue_PyUObject *py_u_obj = ue_get_python_wrapper(actor);
+		if (!py_u_obj)
+			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+
+		PyObject *py_iter = PyObject_GetIter(kwargs);
+
+		while (PyObject *py_key = PyIter_Next(py_iter)) {
+			PyObject *void_ret = py_ue_set_property(py_u_obj, Py_BuildValue("OO", py_key, PyDict_GetItem(kwargs, py_key)));
+			if (!void_ret) {
+				return PyErr_Format(PyExc_Exception, "unable to set property for new Actor");
+			}
+		}
+		Py_DECREF(py_iter);
+		UGameplayStatics::FinishSpawningActor(actor, transform);
+		ret = (PyObject *)py_u_obj;
+	}
+	else {
+		actor = world->SpawnActor((UClass *)py_obj->ue_object, &location, &rotation);
+		if (!actor)
+			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
+		ret = (PyObject *)ue_get_python_wrapper(actor);
+	}
+
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);

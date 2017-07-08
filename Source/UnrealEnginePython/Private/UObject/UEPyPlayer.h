@@ -11,3 +11,4 @@ PyObject *py_ue_get_player_controller(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_player_hud(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_player_camera_manager(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_player_pawn(ue_PyUObject *, PyObject *);
+PyObject *py_ue_set_player_hud(ue_PyUObject *, PyObject *);

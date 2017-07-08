@@ -159,6 +159,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "compress_image_array", py_unreal_engine_compress_image_array, METH_VARARGS, "" },
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
 	{ "create_transient_texture", py_unreal_engine_create_transient_texture, METH_VARARGS, "" },
+	{ "create_transient_texture_render_target2d", py_unreal_engine_create_transient_texture_render_target2d, METH_VARARGS, "" },
 
 	{ "create_world", py_unreal_engine_create_world, METH_VARARGS, "" },
 
@@ -290,7 +291,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
-	{ "open_color_picker", (PyCFunction)py_unreal_engine_open_color_picker, METH_VARARGS| METH_KEYWORDS, "" },
+	{ "open_color_picker", (PyCFunction)py_unreal_engine_open_color_picker, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "destroy_color_picker", py_unreal_engine_destroy_color_picker, METH_VARARGS, "" },
 	{ "play_sound", py_unreal_engine_play_sound, METH_VARARGS, "" },
 #if WITH_EDITOR
@@ -406,7 +407,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
 
 	{ "get_editor_world_counterpart_actor", (PyCFunction)py_ue_get_editor_world_counterpart_actor, METH_VARARGS, "" },
-	
+
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
 	{ "asset_can_reimport", (PyCFunction)py_ue_asset_can_reimport, METH_VARARGS, "" },
@@ -437,6 +438,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
 	{ "add_to_root", (PyCFunction)py_ue_add_to_root, METH_VARARGS, "" },
+	{ "auto_root", (PyCFunction)py_ue_auto_root, METH_VARARGS, "" },
 	{ "remove_from_root", (PyCFunction)py_ue_remove_from_root, METH_VARARGS, "" },
 
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
@@ -498,6 +500,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "hud_draw_2d_line", (PyCFunction)py_ue_hud_draw_2d_line, METH_VARARGS, "" },
 	{ "hud_draw_line", (PyCFunction)py_ue_hud_draw_line, METH_VARARGS, "" },
 	{ "hud_draw_texture", (PyCFunction)py_ue_hud_draw_texture, METH_VARARGS, "" },
+	{ "hud_draw_rect", (PyCFunction)py_ue_hud_draw_rect, METH_VARARGS, "" },
+	{ "hud_draw_text", (PyCFunction)py_ue_hud_draw_text, METH_VARARGS, "" },
 
 
 	// Movements
@@ -527,6 +531,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "component_is_registered", (PyCFunction)py_ue_component_is_registered, METH_VARARGS, "" },
 	{ "register_component", (PyCFunction)py_ue_register_component, METH_VARARGS, "" },
+	{ "unregister_component", (PyCFunction)py_ue_unregister_component, METH_VARARGS, "" },
+	{ "destroy_component", (PyCFunction)py_ue_destroy_component, METH_VARARGS, "" },
 
 	{ "actor_destroy_component", (PyCFunction)py_ue_actor_destroy_component, METH_VARARGS, "" },
 	{ "destroy_actor_component", (PyCFunction)py_ue_actor_destroy_component, METH_VARARGS, "" },
@@ -554,7 +560,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "actor_has_component_of_type", (PyCFunction)py_ue_actor_has_component_of_type, METH_VARARGS, "" },
 
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
-	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
+	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "actor_has_tag", (PyCFunction)py_ue_actor_has_tag, METH_VARARGS, "" },
 	{ "get_actor_bounds", (PyCFunction)py_ue_get_actor_bounds, METH_VARARGS, "" },
 
@@ -579,6 +586,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
 	{ "get_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
 
+	{ "add_python_component", (PyCFunction)py_ue_add_python_component, METH_VARARGS, "" },
+
 	{ "set_simulate_physics", (PyCFunction)py_ue_set_simulate_physics, METH_VARARGS, "" },
 	{ "add_impulse", (PyCFunction)py_ue_add_impulse, METH_VARARGS, "" },
 	{ "add_angular_impulse", (PyCFunction)py_ue_add_angular_impulse, METH_VARARGS, "" },
@@ -588,7 +597,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_physics_linear_velocity", (PyCFunction)py_ue_get_physics_linear_velocity, METH_VARARGS, "" },
 	{ "set_physics_angular_velocity", (PyCFunction)py_ue_set_physics_angular_velocity, METH_VARARGS, "" },
 	{ "get_physics_angular_velocity", (PyCFunction)py_ue_get_physics_angular_velocity, METH_VARARGS, "" },
-    { "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
+	{ "find_object", (PyCFunction)py_ue_find_object, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_get_world, METH_VARARGS, "" },
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 
@@ -597,8 +606,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
 	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },
 
-    // Widget
-    { "take_widget", (PyCFunction)py_ue_take_widget, METH_VARARGS, "" },
+	// Widget
+	{ "take_widget", (PyCFunction)py_ue_take_widget, METH_VARARGS, "" },
 
 	// WidgetComponent
 	{ "set_slate_widget", (PyCFunction)py_ue_set_slate_widget, METH_VARARGS, "" },
@@ -622,6 +631,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_num_spectators", (PyCFunction)py_ue_get_num_spectators, METH_VARARGS, "" },
 	{ "get_player_controller", (PyCFunction)py_ue_get_player_controller, METH_VARARGS, "" },
 	{ "get_player_hud", (PyCFunction)py_ue_get_player_hud, METH_VARARGS, "" },
+	{ "set_player_hud", (PyCFunction)py_ue_set_player_hud, METH_VARARGS, "" },
 	{ "get_player_camera_manager", (PyCFunction)py_ue_get_player_camera_manager, METH_VARARGS, "" },
 	{ "get_player_pawn", (PyCFunction)py_ue_get_player_pawn, METH_VARARGS, "" },
 
@@ -671,6 +681,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "texture_get_width", (PyCFunction)py_ue_texture_get_width, METH_VARARGS, "" },
 	{ "texture_get_height", (PyCFunction)py_ue_texture_get_height, METH_VARARGS, "" },
 	{ "render_target_get_data", (PyCFunction)py_ue_render_target_get_data, METH_VARARGS, "" },
+	{ "texture_update_resource", (PyCFunction)py_ue_texture_update_resource, METH_VARARGS, "" },
 
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },
@@ -749,11 +760,15 @@ void ue_pydelegates_cleanup(ue_PyUObject *self) {
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
+		}
 	}
-}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
+
+	if (self->auto_rooted && self->ue_object->IsRooted()) {
+		self->ue_object->RemoveFromRoot();
+	}
 
 	Py_XDECREF(self->py_dict);
 }
@@ -826,8 +841,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
 						}
-					}
 				}
+			}
 #endif
 				if (self->ue_object->IsA<UEnum>()) {
 					UEnum *u_enum = (UEnum *)self->ue_object;
@@ -837,15 +852,15 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 #else
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
-				}
-			}
+		}
+	}
 
 			if (function) {
 				// swallow previous exception
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
-		}
+}
 	}
 	return ret;
 }
@@ -1460,7 +1475,7 @@ void unreal_engine_py_log_error() {
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
 	if (zero) {
 		msg = PyBytes_AsString(zero);
-	}
+}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif

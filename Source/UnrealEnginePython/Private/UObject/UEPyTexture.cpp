@@ -3,6 +3,18 @@
 #include "Runtime/Engine/Public/ImageUtils.h"
 #include "Runtime/Engine/Classes/Engine/Texture.h"
 
+PyObject *py_ue_texture_update_resource(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	UTexture *texture = ue_py_check_type<UTexture>(self);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "object is not a Texture");
+
+	texture->UpdateResource();
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_texture_get_width(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -184,6 +196,28 @@ PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * 
 		return PyErr_Format(PyExc_Exception, "unable to create texture");
 
 	texture->UpdateResource();
+
+	ue_PyUObject *ret = ue_get_python_wrapper(texture);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * self, PyObject * args) {
+	int width;
+	int height;
+	int format = PF_B8G8R8A8;
+	PyObject *py_linear = nullptr;
+	if (!PyArg_ParseTuple(args, "ii|iO:create_transient_texture_render_target2d", &width, &height, &format, &py_linear)) {
+		return NULL;
+	}
+
+	UTextureRenderTarget2D *texture = NewObject<UTextureRenderTarget2D>(GetTransientPackage(), NAME_None, RF_Transient);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "unable to create texture render target");
+
+	texture->InitCustomFormat(width, height, (EPixelFormat)format, py_linear && PyObject_IsTrue(py_linear));
 
 	ue_PyUObject *ret = ue_get_python_wrapper(texture);
 	if (!ret)
