@@ -841,8 +841,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
 						}
+					}
 				}
-			}
 #endif
 				if (self->ue_object->IsA<UEnum>()) {
 					UEnum *u_enum = (UEnum *)self->ue_object;
@@ -852,15 +852,15 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name) 
 #else
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
-		}
-	}
+				}
+			}
 
 			if (function) {
 				// swallow previous exception
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
-}
+		}
 	}
 	return ret;
 }
@@ -1475,7 +1475,7 @@ void unreal_engine_py_log_error() {
 	PyObject *zero = PyUnicode_AsUTF8String(PyObject_Str(value));
 	if (zero) {
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -1521,7 +1521,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {
@@ -1595,7 +1595,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 
 	if (auto casted_prop = Cast<UByteProperty>(prop)) {
 		int8 value = casted_prop->GetPropertyValue_InContainer(buffer);
-		return PyLong_FromLong(value);
+		return PyLong_FromUnsignedLong(value);
 	}
 
 #if ENGINE_MINOR_VERSION >= 15
@@ -1704,8 +1704,16 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 
 	if (auto casted_prop = Cast<UArrayProperty>(prop)) {
 		FScriptArrayHelper_InContainer array_helper(casted_prop, buffer);
-		PyObject *py_list = PyList_New(0);
+
 		UProperty *array_prop = casted_prop->Inner;
+
+		// check for TArray<uint8>, so we can use bytearray optimization
+		if (auto uint8_tarray = Cast<UByteProperty>(array_prop)) {
+			uint8 *buf = array_helper.GetRawPtr();
+			return PyByteArray_FromStringAndSize((char *)buf, array_helper.Num());
+		}
+
+		PyObject *py_list = PyList_New(0);
 
 		for (int i = 0; i < array_helper.Num(); i++) {
 			PyObject *item = ue_py_convert_property(array_prop, array_helper.GetRawPtr(i));
@@ -1818,6 +1826,56 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		return false;
 	}
 
+	if (PyBytes_Check(py_obj)) {
+		if (auto casted_prop = Cast<UArrayProperty>(prop)) {
+			FScriptArrayHelper_InContainer helper(casted_prop, buffer);
+
+			if (auto item_casted_prop = Cast<UByteProperty>(casted_prop->Inner)) {
+
+				Py_ssize_t pybytes_len = PyBytes_Size(py_obj);
+
+				// fix array helper size
+				if (helper.Num() < pybytes_len) {
+					helper.AddValues(pybytes_len - helper.Num());
+				}
+				else if (helper.Num() > pybytes_len) {
+					helper.RemoveValues(pybytes_len, helper.Num() - pybytes_len);
+				}
+
+				uint8 *buf = (uint8 *)PyBytes_AsString(py_obj);
+				FMemory::Memcpy(helper.GetRawPtr(), buf, pybytes_len);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	if (PyByteArray_Check(py_obj)) {
+		if (auto casted_prop = Cast<UArrayProperty>(prop)) {
+			FScriptArrayHelper_InContainer helper(casted_prop, buffer);
+
+			if (auto item_casted_prop = Cast<UByteProperty>(casted_prop->Inner)) {
+
+				Py_ssize_t pybytes_len = PyByteArray_Size(py_obj);
+
+				// fix array helper size
+				if (helper.Num() < pybytes_len) {
+					helper.AddValues(pybytes_len - helper.Num());
+				}
+				else if (helper.Num() > pybytes_len) {
+					helper.RemoveValues(pybytes_len, helper.Num() - pybytes_len);
+				}
+
+				uint8 *buf = (uint8 *)PyByteArray_AsString(py_obj);
+				FMemory::Memcpy(helper.GetRawPtr(), buf, pybytes_len);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	if (PyList_Check(py_obj)) {
 		if (auto casted_prop = Cast<UArrayProperty>(prop)) {
 			FScriptArrayHelper_InContainer helper(casted_prop, buffer);
@@ -1835,6 +1893,33 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 
 			for (int i = 0; i < (int)pylist_len; i++) {
 				PyObject *py_item = PyList_GetItem(py_obj, i);
+				if (!ue_py_convert_pyobject(py_item, array_prop, helper.GetRawPtr(i))) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	if (PyTuple_Check(py_obj)) {
+		if (auto casted_prop = Cast<UArrayProperty>(prop)) {
+			FScriptArrayHelper_InContainer helper(casted_prop, buffer);
+
+			UProperty *array_prop = casted_prop->Inner;
+			Py_ssize_t pytuple_len = PyTuple_Size(py_obj);
+
+			// fix array helper size
+			if (helper.Num() < pytuple_len) {
+				helper.AddValues(pytuple_len - helper.Num());
+			}
+			else if (helper.Num() > pytuple_len) {
+				helper.RemoveValues(pytuple_len, helper.Num() - pytuple_len);
+			}
+
+			for (int i = 0; i < (int)pytuple_len; i++) {
+				PyObject *py_item = PyTuple_GetItem(py_obj, i);
 				if (!ue_py_convert_pyobject(py_item, array_prop, helper.GetRawPtr(i))) {
 					return false;
 				}
