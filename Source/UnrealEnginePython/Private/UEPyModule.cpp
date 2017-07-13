@@ -1951,7 +1951,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		}
 		return false;
 	}
-
+    
 	if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_obj)) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get()) {
