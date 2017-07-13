@@ -107,13 +107,15 @@ void UPythonComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	FScopePythonGIL gil;
 
-	PyObject *ep_ret = PyObject_CallMethod(py_component_instance, (char *)"end_play", NULL);
+	if (PyObject_HasAttrString(py_component_instance, (char *)"end_play")) {
+		PyObject *ep_ret = PyObject_CallMethod(py_component_instance, (char *)"end_play", NULL);
 
-	if (!ep_ret) {
-		unreal_engine_py_log_error();
+		if (!ep_ret) {
+			unreal_engine_py_log_error();
+		}
+
+		Py_XDECREF(ep_ret);
 	}
-
-	Py_XDECREF(ep_ret);
 
 	Super::EndPlay(EndPlayReason);
 
