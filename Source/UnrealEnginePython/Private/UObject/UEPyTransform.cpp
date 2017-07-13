@@ -35,13 +35,13 @@ static bool check_vector_args(PyObject *args, FVector &vec, bool &sweep, bool &t
 
 static bool check_rotation_args(PyObject *args, FQuat &quat, bool &sweep, bool &teleport_physics) {
     PyObject *py_rotation = nullptr;
-    float pitch, yaw, roll;
+    float roll, pitch, yaw;
     PyObject *py_sweep = nullptr;
     PyObject *py_teleport_physics = nullptr;
     
     if (!PyArg_ParseTuple(args, "O|OO", &py_rotation, &py_sweep, &py_teleport_physics)) {
         PyErr_Clear();
-        if (!PyArg_ParseTuple(args, "fff|OO", &roll, &pitch, &yaw, &py_teleport_physics)) {
+        if (!PyArg_ParseTuple(args, "fff|OO", &roll, &pitch, &yaw, &py_sweep, &py_teleport_physics)) {
             return false;
         }
     }
@@ -65,6 +65,41 @@ static bool check_rotation_args(PyObject *args, FQuat &quat, bool &sweep, bool &
     }
     
     sweep = (py_sweep && PyObject_IsTrue(py_sweep));
+    teleport_physics = (py_teleport_physics && PyObject_IsTrue(py_teleport_physics));
+    
+    return true;
+}
+
+static bool check_rotation_args_no_sweep(PyObject *args, FQuat &quat, bool &teleport_physics) {
+    PyObject *py_rotation = nullptr;
+    float roll, pitch, yaw;
+    PyObject *py_teleport_physics = nullptr;
+    
+    if (!PyArg_ParseTuple(args, "O|O", &py_rotation, &py_teleport_physics)) {
+        PyErr_Clear();
+        if (!PyArg_ParseTuple(args, "fff|O", &roll, &pitch, &yaw, &py_teleport_physics)) {
+            return false;
+        }
+    }
+    
+    if (py_rotation) {
+        ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
+        if (ue_py_quat) {
+            quat = ue_py_quat->quat;
+        }
+        else {
+            ue_PyFRotator *ue_py_rot = py_ue_is_frotator(py_rotation);
+            if (!ue_py_rot) {
+                PyErr_SetString(PyExc_Exception, "argument is not a FQuat or FRotator");
+                return false;
+            }
+            quat = ue_py_rot->rot.Quaternion();
+        }
+    }
+    else {
+        quat = FQuat(FRotator(pitch, yaw, roll));
+    }
+    
     teleport_physics = (py_teleport_physics && PyObject_IsTrue(py_teleport_physics));
     
     return true;
@@ -302,17 +337,18 @@ PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	FRotator rot;
-	if (!py_ue_rotator_arg(args, rot))
-		return NULL;
+    FQuat quat;
+    bool teleport_physics;
+    if (!check_rotation_args_no_sweep(args, quat, teleport_physics))
+        return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	actor->SetActorRotation(rot);
-	Py_INCREF(Py_None);
-	return Py_None;
-
+    if (actor->SetActorRotation(quat, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
 }
 
 
