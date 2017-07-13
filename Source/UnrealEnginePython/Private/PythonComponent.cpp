@@ -100,6 +100,25 @@ void UPythonComponent::BeginPlay()
 
 }
 
+void UPythonComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (!py_component_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	PyObject *ep_ret = PyObject_CallMethod(py_component_instance, (char *)"end_play", NULL);
+
+	if (!ep_ret) {
+		unreal_engine_py_log_error();
+	}
+
+	Py_XDECREF(ep_ret);
+
+	Super::EndPlay(EndPlayReason);
+
+	// ...
+}
 
 // Called every frame
 void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
