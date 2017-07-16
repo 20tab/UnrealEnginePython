@@ -224,6 +224,14 @@ PySequenceMethods ue_PyFRotator_sequence_methods;
 
 static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kwargs) {
 	float pitch = 0, yaw = 0, roll = 0;
+    
+    if (PyTuple_Size(args) == 1) {
+        if (ue_PyFQuat *py_quat = py_ue_is_fquat(PyTuple_GetItem(args, 0))) {
+            self->rot = FRotator(py_quat->quat);
+            return 0;
+        }
+    }
+    
 	if (!PyArg_ParseTuple(args, "|fff", &roll, &pitch, &yaw))
 		return -1;
 

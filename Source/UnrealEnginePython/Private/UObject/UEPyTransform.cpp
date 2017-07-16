@@ -1,6 +1,109 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+static bool check_vector_args(PyObject *args, FVector &vec, bool &sweep, bool &teleport_physics) {
+	PyObject *py_vec = nullptr;
+	float x = 0, y = 0, z = 0;
+	PyObject *py_sweep = nullptr;
+	PyObject *py_teleport_physics = nullptr;
 
+	if (!PyArg_ParseTuple(args, "O|OO", &py_vec, &py_sweep, &py_teleport_physics)) {
+		PyErr_Clear();
+		if (!PyArg_ParseTuple(args, "fff|OO", &x, &y, &z, &py_sweep, &py_teleport_physics)) {
+			return false;
+		}
+	}
+
+	if (py_vec) {
+		ue_PyFVector *ue_py_vec = py_ue_is_fvector(py_vec);
+		if (!ue_py_vec) {
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+			return false;
+		}
+		vec = ue_py_vec->vec;
+	}
+	else {
+		vec.X = x;
+		vec.Y = y;
+		vec.Z = z;
+	}
+
+	sweep = (py_sweep && PyObject_IsTrue(py_sweep));
+	teleport_physics = (py_teleport_physics && PyObject_IsTrue(py_teleport_physics));
+
+	return true;
+}
+
+static bool check_rotation_args(PyObject *args, FQuat &quat, bool &sweep, bool &teleport_physics) {
+	PyObject *py_rotation = nullptr;
+	float roll = 0, pitch = 0, yaw = 0;
+	PyObject *py_sweep = nullptr;
+	PyObject *py_teleport_physics = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|OO", &py_rotation, &py_sweep, &py_teleport_physics)) {
+		PyErr_Clear();
+		if (!PyArg_ParseTuple(args, "fff|OO", &roll, &pitch, &yaw, &py_sweep, &py_teleport_physics)) {
+			return false;
+		}
+	}
+
+	if (py_rotation) {
+		ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
+		if (ue_py_quat) {
+			quat = ue_py_quat->quat;
+		}
+		else {
+			ue_PyFRotator *ue_py_rot = py_ue_is_frotator(py_rotation);
+			if (!ue_py_rot) {
+				PyErr_SetString(PyExc_Exception, "argument is not a FQuat or FRotator");
+				return false;
+			}
+			quat = ue_py_rot->rot.Quaternion();
+		}
+	}
+	else {
+		quat = FQuat(FRotator(pitch, yaw, roll));
+	}
+
+	sweep = (py_sweep && PyObject_IsTrue(py_sweep));
+	teleport_physics = (py_teleport_physics && PyObject_IsTrue(py_teleport_physics));
+
+	return true;
+}
+
+static bool check_rotation_args_no_sweep(PyObject *args, FQuat &quat, bool &teleport_physics) {
+	PyObject *py_rotation = nullptr;
+	float roll = 0, pitch = 0, yaw = 0;
+	PyObject *py_teleport_physics = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|O", &py_rotation, &py_teleport_physics)) {
+		PyErr_Clear();
+		if (!PyArg_ParseTuple(args, "fff|O", &roll, &pitch, &yaw, &py_teleport_physics)) {
+			return false;
+		}
+	}
+
+	if (py_rotation) {
+		ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
+		if (ue_py_quat) {
+			quat = ue_py_quat->quat;
+		}
+		else {
+			ue_PyFRotator *ue_py_rot = py_ue_is_frotator(py_rotation);
+			if (!ue_py_rot) {
+				PyErr_SetString(PyExc_Exception, "argument is not a FQuat or FRotator");
+				return false;
+			}
+			quat = ue_py_rot->rot.Quaternion();
+		}
+	}
+	else {
+		quat = FQuat(FRotator(pitch, yaw, roll));
+	}
+
+	teleport_physics = (py_teleport_physics && PyObject_IsTrue(py_teleport_physics));
+
+	return true;
+}
 
 PyObject *py_ue_get_actor_location(ue_PyUObject *self, PyObject * args) {
 
@@ -93,17 +196,26 @@ PyObject *py_ue_set_actor_location(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	FVector vec;
-	if (!py_ue_vector_arg(args, vec))
-		return NULL;
+	bool sweep;
+	bool teleport_physics;
+	if (!check_vector_args(args, vec, sweep, teleport_physics))
+		return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 
-	actor->SetActorLocation(vec);
+	FHitResult hit;
+	bool success = actor->SetActorLocation(vec, sweep, &hit, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	if (!sweep) {
+		if (success) {
+			Py_RETURN_TRUE;
+		}
+		Py_RETURN_FALSE;
+	}
+
+	return Py_BuildValue("(OO)", success ? Py_True : Py_False, py_ue_new_fhitresult(hit));
 }
 
 PyObject *py_ue_add_actor_world_offset(ue_PyUObject *self, PyObject * args) {
@@ -111,17 +223,23 @@ PyObject *py_ue_add_actor_world_offset(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	FVector vec;
-	if (!py_ue_vector_arg(args, vec))
-		return NULL;
+	bool sweep;
+	bool teleport_physics;
+	if (!check_vector_args(args, vec, sweep, teleport_physics))
+		return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 
-	actor->AddActorWorldOffset(vec);
+	FHitResult hit;
+	actor->AddActorWorldOffset(vec, sweep, &hit, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	if (!sweep) {
+		Py_RETURN_NONE;
+	}
+
+	return py_ue_new_fhitresult(hit);
 }
 
 PyObject *py_ue_add_actor_local_offset(ue_PyUObject *self, PyObject * args) {
@@ -129,49 +247,71 @@ PyObject *py_ue_add_actor_local_offset(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	FVector vec;
-	if (!py_ue_vector_arg(args, vec))
-		return NULL;
+	bool sweep;
+	bool teleport_physics;
+	if (!check_vector_args(args, vec, sweep, teleport_physics))
+		return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
 
-	actor->AddActorLocalOffset(vec);
+	FHitResult hit;
+	actor->AddActorLocalOffset(vec, sweep, &hit, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	if (!sweep) {
+		Py_RETURN_NONE;
+	}
+
+	return py_ue_new_fhitresult(hit);
+
 }
 
 PyObject *py_ue_add_actor_world_rotation(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	FRotator rot;
-	if (!py_ue_rotator_arg(args, rot))
-		return NULL;
+	FQuat quat;
+	bool sweep;
+	bool teleport_physics;
+	if (!check_rotation_args(args, quat, sweep, teleport_physics))
+		return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	actor->AddActorWorldRotation(rot);
-	Py_INCREF(Py_None);
-	return Py_None;
+	FHitResult hit;
+	actor->AddActorWorldRotation(quat, sweep, &hit, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None);
+
+	if (!sweep) {
+		Py_RETURN_NONE;
+	}
+
+	return py_ue_new_fhitresult(hit);
 }
 
 PyObject *py_ue_add_actor_local_rotation(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	FRotator rot;
-	if (!py_ue_rotator_arg(args, rot))
-		return NULL;
+	FQuat quat;
+	bool sweep;
+	bool teleport_physics;
+	if (!check_rotation_args(args, quat, sweep, teleport_physics))
+		return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	actor->AddActorLocalRotation(rot);
-	Py_INCREF(Py_None);
-	return Py_None;
+	FHitResult hit;
+	actor->AddActorLocalRotation(quat, sweep, &hit, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None);
+
+	if (!sweep) {
+		Py_RETURN_NONE;
+	}
+
+	return py_ue_new_fhitresult(hit);
+
 }
 
 PyObject *py_ue_set_actor_scale(ue_PyUObject *self, PyObject * args) {
@@ -197,17 +337,18 @@ PyObject *py_ue_set_actor_rotation(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
-	FRotator rot;
-	if (!py_ue_rotator_arg(args, rot))
-		return NULL;
+	FQuat quat;
+	bool teleport_physics;
+	if (!check_rotation_args_no_sweep(args, quat, teleport_physics))
+		return nullptr;
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an actor or a component");
-	actor->SetActorRotation(rot);
-	Py_INCREF(Py_None);
-	return Py_None;
-
+	if (actor->SetActorRotation(quat, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None)) {
+		Py_RETURN_TRUE;
+	}
+	Py_RETURN_FALSE;
 }
 
 
@@ -333,13 +474,19 @@ PyObject *py_ue_get_right_vector(ue_PyUObject *self, PyObject * args) {
 PyObject *py_ue_set_world_location(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 	FVector vec;
-	if (!py_ue_vector_arg(args, vec))
-		return NULL;
+	bool sweep;
+	bool teleport_physics;
+	if (!check_vector_args(args, vec, sweep, teleport_physics))
+		return nullptr;
+
+	FHitResult hit;
 
 	if (self->ue_object->IsA<USceneComponent>()) {
-		((USceneComponent *)self->ue_object)->SetWorldLocation(vec);
-		Py_INCREF(Py_None);
-		return Py_None;
+		((USceneComponent *)self->ue_object)->SetWorldLocation(vec, sweep, &hit, teleport_physics ? ETeleportType::TeleportPhysics : ETeleportType::None);
+		if (!sweep) {
+			Py_RETURN_NONE;
+		}
+		return py_ue_new_fhitresult(hit);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
 }

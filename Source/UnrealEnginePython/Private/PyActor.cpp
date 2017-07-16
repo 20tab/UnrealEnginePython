@@ -12,10 +12,9 @@ APyActor::APyActor()
 
 }
 
-void APyActor::PostInitializeComponents()
+void APyActor::PreInitializeComponents()
 {
-	Super::PostInitializeComponents();
-
+	Super::PreInitializeComponents();
 
 	if (PythonModule.IsEmpty())
 		return;
@@ -72,6 +71,25 @@ void APyActor::PostInitializeComponents()
 		ue_autobind_events_for_pyclass(py_uobject, py_actor_instance);
 
 	ue_bind_events_for_py_class_by_attribute(this, py_actor_instance);
+
+	if (!PyObject_HasAttrString(py_actor_instance, (char *)"pre_initialize_components"))
+		return;
+
+	PyObject *pic_ret = PyObject_CallMethod(py_actor_instance, (char *)"pre_initialize_components", NULL);
+	if (!pic_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(pic_ret);
+}
+
+
+void APyActor::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!py_actor_instance)
+		return;
 
 	if (!PyObject_HasAttrString(py_actor_instance, (char *)"post_initialize_components"))
 		return;

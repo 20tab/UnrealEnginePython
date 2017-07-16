@@ -18,6 +18,7 @@ public:
 	~APyActor();
 
 	// Called whenever the Actor is instantiated (before begin play)
+	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 
 	// Called when the game starts

@@ -72,6 +72,33 @@ PyObject *py_ue_get_player_hud(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_set_player_hud(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_hud;
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "O|i:set_player_hud", &py_hud, &controller_id)) {
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	AHUD *hud = ue_py_check_type<AHUD>(py_hud);
+	if (!hud)
+		return PyErr_Format(PyExc_Exception, "argument is not a AHUD");
+
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+
+	controller->MyHUD = hud;
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_get_player_pawn(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

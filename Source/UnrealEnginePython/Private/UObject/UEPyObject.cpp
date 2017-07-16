@@ -701,6 +701,16 @@ PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
+PyObject *py_ue_auto_root(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	self->ue_object->AddToRoot();
+	self->auto_rooted = 1;
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

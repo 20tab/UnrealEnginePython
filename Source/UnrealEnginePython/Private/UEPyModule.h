@@ -10,14 +10,16 @@
 
 typedef struct {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UObject *ue_object;
+	/* Type-specific fields go here. */
+	UObject *ue_object;
 	// reference to proxy class (can be null)
 	PyObject *py_proxy;
 	// list of exposed delegates
 	std::list<UPythonDelegate*> *python_delegates_gc;
 	// the __dict__
 	PyObject *py_dict;
+	// if true RemoveFromRoot will be called at object destruction time
+	int auto_rooted;
 } ue_PyUObject;
 
 
