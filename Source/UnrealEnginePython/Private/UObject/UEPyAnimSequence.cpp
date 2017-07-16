@@ -2,17 +2,16 @@
 #include "Animation/AnimSequence.h"
 #include "Animation/BlendSpaceBase.h"
 
-PyObject *py_ue_anim_sequence_get_skeleton(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_anim_get_skeleton(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
-	UAnimSequence *anim_seq = ue_py_check_type<UAnimSequence>(self);
-	if (!anim_seq)
-		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimSequence.");
+	UAnimationAsset *anim = ue_py_check_type<UAnimationAsset>(self);
+	if (!anim)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimationAsset.");
 
-	USkeleton *skeleton = anim_seq->GetSkeleton();
+	USkeleton *skeleton = anim->GetSkeleton();
 	if (!skeleton) {
-		Py_INCREF(Py_None);
-		return Py_None;
+		Py_RETURN_NONE;
 	}
 
 	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)skeleton);
@@ -96,22 +95,37 @@ PyObject *py_ue_anim_sequence_add_new_raw_track(ue_PyUObject * self, PyObject * 
 }
 #endif
 
-PyObject *py_ue_anim_sequence_set_skeleton(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_anim_set_skeleton(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
 	PyObject *py_skeleton;
-	if (!PyArg_ParseTuple(args, "O:anim_sequence_set_skeleton", &py_skeleton))
+	if (!PyArg_ParseTuple(args, "O:anim_set_skeleton", &py_skeleton))
 		return nullptr;
 
-	UAnimSequence *anim_seq = ue_py_check_type<UAnimSequence>(self);
-	if (!anim_seq)
-		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimSequence.");
+	UAnimationAsset *anim = ue_py_check_type<UAnimationAsset>(self);
+	if (!anim)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimationAsset.");
 
 	USkeleton *skeleton = ue_py_check_type<USkeleton>(py_skeleton);
 	if (!skeleton)
 		return PyErr_Format(PyExc_Exception, "argument is not a USkeleton.");
 
-	anim_seq->SetSkeleton(skeleton);
+	anim->SetSkeleton(skeleton);
 	
 	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_add_anim_composite_section(ue_PyUObject * self, PyObject * args) {
+	ue_py_check(self);
+
+	char *name;
+	float time;
+	if (!PyArg_ParseTuple(args, "sf:add_anim_composite_section", &name, &time))
+		return nullptr;
+
+	UAnimMontage *anim = ue_py_check_type<UAnimMontage>(self);
+	if (!anim)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimMontage.");
+
+	return PyLong_FromLong(anim->AddAnimCompositeSection(FName(UTF8_TO_TCHAR(name)), time));
 }
