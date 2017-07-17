@@ -101,7 +101,17 @@ PyTypeObject ue_PySMultiLineEditableTextType = {
 };
 
 static int ue_py_smulti_line_editable_text_init(ue_PySMultiLineEditableText *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew_simple(SMultiLineEditableText, s_widget);
+
+	ue_py_slate_setup_farguments(SMultiLineEditableText);
+
+	ue_py_slate_farguments_optional_bool("allow_context_menu", AllowContextMenu);
+	ue_py_slate_farguments_optional_bool("auto_wrap_text", AutoWrapText);
+	ue_py_slate_farguments_optional_bool("is_read_only", IsReadOnly);
+	ue_py_slate_farguments_optional_struct_ptr("text_style", TextStyle, FTextBlockStyle);
+
+	ue_py_slate_farguments_text("text", Text);
+
+	ue_py_snew(SMultiLineEditableText, s_widget);
 	return 0;
 }
 
