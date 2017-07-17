@@ -144,6 +144,27 @@ void APyActor::Tick(float DeltaTime)
 
 }
 
+void APyActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (!py_actor_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (PyObject_HasAttrString(py_actor_instance, (char *)"end_play")) {
+		PyObject *ep_ret = PyObject_CallMethod(py_actor_instance, (char *)"end_play", (char*)"i", (int)EndPlayReason);
+
+		if (!ep_ret) {
+			unreal_engine_py_log_error();
+		}
+
+		Py_XDECREF(ep_ret);
+	}
+
+	Super::EndPlay(EndPlayReason);
+
+	// ...
+}
 
 void APyActor::CallPythonActorMethod(FString method_name, FString args)
 {
