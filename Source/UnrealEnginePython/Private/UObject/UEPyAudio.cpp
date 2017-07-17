@@ -31,8 +31,33 @@ PyObject *py_ue_queue_audio(ue_PyUObject *self, PyObject * args) {
 	// Clean up
 	PyBuffer_Release(&sound_buffer);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_get_available_audio_byte_count(ue_PyUObject *self, PyObject * args) {
+	
+	ue_py_check(self);
+
+	USoundWaveProcedural *sound_wave_procedural = ue_py_check_type<USoundWaveProcedural>(self);
+	if (!sound_wave_procedural) {
+		return PyErr_Format(PyExc_Exception, "UObject is not a USoundWaveProcedural.");
+	}
+	
+	return PyLong_FromLong(sound_wave_procedural->GetAvailableAudioByteCount());
+}
+
+PyObject *py_ue_reset_audio(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	USoundWaveProcedural *sound_wave_procedural = ue_py_check_type<USoundWaveProcedural>(self);
+	if (!sound_wave_procedural) {
+		return PyErr_Format(PyExc_Exception, "UObject is not a USoundWaveProcedural.");
+	}
+
+	sound_wave_procedural->ResetAudio();
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_sound_get_data(ue_PyUObject *self, PyObject * args) {

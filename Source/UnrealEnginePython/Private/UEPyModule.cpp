@@ -618,6 +618,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "play_sound_at_location", (PyCFunction)py_ue_play_sound_at_location, METH_VARARGS, "" },
 	{ "queue_audio", (PyCFunction)py_ue_queue_audio, METH_VARARGS, "" },
+	{ "reset_audio", (PyCFunction)py_ue_reset_audio, METH_VARARGS, "" },
+	{ "get_available_audio_byte_count", (PyCFunction)py_ue_get_available_audio_byte_count, METH_VARARGS, "" },
 	{ "sound_get_data", (PyCFunction)py_ue_sound_get_data, METH_VARARGS, "" },
 	{ "sound_set_data", (PyCFunction)py_ue_sound_set_data, METH_VARARGS, "" },
 
