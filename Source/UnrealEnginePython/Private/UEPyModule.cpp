@@ -466,12 +466,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "anim_get_skeleton", (PyCFunction)py_ue_anim_get_skeleton, METH_VARARGS, "" },
 	{ "anim_set_skeleton", (PyCFunction)py_ue_anim_set_skeleton, METH_VARARGS, "" },
 
-	{ "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
-
 #if WITH_EDITOR
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
+    { "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
 #endif
 
 

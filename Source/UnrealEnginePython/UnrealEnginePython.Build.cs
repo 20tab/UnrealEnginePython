@@ -176,8 +176,22 @@ public class UnrealEnginePython : ModuleRules
             string dllsDir = Path.Combine(ModuleDirectory, "../../Binaries", Target.Platform == UnrealTargetPlatform.Win32 ? "Win32" : "Win64");
             try
             {
-                File.Copy(Path.Combine(pythonHome, "python3.dll"), Path.Combine(dllsDir, "python3.dll"), true);
-                File.Copy(Path.Combine(pythonHome, "python36.dll"), Path.Combine(dllsDir, "python36.dll"), true);
+                string[] dllsToCopy =
+                {
+                    "python3.dll",
+                    "python36.dll"
+                };
+                foreach (string dllToCopy in dllsToCopy)
+                {
+                    // If the dll exist, make sure to set attributes so they are actually accessible
+                    if (File.Exists(Path.Combine(dllsDir, dllToCopy)))
+                    {
+                        File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
+                    }
+
+                    File.Copy(Path.Combine(pythonHome, dllToCopy), Path.Combine(dllsDir, dllToCopy), true);
+                    File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
+                }
             }
             catch(System.IO.IOException) { }
             catch(System.UnauthorizedAccessException)
