@@ -7,24 +7,20 @@ static bool check_vector_args(PyObject *args, FVector &vec, bool &sweep, bool &t
 	PyObject *py_teleport_physics = nullptr;
 
 	if (!PyArg_ParseTuple(args, "O|OO", &py_vec, &py_sweep, &py_teleport_physics)) {
-		PyErr_Clear();
+		return false;
+	}
+
+	ue_PyFVector *ue_py_vec = py_ue_is_fvector(py_vec);
+	if (!ue_py_vec) {
 		if (!PyArg_ParseTuple(args, "fff|OO", &x, &y, &z, &py_sweep, &py_teleport_physics)) {
 			return false;
 		}
-	}
-
-	if (py_vec) {
-		ue_PyFVector *ue_py_vec = py_ue_is_fvector(py_vec);
-		if (!ue_py_vec) {
-			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
-			return false;
-		}
-		vec = ue_py_vec->vec;
-	}
-	else {
 		vec.X = x;
 		vec.Y = y;
 		vec.Z = z;
+	}
+	else {
+		vec = ue_py_vec->vec;
 	}
 
 	sweep = (py_sweep && PyObject_IsTrue(py_sweep));
