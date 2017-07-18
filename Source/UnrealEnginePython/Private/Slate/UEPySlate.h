@@ -259,7 +259,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
 				Py_INCREF(value);\
 				((ue_PySWidget *)self)->py_refs.Add(value);\
-				arguments.attribute((_type *)u_struct); \
+				arguments.attribute((_type *)u_struct);\
 			}\
 			else {\
 				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \

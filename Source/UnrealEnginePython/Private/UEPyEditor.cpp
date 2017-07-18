@@ -703,7 +703,7 @@ PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args, PyObject *kwargs) {
 
 	PyObject *pyfilter;
-	PyObject *py_return_asset_data;
+	PyObject *py_return_asset_data = nullptr;
 
 	static char *kw_names[] = { (char *)"filter", (char *)"return_asset_data", NULL };
 
