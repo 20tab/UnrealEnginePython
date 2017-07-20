@@ -1598,14 +1598,14 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 	}
 
 	if (auto casted_prop = Cast<UByteProperty>(prop)) {
-		int8 value = casted_prop->GetPropertyValue_InContainer(buffer);
+		uint8 value = casted_prop->GetPropertyValue_InContainer(buffer);
 		return PyLong_FromUnsignedLong(value);
 	}
 
 #if ENGINE_MINOR_VERSION >= 15
 	if (auto casted_prop = Cast<UEnumProperty>(prop)) {
-		UEnum *value = casted_prop->GetEnum();
-		uint64 enum_index = casted_prop->GetUnderlyingProperty()->GetUnsignedIntPropertyValue(buffer);
+		void *prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer);
+		uint64 enum_index = casted_prop->GetUnderlyingProperty()->GetUnsignedIntPropertyValue(prop_addr);
 		return PyLong_FromUnsignedLong(enum_index);
 	}
 #endif
@@ -1807,10 +1807,21 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		}
 		if (auto casted_prop = Cast<UByteProperty>(prop)) {
 			PyObject *py_long = PyNumber_Long(py_obj);
-			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_long));
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLong(py_long));
 			Py_DECREF(py_long);
 			return true;
 		}
+#if ENGINE_MINOR_VERSION >= 15
+		if (auto casted_prop = Cast<UEnumProperty>(prop)) {
+			PyObject *py_long = PyNumber_Long(py_obj);
+			void *prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer);
+			casted_prop->GetUnderlyingProperty()->SetIntPropertyValue(prop_addr, (uint64)PyLong_AsUnsignedLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
+#endif
+
+
 		return false;
 	}
 
