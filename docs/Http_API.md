@@ -100,7 +100,7 @@ def request_progress(request, sent, received):
 # bind OnProcessRequestComplete event to the response_received callable
 request.bind_on_process_request_complete(response_received)
 
-request.bind_on_request_progress(response_received)
+request.bind_on_request_progress(request_progress)
 
 # run the request
 request.process_request()
