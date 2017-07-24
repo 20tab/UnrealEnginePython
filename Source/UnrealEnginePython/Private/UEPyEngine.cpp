@@ -195,6 +195,24 @@ PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args) {
 
 }
 
+PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args) {
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:load_package", &name)) {
+		return nullptr;
+	}
+
+	UPackage *u_package = LoadPackage(nullptr, UTF8_TO_TCHAR(name), LOAD_None);
+
+	if (!u_package)
+		return PyErr_Format(PyExc_Exception, "unable to load package %s", name);
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_package);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
 	char *name;
 	char *filename = nullptr;

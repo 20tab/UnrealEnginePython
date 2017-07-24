@@ -149,6 +149,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
 	{ "load_object", py_unreal_engine_load_object, METH_VARARGS, "" },
 
+	{ "load_package", py_unreal_engine_load_package, METH_VARARGS, "" },
+
 	{ "get_forward_vector", py_unreal_engine_get_forward_vector, METH_VARARGS, "" },
 	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
