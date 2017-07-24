@@ -124,7 +124,16 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args) 
 
 	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
 
+#if ENGINE_MINOR_VERSION < 15
 	UObject *u_obj = seq->FindPossessableObject(f_guid, seq);
+#else
+	UObject *u_obj = nullptr;
+	TArray<UObject *, TInlineAllocator<1>> u_objects;
+	seq->LocateBoundObjects(f_guid, nullptr, u_objects);
+	if (u_objects.Num() > 0) {
+		u_obj = u_objects[0];
+	}
+#endif
 	if (!u_obj)
 		return PyErr_Format(PyExc_Exception, "unable to find uobject with GUID \"%s\"", guid);
 
