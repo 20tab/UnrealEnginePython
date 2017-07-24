@@ -18,15 +18,17 @@
 		{
 			"Name": "UnrealEnginePython",
 			"Type": "Runtime",
-			"LoadingPhase": "PreDefault"
+			"LoadingPhase": "Default"
 		},
 		{
 			"Name": "PythonConsole",
-			"Type": "Editor"
+			"Type": "Editor",
+			"LoadingPhase": "PostDefault"
 		},
 		{
 			"Name" : "PythonEditor",
-			"Type" : "Editor"
+			"Type" : "Editor",
+			"LoadingPhase": "PostDefault"
 		}
 	]
 }
