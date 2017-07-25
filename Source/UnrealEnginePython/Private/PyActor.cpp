@@ -91,6 +91,8 @@ void APyActor::PostInitializeComponents()
 	if (!py_actor_instance)
 		return;
 
+	FScopePythonGIL gil;
+
 	if (!PyObject_HasAttrString(py_actor_instance, (char *)"post_initialize_components"))
 		return;
 
@@ -109,6 +111,8 @@ void APyActor::BeginPlay()
 
 	if (!py_actor_instance)
 		return;
+
+	FScopePythonGIL gil;
 
 	if (!PyObject_HasAttrString(py_actor_instance, (char *)"begin_play"))
 		return;
