@@ -1,0 +1,66 @@
+#include "UnrealEnginePythonPrivatePCH.h"
+
+#include "UEPyFGeometry.h"
+
+static PyMethodDef ue_PyFGeometry_methods[] = {
+	{ NULL }  /* Sentinel */
+};
+
+static PyObject *ue_PyFGeometry_str(ue_PyFGeometry *self)
+{
+	return PyUnicode_FromFormat("<unreal_engine.FGeometry '%s'>",
+		TCHAR_TO_UTF8(*self->geometry.ToString()));
+}
+
+static PyTypeObject ue_PyFGeometryType = {
+	PyVarObject_HEAD_INIT(NULL, 0)
+	"unreal_engine.FGeometry", /* tp_name */
+	sizeof(ue_PyFGeometry), /* tp_basicsize */
+	0,                         /* tp_itemsize */
+	0,       /* tp_dealloc */
+	0,                         /* tp_print */
+	0,                         /* tp_getattr */
+	0,                         /* tp_setattr */
+	0,                         /* tp_reserved */
+	0,                         /* tp_repr */
+	0,                         /* tp_as_number */
+	0,                         /* tp_as_sequence */
+	0,                         /* tp_as_mapping */
+	0,                         /* tp_hash  */
+	0,                         /* tp_call */
+	(reprfunc)ue_PyFGeometry_str,                         /* tp_str */
+	0,                         /* tp_getattro */
+	0,                         /* tp_setattro */
+	0,                         /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT,        /* tp_flags */
+	"Unreal Engine FGeometry",           /* tp_doc */
+	0,                         /* tp_traverse */
+	0,                         /* tp_clear */
+	0,                         /* tp_richcompare */
+	0,                         /* tp_weaklistoffset */
+	0,                         /* tp_iter */
+	0,                         /* tp_iternext */
+	ue_PyFGeometry_methods,             /* tp_methods */
+};
+
+void ue_python_init_fgeometry(PyObject *ue_module) {
+	ue_PyFGeometryType.tp_new = PyType_GenericNew;
+
+	if (PyType_Ready(&ue_PyFGeometryType) < 0)
+		return;
+
+	Py_INCREF(&ue_PyFGeometryType);
+	PyModule_AddObject(ue_module, "FGeometry", (PyObject *)&ue_PyFGeometryType);
+}
+
+ue_PyFGeometry *py_ue_is_fgeometry(PyObject *obj) {
+        if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFGeometryType))
+                return nullptr;
+        return (ue_PyFGeometry *)obj;
+}
+
+PyObject *py_ue_new_fgeometry(FGeometry geometry) {
+	ue_PyFGeometry *ret = (ue_PyFGeometry *)PyObject_New(ue_PyFGeometry, &ue_PyFGeometryType);
+	ret->geometry = geometry;
+	return (PyObject *)ret;
+}

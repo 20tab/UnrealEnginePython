@@ -3,6 +3,8 @@
 
 #include "PythonDelegate.h"
 
+#include "Slate/UEPyFGeometry.h"
+
 bool UPyUserWidget::Initialize()
 {
 	if (!Super::Initialize())
@@ -112,7 +114,7 @@ void UPyUserWidget::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"tick"))
 		return;
 
-	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"tick", (char *)"Of", py_ue_new_uscriptstruct(FGeometry::StaticStruct(), (uint8 *) &MyGeometry), InDeltaTime);
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"tick", (char *)"Of", py_ue_new_fgeometry(MyGeometry), InDeltaTime);
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
