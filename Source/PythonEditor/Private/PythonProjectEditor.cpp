@@ -102,6 +102,11 @@ public:
 		ViewMenuTooltip = LOCTEXT("ProjectTabMenu_ToolTip", "Shows the project panel");
 	}
 
+	~FProjectViewSummoner()
+	{
+		MyPythonProjectEditor.Reset();
+	}
+
 	virtual TSharedRef<SWidget> CreateTabBody(const FWorkflowTabSpawnInfo& Info) const override
 	{
 		TSharedPtr<FPythonProjectEditor> PythonEditorPtr = StaticCastSharedPtr<FPythonProjectEditor>(HostingApp.Pin());
