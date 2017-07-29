@@ -63,12 +63,29 @@ static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * 
 	return py_ue_new_uscriptstruct(self->u_struct, self->data);
 }
 
+PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args) {
+
+	PyObject *py_struct_dict = PyDict_New();
+	TFieldIterator<UProperty> SArgs(self->u_struct);
+	for (; SArgs; ++SArgs) {
+		PyObject *struct_value = ue_py_convert_property(*SArgs, self->data);
+		if (!struct_value) {
+			Py_DECREF(py_struct_dict);
+			return NULL;
+		}
+		PyDict_SetItemString(py_struct_dict, TCHAR_TO_UTF8(*SArgs->GetName()), struct_value);
+	}
+	return py_struct_dict;
+}
+
+
 static PyMethodDef ue_PyUScriptStruct_methods[] = {
 	{ "get_field", (PyCFunction)py_ue_uscriptstruct_get_field, METH_VARARGS, "" },
 	{ "set_field", (PyCFunction)py_ue_uscriptstruct_set_field, METH_VARARGS, "" },
 	{ "fields", (PyCFunction)py_ue_uscriptstruct_fields, METH_VARARGS, "" },
 	{ "get_struct", (PyCFunction)py_ue_uscriptstruct_get_struct, METH_VARARGS, "" },
 	{ "clone", (PyCFunction)py_ue_uscriptstruct_clone, METH_VARARGS, "" },
+	{ "as_dict", (PyCFunction)py_ue_uscriptstruct_as_dict, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
