@@ -87,6 +87,8 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_menu_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_tool_bar_extension(PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_detail_view(PyObject *, PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_property_view(PyObject *, PyObject *, PyObject *);
 #endif
 
 PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);

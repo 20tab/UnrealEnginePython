@@ -176,6 +176,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_menu_bar_extension", py_unreal_engine_add_menu_bar_extension, METH_VARARGS, "" },
 	{ "add_tool_bar_extension", py_unreal_engine_add_tool_bar_extension, METH_VARARGS, "" },
 
+#pragma warning(suppress: 4191)
+	{ "create_detail_view",  (PyCFunction)py_unreal_engine_create_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
+#pragma warning(suppress: 4191)
+	{ "create_property_view",  (PyCFunction)py_unreal_engine_create_property_view, METH_VARARGS | METH_KEYWORDS, "" },
+
 	{ "open_editor_for_asset", py_unreal_engine_open_editor_for_asset, METH_VARARGS, "" },
 	{ "close_editor_for_asset", py_unreal_engine_close_editor_for_asset, METH_VARARGS, "" },
 	{ "close_all_asset_editors", py_unreal_engine_close_all_asset_editors, METH_VARARGS, "" },
@@ -1162,11 +1167,18 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				if (PyList_Size(value) == 1) {
 					PyObject *first_item = PyList_GetItem(value, 0);
 					if (ue_is_pyuobject(first_item)) {
-						ue_PyUObject *py_obj = (ue_PyUObject *)value;
+						ue_PyUObject *py_obj = (ue_PyUObject *)first_item;
 						if (py_obj->ue_object->IsA<UClass>()) {
 							UClass *p_class = (UClass *)py_obj->ue_object;
 							if (p_class->IsChildOf<UProperty>()) {
 								if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key))) {
+									unreal_engine_py_log_error();
+									return -1;
+								}
+								prop_added = true;
+							}
+							else {
+								if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass()), class_key, first_item))) {
 									unreal_engine_py_log_error();
 									return -1;
 								}
@@ -1535,7 +1547,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

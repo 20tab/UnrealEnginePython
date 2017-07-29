@@ -1,6 +1,10 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
+#include "Editor/MainFrame/Public/Interfaces/IMainFrameModule.h"
+#endif
+
 #include "UEPySWindow.h"
 
 #define sw_window StaticCastSharedRef<SWindow>(self->s_compound_widget.s_widget.s_widget)
@@ -41,7 +45,7 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args) 
 	if (!py_swidget) {
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
-	
+
 	Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
 	Py_INCREF(py_swidget);
 	self->s_compound_widget.s_widget.py_swidget_content = py_swidget;
@@ -73,6 +77,24 @@ static PyObject *py_ue_swindow_get_handle(ue_PySWindow *self, PyObject * args) {
 	return PyLong_FromLongLong((long long)sw_window->GetNativeWindow()->GetOSWindowHandle());
 }
 
+static PyObject *py_ue_swindow_request_destroy(ue_PySWindow *self, PyObject * args) {
+
+	sw_window->RequestDestroyWindow();
+
+	Py_RETURN_NONE;
+}
+
+#if WITH_EDITOR
+static PyObject *py_ue_swindow_add_modal(ue_PySWindow *self, PyObject * args) {
+	TSharedPtr<SWindow> parent_window;
+	if (FModuleManager::Get().IsModuleLoaded("MainFrame")) {
+		parent_window = FModuleManager::LoadModuleChecked<IMainFrameModule>("MainFrame").GetParentWindow();
+	}
+	FSlateApplication::Get().AddModalWindow(StaticCastSharedRef<SWindow>(sw_window->AsShared()), parent_window, false);
+	Py_RETURN_NONE;
+}
+#endif
+
 static PyMethodDef ue_PySWindow_methods[] = {
 	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
 	{ "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
@@ -80,6 +102,10 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
 	{ "get_handle", (PyCFunction)py_ue_swindow_get_handle, METH_VARARGS, "" },
+	{ "request_destroy", (PyCFunction)py_ue_swindow_request_destroy, METH_VARARGS, "" },
+#if WITH_EDITOR
+	{ "add_modal", (PyCFunction)py_ue_swindow_add_modal, METH_VARARGS, "" },
+#endif
 	{ NULL }  /* Sentinel */
 };
 
@@ -115,7 +141,7 @@ PyTypeObject ue_PySWindowType = {
 };
 
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
-	
+
 	ue_py_slate_setup_farguments(SWindow);
 
 	ue_py_slate_farguments_optional_bool("activate_when_first_shown", ActivateWhenFirstShown);
@@ -157,6 +183,14 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_struct("user_resize_border", UserResizeBorder, FMargin);
 
 	ue_py_snew(SWindow, s_compound_widget.s_widget);
+
+#if WITH_EDITOR
+	// is it a modal window ?
+	PyObject *is_modal = ue_py_dict_get_item(kwargs, "modal");
+	if (is_modal && PyObject_IsTrue(is_modal)) {
+		return 0;
+	}
+#endif
 
 	FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(sw_window->AsShared()), true);
 

@@ -7,6 +7,8 @@
 #include "Editor/Persona/Public/PersonaModule.h"
 #include "Editor/AnimationEditor/Public/IAnimationEditorModule.h"
 #include "Editor/StaticMeshEditor/Public/StaticMeshEditorModule.h"
+#include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
+#include "Editor/PropertyEditor/Public/ISinglePropertyView.h"
 #endif
 
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
@@ -194,6 +196,8 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 	Py_DECREF(ret);
 	return value;
 }
+
+
 #endif
 
 TSharedRef<SWidget> UPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonItem> py_item) {
@@ -699,6 +703,73 @@ private:
 };
 
 #if WITH_EDITOR
+
+PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, PyObject *kwargs) {
+
+	PyObject *py_object;
+	PyObject *py_allow_search = nullptr;
+
+	char *kwlist[] = {
+		(char *)"uobject",
+		(char *)"allow_search",
+		nullptr };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:create_detail_view", kwlist,
+		&py_object, &py_allow_search)) {
+		return nullptr;
+	}
+
+	UObject *u_object = ue_py_check_type<UObject>(py_object);
+	if (!u_object) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	FDetailsViewArgs view_args;
+	view_args.bAllowSearch = (py_allow_search && PyObject_IsTrue(py_allow_search));
+
+	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
+	view->SetObject(u_object);
+
+	return (PyObject *)py_ue_new_swidget<ue_PySWidget>(view->AsShared(), &ue_PySWidgetType);
+}
+
+PyObject *py_unreal_engine_create_property_view(PyObject *self, PyObject * args, PyObject *kwargs) {
+
+	PyObject *py_object;
+	char *name;
+	char *name_override = nullptr;
+
+	char *kwlist[] = {
+		(char*)"uobject",
+		(char *)"name",
+		(char *)"name_override",
+		nullptr };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Os|s:create_property_view", kwlist,
+		&py_object, &name, &name_override)) {
+		return nullptr;
+	}
+
+	UObject *u_object = ue_py_check_type<UObject>(py_object);
+	if (!u_object) {
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	FSinglePropertyParams params;
+	if (name_override)
+		params.NameOverride = FText::FromString(UTF8_TO_TCHAR(name_override));
+
+	auto view_widget = PropertyEditorModule.CreateSingleProperty(u_object, FName(name), params);
+
+	if (!view_widget.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to create SingleProperty widget");
+
+	return (PyObject *)py_ue_new_swidget<ue_PySWidget>(view_widget->AsShared(), &ue_PySWidgetType);
+}
+
+
 PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) {
 
 	char *command_name;

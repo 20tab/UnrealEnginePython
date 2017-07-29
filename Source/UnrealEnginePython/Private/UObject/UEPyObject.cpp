@@ -615,13 +615,13 @@ PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args) {
 	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
-	
+
 	ue_PyUObject *ret = ue_get_python_wrapper(u_property);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
-	
+
 }
 
 PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args) {
@@ -836,6 +836,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		}
 	}
 
+
 	if (!scope) {
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject or a single item list");
 	}
@@ -859,6 +860,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		UArrayProperty *u_array = (UArrayProperty *)scope;
 		u_array->AddCppProperty(u_property);
 		u_property->SetPropertyFlags(flags);
+		if (u_property->GetClass() == UObjectProperty::StaticClass()) {
+			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+			if (u_prop_class) {
+				obj_prop->SetPropertyClass(u_prop_class);
+			}
+		}
 		u_property = u_array;
 	}
 
@@ -879,9 +886,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	}
 
 	else if (u_class == UObjectProperty::StaticClass()) {
-		UObjectProperty *obj_prop = (UObjectProperty *)u_property;
-		if (u_prop_class) {
-			obj_prop->SetPropertyClass(u_prop_class);
+		// ensure it is not an arry as we have already managed it !
+		if (!is_array) {
+			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+			if (u_prop_class) {
+				obj_prop->SetPropertyClass(u_prop_class);
+			}
 		}
 	}
 
