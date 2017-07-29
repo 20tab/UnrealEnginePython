@@ -1282,6 +1282,14 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		PyObject *py_init = PyDict_GetItemString(class_attributes, (char *)"__init__");
 		if (py_init && PyCallable_Check(py_init)) {
 			new_u_py_class->SetPyConstructor(py_init);
+			ue_PyUObject *new_default_self = ue_get_python_wrapper(new_u_py_class->ClassDefaultObject);
+			if (!new_default_self) {
+				unreal_engine_py_log_error();
+				UE_LOG(LogPython, Error, TEXT("unable to call __init__ on new ClassDefaultObject"));
+			}
+			else {
+				new_u_py_class->CallPyConstructor(new_default_self);
+			}
 		}
 	}
 
@@ -1968,7 +1976,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 		}
 		return false;
 	}
-    
+
 	if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_obj)) {
 		if (auto casted_prop = Cast<UStructProperty>(prop)) {
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get()) {
@@ -2432,9 +2440,23 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		}
 		else if (ue_PyUObject *py_obj = ue_is_pyuobject(value)) {
 			if (py_obj->ue_object->IsA<UClass>()) {
-				UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-				prop_base->SetPropertyClass((UClass *)py_obj->ue_object);
-				prop = prop_base;
+				UClass *p_u_class = (UClass *)py_obj->ue_object;
+				if (p_u_class->IsChildOf<UClass>()) {
+					UClassProperty *prop_base = NewObject<UClassProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					if (p_u_class == UClass::StaticClass()) {
+						prop_base->SetMetaClass(UObject::StaticClass());
+					}
+					else {
+						prop_base->SetMetaClass(p_u_class->GetClass());
+					}
+					prop_base->PropertyClass = UClass::StaticClass();
+					prop = prop_base;
+				}
+				else {
+					UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_base->SetPropertyClass(p_u_class);
+					prop = prop_base;
+				}
 			}
 		}
 		// TODO add native types (like vectors, rotators...)
@@ -2444,6 +2466,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			next_property = &prop->Next;
 			*next_property_link = prop;
 			next_property_link = &prop->PropertyLinkNext;
+			UE_LOG(LogPython, Warning, TEXT("added prop %s"), UTF8_TO_TCHAR(p_name));
 		}
 		else {
 			UE_LOG(LogPython, Warning, TEXT("Unable to map argument %s to function %s"), UTF8_TO_TCHAR(p_name), UTF8_TO_TCHAR(name));
@@ -2454,6 +2477,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 	if (annotations) {
 		PyObject *py_return_value = PyDict_GetItemString(annotations, "return");
 		if (py_return_value) {
+			UE_LOG(LogPython, Warning, TEXT("Return Value found"));
 			UProperty *prop = nullptr;
 			char *p_name = (char *) "ReturnValue";
 			if (PyType_Check(py_return_value)) {
@@ -2472,14 +2496,28 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			}
 			else if (ue_PyUObject *py_obj = ue_is_pyuobject(py_return_value)) {
 				if (py_obj->ue_object->IsA<UClass>()) {
-					UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-					prop_base->SetPropertyClass((UClass *)py_obj->ue_object);
-					prop = prop_base;
+					UClass *p_u_class = (UClass *)py_obj->ue_object;
+					if (p_u_class->IsChildOf<UClass>()) {
+						UClassProperty *prop_base = NewObject<UClassProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+						if (p_u_class == UClass::StaticClass()) {
+							prop_base->SetMetaClass(UObject::StaticClass());
+						}
+						else {
+							prop_base->SetMetaClass(p_u_class->GetClass());
+						}
+						prop_base->PropertyClass = UClass::StaticClass();
+						prop = prop_base;
+					}
+					else {
+						UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+						prop_base->SetPropertyClass(p_u_class);
+						prop = prop_base;
+					}
 				}
 			}
 			// TODO add native types (like vectors, rotators...)
 			if (prop) {
-				prop->SetPropertyFlags(CPF_Parm | CPF_ReturnParm);
+				prop->SetPropertyFlags(CPF_Parm | CPF_OutParm | CPF_ReturnParm);
 				*next_property = prop;
 				next_property = &prop->Next;
 				*next_property_link = prop;
@@ -2491,15 +2529,42 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		}
 	}
 
+	// link to fix props Offset_Internal
+	function->Bind();
+	function->StaticLink(true);
+
 	if (parent_function) {
-		if (!parent_function->IsSignatureCompatibleWith(function)) {
-			UE_LOG(LogPython, Error, TEXT("function %s signature's is not compatible with the parent"), UTF8_TO_TCHAR(name));
+
+		if (!function->IsSignatureCompatibleWith(parent_function)) {
+			TFieldIterator<UProperty> It(parent_function);
+			while (It) {
+				UProperty *p = *It;
+				if (p->PropertyFlags & CPF_Parm) {
+					UE_LOG(LogPython, Warning, TEXT("Parent PROP: %s %d/%d %d %d %d %s %p"), *p->GetName(), (int)p->PropertyFlags, (int)UFunction::GetDefaultIgnoredSignatureCompatibilityFlags(), (int)(p->PropertyFlags & ~UFunction::GetDefaultIgnoredSignatureCompatibilityFlags()), p->GetSize(), p->GetOffset_ForGC(), *p->GetClass()->GetName(), p->GetClass());
+					UClassProperty *ucp = Cast<UClassProperty>(p);
+					if (ucp) {
+						UE_LOG(LogPython, Warning, TEXT("Parent UClassProperty = %p %s %p %s"), ucp->PropertyClass, *ucp->PropertyClass->GetName(), ucp->MetaClass, *ucp->MetaClass->GetName());
+					}
+				}
+				++It;
+			}
+
+			TFieldIterator<UProperty> It2(function);
+			while (It2) {
+				UProperty *p = *It2;
+				if (p->PropertyFlags & CPF_Parm) {
+					UE_LOG(LogPython, Warning, TEXT("Function PROP: %s %d/%d %d %d %d %s %p"), *p->GetName(), (int)p->PropertyFlags, (int)UFunction::GetDefaultIgnoredSignatureCompatibilityFlags(), (int)(p->PropertyFlags & ~UFunction::GetDefaultIgnoredSignatureCompatibilityFlags()), p->GetSize(), p->GetOffset_ForGC(), *p->GetClass()->GetName(), p->GetClass());
+					UClassProperty *ucp = Cast<UClassProperty>(p);
+					if (ucp) {
+						UE_LOG(LogPython, Warning, TEXT("Function UClassProperty = %p %s %p %s"), ucp->PropertyClass, *ucp->PropertyClass->GetName(), ucp->MetaClass, *ucp->MetaClass->GetName());
+					}
+				}
+				++It2;
+			}
+			PyErr_Format(PyExc_Exception, "function %s signature's is not compatible with the parent", name);
 			return nullptr;
 		}
 	}
-
-	function->Bind();
-	function->StaticLink(true);
 
 	function->ParmsSize = 0;
 	function->NumParms = 0;
@@ -2517,7 +2582,12 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		}
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
+	if (parent_function) {
+		UE_LOG(LogPython, Warning, TEXT("OVERRIDDEN FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
+	}
+	else {
+		UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
+	}
 
 	function->FunctionFlags = function_flags;
 
