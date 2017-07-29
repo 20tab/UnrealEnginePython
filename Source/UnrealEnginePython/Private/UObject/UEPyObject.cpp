@@ -786,6 +786,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	UProperty *u_property = nullptr;
 	UClass *u_class = nullptr;
 	UClass *u_prop_class = nullptr;
+	UScriptStruct *u_script_struct = nullptr;
 	bool is_array = false;
 
 	if (property_class) {
@@ -793,10 +794,15 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 			return PyErr_Format(PyExc_Exception, "property class arg is not a uobject");
 		}
 		ue_PyUObject *py_prop_class = (ue_PyUObject *)property_class;
-		if (!py_prop_class->ue_object->IsA<UClass>()) {
-			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass");
+		if (py_prop_class->ue_object->IsA<UClass>()) {
+			u_prop_class = (UClass *)py_prop_class->ue_object;
 		}
-		u_prop_class = (UClass *)py_prop_class->ue_object;
+		else if (py_prop_class->ue_object->IsA<UScriptStruct>()) {
+			u_script_struct = (UScriptStruct *)py_prop_class->ue_object;
+		}
+		else {
+			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
+		}
 	}
 
 	EObjectFlags o_flags = RF_Public | RF_MarkAsNative | RF_Transient;
@@ -866,6 +872,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 				obj_prop->SetPropertyClass(u_prop_class);
 			}
 		}
+		if (u_property->GetClass() == UStructProperty::StaticClass()) {
+			UStructProperty *obj_prop = (UStructProperty *)u_property;
+			if (u_script_struct) {
+				obj_prop->Struct = u_script_struct;
+			}
+		}
 		u_property = u_array;
 	}
 
@@ -891,6 +903,16 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
 			if (u_prop_class) {
 				obj_prop->SetPropertyClass(u_prop_class);
+			}
+		}
+	}
+
+	else if (u_class == UStructProperty::StaticClass()) {
+		// ensure it is not an arry as we have already managed it !
+		if (!is_array) {
+			UStructProperty *obj_prop = (UStructProperty *)u_property;
+			if (u_script_struct) {
+				obj_prop->Struct = u_script_struct;
 			}
 		}
 	}

@@ -1161,7 +1161,15 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 						prop_added = true;
 					}
 				}
+				else if (py_obj->ue_object->IsA<UScriptStruct>()) {
+					if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass()), class_key, value))) {
+						unreal_engine_py_log_error();
+						return -1;
+					}
+					prop_added = true;
+				}
 			}
+
 			// add array property
 			else if (PyList_Check(value)) {
 				if (PyList_Size(value) == 1) {
@@ -1177,6 +1185,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 								}
 								prop_added = true;
 							}
+
 							else {
 								if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass()), class_key, first_item))) {
 									unreal_engine_py_log_error();
@@ -1185,7 +1194,15 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 								prop_added = true;
 							}
 						}
+						else if (py_obj->ue_object->IsA<UScriptStruct>()) {
+							if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass()), class_key, first_item))) {
+								unreal_engine_py_log_error();
+								return -1;
+							}
+							prop_added = true;
+						}
 					}
+
 				}
 			}
 			// function ?
@@ -1547,7 +1564,7 @@ void unreal_engine_py_log_error() {
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj) {

@@ -9,6 +9,7 @@
 #include "Editor/StaticMeshEditor/Public/StaticMeshEditorModule.h"
 #include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
 #include "Editor/PropertyEditor/Public/ISinglePropertyView.h"
+#include "Editor/PropertyEditor/Public/IDetailsView.h"
 #endif
 
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
@@ -727,6 +728,7 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	FDetailsViewArgs view_args;
 	view_args.bAllowSearch = (py_allow_search && PyObject_IsTrue(py_allow_search));
+	view_args.NameAreaSettings = FDetailsViewArgs::ENameAreaSettings::HideNameArea;
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
 	view->SetObject(u_object);

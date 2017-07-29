@@ -206,6 +206,12 @@ static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value) {
 	if (py_vec) {
 		vec *= py_vec->vec;
 	}
+	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value)) {
+		return py_ue_new_fvector(py_rot->rot.RotateVector(vec));
+	}
+	else if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+		return py_ue_new_fvector(py_quat->quat.RotateVector(vec));
+	}
 	else if (PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
 		float f = PyFloat_AsDouble(f_value);
@@ -222,12 +228,6 @@ static PyObject *ue_py_fvector_div(ue_PyFVector *self, PyObject *value) {
 		if (py_vec->vec.X == 0 || py_vec->vec.Y == 0 || py_vec->vec.Z == 0)
 			return PyErr_Format(PyExc_ZeroDivisionError, "division by zero");
 		vec /= py_vec->vec;
-	}
-	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value)) {
-		return py_ue_new_fvector(py_rot->rot.RotateVector(vec));
-	}
-	else if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
-		return py_ue_new_fvector(py_quat->quat.RotateVector(vec));
 	}
 	else if (PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
