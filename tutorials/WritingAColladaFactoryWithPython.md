@@ -122,7 +122,6 @@ class ColladaFactory(PyFactory):
         self.Formats = ['dae;Collada']
         # set the UClass this UFactory will generate
         self.SupportedClass = StaticMesh
-        ue.log(dir(self))
     
     # this functions starts with an uppercase letter, so it will be visible to the UE system
     # not required obviously, but it will be a good example
@@ -165,7 +164,7 @@ class ColladaFactory(PyFactory):
         # fix mesh data
         self.FixMeshData()
         
-        # create a new mesh, FRawMesh is an ptopmized wrapper exposed by the python plugin. read: no reflection involved
+        # create a new mesh, FRawMesh is an optimized wrapper exposed by the python plugin. read: no reflection involved
         mesh = FRawMesh()
         # assign vertices
         mesh.set_vertex_positions(self.vertices)
