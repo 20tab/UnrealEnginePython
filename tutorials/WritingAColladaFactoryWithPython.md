@@ -86,7 +86,7 @@ https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingACollada
 
 (it is a simple duck)
 
-once you re-run the collada_factory.py script you will be able to click on 'Import' in the Countent Browser and now you the 'dae' extension will show in the list of supported ones. Select the duck file and just look at the python console:
+once you re-run the collada_factory.py script you will be able to click on 'Import' in the Countent Browser and now the 'dae' extension will show in the list of supported ones. Select the duck file and just look at the python console:
 
 ![First import](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/first_import.png)
 
