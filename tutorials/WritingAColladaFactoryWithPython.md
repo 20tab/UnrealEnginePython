@@ -204,6 +204,39 @@ Technically it is a skeletal mesh with an animation (something we will try to im
 
 ![Broken vampire](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/broken_vampire.png)
 
+time to use some vector math to fix the mesh rotation:
+
+```python
+...
+
+from unreal_engine import FVector, FRotator
+...
+def FixMeshData(self):
+        # move from collada system (y on top) to ue4 one (z on top, forward decreases over viewer)
+        for i in range(0, len(self.vertices), 3):
+           xv, yv, zv = self.vertices[i], self.vertices[i+1], self.vertices[i+2]
+           # invert forward
+           vec = FVector(zv * -1, xv, yv) * FRotator(0, -90, 180)
+           self.vertices[i] = vec.x
+           self.vertices[i+1] = vec.y
+           self.vertices[i+2] = vec.z
+           xn, yn, zn = self.normals[i], self.normals[i+1], self.normals[i+2]
+           nor = FVector(zn * -1, xn, yn) * FRotator(0, -90, 180)
+           # invert forward
+           self.normals[i] = nor.x
+           self.normals[i+1] = nor.y
+           self.normals[i+2] = nor.z
+        
+        # fix uvs from 0 on bottom to 0 on top
+        for i, uv in enumerate(uvs):
+            if i % 2 != 0:
+                uvs[i] = 1 - uv
+```
+
+re-run and re-import the vampire, it should be correctly rotated now.
+
+Obviously if we reimport the duck with the current code, its rotation will be wrong. So, time to add a configurator GUI for the factory.
+
 ## Adding a GUI to the importer: The Slate API
 
 ## Persistent importer options: more subclassing
