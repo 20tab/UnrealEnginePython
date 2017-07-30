@@ -197,7 +197,7 @@ Try to play a bit with MeshBuildSettings values in the code (expecially note the
 
 Download this file: https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingAColladaFactoryWithPython_Assets/vampire.dae
 
-it is the Vampire from mixmamo.com.
+it is the Vampire from mixamo.com.
 
 Technically it is a skeletal mesh with an animation (something we will try to import in a future tutorial), if we try to import it we will end with a dead vampire :P
 
