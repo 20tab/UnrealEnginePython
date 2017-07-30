@@ -289,8 +289,11 @@ from unreal_engine import SWindow, SVerticalBox, SHorizontalBox, SButton, SRotat
 from unreal_engine.enums import EHorizontalAlignment
 
 ...
+def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename: str) -> Object:
 
-def open_collada_wizard(self):
+    ...
+
+    def open_collada_wizard(self):
 
         def cancel_import():
             self.wizard.request_destroy()
@@ -355,6 +358,8 @@ def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename
             return None
         ....
 ```
+
+Re running the import will result in this wizard:
 
 ![Import options](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/import_options.png)
 
