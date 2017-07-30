@@ -92,6 +92,97 @@ obviously we still have not added data to our StaticMesh, so in our Content Brow
 
 ![Empty mesh](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/empty_mesh.png)
 
+## Bulding the new mesh
+
+The following part is a bit complex and requires heavy understanding of the UE4 internals.
+
+Just read the code comments, we now need to extract the data in the dae file (vertices, uvs and normals) and build a LOD (Level of Detail) for the StaticMesh (a StaticMesh can have multiple LOD's, each one is a different Mesh).
+
+In this case we use a single LOD (the LOD0). Pay attention to the data manipulation (using numpy). The collada format has different convention in respect to UE4. We flip UVs vertically and we swap axis to have Z on top (instead of y)
+
+```python
+from unreal_engine.classes import PyFactory, StaticMesh, Object, Class
+
+import unreal_engine as ue
+
+from collada import Collada
+
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
+from unreal_engine import FRawMesh
+import numpy
+
+class ColladaFactory(PyFactory):
+
+    def __init__(self):
+        # inform the editor that this class is able to import assets
+        self.bEditorImport = True
+        # register the .dae extension as supported
+        self.Formats = ['dae;Collada']
+        # set the UClass this UFactory will generate
+        self.SupportedClass = StaticMesh
+
+    def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename: str) -> Object:
+        # load the collada file
+        dae = Collada(filename)
+        ue.log_warning(dae)
+        # create a new UStaticMesh with the specified name and parent
+        static_mesh = StaticMesh(name, parent)
+
+        # prepare a new model with the specified build settings
+        source_model = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+
+        # extract vertices, uvs and normals from the da file (numpy.ravel will flatten the arrays to simple array of floats)
+        triset = dae.geometries[0].primitives[0]
+        vertices = numpy.ravel(triset.vertex[triset.vertex_index])
+        # take the first uv channel (there could be multiple channels, like the one for lightmapping)
+        uvs = numpy.ravel(triset.texcoordset[0][triset.texcoord_indexset[0]])
+        normals = numpy.ravel(triset.normal[triset.normal_index])
+
+        # move from collada system (y on top) to ue4 one (z on top, forward decreases over viewer)
+        for i in range(0, len(vertices), 3):
+           xv, yv, zv = vertices[i], vertices[i+1], vertices[i+2]
+           # invert forward
+           vertices[i] = zv * -1
+           vertices[i+1] = xv
+           vertices[i+2] = yv
+           xn, yn, zn = normals[i], normals[i+1], normals[i+2]
+           # invert forward
+           normals[i] = zn * -1
+           normals[i+1] = xn
+           normals[i+2] = yn
+        
+        # fix uvs from 0 on bottom to 0 on top
+        for i, uv in enumerate(uvs):
+            if i % 2 != 0:
+                uvs[i] = 1 - uv
+
+        # create a new mesh, FRawMesh is an ptopmized wrapper exposed by the python plugin. read: no reflection involved
+        mesh = FRawMesh()
+        # assign vertices
+        mesh.set_vertex_positions(vertices)
+        # uvs are required
+        mesh.set_wedge_tex_coords(uvs)
+        # normals are optionals
+        mesh.set_wedge_tangent_z(normals)
+        
+        # assign indices (not optimized, just return the list of triangles * 3...)
+        mesh.set_wedge_indices(numpy.arange(0, len(triset) * 3))
+
+        # assign the FRawMesh to the LOD0 (the model we created before)
+        mesh.save_to_static_mesh_source_model(source_model)
+
+        # assign LOD0 to the SataticMesh and build it
+        static_mesh.SourceModels = [source_model]
+        static_mesh.static_mesh_build()
+        static_mesh.static_mesh_create_body_setup()
+
+        return static_mesh
+```
+
+re-run the script and import the same file again (by clicking Import in the Content Browser), if all goes well you will end with the duck mesh:
+
+![The Duck](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/the_duck.png)
+
 ## Adding a GUI to the importer: The Slate API
 
 ## Persistent importer options: more subclassing
