@@ -338,6 +338,25 @@ def open_collada_wizard(self):
 
 ```
 
+add the method to the ColladaFactory and modify the PyFactoryCreateFile function like this:
+
+```python
+def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename: str) -> Object:
+        # load the collada file
+        dae = Collada(filename)
+        ue.log_warning(dae)
+
+        self.do_import = False
+        self.force_rotation = FRotator()
+        self.open_collada_wizard()
+
+        # if the user click on 'Cancel', return !
+        if not self.do_import:
+            return None
+        ....
+```
+
+![Slate demo](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/slate_demo.png)
 
 
 ## Persistent importer options: more subclassing
