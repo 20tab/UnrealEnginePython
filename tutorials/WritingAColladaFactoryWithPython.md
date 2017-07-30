@@ -100,7 +100,7 @@ The following part is a bit complex and requires heavy understanding of the UE4 
 
 Just read the code comments, we now need to extract the data in the dae file (vertices, uvs and normals) and build a LOD (Level of Detail) for the StaticMesh (a StaticMesh can have multiple LOD's, each one is a different Mesh).
 
-In this case we use a single LOD (the LOD0). Pay attention to the data manipulation (using numpy). The collada format has different convention in respect to UE4. We flip UVs vertically and we swap axis to have Z on top (instead of y)
+In this case we use a single LOD (the LOD0). Pay attention to the data manipulation (using numpy) in FixMeshData(). The collada format has different conventions in respect to UE4. We flip UVs vertically and we swap axis to have Z on top (instead of y)
 
 ```python
 from unreal_engine.classes import PyFactory, StaticMesh, Object, Class
