@@ -38,7 +38,7 @@ Note that whenever you re-run the scripts, the internal Unreal Engine reflection
 
 ![Multiple runs](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/multiple_runs.png)
 
-as you can see from the screenshot, the address of the UClass as well as its python UObject counterpart remains the same, while the __init__ call is updated. Remember that whenever you create a new UClass from python, the __init__ method is automatically called by the ClassDefaultObject (this information is useful only if you are into unreal engine internals, otherwise you can simply ignore it ;).
+as you can see from the screenshot, the address of the UClass as well as its python UObject counterpart remains the same, while the `__init__` call is updated. Remember that whenever you create a new UClass from python, the `__init__` method is automatically called by the ClassDefaultObject (this information is useful only if you are into unreal engine internals, otherwise you can simply ignore it ;).
 
 ## Parse .dae files with pycollada
 
