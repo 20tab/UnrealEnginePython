@@ -17,7 +17,7 @@ You generally create new factories by subclassing the UFactory class in C++, but
 ## Subclassing UFactory: PyFactory
 
 The subclassing api allows the developer to subclass any UClass (classes exposed to the UE4 reflection system). Unfortunately the UFactory class does not expose
-its methods to the reflection system, so an handy class named 'UPyFactory' (it ia simple subclass of UFactory) is exposed by the python plugin:
+its methods to the reflection system, so an handy class named 'UPyFactory' (it is a simple subclass of UFactory) is exposed by the python plugin:
 
 ```python
 from unreal_engine.classes import PyFactory
