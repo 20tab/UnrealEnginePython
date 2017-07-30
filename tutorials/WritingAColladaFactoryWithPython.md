@@ -70,6 +70,14 @@ class ColladaFactory(PyFactory):
         return static_mesh
 ```
 
+running this new script will show that the ColladaFactory got a new method:
+
+
+![Added pycollada](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/added_pycollada.png)
+
+
+PyFactoryCreateFile, is the virtual C++ method exposed by UPyFactory and that we are overriding via python. Note that we need to use python3 annotations to inform unreal engine (that is obviously strongly typed) about the type of the functions. PyFactoryCreateFile is called by the editor whenever we try to import a file with the ColladaFactory
+
 Now download the example .dae file from here:
 
 https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingAColladaFactoryWithPython_Assets/duck_triangles.dae
