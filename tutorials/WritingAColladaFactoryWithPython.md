@@ -196,7 +196,88 @@ Try to play a bit with MeshBuildSettings values in the code (expecially note the
 
 ## A more complex model: Mixamo's Vampire
 
+Download this file: https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingAColladaFactoryWithPython_Assets/vampire.dae
+
+it is the Vampire from mixmamo.com.
+
+Technically it is a skeletal mesh with an animation (something we will try to import in a future tutorial), if we try to import it we will end with a dead vampire :P
+
+![Broken vampire](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/broken_vampire.png)
+
+time to use some vector math to fix the mesh rotation:
+
+```python
+...
+
+from unreal_engine import FVector, FRotator
+...
+def FixMeshData(self):
+        # move from collada system (y on top) to ue4 one (z on top, forward decreases over viewer)
+        for i in range(0, len(self.vertices), 3):
+           xv, yv, zv = self.vertices[i], self.vertices[i+1], self.vertices[i+2]
+           # invert forward
+           vec = FVector(zv * -1, xv, yv) * FRotator(0, -90, 180)
+           self.vertices[i] = vec.x
+           self.vertices[i+1] = vec.y
+           self.vertices[i+2] = vec.z
+           xn, yn, zn = self.normals[i], self.normals[i+1], self.normals[i+2]
+           nor = FVector(zn * -1, xn, yn) * FRotator(0, -90, 180)
+           # invert forward
+           self.normals[i] = nor.x
+           self.normals[i+1] = nor.y
+           self.normals[i+2] = nor.z
+        
+        # fix uvs from 0 on bottom to 0 on top
+        for i, uv in enumerate(uvs):
+            if i % 2 != 0:
+                uvs[i] = 1 - uv
+```
+
+re-run and re-import the vampire, it should be correctly rotated now.
+
+Obviously if we reimport the duck with the current code, its rotation will be wrong. So, time to add a configurator GUI for the factory.
+
 ## Adding a GUI to the importer: The Slate API
+
+Slate is the GUI technology of Unreal Engine. It is based on tons of preprocessor macros to simplify readability to the developer building graphical interfaces. Its python wrapper tries to resemble this spirit by adapting it to the pythonic style. Note: the slate python api wrapper development has been completely sponsored by Kite & Lightning (http://kiteandlightning.la/). Big thanks to them.
+
+A Python Slate interface looks like this:
+
+```python
+from unreal_engine import SWindow, SVerticalBox, SHorizontalBox, SButton, STextBlock, SBorder, FLinearColor
+from unreal_engine.enums import EHorizontalAlignment, EVerticalAlignment
+
+import unreal_engine as ue
+
+SWindow(title='Hello I am Slate', client_size=(1024, 512))(
+    SVerticalBox()
+    (
+        STextBlock(text='I am the first top vertical item, without alignment'),
+    )
+    (
+        SBorder(color_and_opacity=FLinearColor(1, 0, 0, 1))
+        (
+            STextBlock(text='I am the second top vertical item with center/bottom alignment'),      
+        ),
+        h_align = EHorizontalAlignment.HAlign_Center,
+        v_align = EVerticalAlignment.VAlign_Bottom
+    )
+    (
+        SHorizontalBox()
+        (
+            SButton(text='Button Left', on_clicked=lambda: ue.log('Hello from left'), h_align=EHorizontalAlignment.HAlign_Center)
+        )
+        (
+            SButton(text='Button Right', on_clicked=lambda: ue.log('Hello from right'), v_align=EVerticalAlignment.VAlign_Center)
+        ),
+        fill_height=0.2
+    )
+)
+```
+
+feel free to run the previous code to obtain something like this (click on the buttons, they will write to the console !):
+
+![Slate demo](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/slate_demo.png)
 
 ## Persistent importer options: more subclassing
 
