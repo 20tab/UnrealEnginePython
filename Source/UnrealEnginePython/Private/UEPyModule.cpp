@@ -1206,7 +1206,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 			}
 			// function ?
-			else if (PyCallable_Check(value)) {
+			else if (PyCallable_Check(value) && class_key[0] >= 'A' && class_key[0] <= 'Z') {
 				uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
 				PyObject *is_event = PyObject_GetAttrString(value, (char *)"event");
 				if (is_event && PyObject_IsTrue(is_event)) {
@@ -1270,6 +1270,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 			}
 
 			if (!prop_added) {
+				UE_LOG(LogPython, Warning, TEXT("Adding %s as attr"), UTF8_TO_TCHAR(class_key));
 				PyObject_SetAttr((PyObject *)self, key, value);
 			}
 		}
@@ -1298,7 +1299,20 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					for (Py_ssize_t i = 0; i < keys_len; i++) {
 						PyObject *key = PyList_GetItem(keys, i);
 						PyObject *value = PyDict_GetItem(u_py_class_casted->py_uobject->py_dict, key);
-						PyObject_SetAttr((PyObject *)new_self, key, value);
+						// special case to bound function to method
+						if (PyFunction_Check(value)) {
+							PyObject *bound_function = PyObject_CallMethod(value, (char*)"__get__", (char*)"O", (PyObject *)new_self);
+							if (bound_function) {
+								PyObject_SetAttr((PyObject *)new_self, key, bound_function);
+								Py_DECREF(bound_function);
+							}
+							else {
+								unreal_engine_py_log_error();
+							}
+						}
+						else {
+							PyObject_SetAttr((PyObject *)new_self, key, value);
+						}
 					}
 					Py_DECREF(keys);
 				}
@@ -1312,13 +1326,40 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		if (py_init && PyCallable_Check(py_init)) {
 			new_u_py_class->SetPyConstructor(py_init);
 			ue_PyUObject *new_default_self = ue_get_python_wrapper(new_u_py_class->ClassDefaultObject);
+
 			if (!new_default_self) {
 				unreal_engine_py_log_error();
 				UE_LOG(LogPython, Error, TEXT("unable to call __init__ on new ClassDefaultObject"));
 			}
 			else {
+				if (self->py_dict) {
+					PyObject *keys = PyDict_Keys(self->py_dict);
+
+					Py_ssize_t keys_len = PyList_Size(keys);
+					for (Py_ssize_t i = 0; i < keys_len; i++) {
+						PyObject *key = PyList_GetItem(keys, i);
+						PyObject *value = PyDict_GetItem(self->py_dict, key);
+						// special case to bound function to method
+						if (PyFunction_Check(value)) {
+							PyObject *bound_function = PyObject_CallMethod(value, (char*)"__get__", (char*)"O", (PyObject *)new_default_self);
+							if (bound_function) {
+								PyObject_SetAttr((PyObject *)new_default_self, key, bound_function);
+								Py_DECREF(bound_function);
+							}
+							else {
+								unreal_engine_py_log_error();
+							}
+						}
+						else {
+							PyObject_SetAttr((PyObject *)new_default_self, key, value);
+						}
+					}
+					Py_DECREF(keys);
+				}
+
 				new_u_py_class->CallPyConstructor(new_default_self);
 			}
+
 		}
 	}
 
