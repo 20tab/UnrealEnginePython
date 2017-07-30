@@ -363,6 +363,32 @@ Re running the import will result in this wizard:
 
 ![Import options](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/import_options.png)
 
+Remember to change the FixMeshData function to honour the self.force_rotation value:
+
+```python
+# this functions starts with an uppercase letter, so it will be visible to the UE system
+    # not required obviously, but it will be a good example
+    def FixMeshData(self):
+        # move from collada system (y on top) to ue4 one (z on top, forward decreases over viewer)
+        for i in range(0, len(self.vertices), 3):
+           xv, yv, zv = self.vertices[i], self.vertices[i+1], self.vertices[i+2]
+           # invert forward
+           vec = FVector(zv * -1, xv, yv) * self.force_rotation
+           self.vertices[i] = vec.x
+           self.vertices[i+1] = vec.y
+           self.vertices[i+2] = vec.z
+           xn, yn, zn = self.normals[i], self.normals[i+1], self.normals[i+2]
+           nor = FVector(zn * -1, xn, yn) * self.force_rotation
+           # invert forward
+           self.normals[i] = nor.x
+           self.normals[i+1] = nor.y
+           self.normals[i+2] = nor.z
+        
+        # fix uvs from 0 on bottom to 0 on top
+        for i, uv in enumerate(self.uvs):
+            if i % 2 != 0:
+                self.uvs[i] = 1 - uv
+```
 
 ## Persistent importer options: more subclassing
 
