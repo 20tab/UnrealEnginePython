@@ -391,7 +391,7 @@ Remember to change the FixMeshData function to honour the self.force_rotation va
 
 ## Persistent importer options: more subclassing
 
-All should work fine, but it would be way cooler if the option we set in the importer wizard are remembered between imports.
+All should work fine, but it would be way cooler if the options we set in the importer wizard are remembered between imports.
 
 We could obviously create a python class for storing values and mapping an instance of it to the ColladaFactory, but there is a better approach that will allow us to generate slate widgets automatically (without describing every single part of the interface).
 
