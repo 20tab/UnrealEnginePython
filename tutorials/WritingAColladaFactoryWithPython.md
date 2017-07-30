@@ -31,3 +31,13 @@ class ColladaFactory(PyFactory):
 ```
 
 save the file as collada_factory.py into the /Content/Scripts directory and run it rom the Unreal Engine Python Console.
+
+Note that whenever you re-run the scripts, the internal Unreal Engine reflection system is updated, so you do not need to restart the editor (or launch slow compilations) when you make changes to the script code
+
+## Parse .dae files with pycollada
+
+## Adding a GUI to the importer: The Slate API
+
+## Automatically add the ColladaFactory on editor startup
+
+## Improvements and final notes
