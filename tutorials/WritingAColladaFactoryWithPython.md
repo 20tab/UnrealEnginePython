@@ -404,7 +404,9 @@ from unreal_engine.struct import Rotator
 
 class ColladaImportOptions(Object):
 
+    # this is exposed as a UProperty
     DefaultRotation = Rotator
+    # this is exposed as a UProperty
     DefaultMaterial = Material
     
 ...
@@ -478,3 +480,7 @@ import collada_factory
 
 
 ## Improvements and final notes
+
+This is only a brief introduction to the subclassing and slate API's. Both are still in-development areas so expect more improvements and shortcuts.
+
+A great (future) addition would be loading skeletal meshes and animations... more to come soon
