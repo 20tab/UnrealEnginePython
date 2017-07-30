@@ -1,4 +1,4 @@
-#Writing a Collada StaticMesh importer/factory with Python
+# Writing a Collada StaticMesh importer/factory with Python
 
 In this tutorial we will see how to use the advanced subclassing api available in the Unreal Engine 4 Python plugin, as well as how to build Slate GUIs
 
