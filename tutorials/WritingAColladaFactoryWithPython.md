@@ -38,6 +38,8 @@ Note that whenever you re-run the scripts, the internal Unreal Engine reflection
 
 ## Adding a GUI to the importer: The Slate API
 
+## Persistent importer options: more subclassing
+
 ## Automatically add the ColladaFactory on editor startup
 
 ## Improvements and final notes
