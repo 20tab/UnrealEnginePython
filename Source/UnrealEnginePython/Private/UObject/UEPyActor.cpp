@@ -377,7 +377,7 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 		}
 	}
 
-	UActorComponent *component = NewObject<UActorComponent>(actor, u_class, FName(UTF8_TO_TCHAR(name)));
+	UActorComponent *component = NewObject<UActorComponent>(actor, u_class, FName(UTF8_TO_TCHAR(name)), RF_Public);
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 
@@ -413,7 +413,7 @@ PyObject *py_ue_add_python_component(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 	}
 
-	UPythonComponent *component = NewObject<UPythonComponent>(actor, FName(UTF8_TO_TCHAR(name)));
+	UPythonComponent *component = NewObject<UPythonComponent>(actor, FName(UTF8_TO_TCHAR(name)), RF_Public);
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 
@@ -495,7 +495,7 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument is not a class");
 	}
 
-	USceneComponent *component = NewObject<USceneComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)));
+	USceneComponent *component = NewObject<USceneComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)), RF_Public);
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 

@@ -805,7 +805,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		}
 	}
 
-	EObjectFlags o_flags = RF_Public | RF_MarkAsNative | RF_Transient;
+	EObjectFlags o_flags = RF_Public | RF_MarkAsNative;// | RF_Transient;
 
 	if (ue_is_pyuobject(obj)) {
 		ue_PyUObject *py_obj = (ue_PyUObject *)obj;
@@ -854,7 +854,14 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 	}
 
-	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient | CPF_ZeroConstructor;
+	// one day we may want to support transient properties...
+	//uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_Transient | CPF_ZeroConstructor;
+	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_ZeroConstructor;
+
+	// we assumed Actor Components to be non-editable
+	if (u_prop_class && u_prop_class->IsChildOf<UActorComponent>()) {
+		flags |= ~CPF_Edit;
+	}
 
 	// TODO manage replication
 	/*
