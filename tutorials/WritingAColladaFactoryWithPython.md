@@ -196,6 +196,14 @@ Try to play a bit with MeshBuildSettings values in the code (expecially note the
 
 ## A more complex model: Mixamo's Vampire
 
+Download this file: https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingAColladaFactoryWithPython_Assets/vampire.dae
+
+it is the Vampire from mixmamo.com.
+
+Technically it is a skeletal mesh with an animation (something we will try to import in a future tutorial), if we try to import it we will end with a dead vampire :P
+
+![Broken vampire](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/broken_vampire.png)
+
 ## Adding a GUI to the importer: The Slate API
 
 ## Persistent importer options: more subclassing
