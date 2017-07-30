@@ -123,7 +123,9 @@ class ColladaFactory(PyFactory):
         # set the UClass this UFactory will generate
         self.SupportedClass = StaticMesh
         ue.log(dir(self))
-
+    
+    # this functions starts with an uppercase letter, so it will be visible to the UE system
+    # not required obviously, but it will be a good example
     def FixMeshData(self):
         # move from collada system (y on top) to ue4 one (z on top, forward decreases over viewer)
         for i in range(0, len(self.vertices), 3):
