@@ -239,6 +239,46 @@ Obviously if we reimport the duck with the current code, its rotation will be wr
 
 ## Adding a GUI to the importer: The Slate API
 
+Slate is the GUI technology of Unreal Engine. It is based on tons of preprocessor macros to simplify readability to the developer building graphical interfaces. Its python wrapper tries to resemble this spirit by adapting it to the pythonic style. Note: the slate python api wrapper development has been completely sponsored by Kite & Lightning (http://kiteandlightning.la/). Big thanks to them.
+
+A Python Slate interface looks like this:
+
+```python
+from unreal_engine import SWindow, SVerticalBox, SHorizontalBox, SButton, STextBlock, SBorder, FLinearColor
+from unreal_engine.enums import EHorizontalAlignment, EVerticalAlignment
+
+import unreal_engine as ue
+
+SWindow(title='Hello I am Slate', client_size=(1024, 512))(
+    SVerticalBox()
+    (
+        STextBlock(text='I am the first top vertical item, without alignment'),
+    )
+    (
+        SBorder(color_and_opacity=FLinearColor(1, 0, 0, 1))
+        (
+            STextBlock(text='I am the second top vertical item with center/bottom alignment'),      
+        ),
+        h_align = EHorizontalAlignment.HAlign_Center,
+        v_align = EVerticalAlignment.VAlign_Bottom
+    )
+    (
+        SHorizontalBox()
+        (
+            SButton(text='Button Left', on_clicked=lambda: ue.log('Hello from left'), h_align=EHorizontalAlignment.HAlign_Center)
+        )
+        (
+            SButton(text='Button Right', on_clicked=lambda: ue.log('Hello from right'), v_align=EVerticalAlignment.VAlign_Center)
+        ),
+        fill_height=0.2
+    )
+)
+```
+
+feel free to run the previous code to obtain something like this (click on the buttons, they will write to the console !):
+
+![Slate demo](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/slate_demo.png)
+
 ## Persistent importer options: more subclassing
 
 ## Automatically add the ColladaFactory on editor startup
