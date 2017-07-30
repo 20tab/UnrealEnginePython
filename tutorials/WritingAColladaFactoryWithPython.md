@@ -20,4 +20,14 @@ The subclassing api allows the developer to subclass any UClass (classes exposed
 its methods to the reflection system, so an handy class named 'UPyFactory' is exposed by the python plugin:
 
 ```python
+from unreal_engine.classes import PyFactory
+
+import unreal_engine as ue
+
+class ColladaFactory(PyFactory):
+
+    def __init__(self):
+        ue.log_error('Hello World, i am a useless factory')
 ```
+
+save the file as collada_factory.py into the /Content/Scripts directory and run it rom the Unreal Engine Python Console.
