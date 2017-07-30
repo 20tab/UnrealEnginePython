@@ -38,9 +38,150 @@ Note that whenever you re-run the scripts, the internal Unreal Engine reflection
 
 ![Multiple runs](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/multiple_runs.png)
 
-as you can see from the screenshot, the address of the UClass as well as its python UObject counterpart remains the same, while the __init__ call is updated. Remember that whenever you create a new UClass from python, the __init__ method is automatically called by the ClassDefaultObject (this information is useful only if you are into unreal engine internals, otherwise you can simply ignore it ;).
+as you can see from the screenshot, the address of the UClass as well as its python UObject counterpart remains the same, while the `__init__` call is updated. Remember that whenever you create a new UClass from python, the `__init__` method is automatically called by the ClassDefaultObject (this information is useful only if you are into unreal engine internals, otherwise you can simply ignore it ;).
 
 ## Parse .dae files with pycollada
+
+The collada format is based on XML, so we can easily parse it from python, but instead of doing the hard work by hand, we can use the amazing pycollada module (https://github.com/pycollada/pycollada). Just pip install it and update your class to import and use it:
+
+```python
+from unreal_engine.classes import PyFactory, StaticMesh, Object, Class
+
+import unreal_engine as ue
+
+from collada import Collada
+
+class ColladaFactory(PyFactory):
+
+    def __init__(self):
+        # inform the editor that this class is able to import assets
+        self.bEditorImport = True
+        # register the .dae extension as supported
+        self.Formats = ['dae;Collada']
+        # set the UClass this UFactory will generate
+        self.SupportedClass = StaticMesh
+
+    def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename: str) -> Object:
+        # load the collada file
+        dae = Collada(filename)
+        ue.log_warning(dae)
+        # create a new UStaticMesh with the specified name and parent
+        static_mesh = StaticMesh(name, parent)
+        return static_mesh
+```
+
+running this new script will show that the ColladaFactory got a new method:
+
+
+![Added pycollada](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/added_pycollada.png)
+
+
+PyFactoryCreateFile, is the virtual C++ method exposed by UPyFactory and that we are overriding via python. Note that we need to use python3 annotations to inform unreal engine (that is obviously strongly typed) about the type of the functions. PyFactoryCreateFile is called by the editor whenever we try to import a file with the ColladaFactory
+
+Now download the example .dae file from here:
+
+https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingAColladaFactoryWithPython_Assets/duck_triangles.dae
+
+(it is a simple duck)
+
+once you re-run the collada_factory.py script you will be able to click on 'Import' in the Countent Browser and now you the 'dae' extension will show in the list of supported ones. Select the duck file and just look at the python console:
+
+![First import](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/first_import.png)
+
+obviously we still have not added data to our StaticMesh, so in our Content Browser an empty Static Mesh will appear:
+
+![Empty mesh](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/empty_mesh.png)
+
+## Bulding the new mesh
+
+The following part is a bit complex and requires heavy understanding of the UE4 internals.
+
+Just read the code comments, we now need to extract the data in the dae file (vertices, uvs and normals) and build a LOD (Level of Detail) for the StaticMesh (a StaticMesh can have multiple LOD's, each one is a different Mesh).
+
+In this case we use a single LOD (the LOD0). Pay attention to the data manipulation (using numpy). The collada format has different convention in respect to UE4. We flip UVs vertically and we swap axis to have Z on top (instead of y)
+
+```python
+from unreal_engine.classes import PyFactory, StaticMesh, Object, Class
+
+import unreal_engine as ue
+
+from collada import Collada
+
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
+from unreal_engine import FRawMesh
+import numpy
+
+class ColladaFactory(PyFactory):
+
+    def __init__(self):
+        # inform the editor that this class is able to import assets
+        self.bEditorImport = True
+        # register the .dae extension as supported
+        self.Formats = ['dae;Collada']
+        # set the UClass this UFactory will generate
+        self.SupportedClass = StaticMesh
+
+    def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename: str) -> Object:
+        # load the collada file
+        dae = Collada(filename)
+        ue.log_warning(dae)
+        # create a new UStaticMesh with the specified name and parent
+        static_mesh = StaticMesh(name, parent)
+
+        # prepare a new model with the specified build settings
+        source_model = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+
+        # extract vertices, uvs and normals from the da file (numpy.ravel will flatten the arrays to simple array of floats)
+        triset = dae.geometries[0].primitives[0]
+        vertices = numpy.ravel(triset.vertex[triset.vertex_index])
+        # take the first uv channel (there could be multiple channels, like the one for lightmapping)
+        uvs = numpy.ravel(triset.texcoordset[0][triset.texcoord_indexset[0]])
+        normals = numpy.ravel(triset.normal[triset.normal_index])
+
+        # move from collada system (y on top) to ue4 one (z on top, forward decreases over viewer)
+        for i in range(0, len(vertices), 3):
+           xv, yv, zv = vertices[i], vertices[i+1], vertices[i+2]
+           # invert forward
+           vertices[i] = zv * -1
+           vertices[i+1] = xv
+           vertices[i+2] = yv
+           xn, yn, zn = normals[i], normals[i+1], normals[i+2]
+           # invert forward
+           normals[i] = zn * -1
+           normals[i+1] = xn
+           normals[i+2] = yn
+        
+        # fix uvs from 0 on bottom to 0 on top
+        for i, uv in enumerate(uvs):
+            if i % 2 != 0:
+                uvs[i] = 1 - uv
+
+        # create a new mesh, FRawMesh is an ptopmized wrapper exposed by the python plugin. read: no reflection involved
+        mesh = FRawMesh()
+        # assign vertices
+        mesh.set_vertex_positions(vertices)
+        # uvs are required
+        mesh.set_wedge_tex_coords(uvs)
+        # normals are optionals
+        mesh.set_wedge_tangent_z(normals)
+        
+        # assign indices (not optimized, just return the list of triangles * 3...)
+        mesh.set_wedge_indices(numpy.arange(0, len(triset) * 3))
+
+        # assign the FRawMesh to the LOD0 (the model we created before)
+        mesh.save_to_static_mesh_source_model(source_model)
+
+        # assign LOD0 to the SataticMesh and build it
+        static_mesh.SourceModels = [source_model]
+        static_mesh.static_mesh_build()
+        static_mesh.static_mesh_create_body_setup()
+
+        return static_mesh
+```
+
+re-run the script and import the same file again (by clicking Import in the Content Browser), if all goes well you will end with the duck mesh:
+
+![The Duck](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/the_duck.png)
 
 ## Adding a GUI to the importer: The Slate API
 
