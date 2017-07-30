@@ -356,7 +356,7 @@ def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename
         ....
 ```
 
-![Slate demo](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/slate_demo.png)
+![Import options](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/import_options.png)
 
 
 ## Persistent importer options: more subclassing
