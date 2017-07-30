@@ -462,10 +462,19 @@ To assign the material to the mesh just add this call before returning the stati
 static_mesh.StaticMaterials = [StaticMaterial(MaterialInterface=self.ImportOptions.DefaultMaterial, MaterialSlotName='Main')]
 ```
 
-You can download the whole script here:
+You can download the full updated script here:
 
-
+https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/collada_factory.py
 
 ## Automatically add the ColladaFactory on editor startup
+
+When you are satisfied with your new class, you may want to automatically load it at editor/engine boot.
+
+Just remember that the /Content/Scripts/ue_site.py script is automatically imported (if found) on boot, so just create an empty one and insert:
+
+```python
+import collada_factory
+```
+
 
 ## Improvements and final notes
