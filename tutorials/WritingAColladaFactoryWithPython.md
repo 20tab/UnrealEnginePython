@@ -283,6 +283,58 @@ Now we want to create a modal window just after the dae file is parsed to ask th
 
 ```python
 
+...
+
+from unreal_engine import SWindow, SVerticalBox, SHorizontalBox, SButton, SRotatorInputBox
+from unreal_engine.enums import EHorizontalAlignment
+
+...
+
+def open_collada_wizard(self):
+
+        def cancel_import():
+            self.wizard.request_destroy()
+
+        def confirm_import():
+            self.do_import = True
+            self.wizard.request_destroy()
+
+        def update_roll(roll):
+            self.force_rotation.roll=roll
+
+        def update_pitch(pitch):
+            self.force_rotation.pitch=pitch
+
+        def update_yaw(yaw):
+            self.force_rotation.yaw=yaw
+
+        self.wizard = SWindow(title='Collada Import Options', modal=True, sizing_rule=1)(
+                          SVerticalBox()
+                          (
+                              SRotatorInputBox(roll=lambda:self.force_rotation.roll,
+                                               pitch=lambda:self.force_rotation.pitch,
+                                               yaw=lambda:self.force_rotation.yaw,
+                                               on_roll_changed=update_roll,
+                                               on_pitch_changed=update_pitch,
+                                               on_yaw_changed=update_yaw,
+                                               ),
+                              auto_height=True,
+                              padding = 10
+                          )
+                          (
+                              SHorizontalBox()
+                              (
+                                  SButton(text='Cancel', on_clicked=cancel_import, h_align = EHorizontalAlignment.HAlign_Center)
+                              )
+                              (
+                                  SButton(text='Import', on_clicked=confirm_import, h_align = EHorizontalAlignment.HAlign_Center)
+                              ),
+                              auto_height=True,
+                              padding = 4,
+                          ),
+                          
+                      )
+        self.wizard.add_modal()
 
 ```
 
