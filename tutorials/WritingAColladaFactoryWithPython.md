@@ -30,7 +30,7 @@ class ColladaFactory(PyFactory):
         ue.log_error('Hello World, i am a useless factory')
 ```
 
-save the file as collada_factory.py into the /Content/Scripts directory and run it rom the Unreal Engine Python Console:
+save the file as collada_factory.py into the /Content/Scripts directory and run it from the Unreal Engine Python Console:
 
 ![Class prototype](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/class_prototype.png)
 
