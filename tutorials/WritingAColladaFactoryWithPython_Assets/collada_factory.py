@@ -31,7 +31,6 @@ class ColladaFactory(PyFactory):
         self.Formats = ['dae;Collada']
         # set the UClass this UFactory will generate
         self.SupportedClass = StaticMesh
-        ue.log(dir(self))
 
     
     def open_collada_wizard(self):
