@@ -228,9 +228,9 @@ def FixMeshData(self):
            self.normals[i+2] = nor.z
         
         # fix uvs from 0 on bottom to 0 on top
-        for i, uv in enumerate(uvs):
+        for i, uv in enumerate(self.uvs):
             if i % 2 != 0:
-                uvs[i] = 1 - uv
+                self.uvs[i] = 1 - uv
 ```
 
 re-run and re-import the vampire, it should be correctly rotated now.
@@ -278,6 +278,15 @@ SWindow(title='Hello I am Slate', client_size=(1024, 512))(
 feel free to run the previous code to obtain something like this (click on the buttons, they will write to the console !):
 
 ![Slate demo](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/slate_demo.png)
+
+Now we want to create a modal window just after the dae file is parsed to ask the user to confirm the import and to specify the rotation to apply to the mesh:
+
+```python
+
+
+```
+
+
 
 ## Persistent importer options: more subclassing
 
