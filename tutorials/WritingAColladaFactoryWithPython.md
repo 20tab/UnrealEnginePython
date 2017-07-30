@@ -42,6 +42,48 @@ as you can see from the screenshot, the address of the UClass as well as its pyt
 
 ## Parse .dae files with pycollada
 
+The collada format is based on XML, so we can easily parse it from python, but instead of doing the hard work by hand, we can use the amazing pycollada module (https://github.com/pycollada/pycollada). Just pip install it and update your class to import and use it:
+
+```python
+from unreal_engine.classes import PyFactory, StaticMesh, Object, Class
+
+import unreal_engine as ue
+
+from collada import Collada
+
+class ColladaFactory(PyFactory):
+
+    def __init__(self):
+        # inform the editor that this class is able to import assets
+        self.bEditorImport = True
+        # register the .dae extension as supported
+        self.Formats = ['dae;Collada']
+        # set the UClass this UFactory will generate
+        self.SupportedClass = StaticMesh
+
+    def PyFactoryCreateFile(self, uclass: Class, parent: Object, name: str, filename: str) -> Object:
+        # load the collada file
+        dae = Collada(filename)
+        ue.log_warning(dae)
+        # create a new UStaticMesh with the specified name and parent
+        static_mesh = StaticMesh(name, parent)
+        return static_mesh
+```
+
+Now download the example .dae file from here:
+
+https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/WritingAColladaFactoryWithPython_Assets/duck_triangles.dae
+
+(it is a simple duck)
+
+once you re-run the collada_factory.py script you will be able to click on 'Import' in the Countent Browser and now you the 'dae' extension will show in the list of supported ones. Select the duck file and just look at the python console:
+
+![First import](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/first_import.png)
+
+obviously we still have not added data to our StaticMesh, so in our Content Browser an empty Static Mesh will appear:
+
+![Empty mesh](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/empty_mesh.png)
+
 ## Adding a GUI to the importer: The Slate API
 
 ## Persistent importer options: more subclassing
