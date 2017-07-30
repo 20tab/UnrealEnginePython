@@ -418,7 +418,7 @@ class ColladaFactory(PyFactory):
 
 ```
 
-Now every time a ColladaFactory is spawned it will hold a reference to the ColladaImportOptions() instance. In this way the value we enter will be remembered between runs.
+Now every time a ColladaFactory is spawned it will hold a reference to the ColladaImportOptions() instance. In this way the values we enter will be remembered between runs.
 
 Note that we have set a default material to assign to the mesh.
 
