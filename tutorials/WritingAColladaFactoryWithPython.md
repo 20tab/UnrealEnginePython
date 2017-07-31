@@ -278,6 +278,8 @@ feel free to run the previous code to obtain something like this (click on the b
 
 ![Slate demo](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/slate_demo.png)
 
+Pay attention to the opening parenthesis at the end of the SWindow() line. It is important the first opening is on the same line to inform the python parser that the instruction is not ended. (this is only required for the first opening)
+
 Now we want to create a modal window just after the dae file is parsed to ask the user to confirm the import and to specify the rotation to apply to the mesh:
 
 ```python
