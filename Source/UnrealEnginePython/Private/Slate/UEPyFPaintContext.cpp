@@ -36,13 +36,46 @@ static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObje
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyObject * args) {
+	float x1, y1, dx1, dy1;
+	float x2, y2, dx2, dy2;
+	PyObject *py_linear_color = nullptr;
+
+	float thickness = 1.0;
+
+	if (!PyArg_ParseTuple(args, "(ff)(ff)(ff)(ff)|Of:draw_spline", &x1, &y1, &dx1, &dy1, &x2, &y2, &dx2, &dy2, &py_linear_color, &thickness))
+		return nullptr;
+
+	FLinearColor tint = FLinearColor::White;
+
+	if (py_linear_color) {
+		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
+			tint = linear_color->color;
+		}
+		else {
+			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+		}
+	}
+
+	FPaintContext context = self->paint_context;
+
+	context.MaxLayer++;
+
+	FSlateDrawElement::MakeSpline(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(),
+		FVector2D(x1, y1), FVector2D(dx1, dy1), FVector2D(x2, y2), FVector2D(dx2, dy2),
+		context.MyClippingRect, thickness, ESlateDrawEffect::None, tint);
+
+	Py_RETURN_NONE;
+}
+
+
 static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObject * args) {
 	PyObject *py_points;
 	PyObject *py_linear_color = nullptr;
 	PyObject *py_antialias = nullptr;
 	float thickness = 1.0;
 
-	if (!PyArg_ParseTuple(args, "O|OOf:draw_line", &py_points, &py_linear_color, &py_antialias, &thickness))
+	if (!PyArg_ParseTuple(args, "O|OOf:draw_lines", &py_points, &py_linear_color, &py_antialias, &thickness))
 		return nullptr;
 
 	TArray<FVector2D> points;
@@ -90,6 +123,7 @@ static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObj
 static PyMethodDef ue_PyFPaintContext_methods[] = {
 	{ "draw_line", (PyCFunction)py_ue_fpaint_context_draw_line, METH_VARARGS, "" },
 	{ "draw_lines", (PyCFunction)py_ue_fpaint_context_draw_lines, METH_VARARGS, "" },
+	{ "draw_spline", (PyCFunction)py_ue_fpaint_context_draw_spline, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
