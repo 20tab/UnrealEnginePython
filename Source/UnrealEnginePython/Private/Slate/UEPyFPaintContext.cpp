@@ -36,6 +36,49 @@ static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObje
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObject * args) {
+	float x, y;
+	char *text;
+	PyObject *py_linear_color = nullptr;
+	PyObject *py_font = nullptr;
+
+	if (!PyArg_ParseTuple(args, "(ff)s|OO:draw_text", &x, &y, &text, &py_linear_color, &py_font))
+		return nullptr;
+
+	FLinearColor tint = FLinearColor::White;
+	FSlateFontInfo font = FCoreStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText").Font;
+
+	if (py_linear_color) {
+		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
+			tint = linear_color->color;
+		}
+		else {
+			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+		}
+	}
+
+	if (py_font) {
+		FSlateFontInfo *font_struct = ue_py_check_struct<FSlateFontInfo>(py_font);
+		if (font_struct) {
+			font = *font_struct;
+		}
+		else {
+			return PyErr_Format(PyExc_Exception, "argument is not a SlateFontInfo USTRUCT");
+		}
+	}
+
+	FVector2D position = FVector2D(x, y);
+
+	FPaintContext context = self->paint_context;
+
+	context.MaxLayer++;
+
+	FSlateDrawElement::MakeText(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToOffsetPaintGeometry(position),
+		FText::FromString(UTF8_TO_TCHAR(text)), font, context.MyClippingRect, ESlateDrawEffect::None, tint);
+
+	Py_RETURN_NONE;
+}
+
 static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyObject * args) {
 	float x1, y1, dx1, dy1;
 	float x2, y2, dx2, dy2;
@@ -124,6 +167,7 @@ static PyMethodDef ue_PyFPaintContext_methods[] = {
 	{ "draw_line", (PyCFunction)py_ue_fpaint_context_draw_line, METH_VARARGS, "" },
 	{ "draw_lines", (PyCFunction)py_ue_fpaint_context_draw_lines, METH_VARARGS, "" },
 	{ "draw_spline", (PyCFunction)py_ue_fpaint_context_draw_spline, METH_VARARGS, "" },
+	{ "draw_text", (PyCFunction)py_ue_fpaint_context_draw_text, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
