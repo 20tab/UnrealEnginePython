@@ -614,6 +614,9 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_fslate_style_set(module);
 	ue_python_init_ftool_bar_builder(module);
 	ue_python_init_fslate_icon(module);
+
+	ue_python_init_fgeometry(module);
+	ue_python_init_fpaint_context(module);
 }
 
 PyObject *ue_py_dict_get_item(PyObject *dict, const char *key) {

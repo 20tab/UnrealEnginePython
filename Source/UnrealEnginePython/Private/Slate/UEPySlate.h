@@ -63,6 +63,9 @@
 #include "UEPyFToolBarBuilder.h"
 #include "UEPyFSlateIcon.h"
 
+#include "UEPyFGeometry.h"
+#include "UEPyFPaintContext.h"
+
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"
 #include "UEPySLevelViewport.h"

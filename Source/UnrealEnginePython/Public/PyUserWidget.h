@@ -15,17 +15,15 @@ public:
 
 	~UPyUserWidget();
 
-	virtual bool Initialize() override;
-
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
 	// Called every frame
 	virtual void NativeTick(const FGeometry & MyGeometry, float InDeltaTime) override;
 
-	//virtual void NativePaint(FPaintContext & InContext) const override;
+	virtual void NativePaint(FPaintContext & InContext) const override;
 
-	//virtual bool NativeIsInteractable() const override;
+	virtual bool NativeIsInteractable() const override;
 
 	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	FString PythonModule;
@@ -35,6 +33,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	bool PythonTickForceDisabled;
+
+	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
+	bool PythonPaintForceDisabled;
 
 private:
 	PyObject *py_user_widget_instance;

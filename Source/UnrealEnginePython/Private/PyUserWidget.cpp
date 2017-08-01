@@ -4,27 +4,27 @@
 #include "PythonDelegate.h"
 
 #include "Slate/UEPyFGeometry.h"
+#include "Slate/UEPyFPaintContext.h"
 
-bool UPyUserWidget::Initialize()
+void UPyUserWidget::NativeConstruct()
 {
-	if (!Super::Initialize())
-		return false;
+	Super::NativeConstruct();
 
 	if (PythonModule.IsEmpty())
-		return false;
+		return;
 
 	FScopePythonGIL gil;
 
 	py_uobject = ue_get_python_wrapper(this);
 	if (!py_uobject) {
 		unreal_engine_py_log_error();
-		return false;
+		return;
 	}
 
 	PyObject *py_user_widget_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
 	if (!py_user_widget_module) {
 		unreal_engine_py_log_error();
-		return false;
+		return;
 	}
 
 #if WITH_EDITOR
@@ -32,43 +32,36 @@ bool UPyUserWidget::Initialize()
 	py_user_widget_module = PyImport_ReloadModule(py_user_widget_module);
 	if (!py_user_widget_module) {
 		unreal_engine_py_log_error();
-		return false;
+		return;
 	}
 #endif
 
 	if (PythonClass.IsEmpty())
-		return false;
+		return;
 
 	PyObject *py_user_widget_module_dict = PyModule_GetDict(py_user_widget_module);
 	PyObject *py_user_widget_class = PyDict_GetItemString(py_user_widget_module_dict, TCHAR_TO_UTF8(*PythonClass));
 
 	if (!py_user_widget_class) {
 		UE_LOG(LogPython, Error, TEXT("Unable to find class %s in module %s"), *PythonClass, *PythonModule);
-		return false;
+		return;
 	}
 
 	py_user_widget_instance = PyObject_CallObject(py_user_widget_class, NULL);
 	if (!py_user_widget_instance) {
 		unreal_engine_py_log_error();
-		return false;
+		return;
 	}
 
 	py_uobject->py_proxy = py_user_widget_instance;
 
 	PyObject_SetAttrString(py_user_widget_instance, (char*)"uobject", (PyObject *)py_uobject);
 
-	return true;
-}
+	if (PythonTickForceDisabled)
+		bCanEverTick = false;
 
-
-void UPyUserWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	if (!py_user_widget_instance)
-		return;
-
-	FScopePythonGIL gil;
+	if (PythonPaintForceDisabled)
+		bCanEverPaint = false;
 
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"construct"))
 		return;
@@ -120,7 +113,49 @@ void UPyUserWidget::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
 		return;
 	}
 	Py_DECREF(ret);
+}
 
+bool UPyUserWidget::NativeIsInteractable() const
+{
+	if (!py_user_widget_instance)
+		return false;
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"is_interactable"))
+		return false;
+
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"is_interactable", nullptr);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return false;
+	}
+
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return true;
+	}
+
+	Py_DECREF(ret);
+	return false;
+}
+
+void UPyUserWidget::NativePaint(FPaintContext & InContext) const
+{
+	if (!py_user_widget_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"paint"))
+		return;
+
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"paint", (char *)"O", py_ue_new_fpaint_context(InContext));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
 }
 
 UPyUserWidget::~UPyUserWidget()
