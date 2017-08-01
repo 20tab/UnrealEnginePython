@@ -56,7 +56,7 @@
 #include "UEPySProgressBar.h"
 
 
-
+#include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
 #include "UEPyFMenuBuilder.h"
 #include "UEPyFSlateStyleSet.h"

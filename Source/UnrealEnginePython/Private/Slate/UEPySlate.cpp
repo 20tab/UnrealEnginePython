@@ -608,6 +608,7 @@ void ue_python_init_slate(PyObject *module) {
 #endif
 #endif
 
+	ue_python_init_ftab_manager(module);
 	ue_python_init_ftab_spawner_entry(module);
 	ue_python_init_fmenu_builder(module);
 	ue_python_init_fslate_style_set(module);

@@ -26,9 +26,17 @@ static PyObject *py_ue_sdock_tab_request_close_tab(ue_PySButton *self, PyObject 
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_sdock_tab_new_tab_manager(ue_PySButton *self, PyObject * args) {
+
+	TSharedRef<FTabManager> tab_manager = FGlobalTabmanager::Get()->NewTabManager(sw_dock_tab);
+
+	return py_ue_new_ftab_manager(tab_manager);
+}
+
 static PyMethodDef ue_PySDockTab_methods[] = {
 	{ "set_label", (PyCFunction)py_ue_sdock_tab_set_label, METH_VARARGS, "" },
 	{ "request_close_tab", (PyCFunction)py_ue_sdock_tab_request_close_tab, METH_VARARGS, "" },
+	{ "new_tab_manager", (PyCFunction)py_ue_sdock_tab_new_tab_manager, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
