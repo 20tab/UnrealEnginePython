@@ -1019,7 +1019,7 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	if (!PyArg_ParseTuple(args, "|s:save_package", &name)) {
 		return NULL;
 	}
-	UObject *outer = self->ue_object->GetOuter();
+	UObject *outer = self->ue_object->GetOutermost();
 	UObject *u_object = self->ue_object;
 
 	if (outer && outer->IsA<UPackage>() && outer != GetTransientPackage()) {
@@ -1071,6 +1071,11 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	package->FullyLoad();
 	package->MarkPackageDirty();
+
+	if (package->FileName.IsNone()) {
+		package->FileName = *FPackageName::LongPackageNameToFilename(*package->GetPathName(), FPackageName::GetAssetPackageExtension());
+		UE_LOG(LogPython, Warning, TEXT("no file mapped to UPackage %s, setting its FileName to %s"), *package->GetPathName(), *package->FileName.ToString());
+	}
 
 	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString())) {
 		FAssetRegistryModule::AssetCreated(u_object);
