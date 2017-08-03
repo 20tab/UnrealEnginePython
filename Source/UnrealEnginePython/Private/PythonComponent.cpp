@@ -426,7 +426,7 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 	return nullptr;
 }
 
-
+#if ENGINE_MINOR_VERSION >= 15
 TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString method_name, FString args){
 	TMap<FString, FString> output_map;
 
@@ -482,6 +482,8 @@ TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString me
 
 	return output_map;
 }
+#endif
+
 void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings)
 {
 	if (!py_component_instance)

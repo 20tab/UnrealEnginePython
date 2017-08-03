@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/BlendSpaceBase.h"
+#include "Animation/AnimMontage.h"
 
 PyObject *py_ue_anim_get_skeleton(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
