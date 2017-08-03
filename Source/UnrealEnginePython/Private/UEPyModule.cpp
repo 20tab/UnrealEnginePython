@@ -711,6 +711,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_track_add_section", (PyCFunction)py_ue_sequencer_track_add_section, METH_VARARGS, "" },
 
 	{ "sequencer_section_add_key", (PyCFunction)py_ue_sequencer_section_add_key, METH_VARARGS, "" },
+	{ "sequencer_remove_possessable", (PyCFunction)py_ue_sequencer_remove_possessable, METH_VARARGS, "" },
+	{ "sequencer_remove_spawnable", (PyCFunction)py_ue_sequencer_remove_spawnable, METH_VARARGS, "" },
+	{ "sequencer_remove_camera_cut_track", (PyCFunction)py_ue_sequencer_remove_camera_cut_track, METH_VARARGS, "" },
+	{ "sequencer_remove_master_track", (PyCFunction)py_ue_sequencer_remove_master_track, METH_VARARGS, "" },
+	{ "sequencer_remove_track", (PyCFunction)py_ue_sequencer_remove_track, METH_VARARGS, "" },
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },

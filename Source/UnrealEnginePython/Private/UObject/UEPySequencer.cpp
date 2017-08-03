@@ -681,6 +681,122 @@ PyObject *py_ue_sequencer_add_camera_cut_track(ue_PyUObject *self, PyObject * ar
 	Py_INCREF(ret);
 	return ret;
 }
+
+
+PyObject *py_ue_sequencer_remove_possessable(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *guid;
+	if (!PyArg_ParseTuple(args, "s:sequencer_remove_possessable", &guid)) {
+		return nullptr;
+	}
+		
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid)) {
+		return PyErr_Format(PyExc_Exception, "invalid guid");
+	}
+	
+	if (scene->RemovePossessable(f_guid))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_sequencer_remove_spawnable(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *guid;
+	if (!PyArg_ParseTuple(args, "s:sequencer_remove_spawnable", &guid)) {
+		return nullptr;
+	}
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid)) {
+		return PyErr_Format(PyExc_Exception, "invalid guid");
+	}
+
+	if (scene->RemoveSpawnable(f_guid))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_sequencer_remove_camera_cut_track(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	scene->RemoveCameraCutTrack();
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_sequencer_remove_master_track(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_track;
+	if (!PyArg_ParseTuple(args, "track:sequencer_remove_master_track", &py_track)) {
+		return nullptr;
+	}
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	UMovieSceneTrack *track = ue_py_check_type<UMovieSceneTrack>(py_track);
+	if (!track)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMovieSceneTrack");
+
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	if (scene->RemoveMasterTrack(*track))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_sequencer_remove_track(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_track;
+	if (!PyArg_ParseTuple(args, "track:sequencer_remove_track", &py_track)) {
+		return nullptr;
+	}
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	UMovieSceneTrack *track = ue_py_check_type<UMovieSceneTrack>(py_track);
+	if (!track)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMovieSceneTrack");
+
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	if (scene->RemoveTrack(*track))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
 #endif
 
 PyObject *py_ue_sequencer_add_track(ue_PyUObject *self, PyObject * args) {
