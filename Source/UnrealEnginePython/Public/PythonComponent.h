@@ -4,8 +4,6 @@
 
 #include "PythonComponent.generated.h"
 
-
-
 UCLASS(BlueprintType, Blueprintable, ClassGroup = (Python), meta = (BlueprintSpawnableComponent))
 class UPythonComponent : public UActorComponent
 {
@@ -48,9 +46,6 @@ public:
 	FString CallPythonComponentMethodString(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	TMap<FString, FString> CallPythonComponentMethodMap(FString method_name, FString args);
-
-	UFUNCTION(BlueprintCallable, Category = "Python")
 	void CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
@@ -88,4 +83,3 @@ private:
 	// mapped uobject, required for debug and advanced reflection
 	ue_PyUObject *py_uobject;
 };
-

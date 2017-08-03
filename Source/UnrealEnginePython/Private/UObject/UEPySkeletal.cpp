@@ -137,6 +137,7 @@ PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args) 
 	return py_ue_new_ftransform(skeleton->GetReferenceSkeleton().GetRefBonePose()[index]);
 }
 
+#if ENGINE_MINOR_VERSION >= 14
 PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -172,3 +173,4 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 
 	Py_RETURN_NONE;
 }
+#endif

@@ -426,62 +426,6 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 	return nullptr;
 }
 
-
-TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString method_name, FString args){
-	TMap<FString, FString> output_map;
-
-	if (!py_component_instance)
-		return output_map;
-
-	FScopePythonGIL gil;
-
-	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
-		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
-	}
-	else {
-		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
-	}
-
-	if (!ret) {
-		unreal_engine_py_log_error();
-		return output_map;
-	}
-
-	if (!PyDict_Check(ret)) {
-		UE_LOG(LogPython, Error, TEXT("return value is not a dict"));
-		return output_map;
-	}
-
-    PyObject *py_keys = PyDict_Keys(ret);
-	Py_ssize_t len = PyList_Size(py_keys);
-
-	for (Py_ssize_t i = 0; i < len; i++) {
-		PyObject *py_key = PyList_GetItem(py_keys, i);
-		PyObject *py_str_key = PyObject_Str(py_key);
-		PyObject *py_str_value = PyObject_Str(PyDict_GetItem(ret, py_key));
-
-		if (!py_str_key || !py_str_value) {
-			Py_DECREF(ret);
-			return output_map;
-		}
-
-		char *str_key = PyUnicode_AsUTF8(py_str_key);
-		char *str_value = PyUnicode_AsUTF8(py_str_value);
-
-		FString ret_fstring_key = FString(UTF8_TO_TCHAR(str_key));
-		FString ret_fstring_value = FString(UTF8_TO_TCHAR(str_value));
-
-		output_map.Add(ret_fstring_key, ret_fstring_value);
-
-		Py_DECREF(py_str_key);
-		Py_DECREF(py_str_value);
-	}
-
-	Py_DECREF(ret);
-
-	return output_map;
-}
 void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings)
 {
 	if (!py_component_instance)
@@ -528,7 +472,7 @@ void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name,
 	}
 
 	Py_DECREF(ret);
-	}
+}
 
 
 UPythonComponent::~UPythonComponent()

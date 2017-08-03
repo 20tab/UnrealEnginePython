@@ -5,7 +5,9 @@
 #include "LevelEditor.h"
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorToolkit.h"
 #include "Editor/Persona/Public/PersonaModule.h"
+#if ENGINE_MINOR_VERSION >= 14
 #include "Editor/AnimationEditor/Public/IAnimationEditorModule.h"
+#endif
 #include "Editor/StaticMeshEditor/Public/StaticMeshEditorModule.h"
 #include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
 #include "Editor/PropertyEditor/Public/ISinglePropertyView.h"
@@ -802,10 +804,12 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args) 
 		FPersonaModule &Module = FModuleManager::LoadModuleChecked<FPersonaModule>(module);
 		menu_extension_interface = (IHasMenuExtensibility *)&Module;
 	}
+#if ENGINE_MINOR_VERSION >= 14
 	else if (!strcmp(module, (char *)"AnimationEditor")) {
 		IAnimationEditorModule &Module = FModuleManager::LoadModuleChecked<IAnimationEditorModule>(module);
 		menu_extension_interface = (IHasMenuExtensibility *)&Module;
 	}
+#endif
 	else if (!strcmp(module, (char *)"StaticMeshEditor")) {
 		IStaticMeshEditorModule &Module = FModuleManager::LoadModuleChecked<IStaticMeshEditorModule>(module);
 		menu_extension_interface = (IHasMenuExtensibility *)&Module;

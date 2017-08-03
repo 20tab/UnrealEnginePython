@@ -473,10 +473,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
 
+#if ENGINE_MINOR_VERSION >= 14
 #if WITH_EDITOR
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
+#endif
 #endif
 
 
@@ -680,7 +682,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeleton_find_bone_index", (PyCFunction)py_ue_skeleton_find_bone_index, METH_VARARGS, "" },
 	{ "skeleton_get_ref_bone_pose", (PyCFunction)py_ue_skeleton_get_ref_bone_pose, METH_VARARGS, "" },
 
+#if ENGINE_MINOR_VERSION >= 14
 	{ "skeleton_add_bone", (PyCFunction)py_ue_skeleton_add_bone, METH_VARARGS, "" },
+#endif
 
 
 	// Timer

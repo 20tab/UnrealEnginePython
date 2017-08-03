@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/BlendSpaceBase.h"
+#include "Animation/AnimMontage.h"
 
 PyObject *py_ue_anim_get_skeleton(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
@@ -21,7 +22,7 @@ PyObject *py_ue_anim_get_skeleton(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-
+#if ENGINE_MINOR_VERSION > 14
 #if WITH_EDITOR
 PyObject *py_ue_anim_sequence_get_raw_animation_data(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
@@ -93,6 +94,7 @@ PyObject *py_ue_anim_sequence_add_new_raw_track(ue_PyUObject * self, PyObject * 
 
 	return PyLong_FromLong(index);
 }
+#endif
 #endif
 
 PyObject *py_ue_anim_set_skeleton(ue_PyUObject * self, PyObject * args) {
