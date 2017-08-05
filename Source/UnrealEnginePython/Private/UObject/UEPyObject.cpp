@@ -775,7 +775,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	PyObject *obj;
 	char *name;
 	PyObject *property_class = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|O:add_property", &obj, &name, &property_class)) {
+	PyObject *property_class2 = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|OO:add_property", &obj, &name, &property_class, &property_class2)) {
 		return NULL;
 	}
 
@@ -783,11 +784,18 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a UStruct");
 
 	UObject *scope = nullptr;
+
 	UProperty *u_property = nullptr;
 	UClass *u_class = nullptr;
+	UProperty *u_property2 = nullptr;
+	UClass *u_class2 = nullptr;
+
 	UClass *u_prop_class = nullptr;
 	UScriptStruct *u_script_struct = nullptr;
+	UClass *u_prop_class2 = nullptr;
+	UScriptStruct *u_script_struct2 = nullptr;
 	bool is_array = false;
+	bool is_map = false;
 
 	if (property_class) {
 		if (!ue_is_pyuobject(property_class)) {
@@ -799,6 +807,22 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		}
 		else if (py_prop_class->ue_object->IsA<UScriptStruct>()) {
 			u_script_struct = (UScriptStruct *)py_prop_class->ue_object;
+		}
+		else {
+			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
+		}
+	}
+
+	if (property_class2) {
+		if (!ue_is_pyuobject(property_class2)) {
+			return PyErr_Format(PyExc_Exception, "property class arg is not a uobject");
+		}
+		ue_PyUObject *py_prop_class = (ue_PyUObject *)property_class2;
+		if (py_prop_class->ue_object->IsA<UClass>()) {
+			u_prop_class2 = (UClass *)py_prop_class->ue_object;
+		}
+		else if (py_prop_class->ue_object->IsA<UScriptStruct>()) {
+			u_script_struct2 = (UScriptStruct *)py_prop_class->ue_object;
 		}
 		else {
 			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
@@ -840,6 +864,44 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 			}
 			Py_DECREF(py_item);
 		}
+#if ENGINE_MINOR_VERSION >= 15
+		else if (PyList_Size(obj) == 2) {
+			PyObject *py_key = PyList_GetItem(obj, 0);
+			PyObject *py_value = PyList_GetItem(obj, 1);
+			if (ue_is_pyuobject(py_key) && ue_is_pyuobject(py_value)) {
+				// KEY
+				ue_PyUObject *py_obj = (ue_PyUObject *)py_key;
+				if (!py_obj->ue_object->IsA<UClass>()) {
+					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+				}
+				u_class = (UClass *)py_obj->ue_object;
+				if (!u_class->IsChildOf<UProperty>())
+					return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
+				if (u_class == UArrayProperty::StaticClass())
+					return PyErr_Format(PyExc_Exception, "please use a two-items list of properties for maps");
+
+				// VALUE
+				ue_PyUObject *py_obj2 = (ue_PyUObject *)py_value;
+				if (!py_obj2->ue_object->IsA<UClass>()) {
+					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+				}
+				u_class2 = (UClass *)py_obj2->ue_object;
+				if (!u_class2->IsChildOf<UProperty>())
+					return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
+				if (u_class2 == UArrayProperty::StaticClass())
+					return PyErr_Format(PyExc_Exception, "please use a two-items list of properties for maps");
+
+
+				UMapProperty *u_map = NewObject<UMapProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
+				if (!u_map)
+					return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+				scope = u_map;
+				is_map = true;
+			}
+			Py_DECREF(py_key);
+			Py_DECREF(py_value);
+		}
+#endif
 	}
 
 
@@ -849,7 +911,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
 	u_property = NewObject<UProperty>(scope, u_class, UTF8_TO_TCHAR(name), o_flags);
 	if (!u_property) {
-		if (is_array)
+		if (is_array || is_map)
 			scope->MarkPendingKill();
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
 	}
@@ -888,6 +950,53 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		u_property = u_array;
 	}
 
+#if ENGINE_MINOR_VERSION >= 15
+	if (is_map) {
+		u_property2 = NewObject<UProperty>(scope, u_class2, NAME_None, o_flags);
+		if (!u_property2) {
+			if (is_array || is_map)
+				scope->MarkPendingKill();
+			return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+		}
+		UMapProperty *u_map = (UMapProperty *)scope;
+
+
+		u_property->SetPropertyFlags(flags);
+		u_property2->SetPropertyFlags(flags);
+
+		if (u_property->GetClass() == UObjectProperty::StaticClass()) {
+			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+			if (u_prop_class) {
+				obj_prop->SetPropertyClass(u_prop_class);
+			}
+		}
+		if (u_property->GetClass() == UStructProperty::StaticClass()) {
+			UStructProperty *obj_prop = (UStructProperty *)u_property;
+			if (u_script_struct) {
+				obj_prop->Struct = u_script_struct;
+			}
+		}
+
+		if (u_property2->GetClass() == UObjectProperty::StaticClass()) {
+			UObjectProperty *obj_prop = (UObjectProperty *)u_property2;
+			if (u_prop_class2) {
+				obj_prop->SetPropertyClass(u_prop_class2);
+			}
+		}
+		if (u_property2->GetClass() == UStructProperty::StaticClass()) {
+			UStructProperty *obj_prop = (UStructProperty *)u_property2;
+			if (u_script_struct2) {
+				obj_prop->Struct = u_script_struct2;
+			}
+		}
+
+		u_map->KeyProp = u_property;
+		u_map->ValueProp = u_property2;
+
+		u_property = u_map;
+	}
+#endif
+
 	if (u_class == UMulticastDelegateProperty::StaticClass()) {
 		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
 		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
@@ -906,7 +1015,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
 	else if (u_class == UObjectProperty::StaticClass()) {
 		// ensure it is not an arry as we have already managed it !
-		if (!is_array) {
+		if (!is_array && !is_map) {
 			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
 			if (u_prop_class) {
 				obj_prop->SetPropertyClass(u_prop_class);
@@ -916,7 +1025,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
 	else if (u_class == UStructProperty::StaticClass()) {
 		// ensure it is not an arry as we have already managed it !
-		if (!is_array) {
+		if (!is_array && !is_map) {
 			UStructProperty *obj_prop = (UStructProperty *)u_property;
 			if (u_script_struct) {
 				obj_prop->Struct = u_script_struct;

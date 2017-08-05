@@ -1212,6 +1212,54 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 
 				}
 			}
+#if ENGINE_MINOR_VERSION >= 15
+			else if (PyDict_Check(value)) {
+				if (PyDict_Size(value) == 1) {
+					PyObject *py_key = nullptr;
+					PyObject *py_value = nullptr;
+					Py_ssize_t pos = 0;
+					PyDict_Next(value, &pos, &py_key, &py_value);
+					if (ue_is_pyuobject(py_key) && ue_is_pyuobject(py_value)) {
+						PyObject *first_item = nullptr;
+						PyObject *second_item = nullptr;
+
+						ue_PyUObject *py_obj = (ue_PyUObject *)py_key;
+						if (py_obj->ue_object->IsA<UClass>()) {
+							UClass *p_class = (UClass *)py_obj->ue_object;
+							if (p_class->IsChildOf<UProperty>()) {
+								first_item = py_key;
+							}
+							else {
+								first_item = (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass());
+							}
+						}
+						else if (py_obj->ue_object->IsA<UScriptStruct>()) {
+							first_item = (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass());
+						}
+
+						ue_PyUObject *py_obj2 = (ue_PyUObject *)py_value;
+						if (py_obj2->ue_object->IsA<UClass>()) {
+							UClass *p_class = (UClass *)py_obj2->ue_object;
+							if (p_class->IsChildOf<UProperty>()) {
+								second_item = py_value;
+							}
+							else {
+								second_item = (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass());
+							}
+						}
+						else if (py_obj2->ue_object->IsA<UScriptStruct>()) {
+							second_item = (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass());
+						}
+
+						if (!py_ue_add_property(self, Py_BuildValue("([OO]sOO)", first_item, second_item, class_key, py_key, py_value))) {
+							unreal_engine_py_log_error();
+							return -1;
+						}
+						prop_added = true;
+					}
+				}
+			}
+#endif
 			// function ?
 			else if (PyCallable_Check(value) && class_key[0] >= 'A' && class_key[0] <= 'Z') {
 				uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
@@ -1825,20 +1873,18 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer) {
 
 		PyObject *py_dict = PyDict_New();
 
-		int32 num = map_helper.Num();
-		for (int32 i = 0; num; i++) {
+		for (int32 i = 0; i < map_helper.Num(); i++) {
 			if (map_helper.IsValidIndex(i)) {
-				num--;
 
-				uint8 *key = map_helper.GetKeyPtr(i);
-				PyObject *py_key = ue_py_convert_property(map_helper.KeyProp, key);
+				uint8 *ptr = map_helper.GetPairPtr(i);
+
+				PyObject *py_key = ue_py_convert_property(map_helper.KeyProp, ptr);
 				if (!py_key) {
 					Py_DECREF(py_dict);
 					return NULL;
 				}
 
-				uint8 *value = map_helper.GetValuePtr(i);
-				PyObject *py_value = ue_py_convert_property(map_helper.ValueProp, value);
+				PyObject *py_value = ue_py_convert_property(map_helper.ValueProp, ptr);
 				if (!py_value) {
 					Py_DECREF(py_dict);
 					return NULL;
@@ -2031,6 +2077,38 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer) {
 
 		return false;
 	}
+
+#if ENGINE_MINOR_VERSION >= 15
+	if (PyDict_Check(py_obj)) {
+		if (auto casted_prop = Cast<UMapProperty>(prop)) {
+			FScriptMapHelper_InContainer map_helper(casted_prop, buffer);
+
+			PyObject *py_key = nullptr;
+			PyObject *py_value = nullptr;
+			Py_ssize_t pos = 0;
+
+			map_helper.EmptyValues();
+			while (PyDict_Next(py_obj, &pos, &py_key, &py_value)) {
+
+				int32 index = map_helper.AddDefaultValue_Invalid_NeedsRehash();
+				uint8 *ptr = map_helper.GetPairPtr(index);
+
+				if (!ue_py_convert_pyobject(py_key, casted_prop->KeyProp, ptr)) {
+					return false;
+				}
+
+				if (!ue_py_convert_pyobject(py_value, casted_prop->ValueProp, ptr)) {
+					return false;
+				}
+			}
+			map_helper.Rehash();
+
+			return true;
+		}
+
+		return false;
+	}
+#endif
 
 	// structs
 
