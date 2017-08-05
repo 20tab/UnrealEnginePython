@@ -34,6 +34,8 @@
 #include "UEPySVerticalBox.h"
 #include "UEPySViewport.h"
 
+#include "UEPySDropTarget.h"
+
 #include "UEPySImage.h"
 #include "UEPySDockTab.h"
 #include "UEPySTableViewBase.h"
