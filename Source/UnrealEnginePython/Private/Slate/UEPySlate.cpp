@@ -596,6 +596,7 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_svertical_box(module);
 	ue_python_init_sviewport(module);
 	ue_python_init_sdrop_target(module);
+	ue_python_init_sasset_drop_target(module);
 	ue_python_init_simage(module);
 	ue_python_init_sdock_tab(module);
 	ue_python_init_stable_view_base(module);

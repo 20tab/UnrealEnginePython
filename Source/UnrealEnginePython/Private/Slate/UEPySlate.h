@@ -35,6 +35,7 @@
 #include "UEPySViewport.h"
 
 #include "UEPySDropTarget.h"
+#include "UEPySAssetDropTarget.h"
 
 #include "UEPySImage.h"
 #include "UEPySDockTab.h"
