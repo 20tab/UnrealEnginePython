@@ -198,6 +198,29 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 	return value;
 }
 
+void UPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets) {
+	FScopePythonGIL gil;
+
+	PyObject *py_list = PyList_New(0);
+	for (FAssetData asset : SelectedAssets) {
+		PyList_Append(py_list, py_ue_new_fassetdata(&asset));
+	}
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_fmenu_builder(&Builder), py_list);
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+TSharedRef<FExtender> UPythonSlateDelegate::OnExtendContentBrowserMenu(const TArray<FAssetData>& SelectedAssets) {
+	TSharedRef<FExtender> Extender(new FExtender());
+
+	Extender->AddMenuExtension((char *)"GetAssetActions", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateUObject(this, &UPythonSlateDelegate::MenuPyAssetBuilder, SelectedAssets));
+
+	return Extender;
+}
 
 #endif
 
@@ -892,6 +915,32 @@ PyObject *py_unreal_engine_add_tool_bar_extension(PyObject * self, PyObject * ar
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self, PyObject * args) {
+
+	char *command_name;
+	PyObject *py_callable;
+
+	if (!PyArg_ParseTuple(args, "sO:add_asset_view_context_menu_extension", &command_name, &py_callable)) {
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+	FContentBrowserModule &ContentBrowser = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
+	TArray<FContentBrowserMenuExtender_SelectedAssets> &Extenders = ContentBrowser.GetAllAssetViewContextMenuExtenders();
+	
+	FContentBrowserMenuExtender_SelectedAssets handler;
+	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnExtendContentBrowserMenu);
+
+	Extenders.Add(handler);
+
+	Py_RETURN_NONE;
 }
 #endif
 

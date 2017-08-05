@@ -92,6 +92,8 @@ PyObject *py_unreal_engine_add_menu_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_tool_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_detail_view(PyObject *, PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_property_view(PyObject *, PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self, PyObject *);
 #endif
 
 PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);
@@ -431,6 +433,8 @@ public:
 	void OnAssetDoubleClicked(const FAssetData& AssetData);
 	TSharedPtr<SWidget> OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets);
 	void OnAssetSelected(const FAssetData& AssetData);
+	TSharedRef<FExtender> OnExtendContentBrowserMenu(const TArray<FAssetData> &SelectedAssets);
+	void MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
 #endif
 
 	TSharedPtr<SWidget> OnContextMenuOpening();

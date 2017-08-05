@@ -176,6 +176,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_menu_bar_extension", py_unreal_engine_add_menu_bar_extension, METH_VARARGS, "" },
 	{ "add_tool_bar_extension", py_unreal_engine_add_tool_bar_extension, METH_VARARGS, "" },
 
+	{ "add_asset_view_context_menu_extension", py_unreal_engine_add_asset_view_context_menu_extension, METH_VARARGS, "" },
+
 #pragma warning(suppress: 4191)
 	{ "create_detail_view",  (PyCFunction)py_unreal_engine_create_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
 #pragma warning(suppress: 4191)
