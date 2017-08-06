@@ -595,8 +595,6 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_shorizontal_box(module);
 	ue_python_init_svertical_box(module);
 	ue_python_init_sviewport(module);
-	ue_python_init_sdrop_target(module);
-	ue_python_init_sasset_drop_target(module);
 	ue_python_init_simage(module);
 	ue_python_init_sdock_tab(module);
 	ue_python_init_stable_view_base(module);
@@ -631,6 +629,9 @@ void ue_python_init_slate(PyObject *module) {
 	ue_python_init_sfile_path_picker(module);
 #endif
 #endif
+	ue_python_init_sdrop_target(module);
+	ue_python_init_sasset_drop_target(module);
+	ue_python_init_sobject_property_entry_box(module);
 #endif
 
 	ue_python_init_ftab_manager(module);

@@ -7,7 +7,7 @@
 
 #include "Editor/EditorWidgets/Public/SAssetDropTarget.h"
 
-extern PyTypeObject ue_PySVectorInputBoxType;
+extern PyTypeObject ue_PySAssetDropTargetType;
 
 typedef struct {
 	ue_PySDropTarget s_drop_target;

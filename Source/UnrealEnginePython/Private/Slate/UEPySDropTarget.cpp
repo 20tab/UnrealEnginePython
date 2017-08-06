@@ -1,3 +1,4 @@
+#if WITH_EDITOR
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySDropTarget.h"
@@ -48,3 +49,4 @@ void ue_python_init_sdrop_target(PyObject *ue_module) {
 	Py_INCREF(&ue_PySDropTargetType);
 	PyModule_AddObject(ue_module, "SDropTarget", (PyObject *)&ue_PySDropTargetType);
 }
+#endif

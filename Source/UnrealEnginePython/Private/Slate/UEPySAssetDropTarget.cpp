@@ -1,3 +1,4 @@
+#if WITH_EDITOR
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySAssetDropTarget.h"
@@ -59,3 +60,4 @@ void ue_python_init_sasset_drop_target(PyObject *ue_module) {
 	Py_INCREF(&ue_PySAssetDropTargetType);
 	PyModule_AddObject(ue_module, "SAssetDropTarget", (PyObject *)&ue_PySAssetDropTargetType);
 }
+#endif

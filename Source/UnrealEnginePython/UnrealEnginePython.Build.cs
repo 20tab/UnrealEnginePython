@@ -150,7 +150,8 @@ public class UnrealEnginePython : ModuleRules
                 "DesktopWidgets",
                 "EditorWidgets",
                 "FBX",
-                "Persona"
+                "Persona",
+                "PropertyEditor"
             });
         }
 

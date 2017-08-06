@@ -116,6 +116,7 @@ PyObject *py_ue_anim_set_skeleton(ue_PyUObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_add_anim_composite_section(ue_PyUObject * self, PyObject * args) {
 	ue_py_check(self);
 
@@ -130,3 +131,4 @@ PyObject *py_ue_add_anim_composite_section(ue_PyUObject * self, PyObject * args)
 
 	return PyLong_FromLong(anim->AddAnimCompositeSection(FName(UTF8_TO_TCHAR(name)), time));
 }
+#endif

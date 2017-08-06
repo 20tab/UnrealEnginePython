@@ -34,8 +34,6 @@
 #include "UEPySVerticalBox.h"
 #include "UEPySViewport.h"
 
-#include "UEPySDropTarget.h"
-#include "UEPySAssetDropTarget.h"
 
 #include "UEPySImage.h"
 #include "UEPySDockTab.h"
@@ -76,6 +74,9 @@
 #include "UEPySGraphEditor.h"
 #include "UEPySPythonShelf.h"
 #include "UEPySFilePathPicker.h"
+#include "UEPySDropTarget.h"
+#include "UEPySAssetDropTarget.h"
+#include "UEPySObjectPropertyEntryBox.h"
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
