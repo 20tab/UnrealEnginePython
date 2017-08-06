@@ -10,13 +10,13 @@
 #include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
 #include "Editor/PropertyEditor/Public/ISinglePropertyView.h"
 #include "Editor/PropertyEditor/Public/IDetailsView.h"
+#include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 #endif
 
 #include "Runtime/Slate/Public/Framework/Commands/UICommandList.h"
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
 #include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
-#include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 
 #include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
 
