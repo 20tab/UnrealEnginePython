@@ -5,6 +5,7 @@
 
 #if WITH_EDITOR
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
+#include "ObjectTools.h"
 #include "UnrealEd.h"
 #endif
 
@@ -1239,6 +1240,38 @@ PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
 
 	Py_INCREF(Py_False);
 	return Py_False;
+}
+
+PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	char *package_name;
+	char *object_name;
+	PyObject *py_overwrite = nullptr;
+
+	if (!PyArg_ParseTuple(args, "ss|O:duplicate", &package_name, &object_name, &py_overwrite))
+		return nullptr;
+
+	ObjectTools::FPackageGroupName pgn;
+	pgn.ObjectName = UTF8_TO_TCHAR(object_name);
+	pgn.GroupName = FString("");
+	pgn.PackageName = UTF8_TO_TCHAR(package_name);
+
+	TSet<UPackage *> refused;
+
+#if ENGINE_MINOR_VERSION < 14
+	UObject *new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused);
+#else
+	UObject *new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused, (py_overwrite && PyObject_IsTrue(py_overwrite)));
+#endif
+
+	ue_PyUObject *ret = ue_get_python_wrapper(new_asset);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+
 }
 #endif
 

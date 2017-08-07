@@ -411,21 +411,40 @@ PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args)
 
 	int app_msg_type;
 	char *text;
-	char *title = nullptr;
-	if (!PyArg_ParseTuple(args, "is|s:message_dialog_open", &app_msg_type, &text, &title)) {
+
+	if (!PyArg_ParseTuple(args, "is:message_dialog_open", &app_msg_type, &text)) {
 		return NULL;
 	}
 
-	FText *f_title = nullptr;
-
-	if (title) {
-		FText f_title_value = FText::FromString(UTF8_TO_TCHAR(title));
-		f_title = &f_title_value;
-	}
-
-	EAppReturnType::Type ret = FMessageDialog::Open((EAppMsgType::Type) app_msg_type, FText::FromString(UTF8_TO_TCHAR(text)), f_title);
+	EAppReturnType::Type ret = FMessageDialog::Open((EAppMsgType::Type) app_msg_type, FText::FromString(UTF8_TO_TCHAR(text)));
 
 	return PyLong_FromLong(ret);
+}
+
+PyObject *py_unreal_engine_create_modal_save_asset_dialog(PyObject * self, PyObject * args) {
+
+	char *title = (char *)"";
+	char *path = (char*)"";
+	char *default_name = (char*)"";
+
+	if (!PyArg_ParseTuple(args, "|sss:create_modal_save_asset_dialog", &title, &path, &default_name)) {
+		return nullptr;
+	}
+
+	FSaveAssetDialogConfig config;
+	config.DialogTitleOverride = FText::FromString(FString(UTF8_TO_TCHAR(title)));
+	config.DefaultPath = FString(UTF8_TO_TCHAR(path));
+	config.DefaultAssetName = FString(UTF8_TO_TCHAR(default_name));
+	config.ExistingAssetPolicy = ESaveAssetDialogExistingAssetPolicy::AllowButWarn;
+
+	FContentBrowserModule &ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
+	FString ret = ContentBrowserModule.Get().CreateModalSaveAssetDialog(config);
+
+	if (ret.IsEmpty()) {
+		Py_RETURN_NONE;
+	}
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*ret));
 }
 
 PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {

@@ -157,6 +157,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_content_dir", py_unreal_engine_get_content_dir, METH_VARARGS, "" },
 	{ "convert_relative_path_to_full", py_unreal_engine_convert_relative_path_to_full, METH_VARARGS, "" },
 
+	{ "get_path", py_unreal_engine_get_path, METH_VARARGS, "" },
+	{ "get_base_filename", py_unreal_engine_get_base_filename, METH_VARARGS, "" },
+	{ "object_path_to_package_name", py_unreal_engine_object_path_to_package_name, METH_VARARGS, "" },
+
 	{ "compress_image_array", py_unreal_engine_compress_image_array, METH_VARARGS, "" },
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
 	{ "create_transient_texture", py_unreal_engine_create_transient_texture, METH_VARARGS, "" },
@@ -237,6 +241,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_component_to_blueprint", py_unreal_engine_add_component_to_blueprint, METH_VARARGS, "" },
 	{ "create_material_instance", py_unreal_engine_create_material_instance, METH_VARARGS, "" },
 	{ "message_dialog_open", py_unreal_engine_message_dialog_open, METH_VARARGS, "" },
+	{ "create_modal_save_asset_dialog", py_unreal_engine_create_modal_save_asset_dialog, METH_VARARGS, "" },
 	{ "set_fbx_import_option", py_unreal_engine_set_fbx_import_option, METH_VARARGS, "" },
 
 	{ "create_new_graph", py_unreal_engine_create_new_graph, METH_VARARGS, "" },
@@ -418,6 +423,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
+	{ "duplicate", (PyCFunction)py_ue_duplicate, METH_VARARGS, "" },
 	{ "asset_can_reimport", (PyCFunction)py_ue_asset_can_reimport, METH_VARARGS, "" },
 	{ "asset_reimport", (PyCFunction)py_ue_asset_reimport, METH_VARARGS, "" },
 

@@ -143,6 +143,30 @@ PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject * self, PyObje
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ConvertRelativePathToFull(UTF8_TO_TCHAR(path))));
 }
 
+PyObject *py_unreal_engine_object_path_to_package_name(PyObject * self, PyObject * args) {
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:object_path_to_package_name", &path)) {
+		return NULL;
+	}
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToPackageName(UTF8_TO_TCHAR(path))));
+}
+
+PyObject *py_unreal_engine_get_path(PyObject * self, PyObject * args) {
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:get_path", &path)) {
+		return NULL;
+	}
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GetPath(UTF8_TO_TCHAR(path))));
+}
+
+PyObject *py_unreal_engine_get_base_filename(PyObject * self, PyObject * args) {
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:get_base_filename", &path)) {
+		return NULL;
+	}
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GetBaseFilename(UTF8_TO_TCHAR(path))));
+}
+
 PyObject *py_unreal_engine_create_world(PyObject * self, PyObject * args) {
 	int world_type = 0;
 	if (!PyArg_ParseTuple(args, "|i:create_world", &world_type)) {
