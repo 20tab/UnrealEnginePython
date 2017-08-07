@@ -20,6 +20,10 @@ To avoid damages, we will generate a copy of each asset, so you will be able to 
 
 ## Step 1: importing mixamo animations
 
+Create a folder, and import a bunch of root-motion based animations from mixamo.
+
+In this example i have choosen the vampire as the mesh and the run, climbing and hurricane kick animations
+
 ![mixamo import](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/mixamo.png)
 
 
