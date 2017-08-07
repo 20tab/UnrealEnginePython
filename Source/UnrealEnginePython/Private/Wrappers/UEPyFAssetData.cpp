@@ -3,7 +3,7 @@
 #if WITH_EDITOR
 
 static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * args) {
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(self->asset_data->GetAsset());
+	PyObject *ret = (PyObject *)ue_get_python_wrapper(self->asset_data.GetAsset());
 	if (!ret) {
 		return PyErr_Format(PyExc_Exception, "unable to get UObject from asset");
 	}
@@ -12,7 +12,7 @@ static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * ar
 }
 
 static PyObject *py_ue_fassetdata_is_asset_loaded(ue_PyFAssetData *self, PyObject * args) {
-	if (self->asset_data->IsAssetLoaded())
+	if (self->asset_data.IsAssetLoaded())
 		Py_RETURN_TRUE;
 	Py_RETURN_FALSE;
 }
@@ -23,37 +23,66 @@ static PyMethodDef ue_PyFAssetData_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static PyMemberDef ue_PyFAssetData_members[] = {
-	{ (char *)"asset_class", T_OBJECT, offsetof(ue_PyFAssetData, asset_class), READONLY, (char *)"asset_class" },
-	{ (char *)"asset_name", T_OBJECT, offsetof(ue_PyFAssetData, asset_name), READONLY, (char *)"asset_name" },
-	{ (char *)"group_names", T_OBJECT, offsetof(ue_PyFAssetData, group_names), READONLY, (char *)"group_names" },
-	{ (char *)"object_path", T_OBJECT, offsetof(ue_PyFAssetData, object_path), READONLY, (char *)"object_path" },
-	{ (char *)"package_flags", T_OBJECT, offsetof(ue_PyFAssetData, package_flags), READONLY, (char *)"package_flags" },
-	{ (char *)"package_name", T_OBJECT, offsetof(ue_PyFAssetData, package_name), READONLY, (char *)"package_name" },
-	{ (char *)"package_path", T_OBJECT, offsetof(ue_PyFAssetData, package_path), READONLY, (char *)"package_path" },
-	{ (char *)"tags_and_values", T_OBJECT, offsetof(ue_PyFAssetData, tags_and_values), READONLY, (char *)"tags_and_values" },
+static PyObject *py_ue_fassetdata_get_asset_class(ue_PyFAssetData *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.AssetClass.ToString()));
+}
+
+static PyObject *py_ue_fassetdata_get_asset_name(ue_PyFAssetData *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.AssetName.ToString()));
+}
+
+static PyObject *py_ue_fassetdata_get_group_names(ue_PyFAssetData *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.GroupNames.ToString()));
+}
+
+static PyObject *py_ue_fassetdata_get_object_path(ue_PyFAssetData *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.ObjectPath.ToString()));
+}
+
+static PyObject *py_ue_fassetdata_get_package_flags(ue_PyFAssetData *self, void *closure) {
+	return PyLong_FromUnsignedLong(self->asset_data.PackageFlags);
+}
+
+static PyObject *py_ue_fassetdata_get_package_name(ue_PyFAssetData *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.PackageName.ToString()));
+}
+
+static PyObject *py_ue_fassetdata_get_package_path(ue_PyFAssetData *self, void *closure) {
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.PackagePath.ToString()));
+}
+
+static PyObject *py_ue_fassetdata_get_tags_and_values(ue_PyFAssetData *self, void *closure) {
+	PyObject *ret = PyDict_New();
+	for (auto It = self->asset_data.TagsAndValues.CreateConstIterator(); It; ++It)
+	{
+		PyDict_SetItem(ret,
+			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Key.ToString())),
+			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Value)));
+	}
+	return ret;
+}
+
+static PyGetSetDef ue_PyFAssetData_getseters[] = {
+	{ (char *)"asset_class", (getter)py_ue_fassetdata_get_asset_class, nullptr, (char *)"asset_class" },
+	{ (char *)"asset_name", (getter)py_ue_fassetdata_get_asset_name, nullptr, (char *)"asset_name" },
+	{ (char *)"group_names", (getter)py_ue_fassetdata_get_group_names, nullptr, (char *)"group_names" },
+	{ (char *)"object_path",(getter)py_ue_fassetdata_get_object_path, nullptr, (char *)"object_path" },
+	{ (char *)"package_flags",(getter)py_ue_fassetdata_get_package_flags, nullptr, (char *)"package_flags" },
+	{ (char *)"package_name", (getter)py_ue_fassetdata_get_package_name, nullptr, (char *)"package_name" },
+	{ (char *)"package_path", (getter)py_ue_fassetdata_get_package_path, nullptr, (char *)"package_path" },
+	{ (char *)"tags_and_values", (getter)py_ue_fassetdata_get_tags_and_values, nullptr, (char *)"tags_and_values" },
 	{ NULL }  /* Sentinel */
 };
 
 static int ue_py_fassetdata_init(ue_PyFAssetData *self, PyObject *args, PyObject *kwargs) {
-	return 0;
+	// avoid FAssetData manual creation
+	return -1;
 }
 
-static void ue_py_fassetdata_dealloc(ue_PyFAssetData *self) {
-	Py_XDECREF(self->asset_class);
-	Py_XDECREF(self->asset_name);
-	Py_XDECREF(self->group_names);
-	Py_XDECREF(self->object_path);
-	Py_XDECREF(self->package_flags);
-	Py_XDECREF(self->package_name);
-	Py_XDECREF(self->package_path);
-	Py_XDECREF(self->tags_and_values);
-
-#if PY_MAJOR_VERSION < 3
-	self->ob_type->tp_free((PyObject*)self);
-#else
-	Py_TYPE(self)->tp_free((PyObject*)self);
-#endif
+static PyObject *ue_PyFAssetData_str(ue_PyFAssetData *self)
+{
+	return PyUnicode_FromFormat("<unreal_engine.FColor '%s'>",
+		TCHAR_TO_UTF8(*self->asset_data.GetExportTextName()));
 }
 
 static PyTypeObject ue_PyFAssetDataType = {
@@ -61,7 +90,7 @@ static PyTypeObject ue_PyFAssetDataType = {
 	"unreal_engine.FAssetData", /* tp_name */
 	sizeof(ue_PyFAssetData),    /* tp_basicsize */
 	0,                         /* tp_itemsize */
-	(destructor)ue_py_fassetdata_dealloc,   /* tp_dealloc */
+	0,   /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */
@@ -72,7 +101,7 @@ static PyTypeObject ue_PyFAssetDataType = {
 	0,                         /* tp_as_mapping */
 	0,                         /* tp_hash  */
 	0,                         /* tp_call */
-	0,                         /* tp_str */
+	(reprfunc)ue_PyFAssetData_str,                         /* tp_str */
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
@@ -85,8 +114,8 @@ static PyTypeObject ue_PyFAssetDataType = {
 	0,                         /* tp_iter */
 	0,                         /* tp_iternext */
 	ue_PyFAssetData_methods,    /* tp_methods */
-	ue_PyFAssetData_members,   /* tp_members */
-	0,                         /* tp_getset */
+	0,   /* tp_members */
+	ue_PyFAssetData_getseters,                         /* tp_getset */
 };
 
 void ue_python_init_fassetdata(PyObject *ue_module) {
@@ -99,25 +128,10 @@ void ue_python_init_fassetdata(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FAssetData", (PyObject *)&ue_PyFAssetDataType);
 }
 
-PyObject *py_ue_new_fassetdata(FAssetData *asset_data) {
+PyObject *py_ue_new_fassetdata(FAssetData asset_data) {
 	ue_PyFAssetData *ret = (ue_PyFAssetData *)PyObject_New(ue_PyFAssetData, &ue_PyFAssetDataType);
 
-	ret->asset_class = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->AssetClass.ToString()));
-	ret->asset_name = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->AssetName.ToString()));
-	ret->group_names = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->GroupNames.ToString()));
-	ret->object_path = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->ObjectPath.ToString()));
-	ret->package_flags = PyLong_FromLong(asset_data->PackageFlags);
-	ret->package_name = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->PackageName.ToString()));
-	ret->package_path = PyUnicode_FromString(TCHAR_TO_UTF8(*asset_data->PackagePath.ToString()));
-	ret->tags_and_values = PyDict_New();
-	for (auto It = asset_data->TagsAndValues.CreateConstIterator(); It; ++It)
-	{
-		PyDict_SetItem(ret->tags_and_values,
-			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Key.ToString())),
-			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Value)));
-	}
-
-	ret->asset_data = asset_data;
+	new(&ret->asset_data) FAssetData(asset_data);
 	return (PyObject *)ret;
 }
 

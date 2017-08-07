@@ -155,7 +155,7 @@ void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state) {
 void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData) {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata((FAssetData *)&AssetData));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata(AssetData));
 	if (!ret) {
 		unreal_engine_py_log_error();
 	}
@@ -165,7 +165,7 @@ void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData) {
 void UPythonSlateDelegate::OnAssetSelected(const FAssetData& AssetData) {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata((FAssetData *)&AssetData));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata(AssetData));
 	if (!ret) {
 		unreal_engine_py_log_error();
 	}
@@ -175,7 +175,7 @@ void UPythonSlateDelegate::OnAssetSelected(const FAssetData& AssetData) {
 void UPythonSlateDelegate::OnAssetChanged(const FAssetData& AssetData) {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata((FAssetData *)&AssetData));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata(AssetData));
 	if (!ret) {
 		unreal_engine_py_log_error();
 	}
@@ -187,7 +187,7 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 
 	PyObject *py_list = PyList_New(0);
 	for (FAssetData asset : SelectedAssets) {
-		PyList_Append(py_list, py_ue_new_fassetdata(&asset));
+		PyList_Append(py_list, py_ue_new_fassetdata(asset));
 	}
 
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_list);
@@ -213,7 +213,7 @@ void UPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAss
 
 	PyObject *py_list = PyList_New(0);
 	for (FAssetData asset : SelectedAssets) {
-		PyList_Append(py_list, py_ue_new_fassetdata(&asset));
+		PyList_Append(py_list, py_ue_new_fassetdata(asset));
 	}
 
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_fmenu_builder(&Builder), py_list);

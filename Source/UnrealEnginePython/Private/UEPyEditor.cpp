@@ -752,9 +752,7 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 			continue;
 		PyObject *ret = nullptr;
 		if (return_asset_data) {
-			// Copy isn't working due to an issue with the TSharedMapView TagsAndValues memory 
-			FAssetData *asset_data = new FAssetData(asset.PackageName, asset.PackagePath, asset.GroupNames, asset.AssetName, asset.AssetClass, asset.TagsAndValues.GetMap(), asset.ChunkIDs, asset.PackageFlags);
-			ret = py_ue_new_fassetdata(asset_data);
+			ret = py_ue_new_fassetdata(asset);
 		}
 		else {
 			ret = (PyObject *)ue_get_python_wrapper(asset.GetAsset());
