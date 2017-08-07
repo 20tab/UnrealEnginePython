@@ -30,6 +30,10 @@ if you open the 'run' animation and enable root motion you will end with this we
 
 ![broken run](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/broken_run.png)
 
+The reason is in how the character is rigged:
+
+![default_skeleton](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/default_skeleton.png)
+
 ## Step 2: generating a new skeleton
 
 ## Step 3: fixing skeletal mesh bone influences
