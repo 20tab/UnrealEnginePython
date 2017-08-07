@@ -34,6 +34,10 @@ The reason is in how the character is rigged:
 
 ![default_skeleton](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/default_skeleton.png)
 
+as you can see the root of the skeleton tree is the 'Hips' joint/bone. Animations use this bone for both translations and rotations, breaking the way UE4 works. Unreal Engine expects the root of the skeleton to be at the local origin and all of the bones/joints weighted to vertices come below it.
+
+So our first ste will be building a new skeleton with this specific configuration.
+
 ## Step 2: generating a new skeleton
 
 ## Step 3: fixing skeletal mesh bone influences
