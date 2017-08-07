@@ -34,7 +34,6 @@
 #include "UObject/UEPyAnimSequence.h"
 
 
-
 #include "UEPyAssetUserData.h"
 #if WITH_EDITOR
 #include "UEPyEditor.h"
@@ -683,6 +682,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "skeleton_add_bone", (PyCFunction)py_ue_skeleton_add_bone, METH_VARARGS, "" },
 
+	{ "skeletal_mesh_set_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_set_soft_vertices, METH_VARARGS, "" },
+	{ "skeletal_mesh_get_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_get_soft_vertices, METH_VARARGS, "" },
+	{ "skeletal_mesh_set_skeleton", (PyCFunction)py_ue_skeletal_mesh_set_skeleton, METH_VARARGS, "" },
+
+
+	{ "skeletal_mesh_get_bone_map", (PyCFunction)py_ue_skeletal_mesh_get_bone_map, METH_VARARGS, "" },
+	{ "skeletal_mesh_set_bone_map", (PyCFunction)py_ue_skeletal_mesh_set_bone_map, METH_VARARGS, "" },
+	{ "skeletal_mesh_set_active_bone_indices", (PyCFunction)py_ue_skeletal_mesh_set_active_bone_indices, METH_VARARGS, "" },
+	{ "skeletal_mesh_set_required_bones", (PyCFunction)py_ue_skeletal_mesh_set_required_bones, METH_VARARGS, "" },
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
@@ -1459,6 +1467,8 @@ void unreal_engine_init_py_module() {
 	ue_python_init_frandomstream(new_unreal_engine_module);
 
 	ue_python_init_fraw_anim_sequence_track(new_unreal_engine_module);
+
+	ue_python_init_fsoft_skin_vertex(new_unreal_engine_module);
 
 	ue_python_init_fpython_output_device(new_unreal_engine_module);
 

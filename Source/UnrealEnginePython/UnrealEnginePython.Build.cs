@@ -114,7 +114,8 @@ public class UnrealEnginePython : ModuleRules
                 "UMG",
                 "AppFramework",
                 "RHI",
-                "Voice"
+                "Voice",
+                "RenderCore"
 				// ... add private dependencies that you statically link with here ...
 			}
             );

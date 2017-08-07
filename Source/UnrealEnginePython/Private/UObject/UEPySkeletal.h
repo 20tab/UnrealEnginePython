@@ -13,3 +13,12 @@ PyObject *py_ue_skeleton_get_bone_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_add_bone(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *, PyObject *);

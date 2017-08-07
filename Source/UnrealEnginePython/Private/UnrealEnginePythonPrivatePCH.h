@@ -43,6 +43,7 @@
 #include "Wrappers/UEPyFRandomStream.h"
 
 #include "Wrappers/UEPyFPythonOutputDevice.h"
+#include "Wrappers/UEPyFSoftSkinVertex.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
