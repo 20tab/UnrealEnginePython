@@ -172,6 +172,16 @@ void UPythonSlateDelegate::OnAssetSelected(const FAssetData& AssetData) {
 	Py_XDECREF(ret);
 }
 
+void UPythonSlateDelegate::OnAssetChanged(const FAssetData& AssetData) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata((FAssetData *)&AssetData));
+	if (!ret) {
+		unreal_engine_py_log_error();
+	}
+	Py_XDECREF(ret);
+}
+
 TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets) {
 	FScopePythonGIL gil;
 

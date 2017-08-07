@@ -44,6 +44,16 @@ PyTypeObject ue_PySObjectPropertyEntryBoxType = {
 static int ue_py_sobject_property_entry_box_init(ue_PySObjectPropertyEntryBox *self, PyObject *args, PyObject *kwargs) {
 	ue_py_slate_setup_farguments(SObjectPropertyEntryBox);
 
+	ue_py_slate_farguments_optional_bool("allow_clear", AllowClear);
+	ue_py_slate_farguments_optional_bool("display_browse", DisplayBrowse);
+	ue_py_slate_farguments_optional_bool("display_use_selected", DisplayUseSelected);
+	ue_py_slate_farguments_optional_bool("enable_content_picker", EnableContentPicker);
+	ue_py_slate_farguments_string("object_path", ObjectPath);
+
+	ue_py_slate_farguments_optional_uobject("allowed_class", AllowedClass, UClass);
+
+	ue_py_slate_farguments_event("on_object_changed", OnObjectChanged, FOnSetObject, OnAssetChanged);
+
 	ue_py_snew(SObjectPropertyEntryBox, s_compound_widget.s_widget);
 	return 0;
 }

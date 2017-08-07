@@ -279,6 +279,18 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 }
 
+#define ue_py_slate_farguments_optional_uobject(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+		if (value) {\
+			if (_type *u_object = ue_py_check_type<_type>(value)) {\
+				arguments.attribute((_type *)u_object);\
+			}\
+			else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+			}\
+		}\
+}
+
 
 #define ue_py_slate_farguments_optional_fvector2d(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
@@ -439,6 +451,7 @@ public:
 	void OnAssetSelected(const FAssetData& AssetData);
 	TSharedRef<FExtender> OnExtendContentBrowserMenu(const TArray<FAssetData> &SelectedAssets);
 	void MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
+	void OnAssetChanged(const FAssetData &);
 #endif
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
