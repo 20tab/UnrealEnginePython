@@ -26,7 +26,7 @@ In this example i have choosen the vampire as the mesh and the run, climbing and
 
 ![mixamo import](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/mixamo.png)
 
-if you open the run animation and enable root motion you will end with this weird pose:
+if you open the 'run' animation and enable root motion you will end with this weird pose:
 
 ![broken run](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/broken_run.png)
 
