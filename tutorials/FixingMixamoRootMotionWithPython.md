@@ -20,6 +20,9 @@ To avoid damages, we will generate a copy of each asset, so you will be able to 
 
 ## Step 1: importing mixamo animations
 
+![mixamo import](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/mixamo.png)
+
+
 ## Step 2: generating a new skeleton
 
 ## Step 3: fixing skeletal mesh bone influences
