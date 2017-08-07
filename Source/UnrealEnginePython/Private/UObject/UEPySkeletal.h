@@ -22,3 +22,5 @@ PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *, PyObject *);

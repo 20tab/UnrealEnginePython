@@ -397,6 +397,33 @@ PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args) 
 	return py_list;
 }
 
+PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_active_bone_indices", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	FStaticLODModel &model = resource->LODModels[lod_index];
+
+	PyObject *py_list = PyList_New(0);
+
+	for (uint16 index : model.ActiveBoneIndices) {
+		PyList_Append(py_list, PyLong_FromUnsignedLong(index));
+	}
+
+	return py_list;
+}
+
 PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
@@ -453,6 +480,33 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 
 	Py_RETURN_NONE;
 
+}
+
+PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_required_bones", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	FStaticLODModel &model = resource->LODModels[lod_index];
+
+	PyObject *py_list = PyList_New(0);
+
+	for (uint16 index : model.RequiredBones) {
+		PyList_Append(py_list, PyLong_FromUnsignedLong(index));
+	}
+
+	return py_list;
 }
 
 PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * args) {
