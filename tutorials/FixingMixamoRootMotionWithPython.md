@@ -6,7 +6,7 @@ Fixing it is a pretty heavy (and manual) task: you need to add a new bone to the
 
 The following tutorial shows how you can accomplish the same task with a simple python script.
 
-# Steps
+## Steps
 
 Once our mixamo assets are imported we need to do the following steps:
 
@@ -18,14 +18,14 @@ Once our mixamo assets are imported we need to do the following steps:
 
 To avoid damages, we will generate a copy of each asset, so you will be able to always use the original assets.
 
-# Step 1: importing mixamo animations
+## Step 1: importing mixamo animations
 
-# Step 2: generating a new skeleton
+## Step 2: generating a new skeleton
 
-# Step 3: fixing skeletal mesh bone influences
+## Step 3: fixing skeletal mesh bone influences
 
-# Step 4: splitting 'Hips' track in animation
+## Step 4: splitting 'Hips' track in animation
 
-# Adding a context menu
+## Adding a context menu
 
-# Final Notes
+## Final Notes
