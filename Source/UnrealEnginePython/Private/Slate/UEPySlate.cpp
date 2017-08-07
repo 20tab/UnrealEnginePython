@@ -932,10 +932,9 @@ PyObject *py_unreal_engine_add_tool_bar_extension(PyObject * self, PyObject * ar
 
 PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self, PyObject * args) {
 
-	char *command_name;
 	PyObject *py_callable;
 
-	if (!PyArg_ParseTuple(args, "sO:add_asset_view_context_menu_extension", &command_name, &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:add_asset_view_context_menu_extension", &py_callable)) {
 		return NULL;
 	}
 
@@ -944,7 +943,7 @@ PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self
 
 	FContentBrowserModule &ContentBrowser = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
 	TArray<FContentBrowserMenuExtender_SelectedAssets> &Extenders = ContentBrowser.GetAllAssetViewContextMenuExtenders();
-	
+
 	FContentBrowserMenuExtender_SelectedAssets handler;
 	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
 	py_delegate->SetPyCallable(py_callable);
