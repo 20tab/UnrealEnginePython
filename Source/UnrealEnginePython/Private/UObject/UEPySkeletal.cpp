@@ -233,7 +233,9 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 	mesh->RefBasesInvMatrix.Empty();
 	mesh->CalculateInvRefMatrices();
 
+#if WITH_EDITOR
 	mesh->PostEditChange();
+#endif
 	mesh->InitResources();
 	mesh->MarkPackageDirty();
 
@@ -298,7 +300,9 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 	mesh->RefBasesInvMatrix.Empty();
 	mesh->CalculateInvRefMatrices();
 
+#if WITH_EDITOR
 	mesh->PostEditChange();
+#endif
 	mesh->InitResources();
 	mesh->MarkPackageDirty();
 
@@ -358,7 +362,9 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args) 
 	mesh->RefBasesInvMatrix.Empty();
 	mesh->CalculateInvRefMatrices();
 
+#if WITH_EDITOR
 	mesh->PostEditChange();
+#endif
 	mesh->InitResources();
 	mesh->MarkPackageDirty();
 
@@ -474,7 +480,9 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 	mesh->RefBasesInvMatrix.Empty();
 	mesh->CalculateInvRefMatrices();
 
+#if WITH_EDITOR
 	mesh->PostEditChange();
+#endif
 	mesh->InitResources();
 	mesh->MarkPackageDirty();
 
@@ -559,7 +567,9 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	mesh->RefBasesInvMatrix.Empty();
 	mesh->CalculateInvRefMatrices();
 
+#if WITH_EDITOR
 	mesh->PostEditChange();
+#endif
 	mesh->InitResources();
 	mesh->MarkPackageDirty();
 
