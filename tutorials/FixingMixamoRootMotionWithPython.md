@@ -365,6 +365,9 @@ for uobject in ue.get_selected_assets():
 
 Select an animation from the content browser and run the script.
 
+
+![animation fixed](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/animation_fixed.png)
+
 You can downlod the full code here:
 
 https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython_Assets/mixamo.py
@@ -411,3 +414,9 @@ import mixamo
 ```
 
 ## Final Notes
+
+Always pay attention when choosing asset names (expecially if you are automatically generating them). Attempting to create a UObject with a conflicting name could lead to an editor crash.
+
+Remember that you can open the editor asset by simply calling ```ue.open_editor_for_asset(uobject)```
+
+Note that calling ```ue.add_asset_view_context_menu_extension(callable)``` will generate a new context menu every time. There is currently no support for cleaning the context menu (well, except for restarting the editor :P)
