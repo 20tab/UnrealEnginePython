@@ -262,7 +262,7 @@ class RootMotionFixer:
     ...
 ```
 
-You can now delete the previously generated assets (the SeletalMesh and the Skeleton) and re-run the script (remembre to select at least a Skeletal Mesh asset).
+You can now delete the previously generated assets (the SeletalMesh and the Skeleton) and re-run the script (remember to select at least a Skeletal Mesh asset).
 
 If all goes well, open the new skeleton and rotate again the left shoulder. Now it should work flawlessly:
 
@@ -272,7 +272,7 @@ No more arms deformation :)
 
 ## Step 4: splitting 'Hips' track in animation
 
-The final step is fixing animations. We basically need to add a new track for the root motion, and remove translation from the track of the 'Hips' bone (remember, each bone is mapped to a different track in the animation).
+The final step is fixing animations. We basically need to add a new track for the root motion, and remove translations from the track of the 'Hips' bone (remember, each bone is mapped to a different track in the animation).
 
 We will create a new empty animation for the 'rooted' skeleton, and we will copy (and eventually fix) each track from the selected animation.
 
@@ -417,6 +417,6 @@ import mixamo
 
 Always pay attention when choosing asset names (expecially if you are automatically generating them). Attempting to create a UObject with a conflicting name could lead to an editor crash.
 
-Remember that you can open the editor asset by simply calling ```ue.open_editor_for_asset(uobject)```
+Remember that you can open the asset-related editor by simply calling ```ue.open_editor_for_asset(uobject)```
 
 Note that calling ```ue.add_asset_view_context_menu_extension(callable)``` will generate a new context menu every time. There is currently no support for cleaning the context menu (well, except for restarting the editor :P)
