@@ -16,7 +16,7 @@ Once our mixamo assets are imported we need to do the following steps:
 
 * Split the 'Hips' related animation curve in two other curves, one containing the root motion (translations, relative to local axis origin) that will be mapped to the 'root' track, and the other mapped to the 'Hips' track that will contain only rotations.
 
-To avoid damages, we will generate a copy of each asset, so you will be able to always use the original assets.
+To avoid damages, we will generate a copy of each asset, so you will be able to always use the original ones.
 
 ## Step 1: importing mixamo animations
 
