@@ -146,7 +146,7 @@ Double click on the skeleton to open its editor and you should see the new bone 
 
 In the last screenshot we have seen a broken deformation. What happened to our vampire ?
 
-Each skeletal mesh LOD has a series of 'soft skin vertices' mapped to it. Each vertex data structure contains the classic position, tangents (included normals) and uvs values, as well as 2 additional fields for storing up to 8 'bone influences'. A bone influence is composed by a bone index (note: not the same index of the skeleton, see below) and a bone weight. Weight define how much the bone deforms the vertex.
+Each skeletal mesh LOD has a series of 'soft skin vertices' mapped to it. Each vertex data structure contains the classic position, tangents (included normals) and uvs values, as well as 2 additional fields for storing up to 8 'bone influences'. A bone influence is composed by a bone index (note: not the same index of the skeleton, see below) and a bone weight. Weight defines how much the bone deforms the vertex.
 
 Changing the bone hierarchy (remember, we have added the 'root' bone), resulted in different bone indices, so each vertex is potentially pointing to the wrong bone.
 
