@@ -144,6 +144,51 @@ Double click on the skeleton to open its editor and you should see the new bone 
 
 ## Step 3: fixing skeletal mesh bone influences
 
+In the last screenshot we have seen a broken deformation. What happened to our vampire ?
+
+Each skeletal mesh LOD has a series of 'soft skin vertices' mapped to it. Each vertex data structure contains the classic position, tangents (included normals) and uvs values, as well as 2 additional fields for storing up to 8 'bone influences'. A bone influence is composed by a bone index (note: not the same index of the skeleton, see below) and a bone weight. Weight define how much the bone deforms the vertex.
+
+Changing the bone hierarchy (remember, we have added the 'root' bone), resulted in different bone indices, so each vertex is potentially pointing to the wrong bone.
+
+In addition to this, soft skin vertices do not use the skeleton hierarchy, but point to an additional map (the BoneMap) that contains a simple array of the used bones.
+
+A BoneMap looks like this:
+
+```python
+[17, 22, 26, 30]
+```
+
+so index 0 means bone 17, index 1 means bone 22 and so on. This additional mapping is for performance reasons, but we need to deal with it.
+
+To retrieve the BoneMap of a skeletal mesh you can use:
+
+```python
+bone_map = mesh.skeletal_mesh_get_bone_map()
+```
+
+and to assign a new one:
+
+```python
+mesh.skeletal_mesh_get_bone_map([17, 22, 26, 30, ...])
+```
+
+In the same way you can retrieve soft skin vertices:
+
+```python
+vertices = mesh.skeletal_mesh_get_soft_vertices()
+```
+
+each vertex is a FSoftSkinVertex class with the following fields:
+
+* position (the vertex position vector)
+* color (the vertex color, can be used by materials)
+* tangent_x, tangent_y, tangent_z (tangents/normal)
+* uvs (texture coordinates)
+* influence_bones (tuple with up to 8 BoneMap indices)
+* influence_weights (bone weight as integer, 0 to 255)
+
+Our objective is to update the influence_bones tuple for each vertex and to regenerate the BoneMap:
+
 ```python
 
 class RootMotionFixer:
