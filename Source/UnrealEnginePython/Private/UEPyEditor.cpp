@@ -227,8 +227,12 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 		r = rotator->rot;
 	}
 
-
+#if ENGINE_MINOR_VERSION >= 17
+	const FString mobile_device;
+	GEditor->RequestPlaySession(&v, &r, false, false, mobile_device);
+#else
 	GEditor->RequestPlaySession(&v, &r, false, false);
+#endif
 	
 	Py_RETURN_NONE;
 }
@@ -1207,7 +1211,11 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 #if ENGINE_MINOR_VERSION > 14
 	FEdGraphPinType pin;
 	pin.PinCategory = UTF8_TO_TCHAR(in_type);
+#if ENGINE_MINOR_VERSION >= 17
+	pin.ContainerType = is_array ? EPinContainerType::Array : EPinContainerType::None;
+#else
 	pin.bIsArray = is_array;
+#endif
 #else
 	FEdGraphPinType pin(UTF8_TO_TCHAR(in_type), FString(""), nullptr, is_array, false);
 #endif
@@ -1656,7 +1664,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
 
-	ULevel *level = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+	ULevel *level = (ULevel *)EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
 	if (level) {
 		// TODO: update levels list
 	}

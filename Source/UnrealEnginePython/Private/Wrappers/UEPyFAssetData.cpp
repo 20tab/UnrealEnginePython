@@ -31,9 +31,11 @@ static PyObject *py_ue_fassetdata_get_asset_name(ue_PyFAssetData *self, void *cl
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.AssetName.ToString()));
 }
 
+#if ENGINE_MINOR_VERSION < 17
 static PyObject *py_ue_fassetdata_get_group_names(ue_PyFAssetData *self, void *closure) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.GroupNames.ToString()));
 }
+#endif
 
 static PyObject *py_ue_fassetdata_get_object_path(ue_PyFAssetData *self, void *closure) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.ObjectPath.ToString()));
@@ -65,7 +67,9 @@ static PyObject *py_ue_fassetdata_get_tags_and_values(ue_PyFAssetData *self, voi
 static PyGetSetDef ue_PyFAssetData_getseters[] = {
 	{ (char *)"asset_class", (getter)py_ue_fassetdata_get_asset_class, nullptr, (char *)"asset_class" },
 	{ (char *)"asset_name", (getter)py_ue_fassetdata_get_asset_name, nullptr, (char *)"asset_name" },
+#if ENGINE_MINOR_VERSION < 17
 	{ (char *)"group_names", (getter)py_ue_fassetdata_get_group_names, nullptr, (char *)"group_names" },
+#endif
 	{ (char *)"object_path",(getter)py_ue_fassetdata_get_object_path, nullptr, (char *)"object_path" },
 	{ (char *)"package_flags",(getter)py_ue_fassetdata_get_package_flags, nullptr, (char *)"package_flags" },
 	{ (char *)"package_name", (getter)py_ue_fassetdata_get_package_name, nullptr, (char *)"package_name" },

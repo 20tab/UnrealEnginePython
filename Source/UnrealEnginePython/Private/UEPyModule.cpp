@@ -2404,7 +2404,11 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		FString default_key = FString("CPP_Default_") + prop->GetName();
 		FString default_key_value = u_function->GetMetaData(FName(*default_key));
 		if (!default_key_value.IsEmpty()) {
+#if ENGINE_MINOR_VERSION >= 17
+			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_None, NULL);
+#else
 			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
+#endif
 		}
 #endif
 	}
@@ -2774,7 +2778,12 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		UE_LOG(LogPython, Warning, TEXT("REGISTERED FUNCTION %s WITH %d PARAMS (size %d) %d"), *function->GetFName().ToString(), function->NumParms, function->ParmsSize, function->PropertiesSize);
 	}
 
+
+#if ENGINE_MINOR_VERSION >= 17
+	function->FunctionFlags = (EFunctionFlags)function_flags;
+#else
 	function->FunctionFlags = function_flags;
+#endif
 
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
 

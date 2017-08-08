@@ -143,8 +143,11 @@ PyTypeObject ue_PySWindowType = {
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs) {
 
 	ue_py_slate_setup_farguments(SWindow);
-
+#if ENGINE_MINOR_VERSION > 15
+	ue_py_slate_farguments_optional_enum("activation_policy", ActivationPolicy, EWindowActivationPolicy);
+#else
 	ue_py_slate_farguments_optional_bool("activate_when_first_shown", ActivateWhenFirstShown);
+#endif
 #if ENGINE_MINOR_VERSION > 15
 	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter);
 #else
