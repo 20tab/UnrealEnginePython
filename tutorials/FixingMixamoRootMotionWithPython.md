@@ -268,8 +268,134 @@ If all goes well, open the new skeleton and rotate again the left shoulder. Now 
 
 ![fixed influences](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/fixed_influences.png)
 
+No more arms deformation :)
+
 ## Step 4: splitting 'Hips' track in animation
 
-## Adding a context menu
+The final step is fixing animations. We basically need to add a new track for the root motion, and remove translation from the track of the 'Hips' bone (remember, each bone is mapped to a different track in the animation).
+
+We will create a new empty animation for the 'rooted' skeleton, and we will copy (and eventually fix) each track from the selected animation.
+
+This time we will ask the user to select a skeleton asset using a slate window, but we will not ask where to save the new copy, instead we will automatically generate a name (obviously feel free to add your asset save dialog).
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import SkeletalMesh, Skeleton, AnimSequence, AnimSequenceFactory
+from unreal_engine import FTransform, FRawAnimSequenceTrack, FQuat
+from unreal_engine import SWindow, SObjectPropertyEntryBox
+
+class RootMotionFixer:
+
+    ...
+    def set_skeleton(self, asset_data):
+        """
+        This hook will be called after you selected a skeleton from the slate wizard
+        """
+        self.choosen_skeleton = asset_data.get_asset()
+        self.window.request_destroy()
+
+    def split_hips(self, animation, bone='Hips'):
+        """
+        SObjectPropertyEntryBox is the asset selector widget (we limit it to the Skeleton class)
+        """
+        # this will contain the user-selected skeleton (if-any)
+        self.choosen_skeleton = None
+        # first ask for which skeleton to use:
+        self.window = SWindow(title='Choose your new Skeleton', modal=True, sizing_rule=1)(
+                     SObjectPropertyEntryBox(allowed_class=Skeleton, on_object_changed=self.set_skeleton)
+                 )
+        # add_modal() will block the script until the user make some kind of input in the window
+        self.window.add_modal()
+        
+        # ensure a skeleton has been selected
+        if not self.choosen_skeleton:
+            raise DialogException('Please specify a Skeleton for retargeting')
+
+        # create a new empty animation from the skeleton
+        factory = AnimSequenceFactory()
+        factory.TargetSkeleton = self.choosen_skeleton
+        
+        # automatically build its new path
+        base_path = animation.get_path_name()
+        package_name = ue.get_path(base_path)
+        object_name = ue.get_base_filename(base_path)
+
+        new_anim = factory.factory_create_new(package_name + '/' + object_name + '_rooted')
+
+        # copy the number of frames and duration
+        new_anim.NumFrames = animation.NumFrames
+        new_anim.SequenceLength = animation.SequenceLength
+
+        # iterate each track to copy/fix
+        for index, name in enumerate(animation.AnimationTrackNames):
+            data = animation.get_raw_animation_track(index)
+            if name == bone:
+                # extract root motion
+                root_motion = [position - data.pos_keys[0] for position in data.pos_keys]
+
+                # remove root motion from original track (but leave a single key for position, otherwise the track will break)
+                data.pos_keys = [data.pos_keys[0]]
+                new_anim.add_new_raw_track(name, data)
+
+                # create a new track (the root motion one)
+                root_data = FRawAnimSequenceTrack()
+                root_data.pos_keys = root_motion
+                # ensure empty rotations !
+                root_data.rot_keys = [FQuat()]
+        
+                 # add  the track
+                new_anim.add_new_raw_track('root', root_data)
+            else:
+                new_anim.add_new_raw_track(name, data)
+
+        new_anim.save_package()
+```
+
+Now add support for AnimSequence in your final loop:
+
+```python
+for uobject in ue.get_selected_assets():
+    if uobject.is_a(SkeletalMesh):
+        root_motion_fixer.add_root_to_skeleton(uobject)
+    elif uobject.is_a(AnimSequence):
+        root_motion_fixer.split_hips(uobject)
+    else:
+        raise DialogException('Only Skeletal Meshes and Skeletons are supported')
+```
+
+Select an animation from the content browser and run the script.
+
+You can downlod the full code here:
+
+https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython_Assets/mixamo.py
+
+## Bonus step: adding a context menu
+
+Running the script from the command line is not very handy (unless you are doing some kind of massive conversion).
+
+It would be way cooler to execute it by right clicking the asset from the content browser. You can add a context menu extension:
+
+```python
+class RootMotionFixer:
+
+    ...
+    def run_tasks(self, selected_assets):
+        for asset_data in selected_assets:
+            if asset_data.asset_class == 'SkeletalMesh':
+                self.add_root_to_skeleton(asset_data.get_asset())
+            elif asset_data.asset_class == 'AnimSequence':
+                self.split_hips(asset_data.get_asset())
+            else:
+                raise DialogException('Only Skeletal Meshes are supported')
+
+    def __call__(self, menu, selected_assets):
+        menu.begin_section('mixamo', 'mixamo')
+        menu.add_menu_entry('fix root motion', 'fix root motion', self.run_tasks, selected_assets)
+        menu.end_section()
+        
+# add a context menu
+ue.add_asset_view_context_menu_extension(RootMotionFixer())
+ue.log('Mixamo Root Motion Fixer registered')
+```
 
 ## Final Notes
