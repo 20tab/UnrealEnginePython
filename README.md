@@ -895,3 +895,13 @@ Contacts and Commercial Support
 If you want to contact us (for help, support, sponsorship), drop a mail to info at 20tab.com or follow @unbit on twitter
 
 We offer commercial support for both UnrealEngine and UnrealEnginePython, again drop a mail to info at 20tab.com for more infos
+
+Special Thanks
+--------------
+
+Such a big project requires constant sponsorship, special thanks go to:
+
+* Kite & Lighting http://kiteandlightning.la/ (they are sponsoring various areas of the project, expecially the slate api)
+
+* GOODTH.INC https://www.goodthinc.com/ (they are sponsoring the sequencer api)
+
