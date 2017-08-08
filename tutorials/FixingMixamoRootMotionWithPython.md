@@ -122,6 +122,26 @@ for uobject in ue.get_selected_assets():
         raise DialogException('Only Skeletal Meshes are supported')
 ```
 
+The `DialogException` class is a useful trick for generating a modal window on error. This is more UE4-friendly than simply spitting out erors in the console. Whenever you raises it, the dialog will appear.
+
+The `ue.create_modal_save_asset_dialog(title, default_package_name, default_object_name)` function opens the UE4 asset manager for allowing the user to specify where to save the SkeletalMesh/Skeleton copies. Obviously, in case of massive conversions you can avoid it and simply specify an automatic file pattern in the code.
+
+Pay attention to the way bones are structured. They are basically referenced as numbers, with each bone mapped to a parent index (-1 fror the first bone in the chain).
+
+The last part of the script runs the `add_root_to_skeleton()` method for each selected asset in the content browser (but will raise an exception if one of the assets is not a Skeletal Mesh).
+
+So, select the vampire Skeletal Mesh and run the `mixamo.py` script from the UE4 python console (or click execute in the embedded python editor):
+
+```python
+ue.py_exec('mixamo.py')
+```
+
+You will end with two new assets, one for the SkeletalMesh and another for the Skeleton.
+
+Double click on the skeleton to open its editor and you should see the new bone hierarchy with 'root' as the parent. Now rotate the left shoulder and you should note some scary result:
+
+![no influences](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/no_influences.png)
+
 ## Step 3: fixing skeletal mesh bone influences
 
 ## Step 4: splitting 'Hips' track in animation
