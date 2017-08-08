@@ -254,10 +254,10 @@ class RootMotionFixer:
 
     def add_root_to_skeleton(self, mesh, bone='root'):
         ...
-        # assign the new skeleton to the new mesh
-        new_mesh.skeletal_mesh_set_skeleton(new_skel)
+        # fix bone influences
+        self.fix_bones_influences(new_mesh, mesh.Skeleton)
 
-        new_skel.save_package()
+        new_mesh.save_package()
     
     ...
 ```
