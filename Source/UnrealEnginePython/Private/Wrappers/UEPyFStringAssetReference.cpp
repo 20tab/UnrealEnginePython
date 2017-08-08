@@ -3,7 +3,11 @@
 #include "UEPyFStringAssetReference.h"
 
 static PyObject *py_ue_fstring_asset_reference_get_asset_name(ue_PyFStringAssetReference *self, PyObject * args) {
+#if ENGINE_MINOR_VERSION > 13
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->fstring_asset_reference.GetAssetName()));
+#else
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToObjectName(self->fstring_asset_reference.AssetLongPathname)));
+#endif
 }
 
 static PyObject *py_ue_fstring_asset_reference_get_long_package_name(ue_PyFStringAssetReference *self, PyObject * args) {
@@ -20,7 +24,11 @@ static PyMethodDef ue_PyFStringAssetReference_methods[] = {
 static PyObject *ue_PyFStringAssetReference_str(ue_PyFStringAssetReference *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.FStringAssetReference {'asset_name': %s}>",
+#if ENGINE_MINOR_VERSION > 13
 		TCHAR_TO_UTF8(*self->fstring_asset_reference.GetAssetName()));
+#else
+		TCHAR_TO_UTF8(*FPackageName::ObjectPathToObjectName(self->fstring_asset_reference.AssetLongPathname)));
+#endif
 }
 
 static PyTypeObject ue_PyFStringAssetReferenceType = {

@@ -483,9 +483,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "anim_set_skeleton", (PyCFunction)py_ue_anim_set_skeleton, METH_VARARGS, "" },
 
 #if WITH_EDITOR
+#if ENGINE_MINOR_VERSION > 13
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
+#endif
 	{ "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
 #endif
 
@@ -690,7 +692,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeleton_find_bone_index", (PyCFunction)py_ue_skeleton_find_bone_index, METH_VARARGS, "" },
 	{ "skeleton_get_ref_bone_pose", (PyCFunction)py_ue_skeleton_get_ref_bone_pose, METH_VARARGS, "" },
 
+#if ENGINE_MINOR_VERSION > 13
 	{ "skeleton_add_bone", (PyCFunction)py_ue_skeleton_add_bone, METH_VARARGS, "" },
+#endif
 
 	{ "skeletal_mesh_set_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_set_soft_vertices, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_get_soft_vertices, METH_VARARGS, "" },
