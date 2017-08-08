@@ -329,6 +329,7 @@ PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 
 }
 
+#if ENGINE_MINOR_VERSION >= 15
 PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -339,6 +340,7 @@ PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args) {
 
 	Py_RETURN_FALSE;
 }
+#endif
 
 PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
 
