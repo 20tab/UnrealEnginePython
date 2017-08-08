@@ -262,7 +262,7 @@ class RootMotionFixer:
     ...
 ```
 
-You can now delete the previously generated assets (the SeletalMesh and the Skeleton) and re-run the script (rememebr to select at least a Skeletal Mesh asset).
+You can now delete the previously generated assets (the SeletalMesh and the Skeleton) and re-run the script (remembre to select at least a Skeletal Mesh asset).
 
 If all goes well, open the new skeleton and rotate again the left shoulder. Now it should work flawlessly:
 
