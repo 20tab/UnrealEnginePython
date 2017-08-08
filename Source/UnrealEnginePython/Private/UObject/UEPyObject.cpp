@@ -329,6 +329,17 @@ PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 
 }
 
+PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	if (self->ue_object->CanModify()) {
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
 PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

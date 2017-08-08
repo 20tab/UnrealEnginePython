@@ -404,6 +404,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_path_name", (PyCFunction)py_ue_get_path_name, METH_VARARGS, "" },
 	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
 
+	{ "can_modify", (PyCFunction)py_ue_can_modify, METH_VARARGS, "" },
+
 	{ "set_name", (PyCFunction)py_ue_set_name, METH_VARARGS, "" },
 
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
