@@ -6,6 +6,8 @@ Fixing it is a pretty heavy (and manual) task: you need to add a new bone to the
 
 The following tutorial shows how you can accomplish the same task with a simple python script.
 
+The scripts have been tested with Unreal Engine 4.16 and python 3.6. If this is the first time you use the Unreal Engine Python plugin i strongly suggest you to start with a more gentle tutorial: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/PlottingGraphsWithMatplotlibAndUnrealEnginePython.md#installing-the-python-plugin
+
 ## Steps
 
 Once our mixamo assets are imported we need to do the following steps:
