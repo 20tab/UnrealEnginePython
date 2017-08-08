@@ -36,11 +36,91 @@ The reason is in how the character is rigged:
 
 ![default_skeleton](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/default_skeleton.png)
 
-as you can see the root of the skeleton tree is the 'Hips' joint/bone. Animations use this bone for both translations and rotations, breaking the way UE4 works. Unreal Engine expects the root of the skeleton to be at the local origin and all of the bones/joints weighted to vertices come below it.
+as you can see the root of the skeleton tree is the 'Hips' joint/bone. Animations use this bone for both translations and rotations, breaking the way UE4 works. Unreal Engine expects the root of the skeleton to be at the local origin and all of the other bones/joints (weighted to vertices) below it.
 
-So our first ste will be building a new skeleton with this specific configuration.
+So our first step will be building a new skeleton with this specific configuration.
 
 ## Step 2: generating a new skeleton
+
+Open your favourite python editor (or the embedded one) and create the /Game/Scripts/mixamo.py file:
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import SkeletalMesh, Skeleton
+from unreal_engine import FTransform
+
+
+class DialogException(Exception):
+    """
+    Handy exception class for spawning a message dialog on error
+    """
+    def __init__(self, message):
+        ue.message_dialog_open(0, message)
+
+class RootMotionFixer:
+
+    def add_root_to_skeleton(self, mesh, bone='root'):
+        # retrieve the mesh path, so we can give the user a handy default for the file picker
+        base_path = mesh.get_path_name()
+        # open the save asset dialog with handy defaults
+        new_path = ue.create_modal_save_asset_dialog('Choose destination path', ue.get_path(base_path), ue.get_base_filename(base_path) + '_rooted')
+        if not new_path:
+            raise DialogException('Please specify a new path for the Skeletal Mesh copy')
+
+        # build package and object names for the mesh copy
+        package_name = ue.object_path_to_package_name(new_path)
+        object_name = ue.get_base_filename(new_path)
+        # the last True allows for overwrites
+        new_mesh = mesh.duplicate(package_name, object_name, True)
+
+        # generate a new skeleton
+        new_skel = self.build_new_skeleton(mesh.Skeleton, object_name + '_Skeleton', bone)
+        # save the new skeleton in the same package directory of the new skeletal mesh
+        new_skel.save_package(package_name)
+
+        # assign the new skeleton to the new mesh
+        new_mesh.skeletal_mesh_set_skeleton(new_skel)
+
+        new_skel.save_package()
+
+    def build_new_skeleton(self, skeleton, name, root):
+        """
+        Generate a new skeleton with a 'root' bone
+        """
+        new_skel = Skeleton(name)
+        # add the root bone with -1 as parent
+        new_skel.skeleton_add_bone(root, -1, FTransform())
+
+        # copy bone indices from the original skeleton
+        for index in range(0, skeleton.skeleton_bones_get_num()):
+            # get bone name, parent index and ref pose
+            bone_name = skeleton.skeleton_get_bone_name(index)
+            bone_parent = skeleton.skeleton_get_parent_index(index)
+            bone_transform = skeleton.skeleton_get_ref_bone_pose(index)
+
+            # if this is the old 'root' bone (Hips), change its parent to the new 'root'
+            if bone_parent == -1:
+                bone_parent_name = root
+            else:
+                bone_parent_name = skeleton.skeleton_get_bone_name(bone_parent)
+
+            # get new bone parent id
+            new_bone_parent = new_skel.skeleton_find_bone_index(bone_parent_name)
+            # add the new bone
+            new_skel.skeleton_add_bone(bone_name, new_bone_parent, bone_transform)
+        return new_skel
+
+
+root_motion_fixer = RootMotionFixer()
+
+# get the list of currently selected assets in the content browser
+for uobject in ue.get_selected_assets():
+    # check if uobject is a SkeletlMesh
+    if uobject.is_a(SkeletalMesh):
+        root_motion_fixer.add_root_to_skeleton(uobject)
+    else:
+        raise DialogException('Only Skeletal Meshes are supported')
+```
 
 ## Step 3: fixing skeletal mesh bone influences
 
