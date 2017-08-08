@@ -126,7 +126,7 @@ The `DialogException` class is a useful trick for generating a modal window on e
 
 The `ue.create_modal_save_asset_dialog(title, default_package_name, default_object_name)` function opens the UE4 asset manager for allowing the user to specify where to save the SkeletalMesh/Skeleton copies. Obviously, in case of massive conversions you can avoid it and simply specify an automatic file pattern in the code.
 
-Pay attention to the way bones are structured. They are basically referenced as numbers, with each bone mapped to a parent index (-1 fror the first bone in the chain).
+Pay attention to the way bones are structured. They are basically referenced as numbers, with each bone mapped to a parent index (-1 for the first bone in the chain).
 
 The last part of the script runs the `add_root_to_skeleton()` method for each selected asset in the content browser (but will raise an exception if one of the assets is not a Skeletal Mesh).
 
