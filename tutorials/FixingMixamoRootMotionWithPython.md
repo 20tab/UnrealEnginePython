@@ -14,7 +14,7 @@ Once our mixamo assets are imported we need to do the following steps:
 
 * Modify the SkeletalMesh bone influences as indexes will be shifted after the adding of a new bone
 
-* Split the 'Hips' related animation curve in two other curves, one containing the root motion (translations, relative to axis zero) that will be mapped to the 'root' track, and the other mapped to the 'Hips' track that will contain only rotations.
+* Split the 'Hips' related animation curve in two other curves, one containing the root motion (translations, relative to local axis origin) that will be mapped to the 'root' track, and the other mapped to the 'Hips' track that will contain only rotations.
 
 To avoid damages, we will generate a copy of each asset, so you will be able to always use the original assets.
 
