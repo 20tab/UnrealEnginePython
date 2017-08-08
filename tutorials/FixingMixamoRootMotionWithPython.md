@@ -360,7 +360,7 @@ for uobject in ue.get_selected_assets():
     elif uobject.is_a(AnimSequence):
         root_motion_fixer.split_hips(uobject)
     else:
-        raise DialogException('Only Skeletal Meshes and Skeletons are supported')
+        raise DialogException('Only Skeletal Meshes and Anim Sequences are supported')
 ```
 
 Select an animation from the content browser and run the script.
@@ -380,22 +380,34 @@ class RootMotionFixer:
 
     ...
     def run_tasks(self, selected_assets):
+        # asset_data is an FAssetData instance.It is not a UObject !
         for asset_data in selected_assets:
             if asset_data.asset_class == 'SkeletalMesh':
                 self.add_root_to_skeleton(asset_data.get_asset())
             elif asset_data.asset_class == 'AnimSequence':
                 self.split_hips(asset_data.get_asset())
             else:
-                raise DialogException('Only Skeletal Meshes are supported')
+                raise DialogException('Only Skeletal Meshes and Anim Sequences are supported')
 
     def __call__(self, menu, selected_assets):
         menu.begin_section('mixamo', 'mixamo')
         menu.add_menu_entry('fix root motion', 'fix root motion', self.run_tasks, selected_assets)
         menu.end_section()
-        
+    
+    
 # add a context menu
 ue.add_asset_view_context_menu_extension(RootMotionFixer())
 ue.log('Mixamo Root Motion Fixer registered')
+```
+
+(remember to remove the ue.get_selected_assets() loop and the RootMotionFixer() instance from the previous code !)
+
+The `__call__` method will be called whenever the user right-click the asset in the content browser and will generate the menu
+
+To automatically register the mixamo module at editor startup, just import it in /Game/Scripts/ue_site.py (create it if it does not exist):
+
+```python
+import mixamo
 ```
 
 ## Final Notes
