@@ -144,6 +144,62 @@ Double click on the skeleton to open its editor and you should see the new bone 
 
 ## Step 3: fixing skeletal mesh bone influences
 
+```python
+
+class RootMotionFixer:
+
+    ...
+    
+    def fix_bones_influences(self, mesh, old_skeleton):
+        # get current soft vertices
+        vertices = mesh.skeletal_mesh_get_soft_vertices()
+        new_vertices = []
+        # get current bone map
+        old_bone_map = mesh.skeletal_mesh_get_bone_map()
+        new_bone_map = []
+
+        # fix bones influence for each vertex
+        for vertex in vertices:
+            bone_ids = list(vertex.influence_bones)
+            for index, bone_id in enumerate(bone_ids):
+                # only fix bone with weight > 0
+                if vertex.influence_weights[index] > 0:
+                    bone_ids[index] = self.get_updated_bone_index(old_skeleton, mesh.Skeleton, old_bone_map, new_bone_map, bone_id)
+            vertex.influence_bones = bone_ids
+            new_vertices.append(vertex)
+
+        # assign new vertices
+        mesh.skeletal_mesh_set_soft_vertices(new_vertices)
+        # add the new bone mapping
+        mesh.skeletal_mesh_set_bone_map(new_bone_map)
+
+        # specify which bones are active and required (ensure root is added to required bones)
+        mesh.skeletal_mesh_set_active_bone_indices(new_bone_map)
+        if 0 not in new_bone_map:
+            new_bone_map += [0]
+        mesh.skeletal_mesh_set_required_bones(new_bone_map)
+
+    def get_updated_bone_index(self, old_skeleton, new_skeleton, old_bone_map, new_bone_map, index):
+        """
+        Convert indices betwen skeletons
+        """
+        # get the skeleton bone_id from the map
+        true_bone_id = old_bone_map[index]
+
+        # get the bone name
+        bone_name = old_skeleton.skeleton_get_bone_name(true_bone_id)
+
+        # get the new index
+        new_bone_id = new_skeleton.skeleton_find_bone_index(bone_name)
+
+        # check if a new mapping is available
+        if new_bone_id in new_bone_map:
+            return new_bone_map.index(new_bone_id)
+
+        new_bone_map.append(new_bone_id)
+        return len(new_bone_map)-1
+```
+
 ## Step 4: splitting 'Hips' track in animation
 
 ## Adding a context menu
