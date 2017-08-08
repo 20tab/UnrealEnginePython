@@ -3,6 +3,9 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "PythonBlueprintFunctionLibrary.h"
 #include "HAL/IConsoleManager.h"
+#if ENGINE_MINOR_VERSION < 13
+#include "ClassIconFinder.h"
+#endif
 
 void unreal_engine_init_py_module();
 

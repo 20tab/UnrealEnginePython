@@ -1,3 +1,4 @@
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
@@ -102,4 +103,5 @@ ue_PyFbxScene *py_ue_is_fbx_scene(PyObject *obj) {
 	return (ue_PyFbxScene *)obj;
 }
 
+#endif
 #endif

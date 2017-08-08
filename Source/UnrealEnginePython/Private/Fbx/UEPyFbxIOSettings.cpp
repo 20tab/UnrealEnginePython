@@ -1,3 +1,4 @@
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
@@ -74,4 +75,5 @@ ue_PyFbxIOSettings *py_ue_is_fbx_io_settings(PyObject *obj) {
 	return (ue_PyFbxIOSettings *)obj;
 }
 
+#endif
 #endif

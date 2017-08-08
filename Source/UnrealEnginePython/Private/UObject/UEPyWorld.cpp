@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+
 PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

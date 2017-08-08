@@ -6,7 +6,7 @@ static PyObject *py_ue_fstring_asset_reference_get_asset_name(ue_PyFStringAssetR
 #if ENGINE_MINOR_VERSION > 13
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->fstring_asset_reference.GetAssetName()));
 #else
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToObjectName(self->fstring_asset_reference.AssetLongPathname)));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToObjectName(self->fstring_asset_reference.ToString())));
 #endif
 }
 
@@ -27,7 +27,7 @@ static PyObject *ue_PyFStringAssetReference_str(ue_PyFStringAssetReference *self
 #if ENGINE_MINOR_VERSION > 13
 		TCHAR_TO_UTF8(*self->fstring_asset_reference.GetAssetName()));
 #else
-		TCHAR_TO_UTF8(*FPackageName::ObjectPathToObjectName(self->fstring_asset_reference.AssetLongPathname)));
+		TCHAR_TO_UTF8(*FPackageName::ObjectPathToObjectName(self->fstring_asset_reference.ToString())));
 #endif
 }
 

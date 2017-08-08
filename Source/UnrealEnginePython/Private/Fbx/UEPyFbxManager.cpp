@@ -1,3 +1,4 @@
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
@@ -101,4 +102,5 @@ void ue_python_init_fbx(PyObject *module) {
 }
 
 
+#endif
 #endif

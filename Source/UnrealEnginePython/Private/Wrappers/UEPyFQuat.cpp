@@ -1,5 +1,6 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args) {
 	FQuat q;
 	if (!py_ue_quat_arg(args, q)) {
@@ -8,6 +9,7 @@ static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args)
 
 	return PyFloat_FromDouble(self->quat.AngularDistance(q));
 }
+#endif
 
 static PyObject *py_ue_fquat_euler(ue_PyFQuat *self, PyObject * args) {
 	return py_ue_new_fvector(self->quat.Euler());
@@ -34,7 +36,9 @@ static PyObject *py_ue_fquat_vector(ue_PyFQuat *self, PyObject * args) {
 }
 
 static PyMethodDef ue_PyFQuat_methods[] = {
+#if ENGINE_MINOR_VERSION > 12
 	{ "angular_distance", (PyCFunction)py_ue_fquat_angular_distance, METH_VARARGS, "" },
+#endif
 	{ "euler", (PyCFunction)py_ue_fquat_euler, METH_VARARGS, "" },
 	{ "get_axis_x", (PyCFunction)py_ue_fquat_get_axis_x, METH_VARARGS, "" },
 	{ "get_axis_y", (PyCFunction)py_ue_fquat_get_axis_y, METH_VARARGS, "" },

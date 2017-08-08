@@ -1,3 +1,4 @@
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
@@ -143,4 +144,5 @@ PyObject *py_ue_new_fbx_node(FbxNode *fbx_node) {
 	return (PyObject *)ret;
 }
 
+#endif
 #endif

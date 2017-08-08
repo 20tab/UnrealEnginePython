@@ -1,3 +1,5 @@
+
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
@@ -107,4 +109,5 @@ void ue_python_init_fbx_importer(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxImporter", (PyObject *)&ue_PyFbxImporterType);
 }
 
+#endif
 #endif

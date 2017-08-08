@@ -1,3 +1,4 @@
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
@@ -218,4 +219,5 @@ ue_PyFbxObject *py_ue_is_fbx_object(PyObject *obj) {
 		return nullptr;
 	return (ue_PyFbxObject *)obj;
 }
+#endif
 #endif

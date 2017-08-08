@@ -1,4 +1,5 @@
 #pragma once
+#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePython.h"
 
 #if WITH_EDITOR
@@ -13,4 +14,5 @@
 
 void ue_python_init_fbx(PyObject *);
 
+#endif
 #endif

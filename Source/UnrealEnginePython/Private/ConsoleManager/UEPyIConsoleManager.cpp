@@ -27,6 +27,7 @@ static PyObject *py_ue_iconsole_manager_get_history(PyObject *cls, PyObject * ar
 	return py_history;
 }
 
+#if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_iconsole_manager_get_objects(PyObject *cls, PyObject * args) {
 	char *key = (char*)"";
 	if (!PyArg_ParseTuple(args, "|s:get_objects", &key)) {
@@ -43,7 +44,9 @@ static PyObject *py_ue_iconsole_manager_get_objects(PyObject *cls, PyObject * ar
 
 	return py_names;
 }
+#endif
 
+#if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_iconsole_manager_get_objects_containing(PyObject *cls, PyObject * args) {
 	char *key = (char*)"";
 	if (!PyArg_ParseTuple(args, "|s:get_objects_containing", &key)) {
@@ -60,6 +63,7 @@ static PyObject *py_ue_iconsole_manager_get_objects_containing(PyObject *cls, Py
 
 	return py_names;
 }
+#endif
 
 static PyObject *py_ue_iconsole_manager_get_help(PyObject *cls, PyObject * args) {
 	char *key;
@@ -422,9 +426,11 @@ static PyObject *py_ue_iconsole_manager_register_variable_float(PyObject *cls, P
 static PyMethodDef ue_PyIConsoleManager_methods[] = {
 	{ "get_history", (PyCFunction)py_ue_iconsole_manager_get_history, METH_VARARGS | METH_CLASS, "" },
 	{ "add_history_entry", (PyCFunction)py_ue_iconsole_manager_add_history_entry, METH_VARARGS | METH_CLASS, "" },
+#if ENGINE_MINOR_VERSION > 12
 	{ "get_objects", (PyCFunction)py_ue_iconsole_manager_get_objects, METH_VARARGS | METH_CLASS, "" },
 	{ "get_objects_starting_with", (PyCFunction)py_ue_iconsole_manager_get_objects, METH_VARARGS | METH_CLASS, "" },
 	{ "get_objects_containing", (PyCFunction)py_ue_iconsole_manager_get_objects_containing, METH_VARARGS | METH_CLASS, "" },
+#endif
 	{ "get_help", (PyCFunction)py_ue_iconsole_manager_get_help, METH_VARARGS | METH_CLASS, "" },
 	{ "set_help", (PyCFunction)py_ue_iconsole_manager_set_help, METH_VARARGS | METH_CLASS, "" },
 	{ "get_int", (PyCFunction)py_ue_iconsole_manager_get_int, METH_VARARGS | METH_CLASS, "" },

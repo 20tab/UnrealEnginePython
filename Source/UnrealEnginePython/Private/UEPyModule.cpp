@@ -696,13 +696,16 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeleton_add_bone", (PyCFunction)py_ue_skeleton_add_bone, METH_VARARGS, "" },
 #endif
 
+#if ENGINE_MINOR_VERSION > 12
 	{ "skeletal_mesh_set_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_set_soft_vertices, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_get_soft_vertices, METH_VARARGS, "" },
+#endif
 	{ "skeletal_mesh_set_skeleton", (PyCFunction)py_ue_skeletal_mesh_set_skeleton, METH_VARARGS, "" },
 
-
+#if ENGINE_MINOR_VERSION > 12
 	{ "skeletal_mesh_get_bone_map", (PyCFunction)py_ue_skeletal_mesh_get_bone_map, METH_VARARGS, "" },
 	{ "skeletal_mesh_set_bone_map", (PyCFunction)py_ue_skeletal_mesh_set_bone_map, METH_VARARGS, "" },
+#endif
 	{ "skeletal_mesh_set_active_bone_indices", (PyCFunction)py_ue_skeletal_mesh_set_active_bone_indices, METH_VARARGS, "" },
 	{ "skeletal_mesh_set_required_bones", (PyCFunction)py_ue_skeletal_mesh_set_required_bones, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_active_bone_indices", (PyCFunction)py_ue_skeletal_mesh_get_active_bone_indices, METH_VARARGS, "" },
@@ -1509,7 +1512,9 @@ void unreal_engine_init_py_module() {
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
 	ue_python_init_fstring_asset_reference(new_unreal_engine_module);
+#if ENGINE_MINOR_VERSION > 12
 	ue_python_init_fbx(new_unreal_engine_module);
+#endif
 #if ENGINE_MINOR_VERSION > 13
 	ue_python_init_fraw_mesh(new_unreal_engine_module);
 #endif
