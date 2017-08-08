@@ -122,7 +122,7 @@ for uobject in ue.get_selected_assets():
         raise DialogException('Only Skeletal Meshes are supported')
 ```
 
-The `DialogException` class is a useful trick for generating a modal window on error. This is more UE4-friendly than simply spitting out erors in the console. Whenever you raises it, the dialog will appear.
+The `DialogException` class is a useful trick for generating a modal window on error. This is more UE4-friendly than simply spitting out errors in the console. Whenever you raises it, the dialog will appear.
 
 The `ue.create_modal_save_asset_dialog(title, default_package_name, default_object_name)` function opens the UE4 asset manager for allowing the user to specify where to save the SkeletalMesh/Skeleton copies. Obviously, in case of massive conversions you can avoid it and simply specify an automatic file pattern in the code.
 
