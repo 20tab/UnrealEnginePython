@@ -245,6 +245,29 @@ class RootMotionFixer:
         return len(new_bone_map)-1
 ```
 
+Note the calls to `skeletal_mesh_set_active_bone_indices()` and `skeletal_mesh_set_required_bones()`: they are required to complete the build of the new mapping.
+
+Now just add the following two lines at the end of the `add_root_to_skeleton()` method:
+
+```python
+class RootMotionFixer:
+
+    def add_root_to_skeleton(self, mesh, bone='root'):
+        ...
+        # assign the new skeleton to the new mesh
+        new_mesh.skeletal_mesh_set_skeleton(new_skel)
+
+        new_skel.save_package()
+    
+    ...
+```
+
+You can now delete the previous generated assets (the SeletalMesh and the Skeleton) and re-run the script (rememebr to select at least a Skeletal Mesh asset).
+
+If all goes well, open the new skeleton and rotate again the left shoulder. Now it should work flawlessly:
+
+![fixed influences](https://github.com/20tab/UnrealEnginePython/raw/master/tutorials/FixingMixamoRootMotionWithPython_Assets/fixed_influences.png)
+
 ## Step 4: splitting 'Hips' track in animation
 
 ## Adding a context menu
