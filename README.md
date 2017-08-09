@@ -903,5 +903,5 @@ Such a big project requires constant sponsorship, special thanks go to:
 
 * Kite & Lighting http://kiteandlightning.la/ (they are sponsoring various areas of the project, expecially the slate api)
 
-* GOODTH.INC https://www.goodthinc.com/ (they are sponsoring the sequencer api)
+* GoodTH.INC https://www.goodthinc.com/ (they are sponsoring the sequencer api)
 
