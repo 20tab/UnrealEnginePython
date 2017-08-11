@@ -69,7 +69,7 @@ void UPythonComponent::InitializePythonComponent() {
 
 	// disable ticking if no tick method is exposed
 	if (!PyObject_HasAttrString(py_component_instance, (char *)"tick") || PythonTickForceDisabled) {
-		SetComponentTickEnabled(false);
+		PrimaryComponentTick.bCanEverTick = false;
 	}
 
 	if (!PythonDisableAutoBinding)
@@ -150,7 +150,7 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	FScopePythonGIL gil;
 
-	// no need to check for method availability, we did it in begin_play
+	// no need to check for method availability, we did it in component initialization
 
 	PyObject *ret = PyObject_CallMethod(py_component_instance, (char *)"tick", (char *)"f", DeltaTime);
 	if (!ret) {

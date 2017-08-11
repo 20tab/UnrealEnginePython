@@ -2,7 +2,13 @@
 
 #include "UEPyFGeometry.h"
 
+static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject * args) {
+	FVector2D size = self->geometry.GetLocalSize();
+	return Py_BuildValue("(ff)", size.X, size.Y);
+}
+
 static PyMethodDef ue_PyFGeometry_methods[] = {
+	{ "get_local_size", (PyCFunction)py_ue_fgeometry_get_local_size, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -54,9 +60,9 @@ void ue_python_init_fgeometry(PyObject *ue_module) {
 }
 
 ue_PyFGeometry *py_ue_is_fgeometry(PyObject *obj) {
-        if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFGeometryType))
-                return nullptr;
-        return (ue_PyFGeometry *)obj;
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFGeometryType))
+		return nullptr;
+	return (ue_PyFGeometry *)obj;
 }
 
 PyObject *py_ue_new_fgeometry(FGeometry geometry) {

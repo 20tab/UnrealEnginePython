@@ -2,6 +2,8 @@
 
 #include "UEPyFPaintContext.h"
 
+static FSlateBrush global_simple_brush;
+
 static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObject * args) {
 	float x1, y1, x2, y2;
 	PyObject *py_linear_color = nullptr;
@@ -36,6 +38,49 @@ static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObje
 #else
 	FSlateDrawElement::MakeLines(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(),
 		points, context.MyClippingRect, ESlateDrawEffect::None, tint, (py_antialias && !PyObject_IsTrue(py_antialias)), thickness);
+#endif
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObject * args) {
+	float x, y, w, h;
+
+	PyObject *py_brush = nullptr;
+	PyObject *py_linear_color = nullptr;
+
+	if (!PyArg_ParseTuple(args, "(ff)(ff)|OO:draw_line", &x, &y, &w, &h, &py_linear_color, &py_brush))
+		return nullptr;
+
+	FLinearColor tint = FLinearColor::White;
+
+	if (py_linear_color) {
+		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
+			tint = linear_color->color;
+		}
+		else {
+			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+		}
+	}
+
+	FSlateBrush *brush = &global_simple_brush;
+
+	if (py_brush) {
+		FSlateBrush *custom_brush = ue_py_check_struct<FSlateBrush>(py_brush);
+		if (!custom_brush)
+			return PyErr_Format(PyExc_Exception, "argument is not a FSlateBrush");
+		brush = custom_brush;
+	}
+
+	FPaintContext context = self->paint_context;
+	context.MaxLayer++;
+
+#if ENGINE_MINOR_VERSION >= 17
+	FSlateDrawElement::MakeBox(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(FVector2D(x, y), FVector2D(w, h)),
+		brush, ESlateDrawEffect::None, tint);
+#else
+	FSlateDrawElement::MakeBox(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(FVector2D(x, y), FVector2D(w, h)),
+		brush, context.MyClippingRect, ESlateDrawEffect::None, tint);
 #endif
 
 	Py_RETURN_NONE;
@@ -184,8 +229,14 @@ static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObj
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fpaint_context_get_geometry(ue_PyFPaintContext *self, PyObject * args) {
+	return py_ue_new_fgeometry(self->paint_context.AllottedGeometry);
+}
+
 static PyMethodDef ue_PyFPaintContext_methods[] = {
+	{ "get_geometry", (PyCFunction)py_ue_fpaint_context_get_geometry, METH_VARARGS, "" },
 	{ "draw_line", (PyCFunction)py_ue_fpaint_context_draw_line, METH_VARARGS, "" },
+	{ "draw_box", (PyCFunction)py_ue_fpaint_context_draw_box, METH_VARARGS, "" },
 	{ "draw_lines", (PyCFunction)py_ue_fpaint_context_draw_lines, METH_VARARGS, "" },
 	{ "draw_spline", (PyCFunction)py_ue_fpaint_context_draw_spline, METH_VARARGS, "" },
 	{ "draw_text", (PyCFunction)py_ue_fpaint_context_draw_text, METH_VARARGS, "" },
