@@ -629,6 +629,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// Widget
 	{ "take_widget", (PyCFunction)py_ue_take_widget, METH_VARARGS, "" },
+	{ "create_widget", (PyCFunction)py_ue_create_widget, METH_VARARGS, "" },
 
 	// WidgetComponent
 	{ "set_slate_widget", (PyCFunction)py_ue_set_slate_widget, METH_VARARGS, "" },
