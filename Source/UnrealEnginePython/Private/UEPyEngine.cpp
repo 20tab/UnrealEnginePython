@@ -567,6 +567,22 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObj
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_get_game_viewport_size(PyObject *self, PyObject * args) {
+
+	if (!GEngine->GameViewport) {
+		return PyErr_Format(PyExc_Exception, "unable to get GameViewport");
+	}
+
+	FVector2D size;
+	GEngine->GameViewport->GetViewportSize(size);
+
+	return Py_BuildValue("(ff)", size.X, size.Y);
+}
+
+PyObject *py_unreal_engine_get_resolution(PyObject *self, PyObject * args) {
+	return Py_BuildValue("(ff)", GSystemResolution.ResX, GSystemResolution.ResY);
+}
+
 PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * args) {
 
 	if (!GEngine->GameViewport) {

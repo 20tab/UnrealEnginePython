@@ -301,6 +301,8 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "get_viewport_screenshot", py_unreal_engine_get_viewport_screenshot, METH_VARARGS, "" },
 	{ "get_viewport_size", py_unreal_engine_get_viewport_size, METH_VARARGS, "" },
+	{ "get_resolution", py_unreal_engine_get_resolution, METH_VARARGS, "" },
+	{ "get_game_viewport_size", py_unreal_engine_get_game_viewport_size, METH_VARARGS, "" },
 
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
