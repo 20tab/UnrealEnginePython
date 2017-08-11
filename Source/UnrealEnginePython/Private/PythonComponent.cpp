@@ -15,7 +15,7 @@ UPythonComponent::UPythonComponent()
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
 
-
+	bWantsInitializeComponent = true;
 }
 
 void UPythonComponent::InitializePythonComponent() {
@@ -77,6 +77,35 @@ void UPythonComponent::InitializePythonComponent() {
 
 	ue_bind_events_for_py_class_by_attribute(this, py_component_instance);
 
+	if (!PyObject_HasAttrString(py_component_instance, (char *)"initialize_component")) {
+		return;
+	}
+
+	PyObject *ic_ret = PyObject_CallMethod(py_component_instance, (char *)"initialize_component", NULL);
+	if (!ic_ret) {
+		unreal_engine_py_log_error();
+	}
+	Py_XDECREF(ic_ret);
+
+}
+
+void UPythonComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+	InitializePythonComponent();
+}
+
+
+// Called when the game starts
+void UPythonComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!py_component_instance)
+		return;
+
+	FScopePythonGIL gil;
+
 	if (!PyObject_HasAttrString(py_component_instance, (char *)"begin_play")) {
 		return;
 	}
@@ -86,17 +115,6 @@ void UPythonComponent::InitializePythonComponent() {
 		unreal_engine_py_log_error();
 	}
 	Py_XDECREF(bp_ret);
-
-}
-
-// Called when the game starts
-void UPythonComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-
-	InitializePythonComponent();
 
 }
 
