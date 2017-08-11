@@ -89,10 +89,11 @@ static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObjec
 static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObject * args) {
 	float x, y;
 	char *text;
+	float size = 0;
 	PyObject *py_linear_color = nullptr;
 	PyObject *py_font = nullptr;
 
-	if (!PyArg_ParseTuple(args, "(ff)s|OO:draw_text", &x, &y, &text, &py_linear_color, &py_font))
+	if (!PyArg_ParseTuple(args, "(ff)s|fOO:draw_text", &x, &y, &text, &size, &py_linear_color, &py_font))
 		return nullptr;
 
 	FLinearColor tint = FLinearColor::White;
@@ -116,6 +117,10 @@ static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObje
 			return PyErr_Format(PyExc_Exception, "argument is not a SlateFontInfo USTRUCT");
 		}
 	}
+	if (size <= 0)
+		size = font.Size;
+
+	font.Size = size;
 
 	FVector2D position = FVector2D(x, y);
 
