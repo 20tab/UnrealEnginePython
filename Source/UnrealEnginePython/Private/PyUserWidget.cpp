@@ -115,6 +115,31 @@ void UPyUserWidget::NativeTick(const FGeometry & MyGeometry, float InDeltaTime)
 	Py_DECREF(ret);
 }
 
+FReply UPyUserWidget::NativeOnMouseButtonDown(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
+{
+	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+
+	if (!py_user_widget_instance)
+		return FReply::Unhandled();
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"on_mouse_button_down"))
+		return FReply::Unhandled();
+
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"on_mouse_button_down", (char *)"OO", py_ue_new_fgeometry(InGeometry), py_ue_new_uscriptstruct(FPointerEvent::StaticStruct(), (uint8 *)&InMouseEvent));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FReply::Unhandled();
+	}
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+	Py_DECREF(ret);
+	return FReply::Unhandled();
+}
+
 bool UPyUserWidget::NativeIsInteractable() const
 {
 	if (!py_user_widget_instance)
@@ -167,7 +192,7 @@ UPyUserWidget::~UPyUserWidget()
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_user_widget_instance && py_user_widget_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UUserWidget wrapper refcnt = %d"), py_user_widget_instance->ob_refcnt);
-	}
+}
 #endif
 	Py_XDECREF(py_user_widget_instance);
 

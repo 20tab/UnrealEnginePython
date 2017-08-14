@@ -25,6 +25,8 @@ public:
 
 	virtual bool NativeIsInteractable() const override;
 
+	virtual FReply NativeOnMouseButtonDown(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent);
+
 	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	FString PythonModule;
 
