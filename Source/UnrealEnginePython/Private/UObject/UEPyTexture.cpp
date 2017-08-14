@@ -226,3 +226,43 @@ PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * s
 	return (PyObject *)ret;
 }
 
+#if WITH_EDITOR
+PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args) {
+	PyObject *py_package;
+	char *name;
+	int width;
+	int height;
+	int format = TSF_BGRA8;
+
+	if (!PyArg_ParseTuple(args, "Osii|i:create_texture", &py_package, &name, &width, &height, &format)) {
+		return nullptr;
+	}
+
+	UPackage *u_package = nullptr;
+	if (py_package == Py_None) {
+		u_package = GetTransientPackage();
+	}
+	else {
+		u_package = ue_py_check_type<UPackage>(py_package);
+		if (!u_package) {
+			return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+		}
+	}
+
+
+	UTexture2D *texture = NewObject<UTexture2D>(u_package, UTF8_TO_TCHAR(name), RF_Public | RF_Standalone);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "unable to create texture");
+
+	texture->Source.Init(width, height, 1, 1, (ETextureSourceFormat)format);
+
+	texture->UpdateResource();
+
+	ue_PyUObject *ret = ue_get_python_wrapper(texture);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+#endif
+

@@ -360,8 +360,31 @@ PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
 		return Py_True;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_set_outer(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	PyObject *py_outer;
+	if (!PyArg_ParseTuple(args, "O:set_outer", &py_outer)) {
+		return nullptr;
+	}
+
+	UPackage *package = ue_py_check_type<UPackage>(py_outer);
+	if (!package)
+		return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+
+	if (!self->ue_object->Rename(nullptr, package, REN_Test)) {
+		return PyErr_Format(PyExc_Exception, "cannot move to package %s", TCHAR_TO_UTF8(*package->GetPathName()));
+	}
+
+	if (self->ue_object->Rename(nullptr, package)) {
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
@@ -1119,6 +1142,7 @@ PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args) {
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {

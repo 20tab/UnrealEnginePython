@@ -85,13 +85,23 @@ PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject
 PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
 
 	PyObject *py_message;
-	if (!PyArg_ParseTuple(args, "O:print_string", &py_message)) {
+	float timeout = 2.0;
+	PyObject *py_color = nullptr;
+	if (!PyArg_ParseTuple(args, "O|fO:print_string", &py_message, &timeout, &py_color)) {
 		return NULL;
 	}
 
 	if (!GEngine) {
-		Py_INCREF(Py_None);
-		return Py_None;
+		Py_RETURN_NONE;
+	}
+
+	FColor color = FColor::Cyan;
+
+	if (py_color) {
+		ue_PyFColor *f_color = py_ue_is_fcolor(py_color);
+		if (!f_color)
+			return PyErr_Format(PyExc_Exception, "argument is not a FColor");
+		color = f_color->color;
 	}
 
 	PyObject *stringified = PyObject_Str(py_message);
@@ -99,12 +109,11 @@ PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "argument cannot be casted to string");
 	char *message = PyUnicode_AsUTF8(stringified);
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.0, FColor::Cyan, FString::Printf(TEXT("%s"), UTF8_TO_TCHAR(message)));
+	GEngine->AddOnScreenDebugMessage(-1, timeout, color, FString(UTF8_TO_TCHAR(message)));
 
 	Py_DECREF(stringified);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) {
@@ -579,6 +588,7 @@ PyObject *py_unreal_engine_get_game_viewport_size(PyObject *self, PyObject * arg
 	return Py_BuildValue("(ff)", size.X, size.Y);
 }
 
+
 PyObject *py_unreal_engine_get_resolution(PyObject *self, PyObject * args) {
 	return Py_BuildValue("(ff)", GSystemResolution.ResX, GSystemResolution.ResY);
 }
@@ -773,4 +783,39 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *self, PyObject
 }
 #endif
 
+PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args) {
 
+	char *name;
+
+	if (!PyArg_ParseTuple(args, "s:create_package", &name)) {
+		return nullptr;
+	}
+
+	UPackage *u_package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
+	// create a new package if it does not exist
+	if (u_package) {
+		return PyErr_Format(PyExc_Exception, "package %s already exists", TCHAR_TO_UTF8(*u_package->GetPathName()));
+	}
+	u_package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+	if (!u_package)
+		return PyErr_Format(PyExc_Exception, "unable to create package");
+	u_package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
+
+	u_package->FullyLoad();
+	u_package->MarkPackageDirty();
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_package);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args) {
+
+	ue_PyUObject *ret = ue_get_python_wrapper(GetTransientPackage());
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}

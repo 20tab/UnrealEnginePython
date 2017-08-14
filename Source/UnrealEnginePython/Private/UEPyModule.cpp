@@ -165,8 +165,15 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_checkerboard_texture", py_unreal_engine_create_checkerboard_texture, METH_VARARGS, "" },
 	{ "create_transient_texture", py_unreal_engine_create_transient_texture, METH_VARARGS, "" },
 	{ "create_transient_texture_render_target2d", py_unreal_engine_create_transient_texture_render_target2d, METH_VARARGS, "" },
+#if WITH_EDITOR
+	{ "create_texture", py_unreal_engine_create_texture, METH_VARARGS, "" },
+#endif
 
 	{ "create_world", py_unreal_engine_create_world, METH_VARARGS, "" },
+
+	// package
+	{ "create_package", (PyCFunction)py_unreal_engine_create_package, METH_VARARGS, "" },
+	{ "get_transient_package", (PyCFunction)py_unreal_engine_get_transient_package, METH_VARARGS, "" },
 
 	// slate
 
@@ -397,6 +404,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_owner", (PyCFunction)py_ue_get_owner, METH_VARARGS, "" },
 
 	{ "get_outer", (PyCFunction)py_ue_get_outer, METH_VARARGS, "" },
+	{ "set_outer", (PyCFunction)py_ue_set_outer, METH_VARARGS, "" },
 	{ "get_outermost", (PyCFunction)py_ue_get_outermost, METH_VARARGS, "" },
 
 	{ "get_super_class", (PyCFunction)py_ue_get_super_class, METH_VARARGS, "" },

@@ -18,3 +18,7 @@ PyObject *py_unreal_engine_create_transient_texture(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject *, PyObject *);
 
 PyObject *py_ue_texture_update_resource(ue_PyUObject *, PyObject *);
+
+#if WITH_EDITOR
+PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject *);
+#endif

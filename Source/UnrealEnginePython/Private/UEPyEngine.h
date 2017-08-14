@@ -50,6 +50,8 @@ PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_viewport_size(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_create_world(PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_package(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_transient_package(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_object_path_to_package_name(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_path(PyObject *, PyObject *);
