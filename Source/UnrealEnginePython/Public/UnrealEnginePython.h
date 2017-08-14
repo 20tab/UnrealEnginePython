@@ -36,6 +36,8 @@ public:
 	FString ZipPath;
 	FString AdditionalModulesPath;
 
+	bool BrutalFinalize;
+
 private:
 	void *ue_python_gil;
 	// used by console

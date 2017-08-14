@@ -128,27 +128,30 @@ static void setup_stdout_stderr() {
 }
 
 namespace {
-    static void consoleExecScript(const TArray<FString>& Args)
-    {
-        if (Args.Num() != 1)
-        {
-            UE_LOG(LogPython, Warning, TEXT("Usage: 'py.exec <scriptname>'."));
-            UE_LOG(LogPython, Warning, TEXT("  scriptname: Name of script, must reside in Scripts folder. Ex: myscript.py"));
-        }
-        else
-        {
-            UPythonBlueprintFunctionLibrary::ExecutePythonScript(Args[0]);
-        }
-    }
+	static void consoleExecScript(const TArray<FString>& Args)
+	{
+		if (Args.Num() != 1)
+		{
+			UE_LOG(LogPython, Warning, TEXT("Usage: 'py.exec <scriptname>'."));
+			UE_LOG(LogPython, Warning, TEXT("  scriptname: Name of script, must reside in Scripts folder. Ex: myscript.py"));
+		}
+		else
+		{
+			UPythonBlueprintFunctionLibrary::ExecutePythonScript(Args[0]);
+		}
+	}
 
 }
 FAutoConsoleCommand ExecPythonScriptCommand(
-    TEXT("py.exec"),
-    *NSLOCTEXT("UnrealEnginePython", "CommandText_Exec", "Execute python script").ToString(),
-    FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecScript));
+	TEXT("py.exec"),
+	*NSLOCTEXT("UnrealEnginePython", "CommandText_Exec", "Execute python script").ToString(),
+	FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecScript));
 
 void FUnrealEnginePythonModule::StartupModule()
 {
+
+	BrutalFinalize = false;
+
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	FString IniValue;
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), IniValue, GEngineIni)) {
@@ -158,10 +161,10 @@ void FUnrealEnginePythonModule::StartupModule()
 		char *home = TCHAR_TO_UTF8(*IniValue);
 #endif
 		Py_SetPythonHome(home);
-	}
+}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
-		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);	
+		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
 #if PY_MAJOR_VERSION >= 3
 		wchar_t *home = (wchar_t *)*IniValue;
 #else
@@ -207,7 +210,7 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ZipPath"), IniValue, GEngineIni)) {
 		ZipPath = IniValue;
-}
+	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeZipPath"), IniValue, GEngineIni)) {
 		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
@@ -262,8 +265,10 @@ void FUnrealEnginePythonModule::ShutdownModule()
 	// we call this function before unloading the module.
 
 	UE_LOG(LogPython, Log, TEXT("Goodbye Python"));
-	PythonGILAcquire();
-	Py_Finalize();
+	if (!BrutalFinalize) {
+		PythonGILAcquire();
+		Py_Finalize();
+	}
 }
 
 void FUnrealEnginePythonModule::RunString(char *str) {
@@ -313,7 +318,7 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str) {
 
 	Py_EndInterpreter(py_new_state);
 	PyThreadState_Swap(_main);
-	}
+}
 
 void FUnrealEnginePythonModule::RunFile(char *filename) {
 	FScopePythonGIL gil;
@@ -358,7 +363,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 }
 
 // run a python script in a new sub interpreter (useful for unit tests)
-void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void (*callback)(void *arg), void *arg) {
+void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)(void *arg), void *arg) {
 	FScopePythonGIL gil;
 	char *full_path = filename;
 	if (!FPaths::FileExists(filename))

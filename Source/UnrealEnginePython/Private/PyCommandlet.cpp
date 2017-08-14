@@ -90,6 +90,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	PySys_SetArgv(PyArgv.Num(), argv);
 
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	PythonModule.BrutalFinalize = true;
 	PythonModule.RunFile(TCHAR_TO_UTF8(*Filepath));
 	return 0;
 }
