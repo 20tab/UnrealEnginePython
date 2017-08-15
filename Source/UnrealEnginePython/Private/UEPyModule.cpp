@@ -491,6 +491,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	// AnimSequence
 	{ "anim_get_skeleton", (PyCFunction)py_ue_anim_get_skeleton, METH_VARARGS, "" },
 	{ "anim_set_skeleton", (PyCFunction)py_ue_anim_set_skeleton, METH_VARARGS, "" },
+	{ "get_blend_parameter", (PyCFunction)py_ue_get_blend_parameter, METH_VARARGS, "" },
+	{ "set_blend_parameter", (PyCFunction)py_ue_set_blend_parameter, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 13

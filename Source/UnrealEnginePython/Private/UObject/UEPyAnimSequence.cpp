@@ -134,3 +134,48 @@ PyObject *py_ue_add_anim_composite_section(ue_PyUObject * self, PyObject * args)
 	return PyLong_FromLong(anim->AddAnimCompositeSection(FName(UTF8_TO_TCHAR(name)), time));
 }
 #endif
+
+PyObject *py_ue_get_blend_parameter(ue_PyUObject * self, PyObject * args) {
+	ue_py_check(self);
+
+	int index;
+	if (!PyArg_ParseTuple(args, "i:get_blend_parameter", &index))
+		return nullptr;
+
+	UBlendSpaceBase *blend = ue_py_check_type<UBlendSpaceBase>(self);
+	if (!blend)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UBlendSpaceBase.");
+
+	if (index < 0 || index > 2)
+		return PyErr_Format(PyExc_Exception, "invalid Blend Parameter index");
+
+	const FBlendParameter & parameter = blend->GetBlendParameter(index);
+
+	return py_ue_new_uscriptstruct(FBlendParameter::StaticStruct(), (uint8 *)&parameter);
+}
+
+PyObject *py_ue_set_blend_parameter(ue_PyUObject * self, PyObject * args) {
+	ue_py_check(self);
+
+	int index;
+	PyObject *py_blend;
+	if (!PyArg_ParseTuple(args, "iO:get_blend_parameter", &index, &py_blend))
+		return nullptr;
+
+	UBlendSpaceBase *blend = ue_py_check_type<UBlendSpaceBase>(self);
+	if (!blend)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UBlendSpaceBase.");
+
+	if (index < 0 || index > 2)
+		return PyErr_Format(PyExc_Exception, "invalid Blend Parameter index");
+
+	FBlendParameter *parameter = ue_py_check_struct<FBlendParameter>(py_blend);
+	if (!parameter)
+		return PyErr_Format(PyExc_Exception, "argument is not a FBlendParameter");
+
+	const FBlendParameter & orig_parameter = blend->GetBlendParameter(index);
+
+	FMemory::Memcpy((uint8 *)&orig_parameter, parameter, FBlendParameter::StaticStruct()->GetStructureSize());
+
+	Py_RETURN_NONE;
+}
