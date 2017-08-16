@@ -21,7 +21,9 @@ Once the plugin is installed and enabled, you get access to the 'PythonConsole' 
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
-The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15 and 4.16
+The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15, 4.16 and 4.17.
+
+We support official python.org releases as well as IntelPython and Anaconda distributions.
 
 # Binary installation on Windows (64 bit)
 
