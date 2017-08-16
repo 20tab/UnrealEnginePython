@@ -232,9 +232,9 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args) {
 	char *name;
 	int width;
 	int height;
-	int format = PF_B8G8R8A8;
+	Py_buffer py_buf;
 
-	if (!PyArg_ParseTuple(args, "Osii|i:create_texture", &py_package, &name, &width, &height, &format)) {
+	if (!PyArg_ParseTuple(args, "Osiiz*:create_texture", &py_package, &name, &width, &height, &py_buf)) {
 		return nullptr;
 	}
 
@@ -249,23 +249,20 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args) {
 		}
 	}
 
-	UTexture2D *texture = NewObject<UTexture2D>(u_package, UTF8_TO_TCHAR(name), RF_Public | RF_Standalone);
+	SIZE_T wanted_len = width * height * 4;
+
+	TArray<FColor> colors;
+	colors.AddZeroed(wanted_len);
+	FCreateTexture2DParameters params;
+
+	if ((SIZE_T)py_buf.len < wanted_len)
+		wanted_len = py_buf.len;
+
+	FMemory::Memcpy(colors.GetData(), py_buf.buf, wanted_len);
+	
+	UTexture2D *texture = FImageUtils::CreateTexture2D(width, height, colors, u_package, UTF8_TO_TCHAR(name), RF_Public | RF_Standalone, params);
 	if (!texture)
 		return PyErr_Format(PyExc_Exception, "unable to create texture");
-
-	texture->PlatformData = new FTexturePlatformData();
-	texture->PlatformData->SizeX = width;
-	texture->PlatformData->SizeY = height;
-	texture->PlatformData->PixelFormat = (EPixelFormat)format;
-
-	int32 blocksX = width / GPixelFormats[(EPixelFormat)format].BlockSizeX;
-	int32 blocksY = width / GPixelFormats[(EPixelFormat)format].BlockSizeY;
-	FTexture2DMipMap *mip = new(texture->PlatformData->Mips) FTexture2DMipMap();
-	mip->SizeX = width;
-	mip->SizeY = height;
-	mip->BulkData.Lock(LOCK_READ_WRITE);
-	mip->BulkData.Realloc(blocksX * blocksY * GPixelFormats[(EPixelFormat)format].BlockBytes);
-	mip->BulkData.Unlock();
 
 	ue_PyUObject *ret = ue_get_python_wrapper(texture);
 	if (!ret)

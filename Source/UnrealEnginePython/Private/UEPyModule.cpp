@@ -173,6 +173,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	// package
 	{ "create_package", (PyCFunction)py_unreal_engine_create_package, METH_VARARGS, "" },
+	{ "get_or_create_package", (PyCFunction)py_unreal_engine_create_package, METH_VARARGS, "" },
 	{ "get_transient_package", (PyCFunction)py_unreal_engine_get_transient_package, METH_VARARGS, "" },
 
 	// slate

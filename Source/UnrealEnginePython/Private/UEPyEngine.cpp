@@ -811,6 +811,33 @@ PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
+PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args) {
+
+	char *name;
+
+	if (!PyArg_ParseTuple(args, "s:get_or_create_package", &name)) {
+		return nullptr;
+	}
+
+	UPackage *u_package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
+	// create a new package if it does not exist
+	if (!u_package) {
+		u_package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+		if (!u_package)
+			return PyErr_Format(PyExc_Exception, "unable to create package");
+		u_package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
+
+		u_package->FullyLoad();
+		u_package->MarkPackageDirty();
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_package);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args) {
 
 	ue_PyUObject *ret = ue_get_python_wrapper(GetTransientPackage());

@@ -224,6 +224,11 @@ void FUnrealEnginePythonModule::StartupModule()
 		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("ue_python.zip"));
 	}
 
+	if (!FPaths::DirectoryExists(ScriptsPath)) {
+		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+		PlatformFile.CreateDirectory(*ScriptsPath);
+	}
+
 	Py_Initialize();
 
 	PyEval_InitThreads();
