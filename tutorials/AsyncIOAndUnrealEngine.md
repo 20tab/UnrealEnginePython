@@ -19,8 +19,9 @@ async def simple_timer(frequency):
         print('{0} seconds elapsed'.format(frequency))
 
 loop = asyncio.get_event_loop()
-loop.create_task(simple_timer(1))
-loop.create_task(simple_timer(3))
+
+asyncio.ensure_future(simple_timer(1))
+asyncio.ensure_future(simple_timer(3))
 
 loop.run_forever()
 ```
@@ -67,10 +68,10 @@ async def star_wars():
         print(data.decode())
 
 loop = asyncio.get_event_loop()
-loop.create_task(simple_timer(1))
-loop.create_task(simple_timer(3))
+asyncio.ensure_future(simple_timer(1))
+asyncio.ensure_future(simple_timer(3))
 
-loop.create_task(star_wars())
+asyncio.ensure_future(star_wars())
 
 loop.run_forever()
 ```
@@ -101,6 +102,8 @@ import unreal_engine as ue
 
 loop = asyncio.new_event_loop()
 
+asyncio.set_event_loop(loop)
+
 def ticker_loop(delta_time):
     try:
         loop.stop()
@@ -130,7 +133,7 @@ async def simple_timer(frequency):
         await asyncio.sleep(frequency)
         ue.log('{0} secondss elapsed'.format(frequency))
 
-new_task = ue_asyncio.loop.create_task(simple_timer(2))
+asyncio.ensure_future(simple_timer(2))
 ```
 
 ## asyncio in your actors
