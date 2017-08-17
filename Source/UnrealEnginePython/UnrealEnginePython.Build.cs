@@ -70,7 +70,11 @@ public class UnrealEnginePython : ModuleRules
 	    "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
     };
 
+#if WITH_FORWARDED_MODULE_RULES_CTOR
+    public UnrealEnginePython(ReadOnlyTargetRules Target) : base(Target)
+#else
     public UnrealEnginePython(TargetInfo Target)
+#endif
     {
 
         PublicIncludePaths.AddRange(

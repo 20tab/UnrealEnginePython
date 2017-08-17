@@ -106,8 +106,14 @@ PyObject *py_ue_actor_destroy_component(ue_PyUObject * self, PyObject * args) {
 	}
 
 	UActorComponent *component = ue_py_check_type<UActorComponent>(py_component);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "argument is not a UActorComponent");
 
+#if ENGINE_MINOR_VERSION >= 17
+	component->DestroyComponent();
+#else
 	actor->K2_DestroyComponent(component);
+#endif
 
 	Py_INCREF(Py_None);
 	return Py_None;
