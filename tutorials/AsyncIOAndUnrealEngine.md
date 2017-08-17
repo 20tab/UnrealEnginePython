@@ -1,4 +1,6 @@
-# Using AsyncIO with Unreal Engine
+# Using asyncio with Unreal Engine
+
+# asyncio ? What is it ?
 
 Available starting from python 3.4, asyncio (https://docs.python.org/3/library/asyncio.html) is 'the way to go' when dealing with high concurrency
 in modern python applications.
@@ -46,4 +48,18 @@ Albeit the function includes a `while True:` loop, the `await` call allows to su
 
 In addition to waiting for time, the loop engine is able to wait for file descriptors readyness and for the so called 'futures' (consider them as object holding a value that can be monitored for changes)
 
+This is another example waiting for data from the popular telnet site `towel.blinkenlights.nl` returning you the ascii-art version of Star Wars Episode IV:
+
+```python
+
+```
+
+
+## Why using asyncio in Unreal Engine 4 ?
+
+## Adding an asyncio loop engine in the UE4 core
+
+## asyncio in your actors
+
+## Additional 'transient' loop engines
 
