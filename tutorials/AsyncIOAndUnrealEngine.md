@@ -57,6 +57,8 @@ This is another example waiting for data from the popular telnet site `towel.bli
 
 ## Why using asyncio in Unreal Engine 4 ?
 
+the asyncio third party libraries is already huge, there are asyncio modules for databases interaction, http and websockets services, dns and whatever you can think of (both client and servers). Thiese wrappers are extremely easy to use and completely abstract you from the concurrency problems. All of them will work in pair with the UE4 main loop (both in editor and in game), so you can basically do anything asyncio allow into Unreal Engine 4. Want to integrate an HTTP server into UE ? doable. Want to wait for a redis pubsub queue ? doable. Want to issue commands for your editor via ssh ? doable. Well, there are really limitless possibilities :)
+
 ## Adding an asyncio loop engine in the UE4 core
 
 ## asyncio in your actors
