@@ -131,10 +131,22 @@ import ue_asyncio
 async def simple_timer(frequency):
     while True:
         await asyncio.sleep(frequency)
-        ue.log('{0} secondss elapsed'.format(frequency))
+        ue.log('{0} seconds elapsed'.format(frequency))
 
 asyncio.ensure_future(simple_timer(2))
 ```
+
+If you run this script in the UE Python console you will start getting messages every 2 seconds.
+
+If you re-run the script, a new coroutine will be spawned, but the old one is still here...
+
+Generally this is not what you want, lucky enouch each asyncio loop allows you to access the list of currently available coroutines, and eventually cancel them:
+
+```python
+for task in asyncio.Task.all_tasks():
+    task.cancel()
+```
+
 
 ## asyncio in your actors
 
