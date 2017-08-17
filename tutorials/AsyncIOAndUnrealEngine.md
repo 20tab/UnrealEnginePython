@@ -119,6 +119,20 @@ Basically when you first import this module a new 'ticker' will be registered in
 
 Let's start with the previous timer example:
 
+```python
+import asyncio
+import unreal_engine as ue
+
+import ue_asyncio
+
+async def simple_timer(frequency):
+    while True:
+        await asyncio.sleep(frequency)
+        ue.log('{0} secondss elapsed'.format(frequency))
+
+new_task = ue_asyncio.loop.create_task(simple_timer(2))
+```
+
 ## asyncio in your actors
 
 ## Additional 'transient' loop engines
