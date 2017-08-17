@@ -51,9 +51,35 @@ In addition to waiting for time, the loop engine is able to wait for file descri
 This is another example waiting for data from the popular telnet site `towel.blinkenlights.nl` returning you the ascii-art version of Star Wars Episode IV:
 
 ```python
+import asyncio
 
+async def simple_timer(frequency):
+    while True:
+        await asyncio.sleep(frequency)
+        print('{0} seconds elapsed'.format(frequency))
+
+async def star_wars():
+    reader, writer = await asyncio.open_connection('towel.blinkenlights.nl', 23)
+    while True:
+        data = await reader.read(1024)
+        if not data:
+            break
+        print(data.decode())
+
+loop = asyncio.get_event_loop()
+loop.create_task(simple_timer(1))
+loop.create_task(simple_timer(3))
+
+loop.create_task(star_wars())
+
+loop.run_forever()
 ```
 
+A new coroutine has been spawned, it suspend itself while waiting for connection to the host, and once the connection is made, the loop engine gives back control to it. In the while loop the coroutine suspends itself whenever it needs to wait for data from the socket.
+
+When there are no more data, the coroutine ends.
+
+Running the script will print the ascii art along the 2 timers we have seen before. All concurrently.
 
 ## Why using asyncio in Unreal Engine 4 ?
 
@@ -71,3 +97,4 @@ Want to integrate an HTTP server into UE ? doable. Want to wait for a redis pubs
 
 ## Additional 'transient' loop engines
 
+## Note: concurrency vs parallelism
