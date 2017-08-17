@@ -279,6 +279,8 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "engine_tick", py_unreal_engine_engine_tick, METH_VARARGS, "" },
+	{ "slate_tick", py_unreal_engine_slate_tick, METH_VARARGS, "" },
+	{ "get_delta_time", py_unreal_engine_get_delta_time, METH_VARARGS, "" },
 
 	{ "new_object", py_unreal_engine_new_object, METH_VARARGS, "" },
 

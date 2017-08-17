@@ -17,11 +17,17 @@ public:
 	APyPawn();
 	~APyPawn();
 
+	// Called whenever the Actor is instantiated (before begin play)
+	virtual void PreInitializeComponents() override;
+	virtual void PostInitializeComponents() override;
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditAnywhere , Category = "Python")
 	FString PythonModule;

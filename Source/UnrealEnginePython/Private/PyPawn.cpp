@@ -11,13 +11,30 @@ APyPawn::APyPawn()
 	
 }
 
+void APyPawn::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!py_pawn_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_pawn_instance, (char *)"post_initialize_components"))
+		return;
+
+	PyObject *pic_ret = PyObject_CallMethod(py_pawn_instance, (char *)"post_initialize_components", NULL);
+	if (!pic_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(pic_ret);
+}
 
 // Called when the game starts
-void APyPawn::BeginPlay()
+void APyPawn::PreInitializeComponents()
 {
-	Super::BeginPlay();
-
-	// ...
+	Super::PreInitializeComponents();
 
 	if (PythonModule.IsEmpty())
 		return;
@@ -77,6 +94,27 @@ void APyPawn::BeginPlay()
 
 	ue_bind_events_for_py_class_by_attribute(this, py_pawn_instance);
 
+	if (!PyObject_HasAttrString(py_pawn_instance, (char *)"pre_initialize_components"))
+		return;
+
+	PyObject *pic_ret = PyObject_CallMethod(py_pawn_instance, (char *)"pre_initialize_components", NULL);
+	if (!pic_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(pic_ret);
+}
+
+// Called when the game starts
+void APyPawn::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!py_pawn_instance)
+		return;
+
+	FScopePythonGIL gil;
+
 	if (!PyObject_HasAttrString(py_pawn_instance, (char *)"begin_play"))
 		return;
 
@@ -87,7 +125,6 @@ void APyPawn::BeginPlay()
 	}
 	Py_DECREF(bp_ret);
 }
-
 
 // Called every frame
 void APyPawn::Tick(float DeltaTime)
@@ -106,6 +143,29 @@ void APyPawn::Tick(float DeltaTime)
 	}
 	Py_DECREF(ret);
 
+}
+
+
+void APyPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (!py_pawn_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (PyObject_HasAttrString(py_pawn_instance, (char *)"end_play")) {
+		PyObject *ep_ret = PyObject_CallMethod(py_pawn_instance, (char *)"end_play", (char*)"i", (int)EndPlayReason);
+
+		if (!ep_ret) {
+			unreal_engine_py_log_error();
+		}
+
+		Py_XDECREF(ep_ret);
+	}
+
+	Super::EndPlay(EndPlayReason);
+
+	// ...
 }
 
 

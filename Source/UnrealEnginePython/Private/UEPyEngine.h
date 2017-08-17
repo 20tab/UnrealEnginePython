@@ -32,6 +32,8 @@ PyObject *py_unreal_engine_load_package(PyObject *, PyObject *);
 PyObject *py_unreal_engine_string_to_guid(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_engine_tick(PyObject *, PyObject *);
+PyObject *py_unreal_engine_slate_tick(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_delta_time(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_all_classes(PyObject *, PyObject *);
 

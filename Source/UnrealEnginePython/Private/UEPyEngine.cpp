@@ -387,17 +387,26 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args) {
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
 }
 
+PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args) {
+	FSlateApplication::Get().PumpMessages();
+	FSlateApplication::Get().Tick();
+	Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args) {
-	float delta_seconds;
-	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "fO:engine_tick", &delta_seconds, &py_bool)) {
+	float delta_seconds = FApp::GetDeltaTime();
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_bool)) {
 		return NULL;
 	}
 
-	GEngine->Tick(delta_seconds, PyObject_IsTrue(py_bool) ? true : false);
+	GEngine->Tick(delta_seconds, (py_bool && PyObject_IsTrue(py_bool)) ? true : false);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_get_delta_time(PyObject * self, PyObject * args) {
+	return PyFloat_FromDouble(FApp::GetDeltaTime());
 }
 
 
