@@ -40,7 +40,7 @@ Running the example will result in this infinite output:
 
 What happened ?
 
-the `simple_timer` function is effectively a 'coroutine' (defining it with 'async def' informs the python vm that this function can be suspended).
+the `simple_timer` function is effectively a 'coroutine' (defining it with `async def` informs the python vm that this function can be suspended).
 
 Albeit the function includes a `while True:` loop, the `await` call allows to suspend the coroutine and pass back the control to a sort of 'hub' (the loop engine) that will give back the control to the simple_timer function after the specified amount of seconds.
 
