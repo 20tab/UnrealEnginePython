@@ -10,10 +10,11 @@ PYTHON_VERSIONS = ["C:/Program Files/Python36", "C:/Program Files/Python35", "C:
 
 RELEASE_DIR = sys.argv[1].rstrip('/')
 
-def zipdir(path, zh):
+def zipdir(path, zh, base):
     for root, dirs, files in os.walk(path):
         for file in files:
-            zh.write(os.path.join(root, file))
+            filename = os.path.join(root, file)
+            zh.write(filename, os.path.relpath(filename, base))
 
 def msbuild(project, python_version, variant):
     base_environ = os.environ
@@ -63,10 +64,17 @@ for ue_version in UE_VERSIONS:
             end = time.time()
             for item in ('UE4Editor.modules', 'UE4Editor-UnrealEnginePython.dll', 'UE4Editor-PythonConsole.dll', 'UE4Editor-PythonEditor.dll'):
                 shutil.copyfile('D:/{0}/Plugins/UnrealEnginePython/Binaries/Win64/{1}'.format(project, item), '{0}/UnrealEnginePython/Binaries/Win64/{1}'.format(RELEASE_DIR, item))
+                if python_sanitized == 'python36':
+                    shutil.copyfile('D:/{0}/Plugins/UnrealEnginePython/Binaries/Win64/{1}'.format(project, item), '{0}/Embedded/UnrealEnginePython/Binaries/Win64/{1}'.format(RELEASE_DIR, item))
             filename = 'UnrealEnginePython_{0}_{1}_{2}_{3}win64.zip'.format(os.path.basename(RELEASE_DIR), ue_version.replace('.','_'), python_sanitized, variant)
             zh = zipfile.ZipFile(os.path.join(RELEASE_DIR, filename), 'w', zipfile.ZIP_DEFLATED)
-            zipdir(os.path.join(RELEASE_DIR, 'UnrealEnginePython'), zh)
+            zipdir(os.path.join(RELEASE_DIR, 'UnrealEnginePython'), zh, RELEASE_DIR)
             zh.close()
+            if python_sanitized == 'python36':
+                filename = 'UnrealEnginePython_{0}_{1}_{2}_{3}embedded_win64.zip'.format(os.path.basename(RELEASE_DIR), ue_version.replace('.','_'), python_sanitized, variant)
+                zh = zipfile.ZipFile(os.path.join(RELEASE_DIR, filename), 'w', zipfile.ZIP_DEFLATED)
+                zipdir(os.path.join(RELEASE_DIR, 'Embedded/UnrealEnginePython'), zh, os.path.join(RELEASE_DIR, 'Embedded'))
+                zh.close()
             print('\n\n***** built {0} for {1} in {2} seconds [{3}]*****\n\n'.format(project, python_version, end-start, filename))
 
 main_end = time.time()
