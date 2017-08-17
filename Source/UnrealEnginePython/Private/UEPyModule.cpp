@@ -1170,6 +1170,8 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		// map the class to the python object
 		self->ue_object = new_class;
 
+		PyObject *py_additional_properties = PyList_New(0);
+
 		PyObject *class_attributes_keys = PyObject_GetIter(class_attributes);
 		for (;;) {
 			PyObject *key = PyIter_Next(class_attributes_keys);
@@ -1304,72 +1306,85 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 #endif
 			// function ?
 			else if (PyCallable_Check(value) && class_key[0] >= 'A' && class_key[0] <= 'Z') {
-				uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
-				PyObject *is_event = PyObject_GetAttrString(value, (char *)"event");
-				if (is_event && PyObject_IsTrue(is_event)) {
-					func_flags |= FUNC_Event | FUNC_BlueprintEvent;
+				UProperty *u_property = new_class->FindPropertyByName(FName(UTF8_TO_TCHAR(class_key)));
+				if (u_property) {
+					UE_LOG(LogPython, Warning, TEXT("Found UProperty %s"), UTF8_TO_TCHAR(class_key));
+					PyList_Append(py_additional_properties, Py_BuildValue((char*)"(OO)", key, value));
+					prop_added = true;
 				}
-				else if (!is_event)
-					PyErr_Clear();
+				else {
 
-				PyObject *is_multicast = PyObject_GetAttrString(value, (char *)"multicast");
-				if (is_multicast && PyObject_IsTrue(is_multicast)) {
-					func_flags |= FUNC_NetMulticast;
-				}
-				else if (!is_multicast)
-					PyErr_Clear();
-				PyObject *is_server = PyObject_GetAttrString(value, (char *)"server");
-				if (is_server && PyObject_IsTrue(is_server)) {
-					func_flags |= FUNC_NetServer;
-				}
-				else if (!is_server)
-					PyErr_Clear();
-				PyObject *is_client = PyObject_GetAttrString(value, (char *)"client");
-				if (is_client && PyObject_IsTrue(is_client)) {
-					func_flags |= FUNC_NetClient;
-				}
-				else if (!is_client)
-					PyErr_Clear();
-				PyObject *is_reliable = PyObject_GetAttrString(value, (char *)"reliable");
-				if (is_reliable && PyObject_IsTrue(is_reliable)) {
-					func_flags |= FUNC_NetReliable;
-				}
-				else if (!is_reliable)
-					PyErr_Clear();
+					uint32 func_flags = FUNC_Native | FUNC_BlueprintCallable | FUNC_Public;
+					PyObject *is_event = PyObject_GetAttrString(value, (char *)"event");
+					if (is_event && PyObject_IsTrue(is_event)) {
+						func_flags |= FUNC_Event | FUNC_BlueprintEvent;
+					}
+					else if (!is_event)
+						PyErr_Clear();
+
+					PyObject *is_multicast = PyObject_GetAttrString(value, (char *)"multicast");
+					if (is_multicast && PyObject_IsTrue(is_multicast)) {
+						func_flags |= FUNC_NetMulticast;
+					}
+					else if (!is_multicast)
+						PyErr_Clear();
+					PyObject *is_server = PyObject_GetAttrString(value, (char *)"server");
+					if (is_server && PyObject_IsTrue(is_server)) {
+						func_flags |= FUNC_NetServer;
+					}
+					else if (!is_server)
+						PyErr_Clear();
+					PyObject *is_client = PyObject_GetAttrString(value, (char *)"client");
+					if (is_client && PyObject_IsTrue(is_client)) {
+						func_flags |= FUNC_NetClient;
+					}
+					else if (!is_client)
+						PyErr_Clear();
+					PyObject *is_reliable = PyObject_GetAttrString(value, (char *)"reliable");
+					if (is_reliable && PyObject_IsTrue(is_reliable)) {
+						func_flags |= FUNC_NetReliable;
+					}
+					else if (!is_reliable)
+						PyErr_Clear();
 
 
-				PyObject *is_pure = PyObject_GetAttrString(value, (char *)"pure");
-				if (is_pure && PyObject_IsTrue(is_pure)) {
-					func_flags |= FUNC_BlueprintPure;
+					PyObject *is_pure = PyObject_GetAttrString(value, (char *)"pure");
+					if (is_pure && PyObject_IsTrue(is_pure)) {
+						func_flags |= FUNC_BlueprintPure;
+					}
+					else if (!is_pure)
+						PyErr_Clear();
+					PyObject *is_static = PyObject_GetAttrString(value, (char *)"static");
+					if (is_static && PyObject_IsTrue(is_static)) {
+						func_flags |= FUNC_Static;
+					}
+					else if (!is_static)
+						PyErr_Clear();
+					PyObject *override_name = PyObject_GetAttrString(value, (char *)"override");
+					if (override_name && PyUnicodeOrString_Check(override_name)) {
+						class_key = PyUnicode_AsUTF8(override_name);
+					}
+					else if (override_name && PyUnicodeOrString_Check(override_name)) {
+						class_key = PyUnicode_AsUTF8(override_name);
+					}
+					else if (!override_name)
+						PyErr_Clear();
+					if (!unreal_engine_add_function(new_class, class_key, value, func_flags)) {
+						UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
+						return -1;
+					}
+					prop_added = true;
 				}
-				else if (!is_pure)
-					PyErr_Clear();
-				PyObject *is_static = PyObject_GetAttrString(value, (char *)"static");
-				if (is_static && PyObject_IsTrue(is_static)) {
-					func_flags |= FUNC_Static;
-				}
-				else if (!is_static)
-					PyErr_Clear();
-				PyObject *override_name = PyObject_GetAttrString(value, (char *)"override");
-				if (override_name && PyUnicodeOrString_Check(override_name)) {
-					class_key = PyUnicode_AsUTF8(override_name);
-				}
-				else if (override_name && PyUnicodeOrString_Check(override_name)) {
-					class_key = PyUnicode_AsUTF8(override_name);
-				}
-				else if (!override_name)
-					PyErr_Clear();
-				if (!unreal_engine_add_function(new_class, class_key, value, func_flags)) {
-					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
-					return -1;
-				}
-				prop_added = true;
 			}
 
 			if (!prop_added) {
 				UE_LOG(LogPython, Warning, TEXT("Adding %s as attr"), UTF8_TO_TCHAR(class_key));
 				PyObject_SetAttr((PyObject *)self, key, value);
 			}
+		}
+
+		if (PyList_Size(py_additional_properties) > 0) {
+			PyObject_SetAttrString((PyObject *)self, (char*)"__additional_uproperties__", py_additional_properties);
 		}
 
 		UPythonClass *new_u_py_class = (UPythonClass *)new_class;
@@ -1391,11 +1406,54 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 
 				// fill __dict__ from class
 				if (u_py_class_casted->py_uobject && u_py_class_casted->py_uobject->py_dict) {
+					PyObject *found_mc = PyDict_GetItemString(u_py_class_casted->py_uobject->py_dict, (char *)"__additional_uproperties__");
+					if (found_mc) {
+						Py_ssize_t items_len = PyList_Size(found_mc);
+						for (Py_ssize_t i = 0;i < items_len;i++) {
+							PyObject *item = PyList_GetItem(found_mc, i);
+							PyObject *mc_key = PyTuple_GetItem(item, 0);
+							PyObject *mc_value = PyTuple_GetItem(item, 1);
+							if (PyUnicode_Check(mc_key)) {
+								char *mc_name = PyUnicode_AsUTF8(mc_key);
+								UProperty *u_property = ObjectInitializer.GetObj()->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(mc_name)));
+								if (u_property) {
+									if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
+										FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(ObjectInitializer.GetObj());
+
+										FScriptDelegate script_delegate;
+										UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+										py_delegate->SetPyCallable(mc_value);
+										py_delegate->SetSignature(casted_prop->SignatureFunction);
+										// avoid delegates to be destroyed by the GC
+										py_delegate->AddToRoot();
+
+										// fake UFUNCTION for bypassing checks
+										script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
+
+										// add the new delegate
+										multiscript_delegate.Add(script_delegate);
+
+										// re-assign multicast delegate
+										casted_prop->SetPropertyValue_InContainer(ObjectInitializer.GetObj(), multiscript_delegate);
+									}
+								}
+							}
+						}
+					}
+					else {
+						PyErr_Clear();
+					}
 					PyObject *keys = PyDict_Keys(u_py_class_casted->py_uobject->py_dict);
 					Py_ssize_t keys_len = PyList_Size(keys);
 					for (Py_ssize_t i = 0; i < keys_len; i++) {
 						PyObject *key = PyList_GetItem(keys, i);
 						PyObject *value = PyDict_GetItem(u_py_class_casted->py_uobject->py_dict, key);
+						if (PyUnicode_Check(key)) {
+							char *key_name = PyUnicode_AsUTF8(key);
+							if (!strcmp(key_name, (char *)"__additional_uproperties__"))
+								continue;
+
+						}
 						// special case to bound function to method
 						if (PyFunction_Check(value)) {
 							PyObject *bound_function = PyObject_CallMethod(value, (char*)"__get__", (char*)"O", (PyObject *)new_self);
