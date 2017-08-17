@@ -93,6 +93,32 @@ Want to integrate an HTTP server into UE ? doable. Want to wait for a redis pubs
 
 ## Adding an asyncio loop engine in the UE4 core
 
+We will start by adding a new (pretty simple) module to our project (call it ue_asyncio.py):
+
+```python
+import asyncio
+import unreal_engine as ue
+
+loop = asyncio.new_event_loop()
+
+def ticker_loop(delta_time):
+    try:
+        loop.stop()
+        loop.run_forever()
+    except Exception as e:
+        ue.log_error(e)
+    return True
+
+
+ticker = ue.add_ticker(ticker_loop)
+```
+
+Do not run this module, it will be just the 'hub' the other parts of our project will connect too.
+
+Basically when you first import this module a new 'ticker' will be registered into Unreal Engine. A ticker is a function that periodically 'ticks'. In this case Unreal Engine will use this ticker function to wake up the asyncio loop engine to manage all of the coroutines registered to it.
+
+Let's start with the previous timer example:
+
 ## asyncio in your actors
 
 ## Additional 'transient' loop engines
