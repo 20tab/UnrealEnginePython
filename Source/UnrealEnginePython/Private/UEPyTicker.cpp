@@ -9,7 +9,7 @@ static void ue_pyfdelegatehandle_dealloc(ue_PyFDelegateHandle *self) {
 		// useless ;)
 		self->garbaged = true;
 	}
-	if (self->py_delegate) {
+	if (self->py_delegate && self->py_delegate->IsValidLowLevel() && self->py_delegate->IsRooted()) {
 		self->py_delegate->RemoveFromRoot();
 	}
 	Py_TYPE(self)->tp_free((PyObject *)self);
