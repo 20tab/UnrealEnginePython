@@ -147,6 +147,40 @@ for task in asyncio.Task.all_tasks():
     task.cancel()
 ```
 
+## A simple tcp server spawning Character's in the editor
+
+```python
+import asyncio
+import ue_asyncio
+from unreal_engine.classes import Character
+
+for task in asyncio.Task.all_tasks():
+    task.cancel()
+
+async def new_client_connected(reader, writer):
+    name = writer.get_extra_info('peername')
+    ue.log('new client connection from {0}'.format(name))
+    while True:
+        data = await reader.readline()
+        if not data:
+            break
+        ue.log('client {0} issued: {1}'.format(name, data.decode()))
+        new_actor = ue.get_editor_world().actor_spawn(Character)
+        new_actor.set_actor_label(data.decode())
+    ue.log('client {0} disconnected'.format(name))
+
+async def spawn_server(host, port):
+    try:
+        coro = await asyncio.start_server(new_client_connected, host, port)
+        ue.log('tcp server spawned on {0}:{1}'.format(host, port))
+        await coro.wait_closed()
+    finally:
+        coro.close()
+        ue.log('tcp server ended')
+    
+asyncio.ensure_future(spawn_server('192.168.173.45', 8885))
+```
+
 
 ## asyncio in your actors
 
