@@ -183,6 +183,30 @@ asyncio.ensure_future(spawn_server('192.168.173.45', 8885))
 
 ## Redis pubsub
 
+```python
+import asyncio
+import ue_asyncio
+import unreal_engine as ue
+import aioredis
+
+for task in asyncio.Task.all_tasks():
+    task.cancel()
+
+async def wait_for_redis():
+    redis = await aioredis.create_redis(('192.168.173.27', 6379))
+    channel, = await redis.subscribe('foobar')
+    ue.log('subscribed to redis queue, waiting for messages ...')
+    while await channel.wait_message():
+        msg = await channel.get()
+        ue.log_warning(msg)
+    redis.close()
+    ue.log_warning('done with redis')
+
+asyncio.ensure_future(wait_for_redis())
+```
+
+## aiohttp
+
 ## asyncio in your actors
 
 ## Additional 'transient' loop engines
