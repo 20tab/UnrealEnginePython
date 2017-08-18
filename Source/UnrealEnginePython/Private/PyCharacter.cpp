@@ -14,11 +14,11 @@ APyCharacter::APyCharacter()
 
 
 // Called when the game starts
-void APyCharacter::BeginPlay()
+void APyCharacter::PreInitializeComponents()
 {
 	
 
-	Super::BeginPlay();
+	Super::PreInitializeComponents();
 
 	// ...
 
@@ -79,9 +79,50 @@ void APyCharacter::BeginPlay()
 
 	ue_bind_events_for_py_class_by_attribute(this, py_character_instance);
 
-	if (!PyObject_HasAttrString(py_character_instance, (char *)"begin_play")) {
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"pre_initialize_components")) {
 		return;
 	}
+
+	PyObject *pic_ret = PyObject_CallMethod(py_character_instance, (char *)"pre_initialize_components", NULL);
+	if (!pic_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(pic_ret);
+}
+
+void APyCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!py_character_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"post_initialize_components"))
+		return;
+
+	PyObject *pic_ret = PyObject_CallMethod(py_character_instance, (char *)"post_initialize_components", NULL);
+	if (!pic_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(pic_ret);
+}
+
+// Called when the game starts
+void APyCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!py_character_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"begin_play"))
+		return;
 
 	PyObject *bp_ret = PyObject_CallMethod(py_character_instance, (char *)"begin_play", NULL);
 	if (!bp_ret) {
@@ -358,6 +399,41 @@ void APyCharacter::SetupPlayerInputComponent(class UInputComponent* input)
 {
 	Super::SetupPlayerInputComponent(input);
 
+	if (!py_character_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	// no need to check for method availability, we did it in begin_play
+
+	PyObject *ret = PyObject_CallMethod(py_character_instance, (char *)"setup_player_input_component", (char *)"O", ue_get_python_wrapper(input));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+void APyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (!py_character_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	if (PyObject_HasAttrString(py_character_instance, (char *)"end_play")) {
+		PyObject *ep_ret = PyObject_CallMethod(py_character_instance, (char *)"end_play", (char*)"i", (int)EndPlayReason);
+
+		if (!ep_ret) {
+			unreal_engine_py_log_error();
+		}
+
+		Py_XDECREF(ep_ret);
+	}
+
+	Super::EndPlay(EndPlayReason);
+
+	// ...
 }
 
 
