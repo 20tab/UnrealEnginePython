@@ -205,6 +205,8 @@ async def wait_for_redis():
 asyncio.ensure_future(wait_for_redis())
 ```
 
+## Managinx exceptions in non-awaited coroutines
+
 ## aiohttp
 
 ## asyncio in your actors
