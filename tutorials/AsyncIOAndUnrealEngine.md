@@ -279,4 +279,4 @@ It is important to distinguish between 'concurrency' and 'parallelism'. By 'conc
 
 Coroutines, works very similar as a classic game engine (included unreal): we split the code paths in multiple tiny logical abstractions (like Actors in UE) and we suspend/resume each of them continuously, giving the user the illusion that multiple components works together at the same time. (effectively this is how a kernel scheduler works too, your computer processes never run in parallel if you have a single cpu core !).
 
-For more informations about cooperation between python threads and asyncio coroutines, check here: https://docs.python.org/3/library/asyncio-dev.html#concurrency-and-multithreading (TLDR, do not do it :P)
+For more informations about cooperation between python threads and asyncio coroutines, check here: https://docs.python.org/3/library/asyncio-dev.html#concurrency-and-multithreading (TLDR, do not mix them if you do not know what you are doing :P)
