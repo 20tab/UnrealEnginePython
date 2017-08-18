@@ -228,7 +228,9 @@ class RadioStreaming:
         self.audio = self.actor.get_actor_component_by_type(AudioComponent)
         self.audio.Sound = SoundWaveProcedural()
         self.audio.Sound.Duration = 10000
-        self.mp3 = mpg123.Mpg123(library_path=os.path.join(ue.get_content_dir(), 'libmpg123-0.dll'))
+        # if you do not have libmpg123 in the system path, specify its absolute location here
+        # self.mp3 = mpg123.Mpg123(library_path=os.path.join(ue.get_content_dir(), 'libmpg123-0.dll'))
+        self.mp3 = mpg123.Mpg123()
         self.coroutine = asyncio.ensure_future(self.stream('http://178.32.136.160:8050'))
         self.coroutine.add_done_callback(self.check_exception)
 
