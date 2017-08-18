@@ -48,7 +48,7 @@ static PyObject *py_ue_fraw_mesh_set_vertex_positions(ue_PyFRawMesh *self, PyObj
 	}
 
 
-	self->raw_mesh->VertexPositions = vertex;
+	self->raw_mesh.VertexPositions = vertex;
 
 	Py_DECREF(iter);
 
@@ -91,7 +91,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tex_coords(ue_PyFRawMesh *self, PyObj
 	}
 
 
-	self->raw_mesh->WedgeTexCoords[index] = uv;
+	self->raw_mesh.WedgeTexCoords[index] = uv;
 
 	Py_DECREF(iter);
 
@@ -124,7 +124,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_indices(ue_PyFRawMesh *self, PyObject
 	}
 
 
-	self->raw_mesh->WedgeIndices = indices;
+	self->raw_mesh.WedgeIndices = indices;
 
 	Py_DECREF(iter);
 
@@ -141,18 +141,18 @@ static PyObject *py_ue_fraw_mesh_save_to_static_mesh_source_model(ue_PyFRawMesh 
 	if (!source_model)
 		return PyErr_Format(PyExc_Exception, "argument is not a FStaticMeshSourceModel");
 
-	if (self->raw_mesh->WedgeIndices.Num() >= 3) {
+	if (self->raw_mesh.WedgeIndices.Num() >= 3) {
 		// set default sane values (read: 0) to face materials and smoothing groups
-		if (self->raw_mesh->FaceSmoothingMasks.Num() == 0)
-			self->raw_mesh->FaceSmoothingMasks.AddZeroed(self->raw_mesh->WedgeIndices.Num() / 3);
-		if (self->raw_mesh->FaceMaterialIndices.Num() == 0)
-			self->raw_mesh->FaceMaterialIndices.AddZeroed(self->raw_mesh->WedgeIndices.Num() / 3);
+		if (self->raw_mesh.FaceSmoothingMasks.Num() == 0)
+			self->raw_mesh.FaceSmoothingMasks.AddZeroed(self->raw_mesh.WedgeIndices.Num() / 3);
+		if (self->raw_mesh.FaceMaterialIndices.Num() == 0)
+			self->raw_mesh.FaceMaterialIndices.AddZeroed(self->raw_mesh.WedgeIndices.Num() / 3);
 	}
 
-	if (!self->raw_mesh->IsValidOrFixable())
+	if (!self->raw_mesh.IsValidOrFixable())
 		return PyErr_Format(PyExc_Exception, "FRawMesh is not valid or fixable");
 
-	source_model->RawMeshBulkData->SaveRawMesh(*self->raw_mesh);
+	source_model->RawMeshBulkData->SaveRawMesh(self->raw_mesh);
 
 	Py_RETURN_NONE;
 }
@@ -163,10 +163,10 @@ static PyObject *py_ue_fraw_mesh_get_wedge_position(ue_PyFRawMesh *self, PyObjec
 		return nullptr;
 	}
 
-	if (index > self->raw_mesh->WedgeIndices.Num() - 1 || index < 0)
+	if (index > self->raw_mesh.WedgeIndices.Num() - 1 || index < 0)
 		return PyErr_Format(PyExc_IndexError, "wedge index error");
 
-	FVector vec = self->raw_mesh->GetWedgePosition(index);
+	FVector vec = self->raw_mesh.GetWedgePosition(index);
 
 	return py_ue_new_fvector(vec);
 }
@@ -215,7 +215,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_x(ue_PyFRawMesh *self, PyObje
 	}
 
 
-	self->raw_mesh->WedgeTangentX = vertex;
+	self->raw_mesh.WedgeTangentX = vertex;
 
 	Py_DECREF(iter);
 
@@ -266,7 +266,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_y(ue_PyFRawMesh *self, PyObje
 	}
 
 
-	self->raw_mesh->WedgeTangentY = vertex;
+	self->raw_mesh.WedgeTangentY = vertex;
 
 	Py_DECREF(iter);
 
@@ -317,7 +317,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_z(ue_PyFRawMesh *self, PyObje
 	}
 
 
-	self->raw_mesh->WedgeTangentZ = vertex;
+	self->raw_mesh.WedgeTangentZ = vertex;
 
 	Py_DECREF(iter);
 
@@ -378,13 +378,23 @@ static PyObject *py_ue_fraw_mesh_set_wedge_colors(ue_PyFRawMesh *self, PyObject 
 	}
 
 
-	self->raw_mesh->WedgeColors = colors;
+	self->raw_mesh.WedgeColors = colors;
 
 	Py_DECREF(iter);
 
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fraw_mesh_get_vertex_positions(ue_PyFRawMesh *self, PyObject * args) {
+
+	PyObject *py_list = PyList_New(0);
+
+	for (int32 i = 0;i < self->raw_mesh.VertexPositions.Num();i++) {
+		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.VertexPositions[i]));
+	}
+
+	return py_list;
+}
 
 static PyMethodDef ue_PyFRawMesh_methods[] = {
 	{ "set_vertex_positions", (PyCFunction)py_ue_fraw_mesh_set_vertex_positions, METH_VARARGS, "" },
@@ -395,23 +405,14 @@ static PyMethodDef ue_PyFRawMesh_methods[] = {
 	{ "set_wedge_tangent_z", (PyCFunction)py_ue_fraw_mesh_set_wedge_tangent_z, METH_VARARGS, "" },
 	{ "set_wedge_colors", (PyCFunction)py_ue_fraw_mesh_set_wedge_colors, METH_VARARGS, "" },
 	{ "get_wedge_position", (PyCFunction)py_ue_fraw_mesh_get_wedge_position, METH_VARARGS, "" },
+	{ "get_vertex_positions", (PyCFunction)py_ue_fraw_mesh_get_vertex_positions, METH_VARARGS, "" },
 	{ "save_to_static_mesh_source_model", (PyCFunction)py_ue_fraw_mesh_save_to_static_mesh_source_model, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
 static int ue_py_fraw_mesh_init(ue_PyFRawMesh *self, PyObject *args, PyObject *kwargs) {
-	self->raw_mesh = new FRawMesh();
+	new(&self->raw_mesh) FRawMesh();
 	return 0;
-}
-
-static void ue_py_fraw_mesh_dealloc(ue_PyFRawMesh *self) {
-	if (self->raw_mesh)
-		delete(self->raw_mesh);
-#if PY_MAJOR_VERSION < 3
-	self->ob_type->tp_free((PyObject*)self);
-#else
-	Py_TYPE(self)->tp_free((PyObject*)self);
-#endif
 }
 
 static PyTypeObject ue_PyFRawMeshType = {
@@ -419,7 +420,7 @@ static PyTypeObject ue_PyFRawMeshType = {
 	"unreal_engine.FRawMesh", /* tp_name */
 	sizeof(ue_PyFRawMesh),    /* tp_basicsize */
 	0,                         /* tp_itemsize */
-	(destructor)ue_py_fraw_mesh_dealloc,   /* tp_dealloc */
+	0,   /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */
@@ -446,6 +447,13 @@ static PyTypeObject ue_PyFRawMeshType = {
 	0,   /* tp_members */
 	0,                         /* tp_getset */
 };
+
+PyObject *py_ue_new_fraw_mesh(FRawMesh raw_mesh) {
+	ue_PyFRawMesh *ret = (ue_PyFRawMesh *)PyObject_New(ue_PyFRawMesh, &ue_PyFRawMeshType);
+
+	new(&ret->raw_mesh) FRawMesh(raw_mesh);
+	return (PyObject *)ret;
+}
 
 void ue_python_init_fraw_mesh(PyObject *ue_module) {
 	ue_PyFRawMeshType.tp_new = PyType_GenericNew;;

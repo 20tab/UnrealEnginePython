@@ -787,6 +787,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_material_parent", (PyCFunction)py_ue_set_material_parent, METH_VARARGS, "" },
 	{ "static_mesh_set_collision_for_lod", (PyCFunction)py_ue_static_mesh_set_collision_for_lod, METH_VARARGS, "" },
 	{ "static_mesh_set_shadow_for_lod", (PyCFunction)py_ue_static_mesh_set_shadow_for_lod, METH_VARARGS, "" },
+	{ "get_raw_mesh", (PyCFunction)py_ue_static_mesh_get_raw_mesh, METH_VARARGS, "" },
 #endif
 
 	// Viewport
