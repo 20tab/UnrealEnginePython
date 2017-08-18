@@ -11,6 +11,8 @@ UPyCommandlet::UPyCommandlet(const FObjectInitializer& ObjectInitializer)
 
 int32 UPyCommandlet::Main(const FString& CommandLine)
 {
+	FScopePythonGIL gil;
+
 	TArray<FString> Tokens, Switches;
 	TMap<FString, FString> Params;
 	ParseCommandLine(*CommandLine, Tokens, Switches, Params);
