@@ -209,6 +209,62 @@ asyncio.ensure_future(wait_for_redis())
 
 ## asyncio in your actors
 
+### A simple Icecast/Shoutcast streaming radio Component
+
+```python
+import ue_asyncio
+import asyncio
+import aiohttp
+import unreal_engine as ue
+from unreal_engine.classes import SoundWaveProcedural, AudioComponent
+import mpg123
+import os
+
+class RadioStreaming:
+
+    def initialize_component(self):
+        ue.print_string('Hello')
+        self.actor = self.uobject.get_owner()
+        self.audio = self.actor.get_actor_component_by_type(AudioComponent)
+        self.audio.Sound = SoundWaveProcedural()
+        self.audio.Sound.Duration = 10000
+        self.mp3 = mpg123.Mpg123(library_path=os.path.join(ue.get_content_dir(), 'libmpg123-0.dll'))
+        self.coroutine = asyncio.ensure_future(self.stream('http://178.32.136.160:8050'))
+        self.coroutine.add_done_callback(self.check_exception)
+
+    def check_exception(self, coro):
+        if coro.cancelled():
+            return
+        exc = coro.exception()
+        if exc:
+            raise exc
+
+    async def stream(self, url):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                ue.log_warning('start of stream')
+                while True:
+                    chunk = await response.content.read(4096)
+                    if not chunk:
+                        break
+
+                    self.mp3.feed(chunk)
+
+                    if not self.audio.IsPlaying():
+                        rate, channels, encoding = self.mp3.get_format()
+                        self.audio.Sound.SampleRate = rate
+                        self.audio.Sound.NumChannels = channels
+                        self.audio.Play()
+
+                    for frame in self.mp3.iter_frames():
+                        self.audio.Sound.queue_audio(frame)
+                        
+
+    def end_play(self, reason):
+        ue.log_warning('end of stream')
+        self.coroutine.cancel()
+```
+
 ## Additional 'transient' loop engines
 
 ## Note: concurrency vs parallelism
