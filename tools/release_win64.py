@@ -22,7 +22,7 @@ def msbuild(project, python_version, variant):
     if variant == 'threaded_':
         base_environ.update({'UEP_ENABLE_THREADS': '1'})
     vs = '"C:/Program Files (x86)/MSBuild/14.0/Bin/MSBuild.exe"'
-    process = subprocess.Popen('{0} {1} /t:Rebuild /p:Configuration="Development Editor" /p:Platform=Win64'.format(vs, project), env=base_environ)
+    process = subprocess.Popen('{0} {1} /m /t:Rebuild /p:Configuration="Development Editor" /p:Platform=Win64'.format(vs, project), env=base_environ)
     while process.poll() is None:
         time.sleep(0.5)
     if process.returncode != 0:
