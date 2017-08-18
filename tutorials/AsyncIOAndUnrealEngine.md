@@ -149,26 +149,37 @@ for task in asyncio.Task.all_tasks():
 
 ## A simple tcp server spawning Character's in the editor
 
+This is a more complex (but more useful) example, showing how to open a tcp server in your UE instance, to allow external communication.
+
+Here, the protocol is pretty dumb: each lien sent by a client will spawn a new Character with the name set to the string passed by the client.
+
 ```python
 import asyncio
 import ue_asyncio
 from unreal_engine.classes import Character
 
+# cleanup previous tasks
 for task in asyncio.Task.all_tasks():
     task.cancel()
 
+# this is called whenever a new client connects
 async def new_client_connected(reader, writer):
     name = writer.get_extra_info('peername')
     ue.log('new client connection from {0}'.format(name))
     while True:
+        # wait for a line
         data = await reader.readline()
         if not data:
             break
         ue.log('client {0} issued: {1}'.format(name, data.decode()))
+        # spawn a new Character and set its label
         new_actor = ue.get_editor_world().actor_spawn(Character)
         new_actor.set_actor_label(data.decode())
     ue.log('client {0} disconnected'.format(name))
 
+# this spawns the server
+# the try/finally trick allows for gentle shutdown of the server
+# see below for more infos about exception management
 async def spawn_server(host, port):
     try:
         coro = await asyncio.start_server(new_client_connected, host, port)
@@ -183,12 +194,15 @@ asyncio.ensure_future(spawn_server('192.168.173.45', 8885))
 
 ## Redis pubsub
 
+Another useful example, here we subscribe to a remote redis queue, and we wait for messages
+
 ```python
 import asyncio
 import ue_asyncio
 import unreal_engine as ue
 import aioredis
 
+# cleanup previous tasks
 for task in asyncio.Task.all_tasks():
     task.cancel()
 
@@ -207,7 +221,48 @@ asyncio.ensure_future(wait_for_redis())
 
 ## Managinx exceptions in non-awaited coroutines
 
+By default exceptions thrown in a non-awaited coroutine (like the ones you spawn with asyncio.ensure_future) are not propagated.
+
+There are various tricks you can use to manage them. The simplest one is trapping exceptions in the coroutine itself and reporting them as UE errors:
+
+```python
+async def connecto_to_a_broken_redis():
+    try:
+        redis = await aioredis.create_redis(('192.168.173.27', 6379))
+        ...
+    except Exception as e:
+        ue.log_error(e)
+    finally:
+        # here you can run important cleanup tasks
+        redis.close()
+```
+
+A more elegant approach is adding a callback whenever a coroutine ends, in which we will check if it died for an exception or it has been cancelled (or obviously it has simply finished its work):
+
+```python
+
+async def broken_coroutine():
+    raise Exception('OOOOOOPS')
+    
+def check_exception(coro):
+    # if the coroutine has been cancelled, just ignore it
+    if coro.cancelled():
+            return
+    # check if the coroutine ended with an exception
+    exc = coro.exception()
+    # in such a case raise/propagate it
+    if exc:
+        raise exc
+
+coroutine = asyncio.ensure_future(broken_coroutine())
+coroutine.add_done_callback(check_exception)
+```
+
+Remember, you only need to pay attention to non-awaited coroutines, the others will correctly propagate the exception to the task awaiting it (obviously this task could be a not-awaited one, so as a general rule, add a callback every time you use asyncio.ensure_future())
+
 ## aiohttp
+
+This is probably the most known third-party asyncio module. It basically interact with every HTTP aspect (server, client, websockets....)
 
 ## asyncio in your actors
 
