@@ -100,9 +100,25 @@ UWorld *SPythonEditorViewport::GetPythonWorld() {
 
 TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClient() {
 	TSharedPtr<FEditorViewportClient> client = MakeShareable(new FEditorViewportClient(nullptr, new FPreviewScene(), SharedThis(this)));
+
 	client->SetRealtime(true);
 
+	client->SetViewportType(ELevelViewportType::LVT_Perspective);
+
 	return client.ToSharedRef();
+}
+
+TSharedPtr<FExtender> SPythonEditorViewport::GetExtenders() const {
+	TSharedPtr<FExtender> Result(MakeShareable(new FExtender()));
+	return Result;
+}
+
+TSharedRef<SEditorViewport> SPythonEditorViewport::GetViewportWidget() {
+	return SharedThis(this);
+}
+
+TSharedPtr<SWidget> SPythonEditorViewport::MakeViewportToolbar() {
+	return SNew(SCommonEditorViewportToolbarBase, SharedThis(this));
 }
 
 void SPythonEditorViewport::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) {

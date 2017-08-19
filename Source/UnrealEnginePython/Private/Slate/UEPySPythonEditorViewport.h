@@ -8,6 +8,7 @@
 #include "Editor/UnrealEd/Public/SEditorViewport.h"
 #include "Editor/UnrealEd/Public/EditorViewportClient.h"
 #include "Runtime/Engine/Public/PreviewScene.h"
+#include "Editor/UnrealEd/Public/SCommonEditorViewportToolbarBase.h"
 
 extern PyTypeObject ue_PySEditorViewportType;
 
@@ -18,7 +19,7 @@ typedef struct {
 
 void ue_python_init_spython_editor_viewport(PyObject *);
 
-class SPythonEditorViewport : public SEditorViewport {
+class SPythonEditorViewport : public SEditorViewport, public ICommonEditorViewportToolbarInfoProvider {
 
 public:
 	UWorld *GetPythonWorld();
@@ -36,7 +37,14 @@ public:
 		}
 	}
 
+	
+	virtual void OnFloatingButtonClicked() override {};
+	virtual TSharedPtr<FExtender> GetExtenders() const override;
+	virtual TSharedRef<SEditorViewport> GetViewportWidget() override;
+
 protected:
 	virtual TSharedRef<FEditorViewportClient> MakeEditorViewportClient() override;
+	virtual TSharedPtr<SWidget> MakeViewportToolbar() override;
+	
 	bool bSimulate;
 };
