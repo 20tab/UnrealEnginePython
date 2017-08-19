@@ -73,6 +73,60 @@ static PyObject *py_ue_spython_editor_viewport_set_exposure_settings(ue_PySPytho
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_spython_editor_viewport_set_view_location(ue_PySPythonEditorViewport *self, PyObject * args) {
+	float x = 0, y = 0, z = 0;
+
+	FVector vec;
+
+	if (PyTuple_Size(args) == 1) {
+		ue_PyFVector *ue_py_vec = py_ue_is_fvector(PyTuple_GetItem(args, 0));
+		if (!ue_py_vec) {
+			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
+		}
+		vec = ue_py_vec->vec;
+	}
+	else {
+		if (!PyArg_ParseTuple(args, "fff", &x, &y, &z)) {
+			return nullptr;;
+		}
+		vec.X = x;
+		vec.Y = y;
+		vec.Z = z;
+	}
+
+	sw_python_editor_viewport->GetViewportClient()->SetViewLocation(vec);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_spython_editor_viewport_set_view_rotation(ue_PySPythonEditorViewport *self, PyObject * args) {
+	float roll = 0, pitch = 0, yaw = 0;
+
+	FRotator rot;
+
+	if (PyTuple_Size(args) == 1) {
+		ue_PyFRotator *ue_py_rot = py_ue_is_frotator(PyTuple_GetItem(args, 0));
+		if (!ue_py_rot) {
+			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
+		}
+		rot = ue_py_rot->rot;
+	}
+	else {
+		if (!PyArg_ParseTuple(args, "fff", &roll, &pitch, &yaw)) {
+			return nullptr;;
+		}
+		rot.Roll = roll;
+		rot.Pitch = pitch;
+		rot.Yaw = yaw;
+	}
+
+	sw_python_editor_viewport->GetViewportClient()->SetViewRotation(rot);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *py_ue_spython_editor_viewport_simulate(ue_PySPythonEditorViewport *self, PyObject * args) {
 	PyObject *py_bool;
 	if (!PyArg_ParseTuple(args, "O:simulate", &py_bool)) {
@@ -91,6 +145,8 @@ static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
 	{ "set_show_stats", (PyCFunction)py_ue_spython_editor_viewport_set_show_stats, METH_VARARGS, "" },
 	{ "set_view_mode", (PyCFunction)py_ue_spython_editor_viewport_set_view_mode, METH_VARARGS, "" },
 	{ "set_exposure_settings", (PyCFunction)py_ue_spython_editor_viewport_set_exposure_settings, METH_VARARGS, "" },
+	{ "set_view_location", (PyCFunction)py_ue_spython_editor_viewport_set_view_location, METH_VARARGS, "" },
+	{ "set_view_rotation", (PyCFunction)py_ue_spython_editor_viewport_set_view_rotation, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -102,6 +158,8 @@ public:
 		EngineShowFlags.SetSelection(true);
 		EngineShowFlags.SetSelectionOutline(true);
 
+		bAltPressed = false;
+
 		SelectedActor = nullptr;
 	}
 
@@ -111,7 +169,7 @@ public:
 			SelectedActor = nullptr;
 			return;
 		}
-			
+
 		if (HitProxy->IsA(HActor::StaticGetType())) {
 			HActor *h_actor = (HActor *)HitProxy;
 			GEditor->SelectNone(true, true, true);
@@ -149,7 +207,7 @@ public:
 	}
 
 	virtual bool InputWidgetDelta(FViewport * InViewport, EAxisList::Type CurrentAxis, FVector & Drag, FRotator & Rot, FVector &Scale) {
-		if (SelectedActor) {
+		if (SelectedActor && !bAltPressed) {
 			SelectedActor->AddActorWorldOffset(Drag);
 			SelectedActor->AddActorWorldRotation(Rot);
 			SelectedActor->SetActorScale3D(SelectedActor->GetActorScale3D() + Scale);
@@ -160,8 +218,19 @@ public:
 		return false;
 	}
 
+	virtual void TrackingStarted(const FInputEventState & InInpuState, bool bIsDragginWidget, bool bNudge) {
+		bAltPressed = InInpuState.IsAltButtonPressed();
+	}
+
+	virtual void ResetCamera() {
+		if (!SelectedActor)
+			return;
+		FocusViewportOnBox(SelectedActor->GetComponentsBoundingBox());
+	}
+
 protected:
 
+	bool bAltPressed;
 	AActor *SelectedActor;
 };
 
