@@ -6,6 +6,7 @@
 #include "UEPySEditorViewport.h"
 
 #include "Editor/LevelEditor/Public/SLevelViewport.h"
+#include "Editor/LevelEditor/Private/SLevelEditor.h"
 #include "Editor/UnrealEd/Public/EditorViewportClient.h"
 #include "Runtime/Engine/Public/PreviewScene.h"
 

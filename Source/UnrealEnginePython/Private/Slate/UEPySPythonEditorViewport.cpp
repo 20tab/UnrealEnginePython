@@ -105,6 +105,12 @@ TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClien
 
 	client->SetViewportType(ELevelViewportType::LVT_Perspective);
 
+	FExposureSettings settings;
+	settings.bFixed = true;
+	settings.LogOffset = 0;
+
+	client->ExposureSettings = settings;
+
 	return client.ToSharedRef();
 }
 

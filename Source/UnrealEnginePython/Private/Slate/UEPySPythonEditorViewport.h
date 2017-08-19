@@ -9,6 +9,7 @@
 #include "Editor/UnrealEd/Public/EditorViewportClient.h"
 #include "Runtime/Engine/Public/PreviewScene.h"
 #include "Editor/UnrealEd/Public/SCommonEditorViewportToolbarBase.h"
+#include "Editor/UnrealEd/Public/STransformViewportToolbar.h"
 
 extern PyTypeObject ue_PySEditorViewportType;
 
