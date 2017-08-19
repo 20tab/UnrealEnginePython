@@ -94,12 +94,83 @@ static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
+class FPythonEditorViewportClient : public FEditorViewportClient {
+public:
+	FPythonEditorViewportClient(FEditorModeTools * InModeTools, FPreviewScene * InPreviewScene, const TWeakPtr<SEditorViewport> & InEditorViewportWidget) :
+		FEditorViewportClient(InModeTools, InPreviewScene, InEditorViewportWidget) {
+
+		EngineShowFlags.SetSelection(true);
+		EngineShowFlags.SetSelectionOutline(true);
+
+		SelectedActor = nullptr;
+	}
+
+	virtual void ProcessClick(FSceneView & InView, HHitProxy* HitProxy, FKey Key, EInputEvent Event, uint32 HitX, uint32 HitY) {
+		if (!HitProxy) {
+			GEditor->SelectNone(true, true, true);
+			SelectedActor = nullptr;
+			return;
+		}
+			
+		if (HitProxy->IsA(HActor::StaticGetType())) {
+			HActor *h_actor = (HActor *)HitProxy;
+			GEditor->SelectNone(true, true, true);
+			GEditor->SelectActor(h_actor->Actor, true, true);
+
+			SelectedActor = h_actor->Actor;
+
+			SetWidgetMode(FWidget::WM_Translate);
+		}
+		else if (HitProxy->IsA(HWidgetAxis::StaticGetType())) {
+			// TODO do something ?
+		}
+		else {
+			GEditor->SelectNone(true, true, true);
+			SelectedActor = nullptr;
+		}
+	}
+
+	virtual FWidget::EWidgetMode GetWidgetMode() const {
+		if (SelectedActor == nullptr)
+			return FWidget::WM_None;
+		return FEditorViewportClient::GetWidgetMode();
+	}
+
+	virtual FMatrix GetWidgetCoordSystem() const {
+		if (!SelectedActor)
+			return FMatrix::Identity;
+		return FRotationMatrix(SelectedActor->GetActorTransform().Rotator());
+	}
+
+	virtual FVector GetWidgetLocation() const {
+		if (!SelectedActor)
+			return FVector(0, 0, 0);
+		return SelectedActor->GetActorLocation();
+	}
+
+	virtual bool InputWidgetDelta(FViewport * InViewport, EAxisList::Type CurrentAxis, FVector & Drag, FRotator & Rot, FVector &Scale) {
+		if (SelectedActor) {
+			SelectedActor->AddActorWorldOffset(Drag);
+			SelectedActor->AddActorWorldRotation(Rot);
+			SelectedActor->SetActorScale3D(SelectedActor->GetActorScale3D() + Scale);
+			Invalidate();
+			return true;
+		}
+
+		return false;
+	}
+
+protected:
+
+	AActor *SelectedActor;
+};
+
 UWorld *SPythonEditorViewport::GetPythonWorld() {
 	return GetWorld();
 }
 
 TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClient() {
-	TSharedPtr<FEditorViewportClient> client = MakeShareable(new FEditorViewportClient(nullptr, new FPreviewScene(), SharedThis(this)));
+	TSharedPtr<FEditorViewportClient> client = MakeShareable(new FPythonEditorViewportClient(nullptr, new FPreviewScene(), SharedThis(this)));
 
 	client->SetRealtime(true);
 
