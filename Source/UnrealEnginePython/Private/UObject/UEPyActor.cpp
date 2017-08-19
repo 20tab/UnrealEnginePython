@@ -396,6 +396,9 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 		component->RegisterComponent();
 	}
 
+	if (component->bWantsInitializeComponent && !component->HasBeenInitialized())
+		component->InitializeComponent();
+
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -429,6 +432,9 @@ PyObject *py_ue_add_python_component(ue_PyUObject * self, PyObject * args) {
 	if (actor->GetWorld()) {
 		component->RegisterComponent();
 	}
+
+	if (component->bWantsInitializeComponent && !component->HasBeenInitialized())
+		component->InitializeComponent();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
 	if (!ret)
@@ -510,6 +516,9 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 	if (actor->GetWorld()) {
 		component->RegisterComponent();
 	}
+
+	if (component->bWantsInitializeComponent && !component->HasBeenInitialized())
+		component->InitializeComponent();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
 	if (!ret)
