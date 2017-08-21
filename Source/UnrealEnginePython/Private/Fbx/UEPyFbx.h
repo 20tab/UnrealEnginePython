@@ -11,6 +11,7 @@
 #include "UEPyFbxNode.h"
 #include "UEPyFbxObject.h"
 #include "UEPyFbxProperty.h"
+#include "UEPyFbxPose.h"
 
 void ue_python_init_fbx(PyObject *);
 

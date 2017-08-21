@@ -6,6 +6,24 @@
 
 #include "UEPyFbx.h"
 
+static PyObject *py_ue_fbx_importer_get_anim_stack_count(ue_PyFbxImporter *self, PyObject *args) {
+	return PyLong_FromLong(self->fbx_importer->GetAnimStackCount());
+}
+
+static PyObject *py_ue_fbx_importer_get_take_local_time_span(ue_PyFbxImporter *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+
+	FbxTakeInfo *take_info = self->fbx_importer->GetTakeInfo(index);
+	if (!take_info)
+		return PyErr_Format(PyExc_Exception, "unable to get FbxTakeInfo for index %d", index);
+
+	FbxTimeSpan time_span = take_info->mLocalTimeSpan;
+	return Py_BuildValue((char *)"(ff)", time_span.GetStart().GetSecondDouble(), time_span.GetStop().GetSecondDouble());
+}
+
 static PyObject *py_ue_fbx_importer_initialize(ue_PyFbxImporter *self, PyObject *args) {
 	char *filename;
 	PyObject *py_object;
@@ -46,6 +64,8 @@ static PyObject *py_ue_fbx_importer_import(ue_PyFbxImporter *self, PyObject *arg
 static PyMethodDef ue_PyFbxImporter_methods[] = {
 	{ "initialize", (PyCFunction)py_ue_fbx_importer_initialize, METH_VARARGS, "" },
 	{ "_import", (PyCFunction)py_ue_fbx_importer_import, METH_VARARGS, "" },
+	{ "get_anim_stack_count", (PyCFunction)py_ue_fbx_importer_get_anim_stack_count, METH_VARARGS, "" },
+	{ "get_take_local_time_span", (PyCFunction)py_ue_fbx_importer_get_take_local_time_span, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

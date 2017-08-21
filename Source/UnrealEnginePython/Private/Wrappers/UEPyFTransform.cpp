@@ -1,8 +1,31 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args) {
+	return py_ue_new_ftransform(self->transform.Inverse());
+}
+
+static PyObject *py_ue_ftransform_normalize_rotation(ue_PyFTransform *self, PyObject * args) {
+	FTransform transform = self->transform;
+	transform.NormalizeRotation();
+	return py_ue_new_ftransform(transform);
+}
+
+static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, PyObject * args) {
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O", &py_obj)) {
+		return nullptr;
+	}
+
+	ue_PyFTransform *py_transform = py_ue_is_ftransform(py_obj);
+	if (!py_transform)
+		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
+	return py_ue_new_ftransform(self->transform.GetRelativeTransform(py_transform->transform));
+}
 
 static PyMethodDef ue_PyFTransform_methods[] = {
-
+	{ "inverse", (PyCFunction)py_ue_ftransform_inverse, METH_VARARGS, "" },
+	{ "get_relative_transform", (PyCFunction)py_ue_ftransform_get_relative_transform, METH_VARARGS, "" },
+	{ "normalize_rotation", (PyCFunction)py_ue_ftransform_normalize_rotation, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -16,6 +39,10 @@ static PyObject *py_ue_ftransform_get_scale(ue_PyFTransform *self, void *closure
 
 static PyObject *py_ue_ftransform_get_rotation(ue_PyFTransform *self, void *closure) {
 	return py_ue_new_frotator(self->transform.GetRotation().Rotator());
+}
+
+static PyObject *py_ue_ftransform_get_quaternion(ue_PyFTransform *self, void *closure) {
+	return py_ue_new_fquat(self->transform.GetRotation());
 }
 
 static int py_ue_ftransform_set_translation(ue_PyFTransform *self, PyObject *value, void *closure) {
@@ -36,6 +63,15 @@ static int py_ue_ftransform_set_rotation(ue_PyFTransform *self, PyObject *value,
 	return -1;
 }
 
+static int py_ue_ftransform_set_quaternion(ue_PyFTransform *self, PyObject *value, void *closure) {
+	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+		self->transform.SetRotation(py_quat->quat);
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a quaternion");
+	return -1;
+}
+
 static int py_ue_ftransform_set_scale(ue_PyFTransform *self, PyObject *value, void *closure) {
 	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
 		self->transform.SetScale3D(py_vec->vec);
@@ -51,6 +87,7 @@ static PyGetSetDef ue_PyFTransform_getseters[] = {
 	{(char *) "translation", (getter)py_ue_ftransform_get_translation, (setter)py_ue_ftransform_set_translation, (char *)"", NULL },
 	{(char *) "scale", (getter)py_ue_ftransform_get_scale, (setter)py_ue_ftransform_set_scale, (char *)"", NULL },
 	{(char *) "rotation", (getter)py_ue_ftransform_get_rotation, (setter)py_ue_ftransform_set_rotation, (char *)"", NULL },
+	{(char *) "quaternion", (getter)py_ue_ftransform_get_quaternion, (setter)py_ue_ftransform_set_quaternion, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 
@@ -70,7 +107,7 @@ static PyObject *ue_PyFTransform_str(ue_PyFTransform *self)
 		PyFloat_FromDouble(scale.X),
 		PyFloat_FromDouble(scale.Y),
 		PyFloat_FromDouble(scale.Z)
-		);
+	);
 }
 
 

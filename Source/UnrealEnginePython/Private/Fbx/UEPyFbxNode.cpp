@@ -40,6 +40,14 @@ static PyObject *py_ue_fbx_node_get_child(ue_PyFbxNode *self, PyObject *args) {
 	return py_ue_new_fbx_node(fbx_node);
 }
 
+static PyObject *py_ue_fbx_node_get_parent(ue_PyFbxNode *self, PyObject *args) {
+	FbxNode *fbx_node = self->fbx_node->GetParent();
+	if (!fbx_node) {
+		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNode parent");
+	}
+	return py_ue_new_fbx_node(fbx_node);
+}
+
 static PyObject *py_ue_fbx_node_get_node_attribute(ue_PyFbxNode *self, PyObject *args) {
 
 	FbxNodeAttribute *fbx_node_attribute = self->fbx_node->GetNodeAttribute();
@@ -65,13 +73,52 @@ static PyObject *py_ue_fbx_node_get_node_attribute_by_index(ue_PyFbxNode *self, 
 	return py_ue_new_fbx_object(fbx_node_attribute);
 }
 
+static PyObject *py_ue_fbx_node_evaluate_local_transform(ue_PyFbxNode *self, PyObject *args) {
+	float t;
+	if (!PyArg_ParseTuple(args, "f", &t)) {
+		return nullptr;
+	}
+	FbxTime time;
+	time.SetSecondDouble(t);
+	FbxAMatrix& matrix = self->fbx_node->EvaluateLocalTransform(time);
+	FTransform transform;
+	FbxVector4 mt = matrix.GetT();
+	FbxQuaternion mq = matrix.GetQ();
+	FbxVector4 ms = matrix.GetS();
+	transform.SetTranslation(FVector(mt[0], -mt[1], mt[2]));
+	transform.SetRotation(FQuat(mq[0], -mq[1], mq[2], -mq[3]));
+	transform.SetScale3D(FVector(ms[0], ms[1], ms[2]));
+	return py_ue_new_ftransform(transform);
+}
+
+static PyObject *py_ue_fbx_node_evaluate_global_transform(ue_PyFbxNode *self, PyObject *args) {
+	float t;
+	if (!PyArg_ParseTuple(args, "f", &t)) {
+		return nullptr;
+	}
+	FbxTime time;
+	time.SetSecondDouble(t);
+	FbxAMatrix& matrix = self->fbx_node->EvaluateGlobalTransform(time);
+	FTransform transform;
+	FbxVector4 mt = matrix.GetT();
+	FbxQuaternion mq = matrix.GetQ();
+	FbxVector4 ms = matrix.GetS();
+	transform.SetTranslation(FVector(mt[0], -mt[1], mt[2]));
+	transform.SetRotation(FQuat(mq[0], -mq[1], mq[2], -mq[3]));
+	transform.SetScale3D(FVector(ms[0], ms[1], ms[2]));
+	return py_ue_new_ftransform(transform);
+}
+
 static PyMethodDef ue_PyFbxNode_methods[] = {
 	{ "get_child_count", (PyCFunction)py_ue_fbx_node_get_child_count, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_fbx_node_get_name, METH_VARARGS, "" },
+	{ "evaluate_local_transform", (PyCFunction)py_ue_fbx_node_evaluate_local_transform, METH_VARARGS, "" },
+	{ "evaluate_global_transform", (PyCFunction)py_ue_fbx_node_evaluate_global_transform, METH_VARARGS, "" },
 	{ "get_local_translation", (PyCFunction)py_ue_fbx_node_get_local_translation, METH_VARARGS, "" },
 	{ "get_local_rotation", (PyCFunction)py_ue_fbx_node_get_local_rotation, METH_VARARGS, "" },
 	{ "get_local_scaling", (PyCFunction)py_ue_fbx_node_get_local_scaling, METH_VARARGS, "" },
 	{ "get_child", (PyCFunction)py_ue_fbx_node_get_child, METH_VARARGS, "" },
+	{ "get_parent", (PyCFunction)py_ue_fbx_node_get_parent, METH_VARARGS, "" },
 	{ "get_node_attribute", (PyCFunction)py_ue_fbx_node_get_node_attribute, METH_VARARGS, "" },
 	{ "get_node_attribute_count", (PyCFunction)py_ue_fbx_node_get_node_attribute_count, METH_VARARGS, "" },
 	{ "get_node_attribute_by_index", (PyCFunction)py_ue_fbx_node_get_node_attribute_by_index, METH_VARARGS, "" },
@@ -142,6 +189,12 @@ PyObject *py_ue_new_fbx_node(FbxNode *fbx_node) {
 	ue_PyFbxNode *ret = (ue_PyFbxNode *)PyObject_New(ue_PyFbxNode, &ue_PyFbxNodeType);
 	ret->fbx_node = fbx_node;
 	return (PyObject *)ret;
+}
+
+ue_PyFbxNode *py_ue_is_fbx_node(PyObject *obj) {
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxNodeType))
+		return nullptr;
+	return (ue_PyFbxNode *)obj;
 }
 
 #endif

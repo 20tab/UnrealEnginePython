@@ -21,8 +21,26 @@ static PyObject *py_ue_fbx_manager_set_io_settings(ue_PyFbxManager *self, PyObje
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fbx_manager_create_missing_bind_poses(ue_PyFbxManager *self, PyObject *args) {
+	PyObject *py_object;
+	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+		return nullptr;
+	}
+
+	ue_PyFbxScene *py_fbx_scene = py_ue_is_fbx_scene(py_object);
+	if (!py_fbx_scene) {
+		return PyErr_Format(PyExc_Exception, "argument is not a FbxScene");
+	}
+
+	self->fbx_manager->CreateMissingBindPoses(py_fbx_scene->fbx_scene);
+
+	Py_RETURN_NONE;
+}
+
+
 static PyMethodDef ue_PyFbxManager_methods[] = {
 	{ "set_io_settings", (PyCFunction)py_ue_fbx_manager_set_io_settings, METH_VARARGS, "" },
+	{ "create_missing_bind_poses", (PyCFunction)py_ue_fbx_manager_create_missing_bind_poses, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -99,6 +117,7 @@ void ue_python_init_fbx(PyObject *module) {
 	ue_python_init_fbx_node(module);
 	ue_python_init_fbx_object(module);
 	ue_python_init_fbx_property(module);
+	ue_python_init_fbx_pose(module);
 }
 
 

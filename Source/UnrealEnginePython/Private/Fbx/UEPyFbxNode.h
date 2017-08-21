@@ -16,4 +16,6 @@ void ue_python_init_fbx_node(PyObject *);
 
 PyObject *py_ue_new_fbx_node(FbxNode *);
 
+ue_PyFbxNode *py_ue_is_fbx_node(PyObject *);
+
 #endif

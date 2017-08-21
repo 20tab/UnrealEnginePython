@@ -18,6 +18,10 @@ static PyObject *py_ue_fbx_scene_get_src_object_count(ue_PyFbxScene *self, PyObj
 	return PyLong_FromLong(self->fbx_scene->GetSrcObjectCount());
 }
 
+static PyObject *py_ue_fbx_scene_get_pose_count(ue_PyFbxScene *self, PyObject *args) {
+	return PyLong_FromLong(self->fbx_scene->GetPoseCount());
+}
+
 static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *args) {
 	int index;
 	if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -30,17 +34,51 @@ static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *a
 	return py_ue_new_fbx_object(fbx_object);
 }
 
+static PyObject *py_ue_fbx_scene_get_pose(ue_PyFbxScene *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxPose *fbx_pose = self->fbx_scene->GetPose(index);
+	if (!fbx_pose)
+		return PyErr_Format(PyExc_Exception, "unable to find FbxPose with index %d", index);
+
+	return py_ue_new_fbx_pose(fbx_pose);
+}
+
+static PyObject *py_ue_fbx_scene_convert(ue_PyFbxScene *self, PyObject *args) {
+	FbxScene *scene = self->fbx_scene;
+
+	FbxAxisSystem::ECoordSystem coord_system = FbxAxisSystem::eRightHanded;
+	FbxAxisSystem::EUpVector up_vector = FbxAxisSystem::eZAxis;
+	FbxAxisSystem::EFrontVector front_vector = (FbxAxisSystem::EFrontVector) - FbxAxisSystem::eParityOdd;
+
+	FbxAxisSystem unreal(up_vector, front_vector, coord_system);
+
+	if (scene->GetGlobalSettings().GetAxisSystem() != unreal) {
+		FbxRootNodeUtility::RemoveAllFbxRoots(scene);
+		unreal.ConvertScene(scene);
+	}
+
+	scene->GetAnimationEvaluator()->Reset();
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyFbxScene_methods[] = {
+	{ "convert", (PyCFunction)py_ue_fbx_scene_convert, METH_VARARGS, "" },
 	{ "get_root_node", (PyCFunction)py_ue_fbx_scene_get_root_node, METH_VARARGS, "" },
 	{ "get_src_object_count", (PyCFunction)py_ue_fbx_scene_get_src_object_count, METH_VARARGS, "" },
 	{ "get_src_object", (PyCFunction)py_ue_fbx_scene_get_src_object, METH_VARARGS, "" },
+	{ "get_pose_count", (PyCFunction)py_ue_fbx_scene_get_pose_count, METH_VARARGS, "" },
+	{ "get_pose", (PyCFunction)py_ue_fbx_scene_get_pose, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
 static PyTypeObject ue_PyFbxSceneType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FbxScene", /* tp_name */
-	sizeof(ue_PyFbxManager),    /* tp_basicsize */
+	sizeof(ue_PyFbxScene),    /* tp_basicsize */
 	0,                         /* tp_itemsize */
 	0,   /* tp_dealloc */
 	0,                         /* tp_print */

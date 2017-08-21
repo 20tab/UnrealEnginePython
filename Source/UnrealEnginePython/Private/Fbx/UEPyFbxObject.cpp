@@ -65,6 +65,13 @@ static PyObject *py_ue_fbx_object_get_channels_count(ue_PyFbxObject *self, PyObj
 	return PyLong_FromLong(fbx_anim_curve_node->GetChannelsCount());
 }
 
+static PyObject *py_ue_fbx_object_to_node(ue_PyFbxObject *self, PyObject *args) {
+	FbxNode *fbx_node = FbxCast<FbxNode>(self->fbx_object);
+	if (!fbx_node)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxNode");
+	return py_ue_new_fbx_node(fbx_node);
+}
+
 static PyObject *py_ue_fbx_object_get_channel_name(ue_PyFbxObject *self, PyObject *args) {
 	int index;
 	if (!PyArg_ParseTuple(args, "i", &index)) {
@@ -89,8 +96,8 @@ static PyObject *py_ue_fbx_object_get_curve_count(ue_PyFbxObject *self, PyObject
 
 static PyObject *py_ue_fbx_object_get_curve(ue_PyFbxObject *self, PyObject *args) {
 	int channel;
-	int index;
-	if (!PyArg_ParseTuple(args, "ii", &channel, &index)) {
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "i|i:get_curve", &channel, &index)) {
 		return nullptr;
 	}
 	FbxAnimCurveNode *fbx_anim_curve_node = FbxCast<FbxAnimCurveNode>(self->fbx_object);
@@ -135,6 +142,7 @@ static PyMethodDef ue_PyFbxObject_methods[] = {
 	{ "get_member_count", (PyCFunction)py_ue_fbx_object_get_member_count, METH_VARARGS, "" },
 	{ "get_member", (PyCFunction)py_ue_fbx_object_get_member, METH_VARARGS, "" },
 	{ "get_name", (PyCFunction)py_ue_fbx_object_get_name, METH_VARARGS, "" },
+	{ "to_node", (PyCFunction)py_ue_fbx_object_to_node, METH_VARARGS, "" },
 	{ "get_class_name", (PyCFunction)py_ue_fbx_object_get_class_name, METH_VARARGS, "" },
 	{ "get_first_property", (PyCFunction)py_ue_fbx_object_get_first_property, METH_VARARGS, "" },
 	{ "get_next_property", (PyCFunction)py_ue_fbx_object_get_next_property, METH_VARARGS, "" },

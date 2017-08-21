@@ -31,6 +31,10 @@ static PyObject *py_ue_fquat_inverse(ue_PyFQuat *self, PyObject * args) {
 	return py_ue_new_fquat(self->quat.Inverse());
 }
 
+static PyObject *py_ue_fquat_get_normalized(ue_PyFQuat *self, PyObject * args) {
+	return py_ue_new_fquat(self->quat.GetNormalized());
+}
+
 static PyObject *py_ue_fquat_vector(ue_PyFQuat *self, PyObject * args) {
 	return py_ue_new_fvector(self->quat.Vector());
 }
@@ -48,6 +52,7 @@ static PyMethodDef ue_PyFQuat_methods[] = {
 	{ "get_up_vector", (PyCFunction)py_ue_fquat_get_axis_z, METH_VARARGS, "" },
 	{ "inverse", (PyCFunction)py_ue_fquat_inverse, METH_VARARGS, "" },
 	{ "vector", (PyCFunction)py_ue_fquat_vector, METH_VARARGS, "" },
+	{ "get_normalized", (PyCFunction)py_ue_fquat_get_normalized, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
