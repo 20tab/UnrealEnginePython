@@ -43,8 +43,10 @@ PyTypeObject ue_PySVectorInputBoxType = {
 static int ue_py_svector_input_box_init(ue_PySVectorInputBox *self, PyObject *args, PyObject *kwargs) {
 	ue_py_slate_setup_farguments(SVectorInputBox);
 
-    //ue_py_slate_farguments_optional_float("delta", Delta);
-#if ENGINE_MINOR_VERSION > 15
+#if WITH_KNL_PYEXT
+    ue_py_slate_farguments_optional_float("delta", Delta);
+#endif
+#if ENGINE_MINOR_VERSION > 15 || WITH_KNL_PYEXT
     ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
 #endif
 	ue_py_slate_farguments_optional_bool("allow_responsive_layout", AllowResponsiveLayout);

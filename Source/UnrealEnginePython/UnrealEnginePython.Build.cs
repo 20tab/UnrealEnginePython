@@ -19,6 +19,7 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] windowsKnownPaths =
     {
+        "../../../../../ThirdParty/Python3",
         "C:/Program Files/Python36",
         "C:/Program Files/Python35",
         "C:/Python27",
@@ -76,6 +77,7 @@ public class UnrealEnginePython : ModuleRules
     public UnrealEnginePython(TargetInfo Target)
 #endif
     {
+        Definitions.Add("WITH_KNL_PYEXT=1");
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -175,6 +177,33 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetWindowsPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicAdditionalLibraries.Add(libPath);
+
+            // copy the dlls into the plugins dlls folder, so they don't have to be on the path
+            string dllsDir = Path.Combine(ModuleDirectory, "../../Binaries", Target.Platform == UnrealTargetPlatform.Win32 ? "Win32" : "Win64");
+            try
+            {
+                string[] dllsToCopy =
+                {
+                    "python3.dll",
+                    "python36.dll"
+                };
+                foreach (string dllToCopy in dllsToCopy)
+                {
+                    // If the dll exist, make sure to set attributes so they are actually accessible
+                    if (File.Exists(Path.Combine(dllsDir, dllToCopy)))
+                    {
+                        File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
+                    }
+
+                    File.Copy(Path.Combine(pythonHome, dllToCopy), Path.Combine(dllsDir, dllToCopy), true);
+                    File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
+                }
+            }
+            catch(System.IO.IOException) { }
+            catch(System.UnauthorizedAccessException)
+            {
+                System.Console.WriteLine("WARNING: Unable to copy python dlls, they are probably in use...");
+            }
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
@@ -227,6 +256,15 @@ public class UnrealEnginePython : ModuleRules
 
     }
 
+    private bool IsPathRelative(string Path)
+    {
+        bool IsRooted = Path.StartsWith("\\", System.StringComparison.Ordinal) || // Root of the current directory on Windows. Also covers "\\" for UNC or "network" paths.
+                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes. 
+                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".	
+                        (Path.Length >= 2 && char.IsLetter(Path[0]) && Path[1] == ':'); // Starts with "<DriveLetter>:"
+        return !IsRooted;
+    }
+
     private string DiscoverPythonPath(string[] knownPaths)
     {
         // insert the PYTHONHOME content as the first known path
@@ -237,16 +275,23 @@ public class UnrealEnginePython : ModuleRules
 
         foreach (string path in paths)
         {
-            string headerFile = Path.Combine(path, "include", "Python.h");
+            string actualPath = path;
+            
+            if (IsPathRelative(actualPath))
+            {
+                actualPath = Path.GetFullPath(Path.Combine(ModuleDirectory, actualPath));
+            }
+
+            string headerFile = Path.Combine(actualPath, "include", "Python.h");
             if (File.Exists(headerFile))
             {
-                return path;
+                return actualPath;
             }
             // this is mainly useful for OSX
-            headerFile = Path.Combine(path, "Headers", "Python.h");
+            headerFile = Path.Combine(actualPath, "Headers", "Python.h");
             if (File.Exists(headerFile))
             {
-                return path;
+                return actualPath;
             }
         }
         return "";
@@ -337,7 +382,8 @@ public class UnrealEnginePython : ModuleRules
         }
         if (!found)
         {
-            System.Console.WriteLine("[WARNING] Your Python installation is not in the system PATH environment variable, very probably the plugin will fail to load");
+            System.Console.WriteLine("[WARNING] Your Python installation is not in the system PATH environment variable.");
+            System.Console.WriteLine("[WARNING] Ensure your python paths are set in GlobalConfig (DefaultEngine.ini) so the path can be corrected at runtime.");
         }
         // first try with python3
         for (int i = 9; i >= 0; i--)
