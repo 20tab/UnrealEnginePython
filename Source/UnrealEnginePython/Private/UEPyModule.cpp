@@ -728,6 +728,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeletal_mesh_set_required_bones", (PyCFunction)py_ue_skeletal_mesh_set_required_bones, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_active_bone_indices", (PyCFunction)py_ue_skeletal_mesh_get_active_bone_indices, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_required_bones", (PyCFunction)py_ue_skeletal_mesh_get_required_bones, METH_VARARGS, "" },
+	{ "skeletal_mesh_add_lod", (PyCFunction)py_ue_skeletal_mesh_add_lod, METH_VARARGS, "" },
+	{ "skeletal_mesh_lods_num", (PyCFunction)py_ue_skeletal_mesh_lods_num, METH_VARARGS, "" },
+	{ "skeletal_mesh_sections_num", (PyCFunction)py_ue_skeletal_mesh_sections_num, METH_VARARGS, "" },
+#if WITH_EDITOR
+	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS, "" },
+#endif
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },

@@ -244,10 +244,14 @@ static PyTypeObject ue_PyFSoftSkinVertexType = {
 	ue_PyFSoftSkinVertex_getseters,
 };
 
-
+static int py_ue_fsoft_skin_vertex_init(ue_PyFSoftSkinVertex *self, PyObject * args) {
+	new(&self->ss_vertex) FSoftSkinVertex();
+	return 0;
+}
 
 void ue_python_init_fsoft_skin_vertex(PyObject *ue_module) {
 	ue_PyFSoftSkinVertexType.tp_new = PyType_GenericNew;
+	ue_PyFSoftSkinVertexType.tp_init = (initproc)py_ue_fsoft_skin_vertex_init;
 
 	if (PyType_Ready(&ue_PyFSoftSkinVertexType) < 0)
 		return;
