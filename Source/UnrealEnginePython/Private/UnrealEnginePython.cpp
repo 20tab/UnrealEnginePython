@@ -234,6 +234,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (!FPaths::DirectoryExists(ScriptsPath)) {
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 		PlatformFile.CreateDirectory(*ScriptsPath);
+	}
 
 	// To ensure there are no path conflicts, if we have a valid python home at this point,
 	// we override the current environment entirely with the environment we want to use,
@@ -272,7 +273,6 @@ void FUnrealEnginePythonModule::StartupModule()
 		PathVars.Append(OurPythonPaths);
 		FString ModifiedPath = FString::Join(PathVars, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
->>>>>>> 080faa94f9c97ddbb1185001c9603d37d4811525
 	}
 
 	Py_Initialize();
