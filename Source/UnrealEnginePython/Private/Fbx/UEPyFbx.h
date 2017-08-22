@@ -12,6 +12,7 @@
 #include "UEPyFbxObject.h"
 #include "UEPyFbxProperty.h"
 #include "UEPyFbxPose.h"
+#include "UEPyFbxMesh.h"
 
 void ue_python_init_fbx(PyObject *);
 

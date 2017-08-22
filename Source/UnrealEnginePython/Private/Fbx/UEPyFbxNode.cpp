@@ -73,6 +73,15 @@ static PyObject *py_ue_fbx_node_get_node_attribute_by_index(ue_PyFbxNode *self, 
 	return py_ue_new_fbx_object(fbx_node_attribute);
 }
 
+static PyObject *py_ue_fbx_node_get_mesh(ue_PyFbxNode *self, PyObject *args) {
+
+	FbxMesh *fbx_mesh = self->fbx_node->GetMesh();
+	if (!fbx_mesh) {
+		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxMesh from FbxNode");
+	}
+	return py_ue_new_fbx_mesh(fbx_mesh);
+}
+
 static PyObject *py_ue_fbx_node_evaluate_local_transform(ue_PyFbxNode *self, PyObject *args) {
 	float t;
 	if (!PyArg_ParseTuple(args, "f", &t)) {
@@ -122,6 +131,7 @@ static PyMethodDef ue_PyFbxNode_methods[] = {
 	{ "get_node_attribute", (PyCFunction)py_ue_fbx_node_get_node_attribute, METH_VARARGS, "" },
 	{ "get_node_attribute_count", (PyCFunction)py_ue_fbx_node_get_node_attribute_count, METH_VARARGS, "" },
 	{ "get_node_attribute_by_index", (PyCFunction)py_ue_fbx_node_get_node_attribute_by_index, METH_VARARGS, "" },
+	{ "get_mesh", (PyCFunction)py_ue_fbx_node_get_mesh, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

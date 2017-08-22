@@ -65,8 +65,21 @@ static PyObject *py_ue_fbx_scene_convert(ue_PyFbxScene *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fbx_scene_triangulate(ue_PyFbxScene *self, PyObject *args) {
+	FbxScene *scene = self->fbx_scene;
+
+	FbxGeometryConverter converter(scene->GetFbxManager());
+
+	if (converter.Triangulate(scene, true)) {
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
 static PyMethodDef ue_PyFbxScene_methods[] = {
 	{ "convert", (PyCFunction)py_ue_fbx_scene_convert, METH_VARARGS, "" },
+	{ "triangulate", (PyCFunction)py_ue_fbx_scene_triangulate, METH_VARARGS, "" },
 	{ "get_root_node", (PyCFunction)py_ue_fbx_scene_get_root_node, METH_VARARGS, "" },
 	{ "get_src_object_count", (PyCFunction)py_ue_fbx_scene_get_src_object_count, METH_VARARGS, "" },
 	{ "get_src_object", (PyCFunction)py_ue_fbx_scene_get_src_object, METH_VARARGS, "" },

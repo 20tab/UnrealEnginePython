@@ -118,6 +118,7 @@ void ue_python_init_fbx(PyObject *module) {
 	ue_python_init_fbx_object(module);
 	ue_python_init_fbx_property(module);
 	ue_python_init_fbx_pose(module);
+	ue_python_init_fbx_mesh(module);
 }
 
 

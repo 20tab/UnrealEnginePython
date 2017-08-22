@@ -175,6 +175,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_package", (PyCFunction)py_unreal_engine_create_package, METH_VARARGS, "" },
 	{ "get_or_create_package", (PyCFunction)py_unreal_engine_get_or_create_package, METH_VARARGS, "" },
 	{ "get_transient_package", (PyCFunction)py_unreal_engine_get_transient_package, METH_VARARGS, "" },
+	
 
 	// slate
 
@@ -485,6 +486,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	// Package
 	{ "package_get_filename", (PyCFunction)py_ue_package_get_filename, METH_VARARGS, "" },
 	{ "package_is_dirty", (PyCFunction)py_ue_package_is_dirty, METH_VARARGS, "" },
+	{ "make_unique_object_name", (PyCFunction)py_ue_package_make_unique_object_name, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	// AssetUserData
