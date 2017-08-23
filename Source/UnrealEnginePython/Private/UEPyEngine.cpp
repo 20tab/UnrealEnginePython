@@ -3,6 +3,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
+#include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
+
 
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
@@ -854,4 +857,135 @@ PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args) {
+	char *title;
+	char *default_path = (char *)"";
+	char *default_file = (char *)"";
+	char *file_types = (char *)"";
+	PyObject *py_multiple = nullptr;
+
+	if (!PyArg_ParseTuple(args, "s|sssO:open_file_dialog", &title, &default_path, &default_file, &file_types, &py_multiple))
+		return nullptr;
+
+	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
+	if (!DesktopPlatform)
+		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");
+
+	TSharedPtr<SWindow> ParentWindow = FGlobalTabmanager::Get()->GetRootWindow();
+	if (!ParentWindow.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get the Root Window");
+
+	if (!ParentWindow->GetNativeWindow().IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get Native Root Window");
+
+	TArray<FString> files;
+
+	if (!DesktopPlatform->OpenFileDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), FString(UTF8_TO_TCHAR(title)),
+		FString(UTF8_TO_TCHAR(default_path)),
+		FString(UTF8_TO_TCHAR(default_file)),
+		FString(UTF8_TO_TCHAR(file_types)),
+		(py_multiple && PyObject_IsTrue(py_multiple)) ? EFileDialogFlags::Multiple : EFileDialogFlags::None,
+		files)) {
+		Py_RETURN_NONE;
+	}
+
+	PyObject *py_list = PyList_New(0);
+	for (FString file : files) {
+		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*file)));
+	}
+	return py_list;
+}
+
+PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args) {
+	char *title;
+	char *default_path = (char *)"";
+
+	if (!PyArg_ParseTuple(args, "s|s:open_directory_dialog", &title, &default_path))
+		return nullptr;
+
+	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
+	if (!DesktopPlatform)
+		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");
+
+	TSharedPtr<SWindow> ParentWindow = FGlobalTabmanager::Get()->GetRootWindow();
+	if (!ParentWindow.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get the Root Window");
+
+	if (!ParentWindow->GetNativeWindow().IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get Native Root Window");
+
+	FString choosen_dir;
+
+	if (!DesktopPlatform->OpenDirectoryDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), FString(UTF8_TO_TCHAR(title)),
+		FString(UTF8_TO_TCHAR(default_path)),
+		choosen_dir)) {
+		Py_RETURN_NONE;
+	}
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*choosen_dir));
+}
+
+PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args) {
+	
+	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
+	if (!DesktopPlatform)
+		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");
+
+	TSharedPtr<SWindow> ParentWindow = FGlobalTabmanager::Get()->GetRootWindow();
+	if (!ParentWindow.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get the Root Window");
+
+	if (!ParentWindow->GetNativeWindow().IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get Native Root Window");
+
+	FString font_name;
+	float height;
+	EFontImportFlags flags;
+
+	if (!DesktopPlatform->OpenFontDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), font_name, height, flags)) {
+		Py_RETURN_NONE;
+	}
+
+	return Py_BuildValue((char*)"(sfi)", TCHAR_TO_UTF8(*font_name), height, flags);
+}
+
+PyObject *py_unreal_engine_save_file_dialog(PyObject *self, PyObject * args) {
+	char *title;
+	char *default_path = (char *)"";
+	char *default_file = (char *)"";
+	char *file_types = (char *)"";
+	PyObject *py_multiple = nullptr;
+
+	if (!PyArg_ParseTuple(args, "s|sssO:save_file_dialog", &title, &default_path, &default_file, &file_types, &py_multiple))
+		return nullptr;
+
+	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
+	if (!DesktopPlatform)
+		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");
+
+	TSharedPtr<SWindow> ParentWindow = FGlobalTabmanager::Get()->GetRootWindow();
+	if (!ParentWindow.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get the Root Window");
+
+	if (!ParentWindow->GetNativeWindow().IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to get Native Root Window");
+
+	TArray<FString> files;
+
+	if (!DesktopPlatform->SaveFileDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), FString(UTF8_TO_TCHAR(title)),
+		FString(UTF8_TO_TCHAR(default_path)),
+		FString(UTF8_TO_TCHAR(default_file)),
+		FString(UTF8_TO_TCHAR(file_types)),
+		(py_multiple && PyObject_IsTrue(py_multiple)) ? EFileDialogFlags::Multiple : EFileDialogFlags::None,
+		files)) {
+		Py_RETURN_NONE;
+	}
+
+	PyObject *py_list = PyList_New(0);
+	for (FString file : files) {
+		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*file)));
+	}
+	return py_list;
 }

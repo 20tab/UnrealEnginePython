@@ -177,6 +177,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_transient_package", (PyCFunction)py_unreal_engine_get_transient_package, METH_VARARGS, "" },
 	
 
+	{ "open_file_dialog", py_unreal_engine_open_file_dialog, METH_VARARGS, "" },
+	{ "save_file_dialog", py_unreal_engine_save_file_dialog, METH_VARARGS, "" },
+	{ "open_directory_dialog", py_unreal_engine_open_directory_dialog, METH_VARARGS, "" },
+	{ "open_font_dialog", py_unreal_engine_open_font_dialog, METH_VARARGS, "" },
+
 	// slate
 
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
