@@ -69,6 +69,7 @@
 
 #include "UEPyFInputEvent.h"
 #include "UEPyFPointerEvent.h"
+#include "UEPyFKeyEvent.h"
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"

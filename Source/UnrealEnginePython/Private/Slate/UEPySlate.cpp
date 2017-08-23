@@ -658,6 +658,7 @@ void ue_python_init_slate(PyObject *module) {
 
 	ue_python_init_finput_event(module);
 	ue_python_init_fpointer_event(module);
+	ue_python_init_fkey_event(module);
 }
 
 PyObject *ue_py_dict_get_item(PyObject *dict, const char *key) {
