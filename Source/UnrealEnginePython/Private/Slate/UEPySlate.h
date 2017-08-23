@@ -67,6 +67,9 @@
 #include "UEPyFGeometry.h"
 #include "UEPyFPaintContext.h"
 
+#include "UEPyFInputEvent.h"
+#include "UEPyFPointerEvent.h"
+
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"
 #include "UEPySLevelViewport.h"

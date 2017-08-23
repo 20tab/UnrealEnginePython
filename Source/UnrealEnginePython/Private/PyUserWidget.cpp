@@ -127,7 +127,82 @@ FReply UPyUserWidget::NativeOnMouseButtonDown(const FGeometry & InGeometry, cons
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"on_mouse_button_down"))
 		return FReply::Unhandled();
 
-	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"on_mouse_button_down", (char *)"OO", py_ue_new_fgeometry(InGeometry), py_ue_new_uscriptstruct(FPointerEvent::StaticStruct(), (uint8 *)&InMouseEvent));
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"on_mouse_button_down", (char *)"OO", py_ue_new_fgeometry(InGeometry), py_ue_new_fpointer_event(InMouseEvent));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FReply::Unhandled();
+	}
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+	Py_DECREF(ret);
+	return FReply::Unhandled();
+}
+
+FReply UPyUserWidget::NativeOnMouseButtonUp(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
+{
+	Super::NativeOnMouseButtonUp(InGeometry, InMouseEvent);
+
+	if (!py_user_widget_instance)
+		return FReply::Unhandled();
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"on_mouse_button_up"))
+		return FReply::Unhandled();
+
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"on_mouse_button_up", (char *)"OO", py_ue_new_fgeometry(InGeometry), py_ue_new_fpointer_event(InMouseEvent));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FReply::Unhandled();
+	}
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+	Py_DECREF(ret);
+	return FReply::Unhandled();
+}
+
+FReply UPyUserWidget::NativeOnMouseWheel(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
+{
+	Super::NativeOnMouseWheel(InGeometry, InMouseEvent);
+
+	if (!py_user_widget_instance)
+		return FReply::Unhandled();
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"on_mouse_wheel"))
+		return FReply::Unhandled();
+
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"on_mouse_wheel", (char *)"OO", py_ue_new_fgeometry(InGeometry), py_ue_new_fpointer_event(InMouseEvent));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return FReply::Unhandled();
+	}
+	if (PyObject_IsTrue(ret)) {
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+	Py_DECREF(ret);
+	return FReply::Unhandled();
+}
+
+FReply UPyUserWidget::NativeOnMouseMove(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
+{
+	Super::NativeOnMouseMove(InGeometry, InMouseEvent);
+
+	if (!py_user_widget_instance)
+		return FReply::Unhandled();
+
+	FScopePythonGIL gil;
+
+	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"on_mouse_move"))
+		return FReply::Unhandled();
+
+	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"on_mouse_move", (char *)"OO", py_ue_new_fgeometry(InGeometry), py_ue_new_fpointer_event(InMouseEvent));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return FReply::Unhandled();
