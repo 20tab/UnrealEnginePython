@@ -17,6 +17,8 @@ PyObject *py_unreal_engine_get_game_viewport_size(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_resolution(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_get_content_dir(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_game_saved_dir(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_game_user_developer_dir(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 PyObject *py_unreal_engine_find_class(PyObject *, PyObject *);

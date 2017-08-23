@@ -155,6 +155,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
 
 	{ "get_content_dir", py_unreal_engine_get_content_dir, METH_VARARGS, "" },
+    { "get_game_saved_dir", py_unreal_engine_get_game_saved_dir, METH_VARARGS, "" },
+    { "get_game_user_developer_dir", py_unreal_engine_get_game_user_developer_dir, METH_VARARGS, "" },
 	{ "convert_relative_path_to_full", py_unreal_engine_convert_relative_path_to_full, METH_VARARGS, "" },
 
 	{ "get_path", py_unreal_engine_get_path, METH_VARARGS, "" },
