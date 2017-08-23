@@ -7,8 +7,18 @@ static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject *
 	return Py_BuildValue("(ff)", size.X, size.Y);
 }
 
+static PyObject *py_ue_fgeometry_absolute_to_local(ue_PyFGeometry *self, PyObject * args) {
+	float x, y;
+	if (!PyArg_ParseTuple(args, "(ff)", &x, &y))
+		return nullptr;
+	FVector2D absolute(x, y);
+	FVector2D local = self->geometry.AbsoluteToLocal(absolute);
+	return Py_BuildValue((char *)"(ff)", local.X, local.Y);
+}
+
 static PyMethodDef ue_PyFGeometry_methods[] = {
 	{ "get_local_size", (PyCFunction)py_ue_fgeometry_get_local_size, METH_VARARGS, "" },
+	{ "absolute_to_local", (PyCFunction)py_ue_fgeometry_absolute_to_local, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
