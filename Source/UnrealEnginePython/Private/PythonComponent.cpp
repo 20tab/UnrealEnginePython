@@ -70,6 +70,7 @@ void UPythonComponent::InitializePythonComponent() {
 	// disable ticking if no tick method is exposed
 	if (!PyObject_HasAttrString(py_component_instance, (char *)"tick") || PythonTickForceDisabled) {
 		PrimaryComponentTick.bCanEverTick = false;
+		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
 
 	if (!PythonDisableAutoBinding)
