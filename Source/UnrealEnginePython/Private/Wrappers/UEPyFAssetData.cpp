@@ -85,7 +85,7 @@ static int ue_py_fassetdata_init(ue_PyFAssetData *self, PyObject *args, PyObject
 
 static PyObject *ue_PyFAssetData_str(ue_PyFAssetData *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.FColor '%s'>",
+	return PyUnicode_FromFormat("<unreal_engine.FAssetData '%s'>",
 		TCHAR_TO_UTF8(*self->asset_data.GetExportTextName()));
 }
 
