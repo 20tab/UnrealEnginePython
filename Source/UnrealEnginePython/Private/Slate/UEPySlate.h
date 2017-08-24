@@ -55,7 +55,7 @@
 #include "UEPySColorBlock.h"
 #include "UEPySBox.h"
 #include "UEPySProgressBar.h"
-
+#include "UEPySSpacer.h"
 
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
