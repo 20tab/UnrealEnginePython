@@ -28,7 +28,7 @@
 FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event) {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_uscriptstruct(FGeometry::StaticStruct(), (uint8 *)&geometry), py_ue_new_fpointer_event(pointer_event));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_fgeometry(geometry), py_ue_new_fpointer_event(pointer_event));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return FReply::Unhandled();
@@ -45,7 +45,7 @@ FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPoin
 FReply UPythonSlateDelegate::OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event) {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_uscriptstruct(FGeometry::StaticStruct(), (uint8 *)&geometry), py_ue_new_uscriptstruct(FKeyEvent::StaticStruct(), (uint8 *)&key_event));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_fgeometry(geometry), py_ue_new_fkey_event(key_event));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return FReply::Unhandled();
