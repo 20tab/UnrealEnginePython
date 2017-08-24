@@ -29,9 +29,19 @@ class SPythonEditableText : public SMultiLineEditableText
 
 	void Construct( const FArguments& InArgs );
 
+	void GetLineAndColumn(int32 & Line, int32 & Column);
+
+	void OnCursorMoved(const FTextLocation & Location) {
+		CurrentLine = Location.GetLineIndex();
+		CurrentColumn = Location.GetOffset();
+	}
+
 private:
 	virtual FReply OnKeyChar(const FGeometry& MyGeometry,const FCharacterEvent& InCharacterEvent) override;
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
 
 	FOnExecuted OnExecuted;
+
+	int32 CurrentLine;
+	int32 CurrentColumn;
 };

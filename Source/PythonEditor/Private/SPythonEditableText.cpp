@@ -6,7 +6,6 @@
 
 void SPythonEditableText::Construct(const FArguments& InArgs)
 {
-
 	SMultiLineEditableText::Construct(
 		SMultiLineEditableText::FArguments()
 		.Font(FPythonEditorStyle::Get().GetWidgetStyle<FTextBlockStyle>("TextEditor.NormalText").Font)
@@ -18,7 +17,8 @@ void SPythonEditableText::Construct(const FArguments& InArgs)
 		.HScrollBar(InArgs._HScrollBar)
 		.VScrollBar(InArgs._VScrollBar)
 		.OnTextChanged(InArgs._OnTextChanged)
-		);
+		.OnCursorMoved(this, &SPythonEditableText::OnCursorMoved)
+	);
 	OnExecuted = InArgs._OnExecuted;
 }
 
@@ -90,5 +90,11 @@ FReply SPythonEditableText::OnKeyDown(const FGeometry& MyGeometry, const FKeyEve
 	//InsertTextAtCursor(test);
 
 	return Reply;
+}
+
+void SPythonEditableText::GetLineAndColumn(int32 & Line, int32 & Column)
+{
+	Line = CurrentLine;
+	Column = CurrentColumn;
 }
 

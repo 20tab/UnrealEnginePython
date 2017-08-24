@@ -22,6 +22,7 @@ public:
 
 private:
 	void OnTextChanged(const FText& NewText);
+	FText GetLineAndColumn() const;
 
 protected:
 	class UPythonProjectItem* PythonProjectItem;

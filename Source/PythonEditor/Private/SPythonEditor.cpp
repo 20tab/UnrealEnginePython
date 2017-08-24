@@ -40,7 +40,7 @@ void SPythonEditor::Construct(const FArguments& InArgs, UPythonProjectItem* InPy
 		[
 			SNew(SGridPanel)
 			.FillColumn(0, 1.0f)
-			.FillRow(0, 1.0f)
+			.FillRow(0, 2.0f)
 			+SGridPanel::Slot(0, 0)
 			[
 				SAssignNew(PythonEditableText, SPythonEditableText)
@@ -59,7 +59,16 @@ void SPythonEditor::Construct(const FArguments& InArgs, UPythonProjectItem* InPy
 			[
 				HorizontalScrollbar.ToSharedRef()
 			]
+			+ SGridPanel::Slot(0, 2)
+			[
+				SNew(SBorder).HAlign(EHorizontalAlignment::HAlign_Right)
+				[
+					SNew(STextBlock)
+					.Text(this, &SPythonEditor::GetLineAndColumn)
+				]
+			]
 		]
+		
 	];
 }
 
@@ -117,6 +126,17 @@ void SPythonEditor::GotoLineAndColumn(int32 LineNumber, int32 ColumnNumber)
 	FTextLocation Location(LineNumber, ColumnNumber);
 	PythonEditableText->GoTo(Location);
 	PythonEditableText->ScrollTo(Location);
+}
+
+FText SPythonEditor::GetLineAndColumn() const
+{
+	int32 Line;
+	int32 Column;
+	PythonEditableText->GetLineAndColumn(Line, Column);
+	
+	FString LineAndColumn = FString::Printf(TEXT("Line: %d Column: %d"), Line, Column);
+	
+	return FText::FromString(LineAndColumn);
 }
 
 #undef LOCTEXT_NAMESPACE
