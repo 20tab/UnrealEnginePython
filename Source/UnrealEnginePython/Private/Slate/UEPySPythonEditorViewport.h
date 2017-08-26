@@ -42,6 +42,10 @@ public:
 		return PreviewScene;
 	}
 
+	TSharedPtr<FSceneViewport> GetSceneViewport() {
+		return SceneViewport;
+	}
+
 	virtual void OnFloatingButtonClicked() override {};
 	virtual TSharedPtr<FExtender> GetExtenders() const override;
 	virtual TSharedRef<SEditorViewport> GetViewportWidget() override;

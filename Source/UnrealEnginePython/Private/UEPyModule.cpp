@@ -32,6 +32,7 @@
 #include "UObject/UEPyController.h"
 #include "UObject/UEPyHUD.h"
 #include "UObject/UEPyAnimSequence.h"
+#include "UObject/UEPyCapture.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -683,6 +684,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 	{ "actor_set_level_sequence", (PyCFunction)py_ue_actor_set_level_sequence, METH_VARARGS, "" },
+
+	// MovieSceneCapture
+	{ "capture_initialize", (PyCFunction)py_ue_capture_initialize, METH_VARARGS, "" },
+	{ "capture_start", (PyCFunction)py_ue_capture_start, METH_VARARGS, "" },
+	{ "capture_stop", (PyCFunction)py_ue_capture_stop, METH_VARARGS, "" },
 
 	// Pawn
 	{ "get_controller", (PyCFunction)py_ue_pawn_get_controller, METH_VARARGS, "" },
