@@ -21,15 +21,16 @@ PyObject *py_ue_capture_initialize(ue_PyUObject * self, PyObject * args) {
 	if (!s_widget)
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 
+#if WITH_EDITOR
 	if (s_widget->s_widget->GetType().Compare(FName("SPythonEditorViewport")) == 0) {
 		TSharedRef<SPythonEditorViewport> s_viewport = StaticCastSharedRef<SPythonEditorViewport>(s_widget->s_widget);
 		capture->Initialize(s_viewport->GetSceneViewport());
+		capture->StartWarmup();
 	}
 	else {
 		return PyErr_Format(PyExc_Exception, "argument is not a supported Viewport-based SWidget");
 	}
-
-	capture->StartWarmup();
+#endif
 
 
 	Py_RETURN_NONE;

@@ -3,8 +3,10 @@
 #include "UEPyFMenuBuilder.h"
 
 #include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
+#if WITH_EDITOR
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Developer/AssetTools/Public/IAssetTools.h"
+#endif
 
 static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args) {
 	char *name;
@@ -79,6 +81,7 @@ static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self,
 	return Py_None;
 }
 
+#if WITH_EDITOR
 static PyObject *py_ue_fmenu_builder_add_asset_actions(ue_PyFMenuBuilder *self, PyObject * args) {
 	PyObject *py_assets;
 
@@ -109,6 +112,7 @@ static PyObject *py_ue_fmenu_builder_add_asset_actions(ue_PyFMenuBuilder *self, 
 	Py_INCREF(Py_False);
 	return Py_False;
 }
+#endif
 
 static PyObject *py_ue_fmenu_builder_add_search_widget(ue_PyFMenuBuilder *self, PyObject * args) {
 	self->menu_builder->AddSearchWidget();
@@ -124,7 +128,9 @@ static PyMethodDef ue_PyFMenuBuilder_methods[] = {
 	{ "add_menu_entry", (PyCFunction)py_ue_fmenu_builder_add_menu_entry, METH_VARARGS, "" },
 	{ "add_menu_separator", (PyCFunction)py_ue_fmenu_builder_add_menu_separator, METH_VARARGS, "" },
 	{ "add_search_widget", (PyCFunction)py_ue_fmenu_builder_add_search_widget, METH_VARARGS, "" },
+#if WITH_EDITOR
 	{ "add_asset_actions", (PyCFunction)py_ue_fmenu_builder_add_asset_actions, METH_VARARGS, "" },
+#endif
 	{ NULL }  /* Sentinel */
 };
 
