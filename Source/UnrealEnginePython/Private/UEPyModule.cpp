@@ -40,6 +40,7 @@
 #include "UEPyEditor.h"
 #include "Blueprint/UEPyEdGraph.h"
 #include "Fbx/UEPyFbx.h"
+#include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2.h"
 #endif
 
 
@@ -1136,6 +1137,13 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 
 	new_object->ClassFlags |= (parent->ClassFlags & (CLASS_Inherit | CLASS_ScriptInherit));
 	new_object->ClassFlags |= CLASS_Native;
+
+#if WITH_EDITOR
+	new_object->SetMetaData(FBlueprintMetadata::MD_AllowableBlueprintVariableType, TEXT("true"));
+	if (new_object->IsChildOf<UActorComponent>()) {
+		new_object->SetMetaData(FBlueprintMetadata::MD_BlueprintSpawnableComponent, TEXT("true"));
+	}
+#endif
 
 	new_object->ClassCastFlags = parent->ClassCastFlags;
 
