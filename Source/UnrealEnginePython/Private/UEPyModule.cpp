@@ -41,6 +41,7 @@
 #include "Blueprint/UEPyEdGraph.h"
 #include "Fbx/UEPyFbx.h"
 #include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2.h"
+#include "Editor/BlueprintGraph/Public/BlueprintActionDatabase.h"
 #endif
 
 
@@ -1109,6 +1110,7 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 			return nullptr;
 	}
 	else {
+		UE_LOG(LogPython, Warning, TEXT("Preparing for overwriting class %s ..."), UTF8_TO_TCHAR(name));
 		is_overwriting = true;
 	}
 
@@ -1116,7 +1118,9 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 		UField *u_field = new_object->Children;
 		while (u_field) {
 			if (u_field->IsA<UFunction>()) {
+				UE_LOG(LogPython, Warning, TEXT("removing function %s"), *u_field->GetName());
 				new_object->RemoveFunctionFromFunctionMap((UFunction *)u_field);
+				FLinkerLoad::InvalidateExport(u_field);
 			}
 			u_field = u_field->Next;
 		}
@@ -1147,8 +1151,8 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 
 	new_object->ClassCastFlags = parent->ClassCastFlags;
 
-	if (!is_overwriting)
-		new_object->Bind();
+
+	new_object->Bind();
 	new_object->StaticLink(true);
 
 	// it could be a class update
@@ -1158,9 +1162,21 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent) {
 		new_object->ClassDefaultObject = nullptr;
 	}
 
+#if WITH_EDITOR
+	new_object->PostEditChange();
+#endif
+
 	new_object->GetDefaultObject()->PostInitProperties();
 
+#if WITH_EDITOR
+	new_object->PostLinkerChange();
+#endif
+
 	new_object->AssembleReferenceTokenStream();
+
+#if WITH_EDITOR
+	FBlueprintActionDatabase::Get().RefreshClassActions(new_object);
+#endif
 
 	return new_object;
 }
@@ -2896,13 +2912,27 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 	u_class->Children = function;
 	u_class->AddFunctionToFunctionMap(function);
 
+	u_class->Bind();
 	u_class->StaticLink(true);
 
 	// regenerate CDO
 	u_class->GetDefaultObject()->RemoveFromRoot();
 	u_class->GetDefaultObject()->ConditionalBeginDestroy();
 	u_class->ClassDefaultObject = nullptr;
+
+#if WITH_EDITOR
+	u_class->PostEditChange();
+#endif
+
 	u_class->GetDefaultObject()->PostInitProperties();
+
+#if WITH_EDITOR
+	u_class->PostLinkerChange();
+#endif
+
+#if WITH_EDITOR
+	FBlueprintActionDatabase::Get().RefreshClassActions(u_class);
+#endif
 
 	return function;
 }
