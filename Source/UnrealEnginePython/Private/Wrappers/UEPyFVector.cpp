@@ -325,6 +325,10 @@ void ue_python_init_fvector(PyObject *ue_module) {
 	if (PyType_Ready(&ue_PyFVectorType) < 0)
 		return;
 
+	PyDict_SetItemString(ue_PyFVectorType.tp_dict, "forward", py_ue_new_fvector(FVector(1, 0, 0)));
+	PyDict_SetItemString(ue_PyFVectorType.tp_dict, "right", py_ue_new_fvector(FVector(0, 1, 0)));
+	PyDict_SetItemString(ue_PyFVectorType.tp_dict, "up", py_ue_new_fvector(FVector(0, 0, 1)));
+
 	Py_INCREF(&ue_PyFVectorType);
 	PyModule_AddObject(ue_module, "FVector", (PyObject *)&ue_PyFVectorType);
 }

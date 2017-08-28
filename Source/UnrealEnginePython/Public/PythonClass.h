@@ -30,7 +30,7 @@ public:
 	ue_PyUObject *py_uobject;
 
 private:
-	
+
 	PyObject *py_constructor;
 };
 

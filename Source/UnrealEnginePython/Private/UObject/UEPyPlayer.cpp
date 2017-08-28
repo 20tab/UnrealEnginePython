@@ -149,7 +149,7 @@ PyObject *py_ue_create_player(ue_PyUObject *self, PyObject * args) {
 
 	APlayerController *controller = UGameplayStatics::CreatePlayer(world, controller_id, b_spawn_pawn);
 	if (!controller)
-		return PyErr_Format(PyExc_Exception, "unable to create a new player fro controller %d", controller_id);
+		return PyErr_Format(PyExc_Exception, "unable to create a new player from controller %d", controller_id);
 
 	return PyLong_FromLong(controller->PlayerState->PlayerId);
 }

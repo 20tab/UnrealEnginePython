@@ -274,7 +274,8 @@ PyObject *py_ue_register_component(ue_PyUObject *self, PyObject * args) {
 
 	UActorComponent *component = (UActorComponent *)self->ue_object;
 
-	component->RegisterComponent();
+	if (!component->IsRegistered())
+		component->RegisterComponent();
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -324,7 +325,8 @@ PyObject *py_ue_unregister_component(ue_PyUObject * self, PyObject * args) {
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
 
-	component->UnregisterComponent();
+	if (component->IsRegistered())
+		component->UnregisterComponent();
 
 	Py_RETURN_NONE;
 }
@@ -392,11 +394,11 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 		scene_component->SetupAttachment(parent_component);
 	}
 
-	if (actor->GetWorld()) {
+	if (actor->GetWorld() && !component->IsRegistered()) {
 		component->RegisterComponent();
 	}
 
-	if (component->bWantsInitializeComponent && !component->HasBeenInitialized())
+	if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
 		component->InitializeComponent();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
@@ -429,11 +431,11 @@ PyObject *py_ue_add_python_component(ue_PyUObject * self, PyObject * args) {
 	component->PythonModule = FString(UTF8_TO_TCHAR(module_name));
 	component->PythonClass = FString(UTF8_TO_TCHAR(class_name));
 
-	if (actor->GetWorld()) {
+	if (actor->GetWorld() && !component->IsRegistered()) {
 		component->RegisterComponent();
 	}
 
-	if (component->bWantsInitializeComponent && !component->HasBeenInitialized())
+	if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
 		component->InitializeComponent();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
@@ -453,23 +455,18 @@ PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * a
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<AActor>()) {
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
 
-	AActor *actor = (AActor *)self->ue_object;
+	UClass *u_class = ue_py_check_type<UClass>(obj);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
-	if (!ue_is_pyuobject(obj)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
+	if (!FUObjectThreadContext::Get().TopInitializer())
+		return PyErr_Format(PyExc_Exception, "CreateDefaultSubobject() can be called only in a constructor");
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<UClass>()) {
-		return PyErr_Format(PyExc_Exception, "argument is not a class");
-	}
-
-	UObject *ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), (UClass *)py_obj->ue_object, false, false, true);
+	UObject *ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, false, true);
 	if (!ret_obj)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 
@@ -513,11 +510,11 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 
 	actor->SetRootComponent(component);
 
-	if (actor->GetWorld()) {
+	if (actor->GetWorld() && !component->IsRegistered()) {
 		component->RegisterComponent();
 	}
 
-	if (component->bWantsInitializeComponent && !component->HasBeenInitialized())
+	if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
 		component->InitializeComponent();
 
 	PyObject *ret = (PyObject *)ue_get_python_wrapper(component);
