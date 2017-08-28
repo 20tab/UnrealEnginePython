@@ -63,6 +63,8 @@ public:
 
 	bool ExecuteInSandbox();
 
+	bool PEP8ize();
+
 	FString GetSafeName(bool IsDirectory);
 
 private:
@@ -81,6 +83,8 @@ private:
 	void Execute_Internal();
 
 	void ExecuteInSandbox_Internal();
+
+	void PEP8ize_Internal();
 
 	bool CanNew() const;
 

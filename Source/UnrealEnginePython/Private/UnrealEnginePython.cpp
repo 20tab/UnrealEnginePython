@@ -161,7 +161,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		char *home = TCHAR_TO_UTF8(*IniValue);
 #endif
 		Py_SetPythonHome(home);
-}
+	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
 		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
@@ -286,6 +286,43 @@ void FUnrealEnginePythonModule::RunString(char *str) {
 	Py_DECREF(eval_ret);
 }
 
+FString FUnrealEnginePythonModule::Pep8ize(FString Code) {
+	PyObject *pep8izer_module = PyImport_ImportModule("autopep8");
+	if (!pep8izer_module) {
+		unreal_engine_py_log_error();
+		UE_LOG(LogPython, Error, TEXT("unable to load autopep8 module, please install it"));
+		// return the original string to avoid losing data
+		return Code;
+	}
+
+	PyObject *pep8izer_func = PyObject_GetAttrString(pep8izer_module, (char*)"fix_code");
+	if (!pep8izer_func) {
+		unreal_engine_py_log_error();
+		UE_LOG(LogPython, Error, TEXT("unable to get autopep8.fix_code function"));
+		// return the original string to avoid losing data
+		return Code;
+	}
+
+	PyObject *ret = PyObject_CallFunction(pep8izer_func, "s", TCHAR_TO_UTF8(*Code));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		// return the original string to avoid losing data
+		return Code;
+	}
+
+	if (!PyUnicode_Check(ret)) {
+		UE_LOG(LogPython, Error, TEXT("returned value is not a string"));
+		// return the original string to avoid losing data
+		return Code;
+	}
+
+	char *pep8ized = PyUnicode_AsUTF8(ret);
+	FString NewCode = FString(pep8ized);
+	Py_DECREF(ret);
+
+	return NewCode;
+}
+
 // run a python string in a new sub interpreter 
 void FUnrealEnginePythonModule::RunStringSandboxed(char *str) {
 	FScopePythonGIL gil;
@@ -345,7 +382,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename) {
 	if (!fd) {
 		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
 		return;
-	}
+}
 #endif
 
 	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
@@ -396,7 +433,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 		Py_EndInterpreter(py_new_state);
 		PyThreadState_Swap(_main);
 		return;
-	}
+}
 	PyObject *global_dict = PyModule_GetDict(m);
 
 #if PY_MAJOR_VERSION >= 3
@@ -441,7 +478,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 
 	Py_EndInterpreter(py_new_state);
 	PyThreadState_Swap(_main);
-}
+	}
 
 #undef LOCTEXT_NAMESPACE
 

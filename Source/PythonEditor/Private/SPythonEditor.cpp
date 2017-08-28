@@ -120,6 +120,16 @@ void SPythonEditor::ExecuteInSandbox() const
 	PythonModule.RunStringSandboxed(TCHAR_TO_UTF8(*SelectionString));
 }
 
+void SPythonEditor::PEP8ize() const
+{
+	Save();
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+
+	FString CleanedCode = PythonModule.Pep8ize(PythonEditableText->GetText().ToString());
+
+	PythonEditableText->SetText(FText::FromString(CleanedCode));
+}
+
 
 void SPythonEditor::GotoLineAndColumn(int32 LineNumber, int32 ColumnNumber)
 {

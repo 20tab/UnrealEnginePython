@@ -273,6 +273,11 @@ void FPythonProjectEditor::BindCommands()
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
 		);
 
+	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().PEP8ize,
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::PEP8ize_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
+	);
+
 }
 
 void FPythonProjectEditor::CloseFileForEditing(UPythonProjectItem* Item)
@@ -493,6 +498,11 @@ void FPythonProjectEditor::Execute_Internal()
 	Execute();
 }
 
+void FPythonProjectEditor::PEP8ize_Internal()
+{
+	PEP8ize();
+}
+
 void FPythonProjectEditor::ExecuteInSandbox_Internal()
 {
 	Execute();
@@ -521,6 +531,16 @@ bool FPythonProjectEditor::ExecuteInSandbox()
 	return true;
 }
 
+bool FPythonProjectEditor::PEP8ize()
+{
+	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
+	{
+		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
+		PythonEditorRef->PEP8ize();
+	}
+
+	return true;
+}
 
 bool FPythonProjectEditor::CanSaveAll() const
 {

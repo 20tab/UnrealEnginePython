@@ -20,6 +20,8 @@ public:
 
 	void GotoLineAndColumn(int32 LineNumber, int32 ColumnNumber);
 
+	void PEP8ize() const;
+
 private:
 	void OnTextChanged(const FText& NewText);
 	FText GetLineAndColumn() const;

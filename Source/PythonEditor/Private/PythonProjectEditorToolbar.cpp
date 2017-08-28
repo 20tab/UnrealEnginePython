@@ -37,6 +37,7 @@ void FPythonProjectEditorToolbar::FillEditorToolbar(FToolBarBuilder& ToolbarBuil
 	{
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().Execute);
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().ExecuteInSandbox);
+		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().PEP8ize);
 	}
 	ToolbarBuilder.EndSection();
 
