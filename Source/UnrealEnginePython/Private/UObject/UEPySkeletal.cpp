@@ -160,6 +160,10 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 	if (!transform)
 		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
 
+	if (skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))) > -1) {
+		return PyErr_Format(PyExc_Exception, "bone %s already exists", name);
+	}
+
 #if WITH_EDITOR
 	skeleton->PreEditChange(nullptr);
 #endif
@@ -180,7 +184,7 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 #endif
 	skeleton->MarkPackageDirty();
 
-	Py_RETURN_NONE;
+	return PyLong_FromLong(skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))));
 }
 #endif
 
@@ -602,7 +606,7 @@ PyObject *py_ue_skeletal_mesh_add_lod(ue_PyUObject *self, PyObject * args) {
 	int32 lod_index = resource->LODModels.Add(new FStaticLODModel());
 
 	FSkeletalMeshLODInfo lod_info;
-	
+
 	mesh->LODInfo.Add(lod_info);
 
 	return PyLong_FromLong(lod_index);
