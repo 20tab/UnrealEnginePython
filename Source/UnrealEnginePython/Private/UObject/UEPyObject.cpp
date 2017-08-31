@@ -395,6 +395,24 @@ PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
 }
 
+PyObject *py_ue_get_display_name(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+#if WITH_EDITOR
+	if (AActor *actor = ue_py_check_type<AActor>(self)) {
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*actor->GetActorLabel()));
+	}
+#endif
+
+	if (UActorComponent *component = ue_py_check_type<UActorComponent>(self)) {
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*component->GetReadableName()));
+	}
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
+}
+
+
 PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -485,7 +503,7 @@ PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args) {
 #endif
 		PyList_Append(ret, py_long);
 		Py_DECREF(py_long);
-	}
+}
 	return ret;
 }
 
