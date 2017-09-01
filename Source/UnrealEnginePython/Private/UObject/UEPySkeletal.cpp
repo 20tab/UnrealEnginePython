@@ -752,3 +752,36 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_FALSE;
 }
 #endif
+
+PyObject *py_ue_skeletal_mesh_init(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	PyObject *py_ss_vertex;
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_init", &py_ss_vertex, &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (resource->LODModels.Num() > 0) {
+		return PyErr_Format(PyExc_Exception, "SkeletalMesh has already a LOD");
+	}
+
+	resource->LODModels.Empty();
+	FStaticLODModel& LODModel = *new (resource->LODModels) FStaticLODModel();
+
+	mesh->LODInfo.Empty();
+	mesh->LODInfo.AddZeroed();
+	mesh->LODInfo[0].LODHysteresis = 0.02;
+
+	FSkeletalMeshOptimizationSettings settings;
+	mesh->LODInfo[0].ReductionSettings = settings;
+
+	LODModel.NumTexCoords = 1;
+
+	Py_RETURN_NONE;
+}

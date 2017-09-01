@@ -29,3 +29,5 @@ PyObject *py_ue_skeletal_mesh_add_lod(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_skeletal_mesh_init(ue_PyUObject *, PyObject *);

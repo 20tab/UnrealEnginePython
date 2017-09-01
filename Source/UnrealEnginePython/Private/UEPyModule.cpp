@@ -752,6 +752,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS, "" },
 #endif
+	{ "skeletal_mesh_init", (PyCFunction)py_ue_skeletal_mesh_init, METH_VARARGS, "" },
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
@@ -763,6 +764,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "texture_get_height", (PyCFunction)py_ue_texture_get_height, METH_VARARGS, "" },
 	{ "render_target_get_data", (PyCFunction)py_ue_render_target_get_data, METH_VARARGS, "" },
 	{ "texture_update_resource", (PyCFunction)py_ue_texture_update_resource, METH_VARARGS, "" },
+
+	{ "texture_get_source_data", (PyCFunction)py_ue_texture_get_source_data, METH_VARARGS, "" },
 
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },
