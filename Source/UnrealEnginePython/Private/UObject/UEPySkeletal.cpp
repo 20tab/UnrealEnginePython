@@ -649,7 +649,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 
 	PyObject *py_ss_vertex;
 	int lod_index = 0;
-	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_sections_num", &py_ss_vertex, &lod_index))
+	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_build_lod", &py_ss_vertex, &lod_index))
 		return nullptr;
 
 	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
@@ -658,8 +658,22 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 
-	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
-		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+	if (lod_index < 0 || lod_index > resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num());
+
+	if (lod_index == resource->LODModels.Num()) {
+		resource->LODModels.Add(new FStaticLODModel());
+		mesh->LODInfo.AddZeroed();
+	}
+
+	FStaticLODModel& LODModel = resource->LODModels[lod_index];
+
+	mesh->LODInfo[lod_index].LODHysteresis = 0.02;
+
+	FSkeletalMeshOptimizationSettings settings;
+	mesh->LODInfo[lod_index].ReductionSettings = settings;
+
+	LODModel.NumTexCoords = 1;
 
 	IMeshUtilities & MeshUtilities = FModuleManager::Get().LoadModuleChecked<IMeshUtilities>("MeshUtilities");
 
@@ -679,6 +693,8 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	TArray<FVector> tangentsX;
 	TArray<FVector> tangentsY;
 	TArray<FVector> tangentsZ;
+	TArray<uint16> material_indices;
+	TArray<uint32> smoothing_groups;
 
 	while (PyObject *py_item = PyIter_Next(py_iter)) {
 		ue_PyFSoftSkinVertex *ss_vertex = py_ue_is_fsoft_skin_vertex(py_item);
@@ -709,6 +725,9 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 		tangentsX.Add(ss_vertex->ss_vertex.TangentX);
 		tangentsY.Add(ss_vertex->ss_vertex.TangentY);
 		tangentsZ.Add(ss_vertex->ss_vertex.TangentZ);
+
+		material_indices.Add(ss_vertex->material_index);
+		smoothing_groups.Add(ss_vertex->smoothing_group);
 	}
 
 	Py_DECREF(py_iter);
@@ -722,8 +741,8 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 		face.iWedge[1] = i + 1;
 		face.iWedge[2] = i + 2;
 
-		face.MeshMaterialIndex = 0;
-		face.SmoothingGroups = 0;
+		face.MeshMaterialIndex = material_indices[i];
+		face.SmoothingGroups = smoothing_groups[i];
 
 		face.TangentX[0] = tangentsX[i];
 		face.TangentX[1] = tangentsX[i + 1];
@@ -742,46 +761,28 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 
 	FStaticLODModel & lod_model = resource->LODModels[lod_index];
 
-	IMeshUtilities::MeshBuildOptions settings;
-	settings.bUseMikkTSpace = true;
+	IMeshUtilities::MeshBuildOptions build_settings;
+	build_settings.bUseMikkTSpace = true;
 
-	if (MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, settings)) {
+	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
+
+	mesh->CalculateRequiredBones(LODModel, mesh->RefSkeleton, nullptr);
+	mesh->CalculateInvRefMatrices();
+
+	mesh->Skeleton->RecreateBoneTree(mesh);
+	mesh->Skeleton->SetPreviewMesh(mesh);
+
+	mesh->Skeleton->PostEditChange();
+	mesh->Skeleton->MarkPackageDirty();
+
+	mesh->PostEditChange();
+	mesh->MarkPackageDirty();
+
+	if (success) {
 		Py_RETURN_TRUE;
 	}
-
-	Py_RETURN_FALSE;
+	else {
+		Py_RETURN_FALSE;
+	}
 }
 #endif
-
-PyObject *py_ue_skeletal_mesh_init(ue_PyUObject *self, PyObject * args) {
-	ue_py_check(self);
-
-	PyObject *py_ss_vertex;
-	int lod_index = 0;
-	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_init", &py_ss_vertex, &lod_index))
-		return nullptr;
-
-	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
-	if (!mesh)
-		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
-
-	FSkeletalMeshResource *resource = mesh->GetImportedResource();
-
-	if (resource->LODModels.Num() > 0) {
-		return PyErr_Format(PyExc_Exception, "SkeletalMesh has already a LOD");
-	}
-
-	resource->LODModels.Empty();
-	FStaticLODModel& LODModel = *new (resource->LODModels) FStaticLODModel();
-
-	mesh->LODInfo.Empty();
-	mesh->LODInfo.AddZeroed();
-	mesh->LODInfo[0].LODHysteresis = 0.02;
-
-	FSkeletalMeshOptimizationSettings settings;
-	mesh->LODInfo[0].ReductionSettings = settings;
-
-	LODModel.NumTexCoords = 1;
-
-	Py_RETURN_NONE;
-}

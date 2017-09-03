@@ -752,7 +752,6 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS, "" },
 #endif
-	{ "skeletal_mesh_init", (PyCFunction)py_ue_skeletal_mesh_init, METH_VARARGS, "" },
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },

@@ -189,6 +189,38 @@ static int py_ue_fsoft_skin_vertex_set_uvs(ue_PyFSoftSkinVertex *self, PyObject 
 	return -1;
 }
 
+static int py_ue_fsoft_skin_vertex_set_material_index(ue_PyFSoftSkinVertex *self, PyObject *value, void *closure) {
+
+	if (PyNumber_Check(value)) {
+		PyObject *py_num = PyNumber_Long(value);
+		self->material_index = PyLong_AsUnsignedLong(py_num);
+		Py_DECREF(py_num);
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a number");
+	return -1;
+}
+
+static PyObject *py_ue_fsoft_skin_vertex_get_material_index(ue_PyFSoftSkinVertex *self, void *closure) {
+	return PyLong_FromUnsignedLong(self->material_index);
+}
+
+static int py_ue_fsoft_skin_vertex_set_smoothing_group(ue_PyFSoftSkinVertex *self, PyObject *value, void *closure) {
+
+	if (PyNumber_Check(value)) {
+		PyObject *py_num = PyNumber_Long(value);
+		self->smoothing_group = PyLong_AsUnsignedLong(py_num);
+		Py_DECREF(py_num);
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a number");
+	return -1;
+}
+
+static PyObject *py_ue_fsoft_skin_vertex_get_smoothing_group(ue_PyFSoftSkinVertex *self, void *closure) {
+	return PyLong_FromUnsignedLong(self->smoothing_group);
+}
+
 static PyGetSetDef ue_PyFSoftSkinVertex_getseters[] = {
 	{ (char *) "color", (getter)py_ue_fsoft_skin_vertex_get_color, (setter)py_ue_fsoft_skin_vertex_set_color, (char *)"", NULL },
 	{ (char *) "influence_bones", (getter)py_ue_fsoft_skin_vertex_get_influence_bones, (setter)py_ue_fsoft_skin_vertex_set_influence_bones, (char *)"", NULL },
@@ -198,6 +230,8 @@ static PyGetSetDef ue_PyFSoftSkinVertex_getseters[] = {
 	{ (char *) "tangent_y", (getter)py_ue_fsoft_skin_vertex_get_tangent_y, (setter)py_ue_fsoft_skin_vertex_set_tangent_y, (char *)"", NULL },
 	{ (char *) "tangent_z", (getter)py_ue_fsoft_skin_vertex_get_tangent_z, (setter)py_ue_fsoft_skin_vertex_set_tangent_z, (char *)"", NULL },
 	{ (char *) "uvs", (getter)py_ue_fsoft_skin_vertex_get_uvs, (setter)py_ue_fsoft_skin_vertex_set_uvs, (char *)"", NULL },
+	{ (char *) "material_index", (getter)py_ue_fsoft_skin_vertex_get_material_index, (setter)py_ue_fsoft_skin_vertex_set_material_index, (char *)"", NULL },
+	{ (char *) "smoothing_group", (getter)py_ue_fsoft_skin_vertex_get_smoothing_group, (setter)py_ue_fsoft_skin_vertex_set_smoothing_group, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 
