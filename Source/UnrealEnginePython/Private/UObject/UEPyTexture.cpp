@@ -60,6 +60,7 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 	return bytes;
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_texture_get_source_data(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -84,6 +85,7 @@ PyObject *py_ue_texture_get_source_data(ue_PyUObject *self, PyObject * args) {
 	tex->Source.UnlockMip(mipmap);
 	return bytes;
 }
+#endif
 
 PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args) {
 

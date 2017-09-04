@@ -764,7 +764,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "render_target_get_data", (PyCFunction)py_ue_render_target_get_data, METH_VARARGS, "" },
 	{ "texture_update_resource", (PyCFunction)py_ue_texture_update_resource, METH_VARARGS, "" },
 
+#if WITH_EDITOR
 	{ "texture_get_source_data", (PyCFunction)py_ue_texture_get_source_data, METH_VARARGS, "" },
+#endif
 
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },
