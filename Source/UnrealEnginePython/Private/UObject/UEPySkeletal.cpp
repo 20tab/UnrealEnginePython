@@ -661,6 +661,8 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	if (lod_index < 0 || lod_index > resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num());
 
+	mesh->PreEditChange(nullptr);
+
 	if (lod_index == resource->LODModels.Num()) {
 		resource->LODModels.Add(new FStaticLODModel());
 		mesh->LODInfo.AddZeroed();
@@ -766,6 +768,14 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 
 	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
 
+	if (!success) {
+		return PyErr_Format(PyExc_Exception, "unable to create new Skeletal LOD");
+	}
+
+	for (int32 i = 0; i < lod_model.Sections.Num(); i++) {
+		mesh->LODInfo[lod_index].TriangleSortSettings.AddZeroed();
+	}
+
 	mesh->CalculateRequiredBones(LODModel, mesh->RefSkeleton, nullptr);
 	mesh->CalculateInvRefMatrices();
 
@@ -778,11 +788,6 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	mesh->PostEditChange();
 	mesh->MarkPackageDirty();
 
-	if (success) {
-		Py_RETURN_TRUE;
-	}
-	else {
-		Py_RETURN_FALSE;
-	}
+	Py_RETURN_NONE;
 }
 #endif
