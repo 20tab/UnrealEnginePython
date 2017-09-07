@@ -228,7 +228,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 	}
 
 #if ENGINE_MINOR_VERSION >= 17
-	const FString mobile_device;
+	const FString mobile_device = FString("");
 	GEditor->RequestPlaySession(&v, &r, false, false, mobile_device);
 #else
 	GEditor->RequestPlaySession(&v, &r, false, false);
