@@ -47,3 +47,5 @@ class DialogException(Exception):
 raising DialogException(message) will trigger something like this:
 
 ![Python Exception](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/python_exception.PNG)
+
+Finally, most of the scripts (for safety reasons) generate a copy of the original object. You are obviously free to update the original objects (at your risk !)
