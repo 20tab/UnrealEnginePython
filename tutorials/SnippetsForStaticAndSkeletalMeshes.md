@@ -28,3 +28,22 @@ This is a screenshot of getting the name of the selected assets using python lis
 ![Content Browser](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/content_browser.PNG)
 
 ![get_selected_assets](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/get_selected_assets.PNG)
+
+Another convention used in the snippets will be using a custom python Exception whenever an error must be returned to the user:
+
+```python
+import unreal_engine as ue
+
+class DialogException(Exception):
+    """
+    Handy exception class for spawning a message dialog on error
+    """
+    def __init__(self, message):
+        # 0 here, means "show only the Ok button", for other values
+        # check https://docs.unrealengine.com/latest/INT/API/Runtime/Core/GenericPlatform/EAppMsgType__Type/index.html
+        ue.message_dialog_open(0, message)
+```
+
+raising DialogException(message) will trigger something like this:
+
+![Python Exception](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/python_exception.PNG)
