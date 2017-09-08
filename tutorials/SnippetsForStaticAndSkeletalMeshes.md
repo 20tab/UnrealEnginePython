@@ -191,4 +191,6 @@ The result will be the mannequin changing color based on the distance from the v
 
 ## StaticMesh: Merging
 
-This snippet shows how to build a new StaticMesh by combining multiple ones. It could be very handy in case of wrongly exported models, or as an optimization. The mesh_merge() function takes an option parameter 'merge_materials' to instruct the script to generate a material slot for each mesh, or to use a single material for all of them (reducing draw calls, but very probably breaking the result)
+This snippet shows how to build a new StaticMesh by combining multiple ones. It could be very handy in case of wrongly exported models, or as an optimization. The mesh_merge() function takes an optional parameter 'merge_materials' to instruct the script to generate a material slot for each mesh, or to use a single material for all of them (reducing draw calls, but very probably breaking the result).
+
+Instead of automatically generating the asset name, a dialog will open asking for the path. Note: all of the selected Static Meshes will be merged in a single new one.
