@@ -62,3 +62,43 @@ This is a mesh with a "weird" pivot:
 for fixing it, we need to get the mesh bounds (you can see them by clicking the button "Bounds" in the toolbar ot the StaticMeshEditor) and its origin and then subtract this vector to each mesh vertex (in this way the origin of the bounds will became the origin of the vertices too):
 
 ![Weird Pivot](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mesh_bounds.PNG)
+
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import StaticMesh
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
+
+def fix_pivot(static_mesh):
+    if not static_mesh.is_a(StaticMesh):
+        raise DialogException('Asset is not a StaticMesh')
+        
+    # get the package name of the asset (will be used for duplication in the same folder)
+    package_name = static_mesh.get_outermost().get_name()
+    new_asset_name = '{0}_RePivoted'.format(static_mesg.get_name())
+        
+    # get the origin of the mesh bounds
+    center = static_mesh.ExtendedBounds.Origin
+    
+    # get the raw data of the mesh, FRawMesh is a strcture holding vertices, uvs, tangents, material indices of a LOD (by default lod 0)
+    raw_mesh = sm.get_raw_mesh()   
+    
+    # now we create a duplicate of the mesh in the same package of the original one, but adding the suffix _RePivoted to the name
+    new_static_mesh = static_mesh.duplicate(package_name, new_asset_name)
+    
+    # time to fix each vertex
+    updated_positions = []
+
+    for vertex in raw_mesh.get_vertex_positions():
+        updated_positions.append(vertex - center)
+        # this is a trick for giving back control to Unreal Engine avoiding python to block it on slow operations
+        ue.slate_tick()
+        
+    raw_mesh.save_to_static_mesh_source_model(new_static_mesh.SourceModels[0])
+    new_static_mesh.static_mesh_build()
+    new_static_mesh.static_mesh_create_body_setup()
+    new_static_mesh.save_package()
+
+for uobject in ue.get_selected_assets():
+    fix_pivot(uobject)
+```
