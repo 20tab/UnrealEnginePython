@@ -60,6 +60,8 @@ void FPythonEditorStyle::Initialize()
 		StyleSet->Set("PythonEditor.Execute.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 		StyleSet->Set("PythonEditor.ExecuteInSandbox", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
 		StyleSet->Set("PythonEditor.ExecuteInSandbox.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
+		StyleSet->Set("PythonEditor.PEP8ize", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
+		StyleSet->Set("PythonEditor.PEP8ize.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 	}
 
 	const FSlateFontInfo Consolas10  = TTF_FONT("Font/DroidSansMono", 9);

@@ -49,7 +49,7 @@ static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObjec
 	PyObject *py_brush = nullptr;
 	PyObject *py_linear_color = nullptr;
 
-	if (!PyArg_ParseTuple(args, "(ff)(ff)|OO:draw_line", &x, &y, &w, &h, &py_linear_color, &py_brush))
+	if (!PyArg_ParseTuple(args, "(ff)(ff)|OO:draw_box", &x, &y, &w, &h, &py_linear_color, &py_brush))
 		return nullptr;
 
 	FLinearColor tint = FLinearColor::White;
@@ -85,6 +85,7 @@ static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObjec
 
 	Py_RETURN_NONE;
 }
+
 
 static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObject * args) {
 	float x, y;

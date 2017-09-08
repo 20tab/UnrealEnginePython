@@ -121,7 +121,8 @@ public class UnrealEnginePython : ModuleRules
                 "AppFramework",
                 "RHI",
                 "Voice",
-                "RenderCore"
+                "RenderCore",
+                "MovieSceneCapture"
 				// ... add private dependencies that you statically link with here ...
 			}
             );

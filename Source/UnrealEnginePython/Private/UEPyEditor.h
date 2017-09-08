@@ -49,6 +49,8 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject *, PyObject *)
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject *, PyObject *);
 PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_get_blueprint_components(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_editor_play(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject *, PyObject *);
 

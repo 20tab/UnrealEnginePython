@@ -1,6 +1,9 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
+#if WITH_EDITOR
+#include "Developer/MeshUtilities/Public/MeshUtilities.h"
+#endif
 
 
 PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args) {
@@ -157,6 +160,10 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 	if (!transform)
 		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
 
+	if (skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))) > -1) {
+		return PyErr_Format(PyExc_Exception, "bone %s already exists", name);
+	}
+
 #if WITH_EDITOR
 	skeleton->PreEditChange(nullptr);
 #endif
@@ -177,7 +184,7 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 #endif
 	skeleton->MarkPackageDirty();
 
-	Py_RETURN_NONE;
+	return PyLong_FromLong(skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))));
 }
 #endif
 
@@ -239,6 +246,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 #if WITH_EDITOR
 	mesh->PostEditChange();
 #endif
+
 	mesh->InitResources();
 	mesh->MarkPackageDirty();
 
@@ -273,7 +281,7 @@ PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * a
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < model.Sections[section_index].SoftVertices.Num();i++) {
+	for (int32 i = 0; i < model.Sections[section_index].SoftVertices.Num(); i++) {
 		PyList_Append(py_list, py_ue_new_fsoft_skin_vertex(model.Sections[section_index].SoftVertices[i]));
 	}
 
@@ -584,5 +592,202 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	mesh->MarkPackageDirty();
 
 	Py_RETURN_NONE;
-
 }
+
+PyObject *py_ue_skeletal_mesh_add_lod(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	int32 lod_index = resource->LODModels.Add(new FStaticLODModel());
+
+	FSkeletalMeshLODInfo lod_info;
+
+	mesh->LODInfo.Add(lod_info);
+
+	return PyLong_FromLong(lod_index);
+}
+
+PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	return PyLong_FromLong(resource->LODModels.Num());
+}
+
+PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_sections_num", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	return PyLong_FromLong(resource->LODModels[lod_index].Sections.Num());
+}
+
+#if WITH_EDITOR
+PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
+	ue_py_check(self);
+
+	PyObject *py_ss_vertex;
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_build_lod", &py_ss_vertex, &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index > resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num());
+
+	mesh->PreEditChange(nullptr);
+
+	if (lod_index == resource->LODModels.Num()) {
+		resource->LODModels.Add(new FStaticLODModel());
+		mesh->LODInfo.AddZeroed();
+	}
+
+	FStaticLODModel& LODModel = resource->LODModels[lod_index];
+
+	mesh->LODInfo[lod_index].LODHysteresis = 0.02;
+
+	FSkeletalMeshOptimizationSettings settings;
+	mesh->LODInfo[lod_index].ReductionSettings = settings;
+
+	LODModel.NumTexCoords = 1;
+
+	IMeshUtilities & MeshUtilities = FModuleManager::Get().LoadModuleChecked<IMeshUtilities>("MeshUtilities");
+
+	PyObject *py_iter = PyObject_GetIter(py_ss_vertex);
+	if (!py_iter) {
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable of FSoftSkinVertex");
+	}
+
+	TArray<FSoftSkinVertex> soft_vertices;
+
+	TArray<FVector> points;
+	TArray<FMeshWedge> wedges;
+	TArray<FMeshFace> faces;
+	TArray<FVertInfluence> influences;
+	TArray<int32> points_to_map;
+
+	TArray<FVector> tangentsX;
+	TArray<FVector> tangentsY;
+	TArray<FVector> tangentsZ;
+	TArray<uint16> material_indices;
+	TArray<uint32> smoothing_groups;
+
+	while (PyObject *py_item = PyIter_Next(py_iter)) {
+		ue_PyFSoftSkinVertex *ss_vertex = py_ue_is_fsoft_skin_vertex(py_item);
+		if (!ss_vertex) {
+			Py_DECREF(py_iter);
+			return PyErr_Format(PyExc_Exception, "argument is not an iterable of FSoftSkinVertex");
+		}
+		int32 vertex_index = points.Add(ss_vertex->ss_vertex.Position);
+
+		points_to_map.Add(vertex_index);
+
+		FMeshWedge wedge;
+		wedge.iVertex = vertex_index;
+		wedge.Color = ss_vertex->ss_vertex.Color;
+		for (int32 i = 0; i < MAX_TEXCOORDS; i++) {
+			wedge.UVs[i] = ss_vertex->ss_vertex.UVs[i];
+		}
+		int32 wedge_index = wedges.Add(wedge);
+
+		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++) {
+			FVertInfluence influence;
+			influence.VertIndex = wedge_index;
+			influence.BoneIndex = ss_vertex->ss_vertex.InfluenceBones[i];
+			influence.Weight = ss_vertex->ss_vertex.InfluenceWeights[i];
+			influences.Add(influence);
+		}
+
+		tangentsX.Add(ss_vertex->ss_vertex.TangentX);
+		tangentsY.Add(ss_vertex->ss_vertex.TangentY);
+		tangentsZ.Add(ss_vertex->ss_vertex.TangentZ);
+
+		material_indices.Add(ss_vertex->material_index);
+		smoothing_groups.Add(ss_vertex->smoothing_group);
+	}
+
+	Py_DECREF(py_iter);
+
+	if (wedges.Num() % 3 != 0)
+		return PyErr_Format(PyExc_Exception, "invalid number of FSoftSkinVertex, must be a multiple of 3");
+
+	for (int32 i = 0; i < wedges.Num(); i += 3) {
+		FMeshFace face;
+		face.iWedge[0] = i;
+		face.iWedge[1] = i + 1;
+		face.iWedge[2] = i + 2;
+
+		face.MeshMaterialIndex = material_indices[i];
+		face.SmoothingGroups = smoothing_groups[i];
+
+		face.TangentX[0] = tangentsX[i];
+		face.TangentX[1] = tangentsX[i + 1];
+		face.TangentX[2] = tangentsX[i + 2];
+
+		face.TangentY[0] = tangentsY[i];
+		face.TangentY[1] = tangentsY[i + 1];
+		face.TangentY[2] = tangentsY[i + 2];
+
+		face.TangentZ[0] = tangentsZ[i];
+		face.TangentZ[1] = tangentsZ[i + 1];
+		face.TangentZ[2] = tangentsZ[i + 2];
+
+		faces.Add(face);
+	}
+
+	FStaticLODModel & lod_model = resource->LODModels[lod_index];
+
+	IMeshUtilities::MeshBuildOptions build_settings;
+	build_settings.bUseMikkTSpace = true;
+
+	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
+
+	if (!success) {
+		return PyErr_Format(PyExc_Exception, "unable to create new Skeletal LOD");
+	}
+
+	for (int32 i = 0; i < lod_model.Sections.Num(); i++) {
+		mesh->LODInfo[lod_index].TriangleSortSettings.AddZeroed();
+	}
+
+	mesh->CalculateRequiredBones(LODModel, mesh->RefSkeleton, nullptr);
+	mesh->CalculateInvRefMatrices();
+
+	mesh->Skeleton->RecreateBoneTree(mesh);
+	mesh->Skeleton->SetPreviewMesh(mesh);
+
+	mesh->Skeleton->PostEditChange();
+	mesh->Skeleton->MarkPackageDirty();
+
+	mesh->PostEditChange();
+	mesh->MarkPackageDirty();
+
+	Py_RETURN_NONE;
+}
+#endif

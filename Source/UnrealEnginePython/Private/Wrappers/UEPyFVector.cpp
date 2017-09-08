@@ -14,6 +14,11 @@ static PyObject *py_ue_fvector_normalized(ue_PyFVector *self, PyObject * args) {
 	return py_ue_new_fvector(vec);
 }
 
+static PyObject *py_ue_fvector_rotation(ue_PyFVector *self, PyObject * args) {
+	FRotator rot = self->vec.Rotation();
+	return py_ue_new_frotator(rot);
+}
+
 static PyObject *py_ue_fvector_dot(ue_PyFVector *self, PyObject * args) {
 	PyObject *py_obj;
 	if (!PyArg_ParseTuple(args, "O:dot", &py_obj))
@@ -62,6 +67,7 @@ static PyMethodDef ue_PyFVector_methods[] = {
 	{ "size_squared", (PyCFunction)py_ue_fvector_length_squared, METH_VARARGS, "" },
 	{ "length_squared", (PyCFunction)py_ue_fvector_length_squared, METH_VARARGS, "" },
 	{ "normalized", (PyCFunction)py_ue_fvector_normalized, METH_VARARGS, "" },
+	{ "rotation", (PyCFunction)py_ue_fvector_rotation, METH_VARARGS, "" },
 	{ "dot", (PyCFunction)py_ue_fvector_dot, METH_VARARGS, "" },
 	{ "cross", (PyCFunction)py_ue_fvector_cross, METH_VARARGS, "" },
 	{ "project_on_to", (PyCFunction)py_ue_fvector_project_on_to, METH_VARARGS, "" },
@@ -324,6 +330,10 @@ void ue_python_init_fvector(PyObject *ue_module) {
 
 	if (PyType_Ready(&ue_PyFVectorType) < 0)
 		return;
+
+	PyDict_SetItemString(ue_PyFVectorType.tp_dict, "forward", py_ue_new_fvector(FVector(1, 0, 0)));
+	PyDict_SetItemString(ue_PyFVectorType.tp_dict, "right", py_ue_new_fvector(FVector(0, 1, 0)));
+	PyDict_SetItemString(ue_PyFVectorType.tp_dict, "up", py_ue_new_fvector(FVector(0, 0, 1)));
 
 	Py_INCREF(&ue_PyFVectorType);
 	PyModule_AddObject(ue_module, "FVector", (PyObject *)&ue_PyFVectorType);

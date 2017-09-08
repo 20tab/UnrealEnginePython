@@ -60,6 +60,33 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 	return bytes;
 }
 
+#if WITH_EDITOR
+PyObject *py_ue_texture_get_source_data(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	int mipmap = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:texture_get_data", &mipmap)) {
+		return NULL;
+	}
+
+	UTexture2D *tex = ue_py_check_type<UTexture2D>(self);
+	if (!tex)
+		return PyErr_Format(PyExc_Exception, "object is not a Texture2D");
+
+	if (mipmap >= tex->GetNumMips())
+		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
+
+	const uint8 *blob = tex->Source.LockMip(mipmap);
+
+	PyObject *bytes = PyByteArray_FromStringAndSize((const char *)blob, (Py_ssize_t)tex->Source.CalcMipSize(mipmap));
+
+	tex->Source.UnlockMip(mipmap);
+	return bytes;
+}
+#endif
+
 PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);

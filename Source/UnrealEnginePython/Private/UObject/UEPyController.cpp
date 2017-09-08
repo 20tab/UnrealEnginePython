@@ -10,22 +10,13 @@ PyObject *py_ue_controller_posses(ue_PyUObject * self, PyObject * args) {
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<AController>()) {
+	AController *controller = ue_py_check_type<AController>(self);
+	if (!controller)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
-	}
 
-	if (!ue_is_pyuobject(obj)) {
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<APawn>()) {
-		return PyErr_Format(PyExc_Exception, "argument is not a APAwn");
-	}
-
-	APawn *pawn = (APawn *)py_obj->ue_object;
-	AController *controller = (AController *)self->ue_object;
+	APawn *pawn = ue_py_check_type<APawn>(obj);
+	if (!pawn)
+		return PyErr_Format(PyExc_Exception, "uobject is not an APawn");
 
 	controller->Possess(pawn);
 
@@ -37,11 +28,11 @@ PyObject *py_ue_controller_get_hud(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	AController *controller = ue_py_check_type<AController>(self);
+	APlayerController *controller = ue_py_check_type<APlayerController>(self);
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
 
-	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)controller);
+	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)controller->GetHUD());
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
@@ -52,14 +43,35 @@ PyObject *py_ue_controller_unposses(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<AController>()) {
+	AController *controller = ue_py_check_type<AController>(self);
+	if (!controller)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
-	}
-
-	AController *controller = (AController *)self->ue_object;
 
 	controller->UnPossess();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_get_controlled_pawn(ue_PyUObject * self, PyObject * args) {
+
+	ue_py_check(self);
+
+	AController *controller = ue_py_check_type<AController>(self);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
+
+#if ENGINE_MINOR_VERSION >= 15
+	APawn *pawn = controller->GetPawn();
+#else
+	APawn *pawn = controller->GetControlledPawn();
+#endif
+	if (!pawn) {
+		Py_RETURN_NONE;
+	}
+
+	ue_PyUObject *ret = ue_get_python_wrapper(pawn);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 }

@@ -228,12 +228,12 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 	}
 
 #if ENGINE_MINOR_VERSION >= 17
-	const FString mobile_device;
+	const FString mobile_device = FString("");
 	GEditor->RequestPlaySession(&v, &r, false, false, mobile_device);
 #else
 	GEditor->RequestPlaySession(&v, &r, false, false);
 #endif
-	
+
 	Py_RETURN_NONE;
 }
 
@@ -1111,6 +1111,31 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 
 }
 
+PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * args) {
+
+	PyObject *py_blueprint;
+
+	if (!PyArg_ParseTuple(args, "O|:add_component_to_blueprint", &py_blueprint)) {
+		return NULL;
+	}
+
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Blueprint");
+
+	PyObject *py_list = PyList_New(0);
+
+	for (USCS_Node *node : bp->SimpleConstructionScript->GetAllNodes()) {
+
+		ue_PyUObject *item = ue_get_python_wrapper(node->ComponentTemplate);
+		if (item)
+			PyList_Append(py_list, (PyObject *)item);
+
+	}
+	return py_list;
+
+}
+
 PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject * args) {
 
 	PyObject *py_blueprint;
@@ -1254,7 +1279,7 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
+	}
 
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args) {
 

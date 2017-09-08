@@ -138,6 +138,85 @@ static PyObject *py_ue_spython_editor_viewport_simulate(ue_PySPythonEditorViewpo
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_spython_editor_viewport_set_light_color(ue_PySPythonEditorViewport *self, PyObject * args) {
+	PyObject *py_obj;
+
+	if (!PyArg_ParseTuple(args, "O", &py_obj))
+		return nullptr;
+
+	ue_PyFColor *py_fcolor = py_ue_is_fcolor(py_obj);
+	if (!py_fcolor)
+		return PyErr_Format(PyExc_Exception, "argument is not a FColor");
+
+	sw_python_editor_viewport->GetPreviewScene()->SetLightColor(py_fcolor->color);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_spython_editor_viewport_set_light_direction(ue_PySPythonEditorViewport *self, PyObject * args) {
+	float roll = 0, pitch = 0, yaw = 0;
+
+	FRotator rot;
+
+	if (PyTuple_Size(args) == 1) {
+		ue_PyFRotator *ue_py_rot = py_ue_is_frotator(PyTuple_GetItem(args, 0));
+		if (!ue_py_rot) {
+			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
+		}
+		rot = ue_py_rot->rot;
+	}
+	else {
+		if (!PyArg_ParseTuple(args, "fff", &roll, &pitch, &yaw)) {
+			return nullptr;;
+		}
+		rot.Roll = roll;
+		rot.Pitch = pitch;
+		rot.Yaw = yaw;
+	}
+
+	sw_python_editor_viewport->GetPreviewScene()->SetLightDirection(rot);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_spython_editor_viewport_set_sky_brightness(ue_PySPythonEditorViewport *self, PyObject * args) {
+	float brightness;
+
+	if (!PyArg_ParseTuple(args, "f", &brightness))
+		return nullptr;
+
+	sw_python_editor_viewport->GetPreviewScene()->SetSkyBrightness(brightness);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_spython_editor_viewport_set_light_brightness(ue_PySPythonEditorViewport *self, PyObject * args) {
+	float brightness;
+
+	if (!PyArg_ParseTuple(args, "f", &brightness))
+		return nullptr;
+
+	sw_python_editor_viewport->GetPreviewScene()->SetLightBrightness(brightness);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
+static PyObject *py_ue_spython_editor_viewport_get_light(ue_PySPythonEditorViewport *self, PyObject * args) {
+
+	UDirectionalLightComponent *light = sw_python_editor_viewport->GetPreviewScene()->DirectionalLight;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(light);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
 	{ "simulate", (PyCFunction)py_ue_spython_editor_viewport_simulate, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_spython_editor_viewport_get_world, METH_VARARGS, "" },
@@ -147,6 +226,11 @@ static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
 	{ "set_exposure_settings", (PyCFunction)py_ue_spython_editor_viewport_set_exposure_settings, METH_VARARGS, "" },
 	{ "set_view_location", (PyCFunction)py_ue_spython_editor_viewport_set_view_location, METH_VARARGS, "" },
 	{ "set_view_rotation", (PyCFunction)py_ue_spython_editor_viewport_set_view_rotation, METH_VARARGS, "" },
+	{ "set_light_color", (PyCFunction)py_ue_spython_editor_viewport_set_light_color, METH_VARARGS, "" },
+	{ "set_light_direction", (PyCFunction)py_ue_spython_editor_viewport_set_light_direction, METH_VARARGS, "" },
+	{ "set_light_brightness", (PyCFunction)py_ue_spython_editor_viewport_set_light_brightness, METH_VARARGS, "" },
+	{ "set_sky_brightness", (PyCFunction)py_ue_spython_editor_viewport_set_sky_brightness, METH_VARARGS, "" },
+	{ "get_light", (PyCFunction)py_ue_spython_editor_viewport_get_light, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -239,7 +323,10 @@ UWorld *SPythonEditorViewport::GetPythonWorld() {
 }
 
 TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClient() {
-	TSharedPtr<FEditorViewportClient> client = MakeShareable(new FPythonEditorViewportClient(nullptr, new FPreviewScene(), SharedThis(this)));
+
+	PreviewScene = new FPreviewScene();
+
+	TSharedPtr<FEditorViewportClient> client = MakeShareable(new FPythonEditorViewportClient(nullptr, PreviewScene, SharedThis(this)));
 
 	client->SetRealtime(true);
 

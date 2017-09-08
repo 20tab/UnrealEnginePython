@@ -30,5 +30,11 @@
 			"Type" : "Editor",
 			"LoadingPhase": "PostDefault"
 		}
+  ],
+  "Plugins": [
+    {
+      "Name": "LevelSequenceEditor",
+      "Enabled": true
+    }
 	]
 }

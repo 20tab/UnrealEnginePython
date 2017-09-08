@@ -458,7 +458,7 @@ static PyObject *py_ue_fraw_mesh_get_vertex_positions(ue_PyFRawMesh *self, PyObj
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.VertexPositions.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.VertexPositions.Num(); i++) {
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.VertexPositions[i]));
 	}
 
@@ -469,7 +469,7 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tangent_x(ue_PyFRawMesh *self, PyObje
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.WedgeTangentX.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.WedgeTangentX.Num(); i++) {
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.WedgeTangentX[i]));
 	}
 
@@ -480,7 +480,7 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tangent_y(ue_PyFRawMesh *self, PyObje
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.WedgeTangentY.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.WedgeTangentY.Num(); i++) {
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.WedgeTangentY[i]));
 	}
 
@@ -491,7 +491,7 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tangent_z(ue_PyFRawMesh *self, PyObje
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.WedgeTangentZ.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.WedgeTangentZ.Num(); i++) {
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.WedgeTangentZ[i]));
 	}
 
@@ -502,7 +502,7 @@ static PyObject *py_ue_fraw_mesh_get_wedge_colors(ue_PyFRawMesh *self, PyObject 
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.WedgeColors.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.WedgeColors.Num(); i++) {
 		PyList_Append(py_list, py_ue_new_fcolor(self->raw_mesh.WedgeColors[i]));
 	}
 
@@ -513,18 +513,22 @@ static PyObject *py_ue_fraw_mesh_get_wedge_indices(ue_PyFRawMesh *self, PyObject
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.WedgeIndices.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.WedgeIndices.Num(); i++) {
 		PyList_Append(py_list, PyLong_FromUnsignedLong(self->raw_mesh.WedgeIndices[i]));
 	}
 
 	return py_list;
 }
 
+static PyObject *py_ue_fraw_mesh_get_wedges_num(ue_PyFRawMesh *self, PyObject * args) {
+	return PyLong_FromUnsignedLong(self->raw_mesh.WedgeIndices.Num());
+}
+
 static PyObject *py_ue_fraw_mesh_get_face_material_indices(ue_PyFRawMesh *self, PyObject * args) {
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.FaceMaterialIndices.Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.FaceMaterialIndices.Num(); i++) {
 		PyList_Append(py_list, PyLong_FromUnsignedLong(self->raw_mesh.FaceMaterialIndices[i]));
 	}
 
@@ -543,7 +547,7 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tex_coords(ue_PyFRawMesh *self, PyObj
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0;i < self->raw_mesh.WedgeTexCoords[index].Num();i++) {
+	for (int32 i = 0; i < self->raw_mesh.WedgeTexCoords[index].Num(); i++) {
 		PyList_Append(py_list, Py_BuildValue((char*)"(ff)", self->raw_mesh.WedgeTexCoords[index][i].X, self->raw_mesh.WedgeTexCoords[index][i].Y));
 	}
 
@@ -570,6 +574,7 @@ static PyMethodDef ue_PyFRawMesh_methods[] = {
 	{ "get_wedge_colors", (PyCFunction)py_ue_fraw_mesh_get_wedge_colors, METH_VARARGS, "" },
 	{ "get_face_material_indices", (PyCFunction)py_ue_fraw_mesh_get_face_material_indices, METH_VARARGS, "" },
 	{ "save_to_static_mesh_source_model", (PyCFunction)py_ue_fraw_mesh_save_to_static_mesh_source_model, METH_VARARGS, "" },
+	{ "get_wedges_num", (PyCFunction)py_ue_fraw_mesh_get_wedges_num, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

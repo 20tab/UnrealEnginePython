@@ -21,4 +21,5 @@ PyObject *py_ue_texture_update_resource(ue_PyUObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject *);
+PyObject *py_ue_texture_get_source_data(ue_PyUObject *, PyObject *);
 #endif

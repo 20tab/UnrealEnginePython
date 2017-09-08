@@ -38,7 +38,14 @@ public:
 		}
 	}
 
-	
+	FPreviewScene * GetPreviewScene() {
+		return PreviewScene;
+	}
+
+	TSharedPtr<FSceneViewport> GetSceneViewport() {
+		return SceneViewport;
+	}
+
 	virtual void OnFloatingButtonClicked() override {};
 	virtual TSharedPtr<FExtender> GetExtenders() const override;
 	virtual TSharedRef<SEditorViewport> GetViewportWidget() override;
@@ -46,6 +53,8 @@ public:
 protected:
 	virtual TSharedRef<FEditorViewportClient> MakeEditorViewportClient() override;
 	virtual TSharedPtr<SWidget> MakeViewportToolbar() override;
-	
+
+	FPreviewScene *PreviewScene;
+
 	bool bSimulate;
 };

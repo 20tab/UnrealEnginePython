@@ -1,7 +1,6 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
-
 PyObject *py_ue_add_controller_yaw_input(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
@@ -16,8 +15,7 @@ PyObject *py_ue_add_controller_yaw_input(ue_PyUObject *self, PyObject * args) {
 	if (self->ue_object->IsA<APawn>()) {
 		pawn = (APawn *)self->ue_object;
 	}
-	else if (self->ue_object->IsA<UActorComponent>()) {
-		UActorComponent *component = (UActorComponent *)self->ue_object;
+	else if (UActorComponent *component = ue_py_check_type<UActorComponent>(self)) {
 		AActor *actor = component->GetOwner();
 		if (actor) {
 			if (actor->IsA<APawn>()) {
@@ -25,14 +23,17 @@ PyObject *py_ue_add_controller_yaw_input(ue_PyUObject *self, PyObject * args) {
 			}
 		}
 	}
+	else if (APlayerController *player = ue_py_check_type<APlayerController>(self)) {
+		player->AddYawInput(val);
+		Py_RETURN_NONE;
+	}
 
 	if (!pawn)
-		return PyErr_Format(PyExc_Exception, "uobject is not a pawn");
+		return PyErr_Format(PyExc_Exception, "uobject is not a Pawn or a PlayerController");
 
 	pawn->AddControllerYawInput(val);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_add_controller_pitch_input(ue_PyUObject *self, PyObject * args) {
@@ -58,14 +59,52 @@ PyObject *py_ue_add_controller_pitch_input(ue_PyUObject *self, PyObject * args) 
 			}
 		}
 	}
+	else if (APlayerController *player = ue_py_check_type<APlayerController>(self)) {
+		player->AddPitchInput(val);
+		Py_RETURN_NONE;
+	}
 
 	if (!pawn)
-		return PyErr_Format(PyExc_Exception, "uobject is not a pawn");
+		return PyErr_Format(PyExc_Exception, "uobject is not a Pawn or a PlayerController");
 
 	pawn->AddControllerPitchInput(val);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_add_controller_roll_input(ue_PyUObject *self, PyObject * args) {
+
+	ue_py_check(self);
+
+	float val;
+	if (!PyArg_ParseTuple(args, "f:add_controller_roll_input", &val)) {
+		return NULL;
+	}
+
+	APawn *pawn = nullptr;
+
+	if (self->ue_object->IsA<APawn>()) {
+		pawn = (APawn *)self->ue_object;
+	}
+	else if (UActorComponent *component = ue_py_check_type<UActorComponent>(self)) {
+		AActor *actor = component->GetOwner();
+		if (actor) {
+			if (actor->IsA<APawn>()) {
+				pawn = (APawn *)actor;
+			}
+		}
+	}
+	else if (APlayerController *player = ue_py_check_type<APlayerController>(self)) {
+		player->AddRollInput(val);
+		Py_RETURN_NONE;
+	}
+
+	if (!pawn)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Pawn or a PlayerController");
+
+	pawn->AddControllerRollInput(val);
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_add_movement_input(ue_PyUObject *self, PyObject * args) {
