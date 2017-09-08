@@ -190,3 +190,5 @@ The result will be the mannequin changing color based on the distance from the v
 ![Mannequin LODs](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mannequin_lods.PNG)
 
 ## StaticMesh: Merging
+
+This snippet shows how to build a new StaticMesh by combining multiple ones. It could be very handy in case of wrongly exported models, or as an optimization. The mesh_merge() function takes an option parameter 'merge_materials' to instruct the script to generate a material slot for each mesh, or to use a single material for all of them (reducing draw calls, but very probably breaking the result)
