@@ -112,3 +112,10 @@ for uobject in ue.get_selected_assets():
 Once the script is executed your new asset will have the pivot on its center:
 
 ![Fixed Pivot](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/fixed_pivot.PNG)
+
+
+## StaticMesh: Adding a LOD
+
+In the previous snippet we worked on the already available LOD of a StaticMesh. This time (assuming a mesh with a single LOD), we will add two new LODS. You can put any kind of mesh data in each lod (they can be completely unrelated meshes). In this example we will do something not-so-useful by setting vertex colors to a different value for each vertex). 
+
+## StaticMesh: Merging
