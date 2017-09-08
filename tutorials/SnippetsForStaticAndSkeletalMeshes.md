@@ -67,23 +67,20 @@ for fixing it, we need to get the mesh bounds (you can see them by clicking the 
 ```python
 import unreal_engine as ue
 from unreal_engine.classes import StaticMesh
-from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
 
 def fix_pivot(static_mesh):
     if not static_mesh.is_a(StaticMesh):
-        raise DialogException('Asset is not a StaticMesh')
-        
-    # get the package name of the asset (will be used for duplication in the same folder)
-    package_name = static_mesh.get_outermost().get_name()
-    new_asset_name = '{0}_RePivoted'.format(static_mesg.get_name())
-        
+        raise DialogException('Asset is not a StaticMesh')    
+           
     # get the origin of the mesh bounds
     center = static_mesh.ExtendedBounds.Origin
     
     # get the raw data of the mesh, FRawMesh is a strcture holding vertices, uvs, tangents, material indices of a LOD (by default lod 0)
-    raw_mesh = sm.get_raw_mesh()   
+    raw_mesh = static_mesh.get_raw_mesh()   
     
-    # now we create a duplicate of the mesh in the same package of the original one, but adding the suffix _RePivoted to the name
+    # now we create a duplicate of the mesh in the /Game/RePivoted_Meshes folder with the same name suffixed with _RePivoted
+    new_asset_name = '{0}_RePivoted'.format(static_mesh.get_name())
+    package_name = '/Game/RePivoted_Meshes/{0}'.format(new_asset_name)
     new_static_mesh = static_mesh.duplicate(package_name, new_asset_name)
     
     # time to fix each vertex
@@ -93,12 +90,25 @@ def fix_pivot(static_mesh):
         updated_positions.append(vertex - center)
         # this is a trick for giving back control to Unreal Engine avoiding python to block it on slow operations
         ue.slate_tick()
+
+    # update the FRawMesh structure with new vertices
+    raw_mesh.set_vertex_positions(updated_positions)
         
+    # assign the mesh data to the first LOD (LODs are exposed in SourceModels array)
     raw_mesh.save_to_static_mesh_source_model(new_static_mesh.SourceModels[0])
+    # rebuild the whole mesh
     new_static_mesh.static_mesh_build()
+    # re-do the body setup (collisions and friends)
     new_static_mesh.static_mesh_create_body_setup()
+    # notify the editor about the changes
+    new_static_mesh.post_edit_change()
+    # save the new asset
     new_static_mesh.save_package()
 
 for uobject in ue.get_selected_assets():
     fix_pivot(uobject)
 ```
+
+Once the script is executed your new asset will have the pivot on its center:
+
+![Fixed Pivot](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/fixed_pivot.PNG)
