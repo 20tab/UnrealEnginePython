@@ -1515,6 +1515,9 @@ PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
 	UObject *new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused, (py_overwrite && PyObject_IsTrue(py_overwrite)));
 #endif
 
+	if (!new_asset)
+		return PyErr_Format(PyExc_Exception, "unable to duplicate object");
+
 	ue_PyUObject *ret = ue_get_python_wrapper(new_asset);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
