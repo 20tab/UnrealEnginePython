@@ -39,7 +39,8 @@ PyTypeObject ue_PySPanelType = {
 	ue_PySPanel_methods,             /* tp_methods */
 };
 
-void ue_python_init_spanel(PyObject *ue_module) {
+void ue_python_init_spanel(PyObject *ue_module)
+{
 
 	ue_PySPanelType.tp_base = &ue_PySWidgetType;
 

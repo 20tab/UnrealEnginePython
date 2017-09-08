@@ -1,13 +1,18 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-static PyObject *ue_PyUClassesImporter_getattro(ue_PyUClassesImporter *self, PyObject *attr_name) {
+static PyObject *ue_PyUClassesImporter_getattro(ue_PyUClassesImporter *self, PyObject *attr_name)
+{
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
-	if (!ret) {
-		if (PyUnicodeOrString_Check(attr_name)) {
+	if (!ret)
+	{
+		if (PyUnicodeOrString_Check(attr_name))
+		{
 			char *attr = PyUnicode_AsUTF8(attr_name);
-			if (attr[0] != '_') {
+			if (attr[0] != '_')
+			{
 				UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(attr));
-				if (u_class) {
+				if (u_class)
+				{
 					// swallow old exception
 					PyErr_Clear();
 					ue_PyUObject *u_ret = ue_get_python_wrapper(u_class);
@@ -55,7 +60,8 @@ static PyTypeObject ue_PyUClassesImporterType = {
 	0,
 };
 
-void ue_python_init_uclassesimporter(PyObject *ue_module) {
+void ue_python_init_uclassesimporter(PyObject *ue_module)
+{
 	ue_PyUClassesImporterType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyUClassesImporterType) < 0)
@@ -65,7 +71,8 @@ void ue_python_init_uclassesimporter(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "UClassesImporter", (PyObject *)&ue_PyUClassesImporterType);
 }
 
-PyObject *py_ue_new_uclassesimporter() {
+PyObject *py_ue_new_uclassesimporter()
+{
 	ue_PyUClassesImporter *ret = (ue_PyUClassesImporter *)PyObject_New(ue_PyUClassesImporter, &ue_PyUClassesImporterType);
 	return (PyObject *)ret;
 }

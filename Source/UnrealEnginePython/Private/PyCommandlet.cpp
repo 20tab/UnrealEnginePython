@@ -3,7 +3,7 @@
 
 #include "Regex.h"
 
-UPyCommandlet::UPyCommandlet(const FObjectInitializer& ObjectInitializer) 
+UPyCommandlet::UPyCommandlet(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	LogToConsole = 1;
@@ -29,21 +29,21 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	FRegexMatcher myMatcher(myPattern, *CommandLine);
 	myMatcher.FindNext();
 	FString PyCommandLine = myMatcher.GetCaptureGroup(0).Trim().TrimTrailing();
-	
+
 	TArray<FString> PyArgv;
 	PyArgv.Add(FString());
 	bool escaped = false;
 	for (int i = 0; i < PyCommandLine.Len(); i++)
 	{
-		if(PyCommandLine[i] == ' ')
+		if (PyCommandLine[i] == ' ')
 		{
 			PyArgv.Add(FString());
 			continue;
 		}
-		else if(PyCommandLine[i] == '\"' && !escaped)
+		else if (PyCommandLine[i] == '\"' && !escaped)
 		{
 			i++;
-			while(i < PyCommandLine.Len() && !(PyCommandLine[i] == '"'))
+			while (i < PyCommandLine.Len() && !(PyCommandLine[i] == '"'))
 			{
 				PyArgv[PyArgv.Num() - 1].AppendChar(PyCommandLine[i]);
 				i++;
@@ -70,10 +70,10 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	char **argv = (char **)malloc(PyArgv.Num() * sizeof(void*));
 #endif
 
-	for (int i=0; i<PyArgv.Num(); i++)
+	for (int i = 0; i < PyArgv.Num(); i++)
 	{
 #if PY_MAJOR_VERSION >= 3
-		argv[i] = (wchar_t*)malloc(PyArgv[i].Len()+1);
+		argv[i] = (wchar_t*)malloc(PyArgv[i].Len() + 1);
 #if defined(UNREAL_ENGINE_PYTHON_ON_MAC) || defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
 		wcsncpy(argv[i], *PyArgv[i].ReplaceEscapedCharWithChar(), PyArgv[i].Len() + 1);
 #else
@@ -82,9 +82,9 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 #else
 		argv[i] = (char*)malloc(PyArgv[i].Len() + 1);
 #if defined(UNREAL_ENGINE_PYTHON_ON_MAC) || defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
-		strncpy(argv[i], TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()), PyArgv[i].Len()+1);
+		strncpy(argv[i], TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()), PyArgv[i].Len() + 1);
 #else
-		strcpy_s(argv[i], PyArgv[i].Len()+1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
+		strcpy_s(argv[i], PyArgv[i].Len() + 1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
 #endif
 #endif
 	}

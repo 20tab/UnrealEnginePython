@@ -5,7 +5,8 @@
 
 #include <fbxsdk.h>
 
-struct ue_PyFbxMesh {
+struct ue_PyFbxMesh
+{
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 	FbxMesh *fbx_mesh;

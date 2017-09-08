@@ -2,7 +2,8 @@
 
 #include "UEPyFStringAssetReference.h"
 
-static PyObject *py_ue_fstring_asset_reference_get_asset_name(ue_PyFStringAssetReference *self, PyObject * args) {
+static PyObject *py_ue_fstring_asset_reference_get_asset_name(ue_PyFStringAssetReference *self, PyObject * args)
+{
 #if ENGINE_MINOR_VERSION > 13
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->fstring_asset_reference.GetAssetName()));
 #else
@@ -10,7 +11,8 @@ static PyObject *py_ue_fstring_asset_reference_get_asset_name(ue_PyFStringAssetR
 #endif
 }
 
-static PyObject *py_ue_fstring_asset_reference_get_long_package_name(ue_PyFStringAssetReference *self, PyObject * args) {
+static PyObject *py_ue_fstring_asset_reference_get_long_package_name(ue_PyFStringAssetReference *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->fstring_asset_reference.GetLongPackageName()));
 }
 
@@ -64,19 +66,22 @@ static PyTypeObject ue_PyFStringAssetReferenceType = {
 	0,
 };
 
-static int ue_py_fstring_asset_reference_init(ue_PyFStringAssetReference *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_fstring_asset_reference_init(ue_PyFStringAssetReference *self, PyObject *args, PyObject *kwargs)
+{
 	PyObject *py_object;
 	if (!PyArg_ParseTuple(args, "O", &py_object))
 		return -1;
 
-	if (PyUnicode_Check(py_object)) {
+	if (PyUnicode_Check(py_object))
+	{
 		char *value = PyUnicode_AsUTF8(py_object);
 		self->fstring_asset_reference = FStringAssetReference(FString(UTF8_TO_TCHAR(value)));
 		return 0;
 	}
 
 	UObject *u_object = ue_py_check_type<UObject>(py_object);
-	if (!u_object) {
+	if (!u_object)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a UObject or a string");
 		return -1;
 	}
@@ -87,7 +92,8 @@ static int ue_py_fstring_asset_reference_init(ue_PyFStringAssetReference *self, 
 
 
 
-void ue_python_init_fstring_asset_reference(PyObject *ue_module) {
+void ue_python_init_fstring_asset_reference(PyObject *ue_module)
+{
 	ue_PyFStringAssetReferenceType.tp_new = PyType_GenericNew;
 
 	ue_PyFStringAssetReferenceType.tp_init = (initproc)ue_py_fstring_asset_reference_init;
@@ -100,13 +106,15 @@ void ue_python_init_fstring_asset_reference(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FStringAssetReference", (PyObject *)&ue_PyFStringAssetReferenceType);
 }
 
-PyObject *py_ue_new_fstring_asset_reference(FStringAssetReference ref) {
+PyObject *py_ue_new_fstring_asset_reference(FStringAssetReference ref)
+{
 	ue_PyFStringAssetReference *ret = (ue_PyFStringAssetReference *)PyObject_New(ue_PyFStringAssetReference, &ue_PyFStringAssetReferenceType);
 	ret->fstring_asset_reference = ref;
 	return (PyObject *)ret;
 }
 
-ue_PyFStringAssetReference *py_ue_is_fstring_asset_reference(PyObject *obj) {
+ue_PyFStringAssetReference *py_ue_is_fstring_asset_reference(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFStringAssetReferenceType))
 		return nullptr;
 	return (ue_PyFStringAssetReference *)obj;

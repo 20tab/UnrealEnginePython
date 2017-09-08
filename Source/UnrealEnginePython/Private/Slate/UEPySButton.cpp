@@ -5,9 +5,11 @@
 
 #define sw_button StaticCastSharedRef<SButton>(self->s_border.s_compound_widget.s_widget.s_widget)
 
-static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args) {
+static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args)
+{
 
-	if (sw_button->IsPressed()) {
+	if (sw_button->IsPressed())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -17,13 +19,16 @@ static PyObject *py_ue_sbutton_is_pressed(ue_PySButton *self, PyObject * args) {
 }
 
 
-static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * args) {
+static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:bind_on_clicked", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:bind_on_clicked", &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
@@ -77,8 +82,9 @@ PyTypeObject ue_PySButtonType = {
 	ue_PySButton_methods,             /* tp_methods */
 };
 
-static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwargs) {
-	
+static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwargs)
+{
+
 	ue_py_slate_setup_farguments(SButton);
 
 	ue_py_slate_farguments_struct("button_color_and_opacity", ButtonColorAndOpacity, FSlateColor);
@@ -108,7 +114,8 @@ static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwar
 	return 0;
 }
 
-void ue_python_init_sbutton(PyObject *ue_module) {
+void ue_python_init_sbutton(PyObject *ue_module)
+{
 
 	ue_PySButtonType.tp_init = (initproc)ue_py_sbutton_init;
 

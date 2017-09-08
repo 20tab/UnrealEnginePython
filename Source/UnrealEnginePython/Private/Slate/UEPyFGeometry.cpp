@@ -2,12 +2,14 @@
 
 #include "UEPyFGeometry.h"
 
-static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject * args) {
+static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject * args)
+{
 	FVector2D size = self->geometry.GetLocalSize();
 	return Py_BuildValue("(ff)", size.X, size.Y);
 }
 
-static PyObject *py_ue_fgeometry_absolute_to_local(ue_PyFGeometry *self, PyObject * args) {
+static PyObject *py_ue_fgeometry_absolute_to_local(ue_PyFGeometry *self, PyObject * args)
+{
 	float x, y;
 	if (!PyArg_ParseTuple(args, "(ff)", &x, &y))
 		return nullptr;
@@ -59,7 +61,8 @@ static PyTypeObject ue_PyFGeometryType = {
 	ue_PyFGeometry_methods,             /* tp_methods */
 };
 
-void ue_python_init_fgeometry(PyObject *ue_module) {
+void ue_python_init_fgeometry(PyObject *ue_module)
+{
 	ue_PyFGeometryType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyFGeometryType) < 0)
@@ -69,13 +72,15 @@ void ue_python_init_fgeometry(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FGeometry", (PyObject *)&ue_PyFGeometryType);
 }
 
-ue_PyFGeometry *py_ue_is_fgeometry(PyObject *obj) {
+ue_PyFGeometry *py_ue_is_fgeometry(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFGeometryType))
 		return nullptr;
 	return (ue_PyFGeometry *)obj;
 }
 
-PyObject *py_ue_new_fgeometry(FGeometry geometry) {
+PyObject *py_ue_new_fgeometry(FGeometry geometry)
+{
 	ue_PyFGeometry *ret = (ue_PyFGeometry *)PyObject_New(ue_PyFGeometry, &ue_PyFGeometryType);
 	ret->geometry = geometry;
 	return (PyObject *)ret;

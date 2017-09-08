@@ -1,11 +1,13 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
-PyObject *py_ue_pawn_get_controller(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_pawn_get_controller(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<APawn>()) {
+	if (!self->ue_object->IsA<APawn>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not an APawn");
 	}
 

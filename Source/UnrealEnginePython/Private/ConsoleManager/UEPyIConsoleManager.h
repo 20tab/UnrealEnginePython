@@ -4,9 +4,10 @@
 
 #include "Runtime/Core/Public/HAL/IConsoleManager.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
+		/* Type-specific fields go here. */
 } ue_PyIConsoleManager;
 
 

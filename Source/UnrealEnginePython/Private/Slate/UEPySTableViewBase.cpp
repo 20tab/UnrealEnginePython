@@ -6,9 +6,11 @@
 
 #define sw_table_view_base StaticCastSharedRef<STableViewBase>(self->s_compound_widget.s_widget.s_widget)
 
-static PyObject *py_ue_stable_view_base_set_item_height(ue_PySTableViewBase *self, PyObject * args) {
+static PyObject *py_ue_stable_view_base_set_item_height(ue_PySTableViewBase *self, PyObject * args)
+{
 	float size;
-	if (!PyArg_ParseTuple(args, "f:set_item_height", &size)) {
+	if (!PyArg_ParseTuple(args, "f:set_item_height", &size))
+	{
 		return NULL;
 	}
 
@@ -19,9 +21,11 @@ static PyObject *py_ue_stable_view_base_set_item_height(ue_PySTableViewBase *sel
 }
 
 
-static PyObject *py_ue_stable_view_base_set_item_width(ue_PySTableViewBase *self, PyObject * args) {
+static PyObject *py_ue_stable_view_base_set_item_width(ue_PySTableViewBase *self, PyObject * args)
+{
 	float size;
-	if (!PyArg_ParseTuple(args, "f:set_item_width", &size)) {
+	if (!PyArg_ParseTuple(args, "f:set_item_width", &size))
+	{
 		return NULL;
 	}
 
@@ -68,7 +72,8 @@ PyTypeObject ue_PySTableViewBaseType = {
 	ue_PySTableViewBase_methods,             /* tp_methods */
 };
 
-void ue_python_init_stable_view_base(PyObject *ue_module) {
+void ue_python_init_stable_view_base(PyObject *ue_module)
+{
 
 	ue_PySTableViewBaseType.tp_base = &ue_PySCompoundWidgetType;
 
