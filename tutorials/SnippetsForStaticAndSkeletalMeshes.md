@@ -124,4 +124,69 @@ Here we use the UE4 Mannequin skeletal mesh, converted to a static one, with bot
 
 ![Vertex Color Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/vertex_color_material.PNG)
 
+```python
+import unreal_engine as ue
+from unreal_engine.classes import StaticMesh
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
+from unreal_engine import FColor
+
+def generate_vertex_colors(raw_mesh, color0, color1):
+    # generate a list of new vertex colors
+    # iterate each face to check which material slot is in use, and generate 3 new vertex colors
+    updated_colors = []
+    for material_index in raw_mesh.get_face_material_indices():
+        color = color0
+        if material_index == 1:
+            color = color1
+        updated_colors.append(color)
+        updated_colors.append(color)
+        updated_colors.append(color)
+
+    # update the FRawMesh structure with new vertex colors
+    raw_mesh.set_wedge_colors(updated_colors)
+
+def add_lods(static_mesh):
+    if not static_mesh.is_a(StaticMesh):
+        raise DialogException('Asset is not a StaticMesh')    
+               
+    # get the raw data of the mesh, FRawMesh is a strcture holding vertices, uvs, tangents, material indices of a LOD (by default lod 0)
+    raw_mesh = static_mesh.get_raw_mesh()   
+    
+    # now we create a duplicate of the mesh in the /Game/ReLODed_Meshes folder with the same name suffixed with _ReLODed
+    new_asset_name = '{0}_ReLODed'.format(static_mesh.get_name())
+    package_name = '/Game/ReLODed_Meshes/{0}'.format(new_asset_name)
+    new_static_mesh = static_mesh.duplicate(package_name, new_asset_name)
+    
+    
+    # generate LOD1
+    lod1 = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+    generate_vertex_colors(raw_mesh, FColor(0, 0, 255), FColor(0, 255, 255))
+    raw_mesh.save_to_static_mesh_source_model(lod1)
+
+    # generate LOD2
+    lod2 = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+    generate_vertex_colors(raw_mesh, FColor(255, 0, 0), FColor(0, 255, 0))
+    raw_mesh.save_to_static_mesh_source_model(lod2)
+        
+    # assign the new LODs (leaving the first one untouched)
+    new_static_mesh.SourceModels = [new_static_mesh.SourceModels[0], lod1, lod2]
+    # rebuild the whole mesh
+    new_static_mesh.static_mesh_build()
+    # re-do the body setup (collisions and friends)
+    new_static_mesh.static_mesh_create_body_setup()
+    # notify the editor about the changes
+    new_static_mesh.post_edit_change()
+    # save the new asset
+    new_static_mesh.save_package()
+
+for uobject in ue.get_selected_assets():
+    add_lods(uobject)
+```
+
+The key concepts here are the usage of the StaticMeshSourceModel and MeshBuildSettings structures, requred to build the new LOD
+
+The result will be the mannequin changing color based on the distance from the viewer:
+
+![Mannequin LODs](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mannequin_lods.PNG)
+
 ## StaticMesh: Merging
