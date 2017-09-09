@@ -203,8 +203,10 @@ Instead of automatically generating the asset name, a dialog will open asking fo
 
 ## SkeletalMesh: Merging
 
+## SkeletalMesh: Building from Collada
+
 ## SkeletalMesh: Morph Targets
 
-## SkeletalMesh: Building from Collada
+## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
