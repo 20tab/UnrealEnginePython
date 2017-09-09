@@ -766,6 +766,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #endif
 	{ "skeletal_mesh_register_morph_target", (PyCFunction)py_ue_skeletal_mesh_register_morph_target, METH_VARARGS, "" },
 
+	{ "skeletal_mesh_to_import_vertex_map", (PyCFunction)py_ue_skeletal_mesh_to_import_vertex_map, METH_VARARGS, "" },
+
 	{ "morph_target_populate_deltas", (PyCFunction)py_ue_morph_target_populate_deltas, METH_VARARGS, "" },
 	{ "morph_target_get_deltas", (PyCFunction)py_ue_morph_target_get_deltas, METH_VARARGS, "" },
 

@@ -924,7 +924,12 @@ PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *self, PyObject * args
 
 	morph->PopulateDeltas(deltas, lod_index);
 
-	Py_RETURN_NONE;
+	if (morph->HasValidData())
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *self, PyObject * args)
@@ -950,6 +955,38 @@ PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *self, PyObject * args)
 	for (FMorphTargetDelta delta : morph->MorphLODModels[lod_index].Vertices)
 	{
 		PyList_Append(py_list, py_ue_new_fmorph_target_delta(delta));
+	}
+
+	return py_list;
+}
+
+PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_to_import_vertex_map", &lod_index))
+	{
+		return nullptr;
+	}
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index > resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num());
+
+	FStaticLODModel& LODModel = resource->LODModels[lod_index];
+
+	PyObject *py_list = PyList_New(0);
+
+	for (int32 value : LODModel.MeshToImportVertexMap)
+	{
+		PyList_Append(py_list, PyLong_FromLong(value));
 	}
 
 	return py_list;

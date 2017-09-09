@@ -34,3 +34,4 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *, PyObject *);
 PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *, PyObject *);
