@@ -114,8 +114,97 @@ Once the script is executed your new asset will have the pivot on its center:
 ![Fixed Pivot](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/fixed_pivot.PNG)
 
 
-## StaticMesh: Adding a LOD
+## StaticMesh: Adding LODs
 
-In the previous snippet we worked on the already available LOD of a StaticMesh. This time (assuming a mesh with a single LOD), we will add two new LODS. You can put any kind of mesh data in each lod (they can be completely unrelated meshes). In this example we will do something not-so-useful by setting vertex colors to a different value for each vertex). 
+In the previous snippet we worked on the already available LOD of a StaticMesh. This time (assuming a mesh with a single LOD), we will add two new LODS. You can put any kind of mesh data in each lod (they can be completely unrelated meshes). In this example we will do something not-so-useful by setting vertex colors to a different value for each vertex).
+
+Here we use the UE4 Mannequin skeletal mesh, converted to a static one, with both the materials slots mapped to the same "dumb" material that simply write the value of the vertex color to the fragment base color channel
+
+![Mannequin](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mannequin.PNG)
+
+![Vertex Color Material](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/vertex_color_material.PNG)
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import StaticMesh
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
+from unreal_engine import FColor
+
+def generate_vertex_colors(raw_mesh, color0, color1):
+    # generate a list of new vertex colors
+    # iterate each face to check which material slot is in use, and generate 3 new vertex colors
+    updated_colors = []
+    for material_index in raw_mesh.get_face_material_indices():
+        color = color0
+        if material_index == 1:
+            color = color1
+        updated_colors.append(color)
+        updated_colors.append(color)
+        updated_colors.append(color)
+
+    # update the FRawMesh structure with new vertex colors
+    raw_mesh.set_wedge_colors(updated_colors)
+
+def add_lods(static_mesh):
+    if not static_mesh.is_a(StaticMesh):
+        raise DialogException('Asset is not a StaticMesh')    
+               
+    # get the raw data of the mesh, FRawMesh is a strcture holding vertices, uvs, tangents, material indices of a LOD (by default lod 0)
+    raw_mesh = static_mesh.get_raw_mesh()   
+    
+    # now we create a duplicate of the mesh in the /Game/ReLODed_Meshes folder with the same name suffixed with _ReLODed
+    new_asset_name = '{0}_ReLODed'.format(static_mesh.get_name())
+    package_name = '/Game/ReLODed_Meshes/{0}'.format(new_asset_name)
+    new_static_mesh = static_mesh.duplicate(package_name, new_asset_name)
+    
+    
+    # generate LOD1
+    lod1 = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+    generate_vertex_colors(raw_mesh, FColor(0, 0, 255), FColor(0, 255, 255))
+    raw_mesh.save_to_static_mesh_source_model(lod1)
+
+    # generate LOD2
+    lod2 = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+    generate_vertex_colors(raw_mesh, FColor(255, 0, 0), FColor(0, 255, 0))
+    raw_mesh.save_to_static_mesh_source_model(lod2)
+        
+    # assign the new LODs (leaving the first one untouched)
+    new_static_mesh.SourceModels = [new_static_mesh.SourceModels[0], lod1, lod2]
+    # rebuild the whole mesh
+    new_static_mesh.static_mesh_build()
+    # re-do the body setup (collisions and friends)
+    new_static_mesh.static_mesh_create_body_setup()
+    # notify the editor about the changes
+    new_static_mesh.post_edit_change()
+    # save the new asset
+    new_static_mesh.save_package()
+
+for uobject in ue.get_selected_assets():
+    add_lods(uobject)
+```
+
+The key concepts here are the usage of the StaticMeshSourceModel and MeshBuildSettings structures, requred to build the new LOD
+
+The result will be the mannequin changing color based on the distance from the viewer:
+
+![Mannequin LODs](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mannequin_lods.PNG)
 
 ## StaticMesh: Merging
+
+This snippet shows how to build a new StaticMesh by combining multiple ones. It could be very handy in case of wrongly exported models, or as an optimization. The mesh_merge() function takes an optional parameter 'merge_materials' to instruct the script to generate a material slot for each mesh, or to use a single material for all of them (reducing draw calls, but very probably breaking the result).
+
+Instead of automatically generating the asset name, a dialog will open asking for the path. Note: all of the selected Static Meshes will be merged in a single new one.
+
+## Skeleton: Building a new tree
+
+## Skeleton: Renaming bones
+
+## SkeletalMesh: Bulding from static meshes
+
+## SkeletalMesh: Merging
+
+## SkeletalMesh: Morph Targets
+
+## SkeletalMesh: Building from Collada
+
+## Animations: Getting curves from BVH files
