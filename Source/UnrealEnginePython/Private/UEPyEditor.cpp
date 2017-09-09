@@ -1718,7 +1718,11 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 
 	ULevel *level = (ULevel *)py_obj_level->ue_object;
 
+#if ENGINE_MINOR_VERSION >= 17
+    UEditorLevelUtils::MoveSelectedActorsToLevel(level);
+#else
 	GEditor->MoveSelectedActorsToLevel(level);
+#endif
 
 	Py_INCREF(Py_None);
 	return Py_None;
