@@ -682,18 +682,27 @@ PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args)
 }
 
 #if WITH_EDITOR
-PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args)
+PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyObject * kwargs)
 {
 	ue_py_check(self);
 
 	PyObject *py_ss_vertex;
 	int lod_index = 0;
-	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_build_lod", &py_ss_vertex, &lod_index))
+
+	PyObject *py_compute_normals = nullptr;
+	PyObject *py_compute_tangents = nullptr;
+	PyObject *py_use_mikk = nullptr;
+
+	static char *kw_names[] = { (char *)"soft_vertices", (char *)"lod", (char *)"compute_normals", (char *)"compute_tangents", (char *)"use_mikk", nullptr };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|iOOO:skeletal_mesh_build_lod", kw_names, &py_ss_vertex, &lod_index, &py_compute_normals, &py_compute_tangents, &py_use_mikk))
+	{
 		return nullptr;
+	}
 
 	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
 	if (!mesh)
-		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+		return PyErr_Format(PyExc_Exception, "uobject is not a SkeletalMesh");
 
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 
@@ -810,7 +819,10 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args)
 	FStaticLODModel & lod_model = resource->LODModels[lod_index];
 
 	IMeshUtilities::MeshBuildOptions build_settings;
-	build_settings.bUseMikkTSpace = true;
+	build_settings.bUseMikkTSpace = (py_use_mikk && PyObject_IsTrue(py_use_mikk));
+	build_settings.bComputeNormals = (py_compute_normals && PyObject_IsTrue(py_compute_normals));
+	build_settings.bComputeTangents = (py_compute_tangents && PyObject_IsTrue(py_compute_tangents));
+	build_settings.bRemoveDegenerateTriangles = true;
 
 	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
 
@@ -839,3 +851,106 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 #endif
+
+PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_morph;
+
+	if (!PyArg_ParseTuple(args, "O:skeletal_mesh_register_morph_target", &py_morph))
+	{
+		return nullptr;
+	}
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a SkeletalMesh");
+
+	UMorphTarget *morph = ue_py_check_type<UMorphTarget>(py_morph);
+	if (!morph)
+		return PyErr_Format(PyExc_Exception, "argument is not a MorphTarget");
+
+	if (!morph->HasValidData())
+		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
+
+	mesh->PreEditChange(nullptr);
+
+	mesh->RegisterMorphTarget(morph);
+
+	mesh->PostEditChange();
+	mesh->MarkPackageDirty();
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_deltas;
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "O|i:morph_target_populate_deltas", &py_deltas, &lod_index))
+	{
+		return nullptr;
+	}
+
+	UMorphTarget *morph = ue_py_check_type<UMorphTarget>(self);
+	if (!morph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a MorphTarget");
+
+	if (lod_index < 0)
+		return PyErr_Format(PyExc_Exception, "invalid LOD index");
+
+	PyObject *py_iter = PyObject_GetIter(py_deltas);
+	if (!py_iter)
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable of FMorphTargetDelta");
+
+	TArray<FMorphTargetDelta> deltas;
+
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		ue_PyFMorphTargetDelta *py_delta = py_ue_is_fmorph_target_delta(py_item);
+		if (!py_delta)
+		{
+			Py_DECREF(py_iter);
+			return PyErr_Format(PyExc_Exception, "argument is not an iterable of FMorphTargetDelta");
+		}
+		deltas.Add(py_delta->morph_target_delta);
+	}
+
+	Py_DECREF(py_iter);
+
+	morph->PopulateDeltas(deltas, lod_index);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:morph_target_get_deltas", &lod_index))
+	{
+		return nullptr;
+	}
+
+	UMorphTarget *morph = ue_py_check_type<UMorphTarget>(self);
+	if (!morph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a MorphTarget");
+
+	if (lod_index < 0 || lod_index > morph->MorphLODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index");
+
+	PyObject *py_list = PyList_New(0);
+
+	for (FMorphTargetDelta delta : morph->MorphLODModels[lod_index].Vertices)
+	{
+		PyList_Append(py_list, py_ue_new_fmorph_target_delta(delta));
+	}
+
+	return py_list;
+}

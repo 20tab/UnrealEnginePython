@@ -761,8 +761,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeletal_mesh_lods_num", (PyCFunction)py_ue_skeletal_mesh_lods_num, METH_VARARGS, "" },
 	{ "skeletal_mesh_sections_num", (PyCFunction)py_ue_skeletal_mesh_sections_num, METH_VARARGS, "" },
 #if WITH_EDITOR
-	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
+	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS | METH_KEYWORDS, "" },
 #endif
+	{ "skeletal_mesh_register_morph_target", (PyCFunction)py_ue_skeletal_mesh_register_morph_target, METH_VARARGS, "" },
+
+	{ "morph_target_populate_deltas", (PyCFunction)py_ue_morph_target_populate_deltas, METH_VARARGS, "" },
+	{ "morph_target_get_deltas", (PyCFunction)py_ue_morph_target_get_deltas, METH_VARARGS, "" },
 
 	// Timer
 	{ "set_timer", (PyCFunction)py_ue_set_timer, METH_VARARGS, "" },
@@ -1790,6 +1795,8 @@ void unreal_engine_init_py_module()
 	ue_python_init_fraw_anim_sequence_track(new_unreal_engine_module);
 
 	ue_python_init_fsoft_skin_vertex(new_unreal_engine_module);
+
+	ue_python_init_fmorph_target_delta(new_unreal_engine_module);
 
 	ue_python_init_fpython_output_device(new_unreal_engine_module);
 

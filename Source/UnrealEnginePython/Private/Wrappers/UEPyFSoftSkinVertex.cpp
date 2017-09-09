@@ -243,7 +243,7 @@ static PyObject *ue_PyFSoftSkinVertex_str(ue_PyFSoftSkinVertex *self)
 
 static PyTypeObject ue_PyFSoftSkinVertexType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
-	"unreal_engine.FFSoftSkinVertex", /* tp_name */
+	"unreal_engine.FSoftSkinVertex", /* tp_name */
 	sizeof(ue_PyFSoftSkinVertex), /* tp_basicsize */
 	0,                         /* tp_itemsize */
 	0,       /* tp_dealloc */

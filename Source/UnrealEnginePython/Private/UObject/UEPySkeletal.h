@@ -28,4 +28,9 @@ PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_add_lod(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *, PyObject *);
-PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *, PyObject *);
+PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *, PyObject *, PyObject *);
+
+PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *, PyObject *);
+PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *, PyObject *);
