@@ -706,9 +706,64 @@ ue.open_editor_for_asset(new_mesh)
 
 Note that all of the resulting bones will be "in use" when opening the Skeleton editor. If you want to mark only active bones, pass a list with all the valid indices to the skeletal_mesh_set_active_bones() method of a SkeletalMesh object.
 
-## SkeletalMesh: Vertex Colors
+## SkeletalMesh: Vertex Colors and LODs
 
 You can have vertex colors even for skeletal meshes. Differently from StaticMesh they have to be explicitely enabled.
+
+In this example we create a SkeletalMesh with 4 LODs, each with different vertex color values. Click on the 'Show' menu of the SkeletalMesh editor and select 'Vertex Colors' to see the colors.
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import SkeletalMesh
+from unreal_engine import FColor
+import random
+
+original_mesh = ue.get_selected_assets()[0]
+
+if not original_mesh.is_a(SkeletalMesh):
+    raise DialogException('the script only works with Skeletal Meshes')
+
+new_path = ue.create_modal_save_asset_dialog('Choose destination path', '/Game')
+package_name = ue.object_path_to_package_name(new_path)
+object_name = ue.get_base_filename(new_path)
+
+# get original vertex data
+vertices = original_mesh.skeletal_mesh_get_lod()
+
+# the last True argument, allows for overwrite
+new_mesh = original_mesh.duplicate(package_name, object_name, True)
+
+# inform UE4 that this SkeletalMesh has vertex colors
+new_mesh.bHasVertexColors = True
+
+# random colors (LOD 0, overwrites the original one)
+for vertex in vertices:
+    vertex.color = FColor(random.randrange(0, 256), random.randrange(0, 256), random.randrange(0, 256))
+new_mesh.skeletal_mesh_build_lod(vertices, 0)
+
+# blue gradient based on vertex z value (LOD 1)
+for vertex in vertices:
+    vertex.color = FColor(0, 0, int(vertex.position.z % 255))
+new_mesh.skeletal_mesh_build_lod(vertices, 1)
+
+# red (LOD 2)
+for vertex in vertices:
+    vertex.color = FColor(255, 0, 0)
+new_mesh.skeletal_mesh_build_lod(vertices, 2)
+
+# green (LOD 3)
+for vertex in vertices:
+    vertex.color = FColor(0, 255, 0)
+new_mesh.skeletal_mesh_build_lod(vertices, 3)
+
+new_mesh.save_package()
+
+ue.open_editor_for_asset(new_mesh)
+```
+
+![Skel Colors](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/skel_colors.PNG)
+
+Note, that this example use the original skeleton for the mesh. For real-world case it is better to make a copy of the skeleton too and assign to the new mesh as seen before.
 
 ## SkeletalMesh: Building from Collada
 
