@@ -229,9 +229,21 @@ Remember that you can have only one root bone (the python api will check for it,
 
 Once the Skeleton is built, the only way you can simply use it (read: without scripting) is by assigning it to a mesh with a skeleton with the same bone names. Well, a bit useless :)
 
+## SkeletalMesh: Bulding from static meshes
+
+Before starting manipulating Skeletons, we want to be able to work with Skeletal Meshes, as without them, well, we cannot see our work :)
+
+Skeletal Meshes are built by sequences of FSoftSkinVertex structs. These structures hold the classic vertex informations (positions, ormals, uvs, material indices...) as well as the 'influences' of bones to each vertex. A vertex can be influenced by up to 8 bones.
+
+In this snippet we take the UE4 cube static mesh, and we transform it to a SkeletalMesh by assigning a bone to each face of the cube
+
+## SkeletalMesh: Sections
+
+Each LOD of a SkeletalMesh can be composed of multiple sections. Each section can have a different material assigned, so technically, each section costs a draw call.
+
 ## Skeleton: Renaming bones
 
-## SkeletalMesh: Bulding from static meshes
+As we are able now to build SkeletalMeshes, we can start renaming and manipulating bones without crashing the editor.
 
 ## SkeletalMesh: Merging
 
@@ -319,3 +331,5 @@ Pay attention to the 'delta.source_idx' value as on bigger meshes it could not m
 ## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
+
+BVH files are interesting for lot of reasons. First of all, BVH is basically the standard de-facto for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
