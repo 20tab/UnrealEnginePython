@@ -612,7 +612,97 @@ This is a pretty crazy example, but will focus on a really important requirement
 
 Here we take a SkeletalMesh and we "double it", paying attention to renaming each bone. The new tree will have a root, followed by two "relative roots" each with the whole bone tree. As it is pretty complex to explain, this time it is better to show the screenshot before:
 
+![Merged Skel](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/merged_skel.PNG)
 
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMesh
+from unreal_engine import FTransform
+
+original_mesh = ue.get_selected_assets()[0]
+
+if not original_mesh.is_a(SkeletalMesh):
+    raise DialogException('the script only works with Skeletal Meshes')
+
+new_path = ue.create_modal_save_asset_dialog('Choose destination path', '/Game')
+package_name = ue.object_path_to_package_name(new_path)
+object_name = ue.get_base_filename(new_path)
+
+original_skeleton = original_mesh.Skeleton
+
+new_skeleton = Skeleton('{0}_Skeleton'.format(object_name), ue.get_or_create_package('{0}_Skeleton'.format(package_name)))
+
+root_bone = new_skeleton.skeleton_add_bone('root', -1, FTransform())
+
+# add a whole new skeleton tree to the main one
+# all of the old roots of sub-skeletons are attached to the main root
+def add_tree(suffix):
+    for bone_index in range(0, original_skeleton.skeleton_bones_get_num()):
+        # get the bone name
+        bone_name = original_skeleton.skeleton_get_bone_name(bone_index)
+        # fix name
+        bone_name = '{0}_{1}'.format(bone_name, suffix)
+        # get the transform of the bone
+        bone_transform = original_skeleton.skeleton_get_ref_bone_pose(bone_index)
+        # get the index of the parent bone
+        parent_index = original_skeleton.skeleton_get_parent_index(bone_index)
+        # if the parent is -1, use 0, otherwise search in the current tree
+        if parent_index == -1:
+            parent_index = root_bone
+        else:
+            original_parent_name = original_skeleton.skeleton_get_bone_name(parent_index)
+            parent_name = '{0}_{1}'.format(original_parent_name, suffix)
+            parent_index = new_skeleton.skeleton_find_bone_index(parent_name)
+        new_skeleton.skeleton_add_bone(bone_name, parent_index, bone_transform)
+
+
+# add firt skeleton
+add_tree('OfFirstModel')
+# add the second skeleton
+add_tree('OfSecondModel')
+
+new_skeleton.save_package()
+
+new_mesh = SkeletalMesh(object_name, ue.get_or_create_package(package_name))
+
+new_mesh.skeletal_mesh_set_skeleton(new_skeleton)
+
+vertices = original_mesh.skeletal_mesh_get_lod()
+merged_vertices = []
+
+# given the original index and a suffix, return the new bone index
+def get_new_bone_index(index, suffix):
+    bone_name = original_skeleton.skeleton_get_bone_name(index)
+    # fix name
+    bone_name = '{0}_{1}'.format(bone_name, suffix)
+    return new_skeleton.skeleton_find_bone_index(bone_name)
+
+# fix bones indices for the first mesh
+for vertex in vertices:
+    bones = list(vertex.influence_bones)
+    for i in range(0, 8):
+        bones[i] = get_new_bone_index(vertex.influence_bones[i], 'OfFirstModel')
+    v = vertex.copy()
+    v.influence_bones = bones
+    merged_vertices.append(v)
+
+# fix bones indices for the second mesh
+for vertex in vertices:
+    bones = list(vertex.influence_bones)
+    for i in range(0, 8):
+        bones[i] = get_new_bone_index(vertex.influence_bones[i], 'OfSecondModel')
+    v = vertex.copy()
+    v.influence_bones = bones
+    merged_vertices.append(v)
+
+new_mesh.skeletal_mesh_build_lod(merged_vertices)
+
+new_mesh.save_package()
+
+ue.open_editor_for_asset(new_mesh)
+```
+
+Note that all of the resulting bones will be "in use" when opening the Skeleton editor. If you want to mark only active bones, pass a list with all the valid indices to the skeletal_mesh_set_active_bones() method of a SkeletalMesh object.
 
 ## SkeletalMesh: Building from Collada
 
