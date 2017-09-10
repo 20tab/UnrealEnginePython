@@ -563,6 +563,49 @@ ue.open_editor_for_asset(new_mesh)
 
 ![Mannequin Reskeleted](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mannequin_reskeleted.PNG)
 
+## Skeleton: Sockets
+
+Managing Sockets requires only to work with SkeletalMeshSocket class.
+
+In this example, given a skeleton we add a socket for each bone (NOTE: this script works in place, so the original file will be modified):
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMeshSocket
+from unreal_engine import FVector, FRotator
+
+skeleton = ue.get_selected_assets()[0]
+
+current_sockets = skeleton.Sockets
+new_sockets = []
+
+if not skeleton.is_a(Skeleton):
+    raise DialogException('the script only works with Skeletons')
+
+# iterate each bone and add a random socket to it
+for bone_index in range(0, skeleton.skeleton_bones_get_num()):
+    bone_name = skeleton.skeleton_get_bone_name(bone_index)
+
+    # SkeletalMeshSocket outer must be set to the related Skeleton
+    new_socket = SkeletalMeshSocket('', skeleton)
+    new_socket.SocketName = 'dumb_socket_for_bone_{0}'.format(bone_name)
+    new_socket.BoneName = bone_name
+    new_socket.RelativeLocation = FVector(17, 22, 30)
+    new_socket.RelativeRotation = FRotator(0.17, 0.22, 0.30)
+    new_socket.RelativeScale = FVector(1, 1, 1)
+    
+    new_sockets.append(new_socket)
+
+# set the new sockets list
+skeleton.Sockets = current_sockets + new_sockets
+
+skeleton.save_package()
+
+ue.open_editor_for_asset(skeleton)
+```
+
+![Sockets](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/sockets.PNG)
+
 ## SkeletalMesh: Merging
 
 ## SkeletalMesh: Building from Collada
