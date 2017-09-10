@@ -476,6 +476,7 @@ object_name = ue.get_base_filename(new_path)
 
 original_skeleton = original_mesh.Skeleton
 
+# add the _Skeleton suffix to the asset, we use a package-per-asset like suggested by UE4 pipeline best-practices
 new_skeleton = Skeleton('{0}_Skeleton'.format(object_name), ue.get_or_create_package('{0}_Skeleton'.format(package_name)))
 
 # iterate each bone and rename it
@@ -502,6 +503,15 @@ ue.open_editor_for_asset(new_mesh)
 ```
 
 ![Renamed Bones](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/renamed_bones.PNG)
+
+The usage of the skeletal_mesh_set_skeleton(new_skeleton) method is more than enough as the number of bones in the new skeleton is equal (or higher, infact you could have added more bones to the script) to the original one.
+
+if you need to remove bones, or more generally, you need to change the structure tree of the skeleton, you need to update the SkeletalMesh accordingly.
+
+In the following example we reduce the skeleton to three bones (root, up, down) and we map each vertex to 'up' or 'down' based on its z value:
+
+```python
+```
 
 ## SkeletalMesh: Merging
 
