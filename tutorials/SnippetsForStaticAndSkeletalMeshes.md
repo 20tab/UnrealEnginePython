@@ -846,6 +846,77 @@ Pay attention to the 'delta.source_idx' value as on bigger meshes it could not m
 
 ![Morphed Triangle](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph_target.PNG)
 
+## Animations: Root Motion from SVG path
+
+This funny example build an animation from an SVG file.
+
+The animation will only contain a motion track (for the root bone) and will set keys based on the first path curve found in a SVG file.
+
+You can use the amazing Inkscape to draw your bezier curves:
+
+![Bezier](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/bezier.PNG)
+
+To parse svg paths you need an external python module (https://pypi.python.org/pypi/svgpathtools).
+
+```
+pip install svgpathtools svgwrite numpy
+```
+
+The svgpathtools transforms SVG curves to a numpy polynomial array, so we can access point values at specific time (or gradients if you prefer):
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import AnimSequenceFactory, Skeleton
+from unreal_engine import FRawAnimSequenceTrack, FVector, FQuat, FRotator
+from svgpathtools import svg2paths
+import numpy
+
+# use the currently selected skeleton
+skeleton = ue.get_selected_assets()[0]
+
+# open file dialog to choose the file (returns a list so we get only the first element)
+paths, attributes = svg2paths(ue.open_file_dialog('Open SVG file', '', '', 'Scalable Vector Graphics|*.svg;')[0])
+
+# an SVG file can contains multiple paths, just get the first one
+path = paths[0]
+
+# how many frame per second ?
+fps = 30
+# the duration of the animation
+duration = 10
+# scale size
+scale = 3
+
+factory = AnimSequenceFactory()
+factory.TargetSkeleton = skeleton
+
+anim = factory.factory_create_new('/Game/BezierAnimation001')
+anim.NumFrames = duration * fps
+anim.SequenceLength = duration
+# enable root motion
+anim.bEnableRootMotion = True
+
+pos_keys = []
+for t in numpy.arange(0, 1, 1.0/fps/duration):
+    # get the point at specific time
+    point = path.point(t)
+    x, y = point.real, point.imag
+    pos_keys.append(FVector(x, y, 0) * scale)
+
+# add the track for the root bone
+track = FRawAnimSequenceTrack()
+track.pos_keys = pos_keys
+track.rot_keys = [FQuat()]
+anim.add_new_raw_track('root', track)
+
+anim.save_package()
+ue.open_editor_for_asset(anim)
+```
+
+As we have enabled root motion, once we play the animation (if yo uare using an animation blueprint remember to enable root motion there too) the character will move.
+
+This is a debug session where the character has drawn a point under its position
+
 ## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
