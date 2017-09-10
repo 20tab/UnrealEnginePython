@@ -305,6 +305,85 @@ PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * a
 }
 #endif
 
+PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_lod", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	FStaticLODModel &model = resource->LODModels[lod_index];
+
+
+	PyObject *py_list = PyList_New(0);
+
+	TArray<uint32> indices;
+	model.MultiSizeIndexContainer.GetIndexBuffer(indices);
+
+	for (int32 index = 0; index < indices.Num(); index++)
+	{
+		int32 section_index;
+		int32 vertex_index;
+		bool has_extra_influences;
+		model.GetSectionFromVertexIndex(indices[index], section_index, vertex_index, has_extra_influences);
+		ue_PyFSoftSkinVertex *py_ss_vertex = (ue_PyFSoftSkinVertex *)py_ue_new_fsoft_skin_vertex(model.Sections[section_index].SoftVertices[vertex_index]);
+		py_ss_vertex->material_index = section_index;
+		PyList_Append(py_list, (PyObject *)py_ss_vertex);
+	}
+
+	return py_list;
+}
+
+PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_raw_indices", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	FStaticLODModel &model = resource->LODModels[lod_index];
+
+
+	PyObject *py_list = PyList_New(0);
+
+	int32 *raw_indices = (int32 *)model.RawPointIndices.Lock(LOCK_READ_ONLY);
+	int32 *indices = (int32 *)FMemory_Alloca(model.RawPointIndices.GetBulkDataSize());
+	FMemory::Memcpy(indices, raw_indices, model.RawPointIndices.GetBulkDataSize());
+	model.RawPointIndices.Unlock();
+
+	for (int32 index = 0; index < model.RawPointIndices.GetBulkDataSize() / sizeof(int32); index++)
+	{
+		PyList_Append(py_list, PyLong_FromLong(indices[index]));
+	}
+
+	return py_list;
+}
+
+
 PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);
@@ -627,25 +706,6 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	mesh->MarkPackageDirty();
 
 	Py_RETURN_NONE;
-}
-
-PyObject *py_ue_skeletal_mesh_add_lod(ue_PyUObject *self, PyObject * args)
-{
-	ue_py_check(self);
-
-	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
-	if (!mesh)
-		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
-
-	FSkeletalMeshResource *resource = mesh->GetImportedResource();
-
-	int32 lod_index = resource->LODModels.Add(new FStaticLODModel());
-
-	FSkeletalMeshLODInfo lod_info;
-
-	mesh->LODInfo.Add(lod_info);
-
-	return PyLong_FromLong(lod_index);
 }
 
 PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args)
@@ -990,4 +1050,51 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 	}
 
 	return py_list;
+}
+
+PyObject *py_ue_skeleton_add_socket(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *name;
+	int parent_index;
+	PyObject *py_transform;
+	if (!PyArg_ParseTuple(args, "siO:skeleton_add_bone", &name, &parent_index, &py_transform))
+		return nullptr;
+
+	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
+	if (!skeleton)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
+
+	ue_PyFTransform *transform = py_ue_is_ftransform(py_transform);
+	if (!transform)
+		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
+
+	if (skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))) > -1)
+	{
+		return PyErr_Format(PyExc_Exception, "bone %s already exists", name);
+	}
+
+#if WITH_EDITOR
+	skeleton->PreEditChange(nullptr);
+#endif
+
+	{
+		const FReferenceSkeleton &ref = skeleton->GetReferenceSkeleton();
+		// horrible hack to modify the skeleton in place
+		FReferenceSkeletonModifier modifier((FReferenceSkeleton &)ref, skeleton);
+
+		TCHAR *bone_name = UTF8_TO_TCHAR(name);
+
+		modifier.Add(FMeshBoneInfo(FName(bone_name), FString(bone_name), parent_index), transform->transform);
+	}
+
+
+#if WITH_EDITOR
+	skeleton->PostEditChange();
+#endif
+	skeleton->MarkPackageDirty();
+
+	return PyLong_FromLong(skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))));
 }

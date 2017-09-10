@@ -747,6 +747,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeletal_mesh_set_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_set_soft_vertices, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_get_soft_vertices, METH_VARARGS, "" },
 #endif
+	{ "skeletal_mesh_get_lod", (PyCFunction)py_ue_skeletal_mesh_get_lod, METH_VARARGS, "" },
+	{ "skeletal_mesh_get_raw_indices", (PyCFunction)py_ue_skeletal_mesh_get_raw_indices, METH_VARARGS, "" },
 	{ "skeletal_mesh_set_skeleton", (PyCFunction)py_ue_skeletal_mesh_set_skeleton, METH_VARARGS, "" },
 
 #if ENGINE_MINOR_VERSION > 12
@@ -757,7 +759,6 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeletal_mesh_set_required_bones", (PyCFunction)py_ue_skeletal_mesh_set_required_bones, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_active_bone_indices", (PyCFunction)py_ue_skeletal_mesh_get_active_bone_indices, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_required_bones", (PyCFunction)py_ue_skeletal_mesh_get_required_bones, METH_VARARGS, "" },
-	{ "skeletal_mesh_add_lod", (PyCFunction)py_ue_skeletal_mesh_add_lod, METH_VARARGS, "" },
 	{ "skeletal_mesh_lods_num", (PyCFunction)py_ue_skeletal_mesh_lods_num, METH_VARARGS, "" },
 	{ "skeletal_mesh_sections_num", (PyCFunction)py_ue_skeletal_mesh_sections_num, METH_VARARGS, "" },
 #if WITH_EDITOR
