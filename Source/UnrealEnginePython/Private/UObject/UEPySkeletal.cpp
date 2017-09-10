@@ -338,7 +338,21 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 		int32 vertex_index;
 		bool has_extra_influences;
 		model.GetSectionFromVertexIndex(indices[index], section_index, vertex_index, has_extra_influences);
-		ue_PyFSoftSkinVertex *py_ss_vertex = (ue_PyFSoftSkinVertex *)py_ue_new_fsoft_skin_vertex(model.Sections[section_index].SoftVertices[vertex_index]);
+		FSoftSkinVertex ssv = model.Sections[section_index].SoftVertices[vertex_index];
+		// fix bone id
+		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++)
+		{
+			if (ssv.InfluenceBones[i] < model.Sections[section_index].BoneMap.Num())
+			{
+				ssv.InfluenceBones[i] = model.Sections[section_index].BoneMap[ssv.InfluenceBones[i]];
+			}
+			else
+			{
+				UE_LOG(LogPython, Warning, TEXT("unable to retrieve bone mapping for index %d, forcing to 0"), ssv.InfluenceBones[i]);
+				ssv.InfluenceBones[i] = 0;
+			}
+		}
+		ue_PyFSoftSkinVertex *py_ss_vertex = (ue_PyFSoftSkinVertex *)py_ue_new_fsoft_skin_vertex(ssv);
 		py_ss_vertex->material_index = section_index;
 		PyList_Append(py_list, (PyObject *)py_ss_vertex);
 	}
@@ -834,7 +848,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 			FVertInfluence influence;
 			influence.VertIndex = wedge_index;
 			influence.BoneIndex = ss_vertex->ss_vertex.InfluenceBones[i];
-			influence.Weight = ss_vertex->ss_vertex.InfluenceWeights[i];
+			influence.Weight = ss_vertex->ss_vertex.InfluenceWeights[i] / 255.f;
 			influences.Add(influence);
 		}
 
@@ -1050,51 +1064,4 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 	}
 
 	return py_list;
-}
-
-PyObject *py_ue_skeleton_add_socket(ue_PyUObject *self, PyObject * args)
-{
-
-	ue_py_check(self);
-
-	char *name;
-	int parent_index;
-	PyObject *py_transform;
-	if (!PyArg_ParseTuple(args, "siO:skeleton_add_bone", &name, &parent_index, &py_transform))
-		return nullptr;
-
-	USkeleton *skeleton = ue_py_check_type<USkeleton>(self);
-	if (!skeleton)
-		return PyErr_Format(PyExc_Exception, "uobject is not a USkeleton");
-
-	ue_PyFTransform *transform = py_ue_is_ftransform(py_transform);
-	if (!transform)
-		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
-
-	if (skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))) > -1)
-	{
-		return PyErr_Format(PyExc_Exception, "bone %s already exists", name);
-	}
-
-#if WITH_EDITOR
-	skeleton->PreEditChange(nullptr);
-#endif
-
-	{
-		const FReferenceSkeleton &ref = skeleton->GetReferenceSkeleton();
-		// horrible hack to modify the skeleton in place
-		FReferenceSkeletonModifier modifier((FReferenceSkeleton &)ref, skeleton);
-
-		TCHAR *bone_name = UTF8_TO_TCHAR(name);
-
-		modifier.Add(FMeshBoneInfo(FName(bone_name), FString(bone_name), parent_index), transform->transform);
-	}
-
-
-#if WITH_EDITOR
-	skeleton->PostEditChange();
-#endif
-	skeleton->MarkPackageDirty();
-
-	return PyLong_FromLong(skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))));
 }
