@@ -970,6 +970,24 @@ This method is how we build the skeleton:
         return skel
 ```
 
+As you can see we change axis mapping for translations (x became y, y became z and z became inverted x), while we inverte pitch and roll for rotations. We always give priority to quaternions as they are more solid (albeit harder to grasp, the next snippet will show why they are extremely better than plain rotators/euler rotations)
+
+Another important part is how we deal with morph targets. Internally the source_idx field of the MorphTarget object (like mentioned before) maps to an optimized index that is different from the one we used when we created the soft vertices array. Lucky enough, UE4 exposes an array that containes the mapping between the optimized index and the original one:
+
+```python
+...
+# get the mapping
+import_map = self.mesh.skeletal_mesh_to_import_vertex_map()
+
+# iterate mapping
+for idx, import_index in enumerate(import_map):
+    # get the true index for accessing soft vertices data, use idx for source_idx
+    vertex_index = original_vertices[import_index]
+    ...
+    morph_target.source_idx = idx
+    ...
+```
+
 ## Animations: Getting curves from BVH files
 
 BVH files are interesting for lot of reasons. First of all, BVH is basically the standard de-facto for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
