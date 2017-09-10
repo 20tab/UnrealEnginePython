@@ -917,6 +917,8 @@ As we have enabled root motion, once we play the animation (if yo uare using an 
 
 This is a debug session where the character has drawn a point under its position
 
+![Root Motion](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/root_motion.PNG)
+
 ## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
