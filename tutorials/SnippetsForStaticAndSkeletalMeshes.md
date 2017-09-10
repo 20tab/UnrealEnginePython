@@ -231,6 +231,8 @@ Remember that you can have only one root bone (the python api will check for it,
 
 Once the Skeleton is built, the only way you can simply use it (read: without scripting) is by assigning it to a mesh with a skeleton with the same bone names. Well, a bit useless :)
 
+Pay attention, if you manage to build an invalid skeleton, you could end in editor assert/crash. In case of emergency (your editor continues to crash), just manually delete the .uasset files containing broken skeletons from the Content/ directory
+
 ## SkeletalMesh: Bulding from static meshes
 
 Before starting manipulating Skeletons, we want to be able to work with Skeletal Meshes, as without them, well, we cannot see our work :)
