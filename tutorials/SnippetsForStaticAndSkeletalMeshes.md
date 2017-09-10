@@ -608,6 +608,12 @@ ue.open_editor_for_asset(skeleton)
 
 ## SkeletalMesh: Merging
 
+This is a pretty crazy example, but will focus on a really important requirement: bone names must be unique in a skeleton
+
+Here we take a SkeletalMesh and we "double it", paying attention to renaming each bone. The new tree will have a root, followed by two "relative roots" each with the whole bone tree. As it is pretty complex to explain, this time it is better to show the screenshot before:
+
+
+
 ## SkeletalMesh: Building from Collada
 
 ## SkeletalMesh: Morph Targets
