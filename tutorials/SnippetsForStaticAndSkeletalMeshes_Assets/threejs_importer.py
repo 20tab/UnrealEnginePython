@@ -10,6 +10,7 @@ import numpy
 class ThreeJSLoader:
 
     def __init__(self, filename, scale=1.0):
+        # we need ordered json dictionaries
         with open(filename) as json_file:
             self.model = json.load(json_file, object_pairs_hook=OrderedDict)
         self.scale = scale
