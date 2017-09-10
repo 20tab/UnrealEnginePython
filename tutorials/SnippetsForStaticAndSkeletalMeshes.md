@@ -282,6 +282,8 @@ ue.open_editor_for_asset(new_mesh)
 
 ![Merged](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mesh_merged.PNG)
 
+In the screenshot you can note how highlighting a specific material slot will result in highlighting the specific part of the mesh (this will not work if you merge the materials, as all of the faces will map to the first material slot)
+
 ## Skeleton: Building a new tree
 
 A Skeleton is an asset describing the tree of bones that influences a SkeletalMesh. While building a new skeleton (or adding a bone to it) is pretty easy, modifying or destroying a skeleton is always a risky operation. You should always generate a new Skeleton and the related SkeletalMesh whenever you need to change the bones tree.
