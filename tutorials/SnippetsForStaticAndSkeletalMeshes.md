@@ -197,6 +197,38 @@ Instead of automatically generating the asset name, a dialog will open asking fo
 
 ## Skeleton: Building a new tree
 
+A Skeleton is an asset describing the tree of bones that influences a SkeletalMesh. While building a new skeleton (or adding a bone to it) is pretty easy, modifying or destroying a skeleton is always a risky operation. You should always generate a new Skeleton and the related SkeletalMesh whenever you need to change the bones tree.
+
+In this example we create a simple skeleton:
+
+```python
+import unreal_engine as ue
+from unreal_engine import FTransform, FVector, FRotator
+from unreal_engine.classes import Skeleton
+
+new_skeleton = Skeleton()
+
+# -1 as parent means we are the root bone (THERE CAN BE ONLY ONE ROOT BONE !)
+root_bone_index = new_skeleton.skeleton_add_bone('root', -1, FTransform())
+
+# add two bones to the root one
+bone_left_index = new_skeleton.skeleton_add_bone('bone_left', root_bone_index, FTransform(FVector(0, -100, 100), FRotator(0, 0, 90)))
+bone_right_index = new_skeleton.skeleton_add_bone('bone_right', root_bone_index, FTransform(FVector(0, 100, 100), FRotator(0, 0, 90)))
+
+# add another to the left one
+bone_last_index = new_skeleton.skeleton_add_bone('bone_last', bone_left_index, FTransform(FVector(0, 0, 200)))
+
+new_skeleton.save_package('/Game/CustomSkeletons/Skel001')
+
+ue.open_editor_for_asset(new_skeleton)
+```
+
+![Bone Tree](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/bone_tree.PNG)
+
+Remember that you can have only one root bone (the python api will check for it, while the C++ will simply crash the editor). Each bone has its "pose" transform (mainly used for retargeting) that you specify when you create a bone
+
+Once the Skeleton is built, the only way you can simply use it (read: without scripting) is by assigning it to a mesh with a skeleton with the same bone names. Well, a bit useless :)
+
 ## Skeleton: Renaming bones
 
 ## SkeletalMesh: Bulding from static meshes
