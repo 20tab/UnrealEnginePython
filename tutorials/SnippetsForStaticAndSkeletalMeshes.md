@@ -511,7 +511,57 @@ if you need to remove bones, or more generally, you need to change the structure
 In the following example we reduce the skeleton to three bones (root, up, down) and we map each vertex to 'up' or 'down' based on its z value:
 
 ```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMesh
+from unreal_engine import FTransform, FVector
+
+original_mesh = ue.get_selected_assets()[0]
+
+if not original_mesh.is_a(SkeletalMesh):
+    raise DialogException('the script only works with Skeletal Meshes')
+
+new_path = ue.create_modal_save_asset_dialog('Choose destination path', '/Game')
+package_name = ue.object_path_to_package_name(new_path)
+object_name = ue.get_base_filename(new_path)
+
+
+new_skeleton = Skeleton('{0}_Skeleton'.format(object_name), ue.get_or_create_package('{0}_Skeleton'.format(package_name)))
+
+root_bone = new_skeleton.skeleton_add_bone('root', -1, FTransform())
+down_bone = new_skeleton.skeleton_add_bone('down', root_bone, FTransform(FVector(0, 0, 100)))
+up_bone = new_skeleton.skeleton_add_bone('up', down_bone, FTransform(FVector(0, 0, 100)))
+
+new_skeleton.save_package()
+
+new_mesh = SkeletalMesh(object_name, ue.get_or_create_package(package_name))
+# we can assign a skeleton safely as the mesh is empty
+new_mesh.skeletal_mesh_set_skeleton(new_skeleton)
+
+# iterate each LOD of the mesh
+for lod_id in range(0, original_mesh.skeletal_mesh_lods_num()):
+    # get the FSoftSkinVertex list of the whole LOD (the same structure you can pass to skeletal_mesh_build_lod())
+    vertices = original_mesh.skeletal_mesh_get_lod(lod_id)
+    # assign bone to vertex based on vertical position
+    for v in vertices:
+        if v.position.z <= 100.0:
+            bone_index = down_bone
+        else:
+            bone_index = up_bone
+            
+        v.influence_bones = (bone_index, 0, 0, 0, 0, 0, 0, 0)
+        v.influence_weights = (255, 0, 0, 0, 0, 0, 0, 0)
+
+    new_mesh.skeletal_mesh_build_lod(vertices, lod_id)
+
+# copy material slots
+new_mesh.Materials = original_mesh.Materials
+
+new_mesh.save_package()
+
+ue.open_editor_for_asset(new_mesh)
 ```
+
+![Mannequin Reskeleted](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mannequin_reskeleted.PNG)
 
 ## SkeletalMesh: Merging
 
