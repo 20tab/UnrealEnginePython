@@ -790,6 +790,11 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 		resource->LODModels.Add(new FStaticLODModel());
 		mesh->LODInfo.AddZeroed();
 	}
+	else
+	{
+		// reinitialized already existent LOD
+		new(&resource->LODModels[lod_index]) FStaticLODModel();
+	}
 
 	FStaticLODModel& LODModel = resource->LODModels[lod_index];
 
