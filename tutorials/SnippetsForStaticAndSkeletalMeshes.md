@@ -213,6 +213,8 @@ The following screenshot shows a face morph target going (interpolated) from 0 t
 
 ![Morph 0 to 1](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph_0_to_1.PNG)
 
+In the snippet we generate a simple triangle mapped to a single bone, and we assign to its vertex 1, a morph target moving the vertex 100 units up on the z axis:
+
 ```python
 import unreal_engine as ue
 from unreal_engine.classes import Skeleton, SkeletalMesh, MorphTarget
@@ -276,8 +278,9 @@ mesh.save_package('/Game/Snippets/Triangle001_Mesh')
 
 # open the asset editor for SkeletalMesh
 ue.open_editor_for_asset(mesh)
-
 ```
+
+Pay attention to the 'delta.source_idx' value as on bigger meshes it could not map to the original one (see next snippet)
 
 ## Animations: Parsing ThreeJS json models (version 3)
 
