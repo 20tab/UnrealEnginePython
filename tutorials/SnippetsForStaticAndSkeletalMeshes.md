@@ -282,6 +282,8 @@ ue.open_editor_for_asset(mesh)
 
 Pay attention to the 'delta.source_idx' value as on bigger meshes it could not map to the original one (see next snippet)
 
+![Morphed Triangle](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph_target.PNG)
+
 ## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
