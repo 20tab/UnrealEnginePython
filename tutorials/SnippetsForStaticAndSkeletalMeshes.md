@@ -197,6 +197,91 @@ This snippet shows how to build a new StaticMesh by combining multiple ones. It 
 
 Instead of automatically generating the asset name, a dialog will open asking for the path. Note: all of the selected Static Meshes will be merged in a single new one.
 
+The objective is to merge the following static meshes:
+
+![Static Meshes to merge](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/static_meshes_to_merge.PNG)
+
+```python
+import unreal_engine as ue
+from unreal_engine import FRawMesh
+from unreal_engine.classes import StaticMesh
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
+
+def mesh_merge(meshes, merge_materials=False):
+    new_path = ue.create_modal_save_asset_dialog('Choose destination path', '/Game')
+    package_name = ue.object_path_to_package_name(new_path)
+    object_name = ue.get_base_filename(new_path)
+
+    materials = []
+    vertices = []
+    texcoords = []
+    normals = []
+    indices = []
+    material_indices = []
+    for mesh in meshes:
+        if not mesh.is_a(StaticMesh):
+            raise DialogException('only StaticMeshes can be merged')
+
+        raw_mesh = mesh.get_raw_mesh()
+        
+        # manage wedges
+        original_indices = raw_mesh.get_wedge_indices()
+        for i, index in enumerate(original_indices):
+            original_indices[i] += len(vertices)
+        indices += original_indices
+
+        # manage materials
+        original_material_indices = raw_mesh.get_face_material_indices()
+        for i, index in enumerate(original_material_indices):
+            if original_material_indices[i] >= 0:
+                original_material_indices[i] += len(material_indices)
+        material_indices += original_material_indices
+
+        vertices += raw_mesh.get_vertex_positions()
+        texcoords += raw_mesh.get_wedge_tex_coords()
+        normals += raw_mesh.get_wedge_tangent_z()
+        materials += mesh.StaticMaterials
+        # give back control to ue to not block the interface too much
+        ue.slate_tick()
+
+    # assemble the new mesh
+    sm = StaticMesh(object_name, ue.get_or_create_package(package_name))
+    new_raw_mesh = FRawMesh()
+    new_raw_mesh.set_vertex_positions(vertices)
+    new_raw_mesh.set_wedge_indices(indices)
+    new_raw_mesh.set_wedge_tex_coords(texcoords)
+    new_raw_mesh.set_wedge_tangent_z(normals)
+    if not merge_materials:
+        new_raw_mesh.set_face_material_indices(material_indices)
+
+    lod0 = StaticMeshSourceModel(BuildSettings=MeshBuildSettings(bRecomputeNormals=False, bRecomputeTangents=True, bUseMikkTSpace=True, bBuildAdjacencyBuffer=True, bRemoveDegenerates=True))
+    
+    new_raw_mesh.save_to_static_mesh_source_model(lod0)
+
+    sm.SourceModels = [lod0]
+    if merge_materials:
+        materials = [materials[0]]
+    sm.StaticMaterials = materials
+    # rebuild the whole mesh
+    sm.static_mesh_build()
+    # re-do the body setup (collisions and friends)
+    sm.static_mesh_create_body_setup()
+    # notify the editor about the changes (not strictly required)
+    sm.post_edit_change()
+
+    sm.save_package()
+
+    return sm
+        
+
+new_mesh = mesh_merge(ue.get_selected_assets())
+
+ue.open_editor_for_asset(new_mesh)
+    
+```
+
+![Merged](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/mesh_merged.PNG)
+
 ## Skeleton: Building a new tree
 
 A Skeleton is an asset describing the tree of bones that influences a SkeletalMesh. While building a new skeleton (or adding a bone to it) is pretty easy, modifying or destroying a skeleton is always a risky operation. You should always generate a new Skeleton and the related SkeletalMesh whenever you need to change the bones tree.
