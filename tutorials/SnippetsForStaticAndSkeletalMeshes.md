@@ -233,9 +233,95 @@ Once the Skeleton is built, the only way you can simply use it (read: without sc
 
 Before starting manipulating Skeletons, we want to be able to work with Skeletal Meshes, as without them, well, we cannot see our work :)
 
-Skeletal Meshes are built by sequences of FSoftSkinVertex structs. These structures hold the classic vertex informations (positions, ormals, uvs, material indices...) as well as the 'influences' of bones to each vertex. A vertex can be influenced by up to 8 bones.
+Skeletal Meshes are built by sequences of FSoftSkinVertex structs. These structures hold the classic vertex informations (positions, normals, uvs, material indices...) as well as the 'influences' of bones to each vertex. A vertex can be influenced by up to 8 bones.
 
-In this snippet we take the UE4 cube static mesh, and we transform it to a SkeletalMesh by assigning a bone to each face of the cube
+In this snippet we take the UE4 cube static mesh, and we transform it to a SkeletalMesh by assigning a bone to each face of the cube.
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import StaticMesh, SkeletalMesh, Skeleton
+from unreal_engine import FVector, FTransform, FRotator, FSoftSkinVertex
+import math
+
+cube = ue.load_object(StaticMesh, '/Engine/BasicShapes/Cube')
+
+skeleton = Skeleton()
+# create the required bones (please always add a root bone first...)
+root_bone = skeleton.skeleton_add_bone('root', -1, FTransform())
+left_bone = skeleton.skeleton_add_bone('left', root_bone, FTransform(FVector(0, -50, 0), FRotator(0, 0, -90)))
+right_bone = skeleton.skeleton_add_bone('right', root_bone, FTransform(FVector(0, 50, 0), FRotator(0, 0, 90)))
+up_bone = skeleton.skeleton_add_bone('up', root_bone, FTransform(FVector(0, 0, 50), FRotator(0, 90, 0)))
+down_bone = skeleton.skeleton_add_bone('down', root_bone, FTransform(FVector(0, 0, -50), FRotator(0, -90, 0)))
+forward_bone = skeleton.skeleton_add_bone('forward', root_bone, FTransform(FVector(50, 0, 0), FRotator(0, 0, 0)))
+backward_bone = skeleton.skeleton_add_bone('backward', root_bone, FTransform(FVector(-50, 0, 0), FRotator(0, 0, 180)))
+
+skeleton.save_package('/Game/StaticToSkel/Cube_Skeleton')
+
+mesh = SkeletalMesh()
+mesh.skeletal_mesh_set_skeleton(skeleton)
+
+# get raw data from static mesh
+cube_raw = cube.get_raw_mesh()
+
+# optimization: read the whole list of normals from the static mesh
+# we will use normals to understand to which bone each vertex must be mapped
+normals = cube_raw.get_wedge_tangent_z()
+
+# the list of FSoftSkinVertex that will build the SkeletalMesh
+vertices = []
+
+# for 'wedge' UE4 means the group of infos (position, normals, uvs...) of a single vertex
+for wedge in range(0, cube_raw.get_wedges_num()):
+    # get the vertex normal using the wedge as the list index
+    normal = normals[wedge]
+
+    # we use the dot product to recognize the direction of the vertex/face
+    dot_product_fwd = normal.dot(FVector(1, 0, 0))
+    dot_product_right = normal.dot(FVector(0, 1, 0))
+    dot_product_up = normal.dot(FVector(0, 0, 1))
+
+    # create a new FSoftSkinvertex struct, we fill only the position, normal and influences
+    # uvs are left to the reader :)
+    v = FSoftSkinVertex()
+    v.position = cube_raw.get_wedge_position(wedge)
+    v.tangent_z = normal
+    
+    # by default a vertex has no infuences
+    bone_index = 0
+    influence = 0
+
+    if math.isclose(dot_product_up, 1, abs_tol=0.0001):
+        bone_index = up_bone
+        influence = 255
+    elif math.isclose(dot_product_up, -1, abs_tol=0.0001):
+        bone_index = down_bone
+        influence = 255
+    elif math.isclose(dot_product_right, 1, abs_tol=0.0001):
+        bone_index = right_bone
+        influence = 255
+    elif math.isclose(dot_product_right, -1, abs_tol=0.0001):
+        bone_index = left_bone
+        influence = 255
+    elif math.isclose(dot_product_fwd, 1, abs_tol=0.0001):
+        bone_index = forward_bone
+        influence = 255
+    elif math.isclose(dot_product_fwd, -1, abs_tol=0.0001):
+        bone_index = backward_bone
+        influence = 255
+
+    v.influence_bones = (bone_index, 0, 0, 0, 0, 0, 0, 0)
+    v.influence_weights = (influence, 0, 0, 0, 0, 0, 0, 0)
+
+    vertices.append(v)
+
+# build LOD0 for the StaticMesh using a list of FSoftSkinVertex
+mesh.skeletal_mesh_build_lod(vertices)
+mesh.save_package('/Game/StaticToSkel/Cube_Mesh')
+
+ue.open_editor_for_asset(mesh)
+```
+
+![Cube Skel](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/cube_skel.PNG)
 
 ## SkeletalMesh: Sections
 
