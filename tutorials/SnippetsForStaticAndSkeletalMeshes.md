@@ -4,6 +4,8 @@ This is a collection of snippets/examples for StaticMeshes and SkeletalMeshes ma
 
 Operations on animations, morph targets and LODs are included too
 
+Code is heavily commented, most of the explanations are there !
+
 ## Introduction
 
 Before starting with snippets, we should introduce some convention:
@@ -75,7 +77,7 @@ def fix_pivot(static_mesh):
     # get the origin of the mesh bounds
     center = static_mesh.ExtendedBounds.Origin
     
-    # get the raw data of the mesh, FRawMesh is a strcture holding vertices, uvs, tangents, material indices of a LOD (by default lod 0)
+    # get the raw data of the mesh, FRawMesh is a structure holding vertices, uvs, tangents, material indices of a LOD (by default lod 0)
     raw_mesh = static_mesh.get_raw_mesh()   
     
     # now we create a duplicate of the mesh in the /Game/RePivoted_Meshes folder with the same name suffixed with _RePivoted
