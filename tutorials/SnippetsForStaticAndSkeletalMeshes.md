@@ -455,6 +455,54 @@ In addition to the material_index field, we create the material slots directly f
 
 As we are able now to build SkeletalMeshes, we can start renaming and manipulating bones without crashing the editor.
 
+In this example we take the original mesh, duplicate it (by opening a wizard asking the user where to save the new asset) and we rename each bone by uppercasing it and reversing:
+
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMesh
+
+original_mesh = ue.get_selected_assets()[0]
+
+if not original_mesh.is_a(SkeletalMesh):
+    raise DialogException('the script only works with Skeletal Meshes')
+
+# open a dialog for saving assets, it returns a full path
+new_path = ue.create_modal_save_asset_dialog('Choose destination path', '/Game')
+# get the package name part from the full path
+package_name = ue.object_path_to_package_name(new_path)
+# get the object name from the full path
+object_name = ue.get_base_filename(new_path)
+
+original_skeleton = original_mesh.Skeleton
+
+new_skeleton = Skeleton('{0}_Skeleton'.format(object_name), ue.get_or_create_package('{0}_Skeleton'.format(package_name)))
+
+# iterate each bone and rename it
+for bone_index in range(0, original_skeleton.skeleton_bones_get_num()):
+    # get the index of the parent bone
+    parent_index = original_skeleton.skeleton_get_parent_index(bone_index)
+    # get the transform of the bone
+    bone_transform = original_skeleton.skeleton_get_ref_bone_pose(bone_index)
+    # get the bone name
+    bone_name = original_skeleton.skeleton_get_bone_name(bone_index)
+    # create the new bone by uppercasing the original one and reversing it
+    new_skeleton.skeleton_add_bone(bone_name.upper()[::-1], parent_index, bone_transform)
+
+new_skeleton.save_package()
+
+# the last True argument, allows for overwrite
+new_mesh = original_mesh.duplicate(package_name, object_name, True)
+# assign the new skeleton to the mesh. THIS WORKS ONLY BECAUSE THE NUMBER OF BONES IS >= than the original one
+new_mesh.skeletal_mesh_set_skeleton(new_skeleton)
+
+new_mesh.save_package()
+
+ue.open_editor_for_asset(new_mesh)
+```
+
+![Renamed Bones](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/renamed_bones.PNG)
+
 ## SkeletalMesh: Merging
 
 ## SkeletalMesh: Building from Collada
