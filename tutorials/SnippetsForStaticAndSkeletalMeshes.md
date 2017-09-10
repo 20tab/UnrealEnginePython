@@ -919,6 +919,8 @@ This is a debug session where the character has drawn a point under its position
 
 ![Root Motion](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/root_motion.PNG)
 
+You can download the example svg from here: https://raw.githubusercontent.com/20tab/UnrealEnginePython/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/bezier_path.svg
+
 ## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
