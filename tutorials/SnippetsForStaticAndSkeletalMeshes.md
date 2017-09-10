@@ -207,6 +207,80 @@ Instead of automatically generating the asset name, a dialog will open asking fo
 
 ## SkeletalMesh: Morph Targets
 
+Morph Targets (or Blend Shapes), are a simple form of animation where a specific vertex (and eventually its normal) is translated to a new position. By interpolating the transition from the default position to the new one defined by the morph target, you can generate an animation. Morph Targets are common in facial animations or, more generally, whenever an object must be heavily deformed.
+
+The following screenshots shows a face morph target going (interpolated) from 0 to 1:
+
+![Morph0](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph1.PNG)
+
+![Morph1](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph2.PNG)
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMesh, MorphTarget
+from unreal_engine import FTransform, FVector, FSoftSkinVertex, FMorphTargetDelta
+
+skel = Skeleton()
+
+root_bone_index = skel.skeleton_add_bone('root', -1, FTransform())
+
+skel.save_package('/Game/Snippets/Triangle001_Skeleton')
+
+vertices = []
+
+v = FSoftSkinVertex()
+v.position = FVector(0, 0, 0)
+# UE4 supports up to 8 bone influences
+# the influence value goes from 0 (no influence) to 255 (full influence)
+v.influence_weights = (255, 0, 0, 0, 0, 0, 0)
+v.influence_bones = (root_bone_index, 0, 0, 0, 0, 0, 0)
+
+vertices.append(v)
+
+v = FSoftSkinVertex()
+v.position = FVector(100, 100, 0)
+v.influence_weights = (255, 0, 0, 0, 0, 0, 0)
+v.influence_bones = (root_bone_index, 0, 0, 0, 0, 0, 0)
+
+vertices.append(v)
+
+v = FSoftSkinVertex()
+v.position = FVector(100, 0, 0)
+v.influence_weights = (255, 0, 0, 0, 0, 0, 0)
+v.influence_bones = (root_bone_index, 0, 0, 0, 0, 0, 0)
+
+vertices.append(v)
+
+mesh = SkeletalMesh()
+mesh.skeletal_mesh_set_skeleton(skel)
+
+# build a new skeletal mesh from the vertices list
+mesh.skeletal_mesh_build_lod(vertices)
+
+# a MorphTarget must have its SkeletalMesh as outer
+# leaving the first string as empty will generate a unique name (often the safest choice)
+morph = MorphTarget('', mesh)
+
+# a FMorphTargetDelta structure describes how much a vertex (and/or its normal) must be translated
+delta = FMorphTargetDelta()
+delta.position_delta = FVector(0, 0, 100)
+# this is the id of the vertex to morph, pay attention, this is the internal vertex id
+# that could be different from the original one (its index in the 'vertices' list)
+# to get the mapping between original and internal id, you can use skeletal_mesh_to_import_vertex_map()
+delta.source_idx = 1
+
+# always check for True return value, UE4 could decide to not
+# import a morph delta if the translation is too little
+if morph.morph_target_populate_deltas([delta]):
+    mesh.skeletal_mesh_register_morph_target(morph)
+
+mesh.save_package('/Game/Snippets/Triangle001_Mesh')
+
+# open the asset editor for SkeletalMesh
+ue.open_editor_for_asset(mesh)
+
+```
+
 ## Animations: Parsing ThreeJS json models (version 3)
 
 ## Animations: Getting curves from BVH files
