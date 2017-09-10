@@ -706,6 +706,10 @@ ue.open_editor_for_asset(new_mesh)
 
 Note that all of the resulting bones will be "in use" when opening the Skeleton editor. If you want to mark only active bones, pass a list with all the valid indices to the skeletal_mesh_set_active_bones() method of a SkeletalMesh object.
 
+## SkeletalMesh: Vertex Colors
+
+You can have vertex colors even for skeletal meshes. Differently from StaticMesh they have to be explicitely enabled.
+
 ## SkeletalMesh: Building from Collada
 
 ## SkeletalMesh: Morph Targets
