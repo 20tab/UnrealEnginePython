@@ -323,6 +323,16 @@ ue.open_editor_for_asset(mesh)
 
 ![Cube Skel](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/cube_skel.PNG)
 
+Try translating/rotating each bone to see teh result.
+
+If you are confused about the dot_product part, it is a way to understand if two vectors points in the same direction. If the result of the dot product is near 1 the two vectors points (almost) in the same direction, -1 means they point to opposite directions.
+
+In the scripts UVs are not honoured (they are all zeros). Remember a mesh can have multiple UV channels, so the get_wedge_tex_coords() method of FRawMesh returns a list of list, and the 'uvs' field of FSoftSkinVertex() expect a tuple of tuples: 
+
+```
+v.uvs = ((u0, v0), (u1, v1), ...)
+```
+
 ## SkeletalMesh: Sections
 
 Each LOD of a SkeletalMesh can be composed of multiple sections. Each section can have a different material assigned, so technically, each section costs a draw call.
