@@ -25,9 +25,9 @@ actors = ue.editor_get_selected_actors()
 
 This is a screenshot of getting the name of the selected assets using python list comprehension:
 
-![Content Browser](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/content_browser.PNG)| width=100
+![Content Browser](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/content_browser.PNG)
 
-![get_selected_assets](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/get_selected_assets.PNG)| width=100
+![get_selected_assets](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/get_selected_assets.PNG)
 
 Another convention used in the snippets will be using a custom python Exception whenever an error must be returned to the user:
 
@@ -209,11 +209,9 @@ Instead of automatically generating the asset name, a dialog will open asking fo
 
 Morph Targets (or Blend Shapes), are a simple form of animation where a specific vertex (and eventually its normal) is translated to a new position. By interpolating the transition from the default position to the new one defined by the morph target, you can generate an animation. Morph Targets are common in facial animations or, more generally, whenever an object must be heavily deformed.
 
-The following screenshots shows a face morph target going (interpolated) from 0 to 1:
+The following screenshot shows a face morph target going (interpolated) from 0 to 1:
 
-![Morph0](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph1.PNG | width=100)
-
-![Morph1](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph2.PNG | width=100)
+![Morph 0 to 1](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph_0_to_1.PNG)
 
 ```python
 import unreal_engine as ue
