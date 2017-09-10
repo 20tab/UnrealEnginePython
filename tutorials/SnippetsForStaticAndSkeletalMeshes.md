@@ -923,6 +923,22 @@ You can download the example svg from here: https://raw.githubusercontent.com/20
 
 ## Animations: Parsing ThreeJS json models (version 3)
 
+This is a pretty big script that will import a ThreeJS json model file into Unreal Engine 4.
+
+You are encouraged to implement it as a Factory like described here: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython.md
+
+You can download the script from here: https://raw.githubusercontent.com/20tab/UnrealEnginePython/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/threejs_importer.py
+
+The example model is the classic knight.js (format 3): https://raw.githubusercontent.com/20tab/UnrealEnginePython/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/knight.js
+
+Once you run the script, you will end with a SkeletalMesh with an animation and 3 Morph Targets:
+
+![Knight](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/knight.PNG)
+
+![Knight Morph](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/knight_morph.PNG)
+
+The only relevant part in the code is the (a bit convoluted) way we move from OpenGL based conventions (y on top, x right, z forward right handed, counterwise backface culling) to the UE4 ones (z on top, x forward left handed, y right, clockwise backface culling)
+
 ## Animations: Getting curves from BVH files
 
 BVH files are interesting for lot of reasons. First of all, BVH is basically the standard de-facto for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
