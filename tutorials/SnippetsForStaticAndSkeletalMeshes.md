@@ -939,6 +939,37 @@ Once you run the script, you will end with a SkeletalMesh with an animation and 
 
 The only relevant part in the code is the (a bit convoluted) way we move from OpenGL based conventions (y on top, x right, z forward right handed, counterwise backface culling) to the UE4 ones (z on top, x forward left handed, y right, clockwise backface culling)
 
+This method is how we build the skeleton:
+
+```python
+    def build_skeleton(self, pkg_name, obj_name):
+        pkg = ue.get_or_create_package('{0}_Skeleton'.format(pkg_name))
+        skel = Skeleton('{0}_Skeleton'.format(obj_name), pkg)
+        # add a root bone from which all of the others will descend 
+        # (this trick will avoid generating an invalid skeleton [and a crash], as in UE4 only one root can exist)
+        skel.skeleton_add_bone('root', -1, FTransform())
+        # iterate bones in the json file, note that we move from opengl axis to UE4
+        # (y on top, x right, z forward right-handed) to (y right, x forward left-handed, z on top)
+        for bone in self.model['bones']:
+            # assume no rotation
+            quat = FQuat()
+            # give priority to quaternions
+            # remember to negate x and y axis, as we invert z on position
+            if 'rotq' in bone:
+                quat = FQuat(bone['rotq'][2], bone['rotq'][0] * -1,
+                             bone['rotq'][1] * -1, bone['rotq'][3])
+            elif 'rot' in bone:
+                quat = FRotator(bone['rot'][2], bone['rot'][0] * -
+                                1, bome['rot'][1] * -1).quaternion()
+            pos = FVector(bone['pos'][2] * -1, bone['pos'][0],
+                          bone['pos'][1]) * self.scale
+            # always set parent+1 as we added the root bone before
+            skel.skeleton_add_bone(
+                bone['name'], bone['parent'] + 1, FTransform(pos, quat))
+        skel.save_package()
+        return skel
+```
+
 ## Animations: Getting curves from BVH files
 
 BVH files are interesting for lot of reasons. First of all, BVH is basically the standard de-facto for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
