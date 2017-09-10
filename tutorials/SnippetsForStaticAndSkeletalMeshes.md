@@ -449,6 +449,8 @@ ue.open_editor_for_asset(mesh)
 
 ![Cube Skel Sections](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/cube_skel_sections.PNG)
 
+In addition to the material_index field, we create the material slots directly from the script (you can obivously do it manually), otherwise the 'sections' area in the editor will not appear until you create the related material slot.
+
 ## Skeleton: Renaming bones
 
 As we are able now to build SkeletalMeshes, we can start renaming and manipulating bones without crashing the editor.
