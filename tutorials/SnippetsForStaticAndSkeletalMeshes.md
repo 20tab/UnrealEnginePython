@@ -211,9 +211,9 @@ Morph Targets (or Blend Shapes), are a simple form of animation where a specific
 
 The following screenshots shows a face morph target going (interpolated) from 0 to 1:
 
-![Morph0](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph1.PNG|width=100)
+![Morph0](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph1.PNG | width=100)
 
-![Morph1](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph2.PNG|width=100)
+![Morph1](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/morph2.PNG | width=100)
 
 ```python
 import unreal_engine as ue
