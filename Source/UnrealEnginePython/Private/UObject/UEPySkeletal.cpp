@@ -950,8 +950,10 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject
 	if (!morph)
 		return PyErr_Format(PyExc_Exception, "argument is not a MorphTarget");
 
+#if ENGINE_MINOR_VERSION > 15
 	if (!morph->HasValidData())
 		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
+#endif
 
 #if WITH_EDITOR
 	mesh->PreEditChange(nullptr);
@@ -1007,12 +1009,16 @@ PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *self, PyObject * args
 
 	morph->PopulateDeltas(deltas, lod_index);
 
+#if ENGINE_MINOR_VERSION > 15
 	if (morph->HasValidData())
 	{
 		Py_RETURN_TRUE;
 	}
 
 	Py_RETURN_FALSE;
+#else
+	Py_RETURN_TRUE;
+#endif
 }
 
 PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *self, PyObject * args)
