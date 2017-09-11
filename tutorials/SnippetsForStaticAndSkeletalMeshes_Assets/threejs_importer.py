@@ -44,8 +44,8 @@ class ThreeJSLoader:
                 quat = FQuat(bone['rotq'][2], bone['rotq'][0] * -1,
                              bone['rotq'][1] * -1, bone['rotq'][3])
             elif 'rot' in bone:
-                quat = FRotator(bone['rot'][2], bone['rot'][0] * -
-                                1, bome['rot'][1] * -1).quaternion()
+                quat = FRotator(bone['rot'][2], bone['rot'][0] - 180
+                                , bone['rot'][1] - 180).quaternion()
             pos = FVector(bone['pos'][2] * -1, bone['pos'][0],
                           bone['pos'][1]) * self.scale
             # always set parent+1 as we added the root bone before
@@ -227,7 +227,7 @@ class ThreeJSLoader:
                             (t, FQuat(key['rot'][2], key['rot'][0] * -1, key['rot'][1] * -1, key['rot'][3])))
                     else:
                         rotations.append(
-                            (t, FRotator(key['rot'][2], key['rot'][0] * -1, key['rot'][1] * -1).quaternion()))
+                            (t, FRotator(key['rot'][2], key['rot'][0] - 180, key['rot'][1] - 180).quaternion()))
             pos_keys = []
             rot_keys = []
             # generate the right number of frames
