@@ -953,11 +953,15 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject
 	if (!morph->HasValidData())
 		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
 
+#if WITH_EDITOR
 	mesh->PreEditChange(nullptr);
+#endif
 
 	mesh->RegisterMorphTarget(morph);
 
+#if WITH_EDITOR
 	mesh->PostEditChange();
+#endif
 	mesh->MarkPackageDirty();
 
 	Py_RETURN_NONE;
