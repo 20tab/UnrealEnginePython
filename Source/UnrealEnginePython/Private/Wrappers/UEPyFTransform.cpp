@@ -178,7 +178,45 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 		}
 		else
 		{
-			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+			PyObject *py_iter = PyObject_GetIter(py_translation);
+			if (py_iter)
+			{
+				FMatrix matrix;
+				for (int row = 0; row < 4; row++)
+				{
+					for (int column = 0; column < 4; column++)
+					{
+						PyObject *py_item = PyIter_Next(py_iter);
+						if (!py_item)
+						{
+							PyErr_SetString(PyExc_Exception, "matrix is not 4x4");
+							Py_DECREF(py_iter);
+							return -1;
+						}
+
+						if (!PyNumber_Check(py_item))
+						{
+							PyErr_SetString(PyExc_Exception, "matrix can contains only float");
+							Py_DECREF(py_iter);
+							return -1;
+						}
+
+						PyObject *py_num = PyNumber_Float(py_item);
+						if (!py_num)
+						{
+							PyErr_SetString(PyExc_Exception, "matrix can contains only float");
+							Py_DECREF(py_iter);
+							return -1;
+						}
+						matrix.M[row][column] = PyFloat_AsDouble(py_num);
+						Py_DECREF(py_num);
+					}
+				}
+				self->transform.SetFromMatrix(matrix);
+				Py_DECREF(py_iter);
+				return 0;
+			}
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector or a 4x4 float matrix");
 			return -1;
 		}
 	}
@@ -230,13 +268,17 @@ static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value)
 	{
 		t *= py_quat->quat;
 	}
+	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
+	{
+		t *= py_rot->rot.Quaternion();
+	}
 	else if (ue_PyFTransform *py_transform = py_ue_is_ftransform(value))
 	{
 		t *= py_transform->transform;
 	}
 	else
 	{
-		return PyErr_Format(PyExc_TypeError, "FTransform can be multiplied only for an FQuat or an FTransform");
+		return PyErr_Format(PyExc_TypeError, "FTransform can be multiplied only for an FQuat, an FRotator or an FTransform");
 	}
 	return py_ue_new_ftransform(t);
 }
