@@ -1238,6 +1238,30 @@ for idx, import_index in enumerate(import_map):
     ...
 ```
 
+Finally, animations in Unreal have a fixed number of frames, while often we have only keyframes (tuple of time and value).
+
+For this reason a common operation is to generate a new keyframe from a non linear series of keyframes. The numpy.interp() function is really handy, the following snippets show how we get a vector at specific time from a series of non-linear vector-based keyframes.
+
+```python
+    def interpolate_vector(self, timeline, t):
+        keys = []
+        x_values = []
+        y_values = []
+        z_values = []
+        for key, value in timeline:
+            keys.append(key)
+            x_values.append(value[0])
+            y_values.append(value[1])
+            z_values.append(value[2])
+
+        x = numpy.interp(t, keys, x_values)
+        y = numpy.interp(t, keys, y_values)
+        z = numpy.interp(t, keys, z_values)
+        return FVector(x, y, z)
+```
+
+Remember, you can use the same approach with quaternions, but NOT with rotators !
+
 ## Animations: Getting curves from BVH files
 
-BVH files are interesting for lot of reasons. First of all, BVH is basically the standard de-facto for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
+BVH files are interesting for lot of reasons. First of all, BVH is basically the de-facto standard for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
