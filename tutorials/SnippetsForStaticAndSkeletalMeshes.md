@@ -854,6 +854,169 @@ Note, that this example use the original skeleton for the mesh. For real-world c
 
 ## SkeletalMesh: Building from Collada
 
+There is already a tutorial for importing collada files as static meshes (https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython.md). This snippet shows how to import skeletal meshes. You can combine both to build a full-featured importer.
+
+The main topic here is how to deal with matrices. Collada files expose bone infos as 4x4 column major matrices. FTransform objects can be built by passing them a 4x4 matrix in the UE4 convention (row-major). Collada obviously follows the OpenGL conventions (column-major), so we need to transpose all matrices. The pycollada modules returns matrices as numpy arrays, so in addition to transposing we need to flatten them (FTransform expects a simple iterator of 16 float elements).
+
+Remember to install the pycollada module:
+
+```
+pip install pycollada
+```
+
+Here is the code, note that this time we do not save assets. All of the objects are transient (storing them is left as exercise).
+
+Check how we need to fix UVs too, as UE4 do not use the OpenGL convention (damn, this is starting to become annoying ;) of texcoords origin on the left-bottom.
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMesh
+from unreal_engine import FTransform, FSoftSkinVertex, FVector, FRotator, FQuat
+
+from collada import Collada
+import numpy
+
+class ColladaLoader:
+
+    def __init__(self, filename):
+        self.dae = Collada(filename)
+        self.controller = self.dae.controllers[0]
+        # while i love quaternions, building them from euler rotations
+        # looks generally easier to the reader...
+        # this rotation is required for fixing the inverted Z axis on
+        # bone positions. As bind pose should have rotations set to 0
+        # we will apply this quaternion directly to bone positions
+        self.base_quaternion = FRotator(0, 180, 180).quaternion()
+        self.skeleton = self.get_skeleton()
+        self.mesh = self.get_mesh(self.controller.geometry)
+        
+    def get_skeleton(self):
+        # this mapping will allows us to fast retrieve a bone index, given its name
+        # instead of relying on UE4 api
+        self.bone_mapping = {}
+        for scene in self.dae.scenes:
+            # find the first node of type 'JOINT'
+            for node in scene.nodes:
+                if node.xmlnode.attrib.get('type', None) == 'JOINT':
+                    self.skeleton = Skeleton()
+                    self.traverse_hierarchy(node, FTransform(), -1)
+                    return self.skeleton
+
+    def traverse_hierarchy(self, node, parent_transform, parent_id):
+        transform = FTransform(self.controller.joint_matrices[node.id].transpose().flatten())
+        v0 = transform.translation
+        q0 = transform.quaternion
+
+        # fix axis from OpenGL to UE4 (note the quaternion multiplication)
+        transform.translation = FVector(v0.z, v0.x, v0.y) * self.base_quaternion
+        transform.quaternion = FQuat(q0[2], q0[0] * -1, q0[1] * -1, q0[3])
+
+        relative_transform = transform * parent_transform.inverse()
+        
+        parent_id = self.skeleton.skeleton_add_bone(node.id, parent_id, relative_transform)
+        # used for fast joint mapping
+        self.bone_mapping[node.id] = parent_id
+        for child in node.children:
+            if child.xmlnode.attrib.get('type', None) == 'JOINT':
+                self.traverse_hierarchy(child, transform, parent_id)
+
+    def get_mesh(self, geometry):
+        print(self.bone_mapping)
+        self.mesh = SkeletalMesh()
+        self.mesh.skeletal_mesh_set_skeleton(self.skeleton)
+        triset = geometry.primitives[0]
+        # the numpy.ravel function, completely flatten an array
+        vertices = numpy.ravel(triset.vertex[triset.vertex_index])
+        uvs = numpy.ravel(triset.texcoordset[0][triset.texcoord_indexset[0]])
+        normals = numpy.ravel(triset.normal[triset.normal_index])
+        # currently pycollada has no shortcuts for bones list
+        bones = []
+        weights = []
+        for index in triset.vertex_index:
+            influence_bones = []
+            influence_weights = []
+            for influence in self.controller.index[index]:
+                influence_bones.append(self.bone_mapping[self.controller.weight_joints[influence[0]]])
+                weight_value = int(self.controller.weights[influence[1]] * 255)
+                # hack for avoiding required bones to be skipped
+                # most of file weights will result in 254 instead of 255 (this is caused by float instability)
+                if weight_value == 0:
+                    weight_value = 1
+                influence_weights.append(weight_value)
+            bones.append(influence_bones)
+            weights.append(influence_weights)
+        soft_vertices = self.build_soft_vertices(vertices, uvs, normals, bones, weights)
+        self.mesh.skeletal_mesh_build_lod(soft_vertices)
+        return self.mesh
+        
+    def build_soft_vertices(self, vertices, uvs, normals, bones, weights):
+        soft_vertices = []
+        for i in range(0, len(vertices), 3):
+           v = FSoftSkinVertex()
+           xv, yv, zv = vertices[i], vertices[i+1], vertices[i+2]
+           # invert forward
+           v.position = FVector(zv * -1, xv, yv)
+           xn, yn, zn = normals[i], normals[i+1], normals[i+2]
+           # invert forward
+           v.tangent_z = FVector(zn * -1, xn, yn)
+
+           # get uv index
+           uv_index = int(i / 3 * 2)
+           # fix uvs from 0 on bottom to 0 on top
+           v.uvs = [(uvs[uv_index], 1 - uvs[uv_index+1])]
+
+           # get joint index
+           joint_index = int(i / 3)
+           # fix a special condition where the first bone has zero weight
+           # but there are multiple influences. This is required as UE4 automatically
+           # modify the first bone if weight normalization fails
+           new_best_index = weights[joint_index].index(max(weights[joint_index]))
+           if new_best_index > 0:
+               first_bone = bones[joint_index][new_best_index]
+               first_weight = weights[joint_index][new_best_index]
+               bones[joint_index][new_best_index] = bones[joint_index][0]
+               weights[joint_index][new_best_index] = weights[joint_index][0]
+               bones[joint_index][0] = first_bone
+               weights[joint_index][0] = first_weight
+           v.influence_bones = bones[joint_index]
+           v.influence_weights = weights[joint_index]
+           soft_vertices.append(v)
+
+        return soft_vertices
+
+filename = ue.open_file_dialog('Choose a Collada file', '', '', 'Collada|*.dae;')[0]
+loader = ColladaLoader(filename)
+ue.open_editor_for_asset(loader.skeleton)
+```
+
+A note about joints management in UE4.
+
+Unreal expects each vertex weights to be normalized. It means their sum must be 255 (maximum value for FSoftSkinVertex). If the sum
+is not 255, UE4 will automatically add the required weight to the first bone influence.
+
+This behaviour could lead to annoying errors generated by float errors (Collada exposes bone weights as float value in the range 0..1).
+
+As an example, most of the vertices will result in a total weight of 254 (instead of 255), and (more bad), Collada does not enforce the first influence to be the one with the highest value.
+
+For both reasons we add 1 to 0 weights (collada files does not report bone influences with a weight of 0, so we are safe) and, more important, we reorder bone influences in a way that the first one is always the one with the higher weight (more infos in the code comments):
+
+```python
+           new_best_index = weights[joint_index].index(max(weights[joint_index]))
+           if new_best_index > 0:
+               first_bone = bones[joint_index][new_best_index]
+               first_weight = weights[joint_index][new_best_index]
+               bones[joint_index][new_best_index] = bones[joint_index][0]
+               weights[joint_index][new_best_index] = weights[joint_index][0]
+               bones[joint_index][0] = first_bone
+               weights[joint_index][0] = first_weight
+           v.influence_bones = bones[joint_index]
+           v.influence_weights = weights[joint_index]
+```
+
+If all goes well you wll end with your model correctly loaded (the screenshot shows a mixamo-exported model):
+
+![Collada](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/collada.PNG)
+
 ## SkeletalMesh: Morph Targets
 
 Morph Targets (or Blend Shapes), are a simple form of animation where a specific vertex (and eventually its normal) is translated to a new position. By interpolating the transition from the default position to the new one defined by the morph target, you can generate an animation. Morph Targets are common in facial animations or, more generally, whenever an object must be heavily deformed.
@@ -1046,8 +1209,8 @@ This method is how we build the skeleton:
                 quat = FQuat(bone['rotq'][2], bone['rotq'][0] * -1,
                              bone['rotq'][1] * -1, bone['rotq'][3])
             elif 'rot' in bone:
-                quat = FRotator(bone['rot'][2], bone['rot'][0] * -
-                                1, bome['rot'][1] * -1).quaternion()
+                quat = FRotator(bone['rot'][2], bone['rot'][0] - 180
+                                , bone['rot'][1] - 180).quaternion()
             pos = FVector(bone['pos'][2] * -1, bone['pos'][0],
                           bone['pos'][1]) * self.scale
             # always set parent+1 as we added the root bone before
