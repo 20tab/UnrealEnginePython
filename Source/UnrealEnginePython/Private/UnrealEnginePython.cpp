@@ -303,7 +303,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code) {
 		return Code;
 	}
 
-	PyObject *ret = PyObject_CallFunction(pep8izer_func, "s", TCHAR_TO_UTF8(*Code));
+	PyObject *ret = PyObject_CallFunction(pep8izer_func, (char *)"s", TCHAR_TO_UTF8(*Code));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		// return the original string to avoid losing data
