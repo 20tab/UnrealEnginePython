@@ -866,7 +866,7 @@ pip install pycollada
 
 Here is the code, note that this time we do not save assets. All of the objects are transient (storing them is left as exercise).
 
-Check how we need to fix UVs too, as UE4 do not use the OpenGL convention (damn, this is starting to become annoying ;) of texcoords origin on the left-bottom.
+Check how we need to fix UVs too, as UE4 do not use the OpenGL convention (damn, this is starting to become annoying ;) of texcoords origin on the left-bottom. More infos about switching conventions are in the below snippet about ThreeJS models.
 
 ```python
 import unreal_engine as ue
@@ -907,7 +907,7 @@ class ColladaLoader:
         v0 = transform.translation
         q0 = transform.quaternion
 
-        # fix axis from OpenGL to UE4 (note the quaternion multiplication)
+        # fix axis from OpenGL to UE4 (note the quaternion multiplication that we use instead of inverting the z)
         transform.translation = FVector(v0.z, v0.x, v0.y) * self.base_quaternion
         transform.quaternion = FQuat(q0[2], q0[0] * -1, q0[1] * -1, q0[3])
 
