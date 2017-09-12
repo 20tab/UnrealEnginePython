@@ -286,7 +286,7 @@ In the screenshot you can note how highlighting a specific material slot will re
 
 ## Skeleton: Building a new tree
 
-A Skeleton is an asset describing the tree of bones that influences a SkeletalMesh. While building a new skeleton (or adding a bone to it) is pretty easy, modifying or destroying a skeleton is always a risky operation. You should always generate a new Skeleton and the related SkeletalMesh whenever you need to change the bones tree.
+A Skeleton is an asset describing the tree of bones that influence a SkeletalMesh. While building a new skeleton (or adding a bone to it) is pretty easy, modifying or destroying a skeleton is always a risky operation. You should always generate a new Skeleton and the related SkeletalMesh whenever you need to change the bones tree.
 
 In this example we create a simple skeleton:
 
