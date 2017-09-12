@@ -1265,3 +1265,108 @@ Remember, you can use the same approach with quaternions, but NOT with rotators 
 ## Animations: Getting curves from BVH files
 
 BVH files are interesting for lot of reasons. First of all, BVH is basically the de-facto standard for motion capture devices. It is a textual human-readable format. And, maybe more important for this page, will heavily push your linear-algebra skills...
+
+The BVH specs are described in this old document: https://research.cs.wisc.edu/graphics/Courses/cs-838-1999/Jeff/BVH.html
+
+Lucky enough, here in 20tab we built a python module for parsing bvh files: https://github.com/20tab/bvh-python
+
+```
+pip install bvh
+```
+
+It is a simple parser that returns simple float lists/tuples that we can use to build vectors and quaternions.
+
+BVH files only contain a skeleton definition (by specifying joint positions) and an animation.
+
+This script will parse a bvh file and will return a transient skeleton (with an empty skeletal mesh associated) and an animation:
+
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Skeleton, SkeletalMesh, AnimSequence
+from unreal_engine import FTransform, FVector, FRotator, FQuat, FRawAnimSequenceTrack
+
+from bvh import Bvh
+
+filename = ue.open_file_dialog('Choose your bvh file', '', '', 'Mocap BVH files|*.bvh;')[0]
+
+with open(filename) as f:
+    mocap = Bvh(f.read())
+
+skeleton = Skeleton()
+
+for joint_name in mocap.get_joints_names():
+    offset = mocap.joint_offset(joint_name)
+    parent_id = mocap.joint_parent_index(joint_name)
+    # fix z value by inverting it, it will avoid left/right bone name mismatching
+    position = FVector(*offset) * FVector(1, 1, -1)
+    skeleton.skeleton_add_bone(joint_name, parent_id, FTransform(position))
+
+mesh = SkeletalMesh()
+mesh.skeletal_mesh_set_skeleton(skeleton)
+
+# build an empty LOD, this is the minimal required to see bones
+# in the editor
+mesh.skeletal_mesh_build_lod([])
+
+anim = AnimSequence()
+anim.Skeleton = skeleton
+anim.NumFrames = mocap.nframes
+anim.SequenceLength = mocap.frame_time * mocap.nframes
+
+# iterate each skeleton joint and create a track for each one
+for joint_id, joint_name in enumerate(mocap.get_joints_names()):
+    track = FRawAnimSequenceTrack()
+    bone_transform = skeleton.skeleton_get_ref_bone_pose(joint_id)
+    pos_keys = []
+    rot_keys = []
+    # the python bvh module allows us to choose in which order we want channels
+    rotations = mocap.frames_joint_channels(joint_name, ('Xrotation', 'Yrotation', 'Zrotation'))
+    positions = []
+
+    # get root motion data for first bone
+    if joint_id == 0:
+        positions = mocap.frames_joint_channels(joint_name, ('Xposition', 'Yposition', 'Zposition'), 0)
+   
+    # quaternions do not suffer from gimbal lock as we can choose the rotation order
+    for rotation in rotations:
+        # BVH uses the ZXY rotation order (roll, pitch, yaw)
+        roll = FRotator(rotation[0], 0, 0).quaternion()
+        pitch = FRotator(0, rotation[1], 0).quaternion()
+        yaw = FRotator(0, 0, rotation[2]).quaternion()
+        # remember that quaternion multiplications are applied in the reverse
+        q = yaw * pitch * roll
+
+        # as we did not fix the bones axis, we rotate the root one accordingly
+        if joint_id == 0:
+            q = FRotator(-90, 0, 0).quaternion() * q
+
+        rot_keys.append(q)
+
+    # remember to always add the bind pose position to the animation track
+    for position in positions:
+        pos_keys.append(bone_transform.translation + FVector(position[0], position[2], position[1]))
+
+    if not pos_keys:
+        pos_keys = [bone_transform.translation]
+
+    track.pos_keys = pos_keys
+    track.rot_keys = rot_keys
+    anim.add_new_raw_track(joint_name, track)
+
+ue.open_editor_for_asset(anim)
+```
+
+Again, dealing with different convention here is the most complex part. In this example we do not swap axis, instead we rotate the root bone in the animation itelf:
+
+![BVH](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/bvh.PNG)
+
+
+## Final Notes
+
+The following two tutorials are good companions for the snippets:
+
+https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython.md (for fixing Mixamo root motion)
+
+https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython.md (Collada StaticMesh importer)
+
+If you have a cool snippet that you want to share, just make a pull request !
