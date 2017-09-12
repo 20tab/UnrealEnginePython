@@ -911,6 +911,7 @@ class ColladaLoader:
         transform.translation = FVector(v0.z, v0.x, v0.y) * self.base_quaternion
         transform.quaternion = FQuat(q0[2], q0[0] * -1, q0[1] * -1, q0[3])
 
+        # each bone in collada is in world position (while unreal wants relative positions), we 'subtract' here the parent position
         relative_transform = transform * parent_transform.inverse()
         
         parent_id = self.skeleton.skeleton_add_bone(node.id, parent_id, relative_transform)
@@ -1016,6 +1017,8 @@ For both reasons we add 1 to 0 weights (collada files does not report bone influ
 If all goes well you wll end with your model correctly loaded (the screenshot shows a mixamo-exported model):
 
 ![Collada](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes_Assets/collada.PNG)
+
+As you could have already noted in the comments, joints/bones matrices in collada files are world-relative, while UE4 expects each bone to be relative to the parent. For this reason we multiply each matrix for the inverse of its parent.
 
 ## SkeletalMesh: Morph Targets
 
