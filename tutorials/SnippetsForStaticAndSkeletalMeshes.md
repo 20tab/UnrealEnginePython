@@ -1372,4 +1372,6 @@ https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRo
 
 https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython.md (Collada StaticMesh importer)
 
+Most of the snippets work on the currently selected asset/actors. Feel free to associate them to a context menu or an asset loader.
+
 If you have a cool snippet that you want to share, just make a pull request !
