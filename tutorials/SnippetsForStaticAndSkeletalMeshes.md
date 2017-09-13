@@ -1101,7 +1101,7 @@ Pay attention to the 'delta.source_idx' value as on bigger meshes it could not m
 
 ## Animations: Root Motion from SVG path
 
-This funny example build an animation from an SVG file.
+This funny example builds an animation from an SVG file.
 
 The animation will only contain a motion track (for the root bone) and will set keys based on the first path curve found in a SVG file.
 
