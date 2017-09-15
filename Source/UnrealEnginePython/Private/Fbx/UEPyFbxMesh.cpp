@@ -1,9 +1,8 @@
-#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFbx.h"
 
 #if WITH_EDITOR
-
-#include "UEPyFbx.h"
+#if ENGINE_MINOR_VERSION > 12
 
 static PyObject *py_ue_fbx_mesh_get_polygon_count(ue_PyFbxMesh *self, PyObject *args)
 {

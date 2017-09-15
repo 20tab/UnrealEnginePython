@@ -1,10 +1,8 @@
-#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
-
-#if WITH_EDITOR
-
 #include "UEPyFbx.h"
 
+#if WITH_EDITOR
+#if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_fbx_node_get_child_count(ue_PyFbxNode *self, PyObject *args) {
 	return PyLong_FromLong(self->fbx_node->GetChildCount());
 }
