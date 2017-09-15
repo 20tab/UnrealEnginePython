@@ -6,13 +6,16 @@
 
 #include "UEPyFbx.h"
 
-static PyObject *py_ue_fbx_importer_get_anim_stack_count(ue_PyFbxImporter *self, PyObject *args) {
+static PyObject *py_ue_fbx_importer_get_anim_stack_count(ue_PyFbxImporter *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_importer->GetAnimStackCount());
 }
 
-static PyObject *py_ue_fbx_importer_get_take_local_time_span(ue_PyFbxImporter *self, PyObject *args) {
+static PyObject *py_ue_fbx_importer_get_take_local_time_span(ue_PyFbxImporter *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
 
@@ -24,37 +27,45 @@ static PyObject *py_ue_fbx_importer_get_take_local_time_span(ue_PyFbxImporter *s
 	return Py_BuildValue((char *)"(ff)", time_span.GetStart().GetSecondDouble(), time_span.GetStop().GetSecondDouble());
 }
 
-static PyObject *py_ue_fbx_importer_initialize(ue_PyFbxImporter *self, PyObject *args) {
+static PyObject *py_ue_fbx_importer_initialize(ue_PyFbxImporter *self, PyObject *args)
+{
 	char *filename;
 	PyObject *py_object;
-	if (!PyArg_ParseTuple(args, "sO", &filename, &py_object)) {
+	if (!PyArg_ParseTuple(args, "sO", &filename, &py_object))
+	{
 		return nullptr;
 	}
 
 	ue_PyFbxIOSettings *py_fbx_io_settings = py_ue_is_fbx_io_settings(py_object);
-	if (!py_fbx_io_settings) {
+	if (!py_fbx_io_settings)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FbxIOSettings");
 	}
 
-	if (self->fbx_importer->Initialize(filename, -1, py_fbx_io_settings->fbx_io_settings)) {
+	if (self->fbx_importer->Initialize(filename, -1, py_fbx_io_settings->fbx_io_settings))
+	{
 		Py_RETURN_TRUE;
 	}
 
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_fbx_importer_import(ue_PyFbxImporter *self, PyObject *args) {
+static PyObject *py_ue_fbx_importer_import(ue_PyFbxImporter *self, PyObject *args)
+{
 	PyObject *py_object;
-	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+	if (!PyArg_ParseTuple(args, "O", &py_object))
+	{
 		return nullptr;
 	}
 
 	ue_PyFbxScene *py_fbx_scene = py_ue_is_fbx_scene(py_object);
-	if (!py_fbx_scene) {
+	if (!py_fbx_scene)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FbxScene");
 	}
 
-	if (self->fbx_importer->Import(py_fbx_scene->fbx_scene)) {
+	if (self->fbx_importer->Import(py_fbx_scene->fbx_scene))
+	{
 		Py_RETURN_TRUE;
 	}
 
@@ -102,15 +113,18 @@ static PyTypeObject ue_PyFbxImporterType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_importer_init(ue_PyFbxImporter *self, PyObject * args) {
+static int py_ue_fbx_importer_init(ue_PyFbxImporter *self, PyObject * args)
+{
 	PyObject *py_object;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os", &py_object, &name)) {
+	if (!PyArg_ParseTuple(args, "Os", &py_object, &name))
+	{
 		return -1;
 	}
 
 	ue_PyFbxManager *py_fbx_manager = py_ue_is_fbx_manager(py_object);
-	if (!py_fbx_manager) {
+	if (!py_fbx_manager)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a FbxManager");
 		return -1;
 	}
@@ -119,7 +133,8 @@ static int py_ue_fbx_importer_init(ue_PyFbxImporter *self, PyObject * args) {
 	return 0;
 }
 
-void ue_python_init_fbx_importer(PyObject *ue_module) {
+void ue_python_init_fbx_importer(PyObject *ue_module)
+{
 	ue_PyFbxImporterType.tp_new = PyType_GenericNew;;
 	ue_PyFbxImporterType.tp_init = (initproc)py_ue_fbx_importer_init;
 	if (PyType_Ready(&ue_PyFbxImporterType) < 0)

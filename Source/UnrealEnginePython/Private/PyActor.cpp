@@ -22,13 +22,15 @@ void APyActor::PreInitializeComponents()
 	FScopePythonGIL gil;
 
 	py_uobject = ue_get_python_wrapper(this);
-	if (!py_uobject) {
+	if (!py_uobject)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
 
 	PyObject *py_actor_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
-	if (!py_actor_module) {
+	if (!py_actor_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -36,7 +38,8 @@ void APyActor::PreInitializeComponents()
 #if WITH_EDITOR
 	// todo implement autoreload with a dictionary of module timestamps
 	py_actor_module = PyImport_ReloadModule(py_actor_module);
-	if (!py_actor_module) {
+	if (!py_actor_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -48,13 +51,15 @@ void APyActor::PreInitializeComponents()
 	PyObject *py_actor_module_dict = PyModule_GetDict(py_actor_module);
 	PyObject *py_actor_class = PyDict_GetItemString(py_actor_module_dict, TCHAR_TO_UTF8(*PythonClass));
 
-	if (!py_actor_class) {
+	if (!py_actor_class)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to find class %s in module %s"), *PythonClass, *PythonModule);
 		return;
 	}
 
 	py_actor_instance = PyObject_CallObject(py_actor_class, NULL);
-	if (!py_actor_instance) {
+	if (!py_actor_instance)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -63,7 +68,8 @@ void APyActor::PreInitializeComponents()
 
 	PyObject_SetAttrString(py_actor_instance, (char*)"uobject", (PyObject *)py_uobject);
 
-	if (!PyObject_HasAttrString(py_actor_instance, (char *)"tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_actor_instance, (char *)"tick") || PythonTickForceDisabled)
+	{
 		SetActorTickEnabled(false);
 	}
 
@@ -76,7 +82,8 @@ void APyActor::PreInitializeComponents()
 		return;
 
 	PyObject *pic_ret = PyObject_CallMethod(py_actor_instance, (char *)"pre_initialize_components", NULL);
-	if (!pic_ret) {
+	if (!pic_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -97,7 +104,8 @@ void APyActor::PostInitializeComponents()
 		return;
 
 	PyObject *pic_ret = PyObject_CallMethod(py_actor_instance, (char *)"post_initialize_components", NULL);
-	if (!pic_ret) {
+	if (!pic_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -118,7 +126,8 @@ void APyActor::BeginPlay()
 		return;
 
 	PyObject *bp_ret = PyObject_CallMethod(py_actor_instance, (char *)"begin_play", NULL);
-	if (!bp_ret) {
+	if (!bp_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -140,7 +149,8 @@ void APyActor::Tick(float DeltaTime)
 		return;
 
 	PyObject *ret = PyObject_CallMethod(py_actor_instance, (char *)"tick", (char *)"f", DeltaTime);
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -155,10 +165,12 @@ void APyActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_HasAttrString(py_actor_instance, (char *)"end_play")) {
+	if (PyObject_HasAttrString(py_actor_instance, (char *)"end_play"))
+	{
 		PyObject *ep_ret = PyObject_CallMethod(py_actor_instance, (char *)"end_play", (char*)"i", (int)EndPlayReason);
 
-		if (!ep_ret) {
+		if (!ep_ret)
+		{
 			unreal_engine_py_log_error();
 		}
 
@@ -178,14 +190,17 @@ void APyActor::CallPythonActorMethod(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -200,18 +215,22 @@ bool APyActor::CallPythonActorMethodBool(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return false;
 	}
 
-	if (PyObject_IsTrue(ret)) {
+	if (PyObject_IsTrue(ret))
+	{
 		Py_DECREF(ret);
 		return true;
 	}
@@ -228,19 +247,23 @@ FString APyActor::CallPythonActorMethodString(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_actor_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return FString();
 	}
 
 	PyObject *py_str = PyObject_Str(ret);
-	if (!py_str) {
+	if (!py_str)
+	{
 		Py_DECREF(ret);
 		return FString();
 	}
@@ -262,7 +285,8 @@ APyActor::~APyActor()
 	ue_pydelegates_cleanup(py_uobject);
 
 #if defined(UEPY_MEMORY_DEBUG)
-	if (py_actor_instance && py_actor_instance->ob_refcnt != 1) {
+	if (py_actor_instance && py_actor_instance->ob_refcnt != 1)
+	{
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python AActor wrapper refcnt = %d"), py_actor_instance->ob_refcnt);
 	}
 #endif

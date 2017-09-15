@@ -44,6 +44,7 @@
 
 #include "Wrappers/UEPyFPythonOutputDevice.h"
 #include "Wrappers/UEPyFSoftSkinVertex.h"
+#include "Wrappers/UEPyFMorphTargetDelta.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"

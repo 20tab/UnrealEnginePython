@@ -1,10 +1,12 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-static PyObject *py_ue_fcolor_to_hex(ue_PyFColor *self, PyObject * args) {
+static PyObject *py_ue_fcolor_to_hex(ue_PyFColor *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->color.ToString()));
 }
 
-static PyObject *py_ue_fcolor_to_linear(ue_PyFColor *self, PyObject * args) {
+static PyObject *py_ue_fcolor_to_linear(ue_PyFColor *self, PyObject * args)
+{
 	return py_ue_new_flinearcolor(self->color.ReinterpretAsLinear());
 }
 
@@ -14,12 +16,15 @@ static PyMethodDef ue_PyFColor_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static PyObject *py_ue_fcolor_get_r(ue_PyFColor *self, void *closure) {
+static PyObject *py_ue_fcolor_get_r(ue_PyFColor *self, void *closure)
+{
 	return PyLong_FromLong(self->color.R);
 }
 
-static int py_ue_fcolor_set_r(ue_PyFColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fcolor_set_r(ue_PyFColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Long(value);
 		self->color.R = PyLong_AsLong(l_value);
 		Py_DECREF(l_value);
@@ -29,12 +34,15 @@ static int py_ue_fcolor_set_r(ue_PyFColor *self, PyObject *value, void *closure)
 	return -1;
 }
 
-static PyObject *py_ue_fcolor_get_g(ue_PyFColor *self, void *closure) {
+static PyObject *py_ue_fcolor_get_g(ue_PyFColor *self, void *closure)
+{
 	return PyLong_FromLong(self->color.G);
 }
 
-static int py_ue_fcolor_set_g(ue_PyFColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fcolor_set_g(ue_PyFColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Long(value);
 		self->color.G = PyLong_AsLong(l_value);
 		Py_DECREF(l_value);
@@ -44,12 +52,15 @@ static int py_ue_fcolor_set_g(ue_PyFColor *self, PyObject *value, void *closure)
 	return -1;
 }
 
-static PyObject *py_ue_fcolor_get_b(ue_PyFColor *self, void *closure) {
+static PyObject *py_ue_fcolor_get_b(ue_PyFColor *self, void *closure)
+{
 	return PyLong_FromLong(self->color.B);
 }
 
-static int py_ue_fcolor_set_b(ue_PyFColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fcolor_set_b(ue_PyFColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Long(value);
 		self->color.B = PyLong_AsLong(l_value);
 		Py_DECREF(l_value);
@@ -59,12 +70,15 @@ static int py_ue_fcolor_set_b(ue_PyFColor *self, PyObject *value, void *closure)
 	return -1;
 }
 
-static PyObject *py_ue_fcolor_get_a(ue_PyFColor *self, void *closure) {
+static PyObject *py_ue_fcolor_get_a(ue_PyFColor *self, void *closure)
+{
 	return PyLong_FromLong(self->color.A);
 }
 
-static int py_ue_fcolor_set_a(ue_PyFColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fcolor_set_a(ue_PyFColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Long(value);
 		self->color.A = PyLong_AsLong(l_value);
 		Py_DECREF(l_value);
@@ -123,13 +137,16 @@ static PyTypeObject ue_PyFColorType = {
 };
 
 
-static PyObject *ue_py_fcolor_add(ue_PyFColor *self, PyObject *value) {
+static PyObject *ue_py_fcolor_add(ue_PyFColor *self, PyObject *value)
+{
 	FColor color = self->color;
 	ue_PyFColor *py_color = py_ue_is_fcolor(value);
-	if (py_color) {
+	if (py_color)
+	{
 		color += py_color->color;
 	}
-	else if (PyNumber_Check(value)) {
+	else if (PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Long(value);
 		long l = PyLong_AsLong(l_value);
 		color.R += l;
@@ -143,12 +160,15 @@ static PyObject *ue_py_fcolor_add(ue_PyFColor *self, PyObject *value) {
 
 PyNumberMethods ue_PyFColor_number_methods;
 
-static Py_ssize_t ue_py_fcolor_seq_length(ue_PyFColor *self) {
+static Py_ssize_t ue_py_fcolor_seq_length(ue_PyFColor *self)
+{
 	return 4;
 }
 
-static PyObject *ue_py_fcolor_seq_item(ue_PyFColor *self, Py_ssize_t i) {
-	switch (i) {
+static PyObject *ue_py_fcolor_seq_item(ue_PyFColor *self, Py_ssize_t i)
+{
+	switch (i)
+	{
 	case 0:
 		return PyLong_FromLong(self->color.R);
 	case 1:
@@ -163,7 +183,8 @@ static PyObject *ue_py_fcolor_seq_item(ue_PyFColor *self, Py_ssize_t i) {
 
 PySequenceMethods ue_PyFColor_sequence_methods;
 
-static int ue_py_fcolor_init(ue_PyFColor *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_fcolor_init(ue_PyFColor *self, PyObject *args, PyObject *kwargs)
+{
 	int r = 0;
 	int g = 0;
 	int b = 0;
@@ -171,7 +192,8 @@ static int ue_py_fcolor_init(ue_PyFColor *self, PyObject *args, PyObject *kwargs
 	if (!PyArg_ParseTuple(args, "|iiii", &r, &g, &b, &a))
 		return -1;
 
-	if (PyTuple_Size(args) == 1) {
+	if (PyTuple_Size(args) == 1)
+	{
 		g = a;
 		b = a;
 	}
@@ -183,14 +205,16 @@ static int ue_py_fcolor_init(ue_PyFColor *self, PyObject *args, PyObject *kwargs
 	return 0;
 }
 
-static void fcolor_add_color(const char *color_name, FColor fcolor) {
+static void fcolor_add_color(const char *color_name, FColor fcolor)
+{
 	PyObject *color = py_ue_new_fcolor(fcolor);
 	// not required
 	Py_INCREF(color);
 	PyDict_SetItemString(ue_PyFColorType.tp_dict, color_name, color);
 }
 
-void ue_python_init_fcolor(PyObject *ue_module) {
+void ue_python_init_fcolor(PyObject *ue_module)
+{
 	ue_PyFColorType.tp_new = PyType_GenericNew;
 
 	ue_PyFColorType.tp_init = (initproc)ue_py_fcolor_init;
@@ -225,24 +249,29 @@ void ue_python_init_fcolor(PyObject *ue_module) {
 	fcolor_add_color("Yellow", FColor::Yellow);
 }
 
-PyObject *py_ue_new_fcolor(FColor color) {
+PyObject *py_ue_new_fcolor(FColor color)
+{
 	ue_PyFColor *ret = (ue_PyFColor *)PyObject_New(ue_PyFColor, &ue_PyFColorType);
 	ret->color = color;
 	return (PyObject *)ret;
 }
 
-ue_PyFColor *py_ue_is_fcolor(PyObject *obj) {
+ue_PyFColor *py_ue_is_fcolor(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFColorType))
 		return nullptr;
 	return (ue_PyFColor *)obj;
 }
 
-bool py_ue_color_arg(PyObject *args, FColor &color) {
+bool py_ue_color_arg(PyObject *args, FColor &color)
+{
 
-	if (PyTuple_Size(args) == 1) {
+	if (PyTuple_Size(args) == 1)
+	{
 		PyObject *arg = PyTuple_GetItem(args, 0);
 		ue_PyFColor *py_color = py_ue_is_fcolor(arg);
-		if (!py_color) {
+		if (!py_color)
+		{
 			PyErr_Format(PyExc_TypeError, "argument is not a FColor");
 			return false;
 		}

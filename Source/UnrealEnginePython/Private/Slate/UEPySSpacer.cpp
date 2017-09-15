@@ -40,7 +40,8 @@ PyTypeObject ue_PySSpacerType = {
 	ue_PySSpacer_methods,             /* tp_methods */
 };
 
-static int ue_py_sspacer_init(ue_PySSpacer *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sspacer_init(ue_PySSpacer *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SSpacer);
 
 	ue_py_slate_farguments_fvector2d("size", Size);
@@ -49,7 +50,8 @@ static int ue_py_sspacer_init(ue_PySSpacer *self, PyObject *args, PyObject *kwar
 	return 0;
 }
 
-void ue_python_init_sspacer(PyObject *ue_module) {
+void ue_python_init_sspacer(PyObject *ue_module)
+{
 
 	ue_PySSpacerType.tp_init = (initproc)ue_py_sspacer_init;
 

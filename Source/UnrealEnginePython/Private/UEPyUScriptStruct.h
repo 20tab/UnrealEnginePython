@@ -2,7 +2,8 @@
 
 #include "UnrealEnginePython.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
 		/* Type-specific fields go here. */
 		UScriptStruct *u_struct;

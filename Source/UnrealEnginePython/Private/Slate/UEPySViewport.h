@@ -8,7 +8,8 @@
 
 extern PyTypeObject ue_PySViewportType;
 
-typedef struct {
+typedef struct
+{
 	ue_PySCompoundWidget s_compound_widget;
 	/* Type-specific fields go here. */
 } ue_PySViewport;

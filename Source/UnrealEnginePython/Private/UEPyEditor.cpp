@@ -23,26 +23,30 @@
 #include "LevelEditor.h"
 
 
-PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_vector = nullptr;
 	PyObject *py_rotator = nullptr;
 
-	if (!PyArg_ParseTuple(args, "|OO:editor_play_in_viewport", &py_vector, &py_rotator)) {
+	if (!PyArg_ParseTuple(args, "|OO:editor_play_in_viewport", &py_vector, &py_rotator))
+	{
 		return NULL;
 	}
 
 	FVector v;
 	FRotator r;
 
-	if (py_vector) {
+	if (py_vector)
+	{
 		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
 		if (!vector)
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
 		v = vector->vec;
 	}
 
-	if (py_rotator) {
+	if (py_rotator)
+	{
 		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
 		if (!rotator)
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
@@ -61,7 +65,8 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 }
 
 
-PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -74,14 +79,16 @@ PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)
+{
 
 	char *command;
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
-	if (!PyArg_ParseTuple(args, "s:console_exec", &command)) {
+	if (!PyArg_ParseTuple(args, "s:console_exec", &command))
+	{
 		return NULL;
 	}
 
@@ -91,13 +98,15 @@ PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	PyObject *obj = nullptr;
-	if (!PyArg_ParseTuple(args, "O:allow_actor_script_execution_in_editor", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:allow_actor_script_execution_in_editor", &obj))
+	{
 		return NULL;
 	}
 
@@ -112,7 +121,8 @@ PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * sel
 }
 
 
-PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -122,7 +132,8 @@ PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject 
 	USelection *selection = GEditor->GetSelectedActors();
 	int32 nums = selection->CountSelections<UObject>();
 
-	for (int32 i = 0; i < nums; i++) {
+	for (int32 i = 0; i < nums; i++)
+	{
 		UObject *obj = selection->GetSelectedObject(i);
 		if (!obj->IsA<AActor>())
 			continue;
@@ -135,7 +146,8 @@ PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject 
 	return actors;
 }
 
-PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -146,7 +158,8 @@ PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_command_save_current_level(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_command_save_current_level(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -157,7 +170,8 @@ PyObject *py_unreal_engine_editor_command_save_current_level(PyObject * self, Py
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -168,7 +182,8 @@ PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject * self, PyObj
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_save_all(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_save_all(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -179,7 +194,8 @@ PyObject *py_unreal_engine_editor_save_all(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_command_build_lighting(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_command_build_lighting(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -190,7 +206,8 @@ PyObject *py_unreal_engine_editor_command_build_lighting(PyObject * self, PyObje
 }
 
 
-PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -201,26 +218,30 @@ PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * ar
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_vector = nullptr;
 	PyObject *py_rotator = nullptr;
 
-	if (!PyArg_ParseTuple(args, "|OO:editor_play", &py_vector, &py_rotator)) {
+	if (!PyArg_ParseTuple(args, "|OO:editor_play", &py_vector, &py_rotator))
+	{
 		return NULL;
 	}
 
 	FVector v;
 	FRotator r;
 
-	if (py_vector) {
+	if (py_vector)
+	{
 		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
 		if (!vector)
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
 		v = vector->vec;
 	}
 
-	if (py_rotator) {
+	if (py_rotator)
+	{
 		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
 		if (!rotator)
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
@@ -237,13 +258,15 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:editor_select_actor", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:editor_select_actor", &obj))
+	{
 		return NULL;
 	}
 
@@ -263,7 +286,8 @@ PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args)
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -273,13 +297,15 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	char *destination;
 	PyObject *obj = nullptr;
 	PyObject *py_sync = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|OO:import_asset", &assetsObject, &destination, &obj, &py_sync)) {
+	if (!PyArg_ParseTuple(args, "Os|OO:import_asset", &assetsObject, &destination, &obj, &py_sync))
+	{
 		return NULL;
 	}
 
 	FString Result;
 	// avoid crash on wrong path
-	if (!FPackageName::TryConvertLongPackageNameToFilename(UTF8_TO_TCHAR(destination), Result, "")) {
+	if (!FPackageName::TryConvertLongPackageNameToFilename(UTF8_TO_TCHAR(destination), Result, ""))
+	{
 		return PyErr_Format(PyExc_Exception, "invalid asset root path");
 	}
 
@@ -287,38 +313,48 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	UFactory *factory = nullptr;
 	bool sync_to_browser = false;
 
-	if (!obj || obj == Py_None) {
+	if (!obj || obj == Py_None)
+	{
 		factory_class = nullptr;
 	}
-	else if (ue_is_pyuobject(obj)) {
+	else if (ue_is_pyuobject(obj))
+	{
 		ue_PyUObject *py_factory = (ue_PyUObject *)obj;
-		if (py_factory->ue_object->IsA<UClass>()) {
+		if (py_factory->ue_object->IsA<UClass>())
+		{
 			factory_class = (UClass *)py_factory->ue_object;
 		}
-		else if (py_factory->ue_object->IsA<UFactory>()) {
+		else if (py_factory->ue_object->IsA<UFactory>())
+		{
 			factory = (UFactory *)py_factory->ue_object;
 		}
-		else {
+		else
+		{
 			return PyErr_Format(PyExc_Exception, "uobject is not a Class");
 		}
 	}
-	else if (PyUnicodeOrString_Check(obj)) {
+	else if (PyUnicodeOrString_Check(obj))
+	{
 		char *class_name = PyUnicode_AsUTF8(obj);
 		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
-		if (u_class) {
+		if (u_class)
+		{
 			ue_PyUObject *py_obj = ue_get_python_wrapper(u_class);
 			if (py_obj)
 				Py_INCREF(py_obj);
 			factory_class = (UClass *)py_obj->ue_object;
 		}
 	}
-	else {
+	else
+	{
 		return PyErr_Format(PyExc_Exception, "invalid uobject");
 	}
 
-	if (factory_class) {
+	if (factory_class)
+	{
 		factory = NewObject<UFactory>(GetTransientPackage(), factory_class);
-		if (!factory) {
+		if (!factory)
+		{
 			return PyErr_Format(PyExc_Exception, "unable to create factory");
 		}
 	}
@@ -326,7 +362,8 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 
 	TArray<FString> files;
 
-	if (PyList_Check(assetsObject)) {
+	if (PyList_Check(assetsObject))
+	{
 		// parse the list object
 		int numLines = PyList_Size(assetsObject);
 
@@ -336,7 +373,8 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 			return PyErr_Format(PyExc_Exception, "Asset paths is not a valid list");
 		}
 
-		for (int i = 0; i < numLines; ++i) {
+		for (int i = 0; i < numLines; ++i)
+		{
 
 			PyObject * strObj = PyList_GetItem(assetsObject, i);
 #if PY_MAJOR_VERSION >= 3
@@ -347,7 +385,8 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 			files.Add(UTF8_TO_TCHAR(filename));
 		}
 	}
-	else if (PyUnicodeOrString_Check(assetsObject)) {
+	else if (PyUnicodeOrString_Check(assetsObject))
+	{
 #if PY_MAJOR_VERSION >= 3
 		char * filename = PyBytes_AS_STRING(PyUnicode_AsEncodedString(assetsObject, "utf-8", "Error"));
 #else
@@ -355,18 +394,21 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 #endif
 		files.Add(UTF8_TO_TCHAR(filename));
 	}
-	else {
+	else
+	{
 		return PyErr_Format(PyExc_Exception, "Not a string nor valid list of string");
 	}
 
-	if (py_sync && PyObject_IsTrue(py_sync)) {
+	if (py_sync && PyObject_IsTrue(py_sync))
+	{
 		sync_to_browser = true;
 	}
 
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, sync_to_browser);
 
-	if (objects.Num() == 1) {
+	if (objects.Num() == 1)
+	{
 
 		UObject *object = objects[0];
 		ue_PyUObject *ret = ue_get_python_wrapper(object);
@@ -375,7 +417,8 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 		Py_INCREF(ret);
 		return (PyObject *)ret;
 	}
-	else if (objects.Num() > 1) {
+	else if (objects.Num() > 1)
+	{
 		PyObject *assets_list = PyList_New(0);
 
 		for (UObject *object : objects)
@@ -394,10 +437,12 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_tick(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_tick(PyObject * self, PyObject * args)
+{
 	float delta_seconds = FApp::GetDeltaTime();
 	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "|fO:editor_tick", &delta_seconds, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "|fO:editor_tick", &delta_seconds, &py_bool))
+	{
 		return NULL;
 	}
 
@@ -406,7 +451,8 @@ PyObject *py_unreal_engine_editor_tick(PyObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -414,7 +460,8 @@ PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args)
 	int app_msg_type;
 	char *text;
 
-	if (!PyArg_ParseTuple(args, "is:message_dialog_open", &app_msg_type, &text)) {
+	if (!PyArg_ParseTuple(args, "is:message_dialog_open", &app_msg_type, &text))
+	{
 		return NULL;
 	}
 
@@ -423,13 +470,15 @@ PyObject *py_unreal_engine_message_dialog_open(PyObject * self, PyObject * args)
 	return PyLong_FromLong(ret);
 }
 
-PyObject *py_unreal_engine_create_modal_save_asset_dialog(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_modal_save_asset_dialog(PyObject * self, PyObject * args)
+{
 
 	char *title = (char *)"";
 	char *path = (char*)"";
 	char *default_name = (char*)"";
 
-	if (!PyArg_ParseTuple(args, "|sss:create_modal_save_asset_dialog", &title, &path, &default_name)) {
+	if (!PyArg_ParseTuple(args, "|sss:create_modal_save_asset_dialog", &title, &path, &default_name))
+	{
 		return nullptr;
 	}
 
@@ -442,17 +491,20 @@ PyObject *py_unreal_engine_create_modal_save_asset_dialog(PyObject * self, PyObj
 	FContentBrowserModule &ContentBrowserModule = FModuleManager::LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
 	FString ret = ContentBrowserModule.Get().CreateModalSaveAssetDialog(config);
 
-	if (ret.IsEmpty()) {
+	if (ret.IsEmpty())
+	{
 		Py_RETURN_NONE;
 	}
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*ret));
 }
 
-PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args)
+{
 	char *path;
 
-	if (!PyArg_ParseTuple(args, "s:get_asset", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_asset", &path))
+	{
 		return NULL;
 	}
 
@@ -470,10 +522,12 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args)
+{
 	char *path;
 
-	if (!PyArg_ParseTuple(args, "s:find_asset", &path)) {
+	if (!PyArg_ParseTuple(args, "s:find_asset", &path))
+	{
 		return NULL;
 	}
 
@@ -482,7 +536,8 @@ PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args) {
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
-	if (!asset.IsValid()) {
+	if (!asset.IsValid())
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -493,10 +548,12 @@ PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * args)
+{
 	char *path;
 
-	if (!PyArg_ParseTuple(args, "s:get_asset_referencers", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_asset_referencers", &path))
+	{
 		return NULL;
 	}
 
@@ -508,16 +565,19 @@ PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * arg
 	AssetRegistryModule.Get().GetReferencers(UTF8_TO_TCHAR(path), referencers);
 
 	PyObject *referencers_list = PyList_New(0);
-	for (FName name : referencers) {
+	for (FName name : referencers)
+	{
 		PyList_Append(referencers_list, PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString())));
 	}
 	return referencers_list;
 }
 
-PyObject *py_unreal_engine_get_asset_dependencies(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_asset_dependencies(PyObject * self, PyObject * args)
+{
 	char *path;
 
-	if (!PyArg_ParseTuple(args, "s:get_asset_dependencies", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_asset_dependencies", &path))
+	{
 		return NULL;
 	}
 
@@ -529,15 +589,18 @@ PyObject *py_unreal_engine_get_asset_dependencies(PyObject * self, PyObject * ar
 	AssetRegistryModule.Get().GetDependencies(UTF8_TO_TCHAR(path), dependencies);
 
 	PyObject *dependencies_list = PyList_New(0);
-	for (FName name : dependencies) {
+	for (FName name : dependencies)
+	{
 		PyList_Append(dependencies_list, PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString())));
 	}
 	return dependencies_list;
 }
 
-PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * args)
+{
 	char *path;
-	if (!PyArg_ParseTuple(args, "s:get_long_package_path", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_long_package_path", &path))
+	{
 		return NULL;
 	}
 
@@ -546,11 +609,13 @@ PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * arg
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(package_path)));
 }
 
-PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
+{
 	char *path;
 	char *package_name;
 	char *object_name;
-	if (!PyArg_ParseTuple(args, "sss:rename_asset", &path, &package_name, &object_name)) {
+	if (!PyArg_ParseTuple(args, "sss:rename_asset", &path, &package_name, &object_name))
+	{
 		return NULL;
 	}
 
@@ -570,7 +635,8 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args) {
 
 	TSet<UPackage *> refused_packages;
 	FText error_text;
-	if (!ObjectTools::RenameSingleObject(u_object, pgn, refused_packages, error_text, nullptr, false)) {
+	if (!ObjectTools::RenameSingleObject(u_object, pgn, refused_packages, error_text, nullptr, false))
+	{
 		return PyErr_Format(PyExc_Exception, "unable to rename asset %s", path);
 	}
 
@@ -578,11 +644,13 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args)
+{
 	char *path;
 	char *package_name;
 	char *object_name;
-	if (!PyArg_ParseTuple(args, "sss:duplicate_asset", &path, &package_name, &object_name)) {
+	if (!PyArg_ParseTuple(args, "sss:duplicate_asset", &path, &package_name, &object_name))
+	{
 		return NULL;
 	}
 
@@ -607,7 +675,8 @@ PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args) {
 #else
 	UObject *new_asset = ObjectTools::DuplicateSingleObject(u_object, pgn, refused_packages, false);
 #endif
-	if (!new_asset) {
+	if (!new_asset)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to duplicate asset %s", path);
 	}
 
@@ -618,10 +687,12 @@ PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args)
+{
 	char *path;
 	PyObject *py_show_confirmation = nullptr;
-	if (!PyArg_ParseTuple(args, "s|O:delete_asset", &path, &py_show_confirmation)) {
+	if (!PyArg_ParseTuple(args, "s|O:delete_asset", &path, &py_show_confirmation))
+	{
 		return NULL;
 	}
 
@@ -629,7 +700,8 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	bool show_confirmation = false;
-	if (py_show_confirmation && PyObject_IsTrue(py_show_confirmation)) {
+	if (py_show_confirmation && PyObject_IsTrue(py_show_confirmation))
+	{
 		show_confirmation = true;
 	}
 
@@ -643,8 +715,10 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 	TArray<UObject *> objects;
 	objects.Add(u_object);
 
-	if (ObjectTools::DeleteObjects(objects, show_confirmation) < 1) {
-		if (ObjectTools::ForceDeleteObjects(objects, show_confirmation) < 1) {
+	if (ObjectTools::DeleteObjects(objects, show_confirmation) < 1)
+	{
+		if (ObjectTools::ForceDeleteObjects(objects, show_confirmation) < 1)
+		{
 			return PyErr_Format(PyExc_Exception, "unable to delete asset %s", path);
 		}
 	}
@@ -653,10 +727,12 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args)
+{
 	PyObject *py_obj;
 	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "O|O:delete_object", &py_obj, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "O|O:delete_object", &py_obj, &py_bool))
+	{
 		return NULL;
 	}
 
@@ -671,13 +747,17 @@ PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args) {
 	objects_to_delete.Add(u_object);
 
 
-	if (py_bool && PyObject_IsTrue(py_bool)) {
-		if (ObjectTools::ForceDeleteObjects(objects_to_delete, false) < 1) {
+	if (py_bool && PyObject_IsTrue(py_bool))
+	{
+		if (ObjectTools::ForceDeleteObjects(objects_to_delete, false) < 1)
+		{
 			return PyErr_Format(PyExc_Exception, "unable to delete object");
 		}
 	}
-	else {
-		if (ObjectTools::DeleteObjects(objects_to_delete, false) < 1) {
+	else
+	{
+		if (ObjectTools::DeleteObjects(objects_to_delete, false) < 1)
+		{
 			return PyErr_Format(PyExc_Exception, "unable to delete asset");
 		}
 	}
@@ -687,11 +767,13 @@ PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args) {
 }
 
 
-PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args)
+{
 	char *path;
 	PyObject *py_recursive = nullptr;
 
-	if (!PyArg_ParseTuple(args, "s|O:get_assets", &path, &py_recursive)) {
+	if (!PyArg_ParseTuple(args, "s|O:get_assets", &path, &py_recursive))
+	{
 		return NULL;
 	}
 
@@ -709,11 +791,13 @@ PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 
 	PyObject *assets_list = PyList_New(0);
 
-	for (FAssetData asset : assets) {
+	for (FAssetData asset : assets)
+	{
 		if (!asset.IsValid())
 			continue;
 		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
-		if (ret) {
+		if (ret)
+		{
 			PyList_Append(assets_list, (PyObject *)ret);
 		}
 	}
@@ -721,14 +805,16 @@ PyObject *py_unreal_engine_get_assets(PyObject * self, PyObject * args) {
 	return assets_list;
 }
 
-PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args, PyObject *kwargs) {
+PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args, PyObject *kwargs)
+{
 
 	PyObject *pyfilter;
 	PyObject *py_return_asset_data = nullptr;
 
 	static char *kw_names[] = { (char *)"filter", (char *)"return_asset_data", NULL };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:get_assets_by_filter", kw_names, &pyfilter, &py_return_asset_data)) {
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:get_assets_by_filter", kw_names, &pyfilter, &py_return_asset_data))
+	{
 		return NULL;
 	}
 
@@ -749,17 +835,21 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 	if (py_return_asset_data && PyObject_IsTrue(py_return_asset_data))
 		return_asset_data = true;
 	PyObject *assets_list = PyList_New(0);
-	for (FAssetData asset : assets) {
+	for (FAssetData asset : assets)
+	{
 		if (!asset.IsValid())
 			continue;
 		PyObject *ret = nullptr;
-		if (return_asset_data) {
+		if (return_asset_data)
+		{
 			ret = py_ue_new_fassetdata(asset);
 		}
-		else {
+		else
+		{
 			ret = (PyObject *)ue_get_python_wrapper(asset.GetAsset());
 		}
-		if (ret) {
+		if (ret)
+		{
 			PyList_Append(assets_list, ret);
 		}
 	}
@@ -767,13 +857,16 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 	return assets_list;
 }
 
-PyObject *py_unreal_engine_get_discovered_plugins(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_discovered_plugins(PyObject * self, PyObject * args)
+{
 
 	PyObject *plugins_list = PyList_New(0);
 
-	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetDiscoveredPlugins()) {
+	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetDiscoveredPlugins())
+	{
 		PyObject *ret = py_ue_new_iplugin(&plugin.Get());
-		if (ret) {
+		if (ret)
+		{
 			PyList_Append(plugins_list, ret);
 		}
 	}
@@ -781,13 +874,16 @@ PyObject *py_unreal_engine_get_discovered_plugins(PyObject * self, PyObject * ar
 	return plugins_list;
 }
 
-PyObject *py_unreal_engine_get_enabled_plugins(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_enabled_plugins(PyObject * self, PyObject * args)
+{
 
 	PyObject *plugins_list = PyList_New(0);
 
-	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins()) {
+	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
+	{
 		PyObject *ret = py_ue_new_iplugin(&plugin.Get());
-		if (ret) {
+		if (ret)
+		{
 			PyList_Append(plugins_list, ret);
 		}
 	}
@@ -796,16 +892,19 @@ PyObject *py_unreal_engine_get_enabled_plugins(PyObject * self, PyObject * args)
 }
 
 
-PyObject *py_unreal_engine_find_plugin(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_find_plugin(PyObject * self, PyObject * args)
+{
 	char *name;
 
-	if (!PyArg_ParseTuple(args, "s:find_plugin", &name)) {
+	if (!PyArg_ParseTuple(args, "s:find_plugin", &name))
+	{
 		return NULL;
 	}
 
 	TSharedPtr<IPlugin> plugin = IPluginManager::Get().FindPlugin(FString(UTF8_TO_TCHAR(name)));
 
-	if (!plugin.IsValid()) {
+	if (!plugin.IsValid())
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -818,11 +917,13 @@ PyObject *py_unreal_engine_find_plugin(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args)
+{
 	char *path;
 	PyObject *py_recursive = nullptr;
 
-	if (!PyArg_ParseTuple(args, "s|O:get_assets_by_class", &path, &py_recursive)) {
+	if (!PyArg_ParseTuple(args, "s|O:get_assets_by_class", &path, &py_recursive))
+	{
 		return NULL;
 	}
 
@@ -840,11 +941,13 @@ PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args)
 
 	PyObject *assets_list = PyList_New(0);
 
-	for (FAssetData asset : assets) {
+	for (FAssetData asset : assets)
+	{
 		if (!asset.IsValid())
 			continue;
 		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
-		if (ret) {
+		if (ret)
+		{
 			PyList_Append(assets_list, (PyObject *)ret);
 		}
 	}
@@ -852,7 +955,8 @@ PyObject *py_unreal_engine_get_assets_by_class(PyObject * self, PyObject * args)
 	return assets_list;
 }
 
-PyObject *py_unreal_engine_get_selected_assets(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_selected_assets(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -865,11 +969,13 @@ PyObject *py_unreal_engine_get_selected_assets(PyObject * self, PyObject * args)
 
 	PyObject *assets_list = PyList_New(0);
 
-	for (FAssetData asset : assets) {
+	for (FAssetData asset : assets)
+	{
 		if (!asset.IsValid())
 			continue;
 		ue_PyUObject *ret = ue_get_python_wrapper(asset.GetAsset());
-		if (ret) {
+		if (ret)
+		{
 			PyList_Append(assets_list, (PyObject *)ret);
 		}
 	}
@@ -877,17 +983,20 @@ PyObject *py_unreal_engine_get_selected_assets(PyObject * self, PyObject * args)
 	return assets_list;
 }
 
-PyObject *py_unreal_engine_open_editor_for_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_open_editor_for_asset(PyObject * self, PyObject * args)
+{
 	PyObject *py_obj;
 
-	if (!PyArg_ParseTuple(args, "O:open_editor_for_asset", &py_obj)) {
+	if (!PyArg_ParseTuple(args, "O:open_editor_for_asset", &py_obj))
+	{
 		return NULL;
 	}
 
 	UObject *u_obj = ue_py_check_type<UObject>(py_obj);
 	if (!u_obj)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	if (FAssetEditorManager::Get().OpenEditorForAsset(u_obj)) {
+	if (FAssetEditorManager::Get().OpenEditorForAsset(u_obj))
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -895,10 +1004,12 @@ PyObject *py_unreal_engine_open_editor_for_asset(PyObject * self, PyObject * arg
 	return Py_False;
 }
 
-PyObject *py_unreal_engine_close_editor_for_asset(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_close_editor_for_asset(PyObject * self, PyObject * args)
+{
 	PyObject *py_obj;
 
-	if (!PyArg_ParseTuple(args, "O:close_editor_for_asset", &py_obj)) {
+	if (!PyArg_ParseTuple(args, "O:close_editor_for_asset", &py_obj))
+	{
 		return NULL;
 	}
 
@@ -911,17 +1022,20 @@ PyObject *py_unreal_engine_close_editor_for_asset(PyObject * self, PyObject * ar
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_close_all_asset_editors(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_close_all_asset_editors(PyObject * self, PyObject * args)
+{
 	FAssetEditorManager::Get().CloseAllAssetEditors();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * args)
+{
 	PyObject *obj;
 
-	if (!PyArg_ParseTuple(args, "O:set_fbx_import_option", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:set_fbx_import_option", &obj))
+	{
 		return NULL;
 	}
 
@@ -943,18 +1057,22 @@ PyObject *py_unreal_engine_set_fbx_import_option(PyObject * self, PyObject * arg
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_parent;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:create_blueprint", &py_parent, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:create_blueprint", &py_parent, &name))
+	{
 		return NULL;
 	}
 
 	UClass *parent = UObject::StaticClass();
 
-	if (py_parent != Py_None) {
-		if (!ue_is_pyuobject(py_parent)) {
+	if (py_parent != Py_None)
+	{
+		if (!ue_is_pyuobject(py_parent))
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
 		ue_PyUObject *py_obj = (ue_PyUObject *)py_parent;
@@ -963,12 +1081,14 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
 		parent = (UClass *)py_obj->ue_object;
 	}
 
-	if (name[0] != '/') {
+	if (name[0] != '/')
+	{
 		return PyErr_Format(PyExc_Exception, "path must start with a /");
 	}
 
 	char *bp_name = strrchr(name, '/') + 1;
-	if (strlen(bp_name) < 1) {
+	if (strlen(bp_name) < 1)
+	{
 		return PyErr_Format(PyExc_Exception, "invalid blueprint name");
 	}
 
@@ -996,14 +1116,17 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args) {
 }
 
 
-PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
-	if (!PyArg_ParseTuple(args, "O:reload_blueprint", &py_blueprint)) {
+	if (!PyArg_ParseTuple(args, "O:reload_blueprint", &py_blueprint))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1022,14 +1145,17 @@ PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_compile_blueprint(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_compile_blueprint(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
-	if (!PyArg_ParseTuple(args, "O:compile_blueprint", &py_blueprint)) {
+	if (!PyArg_ParseTuple(args, "O:compile_blueprint", &py_blueprint))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1045,19 +1171,23 @@ PyObject *py_unreal_engine_compile_blueprint(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_replace_blueprint(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_replace_blueprint(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	PyObject *py_blueprint_new;
-	if (!PyArg_ParseTuple(args, "OO:replace_blueprint", &py_blueprint, &py_blueprint_new)) {
+	if (!PyArg_ParseTuple(args, "OO:replace_blueprint", &py_blueprint, &py_blueprint_new))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
-	if (!ue_is_pyuobject(py_blueprint_new)) {
+	if (!ue_is_pyuobject(py_blueprint_new))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1081,19 +1211,23 @@ PyObject *py_unreal_engine_replace_blueprint(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_actor;
 	char *name;
-	if (!PyArg_ParseTuple(args, "sO:create_blueprint_from_actor", &name, &py_actor)) {
+	if (!PyArg_ParseTuple(args, "sO:create_blueprint_from_actor", &name, &py_actor))
+	{
 		return NULL;
 	}
 
-	if (name[0] != '/') {
+	if (name[0] != '/')
+	{
 		return PyErr_Format(PyExc_Exception, "path must start with a /");
 	}
 
-	if (!ue_is_pyuobject(py_actor)) {
+	if (!ue_is_pyuobject(py_actor))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
 	}
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_actor;
@@ -1111,12 +1245,14 @@ PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject * self, PyObject
 
 }
 
-PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 
-	if (!PyArg_ParseTuple(args, "O|:add_component_to_blueprint", &py_blueprint)) {
-		return NULL;
+	if (!PyArg_ParseTuple(args, "O|:add_component_to_blueprint", &py_blueprint))
+	{
+		return nullptr;
 	}
 
 	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
@@ -1125,7 +1261,8 @@ PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * 
 
 	PyObject *py_list = PyList_New(0);
 
-	for (USCS_Node *node : bp->SimpleConstructionScript->GetAllNodes()) {
+	for (USCS_Node *node : bp->SimpleConstructionScript->GetAllNodes())
+	{
 
 		ue_PyUObject *item = ue_get_python_wrapper(node->ComponentTemplate);
 		if (item)
@@ -1136,23 +1273,27 @@ PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * 
 
 }
 
-PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	PyObject *py_component;
 	char *name;
 	char *parentName = nullptr;
 
-	if (!PyArg_ParseTuple(args, "OOs|s:add_component_to_blueprint", &py_blueprint, &py_component, &name, &parentName)) {
+	if (!PyArg_ParseTuple(args, "OOs|s:add_component_to_blueprint", &py_blueprint, &py_component, &name, &parentName))
+	{
 		return NULL;
 	}
 
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
-	if (!ue_is_pyuobject(py_component)) {
+	if (!ue_is_pyuobject(py_component))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1168,13 +1309,15 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 
 	bp->Modify();
 	USCS_Node *node = bp->SimpleConstructionScript->CreateNode(component_class, UTF8_TO_TCHAR(name));
-	if (!node) {
+	if (!node)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to allocate new component");
 	}
 
 	USCS_Node *parentNode = nullptr;
 
-	if (component_class->IsChildOf<USceneComponent>()) {
+	if (component_class->IsChildOf<USceneComponent>())
+	{
 
 		if (parentName)
 		{
@@ -1194,10 +1337,12 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 		}
 	}
 
-	if (parentNode) {
+	if (parentNode)
+	{
 		parentNode->AddChildNode(node);
 	}
-	else {
+	else
+	{
 		bp->SimpleConstructionScript->AddNode(node);
 	}
 
@@ -1209,17 +1354,20 @@ PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject 
 
 }
 
-PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	char *name;
 	char *in_type;
 	PyObject *py_is_array = nullptr;
-	if (!PyArg_ParseTuple(args, "Oss|O:blueprint_add_member_variable", &py_blueprint, &name, &in_type, &py_is_array)) {
+	if (!PyArg_ParseTuple(args, "Oss|O:blueprint_add_member_variable", &py_blueprint, &name, &in_type, &py_is_array))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1243,7 +1391,8 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 	FEdGraphPinType pin(UTF8_TO_TCHAR(in_type), FString(""), nullptr, is_array, false);
 #endif
 
-	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin)) {
+	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin))
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -1252,16 +1401,19 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 	return Py_False;
 }
 
-PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	char *name;
 	PyObject *visibility;
-	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility)) {
+	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1271,7 +1423,8 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
 	bool visible = false;
-	if (PyObject_IsTrue(visibility)) {
+	if (PyObject_IsTrue(visibility))
+	{
 		visible = true;
 	}
 
@@ -1279,17 +1432,20 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 
 	Py_INCREF(Py_None);
 	return Py_None;
-	}
+}
 
-PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:blueprint_add_new_timeline", &py_blueprint, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_new_timeline", &py_blueprint, &name))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1299,7 +1455,8 @@ PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject 
 	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
 	UTimelineTemplate *timeline = FBlueprintEditorUtils::AddNewTimeline(bp, UTF8_TO_TCHAR(name));
-	if (!timeline) {
+	if (!timeline)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to add new timeline %s", name);
 	}
 
@@ -1310,15 +1467,18 @@ PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject 
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:blueprint_add_function", &py_blueprint, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_function", &py_blueprint, &name))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1337,11 +1497,13 @@ PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * ar
 	return ret;
 }
 
-PyObject *py_unreal_engine_blueprint_add_event_dispatcher(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_add_event_dispatcher(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:blueprint_add_event_dispatcher", &py_blueprint, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_event_dispatcher", &py_blueprint, &name))
+	{
 		return NULL;
 	}
 
@@ -1358,12 +1520,14 @@ PyObject *py_unreal_engine_blueprint_add_event_dispatcher(PyObject * self, PyObj
 	FEdGraphPinType multicast_type;
 	multicast_type.PinCategory = state->PC_MCDelegate;
 
-	if (!FBlueprintEditorUtils::AddMemberVariable(bp, multicast_name, multicast_type)) {
+	if (!FBlueprintEditorUtils::AddMemberVariable(bp, multicast_name, multicast_type))
+	{
 		return PyErr_Format(PyExc_Exception, "unable to create multicast variable");
 	}
 
 	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(bp, multicast_name, UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
-	if (!graph) {
+	if (!graph)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to create graph");
 	}
 
@@ -1384,10 +1548,12 @@ PyObject *py_unreal_engine_blueprint_add_event_dispatcher(PyObject * self, PyObj
 	return ret;
 }
 
-PyObject *py_unreal_engine_blueprint_mark_as_structurally_modified(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_mark_as_structurally_modified(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
-	if (!PyArg_ParseTuple(args, "O:blueprint_add_event_dispatcher", &py_blueprint)) {
+	if (!PyArg_ParseTuple(args, "O:blueprint_add_event_dispatcher", &py_blueprint))
+	{
 		return NULL;
 	}
 
@@ -1401,15 +1567,18 @@ PyObject *py_unreal_engine_blueprint_mark_as_structurally_modified(PyObject * se
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_blueprint;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:blueprint_add_ubergraph_page", &py_blueprint, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:blueprint_add_ubergraph_page", &py_blueprint, &name))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1428,52 +1597,63 @@ PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObjec
 	return ret;
 }
 
-PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_object;
 	char *name;
 	PyObject *py_graph_class;
 	PyObject *py_graph_schema;
 	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "OsOO|O:create_new_graph", &py_object, &name, &py_graph_class, &py_graph_schema, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "OsOO|O:create_new_graph", &py_object, &name, &py_graph_class, &py_graph_schema, &py_bool))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_object)) {
+	if (!ue_is_pyuobject(py_object))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_object;
 
-	if (!ue_is_pyuobject(py_graph_class)) {
+	if (!ue_is_pyuobject(py_graph_class))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 	ue_PyUObject *py_class_obj = (ue_PyUObject *)py_graph_class;
-	if (!py_class_obj->ue_object->IsA<UClass>()) {
+	if (!py_class_obj->ue_object->IsA<UClass>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 	}
 	UClass *u_class = (UClass *)py_class_obj->ue_object;
-	if (!u_class->IsChildOf<UEdGraph>()) {
+	if (!u_class->IsChildOf<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraph");
 	}
 
-	if (!ue_is_pyuobject(py_graph_schema)) {
+	if (!ue_is_pyuobject(py_graph_schema))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 	ue_PyUObject *py_class_schema = (ue_PyUObject *)py_graph_schema;
-	if (!py_class_schema->ue_object->IsA<UClass>()) {
+	if (!py_class_schema->ue_object->IsA<UClass>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 	}
 	UClass *u_class_schema = (UClass *)py_class_schema->ue_object;
-	if (!u_class_schema->IsChildOf<UEdGraphSchema>()) {
+	if (!u_class_schema->IsChildOf<UEdGraphSchema>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphSchema");
 	}
 
 	UEdGraph *graph = FBlueprintEditorUtils::CreateNewGraph(py_obj->ue_object, FName(UTF8_TO_TCHAR(name)), u_class, u_class_schema);
-	if (!graph) {
+	if (!graph)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to create graph");
 	}
 
-	if (py_bool && PyObject_IsTrue(py_bool)) {
+	if (py_bool && PyObject_IsTrue(py_bool))
+	{
 		graph->GetSchema()->CreateDefaultNodesForGraph(*graph);
 	}
 
@@ -1484,14 +1664,17 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args) {
 	return ret;
 }
 
-PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args)
+{
 	PyObject *py_blueprint;
 
-	if (!PyArg_ParseTuple(args, "O:blueprint_graphs", &py_blueprint)) {
+	if (!PyArg_ParseTuple(args, "O:blueprint_graphs", &py_blueprint))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint)) {
+	if (!ue_is_pyuobject(py_blueprint))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1506,7 +1689,8 @@ PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * a
 
 	bp->GetAllGraphs(graphs);
 
-	for (UEdGraph *graph : graphs) {
+	for (UEdGraph *graph : graphs)
+	{
 		ue_PyUObject *item = ue_get_python_wrapper(graph);
 		if (item)
 			PyList_Append(py_graphs, (PyObject *)item);
@@ -1515,9 +1699,11 @@ PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * a
 	return py_graphs;
 }
 
-PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:editor_on_asset_post_import", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:editor_on_asset_post_import", &py_callable))
+	{
 		return NULL;
 	}
 
@@ -1532,17 +1718,20 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_material;
 	char *materialPacakgePath = nullptr;
 	char *materialName = nullptr;
 
-	if (!PyArg_ParseTuple(args, "O|ss:create_material_instance", &py_material, &materialPacakgePath, &materialName)) {
+	if (!PyArg_ParseTuple(args, "O|ss:create_material_instance", &py_material, &materialPacakgePath, &materialName))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_material)) {
+	if (!ue_is_pyuobject(py_material))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -1583,12 +1772,14 @@ PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * 
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:factory_create_new", &name)) {
+	if (!PyArg_ParseTuple(args, "s:factory_create_new", &name))
+	{
 		return NULL;
 	}
 
@@ -1603,7 +1794,8 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args) {
 	UClass *u_class = factory->GetSupportedClass();
 
 	char *obj_name = strrchr(name, '/') + 1;
-	if (strlen(obj_name) < 1) {
+	if (strlen(obj_name) < 1)
+	{
 		return PyErr_Format(PyExc_Exception, "invalid object name");
 	}
 
@@ -1623,13 +1815,15 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *filename = nullptr;
 	char *name = nullptr;
-	if (!PyArg_ParseTuple(args, "ss:factory_import_object", &filename, &name)) {
+	if (!PyArg_ParseTuple(args, "ss:factory_import_object", &filename, &name))
+	{
 		return NULL;
 	}
 
@@ -1662,12 +1856,14 @@ PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
+{
 
 	PyObject *py_world;
 	char *name;
 	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|O:add_level_to_world", &py_world, &name, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "Os|O:add_level_to_world", &py_world, &name, &py_bool))
+	{
 		return NULL;
 	}
 
@@ -1676,19 +1872,22 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
 
 	ue_PyUObject *py_obj_world = (ue_PyUObject *)py_world;
 
-	if (!py_obj_world->ue_object->IsA<UWorld>()) {
+	if (!py_obj_world->ue_object->IsA<UWorld>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
 	}
 
 	UWorld *u_world = (UWorld *)py_obj_world->ue_object;
 
 	UClass *streaming_mode_class = ULevelStreamingKismet::StaticClass();
-	if (py_bool && PyObject_IsTrue(py_bool)) {
+	if (py_bool && PyObject_IsTrue(py_bool))
+	{
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
 
 	ULevel *level = (ULevel *)EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
-	if (level) {
+	if (level)
+	{
 		// TODO: update levels list
 	}
 
@@ -1700,10 +1899,12 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args)
+{
 
 	PyObject *py_level;
-	if (!PyArg_ParseTuple(args, "O:move_selected_actors_to_level", &py_level)) {
+	if (!PyArg_ParseTuple(args, "O:move_selected_actors_to_level", &py_level))
+	{
 		return NULL;
 	}
 
@@ -1712,7 +1913,8 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 
 	ue_PyUObject *py_obj_level = (ue_PyUObject *)py_level;
 
-	if (!py_obj_level->ue_object->IsA<ULevel>()) {
+	if (!py_obj_level->ue_object->IsA<ULevel>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
 	}
 
@@ -1728,7 +1930,8 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, PyObject * args)
+{
 
 	GEditor->TakeHighResScreenShots();
 
@@ -1736,13 +1939,15 @@ PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, Py
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_begin_transaction(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_begin_transaction(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	char *description;
-	if (!PyArg_ParseTuple(args, "s:begin_transaction", &description)) {
+	if (!PyArg_ParseTuple(args, "s:begin_transaction", &description))
+	{
 		return NULL;
 	}
 
@@ -1751,13 +1956,15 @@ PyObject *py_unreal_engine_begin_transaction(PyObject * self, PyObject * args) {
 	return PyLong_FromLong(ret);
 }
 
-PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	int tid;
-	if (!PyArg_ParseTuple(args, "i:cancel_transaction", &tid)) {
+	if (!PyArg_ParseTuple(args, "i:cancel_transaction", &tid))
+	{
 		return NULL;
 	}
 
@@ -1767,7 +1974,8 @@ PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args) 
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_end_transaction(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_end_transaction(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -1778,7 +1986,8 @@ PyObject *py_unreal_engine_end_transaction(PyObject * self, PyObject * args) {
 	return PyLong_FromLong(ret);
 }
 
-PyObject *py_unreal_engine_get_transaction_name(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_transaction_name(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -1789,7 +1998,8 @@ PyObject *py_unreal_engine_get_transaction_name(PyObject * self, PyObject * args
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(text.ToString())));
 }
 
-PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -1797,7 +2007,8 @@ PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * arg
 
 	bool is_active = GEditor->IsTransactionActive();
 
-	if (is_active) {
+	if (is_active)
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -1806,7 +2017,8 @@ PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * arg
 	return Py_False;
 }
 
-PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -1814,7 +2026,8 @@ PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args) {
 
 	bool redo = GEditor->RedoTransaction();
 
-	if (redo) {
+	if (redo)
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -1823,13 +2036,15 @@ PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
 	char *reason;
-	if (!PyArg_ParseTuple(args, "s:reset_transaction", &reason)) {
+	if (!PyArg_ParseTuple(args, "s:reset_transaction", &reason))
+	{
 		return NULL;
 	}
 
@@ -1839,12 +2054,14 @@ PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor || !GEditor->Trans)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
-	if (GEditor->Trans->Undo()) {
+	if (GEditor->Trans->Undo())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -1853,12 +2070,14 @@ PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_unreal_engine_editor_redo(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_editor_redo(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor || !GEditor->Trans)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
 
-	if (GEditor->Trans->Redo()) {
+	if (GEditor->Trans->Redo())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -1868,7 +2087,8 @@ PyObject *py_unreal_engine_editor_redo(PyObject * self, PyObject * args) {
 }
 
 
-PyObject *py_unreal_engine_transactions(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_transactions(PyObject * self, PyObject * args)
+{
 
 	if (!GEditor || !GEditor->Trans)
 		return PyErr_Format(PyExc_Exception, "no GEditor found");
@@ -1878,7 +2098,8 @@ PyObject *py_unreal_engine_transactions(PyObject * self, PyObject * args) {
 
 	int32 nums = GEditor->Trans->GetQueueLength();
 
-	for (int32 i = 0; i < nums; i++) {
+	for (int32 i = 0; i < nums; i++)
+	{
 		const FTransaction *transaction = GEditor->Trans->GetTransaction(i);
 		PyList_Append(transactions, PyUnicode_FromString(TCHAR_TO_UTF8(*transaction->GetTitle().ToString())));
 	}

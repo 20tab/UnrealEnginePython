@@ -1,18 +1,22 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args) {
+static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args)
+{
 	return py_ue_new_ftransform(self->transform.Inverse());
 }
 
-static PyObject *py_ue_ftransform_normalize_rotation(ue_PyFTransform *self, PyObject * args) {
+static PyObject *py_ue_ftransform_normalize_rotation(ue_PyFTransform *self, PyObject * args)
+{
 	FTransform transform = self->transform;
 	transform.NormalizeRotation();
 	return py_ue_new_ftransform(transform);
 }
 
-static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, PyObject * args) {
+static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, PyObject * args)
+{
 	PyObject *py_obj;
-	if (!PyArg_ParseTuple(args, "O", &py_obj)) {
+	if (!PyArg_ParseTuple(args, "O", &py_obj))
+	{
 		return nullptr;
 	}
 
@@ -29,24 +33,30 @@ static PyMethodDef ue_PyFTransform_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static PyObject *py_ue_ftransform_get_translation(ue_PyFTransform *self, void *closure) {
+static PyObject *py_ue_ftransform_get_translation(ue_PyFTransform *self, void *closure)
+{
 	return py_ue_new_fvector(self->transform.GetTranslation());
 }
 
-static PyObject *py_ue_ftransform_get_scale(ue_PyFTransform *self, void *closure) {
+static PyObject *py_ue_ftransform_get_scale(ue_PyFTransform *self, void *closure)
+{
 	return py_ue_new_fvector(self->transform.GetScale3D());
 }
 
-static PyObject *py_ue_ftransform_get_rotation(ue_PyFTransform *self, void *closure) {
+static PyObject *py_ue_ftransform_get_rotation(ue_PyFTransform *self, void *closure)
+{
 	return py_ue_new_frotator(self->transform.GetRotation().Rotator());
 }
 
-static PyObject *py_ue_ftransform_get_quaternion(ue_PyFTransform *self, void *closure) {
+static PyObject *py_ue_ftransform_get_quaternion(ue_PyFTransform *self, void *closure)
+{
 	return py_ue_new_fquat(self->transform.GetRotation());
 }
 
-static int py_ue_ftransform_set_translation(ue_PyFTransform *self, PyObject *value, void *closure) {
-	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
+static int py_ue_ftransform_set_translation(ue_PyFTransform *self, PyObject *value, void *closure)
+{
+	if (ue_PyFVector *py_vec = py_ue_is_fvector(value))
+	{
 		self->transform.SetLocation(py_vec->vec);
 		return 0;
 	}
@@ -54,8 +64,10 @@ static int py_ue_ftransform_set_translation(ue_PyFTransform *self, PyObject *val
 	return -1;
 }
 
-static int py_ue_ftransform_set_rotation(ue_PyFTransform *self, PyObject *value, void *closure) {
-	if (ue_PyFRotator *py_rot = py_ue_is_frotator(value)) {
+static int py_ue_ftransform_set_rotation(ue_PyFTransform *self, PyObject *value, void *closure)
+{
+	if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
+	{
 		self->transform.SetRotation(py_rot->rot.Quaternion());
 		return 0;
 	}
@@ -63,8 +75,10 @@ static int py_ue_ftransform_set_rotation(ue_PyFTransform *self, PyObject *value,
 	return -1;
 }
 
-static int py_ue_ftransform_set_quaternion(ue_PyFTransform *self, PyObject *value, void *closure) {
-	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+static int py_ue_ftransform_set_quaternion(ue_PyFTransform *self, PyObject *value, void *closure)
+{
+	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
+	{
 		self->transform.SetRotation(py_quat->quat);
 		return 0;
 	}
@@ -72,8 +86,10 @@ static int py_ue_ftransform_set_quaternion(ue_PyFTransform *self, PyObject *valu
 	return -1;
 }
 
-static int py_ue_ftransform_set_scale(ue_PyFTransform *self, PyObject *value, void *closure) {
-	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
+static int py_ue_ftransform_set_scale(ue_PyFTransform *self, PyObject *value, void *closure)
+{
+	if (ue_PyFVector *py_vec = py_ue_is_fvector(value))
+	{
 		self->transform.SetScale3D(py_vec->vec);
 		return 0;
 	}
@@ -144,48 +160,99 @@ static PyTypeObject ue_PyFTransformType = {
 	ue_PyFTransform_getseters,
 };
 
-static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject *kwargs)
+{
 	PyObject *py_translation = nullptr;
 	PyObject *py_rotation = nullptr;
 	PyObject *py_scale = nullptr;
-	if (!PyArg_ParseTuple(args, "|OOO:__init__", &py_translation, &py_rotation, &py_scale)) {
+	if (!PyArg_ParseTuple(args, "|OOO:__init__", &py_translation, &py_rotation, &py_scale))
+	{
 		return -1;
 	}
 
-	if (py_translation) {
-		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_translation)) {
+	if (py_translation)
+	{
+		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_translation))
+		{
 			self->transform.SetTranslation(py_vec->vec);
 		}
-		else {
-			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
+		else
+		{
+			PyObject *py_iter = PyObject_GetIter(py_translation);
+			if (py_iter)
+			{
+				FMatrix matrix;
+				for (int row = 0; row < 4; row++)
+				{
+					for (int column = 0; column < 4; column++)
+					{
+						PyObject *py_item = PyIter_Next(py_iter);
+						if (!py_item)
+						{
+							PyErr_SetString(PyExc_Exception, "matrix is not 4x4");
+							Py_DECREF(py_iter);
+							return -1;
+						}
+
+						if (!PyNumber_Check(py_item))
+						{
+							PyErr_SetString(PyExc_Exception, "matrix can contains only float");
+							Py_DECREF(py_iter);
+							return -1;
+						}
+
+						PyObject *py_num = PyNumber_Float(py_item);
+						if (!py_num)
+						{
+							PyErr_SetString(PyExc_Exception, "matrix can contains only float");
+							Py_DECREF(py_iter);
+							return -1;
+						}
+						matrix.M[row][column] = PyFloat_AsDouble(py_num);
+						Py_DECREF(py_num);
+					}
+				}
+				self->transform.SetFromMatrix(matrix);
+				Py_DECREF(py_iter);
+				return 0;
+			}
+			PyErr_SetString(PyExc_Exception, "argument is not a FVector or a 4x4 float matrix");
 			return -1;
 		}
 	}
 
-	if (py_rotation) {
-		if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_rotation)) {
+	if (py_rotation)
+	{
+		if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_rotation))
+		{
 			self->transform.SetRotation(py_rot->rot.Quaternion());
 		}
-		else if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_rotation)) {
+		else if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_rotation))
+		{
 			self->transform.SetRotation(py_quat->quat);
 		}
-		else {
+		else
+		{
 			PyErr_SetString(PyExc_Exception, "argument is not a FRotator or a FQuat");
 			return -1;
 		}
 	}
-	else {
+	else
+	{
 		self->transform.SetRotation(FQuat::Identity);
 	}
 
 	// ensure scaling is set to 1,1,1
 	FVector scale(1, 1, 1);
 
-	if (py_scale) {
-		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_scale)) {
+	if (py_scale)
+	{
+		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_scale))
+		{
 			scale = py_vec->vec;
 		}
-		else {
+		else
+		{
 			PyErr_SetString(PyExc_Exception, "argument is not a FVector");
 			return -1;
 		}
@@ -194,23 +261,32 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	return 0;
 }
 
-static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value) {
+static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value)
+{
 	FTransform t = self->transform;
-	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
+	{
 		t *= py_quat->quat;
 	}
-	else if (ue_PyFTransform *py_transform = py_ue_is_ftransform(value)) {
+	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
+	{
+		t *= py_rot->rot.Quaternion();
+	}
+	else if (ue_PyFTransform *py_transform = py_ue_is_ftransform(value))
+	{
 		t *= py_transform->transform;
 	}
-	else {
-		return PyErr_Format(PyExc_TypeError, "FTransform can be multiplied only for an FQuat or an FTransform");
+	else
+	{
+		return PyErr_Format(PyExc_TypeError, "FTransform can be multiplied only for an FQuat, an FRotator or an FTransform");
 	}
 	return py_ue_new_ftransform(t);
 }
 
 PyNumberMethods ue_PyFTransform_number_methods;
 
-void ue_python_init_ftransform(PyObject *ue_module) {
+void ue_python_init_ftransform(PyObject *ue_module)
+{
 	ue_PyFTransformType.tp_new = PyType_GenericNew;
 
 	ue_PyFTransformType.tp_init = (initproc)ue_py_ftransform_init;
@@ -226,24 +302,29 @@ void ue_python_init_ftransform(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FTransform", (PyObject *)&ue_PyFTransformType);
 }
 
-PyObject *py_ue_new_ftransform(FTransform transform) {
+PyObject *py_ue_new_ftransform(FTransform transform)
+{
 	ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
 	ret->transform = transform;
 	return (PyObject *)ret;
 }
 
-ue_PyFTransform *py_ue_is_ftransform(PyObject *obj) {
+ue_PyFTransform *py_ue_is_ftransform(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFTransformType))
 		return nullptr;
 	return (ue_PyFTransform *)obj;
 }
 
-bool py_ue_transform_arg(PyObject *args, FTransform &t) {
+bool py_ue_transform_arg(PyObject *args, FTransform &t)
+{
 
-	if (PyTuple_Size(args) == 1) {
+	if (PyTuple_Size(args) == 1)
+	{
 		PyObject *arg = PyTuple_GetItem(args, 0);
 		ue_PyFTransform *py_t = py_ue_is_ftransform(arg);
-		if (!py_t) {
+		if (!py_t)
+		{
 			PyErr_Format(PyExc_TypeError, "argument is not a FTransform");
 			return false;
 		}

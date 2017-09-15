@@ -5,52 +5,63 @@
 
 #include "UEPyFbx.h"
 
-static PyObject *py_ue_fbx_mesh_get_polygon_count(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_polygon_count(ue_PyFbxMesh *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_mesh->GetPolygonCount());
 }
 
-static PyObject *py_ue_fbx_mesh_get_control_points_count(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_control_points_count(ue_PyFbxMesh *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_mesh->GetControlPointsCount());
 }
 
-static PyObject *py_ue_fbx_mesh_get_polygon_vertex_count(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_polygon_vertex_count(ue_PyFbxMesh *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_mesh->GetPolygonVertexCount());
 }
 
-static PyObject *py_ue_fbx_mesh_get_name(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_name(ue_PyFbxMesh *self, PyObject *args)
+{
 	return PyUnicode_FromString(self->fbx_mesh->GetName());
 }
 
-static PyObject *py_ue_fbx_mesh_get_polygon_vertices(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_polygon_vertices(ue_PyFbxMesh *self, PyObject *args)
+{
 	PyObject *py_list = PyList_New(0);
 	int *indices = self->fbx_mesh->GetPolygonVertices();
-	for (int i = 0; i < self->fbx_mesh->GetPolygonVertexCount(); i++) {
+	for (int i = 0; i < self->fbx_mesh->GetPolygonVertexCount(); i++)
+	{
 		PyList_Append(py_list, PyLong_FromLong(indices[i]));
 	}
 	return py_list;
 }
 
-static PyObject *py_ue_fbx_mesh_get_control_points(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_control_points(ue_PyFbxMesh *self, PyObject *args)
+{
 	PyObject *py_list = PyList_New(0);
 	FbxVector4* control_points = self->fbx_mesh->GetControlPoints();
-	for (int i = 0; i < self->fbx_mesh->GetControlPointsCount(); i++) {
+	for (int i = 0; i < self->fbx_mesh->GetControlPointsCount(); i++)
+	{
 		FbxVector4 vec4 = control_points[i];
 		PyList_Append(py_list, py_ue_new_fvector(FVector(vec4[0], vec4[1], vec4[2])));
 	}
 	return py_list;
 }
 
-static PyObject *py_ue_fbx_mesh_get_polygon_vertex_normals(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_polygon_vertex_normals(ue_PyFbxMesh *self, PyObject *args)
+{
 
 	FbxArray<FbxVector4> normals;
 
-	if (!self->fbx_mesh->GetPolygonVertexNormals(normals)) {
+	if (!self->fbx_mesh->GetPolygonVertexNormals(normals))
+	{
 		Py_RETURN_NONE;
 	}
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int i = 0; i < normals.Size(); i++) {
+	for (int i = 0; i < normals.Size(); i++)
+	{
 		FbxVector4 vec = normals.GetAt(i);
 		PyList_Append(py_list, py_ue_new_fvector(FVector(vec[0], vec[1], vec[2])));
 	}
@@ -58,32 +69,37 @@ static PyObject *py_ue_fbx_mesh_get_polygon_vertex_normals(ue_PyFbxMesh *self, P
 	return py_list;
 }
 
-static PyObject *py_ue_fbx_mesh_get_uv_set_names(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_uv_set_names(ue_PyFbxMesh *self, PyObject *args)
+{
 	PyObject *py_list = PyList_New(0);
 	FbxStringList name_list;
 	self->fbx_mesh->GetUVSetNames(name_list);
 
-	for (int i = 0; i < name_list.GetCount(); i++) {
+	for (int i = 0; i < name_list.GetCount(); i++)
+	{
 		PyList_Append(py_list, PyUnicode_FromString(name_list.GetStringAt(i)));
 	}
 
 	return py_list;
 }
 
-static PyObject *py_ue_fbx_mesh_get_polygon_vertex_uvs(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_get_polygon_vertex_uvs(ue_PyFbxMesh *self, PyObject *args)
+{
 	char *uv_set;
 	if (!PyArg_ParseTuple(args, "s", &uv_set))
 		return nullptr;
 
 	FbxArray<FbxVector2> uvs;
 
-	if (!self->fbx_mesh->GetPolygonVertexUVs(uv_set, uvs)) {
+	if (!self->fbx_mesh->GetPolygonVertexUVs(uv_set, uvs))
+	{
 		Py_RETURN_NONE;
 	}
 
 	PyObject *py_list = PyList_New(0);
-	
-	for (int i = 0; i < uvs.Size(); i++) {
+
+	for (int i = 0; i < uvs.Size(); i++)
+	{
 		FbxVector2 vec = uvs.GetAt(i);
 		PyList_Append(py_list, Py_BuildValue((char *)"(ff)", vec[0], vec[1]));
 	}
@@ -91,7 +107,8 @@ static PyObject *py_ue_fbx_mesh_get_polygon_vertex_uvs(ue_PyFbxMesh *self, PyObj
 	return py_list;
 }
 
-static PyObject *py_ue_fbx_mesh_remove_bad_polygons(ue_PyFbxMesh *self, PyObject *args) {
+static PyObject *py_ue_fbx_mesh_remove_bad_polygons(ue_PyFbxMesh *self, PyObject *args)
+{
 	self->fbx_mesh->RemoveBadPolygons();
 	Py_RETURN_NONE;
 }
@@ -143,15 +160,18 @@ static PyTypeObject ue_PyFbxMeshType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_mesh_init(ue_PyFbxMesh *self, PyObject * args) {
+static int py_ue_fbx_mesh_init(ue_PyFbxMesh *self, PyObject * args)
+{
 	PyObject *py_object;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os", &py_object, &name)) {
+	if (!PyArg_ParseTuple(args, "Os", &py_object, &name))
+	{
 		return -1;
 	}
 
 	ue_PyFbxManager *py_fbx_manager = py_ue_is_fbx_manager(py_object);
-	if (!py_fbx_manager) {
+	if (!py_fbx_manager)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a FbxManager");
 		return -1;
 	}
@@ -160,7 +180,8 @@ static int py_ue_fbx_mesh_init(ue_PyFbxMesh *self, PyObject * args) {
 	return 0;
 }
 
-void ue_python_init_fbx_mesh(PyObject *ue_module) {
+void ue_python_init_fbx_mesh(PyObject *ue_module)
+{
 	ue_PyFbxMeshType.tp_new = PyType_GenericNew;;
 	ue_PyFbxMeshType.tp_init = (initproc)py_ue_fbx_mesh_init;
 	if (PyType_Ready(&ue_PyFbxMeshType) < 0)
@@ -170,7 +191,8 @@ void ue_python_init_fbx_mesh(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxMesh", (PyObject *)&ue_PyFbxMeshType);
 }
 
-PyObject *py_ue_new_fbx_mesh(FbxMesh *fbx_mesh) {
+PyObject *py_ue_new_fbx_mesh(FbxMesh *fbx_mesh)
+{
 	ue_PyFbxMesh *ret = (ue_PyFbxMesh *)PyObject_New(ue_PyFbxMesh, &ue_PyFbxMeshType);
 	ret->fbx_mesh = fbx_mesh;
 	return (PyObject *)ret;

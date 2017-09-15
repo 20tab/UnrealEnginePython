@@ -9,7 +9,8 @@
 #include "UnrealEd.h"
 #endif
 
-PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -20,21 +21,25 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_property_struct", &property_name)) {
+	if (!PyArg_ParseTuple(args, "s:get_property_struct", &property_name))
+	{
 		return NULL;
 	}
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -48,16 +53,19 @@ PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args) {
 	return py_ue_new_uscriptstruct(prop->Struct, prop->ContainerPtrToValuePtr<uint8>(self->ue_object));
 }
 
-PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	UClass *u_class = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		u_class = (UClass *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_class = self->ue_object->GetClass();
 	}
 
@@ -68,7 +76,8 @@ PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -79,7 +88,8 @@ PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -90,7 +100,8 @@ PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -99,22 +110,26 @@ PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:is_a", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:is_a", &obj))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(obj)) {
+	if (!ue_is_pyuobject(obj))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
-	if (self->ue_object->IsA((UClass *)py_obj->ue_object)) {
+	if (self->ue_object->IsA((UClass *)py_obj->ue_object))
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -124,19 +139,22 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:is_child_of", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:is_child_of", &obj))
+	{
 		return NULL;
 	}
 
 	if (!self->ue_object->IsA<UClass>())
 		return PyErr_Format(PyExc_Exception, "object is not a UClass");
 
-	if (!ue_is_pyuobject(obj)) {
+	if (!ue_is_pyuobject(obj))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -148,7 +166,8 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
 	UClass *parent = (UClass *)py_obj->ue_object;
 	UClass *child = (UClass *)self->ue_object;
 
-	if (child->IsChildOf(parent)) {
+	if (child->IsChildOf(parent))
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -157,10 +176,12 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
-	if (!self->ue_object) {
+	if (!self->ue_object)
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not valid");
 	}
 #if WITH_EDITOR
@@ -170,10 +191,12 @@ PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_modify(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_modify(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
-	if (!self->ue_object) {
+	if (!self->ue_object)
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not valid");
 	}
 #if WITH_EDITOR
@@ -183,10 +206,12 @@ PyObject *py_ue_modify(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
-	if (!self->ue_object) {
+	if (!self->ue_object)
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not valid");
 	}
 #if WITH_EDITOR
@@ -198,25 +223,30 @@ PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args) {
 
 
 #if WITH_EDITOR
-PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *metadata_key;
 	char *metadata_value;
-	if (!PyArg_ParseTuple(args, "ss:set_metadata", &metadata_key, &metadata_value)) {
+	if (!PyArg_ParseTuple(args, "ss:set_metadata", &metadata_key, &metadata_value))
+	{
 		return NULL;
 	}
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		UClass *u_class = (UClass *)self->ue_object;
 		u_class->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
 	}
-	else if (self->ue_object->IsA<UField>()) {
+	else if (self->ue_object->IsA<UField>())
+	{
 		UField *u_field = (UField *)self->ue_object;
 		u_field->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
 	}
-	else {
+	else
+	{
 		return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
 	}
 
@@ -224,24 +254,28 @@ PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *metadata_key;
-	if (!PyArg_ParseTuple(args, "s:get_metadata", &metadata_key)) {
+	if (!PyArg_ParseTuple(args, "s:get_metadata", &metadata_key))
+	{
 		return NULL;
 	}
 
 	char *metadata_value = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		UClass *u_class = (UClass *)self->ue_object;
 		FString value = u_class->GetMetaData(FName(UTF8_TO_TCHAR(metadata_key)));
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
 	}
 
-	if (self->ue_object->IsA<UField>()) {
+	if (self->ue_object->IsA<UField>())
+	{
 		UField *u_field = (UField *)self->ue_object;
 		FString value = u_field->GetMetaData(FName(UTF8_TO_TCHAR(metadata_key)));
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
@@ -250,18 +284,22 @@ PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args) {
 	return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
 }
 
-PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *metadata_key;
-	if (!PyArg_ParseTuple(args, "s:has_metadata", &metadata_key)) {
+	if (!PyArg_ParseTuple(args, "s:has_metadata", &metadata_key))
+	{
 		return NULL;
 	}
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		UClass *u_class = (UClass *)self->ue_object;
-		if (u_class->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key)))) {
+		if (u_class->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key))))
+		{
 			Py_INCREF(Py_True);
 			return Py_True;
 		}
@@ -269,9 +307,11 @@ PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args) {
 		return Py_False;
 	}
 
-	if (self->ue_object->IsA<UField>()) {
+	if (self->ue_object->IsA<UField>())
+	{
 		UField *u_field = (UField *)self->ue_object;
-		if (u_field->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key)))) {
+		if (u_field->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key))))
+		{
 			Py_INCREF(Py_True);
 			return Py_True;
 		}
@@ -283,19 +323,22 @@ PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args) {
 }
 #endif
 
-PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kwargs) {
+PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kwargs)
+{
 
 	ue_py_check(self);
 
 	UFunction *function = nullptr;
 
-	if (PyTuple_Size(args) < 1) {
+	if (PyTuple_Size(args) < 1)
+	{
 		return PyErr_Format(PyExc_TypeError, "this function requires at least an argument");
 	}
 
 	PyObject *func_id = PyTuple_GetItem(args, 0);
 
-	if (PyUnicodeOrString_Check(func_id)) {
+	if (PyUnicodeOrString_Check(func_id))
+	{
 		function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(func_id))));
 	}
 
@@ -306,17 +349,20 @@ PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kw
 
 }
 
-PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_function", &name)) {
+	if (!PyArg_ParseTuple(args, "s:find_function", &name))
+	{
 		return NULL;
 	}
 
 	UFunction *function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(name)));
-	if (!function) {
+	if (!function)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -330,11 +376,13 @@ PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args) {
 }
 
 #if ENGINE_MINOR_VERSION >= 15
-PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (self->ue_object->CanModify()) {
+	if (self->ue_object->CanModify())
+	{
 		Py_RETURN_TRUE;
 	}
 
@@ -342,20 +390,24 @@ PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args) {
 }
 #endif
 
-PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:set_name", &name)) {
+	if (!PyArg_ParseTuple(args, "s:set_name", &name))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->Rename(UTF8_TO_TCHAR(name), self->ue_object->GetOutermost(), REN_Test)) {
+	if (!self->ue_object->Rename(UTF8_TO_TCHAR(name), self->ue_object->GetOutermost(), REN_Test))
+	{
 		return PyErr_Format(PyExc_Exception, "cannot set name %s", name);
 	}
 
-	if (self->ue_object->Rename(UTF8_TO_TCHAR(name))) {
+	if (self->ue_object->Rename(UTF8_TO_TCHAR(name)))
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -363,12 +415,14 @@ PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_set_outer(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_set_outer(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	PyObject *py_outer;
-	if (!PyArg_ParseTuple(args, "O:set_outer", &py_outer)) {
+	if (!PyArg_ParseTuple(args, "O:set_outer", &py_outer))
+	{
 		return nullptr;
 	}
 
@@ -376,18 +430,21 @@ PyObject *py_ue_set_outer(ue_PyUObject *self, PyObject * args) {
 	if (!package)
 		return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
 
-	if (!self->ue_object->Rename(nullptr, package, REN_Test)) {
+	if (!self->ue_object->Rename(nullptr, package, REN_Test))
+	{
 		return PyErr_Format(PyExc_Exception, "cannot move to package %s", TCHAR_TO_UTF8(*package->GetPathName()));
 	}
 
-	if (self->ue_object->Rename(nullptr, package)) {
+	if (self->ue_object->Rename(nullptr, package))
+	{
 		Py_RETURN_TRUE;
 	}
 
 	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -395,17 +452,20 @@ PyObject *py_ue_get_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetName())));
 }
 
-PyObject *py_ue_get_display_name(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_display_name(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 #if WITH_EDITOR
-	if (AActor *actor = ue_py_check_type<AActor>(self)) {
+	if (AActor *actor = ue_py_check_type<AActor>(self))
+	{
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*actor->GetActorLabel()));
 	}
 #endif
 
-	if (UActorComponent *component = ue_py_check_type<UActorComponent>(self)) {
+	if (UActorComponent *component = ue_py_check_type<UActorComponent>(self))
+	{
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*component->GetReadableName()));
 	}
 
@@ -413,7 +473,8 @@ PyObject *py_ue_get_display_name(ue_PyUObject *self, PyObject * args) {
 }
 
 
-PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -421,14 +482,16 @@ PyObject *py_ue_get_full_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetFullName())));
 }
 
-PyObject *py_ue_get_path_name(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_path_name(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetPathName())));
 }
 
-PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -438,22 +501,26 @@ PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
 	PyObject *property_value;
-	if (!PyArg_ParseTuple(args, "sO:set_property", &property_name, &property_value)) {
+	if (!PyArg_ParseTuple(args, "sO:set_property", &property_name, &property_value))
+	{
 		return NULL;
 	}
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UStruct>()) {
+	if (self->ue_object->IsA<UStruct>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -462,7 +529,8 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
 
-	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object)) {
+	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object))
+	{
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
 	}
 
@@ -471,7 +539,8 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args) {
 
 }
 
-PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 	if (!self->ue_object->IsA<UEnum>())
 		return PyErr_Format(PyExc_TypeError, "uobject is not a UEnum");
@@ -479,7 +548,8 @@ PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args) {
 	UEnum *u_enum = (UEnum *)self->ue_object;
 	uint8 max_enum_value = u_enum->GetMaxEnumValue();
 	PyObject *ret = PyList_New(0);
-	for (uint8 i = 0; i < max_enum_value; i++) {
+	for (uint8 i = 0; i < max_enum_value; i++)
+	{
 		PyObject *py_long = PyLong_FromLong(i);
 		PyList_Append(ret, py_long);
 		Py_DECREF(py_long);
@@ -487,7 +557,8 @@ PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args) {
 	return ret;
 }
 
-PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 	if (!self->ue_object->IsA<UEnum>())
 		return PyErr_Format(PyExc_TypeError, "uobject is not a UEnum");
@@ -495,7 +566,8 @@ PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args) {
 	UEnum *u_enum = (UEnum *)self->ue_object;
 	uint8 max_enum_value = u_enum->GetMaxEnumValue();
 	PyObject *ret = PyList_New(0);
-	for (uint8 i = 0; i < max_enum_value; i++) {
+	for (uint8 i = 0; i < max_enum_value; i++)
+	{
 #if ENGINE_MINOR_VERSION > 15
 		PyObject *py_long = PyUnicode_FromString(TCHAR_TO_UTF8(*u_enum->GetNameStringByIndex(i)));
 #else
@@ -503,12 +575,13 @@ PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args) {
 #endif
 		PyList_Append(ret, py_long);
 		Py_DECREF(py_long);
-}
+	}
 	return ret;
 }
 
 #if ENGINE_MINOR_VERSION >= 15
-PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 	if (!self->ue_object->IsA<UUserDefinedEnum>())
 		return PyErr_Format(PyExc_TypeError, "uobject is not a UEnum");
@@ -517,7 +590,8 @@ PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args) {
 	TArray<FText> user_defined_names;
 	u_enum->DisplayNameMap.GenerateValueArray(user_defined_names);
 	PyObject *ret = PyList_New(0);
-	for (FText text : user_defined_names) {
+	for (FText text : user_defined_names)
+	{
 		PyObject *py_long = PyUnicode_FromString(TCHAR_TO_UTF8(*text.ToString()));
 		PyList_Append(ret, py_long);
 		Py_DECREF(py_long);
@@ -526,16 +600,19 @@ PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args) {
 }
 #endif
 
-PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UStruct>()) {
+	if (self->ue_object->IsA<UStruct>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -552,16 +629,19 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args) {
 	return ret;
 }
 
-PyObject *py_ue_functions(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_functions(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UStruct>()) {
+	if (self->ue_object->IsA<UStruct>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -579,17 +659,20 @@ PyObject *py_ue_functions(ue_PyUObject *self, PyObject * args) {
 
 }
 
-PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_call(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *call_args;
-	if (!PyArg_ParseTuple(args, "s:call", &call_args)) {
+	if (!PyArg_ParseTuple(args, "s:call", &call_args))
+	{
 		return NULL;
 	}
 
 	FOutputDeviceNull od_null;
-	if (!self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true)) {
+	if (!self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true))
+	{
 		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"", call_args);
 	}
 
@@ -597,12 +680,14 @@ PyObject *py_ue_call(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
+PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:broadcast", &property_name)) {
+	if (!PyArg_ParseTuple(args, "s:broadcast", &property_name))
+	{
 		return NULL;
 	}
 
@@ -610,13 +695,15 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find event property %s", property_name);
 
-	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property)) {
+	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
+	{
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
 		uint8 *parms = (uint8 *)FMemory_Alloca(casted_prop->SignatureFunction->PropertiesSize);
 		FMemory::Memzero(parms, casted_prop->SignatureFunction->PropertiesSize);
 		multiscript_delegate.ProcessMulticastDelegate<UObject>(parms);
 	}
-	else {
+	else
+	{
 		return PyErr_Format(PyExc_Exception, "property is not a UMulticastDelegateProperty");
 	}
 
@@ -624,21 +711,25 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args) {
 	return Py_None;
 }
 
-PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_property", &property_name)) {
+	if (!PyArg_ParseTuple(args, "s:get_property", &property_name))
+	{
 		return NULL;
 	}
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -649,21 +740,25 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args) {
 	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
 }
 
-PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_uproperty", &property_name)) {
+	if (!PyArg_ParseTuple(args, "s:get_uproperty", &property_name))
+	{
 		return NULL;
 	}
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -679,21 +774,25 @@ PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args) {
 
 }
 
-PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:has_property", &property_name)) {
+	if (!PyArg_ParseTuple(args, "s:has_property", &property_name))
+	{
 		return NULL;
 	}
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -703,21 +802,25 @@ PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_TRUE;
 }
 
-PyObject *py_ue_get_property_class(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_property_class(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_property_class", &property_name)) {
+	if (!PyArg_ParseTuple(args, "s:get_property_class", &property_name))
+	{
 		return NULL;
 	}
 
 	UStruct *u_struct = nullptr;
 
-	if (self->ue_object->IsA<UClass>()) {
+	if (self->ue_object->IsA<UClass>())
+	{
 		u_struct = (UStruct *)self->ue_object;
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
@@ -732,11 +835,13 @@ PyObject *py_ue_get_property_class(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (self->ue_object->IsRooted()) {
+	if (self->ue_object->IsRooted())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -746,7 +851,8 @@ PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args) {
 }
 
 
-PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -756,7 +862,8 @@ PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_auto_root(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_auto_root(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -766,7 +873,8 @@ PyObject *py_ue_auto_root(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -776,17 +884,20 @@ PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *event_name;
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "sO:bind_event", &event_name, &py_callable)) {
+	if (!PyArg_ParseTuple(args, "sO:bind_event", &event_name, &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "object is not callable");
 	}
 
@@ -794,27 +905,32 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args) {
 }
 
 #if PY_MAJOR_VERSION >= 3
-PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *name;
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "sO:add_function", &name, &py_callable)) {
+	if (!PyArg_ParseTuple(args, "sO:add_function", &name, &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UClass>()) {
+	if (!self->ue_object->IsA<UClass>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 	}
 
 	UClass *u_class = (UClass *)self->ue_object;
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "object is not callable");
 	}
 
-	if (!unreal_engine_add_function(u_class, name, py_callable, FUNC_Native | FUNC_BlueprintCallable | FUNC_Public)) {
+	if (!unreal_engine_add_function(u_class, name, py_callable, FUNC_Native | FUNC_BlueprintCallable | FUNC_Public))
+	{
 		return PyErr_Format(PyExc_Exception, "unable to add function");
 	}
 
@@ -823,7 +939,8 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args) {
 }
 #endif
 
-PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -831,7 +948,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	char *name;
 	PyObject *property_class = nullptr;
 	PyObject *property_class2 = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|OO:add_property", &obj, &name, &property_class, &property_class2)) {
+	if (!PyArg_ParseTuple(args, "Os|OO:add_property", &obj, &name, &property_class, &property_class2))
+	{
 		return NULL;
 	}
 
@@ -852,43 +970,55 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	bool is_array = false;
 	bool is_map = false;
 
-	if (property_class) {
-		if (!ue_is_pyuobject(property_class)) {
+	if (property_class)
+	{
+		if (!ue_is_pyuobject(property_class))
+		{
 			return PyErr_Format(PyExc_Exception, "property class arg is not a uobject");
 		}
 		ue_PyUObject *py_prop_class = (ue_PyUObject *)property_class;
-		if (py_prop_class->ue_object->IsA<UClass>()) {
+		if (py_prop_class->ue_object->IsA<UClass>())
+		{
 			u_prop_class = (UClass *)py_prop_class->ue_object;
 		}
-		else if (py_prop_class->ue_object->IsA<UScriptStruct>()) {
+		else if (py_prop_class->ue_object->IsA<UScriptStruct>())
+		{
 			u_script_struct = (UScriptStruct *)py_prop_class->ue_object;
 		}
-		else {
+		else
+		{
 			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
 		}
 	}
 
-	if (property_class2) {
-		if (!ue_is_pyuobject(property_class2)) {
+	if (property_class2)
+	{
+		if (!ue_is_pyuobject(property_class2))
+		{
 			return PyErr_Format(PyExc_Exception, "property class arg is not a uobject");
 		}
 		ue_PyUObject *py_prop_class = (ue_PyUObject *)property_class2;
-		if (py_prop_class->ue_object->IsA<UClass>()) {
+		if (py_prop_class->ue_object->IsA<UClass>())
+		{
 			u_prop_class2 = (UClass *)py_prop_class->ue_object;
 		}
-		else if (py_prop_class->ue_object->IsA<UScriptStruct>()) {
+		else if (py_prop_class->ue_object->IsA<UScriptStruct>())
+		{
 			u_script_struct2 = (UScriptStruct *)py_prop_class->ue_object;
 		}
-		else {
+		else
+		{
 			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
 		}
 	}
 
 	EObjectFlags o_flags = RF_Public | RF_MarkAsNative;// | RF_Transient;
 
-	if (ue_is_pyuobject(obj)) {
+	if (ue_is_pyuobject(obj))
+	{
 		ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-		if (!py_obj->ue_object->IsA<UClass>()) {
+		if (!py_obj->ue_object->IsA<UClass>())
+		{
 			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 		}
 		u_class = (UClass *)py_obj->ue_object;
@@ -898,12 +1028,16 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 			return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
 		scope = self->ue_object;
 	}
-	else if (PyList_Check(obj)) {
-		if (PyList_Size(obj) == 1) {
+	else if (PyList_Check(obj))
+	{
+		if (PyList_Size(obj) == 1)
+		{
 			PyObject *py_item = PyList_GetItem(obj, 0);
-			if (ue_is_pyuobject(py_item)) {
+			if (ue_is_pyuobject(py_item))
+			{
 				ue_PyUObject *py_obj = (ue_PyUObject *)py_item;
-				if (!py_obj->ue_object->IsA<UClass>()) {
+				if (!py_obj->ue_object->IsA<UClass>())
+				{
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class = (UClass *)py_obj->ue_object;
@@ -920,13 +1054,16 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 			Py_DECREF(py_item);
 		}
 #if ENGINE_MINOR_VERSION >= 15
-		else if (PyList_Size(obj) == 2) {
+		else if (PyList_Size(obj) == 2)
+		{
 			PyObject *py_key = PyList_GetItem(obj, 0);
 			PyObject *py_value = PyList_GetItem(obj, 1);
-			if (ue_is_pyuobject(py_key) && ue_is_pyuobject(py_value)) {
+			if (ue_is_pyuobject(py_key) && ue_is_pyuobject(py_value))
+			{
 				// KEY
 				ue_PyUObject *py_obj = (ue_PyUObject *)py_key;
-				if (!py_obj->ue_object->IsA<UClass>()) {
+				if (!py_obj->ue_object->IsA<UClass>())
+				{
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class = (UClass *)py_obj->ue_object;
@@ -937,7 +1074,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 
 				// VALUE
 				ue_PyUObject *py_obj2 = (ue_PyUObject *)py_value;
-				if (!py_obj2->ue_object->IsA<UClass>()) {
+				if (!py_obj2->ue_object->IsA<UClass>())
+				{
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class2 = (UClass *)py_obj2->ue_object;
@@ -960,12 +1098,14 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	}
 
 
-	if (!scope) {
+	if (!scope)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject or a single item list");
 	}
 
 	u_property = NewObject<UProperty>(scope, u_class, UTF8_TO_TCHAR(name), o_flags);
-	if (!u_property) {
+	if (!u_property)
+	{
 		if (is_array || is_map)
 			scope->MarkPendingKill();
 		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
@@ -976,7 +1116,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	uint64 flags = CPF_Edit | CPF_BlueprintVisible | CPF_ZeroConstructor;
 
 	// we assumed Actor Components to be non-editable
-	if (u_prop_class && u_prop_class->IsChildOf<UActorComponent>()) {
+	if (u_prop_class && u_prop_class->IsChildOf<UActorComponent>())
+	{
 		flags |= ~CPF_Edit;
 	}
 
@@ -986,19 +1127,24 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		flags |= CPF_Net;
 	}*/
 
-	if (is_array) {
+	if (is_array)
+	{
 		UArrayProperty *u_array = (UArrayProperty *)scope;
 		u_array->AddCppProperty(u_property);
 		u_property->SetPropertyFlags(flags);
-		if (u_property->GetClass() == UObjectProperty::StaticClass()) {
+		if (u_property->GetClass() == UObjectProperty::StaticClass())
+		{
 			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
-			if (u_prop_class) {
+			if (u_prop_class)
+			{
 				obj_prop->SetPropertyClass(u_prop_class);
 			}
 		}
-		if (u_property->GetClass() == UStructProperty::StaticClass()) {
+		if (u_property->GetClass() == UStructProperty::StaticClass())
+		{
 			UStructProperty *obj_prop = (UStructProperty *)u_property;
-			if (u_script_struct) {
+			if (u_script_struct)
+			{
 				obj_prop->Struct = u_script_struct;
 			}
 		}
@@ -1006,9 +1152,11 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	}
 
 #if ENGINE_MINOR_VERSION >= 15
-	if (is_map) {
+	if (is_map)
+	{
 		u_property2 = NewObject<UProperty>(scope, u_class2, NAME_None, o_flags);
-		if (!u_property2) {
+		if (!u_property2)
+		{
 			if (is_array || is_map)
 				scope->MarkPendingKill();
 			return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
@@ -1019,28 +1167,36 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		u_property->SetPropertyFlags(flags);
 		u_property2->SetPropertyFlags(flags);
 
-		if (u_property->GetClass() == UObjectProperty::StaticClass()) {
+		if (u_property->GetClass() == UObjectProperty::StaticClass())
+		{
 			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
-			if (u_prop_class) {
+			if (u_prop_class)
+			{
 				obj_prop->SetPropertyClass(u_prop_class);
 			}
 		}
-		if (u_property->GetClass() == UStructProperty::StaticClass()) {
+		if (u_property->GetClass() == UStructProperty::StaticClass())
+		{
 			UStructProperty *obj_prop = (UStructProperty *)u_property;
-			if (u_script_struct) {
+			if (u_script_struct)
+			{
 				obj_prop->Struct = u_script_struct;
 			}
 		}
 
-		if (u_property2->GetClass() == UObjectProperty::StaticClass()) {
+		if (u_property2->GetClass() == UObjectProperty::StaticClass())
+		{
 			UObjectProperty *obj_prop = (UObjectProperty *)u_property2;
-			if (u_prop_class2) {
+			if (u_prop_class2)
+			{
 				obj_prop->SetPropertyClass(u_prop_class2);
 			}
 		}
-		if (u_property2->GetClass() == UStructProperty::StaticClass()) {
+		if (u_property2->GetClass() == UStructProperty::StaticClass())
+		{
 			UStructProperty *obj_prop = (UStructProperty *)u_property2;
-			if (u_script_struct2) {
+			if (u_script_struct2)
+			{
 				obj_prop->Struct = u_script_struct2;
 			}
 		}
@@ -1052,7 +1208,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	}
 #endif
 
-	if (u_class == UMulticastDelegateProperty::StaticClass()) {
+	if (u_class == UMulticastDelegateProperty::StaticClass())
+	{
 		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
 		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
 		mcp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
@@ -1060,7 +1217,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		flags &= ~CPF_Edit;
 	}
 
-	else if (u_class == UDelegateProperty::StaticClass()) {
+	else if (u_class == UDelegateProperty::StaticClass())
+	{
 		UDelegateProperty *udp = (UDelegateProperty *)u_property;
 		udp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
 		udp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
@@ -1068,21 +1226,27 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 		flags &= ~CPF_Edit;
 	}
 
-	else if (u_class == UObjectProperty::StaticClass()) {
+	else if (u_class == UObjectProperty::StaticClass())
+	{
 		// ensure it is not an arry as we have already managed it !
-		if (!is_array && !is_map) {
+		if (!is_array && !is_map)
+		{
 			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
-			if (u_prop_class) {
+			if (u_prop_class)
+			{
 				obj_prop->SetPropertyClass(u_prop_class);
 			}
 		}
 	}
 
-	else if (u_class == UStructProperty::StaticClass()) {
+	else if (u_class == UStructProperty::StaticClass())
+	{
 		// ensure it is not an arry as we have already managed it !
-		if (!is_array && !is_map) {
+		if (!is_array && !is_map)
+		{
 			UStructProperty *obj_prop = (UStructProperty *)u_property;
-			if (u_script_struct) {
+			if (u_script_struct)
+			{
 				obj_prop->Struct = u_script_struct;
 			}
 		}
@@ -1096,7 +1260,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	u_struct->StaticLink(true);
 
 
-	if (u_struct->IsA<UClass>()) {
+	if (u_struct->IsA<UClass>())
+	{
 		UClass *owner_class = (UClass *)u_struct;
 		owner_class->GetDefaultObject()->RemoveFromRoot();
 		owner_class->GetDefaultObject()->ConditionalBeginDestroy();
@@ -1113,29 +1278,35 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	UStruct *u_struct = nullptr;
 	UObject *u_object = self->ue_object;
 
-	if (self->ue_object->IsA<UStruct>()) {
+	if (self->ue_object->IsA<UStruct>())
+	{
 		u_struct = (UStruct *)self->ue_object;
-		if (self->ue_object->IsA<UClass>()) {
+		if (self->ue_object->IsA<UClass>())
+		{
 			UClass *u_class = (UClass *)self->ue_object;
 			u_object = u_class->GetDefaultObject();
 		}
 	}
-	else {
+	else
+	{
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
 	PyObject *py_struct_dict = PyDict_New();
 	TFieldIterator<UProperty> SArgs(u_struct);
-	for (; SArgs; ++SArgs) {
+	for (; SArgs; ++SArgs)
+	{
 		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object);
-		if (!struct_value) {
+		if (!struct_value)
+		{
 			Py_DECREF(py_struct_dict);
 			return NULL;
 		}
@@ -1144,11 +1315,13 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args) {
 	return py_struct_dict;
 }
 
-PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UClass>()) {
+	if (!self->ue_object->IsA<UClass>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 	}
 
@@ -1163,7 +1336,8 @@ PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args) {
 
 
 #if WITH_EDITOR
-PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
+{
 
 	/*
 
@@ -1181,41 +1355,50 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 
 	char *name = nullptr;
 	UPackage *package = nullptr;
-	if (!PyArg_ParseTuple(args, "|s:save_package", &name)) {
+	if (!PyArg_ParseTuple(args, "|s:save_package", &name))
+	{
 		return NULL;
 	}
 	UObject *outer = self->ue_object->GetOutermost();
 	UObject *u_object = self->ue_object;
 
-	if (outer && outer->IsA<UPackage>() && outer != GetTransientPackage()) {
+	if (outer && outer->IsA<UPackage>() && outer != GetTransientPackage())
+	{
 		package = (UPackage *)outer;
 		has_package = true;
 	}
-	else if (u_object->IsA<UPackage>() && u_object != GetTransientPackage()) {
+	else if (u_object->IsA<UPackage>() && u_object != GetTransientPackage())
+	{
 		package = (UPackage *)u_object;
 		has_package = true;
 	}
 
-	if (!package || name) {
-		if (!name) {
+	if (!package || name)
+	{
+		if (!name)
+		{
 			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
 		}
-		if (!has_package) {
+		if (!has_package)
+		{
 			// unmark transient object
-			if (u_object->HasAnyFlags(RF_Transient)) {
+			if (u_object->HasAnyFlags(RF_Transient))
+			{
 				u_object->ClearFlags(RF_Transient);
 				u_object->SetFlags(RF_Public | RF_Standalone);
 			}
 		}
 		package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 		// create a new package if it does not exist
-		if (!package) {
+		if (!package)
+		{
 			package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		}
 		if (!package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
 		package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
-		if (has_package) {
+		if (has_package)
+		{
 			FString split_path;
 			FString split_filename;
 			FString split_extension;
@@ -1223,12 +1406,15 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 			FPaths::Split(split_base, split_path, split_filename, split_extension);
 			u_object = DuplicateObject(self->ue_object, package, FName(*split_filename));
 		}
-		else {
+		else
+		{
 			// move to object into the new package
-			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package, REN_Test)) {
+			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package, REN_Test))
+			{
 				return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
 			}
-			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package)) {
+			if (!self->ue_object->Rename(*(self->ue_object->GetName()), package))
+			{
 				return PyErr_Format(PyExc_Exception, "unable to set object outer to package");
 			}
 		}
@@ -1237,12 +1423,14 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	package->FullyLoad();
 	package->MarkPackageDirty();
 
-	if (package->FileName.IsNone()) {
+	if (package->FileName.IsNone())
+	{
 		package->FileName = *FPackageName::LongPackageNameToFilename(*package->GetPathName(), FPackageName::GetAssetPackageExtension());
 		UE_LOG(LogPython, Warning, TEXT("no file mapped to UPackage %s, setting its FileName to %s"), *package->GetPathName(), *package->FileName.ToString());
 	}
 
-	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString())) {
+	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString()))
+	{
 		FAssetRegistryModule::AssetCreated(u_object);
 		ue_PyUObject *ret = ue_get_python_wrapper(u_object);
 		if (!ret)
@@ -1254,24 +1442,28 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args) {
 	return PyErr_Format(PyExc_Exception, "unable to save package");
 }
 
-PyObject *py_ue_asset_can_reimport(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_asset_can_reimport(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (FReimportManager::Instance()->CanReimport(self->ue_object)) {
+	if (FReimportManager::Instance()->CanReimport(self->ue_object))
+	{
 		Py_RETURN_TRUE;
 	}
 	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	PyObject *py_ask_for_new_file = nullptr;
 	PyObject *py_show_notification = nullptr;
 	char *filename = nullptr;
-	if (!PyArg_ParseTuple(args, "|OOs:asset_reimport", &py_ask_for_new_file, &py_show_notification, &filename)) {
+	if (!PyArg_ParseTuple(args, "|OOs:asset_reimport", &py_ask_for_new_file, &py_show_notification, &filename))
+	{
 		return NULL;
 	}
 
@@ -1288,7 +1480,8 @@ PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
 	if (filename)
 		f_filename = FString(UTF8_TO_TCHAR(filename));
 
-	if (FReimportManager::Instance()->Reimport(self->ue_object, ask_for_new_file, show_notification, f_filename)) {
+	if (FReimportManager::Instance()->Reimport(self->ue_object, ask_for_new_file, show_notification, f_filename))
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -1297,7 +1490,8 @@ PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args) {
 	return Py_False;
 }
 
-PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -1320,6 +1514,9 @@ PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args) {
 #else
 	UObject *new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused, (py_overwrite && PyObject_IsTrue(py_overwrite)));
 #endif
+
+	if (!new_asset)
+		return PyErr_Format(PyExc_Exception, "unable to duplicate object");
 
 	ue_PyUObject *ret = ue_get_python_wrapper(new_asset);
 	if (!ret)

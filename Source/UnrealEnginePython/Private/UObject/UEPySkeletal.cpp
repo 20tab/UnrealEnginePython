@@ -6,7 +6,8 @@
 #endif
 
 
-PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -16,7 +17,8 @@ PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args) {
 	USkeletalMeshComponent *skeletal = (USkeletalMeshComponent *)self->ue_object;
 
 	UAnimInstance *anim = skeletal->GetAnimInstance();
-	if (!anim) {
+	if (!anim)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -28,7 +30,8 @@ PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_set_skeletal_mesh(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_set_skeletal_mesh(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -57,7 +60,8 @@ PyObject *py_ue_set_skeletal_mesh(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_skeleton_get_parent_index(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeleton_get_parent_index(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -75,7 +79,8 @@ PyObject *py_ue_skeleton_get_parent_index(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(skeleton->GetReferenceSkeleton().GetParentIndex(index));
 }
 
-PyObject *py_ue_skeleton_bones_get_num(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeleton_bones_get_num(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -86,7 +91,8 @@ PyObject *py_ue_skeleton_bones_get_num(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(skeleton->GetReferenceSkeleton().GetNum());
 }
 
-PyObject *py_ue_skeleton_get_bone_name(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeleton_get_bone_name(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -104,7 +110,8 @@ PyObject *py_ue_skeleton_get_bone_name(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*skeleton->GetReferenceSkeleton().GetBoneName(index).ToString()));
 }
 
-PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -123,7 +130,8 @@ PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(index);
 }
 
-PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -142,7 +150,8 @@ PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args) 
 }
 
 #if ENGINE_MINOR_VERSION > 13
-PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -160,7 +169,8 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 	if (!transform)
 		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
 
-	if (skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))) > -1) {
+	if (skeleton->GetReferenceSkeleton().FindBoneIndex(FName(UTF8_TO_TCHAR(name))) > -1)
+	{
 		return PyErr_Format(PyExc_Exception, "bone %s already exists", name);
 	}
 
@@ -189,7 +199,8 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args) {
 #endif
 
 #if ENGINE_MINOR_VERSION > 12
-PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	PyObject *py_ss_vertex;
@@ -213,15 +224,18 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 		return PyErr_Format(PyExc_Exception, "invalid Section index, must be between 0 and %d", model.Sections.Num() - 1);
 
 	PyObject *py_iter = PyObject_GetIter(py_ss_vertex);
-	if (!py_iter) {
+	if (!py_iter)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of FSoftSkinVertex");
 	}
 
 	TArray<FSoftSkinVertex> soft_vertices;
 
-	while (PyObject *py_item = PyIter_Next(py_iter)) {
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
 		ue_PyFSoftSkinVertex *ss_vertex = py_ue_is_fsoft_skin_vertex(py_item);
-		if (!ss_vertex) {
+		if (!ss_vertex)
+		{
 			Py_DECREF(py_iter);
 			return PyErr_Format(PyExc_Exception, "argument is not an iterable of FSoftSkinVertex");
 		}
@@ -256,7 +270,8 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 #endif
 
 #if ENGINE_MINOR_VERSION > 12
-PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -281,7 +296,8 @@ PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * a
 
 	PyObject *py_list = PyList_New(0);
 
-	for (int32 i = 0; i < model.Sections[section_index].SoftVertices.Num(); i++) {
+	for (int32 i = 0; i < model.Sections[section_index].SoftVertices.Num(); i++)
+	{
 		PyList_Append(py_list, py_ue_new_fsoft_skin_vertex(model.Sections[section_index].SoftVertices[i]));
 	}
 
@@ -289,7 +305,101 @@ PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * a
 }
 #endif
 
-PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_lod", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	FStaticLODModel &model = resource->LODModels[lod_index];
+
+
+	PyObject *py_list = PyList_New(0);
+
+	TArray<uint32> indices;
+	model.MultiSizeIndexContainer.GetIndexBuffer(indices);
+
+	for (int32 index = 0; index < indices.Num(); index++)
+	{
+		int32 section_index;
+		int32 vertex_index;
+		bool has_extra_influences;
+		model.GetSectionFromVertexIndex(indices[index], section_index, vertex_index, has_extra_influences);
+		FSoftSkinVertex ssv = model.Sections[section_index].SoftVertices[vertex_index];
+		// fix bone id
+		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++)
+		{
+			if (ssv.InfluenceBones[i] < model.Sections[section_index].BoneMap.Num())
+			{
+				ssv.InfluenceBones[i] = model.Sections[section_index].BoneMap[ssv.InfluenceBones[i]];
+			}
+			else
+			{
+				UE_LOG(LogPython, Warning, TEXT("unable to retrieve bone mapping for index %d, forcing to 0"), ssv.InfluenceBones[i]);
+				ssv.InfluenceBones[i] = 0;
+			}
+		}
+		ue_PyFSoftSkinVertex *py_ss_vertex = (ue_PyFSoftSkinVertex *)py_ue_new_fsoft_skin_vertex(ssv);
+		py_ss_vertex->material_index = section_index;
+		PyList_Append(py_list, (PyObject *)py_ss_vertex);
+	}
+
+	return py_list;
+}
+
+PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_raw_indices", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	FStaticLODModel &model = resource->LODModels[lod_index];
+
+
+	PyObject *py_list = PyList_New(0);
+
+	int32 *raw_indices = (int32 *)model.RawPointIndices.Lock(LOCK_READ_ONLY);
+	int32 *indices = (int32 *)FMemory_Alloca(model.RawPointIndices.GetBulkDataSize());
+	FMemory::Memcpy(indices, raw_indices, model.RawPointIndices.GetBulkDataSize());
+	model.RawPointIndices.Unlock();
+
+	for (int32 index = 0; index < model.RawPointIndices.GetBulkDataSize() / sizeof(int32); index++)
+	{
+		PyList_Append(py_list, PyLong_FromLong(indices[index]));
+	}
+
+	return py_list;
+}
+
+
+PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
+{
 	ue_py_check(self);
 
 	PyObject *py_skeleton;
@@ -324,7 +434,8 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 }
 
 #if ENGINE_MINOR_VERSION > 12
-PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	PyObject *py_map;
@@ -348,14 +459,17 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args) 
 		return PyErr_Format(PyExc_Exception, "invalid Section index, must be between 0 and %d", model.Sections.Num() - 1);
 
 	PyObject *py_iter = PyObject_GetIter(py_map);
-	if (!py_iter) {
+	if (!py_iter)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of numbers");
 	}
 
 	TArray<FBoneIndexType> bone_map;
 
-	while (PyObject *py_item = PyIter_Next(py_iter)) {
-		if (!PyNumber_Check(py_item)) {
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		if (!PyNumber_Check(py_item))
+		{
 			Py_DECREF(py_iter);
 			return PyErr_Format(PyExc_Exception, "argument is not an iterable of numbers");
 		}
@@ -389,7 +503,8 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args) 
 #endif
 
 #if ENGINE_MINOR_VERSION > 12
-PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	int lod_index = 0;
@@ -413,7 +528,8 @@ PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args) 
 
 	PyObject *py_list = PyList_New(0);
 
-	for (uint16 index : model.Sections[section_index].BoneMap) {
+	for (uint16 index : model.Sections[section_index].BoneMap)
+	{
 		PyList_Append(py_list, PyLong_FromUnsignedLong(index));
 	}
 
@@ -421,7 +537,8 @@ PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args) 
 }
 #endif
 
-PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	int lod_index = 0;
@@ -441,14 +558,16 @@ PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *self, PyObje
 
 	PyObject *py_list = PyList_New(0);
 
-	for (uint16 index : model.ActiveBoneIndices) {
+	for (uint16 index : model.ActiveBoneIndices)
+	{
 		PyList_Append(py_list, PyLong_FromUnsignedLong(index));
 	}
 
 	return py_list;
 }
 
-PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	PyObject *py_map;
@@ -468,14 +587,17 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 	FStaticLODModel &model = resource->LODModels[lod_index];
 
 	PyObject *py_iter = PyObject_GetIter(py_map);
-	if (!py_iter) {
+	if (!py_iter)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of numbers");
 	}
 
 	TArray<FBoneIndexType> active_indices;
 
-	while (PyObject *py_item = PyIter_Next(py_iter)) {
-		if (!PyNumber_Check(py_item)) {
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		if (!PyNumber_Check(py_item))
+		{
 			Py_DECREF(py_iter);
 			return PyErr_Format(PyExc_Exception, "argument is not an iterable of numbers");
 		}
@@ -508,7 +630,8 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 
 }
 
-PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	int lod_index = 0;
@@ -528,14 +651,16 @@ PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * 
 
 	PyObject *py_list = PyList_New(0);
 
-	for (uint16 index : model.RequiredBones) {
+	for (uint16 index : model.RequiredBones)
+	{
 		PyList_Append(py_list, PyLong_FromUnsignedLong(index));
 	}
 
 	return py_list;
 }
 
-PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	PyObject *py_map;
@@ -555,14 +680,17 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	FStaticLODModel &model = resource->LODModels[lod_index];
 
 	PyObject *py_iter = PyObject_GetIter(py_map);
-	if (!py_iter) {
+	if (!py_iter)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of numbers");
 	}
 
 	TArray<FBoneIndexType> required_bones;
 
-	while (PyObject *py_item = PyIter_Next(py_iter)) {
-		if (!PyNumber_Check(py_item)) {
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		if (!PyNumber_Check(py_item))
+		{
 			Py_DECREF(py_iter);
 			return PyErr_Format(PyExc_Exception, "argument is not an iterable of numbers");
 		}
@@ -594,25 +722,8 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_skeletal_mesh_add_lod(ue_PyUObject *self, PyObject * args) {
-	ue_py_check(self);
-
-	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
-	if (!mesh)
-		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
-
-	FSkeletalMeshResource *resource = mesh->GetImportedResource();
-
-	int32 lod_index = resource->LODModels.Add(new FStaticLODModel());
-
-	FSkeletalMeshLODInfo lod_info;
-
-	mesh->LODInfo.Add(lod_info);
-
-	return PyLong_FromLong(lod_index);
-}
-
-PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
@@ -624,7 +735,8 @@ PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(resource->LODModels.Num());
 }
 
-PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args)
+{
 	ue_py_check(self);
 
 	int lod_index = 0;
@@ -644,17 +756,27 @@ PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args) 
 }
 
 #if WITH_EDITOR
-PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyObject * kwargs)
+{
 	ue_py_check(self);
 
 	PyObject *py_ss_vertex;
 	int lod_index = 0;
-	if (!PyArg_ParseTuple(args, "O|i:skeletal_mesh_build_lod", &py_ss_vertex, &lod_index))
+
+	PyObject *py_compute_normals = nullptr;
+	PyObject *py_compute_tangents = nullptr;
+	PyObject *py_use_mikk = nullptr;
+
+	static char *kw_names[] = { (char *)"soft_vertices", (char *)"lod", (char *)"compute_normals", (char *)"compute_tangents", (char *)"use_mikk", nullptr };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|iOOO:skeletal_mesh_build_lod", kw_names, &py_ss_vertex, &lod_index, &py_compute_normals, &py_compute_tangents, &py_use_mikk))
+	{
 		return nullptr;
+	}
 
 	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
 	if (!mesh)
-		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+		return PyErr_Format(PyExc_Exception, "uobject is not a SkeletalMesh");
 
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 
@@ -663,9 +785,15 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 
 	mesh->PreEditChange(nullptr);
 
-	if (lod_index == resource->LODModels.Num()) {
+	if (lod_index == resource->LODModels.Num())
+	{
 		resource->LODModels.Add(new FStaticLODModel());
 		mesh->LODInfo.AddZeroed();
+	}
+	else
+	{
+		// reinitialized already existent LOD
+		new(&resource->LODModels[lod_index]) FStaticLODModel();
 	}
 
 	FStaticLODModel& LODModel = resource->LODModels[lod_index];
@@ -680,7 +808,8 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	IMeshUtilities & MeshUtilities = FModuleManager::Get().LoadModuleChecked<IMeshUtilities>("MeshUtilities");
 
 	PyObject *py_iter = PyObject_GetIter(py_ss_vertex);
-	if (!py_iter) {
+	if (!py_iter)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of FSoftSkinVertex");
 	}
 
@@ -698,9 +827,11 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	TArray<uint16> material_indices;
 	TArray<uint32> smoothing_groups;
 
-	while (PyObject *py_item = PyIter_Next(py_iter)) {
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
 		ue_PyFSoftSkinVertex *ss_vertex = py_ue_is_fsoft_skin_vertex(py_item);
-		if (!ss_vertex) {
+		if (!ss_vertex)
+		{
 			Py_DECREF(py_iter);
 			return PyErr_Format(PyExc_Exception, "argument is not an iterable of FSoftSkinVertex");
 		}
@@ -711,16 +842,18 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 		FMeshWedge wedge;
 		wedge.iVertex = vertex_index;
 		wedge.Color = ss_vertex->ss_vertex.Color;
-		for (int32 i = 0; i < MAX_TEXCOORDS; i++) {
+		for (int32 i = 0; i < MAX_TEXCOORDS; i++)
+		{
 			wedge.UVs[i] = ss_vertex->ss_vertex.UVs[i];
 		}
 		int32 wedge_index = wedges.Add(wedge);
 
-		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++) {
+		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++)
+		{
 			FVertInfluence influence;
 			influence.VertIndex = wedge_index;
 			influence.BoneIndex = ss_vertex->ss_vertex.InfluenceBones[i];
-			influence.Weight = ss_vertex->ss_vertex.InfluenceWeights[i];
+			influence.Weight = ss_vertex->ss_vertex.InfluenceWeights[i] / 255.f;
 			influences.Add(influence);
 		}
 
@@ -737,7 +870,8 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	if (wedges.Num() % 3 != 0)
 		return PyErr_Format(PyExc_Exception, "invalid number of FSoftSkinVertex, must be a multiple of 3");
 
-	for (int32 i = 0; i < wedges.Num(); i += 3) {
+	for (int32 i = 0; i < wedges.Num(); i += 3)
+	{
 		FMeshFace face;
 		face.iWedge[0] = i;
 		face.iWedge[1] = i + 1;
@@ -764,15 +898,20 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	FStaticLODModel & lod_model = resource->LODModels[lod_index];
 
 	IMeshUtilities::MeshBuildOptions build_settings;
-	build_settings.bUseMikkTSpace = true;
+	build_settings.bUseMikkTSpace = (py_use_mikk && PyObject_IsTrue(py_use_mikk));
+	build_settings.bComputeNormals = (py_compute_normals && PyObject_IsTrue(py_compute_normals));
+	build_settings.bComputeTangents = (py_compute_tangents && PyObject_IsTrue(py_compute_tangents));
+	build_settings.bRemoveDegenerateTriangles = true;
 
 	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
 
-	if (!success) {
+	if (!success)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to create new Skeletal LOD");
 	}
 
-	for (int32 i = 0; i < lod_model.Sections.Num(); i++) {
+	for (int32 i = 0; i < lod_model.Sections.Num(); i++)
+	{
 		mesh->LODInfo[lod_index].TriangleSortSettings.AddZeroed();
 	}
 
@@ -791,3 +930,153 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 #endif
+
+PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_morph;
+
+	if (!PyArg_ParseTuple(args, "O:skeletal_mesh_register_morph_target", &py_morph))
+	{
+		return nullptr;
+	}
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a SkeletalMesh");
+
+	UMorphTarget *morph = ue_py_check_type<UMorphTarget>(py_morph);
+	if (!morph)
+		return PyErr_Format(PyExc_Exception, "argument is not a MorphTarget");
+
+#if ENGINE_MINOR_VERSION > 16
+	if (!morph->HasValidData())
+		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
+#endif
+
+#if WITH_EDITOR
+	mesh->PreEditChange(nullptr);
+#endif
+
+	mesh->RegisterMorphTarget(morph);
+
+#if WITH_EDITOR
+	mesh->PostEditChange();
+#endif
+	mesh->MarkPackageDirty();
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_deltas;
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "O|i:morph_target_populate_deltas", &py_deltas, &lod_index))
+	{
+		return nullptr;
+	}
+
+	UMorphTarget *morph = ue_py_check_type<UMorphTarget>(self);
+	if (!morph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a MorphTarget");
+
+	if (lod_index < 0)
+		return PyErr_Format(PyExc_Exception, "invalid LOD index");
+
+	PyObject *py_iter = PyObject_GetIter(py_deltas);
+	if (!py_iter)
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable of FMorphTargetDelta");
+
+	TArray<FMorphTargetDelta> deltas;
+
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		ue_PyFMorphTargetDelta *py_delta = py_ue_is_fmorph_target_delta(py_item);
+		if (!py_delta)
+		{
+			Py_DECREF(py_iter);
+			return PyErr_Format(PyExc_Exception, "argument is not an iterable of FMorphTargetDelta");
+		}
+		deltas.Add(py_delta->morph_target_delta);
+	}
+
+	Py_DECREF(py_iter);
+
+	morph->PopulateDeltas(deltas, lod_index);
+
+#if ENGINE_MINOR_VERSION > 16
+	if (morph->HasValidData())
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+#else
+	Py_RETURN_TRUE;
+#endif
+}
+
+PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:morph_target_get_deltas", &lod_index))
+	{
+		return nullptr;
+	}
+
+	UMorphTarget *morph = ue_py_check_type<UMorphTarget>(self);
+	if (!morph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a MorphTarget");
+
+	if (lod_index < 0 || lod_index > morph->MorphLODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index");
+
+	PyObject *py_list = PyList_New(0);
+
+	for (FMorphTargetDelta delta : morph->MorphLODModels[lod_index].Vertices)
+	{
+		PyList_Append(py_list, py_ue_new_fmorph_target_delta(delta));
+	}
+
+	return py_list;
+}
+
+PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	int lod_index = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_to_import_vertex_map", &lod_index))
+	{
+		return nullptr;
+	}
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	FSkeletalMeshResource *resource = mesh->GetImportedResource();
+
+	if (lod_index < 0 || lod_index > resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num());
+
+	FStaticLODModel& LODModel = resource->LODModels[lod_index];
+
+	PyObject *py_list = PyList_New(0);
+
+	for (int32 value : LODModel.MeshToImportVertexMap)
+	{
+		PyList_Append(py_list, PyLong_FromLong(value));
+	}
+
+	return py_list;
+}

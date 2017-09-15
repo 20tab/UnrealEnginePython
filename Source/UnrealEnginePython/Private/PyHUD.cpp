@@ -26,13 +26,15 @@ void APyHUD::BeginPlay()
 	FScopePythonGIL gil;
 
 	py_uobject = ue_get_python_wrapper(this);
-	if (!py_uobject) {
+	if (!py_uobject)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
 
 	PyObject *py_hud_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
-	if (!py_hud_module) {
+	if (!py_hud_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -40,7 +42,8 @@ void APyHUD::BeginPlay()
 #if WITH_EDITOR
 	// todo implement autoreload with a dictionary of module timestamps
 	py_hud_module = PyImport_ReloadModule(py_hud_module);
-	if (!py_hud_module) {
+	if (!py_hud_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -52,13 +55,15 @@ void APyHUD::BeginPlay()
 	PyObject *py_hud_module_dict = PyModule_GetDict(py_hud_module);
 	PyObject *py_hud_class = PyDict_GetItemString(py_hud_module_dict, TCHAR_TO_UTF8(*PythonClass));
 
-	if (!py_hud_class) {
+	if (!py_hud_class)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to find class %s in module %s"), *PythonClass, *PythonModule);
 		return;
 	}
 
 	py_hud_instance = PyObject_CallObject(py_hud_class, NULL);
-	if (!py_hud_instance) {
+	if (!py_hud_instance)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -68,7 +73,8 @@ void APyHUD::BeginPlay()
 	PyObject_SetAttrString(py_hud_instance, (char*)"uobject", (PyObject *)py_uobject);
 
 
-	if (!PyObject_HasAttrString(py_hud_instance, (char *)"tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_hud_instance, (char *)"tick") || PythonTickForceDisabled)
+	{
 		SetActorTickEnabled(false);
 	}
 
@@ -81,7 +87,8 @@ void APyHUD::BeginPlay()
 		return;
 
 	PyObject *bp_ret = PyObject_CallMethod(py_hud_instance, (char *)"begin_play", nullptr);
-	if (!bp_ret) {
+	if (!bp_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -103,7 +110,8 @@ void APyHUD::Tick(float DeltaTime)
 		return;
 
 	PyObject *ret = PyObject_CallMethod(py_hud_instance, (char *)"tick", (char *)"f", DeltaTime);
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -124,7 +132,8 @@ void APyHUD::DrawHUD()
 		return;
 
 	PyObject *ret = PyObject_CallMethod(py_hud_instance, (char *)"draw_hud", nullptr);
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -141,14 +150,17 @@ void APyHUD::CallPythonHUDMethod(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_hud_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_hud_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -163,18 +175,22 @@ bool APyHUD::CallPythonHUDMethodBool(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_hud_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_hud_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return false;
 	}
 
-	if (PyObject_IsTrue(ret)) {
+	if (PyObject_IsTrue(ret))
+	{
 		Py_DECREF(ret);
 		return true;
 	}
@@ -191,19 +207,23 @@ FString APyHUD::CallPythonHUDMethodString(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_hud_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_hud_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return FString();
 	}
 
 	PyObject *py_str = PyObject_Str(ret);
-	if (!py_str) {
+	if (!py_str)
+	{
 		Py_DECREF(ret);
 		return FString();
 	}
@@ -225,7 +245,8 @@ APyHUD::~APyHUD()
 	ue_pydelegates_cleanup(py_uobject);
 
 #if defined(UEPY_MEMORY_DEBUG)
-	if (py_hud_instance && py_hud_instance->ob_refcnt != 1) {
+	if (py_hud_instance && py_hud_instance->ob_refcnt != 1)
+	{
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python AHUD wrapper refcnt = %d"), py_hud_instance->ob_refcnt);
 	}
 #endif

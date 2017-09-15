@@ -2,7 +2,8 @@
 
 
 
-PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -16,14 +17,18 @@ PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args) {
 
 	APawn *pawn = nullptr;
 
-	if (self->ue_object->IsA<APawn>()) {
+	if (self->ue_object->IsA<APawn>())
+	{
 		pawn = (APawn *)self->ue_object;
 	}
-	else if (self->ue_object->IsA<UActorComponent>()) {
+	else if (self->ue_object->IsA<UActorComponent>())
+	{
 		UActorComponent *component = (UActorComponent *)self->ue_object;
 		AActor *actor = component->GetOwner();
-		if (actor) {
-			if (actor->IsA<APawn>()) {
+		if (actor)
+		{
+			if (actor->IsA<APawn>())
+			{
 				pawn = (APawn *)actor;
 			}
 		}

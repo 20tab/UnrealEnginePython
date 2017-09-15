@@ -5,23 +5,27 @@
 
 #define sw_compound_widget StaticCastSharedRef<SCompoundWidget>(self->s_widget.s_widget)
 
-static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args) {
+static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args)
+{
 
 	FLinearColor color = sw_compound_widget->GetColorAndOpacity();
 
 	return py_ue_new_flinearcolor(color);
 }
 
-static PyObject *py_ue_scompound_widget_set_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args) {
+static PyObject *py_ue_scompound_widget_set_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args)
+{
 
 	PyObject *py_color;
 
-	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color)) {
+	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color))
+	{
 		return NULL;
 	}
 
 	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_color);
-	if (!py_linear_color) {
+	if (!py_linear_color)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
 	}
 
@@ -69,7 +73,8 @@ PyTypeObject ue_PySCompoundWidgetType = {
 	ue_PySCompoundWidget_methods,             /* tp_methods */
 };
 
-void ue_python_init_scompound_widget(PyObject *ue_module) {
+void ue_python_init_scompound_widget(PyObject *ue_module)
+{
 	ue_PySCompoundWidgetType.tp_base = &ue_PySWidgetType;
 
 	if (PyType_Ready(&ue_PySCompoundWidgetType) < 0)
