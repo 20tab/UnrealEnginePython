@@ -7,11 +7,12 @@
 #define sw_horizontal_box StaticCastSharedRef<SHorizontalBox>(self->s_box_panel.s_panel.s_widget.s_widget)
 
 
-static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObject * args, PyObject *kwargs) {
+static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObject * args, PyObject *kwargs)
+{
 	PyObject *py_content;
 	int h_align = 0;
 	float max_width = 0;
-	float padding = 0;
+	PyObject *padding = nullptr;
 	int v_align = 0;
 	float fill_width = 0;
 	PyObject *py_auto_width = nullptr;
@@ -25,19 +26,21 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 		(char *)"auto_width",
 		nullptr };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|iffifO:add_slot", kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ifOifO:add_slot", kwlist,
 		&py_content,
 		&h_align,
 		&max_width,
 		&padding,
 		&v_align,
 		&fill_width,
-		&py_auto_width)) {
+		&py_auto_width))
+	{
 		return NULL;
 	}
 
 	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget) {
+	if (!py_swidget)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
 
@@ -51,7 +54,28 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 		fslot.MaxWidth(max_width);
 	if (fill_width)
 		fslot.FillWidth(fill_width);
-	fslot.Padding(padding);
+	if (padding)
+	{
+		if (PyTuple_Check(padding))
+		{
+			FMargin margin;
+			if (!PyArg_ParseTuple(padding, "f|fff", &margin.Left, &margin.Top, &margin.Right, &margin.Bottom))
+			{
+				return PyErr_Format(PyExc_Exception, "invalid padding value");
+			}
+			fslot.Padding(margin);
+		}
+		else if (PyNumber_Check(padding))
+		{
+			PyObject *py_float = PyNumber_Float(padding);
+			fslot.Padding(PyFloat_AsDouble(py_float));
+			Py_DECREF(py_float);
+		}
+		else
+		{
+			return PyErr_Format(PyExc_Exception, "invalid padding value");
+		}
+	}
 	fslot.VAlign((EVerticalAlignment)v_align);
 	if (py_auto_width && PyObject_IsTrue(py_auto_width))
 		fslot.AutoWidth();
@@ -60,7 +84,8 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_shorizontal_box_num_slots(ue_PySHorizontalBox *self, PyObject * args) {
+static PyObject *py_ue_shorizontal_box_num_slots(ue_PySHorizontalBox *self, PyObject * args)
+{
 	return PyLong_FromLong(sw_horizontal_box->NumSlots());
 }
 
@@ -102,13 +127,15 @@ PyTypeObject ue_PySHorizontalBoxType = {
 	ue_PySHorizontalBox_methods,             /* tp_methods */
 };
 
-static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_snew_simple(SHorizontalBox, s_box_panel.s_panel.s_widget);
 	return 0;
 }
 
 
-void ue_python_init_shorizontal_box(PyObject *ue_module) {
+void ue_python_init_shorizontal_box(PyObject *ue_module)
+{
 
 	ue_PySHorizontalBoxType.tp_init = (initproc)ue_py_shorizontal_box_init;
 	ue_PySHorizontalBoxType.tp_call = (ternaryfunc)py_ue_shorizontal_box_add_slot;
