@@ -42,42 +42,12 @@ PyTypeObject ue_PySPythonWidgetType = {
 
 static int ue_py_spython_widget_init(ue_PySPythonWidget *self, PyObject *args, PyObject *kwargs)
 {
-
 	ue_py_snew_simple(SPythonWidget, s_compound_widget.s_widget);
-
-	if (kwargs)
-	{
-		if (PyObject *py_tick = PyDict_GetItemString(kwargs, "tick"))
-		{
-			if (!PyCallable_Check(py_tick))
-			{
-				PyErr_SetString(PyExc_Exception, "tick must be a callable");
-				return -1;
-			}
-			sw_python_widget->SetPythonTick(py_tick);
-		}
-		else
-		{
-			PyErr_Clear();
-		}
-
-		if (PyObject *py_paint = PyDict_GetItemString(kwargs, "paint"))
-		{
-			if (!PyCallable_Check(py_paint))
-			{
-				PyErr_SetString(PyExc_Exception, "paint must be a callable");
-				return -1;
-			}
-			sw_python_widget->SetPythonPaint(py_paint);
-		}
-		else
-		{
-			PyErr_Clear();
-		}
-	}
-
+	UE_LOG(LogPython, Warning, TEXT("Initializing World Widget!!!"));
+	sw_python_widget->SetPyObject((PyObject *)self);
 	return 0;
 }
+
 
 void ue_python_init_spython_widget(PyObject *ue_module)
 {
