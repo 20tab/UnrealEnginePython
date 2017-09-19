@@ -469,7 +469,7 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 		Py_EndInterpreter(py_new_state);
 		PyThreadState_Swap(_main);
 		return;
-}
+	}
 	PyObject *global_dict = PyModule_GetDict(m);
 
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, global_dict, global_dict);
@@ -531,6 +531,106 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 #endif
 
 }
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+
+/*
+ *  These are recogni specific RunFile variants to allow passing of arguments
+ *  to the invocation of our python scripts.
+ */
+#if ENABLE_RECOGNI_ARGS_EXT
+
+void FUnrealEnginePythonModule::RunFile1(char *filename, char *arg0) {
+	FScopePythonGIL gil;
+	char *full_path = filename;
+	if (!FPaths::FileExists(filename))
+	{
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
+	}
+#if PY_MAJOR_VERSION >= 3
+	FILE *fd = nullptr;
+
+#if PLATFORM_WINDOWS
+	if (fopen_s(&fd, full_path, "r") != 0) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+	}
+#else
+	fd = fopen(full_path, "r");
+	if (!fd) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+}
+#endif
+
+	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	fclose(fd);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(eval_ret);
+#else
+	// Ughhh
+	FString command = FString::Printf(TEXT("import sys\nsys.argv = [\"script.py\", \"%s\"]\nexecfile(\"%s\")"), UTF8_TO_TCHAR(arg0), UTF8_TO_TCHAR(full_path));
+	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+#endif
+}
+
+void FUnrealEnginePythonModule::RunFile2(char *filename, char *arg0, char *arg1) {
+	FScopePythonGIL gil;
+	char *full_path = filename;
+	if (!FPaths::FileExists(filename))
+	{
+		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
+	}
+#if PY_MAJOR_VERSION >= 3
+	FILE *fd = nullptr;
+
+#if PLATFORM_WINDOWS
+	if (fopen_s(&fd, full_path, "r") != 0) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+	}
+#else
+	fd = fopen(full_path, "r");
+	if (!fd) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		return;
+}
+#endif
+
+	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	fclose(fd);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(eval_ret);
+#else
+	// Ughhh
+	FString command = FString::Printf(
+		TEXT("import sys\nsys.argv = [\"script.py\", \"%s\", \"%s\"]\nexecfile(\"%s\")"),
+		UTF8_TO_TCHAR(arg0), UTF8_TO_TCHAR(arg1), UTF8_TO_TCHAR(full_path));
+	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+#endif
+}
+
+#endif // ENABLE_RECOGNI_ARGS_EXT
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
 
 // run a python script in a new sub interpreter (useful for unit tests)
 void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)(void *arg), void *arg)

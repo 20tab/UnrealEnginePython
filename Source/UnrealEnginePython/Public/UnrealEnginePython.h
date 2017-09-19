@@ -6,6 +6,15 @@
 #pragma clang diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
 
+/*
+ *  ENABLE_RECOGNI_ARGS_EXT is enabled to allow the inclusion of the additional
+ *  ue.py_exec1 and ue.py_exec2 functions to allow passing one and two arguments
+ *  to the invoked script.
+ */
+#ifndef ENABLE_RECOGNI_ARGS_EXT
+#  define ENABLE_RECOGNI_ARGS_EXT 1
+#endif
+
 #include "ModuleManager.h"
 
 #include "Engine.h"
@@ -36,6 +45,12 @@ public:
 	void RunString(char *);
 	void RunStringSandboxed(char *);
 	void RunFile(char *);
+
+#if ENABLE_RECOGNI_ARGS_EXT
+	void RunFile1(char *, char *);
+	void RunFile2(char *, char *, char *);
+#endif
+
 	void RunFileSandboxed(char *, void(*callback)(void *arg), void *arg);
 
 	void UESetupPythonInterpreter(bool);

@@ -105,6 +105,47 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args)
 	return Py_None;
 }
 
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+
+#if ENABLE_RECOGNI_ARGS_EXT
+
+static PyObject *py_unreal_engine_exec1(PyObject * self, PyObject * args)
+{
+	char *filename = nullptr;
+	char *arg0     = nullptr;
+	if (!PyArg_ParseTuple(args, "ss:exec", &filename, &arg0))
+	{
+		return NULL;
+	}
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	PythonModule.RunFile1(filename, arg0);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_unreal_engine_exec2(PyObject * self, PyObject * args)
+{
+	char *filename = nullptr;
+	char *arg0     = nullptr;
+	char *arg1     = nullptr;
+	if (!PyArg_ParseTuple(args, "ss:exec", &filename, &arg0, &arg1))
+	{
+		return NULL;
+	}
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	PythonModule.RunFile2(filename, arg0, arg1);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+#endif // ENABLE_RECOGNI_ARGS_EXT
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+
 static PyObject *py_unreal_engine_sandbox_exec(PyObject * self, PyObject * args)
 {
 	char *filename = nullptr;
@@ -344,6 +385,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
 #endif
 	{ "py_exec", py_unreal_engine_exec, METH_VARARGS, "" },
+
+#if ENABLE_RECOGNI_ARGS_EXT
+	{ "py_exec1", py_unreal_engine_exec1, METH_VARARGS, "" },
+	{ "py_exec2", py_unreal_engine_exec2, METH_VARARGS, "" },
+#endif // ENABLE_RECOGNI_ARGS_EXT
 
 	{ "sandbox_exec", py_unreal_engine_sandbox_exec, METH_VARARGS, "" },
 
