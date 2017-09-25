@@ -308,6 +308,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_mutable_default", py_unreal_engine_get_mutable_default, METH_VARARGS, "" },
 
 	{ "all_classes", (PyCFunction)py_unreal_engine_all_classes, METH_VARARGS, "" },
+	{ "all_worlds", (PyCFunction)py_unreal_engine_all_worlds, METH_VARARGS, "" },
+	{ "tobject_iterator", (PyCFunction)py_unreal_engine_tobject_iterator, METH_VARARGS, "" },
 
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },

@@ -184,6 +184,19 @@ void UPythonSlateDelegate::OnAssetChanged(const FAssetData& AssetData) {
 	Py_XDECREF(ret);
 }
 
+bool UPythonSlateDelegate::OnShouldFilterAsset(const FAssetData& AssetData) {
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fassetdata(AssetData));
+	if (!ret) {
+		unreal_engine_py_log_error();
+		return false;
+	}
+	bool bValue = PyObject_IsTrue(ret) ? true : false;
+	Py_DECREF(ret);
+	return bValue;
+}
+
 TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets) {
 	FScopePythonGIL gil;
 

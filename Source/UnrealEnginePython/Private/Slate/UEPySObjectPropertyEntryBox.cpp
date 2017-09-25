@@ -55,6 +55,7 @@ static int ue_py_sobject_property_entry_box_init(ue_PySObjectPropertyEntryBox *s
 	ue_py_slate_farguments_optional_uobject("allowed_class", AllowedClass, UClass);
 
 	ue_py_slate_farguments_event("on_object_changed", OnObjectChanged, FOnSetObject, OnAssetChanged);
+	ue_py_slate_farguments_event("on_should_filter_asset", OnShouldFilterAsset, FOnShouldFilterAsset, OnShouldFilterAsset);
 
 	ue_py_snew(SObjectPropertyEntryBox, s_compound_widget.s_widget);
 	return 0;

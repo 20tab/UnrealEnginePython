@@ -8,8 +8,32 @@
 
 #define sw_python_tree_view StaticCastSharedRef<SPythonTreeView>(self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
 
+static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView *self, PyObject * args)
+{
+	PyObject *py_item;
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "OO:set_item_expansion", &py_item, &py_bool))
+	{
+		return nullptr;
+	}
+	sw_python_tree_view->SetPythonItemExpansion(py_item, PyObject_IsTrue(py_bool) ? true : false);
+	Py_RETURN_NONE;
+}
+
+void SPythonTreeView::SetPythonItemExpansion(PyObject *item, bool InShouldExpandItem)
+{
+	for (TSharedPtr<struct FPythonItem> PythonItem : *ItemsSource)
+	{
+		if (PythonItem->py_object == item)
+		{
+			SetItemExpansion(PythonItem, InShouldExpandItem);
+		}
+	}
+}
+
 
 static PyMethodDef ue_PySPythonTreeView_methods[] = {
+	{ "set_item_expansion", (PyCFunction)py_ue_spython_tree_view_set_item_expansion, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -44,25 +68,29 @@ PyTypeObject ue_PySPythonTreeViewType = {
 	ue_PySPythonTreeView_methods,             /* tp_methods */
 };
 
-static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *args, PyObject *kwargs)
+{
 
 	ue_py_slate_setup_farguments(SPythonTreeView);
 
 	// first of all check for values
 	PyObject *values = ue_py_dict_get_item(kwargs, "tree_items_source");
-	if (!values) {
+	if (!values)
+	{
 		PyErr_SetString(PyExc_Exception, "you must specify tree items");
 		return -1;
 	}
 
 	values = PyObject_GetIter(values);
-	if (!values) {
+	if (!values)
+	{
 		PyErr_SetString(PyExc_Exception, "values field is not an iterable");
 		return -1;
 	}
 
 	TArray<TSharedPtr<FPythonItem>> *items = new TArray<TSharedPtr<FPythonItem>>();
-	while (PyObject *item = PyIter_Next(values)) {
+	while (PyObject *item = PyIter_Next(values))
+	{
 		Py_INCREF(item);
 		// keep track of items
 		self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.py_refs.Add(item);
@@ -88,7 +116,8 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	return 0;
 }
 
-void ue_python_init_spython_tree_view(PyObject *ue_module) {
+void ue_python_init_spython_tree_view(PyObject *ue_module)
+{
 
 	ue_PySPythonTreeViewType.tp_init = (initproc)ue_py_spython_tree_view_init;
 

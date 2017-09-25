@@ -557,6 +557,47 @@ PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args) {
 	return ret;
 }
 
+PyObject *py_unreal_engine_all_worlds(PyObject * self, PyObject * args)
+{
+	PyObject *ret = PyList_New(0);
+	for (TObjectIterator<UWorld> Itr; Itr; ++Itr)
+	{
+		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+	return ret;
+}
+
+PyObject *py_unreal_engine_tobject_iterator(PyObject * self, PyObject * args)
+{
+	PyObject *py_class;
+	if (!PyArg_ParseTuple(args, "O:tobject_iterator", &py_class))
+	{
+		return NULL;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(py_class);
+	if (!u_class)
+	{
+		return PyErr_Format(PyExc_TypeError, "argument is not a UClass");
+	}
+
+	PyObject *ret = PyList_New(0);
+	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
+
+		if (!(*Itr)->IsA(u_class))
+			continue;
+
+		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+	return ret;
+}
+
 PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObject * args) {
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:create_and_dispatch_when_ready", &py_callable)) {
@@ -928,7 +969,7 @@ PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args
 }
 
 PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args) {
-	
+
 	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
 	if (!DesktopPlatform)
 		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");

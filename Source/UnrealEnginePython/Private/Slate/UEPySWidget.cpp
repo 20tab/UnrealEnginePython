@@ -218,6 +218,18 @@ static PyObject *py_ue_swidget_get_shared_reference_count(ue_PySWidget *self, Py
 	return PyLong_FromLong(self->s_widget.GetSharedReferenceCount());
 }
 
+static PyObject *py_ue_swidget_invalidate(ue_PySWidget *self, PyObject * args)
+{
+	int invalidate_mode = 0;
+	if (!PyArg_ParseTuple(args, "|i:invalidate", &invalidate_mode))
+	{
+		return nullptr;
+	}
+	self->s_widget->Invalidate((EInvalidateWidget)invalidate_mode);
+	Py_RETURN_NONE;
+}
+
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_shared_reference_count", (PyCFunction)py_ue_swidget_get_shared_reference_count, METH_VARARGS, "" },
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
@@ -226,6 +238,7 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "set_cursor", (PyCFunction)py_ue_swidget_set_cursor, METH_VARARGS, "" },
 	{ "set_enabled", (PyCFunction)py_ue_swidget_set_enabled, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
+	{ "invalidate", (PyCFunction)py_ue_swidget_invalidate, METH_VARARGS, "" },
 	{ "set_keyboard_focus", (PyCFunction)py_ue_swidget_set_keyboard_focus, METH_VARARGS, "" },
 	{ "set_visibility", (PyCFunction)py_ue_swidget_set_visibility, METH_VARARGS, "" },
 #if ENGINE_MINOR_VERSION > 12

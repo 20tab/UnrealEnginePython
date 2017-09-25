@@ -459,7 +459,8 @@ public:
 	void OnAssetSelected(const FAssetData& AssetData);
 	TSharedRef<FExtender> OnExtendContentBrowserMenu(const TArray<FAssetData> &SelectedAssets);
 	void MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
-	void OnAssetChanged(const FAssetData &);
+	void OnAssetChanged(const FAssetData &AssetData);
+	bool OnShouldFilterAsset(const FAssetData& AssetData);
 #endif
 
 	TSharedPtr<SWidget> OnContextMenuOpening();

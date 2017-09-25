@@ -3,8 +3,24 @@
 
 #include "UEPySTreeView.h"
 
+#define sw_tree_view StaticCastSharedRef<STreeView<TSharedPtr<void>>>(self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
+
+static PyObject *py_ue_stree_view_request_tree_refresh(ue_PySTreeView *self, PyObject * args)
+{
+	sw_tree_view->RequestTreeRefresh();
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_stree_view_clear_expanded_items(ue_PySTreeView *self, PyObject * args)
+{
+	sw_tree_view->ClearExpandedItems();
+	Py_RETURN_NONE;
+}
+
 
 static PyMethodDef ue_PySTreeView_methods[] = {
+	{ "request_tree_refresh", (PyCFunction)py_ue_stree_view_request_tree_refresh, METH_VARARGS, "" },
+	{ "clear_expanded_items", (PyCFunction)py_ue_stree_view_clear_expanded_items, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -40,7 +56,8 @@ PyTypeObject ue_PySTreeViewType = {
 };
 
 
-void ue_python_init_stree_view(PyObject *ue_module) {
+void ue_python_init_stree_view(PyObject *ue_module)
+{
 
 	ue_PySTreeViewType.tp_base = &ue_PySListViewType;
 
