@@ -2,7 +2,8 @@
 
 #include "UEPyFSlateStyleSet.h"
 
-static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *self, PyObject * args) {
+static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *self, PyObject * args)
+{
 	char *path;
 	if (!PyArg_ParseTuple(args, "s:set_content_root", &path))
 		return NULL;
@@ -13,57 +14,70 @@ static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *se
 	return Py_None;
 }
 
-static PyObject *py_ue_fslate_style_set_register(ue_PyFSlateStyleSet *self, PyObject * args) {
+static PyObject *py_ue_fslate_style_set_register(ue_PyFSlateStyleSet *self, PyObject * args)
+{
 
+	if (FSlateStyleRegistry::FindSlateStyle(self->style_set->GetStyleSetName()))
+	{
+		UE_LOG(LogPython, Warning, TEXT("StyleSet already registered"));
+		Py_RETURN_NONE;
+	}
 	FSlateStyleRegistry::RegisterSlateStyle(*self->style_set);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject * args) {
+static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject * args)
+{
 	char *name;
 	PyObject *py_value;
 	if (!PyArg_ParseTuple(args, "sO:set", &name, &py_value))
 		return NULL;
 
 	FSlateSound *slate_sound = ue_py_check_struct<FSlateSound>(py_value);
-	if (slate_sound) {
+	if (slate_sound)
+	{
 		self->style_set->Set(FName(name), *slate_sound);
 		Py_RETURN_NONE;
 	}
 
 	FSlateBrush *slate_brush = ue_py_check_struct<FSlateBrush>(py_value);
-	if (slate_brush) {
+	if (slate_brush)
+	{
 		self->style_set->Set(FName(name), slate_brush);
 		Py_RETURN_NONE;
 	}
 
 	FSlateColor *slate_color = ue_py_check_struct<FSlateColor>(py_value);
-	if (slate_brush) {
+	if (slate_brush)
+	{
 		self->style_set->Set(FName(name), *slate_color);
 		Py_RETURN_NONE;
 	}
 
 	FSlateFontInfo *slate_font = ue_py_check_struct<FSlateFontInfo>(py_value);
-	if (slate_font) {
+	if (slate_font)
+	{
 		self->style_set->Set(FName(name), *slate_font);
 		Py_RETURN_NONE;
 	}
 
 	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_value);
-	if (py_linear_color) {
+	if (py_linear_color)
+	{
 		self->style_set->Set(FName(name), py_linear_color->color);
 		Py_RETURN_NONE;
 	}
 
 	ue_PyFColor *py_color = py_ue_is_fcolor(py_value);
-	if (py_color) {
+	if (py_color)
+	{
 		self->style_set->Set(FName(name), py_color->color);
 		Py_RETURN_NONE;
 	}
 
-	if (PyNumber_Check(py_value)) {
+	if (PyNumber_Check(py_value))
+	{
 		PyObject *py_float = PyNumber_Float(py_value);
 		self->style_set->Set(FName(name), (float)PyFloat_AsDouble(py_float));
 		Py_DECREF(py_float);
@@ -118,9 +132,11 @@ static PyTypeObject ue_PyFSlateStyleSetType = {
 	ue_PyFSlateStyleSet_methods,             /* tp_methods */
 };
 
-static int ue_py_fslate_style_set_init(ue_PyFSlateStyleSet *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_fslate_style_set_init(ue_PyFSlateStyleSet *self, PyObject *args, PyObject *kwargs)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s", &name)) {
+	if (!PyArg_ParseTuple(args, "s", &name))
+	{
 		return -1;
 	}
 
@@ -128,7 +144,8 @@ static int ue_py_fslate_style_set_init(ue_PyFSlateStyleSet *self, PyObject *args
 	return 0;
 }
 
-void ue_python_init_fslate_style_set(PyObject *ue_module) {
+void ue_python_init_fslate_style_set(PyObject *ue_module)
+{
 	ue_PyFSlateStyleSetType.tp_new = PyType_GenericNew;
 
 	ue_PyFSlateStyleSetType.tp_init = (initproc)ue_py_fslate_style_set_init;
