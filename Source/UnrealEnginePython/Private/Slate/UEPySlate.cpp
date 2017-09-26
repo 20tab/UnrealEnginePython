@@ -231,7 +231,7 @@ void UPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAss
 		PyList_Append(py_list, py_ue_new_fassetdata(asset));
 	}
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_fmenu_builder(&Builder), py_list);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_fmenu_builder(Builder), py_list);
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;
@@ -732,7 +732,7 @@ public:
 	}
 
 	void MenuPyBuilder(FMenuBuilder &Builder) {
-		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fmenu_builder(&Builder));
+		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fmenu_builder(Builder));
 		if (!ret) {
 			unreal_engine_py_log_error();
 			return;
@@ -746,7 +746,7 @@ public:
 	}
 
 	void ToolBarBuilder(FToolBarBuilder &Builder) {
-		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_ftool_bar_builder(&Builder));
+		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_ftool_bar_builder(Builder));
 		if (!ret) {
 			unreal_engine_py_log_error();
 			return;

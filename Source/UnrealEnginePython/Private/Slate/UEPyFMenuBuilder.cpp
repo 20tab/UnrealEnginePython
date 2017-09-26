@@ -8,40 +8,45 @@
 #include "Developer/AssetTools/Public/IAssetTools.h"
 #endif
 
-static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args) {
+static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args)
+{
 	char *name;
 	char *text;
 	if (!PyArg_ParseTuple(args, "ss:begin_section", &name, &text))
-		return NULL;
+		return nullptr;
 
-	self->menu_builder->BeginSection(name, FText::FromString(UTF8_TO_TCHAR(text)));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_ue_fmenu_builder_end_section(ue_PyFMenuBuilder *self, PyObject * args) {
-	self->menu_builder->EndSection();
+	self->menu_builder.BeginSection(name, FText::FromString(UTF8_TO_TCHAR(text)));
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-static PyObject *py_ue_fmenu_builder_make_widget(ue_PyFMenuBuilder *self, PyObject * args) {
+static PyObject *py_ue_fmenu_builder_end_section(ue_PyFMenuBuilder *self, PyObject * args)
+{
+	self->menu_builder.EndSection();
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_fmenu_builder_make_widget(ue_PyFMenuBuilder *self, PyObject * args)
+{
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
-	new (&ret->s_widget) TSharedRef<SWidget>(self->menu_builder->MakeWidget());
+	new (&ret->s_widget) TSharedRef<SWidget>(self->menu_builder.MakeWidget());
 	return (PyObject *)ret;
 }
 
-static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyObject * args) {
+static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyObject * args)
+{
 	char *label;
 	char *tooltip;
 	PyObject *py_callable;
 	PyObject *py_obj = nullptr;
 	if (!PyArg_ParseTuple(args, "ssO|O:add_menu_entry", &label, &tooltip, &py_callable, &py_obj))
-		return NULL;
+		return nullptr;
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
@@ -50,75 +55,80 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	py_delegate->SetPyCallable(py_callable);
 	py_delegate->AddToRoot();
 
-	if (py_obj) {
+	if (py_obj)
+	{
 		Py_INCREF(py_obj);
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::ExecuteAction, py_obj);
 	}
-	else {
+	else
+	{
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::SimpleExecuteAction);
 	}
 
-	self->menu_builder->AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler));
+	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self, PyObject * args) {
+static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self, PyObject * args)
+{
 	char *name = nullptr;
 
 	if (!PyArg_ParseTuple(args, "|s:add_menu_separator", &name))
-		return NULL;
+		return nullptr;
 
 	FName f_name = NAME_None;
 
 	if (name)
 		f_name = FName(UTF8_TO_TCHAR(name));
 
-	self->menu_builder->AddMenuSeparator(f_name);
+	self->menu_builder.AddMenuSeparator(f_name);
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
 #if WITH_EDITOR
-static PyObject *py_ue_fmenu_builder_add_asset_actions(ue_PyFMenuBuilder *self, PyObject * args) {
+static PyObject *py_ue_fmenu_builder_add_asset_actions(ue_PyFMenuBuilder *self, PyObject * args)
+{
 	PyObject *py_assets;
 
 	if (!PyArg_ParseTuple(args, "O:add_asset_actions", &py_assets))
-		return NULL;
+		return nullptr;
 
 	py_assets = PyObject_GetIter(py_assets);
-	if (!py_assets) {
+	if (!py_assets)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not iterable");
 	}
 
 	TArray<UObject *> u_objects;
-	while (PyObject *item = PyIter_Next(py_assets)) {
+	while (PyObject *item = PyIter_Next(py_assets))
+	{
 		UObject *u_object = ue_py_check_type<UObject>(item);
-		if (u_object) {
+		if (u_object)
+		{
 			u_objects.Add(u_object);
 		}
 	}
 	Py_DECREF(py_assets);
 
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools"));
-	bool addedSomething = AssetToolsModule.Get().GetAssetActions(u_objects, *self->menu_builder, true);
-	if (addedSomething) {
-		Py_INCREF(Py_True);
-		return Py_True;
+	bool addedSomething = AssetToolsModule.Get().GetAssetActions(u_objects, self->menu_builder, true);
+	if (addedSomething)
+	{
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 #endif
 
-static PyObject *py_ue_fmenu_builder_add_search_widget(ue_PyFMenuBuilder *self, PyObject * args) {
-	self->menu_builder->AddSearchWidget();
+static PyObject *py_ue_fmenu_builder_add_search_widget(ue_PyFMenuBuilder *self, PyObject * args)
+{
+	self->menu_builder.AddSearchWidget();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PyFMenuBuilder_methods[] = {
@@ -141,8 +151,8 @@ static PyObject *ue_PyFMenuBuilder_str(ue_PyFMenuBuilder *self)
 		&self->menu_builder);
 }
 
-static void ue_py_fmenu_builder_dealloc(ue_PyFMenuBuilder *self) {
-	delete(self->menu_builder);
+static void ue_py_fmenu_builder_dealloc(ue_PyFMenuBuilder *self)
+{
 #if PY_MAJOR_VERSION < 3
 	self->ob_type->tp_free((PyObject*)self);
 #else
@@ -181,13 +191,15 @@ static PyTypeObject ue_PyFMenuBuilderType = {
 	ue_PyFMenuBuilder_methods,             /* tp_methods */
 };
 
-static int ue_py_fmenu_builder_init(ue_PyFMenuBuilder *self, PyObject *args, PyObject *kwargs) {
-	self->menu_builder = new FMenuBuilder(true, nullptr);
+static int ue_py_fmenu_builder_init(ue_PyFMenuBuilder *self, PyObject *args, PyObject *kwargs)
+{
+	self->menu_builder = FMenuBuilder(true, nullptr);
 	return 0;
 }
 
 
-void ue_python_init_fmenu_builder(PyObject *ue_module) {
+void ue_python_init_fmenu_builder(PyObject *ue_module)
+{
 	ue_PyFMenuBuilderType.tp_new = PyType_GenericNew;
 
 	ue_PyFMenuBuilderType.tp_init = (initproc)ue_py_fmenu_builder_init;
@@ -199,8 +211,9 @@ void ue_python_init_fmenu_builder(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FMenuBuilder", (PyObject *)&ue_PyFMenuBuilderType);
 }
 
-PyObject *py_ue_new_fmenu_builder(FMenuBuilder *menu_builder) {
+PyObject *py_ue_new_fmenu_builder(FMenuBuilder menu_builder)
+{
 	ue_PyFMenuBuilder *ret = (ue_PyFMenuBuilder *)PyObject_New(ue_PyFMenuBuilder, &ue_PyFMenuBuilderType);
-	ret->menu_builder = menu_builder;
+	new(&ret->menu_builder) FMenuBuilder(menu_builder);
 	return (PyObject *)ret;
 }
