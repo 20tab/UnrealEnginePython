@@ -429,8 +429,7 @@ Marat Yakupov reported in issue 228 a problem with the mixamo ybot model. The pr
 
 ```python
     def fix_bones_influences(self, mesh, old_skeleton):
-        required_bones = []
-        # iterate sections
+        active_bones = []
         for section in range(0, mesh.skeletal_mesh_sections_num()):
             vertices = mesh.skeletal_mesh_get_soft_vertices(0, section)
             ue.log_warning(len(vertices))
@@ -443,8 +442,8 @@ Marat Yakupov reported in issue 228 a problem with the mixamo ybot model. The pr
                 for index, bone_id in enumerate(bone_ids):
                     if vertex.influence_weights[index] > 0:
                         bone_ids[index] = self.get_updated_bone_index(old_skeleton, mesh.Skeleton, old_bone_map, new_bone_map, bone_id)
-                        if new_bone_map[bone_ids[index]] not in required_bones:
-                            required_bones.append(new_bone_map[bone_ids[index]])
+                        if new_bone_map[bone_ids[index]] not in active_bones:
+                            active_bones.append(new_bone_map[bone_ids[index]])
                 vertex.influence_bones = bone_ids
                 new_vertices.append(vertex)
 
@@ -454,10 +453,9 @@ Marat Yakupov reported in issue 228 a problem with the mixamo ybot model. The pr
             mesh.skeletal_mesh_set_bone_map(new_bone_map, 0, section)
 
         # specify which bones are active and required (ensure root is added to required bones)
-        mesh.skeletal_mesh_set_active_bone_indices(required_bones)
-        if 0 not in required_bones:
-            required_bones += [0]
-        mesh.skeletal_mesh_set_required_bones(required_bones)
+        mesh.skeletal_mesh_set_active_bone_indices(active_bones)
+        # mark all the bones as required (eventually you can be more selective)
+        mesh.skeletal_mesh_set_required_bones(list(range(0, mesh.Skeleton.skeleton_bones_get_num())))
 ```
 
 As you can see we still assume a single LOD (the 0 before the section is always the lod)
