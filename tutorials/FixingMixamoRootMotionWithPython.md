@@ -420,3 +420,44 @@ Always pay attention when choosing asset names (expecially if you are automatica
 Remember that you can open the asset-related editor by simply calling ```ue.open_editor_for_asset(uobject)```
 
 Note that calling ```ue.add_asset_view_context_menu_extension(callable)``` will generate a new context menu every time. There is currently no support for cleaning the context menu (well, except for restarting the editor :P)
+
+## Update 20170927 by issue 228
+
+https://github.com/20tab/UnrealEnginePython/issues/228
+
+Marat Yakupov reported in issue 228 a problem with the mixamo ybot model. The problem is caused by the multiple sections available in the mesh. The mixamo.py has been updated to support multiple sections:
+
+```python
+    def fix_bones_influences(self, mesh, old_skeleton):
+        required_bones = []
+        # iterate sections
+        for section in range(0, mesh.skeletal_mesh_sections_num()):
+            vertices = mesh.skeletal_mesh_get_soft_vertices(0, section)
+            ue.log_warning(len(vertices))
+            new_vertices = []
+            old_bone_map = mesh.skeletal_mesh_get_bone_map(0, section)
+            new_bone_map = []
+
+            for vertex in vertices:
+                bone_ids = list(vertex.influence_bones)
+                for index, bone_id in enumerate(bone_ids):
+                    if vertex.influence_weights[index] > 0:
+                        bone_ids[index] = self.get_updated_bone_index(old_skeleton, mesh.Skeleton, old_bone_map, new_bone_map, bone_id)
+                        if new_bone_map[bone_ids[index]] not in required_bones:
+                            required_bones.append(new_bone_map[bone_ids[index]])
+                vertex.influence_bones = bone_ids
+                new_vertices.append(vertex)
+
+            # assign new vertices
+            mesh.skeletal_mesh_set_soft_vertices(new_vertices, 0, section)
+            # add the new bone mapping
+            mesh.skeletal_mesh_set_bone_map(new_bone_map, 0, section)
+
+        # specify which bones are active and required (ensure root is added to required bones)
+        mesh.skeletal_mesh_set_active_bone_indices(required_bones)
+        if 0 not in required_bones:
+            required_bones += [0]
+        mesh.skeletal_mesh_set_required_bones(required_bones)
+```
+
+As you can see we still assume a single LOD (the 0 before the section is always the lod)
