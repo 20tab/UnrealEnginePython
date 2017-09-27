@@ -68,29 +68,34 @@ class RootMotionFixer:
         return len(new_bone_map)-1
 
     def fix_bones_influences(self, mesh, old_skeleton):
-        vertices = mesh.skeletal_mesh_get_soft_vertices()
-        new_vertices = []
-        old_bone_map = mesh.skeletal_mesh_get_bone_map()
-        new_bone_map = []
+        required_bones = []
+        for section in range(0, mesh.skeletal_mesh_sections_num()):
+            vertices = mesh.skeletal_mesh_get_soft_vertices(0, section)
+            ue.log_warning(len(vertices))
+            new_vertices = []
+            old_bone_map = mesh.skeletal_mesh_get_bone_map(0, section)
+            new_bone_map = []
 
-        for vertex in vertices:
-            bone_ids = list(vertex.influence_bones)
-            for index, bone_id in enumerate(bone_ids):
-                if vertex.influence_weights[index] > 0:
-                    bone_ids[index] = self.get_updated_bone_index(old_skeleton, mesh.Skeleton, old_bone_map, new_bone_map, bone_id)
-            vertex.influence_bones = bone_ids
-            new_vertices.append(vertex)
+            for vertex in vertices:
+                bone_ids = list(vertex.influence_bones)
+                for index, bone_id in enumerate(bone_ids):
+                    if vertex.influence_weights[index] > 0:
+                        bone_ids[index] = self.get_updated_bone_index(old_skeleton, mesh.Skeleton, old_bone_map, new_bone_map, bone_id)
+                        if new_bone_map[bone_ids[index]] not in required_bones:
+                            required_bones.append(new_bone_map[bone_ids[index]])
+                vertex.influence_bones = bone_ids
+                new_vertices.append(vertex)
 
-        # assign new vertices
-        mesh.skeletal_mesh_set_soft_vertices(new_vertices)
-        # add the new bone mapping
-        mesh.skeletal_mesh_set_bone_map(new_bone_map)
+            # assign new vertices
+            mesh.skeletal_mesh_set_soft_vertices(new_vertices, 0, section)
+            # add the new bone mapping
+            mesh.skeletal_mesh_set_bone_map(new_bone_map, 0, section)
 
         # specify which bones are active and required (ensure root is added to required bones)
-        mesh.skeletal_mesh_set_active_bone_indices(new_bone_map)
-        if 0 not in new_bone_map:
-            new_bone_map += [0]
-        mesh.skeletal_mesh_set_required_bones(new_bone_map)
+        mesh.skeletal_mesh_set_active_bone_indices(required_bones)
+        if 0 not in required_bones:
+            required_bones += [0]
+        mesh.skeletal_mesh_set_required_bones(required_bones)
 
     def set_skeleton(self, asset_data):
         self.choosen_skeleton = asset_data.get_asset()
