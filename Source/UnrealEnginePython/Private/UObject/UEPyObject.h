@@ -56,7 +56,7 @@ PyObject *py_ue_functions(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_broadcast(ue_PyUObject *, PyObject *);
 
-PyObject *py_ue_post_edit_change( ue_PyUObject *, PyObject * );
+PyObject *py_ue_post_edit_change(ue_PyUObject *, PyObject *);
 PyObject *py_ue_pre_edit_change(ue_PyUObject *, PyObject *);
 PyObject *py_ue_modify(ue_PyUObject *, PyObject *);
 
@@ -71,3 +71,6 @@ PyObject *py_ue_get_metadata(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_metadata(ue_PyUObject *, PyObject *);
 PyObject *py_ue_has_metadata(ue_PyUObject *, PyObject *);
 #endif
+
+PyObject *py_ue_get_thumbnail(ue_PyUObject *, PyObject *);
+PyObject *py_ue_render_thumbnail(ue_PyUObject *, PyObject *);

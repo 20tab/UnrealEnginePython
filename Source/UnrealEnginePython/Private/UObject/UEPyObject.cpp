@@ -740,6 +740,64 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
 }
 
+PyObject *py_ue_get_thumbnail(ue_PyUObject *self, PyObject * args)
+{
+
+	PyObject *py_generate = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:get_thumbnail", &py_generate))
+	{
+		return nullptr;
+	}
+
+	ue_py_check(self);
+
+	TArray<FName> names;
+	names.Add(FName(*self->ue_object->GetFullName()));
+
+	FThumbnailMap thumb_map;
+
+	FObjectThumbnail *object_thumbnail = nullptr;
+
+	if (!ThumbnailTools::ConditionallyLoadThumbnailsForObjects(names, thumb_map))
+	{
+		if (py_generate && PyObject_IsTrue(py_generate))
+		{
+			object_thumbnail = ThumbnailTools::GenerateThumbnailForObjectToSaveToDisk(self->ue_object);
+		}
+	}
+	else
+	{
+		object_thumbnail = &thumb_map[names[0]];
+	}
+
+	if (!object_thumbnail)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to retrieve thumbnail");
+	}
+
+	return py_ue_new_fobject_thumbnail(*object_thumbnail);
+}
+
+PyObject *py_ue_render_thumbnail(ue_PyUObject *self, PyObject * args)
+{
+
+	int width = ThumbnailTools::DefaultThumbnailSize;
+	int height = ThumbnailTools::DefaultThumbnailSize;
+	PyObject *no_flush = nullptr;
+	if (!PyArg_ParseTuple(args, "|iiO:render_thumbnail", &width, height, &no_flush))
+	{
+		return nullptr;
+	}
+
+	ue_py_check(self);
+	FObjectThumbnail object_thumbnail;
+	ThumbnailTools::RenderThumbnail(self->ue_object, width, height,
+		(no_flush && PyObject_IsTrue(no_flush)) ? ThumbnailTools::EThumbnailTextureFlushMode::NeverFlush : ThumbnailTools::EThumbnailTextureFlushMode::AlwaysFlush,
+		nullptr, &object_thumbnail);
+
+	return py_ue_new_fobject_thumbnail(object_thumbnail);
+}
+
 PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
 {
 

@@ -434,7 +434,6 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_super_class", (PyCFunction)py_ue_get_super_class, METH_VARARGS, "" },
 
-
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
 	{ "get_display_name", (PyCFunction)py_ue_get_display_name, METH_VARARGS, "" },
 	{ "get_path_name", (PyCFunction)py_ue_get_path_name, METH_VARARGS, "" },
@@ -453,6 +452,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "post_edit_change", (PyCFunction)py_ue_post_edit_change, METH_VARARGS, "" },
 	{ "pre_edit_change", (PyCFunction)py_ue_pre_edit_change, METH_VARARGS, "" },
 	{ "modify", (PyCFunction)py_ue_modify, METH_VARARGS, "" },
+
+	{ "get_thumbnail", (PyCFunction)py_ue_get_thumbnail, METH_VARARGS, "" },
+	{ "render_thumbnail", (PyCFunction)py_ue_render_thumbnail, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },
@@ -1802,6 +1804,8 @@ void unreal_engine_init_py_module()
 	ue_python_init_fsoft_skin_vertex(new_unreal_engine_module);
 
 	ue_python_init_fmorph_target_delta(new_unreal_engine_module);
+
+	ue_python_init_fobject_thumbnail(new_unreal_engine_module);
 
 	ue_python_init_fpython_output_device(new_unreal_engine_module);
 
