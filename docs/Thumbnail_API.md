@@ -18,7 +18,7 @@ thumbnail = uobject.render_thumbnail([width, height, no_flush])
 
 This function generates a new FObjectThumbail from an object. By default texture streaming is flushed after the creation of the thumbnail. By specyfing 'no_flush' the streaming will not be flushed.
 
-## The FObjectThumbail object
+## The FObjectThumbnail object
 
 This class represents a thumbnail
 
