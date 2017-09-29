@@ -134,6 +134,7 @@ PyObject *py_ue_draw_debug_line(ue_PyUObject * self, PyObject * args)
 
 	PyObject *py_obj_start;
 	PyObject *py_obj_end;
+
 	PyObject *py_color;
 	float duration = 0;
 	float thickness = 0;
@@ -144,9 +145,7 @@ PyObject *py_ue_draw_debug_line(ue_PyUObject * self, PyObject * args)
 
 
 	if (!PyArg_ParseTuple(args, "OOO|ff:draw_debug_line", &py_obj_start, &py_obj_end, &py_color, &duration, &thickness))
-	{
 		return NULL;
-	}
 
 	ue_PyFVector *start = py_ue_is_fvector(py_obj_start);
 	ue_PyFVector *end = py_ue_is_fvector(py_obj_end);

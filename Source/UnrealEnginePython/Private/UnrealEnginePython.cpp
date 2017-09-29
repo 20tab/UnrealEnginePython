@@ -125,6 +125,7 @@ static void setup_stdout_stderr()
 	// Redirecting stdout
 	char const* code = "import sys\n"
 		"import unreal_engine\n"
+		"import unreal_engine as ue\n"
 		"class UnrealEngineOutput:\n"
 		"    def __init__(self, logger):\n"
 		"        self.logger = logger\n"
@@ -252,6 +253,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni))
 	{
 		ScriptsPath = IniValue;
+		UE_LOG(LogPython, Log, TEXT("Scripts path set %s"), UTF8_TO_TCHAR(*IniValue)); // Legit?
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni))
