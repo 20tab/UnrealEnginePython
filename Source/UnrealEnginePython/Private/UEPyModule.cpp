@@ -588,6 +588,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
+	{ "class_generated_by", (PyCFunction)py_ue_class_generated_by, METH_VARARGS, "" },
 	{ "get_actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },

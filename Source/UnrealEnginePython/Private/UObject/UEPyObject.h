@@ -60,6 +60,8 @@ PyObject *py_ue_post_edit_change(ue_PyUObject *, PyObject *);
 PyObject *py_ue_pre_edit_change(ue_PyUObject *, PyObject *);
 PyObject *py_ue_modify(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_class_generated_by(ue_PyUObject *, PyObject *);
+
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject *, PyObject *);

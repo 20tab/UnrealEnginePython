@@ -21,6 +21,26 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_class_generated_by(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	UObject *u_object = u_class->ClassGeneratedBy;
+	if (!u_object)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
 PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 {
 
@@ -81,7 +101,11 @@ PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetOuter());
+	UObject *outer = self->ue_object->GetOuter();
+	if (!outer)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(outer);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
@@ -93,7 +117,11 @@ PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetOutermost());
+	UObject *outermost = self->ue_object->GetOutermost();
+	if (!outermost)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(outermost);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
@@ -497,8 +525,7 @@ PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args)
 
 	self->ue_object->SaveConfig();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
@@ -534,8 +561,7 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 
 }
 
@@ -676,8 +702,7 @@ PyObject *py_ue_call(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"", call_args);
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
@@ -707,8 +732,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 		return PyErr_Format(PyExc_Exception, "property is not a UMulticastDelegateProperty");
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
