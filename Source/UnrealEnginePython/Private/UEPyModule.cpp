@@ -456,8 +456,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "pre_edit_change", (PyCFunction)py_ue_pre_edit_change, METH_VARARGS, "" },
 	{ "modify", (PyCFunction)py_ue_modify, METH_VARARGS, "" },
 
+#if WITH_EDITOR
 	{ "get_thumbnail", (PyCFunction)py_ue_get_thumbnail, METH_VARARGS, "" },
 	{ "render_thumbnail", (PyCFunction)py_ue_render_thumbnail, METH_VARARGS, "" },
+#endif
 
 #if WITH_EDITOR
 	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },

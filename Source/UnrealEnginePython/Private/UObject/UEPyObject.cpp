@@ -764,6 +764,7 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_get_thumbnail(ue_PyUObject *self, PyObject * args)
 {
 
@@ -821,6 +822,7 @@ PyObject *py_ue_render_thumbnail(ue_PyUObject *self, PyObject * args)
 
 	return py_ue_new_fobject_thumbnail(object_thumbnail);
 }
+#endif
 
 PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
 {
