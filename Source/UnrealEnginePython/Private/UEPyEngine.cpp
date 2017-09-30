@@ -8,9 +8,11 @@
 
 
 
-PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
+{
 	PyObject *py_message;
-	if (!PyArg_ParseTuple(args, "O:log", &py_message)) {
+	if (!PyArg_ParseTuple(args, "O:log", &py_message))
+	{
 		return NULL;
 	}
 
@@ -25,9 +27,11 @@ PyObject *py_unreal_engine_log(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_log_warning(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_log_warning(PyObject * self, PyObject * args)
+{
 	PyObject *py_message;
-	if (!PyArg_ParseTuple(args, "O:log_warning", &py_message)) {
+	if (!PyArg_ParseTuple(args, "O:log_warning", &py_message))
+	{
 		return NULL;
 	}
 
@@ -42,9 +46,11 @@ PyObject *py_unreal_engine_log_warning(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args)
+{
 	PyObject *py_message;
-	if (!PyArg_ParseTuple(args, "O:log_error", &py_message)) {
+	if (!PyArg_ParseTuple(args, "O:log_error", &py_message))
+	{
 		return NULL;
 	}
 
@@ -59,15 +65,18 @@ PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args)
+{
 	int key;
 	float time_to_display;
 	PyObject *py_message;
-	if (!PyArg_ParseTuple(args, "ifO:add_on_screen_debug_message", &key, &time_to_display, &py_message)) {
+	if (!PyArg_ParseTuple(args, "ifO:add_on_screen_debug_message", &key, &time_to_display, &py_message))
+	{
 		return NULL;
 	}
 
-	if (!GEngine) {
+	if (!GEngine)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -85,22 +94,26 @@ PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_message;
 	float timeout = 2.0;
 	PyObject *py_color = nullptr;
-	if (!PyArg_ParseTuple(args, "O|fO:print_string", &py_message, &timeout, &py_color)) {
+	if (!PyArg_ParseTuple(args, "O|fO:print_string", &py_message, &timeout, &py_color))
+	{
 		return NULL;
 	}
 
-	if (!GEngine) {
+	if (!GEngine)
+	{
 		Py_RETURN_NONE;
 	}
 
 	FColor color = FColor::Cyan;
 
-	if (py_color) {
+	if (py_color)
+	{
 		ue_PyFColor *f_color = py_ue_is_fcolor(py_color);
 		if (!f_color)
 			return PyErr_Format(PyExc_Exception, "argument is not a FColor");
@@ -119,7 +132,8 @@ PyObject *py_unreal_engine_print_string(PyObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args)
+{
 	FRotator rot;
 	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
@@ -127,7 +141,8 @@ PyObject *py_unreal_engine_get_forward_vector(PyObject * self, PyObject * args) 
 	return py_ue_new_fvector(vec);
 }
 
-PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args)
+{
 	FRotator rot;
 	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
@@ -135,7 +150,8 @@ PyObject *py_unreal_engine_get_right_vector(PyObject * self, PyObject * args) {
 	return py_ue_new_fvector(vec);
 }
 
-PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args)
+{
 	FRotator rot;
 	if (!py_ue_rotator_arg(args, rot))
 		return NULL;
@@ -143,45 +159,56 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args) {
 	return py_ue_new_fvector(vec);
 }
 
-PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
 }
 
-PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject * self, PyObject * args)
+{
 	char *path;
-	if (!PyArg_ParseTuple(args, "s:convert_relative_path_to_full", &path)) {
+	if (!PyArg_ParseTuple(args, "s:convert_relative_path_to_full", &path))
+	{
 		return NULL;
 	}
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ConvertRelativePathToFull(UTF8_TO_TCHAR(path))));
 }
 
-PyObject *py_unreal_engine_object_path_to_package_name(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_object_path_to_package_name(PyObject * self, PyObject * args)
+{
 	char *path;
-	if (!PyArg_ParseTuple(args, "s:object_path_to_package_name", &path)) {
+	if (!PyArg_ParseTuple(args, "s:object_path_to_package_name", &path))
+	{
 		return NULL;
 	}
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToPackageName(UTF8_TO_TCHAR(path))));
 }
 
-PyObject *py_unreal_engine_get_path(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_path(PyObject * self, PyObject * args)
+{
 	char *path;
-	if (!PyArg_ParseTuple(args, "s:get_path", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_path", &path))
+	{
 		return NULL;
 	}
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GetPath(UTF8_TO_TCHAR(path))));
 }
 
-PyObject *py_unreal_engine_get_base_filename(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_base_filename(PyObject * self, PyObject * args)
+{
 	char *path;
-	if (!PyArg_ParseTuple(args, "s:get_base_filename", &path)) {
+	if (!PyArg_ParseTuple(args, "s:get_base_filename", &path))
+	{
 		return NULL;
 	}
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GetBaseFilename(UTF8_TO_TCHAR(path))));
 }
 
-PyObject *py_unreal_engine_create_world(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_world(PyObject * self, PyObject * args)
+{
 	int world_type = 0;
-	if (!PyArg_ParseTuple(args, "|i:create_world", &world_type)) {
+	if (!PyArg_ParseTuple(args, "|i:create_world", &world_type))
+	{
 		return NULL;
 	}
 
@@ -194,9 +221,11 @@ PyObject *py_unreal_engine_create_world(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_class", &name)) {
+	if (!PyArg_ParseTuple(args, "s:find_class", &name))
+	{
 		return NULL;
 	}
 
@@ -212,9 +241,11 @@ PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_enum", &name)) {
+	if (!PyArg_ParseTuple(args, "s:find_enum", &name))
+	{
 		return NULL;
 	}
 
@@ -231,9 +262,11 @@ PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:load_package", &name)) {
+	if (!PyArg_ParseTuple(args, "s:load_package", &name))
+	{
 		return nullptr;
 	}
 
@@ -249,10 +282,12 @@ PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args)
+{
 	char *name;
 	char *filename = nullptr;
-	if (!PyArg_ParseTuple(args, "s|s:load_class", &name, &filename)) {
+	if (!PyArg_ParseTuple(args, "s|s:load_class", &name, &filename))
+	{
 		return NULL;
 	}
 
@@ -272,10 +307,12 @@ PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_load_enum(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_load_enum(PyObject * self, PyObject * args)
+{
 	char *name;
 	char *filename = nullptr;
-	if (!PyArg_ParseTuple(args, "s|s:load_enum", &name, &filename)) {
+	if (!PyArg_ParseTuple(args, "s|s:load_enum", &name, &filename))
+	{
 		return NULL;
 	}
 
@@ -295,9 +332,11 @@ PyObject *py_unreal_engine_load_enum(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_struct", &name)) {
+	if (!PyArg_ParseTuple(args, "s:find_struct", &name))
+	{
 		return NULL;
 	}
 
@@ -314,10 +353,12 @@ PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args)
+{
 	char *name;
 	char *filename = nullptr;
-	if (!PyArg_ParseTuple(args, "s|s:load_struct", &name, &filename)) {
+	if (!PyArg_ParseTuple(args, "s|s:load_struct", &name, &filename))
+	{
 		return NULL;
 	}
 
@@ -339,20 +380,24 @@ PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args) {
 }
 
 
-PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args)
+{
 	PyObject *obj;
 	char *name;
 	char *filename = nullptr;
-	if (!PyArg_ParseTuple(args, "Os|s:load_object", &obj, &name, &filename)) {
+	if (!PyArg_ParseTuple(args, "Os|s:load_object", &obj, &name, &filename))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(obj)) {
+	if (!ue_is_pyuobject(obj))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-	if (!py_obj->ue_object->IsA<UClass>()) {
+	if (!py_obj->ue_object->IsA<UClass>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 	}
 
@@ -375,31 +420,46 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args) {
 
 }
 
-PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)
+{
 	char *str;
-	if (!PyArg_ParseTuple(args, "s:string_to_guid", &str)) {
+	if (!PyArg_ParseTuple(args, "s:string_to_guid", &str))
+	{
 		return NULL;
 	}
 
 	FGuid guid;
 
-	if (FGuid::Parse(FString(str), guid)) {
+	if (FGuid::Parse(FString(str), guid))
+	{
 		return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
 	}
 
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
 }
 
-PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_new_guid(PyObject * self, PyObject * args)
+{
+
+	FGuid guid = FGuid::NewGuid();
+
+	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+
+}
+
+PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args)
+{
 	FSlateApplication::Get().PumpMessages();
 	FSlateApplication::Get().Tick();
 	Py_RETURN_NONE;
 }
 
-PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args)
+{
 	float delta_seconds = FApp::GetDeltaTime();
 	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_bool))
+	{
 		return NULL;
 	}
 
@@ -408,14 +468,17 @@ PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_unreal_engine_get_delta_time(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_delta_time(PyObject * self, PyObject * args)
+{
 	return PyFloat_FromDouble(FApp::GetDeltaTime());
 }
 
 
-PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
+	if (!PyArg_ParseTuple(args, "s:find_object", &name))
+	{
 		return NULL;
 	}
 
@@ -432,16 +495,19 @@ PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args) {
 }
 
 
-PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
+{
 
 	PyObject *obj;
 	PyObject *py_outer = NULL;
 	char *name = nullptr;
-	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj, &py_outer, &name)) {
+	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj, &py_outer, &name))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(obj)) {
+	if (!ue_is_pyuobject(obj))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -454,14 +520,17 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 
 	FName f_name = NAME_None;
 
-	if (name && strlen(name) > 0) {
+	if (name && strlen(name) > 0)
+	{
 		f_name = FName(UTF8_TO_TCHAR(name));
 	}
 
 	UObject *outer = GetTransientPackage();
 
-	if (py_outer && py_outer != Py_None) {
-		if (!ue_is_pyuobject(py_outer)) {
+	if (py_outer && py_outer != Py_None)
+	{
+		if (!ue_is_pyuobject(py_outer))
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
 
@@ -483,14 +552,17 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
+{
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj)) {
+	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj))
+	{
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(obj)) {
+	if (!ue_is_pyuobject(obj))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
@@ -513,18 +585,22 @@ PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
 }
 
 
-PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args)
+{
 
 	PyObject *py_parent;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os:new_class", &py_parent, &name)) {
+	if (!PyArg_ParseTuple(args, "Os:new_class", &py_parent, &name))
+	{
 		return NULL;
 	}
 
 	UClass *parent = nullptr;
 
-	if (py_parent != Py_None) {
-		if (!ue_is_pyuobject(py_parent)) {
+	if (py_parent != Py_None)
+	{
+		if (!ue_is_pyuobject(py_parent))
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
 		ue_PyUObject *py_obj = (ue_PyUObject *)py_parent;
@@ -544,11 +620,13 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args)
+{
 
 	PyObject *ret = PyList_New(0);
 
-	for (TObjectIterator<UClass> Itr; Itr; ++Itr) {
+	for (TObjectIterator<UClass> Itr; Itr; ++Itr)
+	{
 		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
 		if (!py_obj)
 			continue;
@@ -585,7 +663,8 @@ PyObject *py_unreal_engine_tobject_iterator(PyObject * self, PyObject * args)
 	}
 
 	PyObject *ret = PyList_New(0);
-	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
+	for (TObjectIterator<UObject> Itr; Itr; ++Itr)
+	{
 
 		if (!(*Itr)->IsA(u_class))
 			continue;
@@ -598,9 +677,11 @@ PyObject *py_unreal_engine_tobject_iterator(PyObject * self, PyObject * args)
 	return ret;
 }
 
-PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:create_and_dispatch_when_ready", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:create_and_dispatch_when_ready", &py_callable))
+	{
 		return NULL;
 	}
 
@@ -612,10 +693,12 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObj
 	FGraphEventRef task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]() {
 		FScopePythonGIL gil;
 		PyObject *ret = PyObject_CallObject(py_callable, nullptr);
-		if (ret) {
+		if (ret)
+		{
 			Py_DECREF(ret);
 		}
-		else {
+		else
+		{
 			unreal_engine_py_log_error();
 		}
 		Py_DECREF(py_callable);
@@ -629,9 +712,11 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObj
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_get_game_viewport_size(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_get_game_viewport_size(PyObject *self, PyObject * args)
+{
 
-	if (!GEngine->GameViewport) {
+	if (!GEngine->GameViewport)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to get GameViewport");
 	}
 
@@ -642,20 +727,24 @@ PyObject *py_unreal_engine_get_game_viewport_size(PyObject *self, PyObject * arg
 }
 
 
-PyObject *py_unreal_engine_get_resolution(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_get_resolution(PyObject *self, PyObject * args)
+{
 	return Py_BuildValue("(ff)", GSystemResolution.ResX, GSystemResolution.ResY);
 }
 
-PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * args)
+{
 
-	if (!GEngine->GameViewport) {
+	if (!GEngine->GameViewport)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
 	PyObject *py_bool = nullptr;
 	bool as_int_list = false;
-	if (!PyArg_ParseTuple(args, "|O:get_viewport_screenshot", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "|O:get_viewport_screenshot", &py_bool))
+	{
 		return NULL;
 	}
 
@@ -667,14 +756,17 @@ PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * ar
 
 	bool success = GetViewportScreenShot(viewport, bitmap);
 
-	if (!success) {
+	if (!success)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	if (as_int_list) {
+	if (as_int_list)
+	{
 		PyObject *bitmap_tuple = PyTuple_New(bitmap.Num() * 4);
-		for (int i = 0; i < bitmap.Num(); i++) {
+		for (int i = 0; i < bitmap.Num(); i++)
+		{
 			PyTuple_SetItem(bitmap_tuple, i * 4, PyLong_FromLong(bitmap[i].R));
 			PyTuple_SetItem(bitmap_tuple, i * 4 + 1, PyLong_FromLong(bitmap[i].G));
 			PyTuple_SetItem(bitmap_tuple, i * 4 + 2, PyLong_FromLong(bitmap[i].B));
@@ -684,16 +776,19 @@ PyObject *py_unreal_engine_get_viewport_screenshot(PyObject *self, PyObject * ar
 	}
 
 	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
-	for (int i = 0; i < bitmap.Num(); i++) {
+	for (int i = 0; i < bitmap.Num(); i++)
+	{
 		PyTuple_SetItem(bitmap_tuple, i, py_ue_new_fcolor(bitmap[i]));
 	}
 
 	return bitmap_tuple;
 }
 
-PyObject *py_unreal_engine_get_viewport_size(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_get_viewport_size(PyObject *self, PyObject * args)
+{
 
-	if (!GEngine->GameViewport) {
+	if (!GEngine->GameViewport)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -709,17 +804,20 @@ PyObject *py_unreal_engine_get_viewport_size(PyObject *self, PyObject * args) {
 }
 
 #if WITH_EDITOR
-PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self, PyObject * args)
+{
 
 	FViewport *viewport = GEditor->GetActiveViewport();
-	if (!viewport) {
+	if (!viewport)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
 	PyObject *py_bool = nullptr;
 	bool as_int_list = false;
-	if (!PyArg_ParseTuple(args, "|O:editor_get_active_viewport_screenshot", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "|O:editor_get_active_viewport_screenshot", &py_bool))
+	{
 		return NULL;
 	}
 
@@ -730,14 +828,17 @@ PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self,
 
 	bool success = GetViewportScreenShot(viewport, bitmap);
 
-	if (!success) {
+	if (!success)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	if (as_int_list) {
+	if (as_int_list)
+	{
 		PyObject *bitmap_tuple = PyTuple_New(bitmap.Num() * 4);
-		for (int i = 0; i < bitmap.Num(); i++) {
+		for (int i = 0; i < bitmap.Num(); i++)
+		{
 			PyTuple_SetItem(bitmap_tuple, i * 4, PyLong_FromLong(bitmap[i].R));
 			PyTuple_SetItem(bitmap_tuple, i * 4 + 1, PyLong_FromLong(bitmap[i].G));
 			PyTuple_SetItem(bitmap_tuple, i * 4 + 2, PyLong_FromLong(bitmap[i].B));
@@ -747,18 +848,21 @@ PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *self,
 	}
 
 	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
-	for (int i = 0; i < bitmap.Num(); i++) {
+	for (int i = 0; i < bitmap.Num(); i++)
+	{
 		PyTuple_SetItem(bitmap_tuple, i, py_ue_new_fcolor(bitmap[i]));
 	}
 
 	return bitmap_tuple;
 }
 
-PyObject *py_unreal_engine_editor_get_active_viewport_size(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_editor_get_active_viewport_size(PyObject *self, PyObject * args)
+{
 
 
 	FViewport *viewport = GEditor->GetActiveViewport();
-	if (!viewport) {
+	if (!viewport)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -773,17 +877,20 @@ PyObject *py_unreal_engine_editor_get_active_viewport_size(PyObject *self, PyObj
 	return tuple_size;
 }
 
-PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, PyObject * args)
+{
 
 	FViewport *viewport = GEditor->GetPIEViewport();
-	if (!viewport) {
+	if (!viewport)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
 	PyObject *py_bool = nullptr;
 	bool as_int_list = false;
-	if (!PyArg_ParseTuple(args, "|O:editor_get_pie_viewport_screenshot", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "|O:editor_get_pie_viewport_screenshot", &py_bool))
+	{
 		return NULL;
 	}
 
@@ -794,14 +901,17 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, Py
 
 	bool success = GetViewportScreenShot(viewport, bitmap);
 
-	if (!success) {
+	if (!success)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	if (as_int_list) {
+	if (as_int_list)
+	{
 		PyObject *bitmap_tuple = PyTuple_New(bitmap.Num() * 4);
-		for (int i = 0; i < bitmap.Num(); i++) {
+		for (int i = 0; i < bitmap.Num(); i++)
+		{
 			PyTuple_SetItem(bitmap_tuple, i * 4, PyLong_FromLong(bitmap[i].R));
 			PyTuple_SetItem(bitmap_tuple, i * 4 + 1, PyLong_FromLong(bitmap[i].G));
 			PyTuple_SetItem(bitmap_tuple, i * 4 + 2, PyLong_FromLong(bitmap[i].B));
@@ -811,18 +921,21 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *self, Py
 	}
 
 	PyObject *bitmap_tuple = PyTuple_New(bitmap.Num());
-	for (int i = 0; i < bitmap.Num(); i++) {
+	for (int i = 0; i < bitmap.Num(); i++)
+	{
 		PyTuple_SetItem(bitmap_tuple, i, py_ue_new_fcolor(bitmap[i]));
 	}
 
 	return bitmap_tuple;
 }
 
-PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *self, PyObject * args)
+{
 
 
 	FViewport *viewport = GEditor->GetPIEViewport();
-	if (!viewport) {
+	if (!viewport)
+	{
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -836,17 +949,20 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *self, PyObject
 }
 #endif
 
-PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args)
+{
 
 	char *name;
 
-	if (!PyArg_ParseTuple(args, "s:create_package", &name)) {
+	if (!PyArg_ParseTuple(args, "s:create_package", &name))
+	{
 		return nullptr;
 	}
 
 	UPackage *u_package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 	// create a new package if it does not exist
-	if (u_package) {
+	if (u_package)
+	{
 		return PyErr_Format(PyExc_Exception, "package %s already exists", TCHAR_TO_UTF8(*u_package->GetPathName()));
 	}
 	u_package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
@@ -864,17 +980,20 @@ PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args)
+{
 
 	char *name;
 
-	if (!PyArg_ParseTuple(args, "s:get_or_create_package", &name)) {
+	if (!PyArg_ParseTuple(args, "s:get_or_create_package", &name))
+	{
 		return nullptr;
 	}
 
 	UPackage *u_package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 	// create a new package if it does not exist
-	if (!u_package) {
+	if (!u_package)
+	{
 		u_package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		if (!u_package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
@@ -891,7 +1010,8 @@ PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args)
+{
 
 	ue_PyUObject *ret = ue_get_python_wrapper(GetTransientPackage());
 	if (!ret)
@@ -900,7 +1020,8 @@ PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args)
+{
 	char *title;
 	char *default_path = (char *)"";
 	char *default_file = (char *)"";
@@ -928,18 +1049,21 @@ PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args) {
 		FString(UTF8_TO_TCHAR(default_file)),
 		FString(UTF8_TO_TCHAR(file_types)),
 		(py_multiple && PyObject_IsTrue(py_multiple)) ? EFileDialogFlags::Multiple : EFileDialogFlags::None,
-		files)) {
+		files))
+	{
 		Py_RETURN_NONE;
 	}
 
 	PyObject *py_list = PyList_New(0);
-	for (FString file : files) {
+	for (FString file : files)
+	{
 		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*file)));
 	}
 	return py_list;
 }
 
-PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args)
+{
 	char *title;
 	char *default_path = (char *)"";
 
@@ -961,14 +1085,16 @@ PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args
 
 	if (!DesktopPlatform->OpenDirectoryDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), FString(UTF8_TO_TCHAR(title)),
 		FString(UTF8_TO_TCHAR(default_path)),
-		choosen_dir)) {
+		choosen_dir))
+	{
 		Py_RETURN_NONE;
 	}
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*choosen_dir));
 }
 
-PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args)
+{
 
 	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
 	if (!DesktopPlatform)
@@ -985,14 +1111,16 @@ PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args) {
 	float height;
 	EFontImportFlags flags;
 
-	if (!DesktopPlatform->OpenFontDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), font_name, height, flags)) {
+	if (!DesktopPlatform->OpenFontDialog(ParentWindow->GetNativeWindow()->GetOSWindowHandle(), font_name, height, flags))
+	{
 		Py_RETURN_NONE;
 	}
 
 	return Py_BuildValue((char*)"(sfi)", TCHAR_TO_UTF8(*font_name), height, flags);
 }
 
-PyObject *py_unreal_engine_save_file_dialog(PyObject *self, PyObject * args) {
+PyObject *py_unreal_engine_save_file_dialog(PyObject *self, PyObject * args)
+{
 	char *title;
 	char *default_path = (char *)"";
 	char *default_file = (char *)"";
@@ -1020,12 +1148,14 @@ PyObject *py_unreal_engine_save_file_dialog(PyObject *self, PyObject * args) {
 		FString(UTF8_TO_TCHAR(default_file)),
 		FString(UTF8_TO_TCHAR(file_types)),
 		(py_multiple && PyObject_IsTrue(py_multiple)) ? EFileDialogFlags::Multiple : EFileDialogFlags::None,
-		files)) {
+		files))
+	{
 		Py_RETURN_NONE;
 	}
 
 	PyObject *py_list = PyList_New(0);
-	for (FString file : files) {
+	for (FString file : files)
+	{
 		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*file)));
 	}
 	return py_list;

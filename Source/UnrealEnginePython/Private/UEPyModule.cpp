@@ -251,6 +251,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "find_plugin", py_unreal_engine_find_plugin, METH_VARARGS, "" },
 
 	{ "string_to_guid", py_unreal_engine_string_to_guid, METH_VARARGS, "" },
+	{ "new_guid", py_unreal_engine_new_guid, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
@@ -878,8 +879,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self)
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
 	}
+}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -2024,7 +2025,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
