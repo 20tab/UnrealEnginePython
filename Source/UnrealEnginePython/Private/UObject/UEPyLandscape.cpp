@@ -69,7 +69,7 @@ PyObject *py_ue_landscape_import(ue_PyUObject *self, PyObject * args)
 
 	TArray<FLandscapeImportLayerInfo> infos;
 
-	landscape->Import(FGuid::NewGuid(), 0, 0, size_x-1, size_y-1, sections_per_component, section_size, data, nullptr, infos, (ELandscapeImportAlphamapType)layer_type);
+	landscape->Import(FGuid::NewGuid(), 0, 0, size_x - 1, size_y - 1, sections_per_component, section_size, data, nullptr, infos, (ELandscapeImportAlphamapType)layer_type);
 
 	Py_RETURN_NONE;
 }

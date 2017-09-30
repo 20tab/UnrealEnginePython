@@ -21,6 +21,7 @@
 #include "Runtime/Engine/Classes/EdGraph/EdGraphSchema.h"
 #include "Toolkits/AssetEditorManager.h"
 #include "LevelEditor.h"
+#include "Editor/LandscapeEditor/Public/LandscapeEditorUtils.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -2116,6 +2117,32 @@ PyObject *py_unreal_engine_transactions(PyObject * self, PyObject * args)
 	}
 
 	return transactions;
+}
+
+PyObject *py_unreal_engine_heightmap_expand(PyObject * self, PyObject * args)
+{
+	Py_buffer buf;
+	int width;
+	int height;
+	int new_width;
+	int new_height;
+	if (!PyArg_ParseTuple(args, "y*iiii:heightmap_expand", &buf, &width, &height, &new_width, &new_height))
+		return nullptr;
+
+	uint16 *original_data_buf = (uint16 *)buf.buf;
+
+	TArray<uint16> original_data;
+	original_data.AddZeroed(buf.len / 2);
+
+	FMemory::Memcpy(original_data.GetData(), original_data_buf, buf.len);
+
+	int offset_x = (new_width - width) / 2;
+	int offset_y = (new_height - height) / 2;
+
+	TArray<uint16> data = LandscapeEditorUtils::ExpandData<uint16>(original_data, 0, 0, width - 1, height - 1, -offset_x, -offset_y, new_width - offset_x - 1, new_height - offset_y - 1);
+
+	return PyByteArray_FromStringAndSize((char *)data.GetData(), data.Num() * sizeof(uint16));
+
 }
 
 #endif

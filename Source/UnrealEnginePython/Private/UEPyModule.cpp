@@ -253,6 +253,9 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "string_to_guid", py_unreal_engine_string_to_guid, METH_VARARGS, "" },
 	{ "new_guid", py_unreal_engine_new_guid, METH_VARARGS, "" },
+#if WITH_EDITOR
+	{ "heightmap_expand", py_unreal_engine_heightmap_expand, METH_VARARGS, "" },
+#endif
 #pragma warning(suppress: 4191)
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
