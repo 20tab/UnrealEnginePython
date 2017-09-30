@@ -1867,17 +1867,11 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_world))
-		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
-
-	ue_PyUObject *py_obj_world = (ue_PyUObject *)py_world;
-
-	if (!py_obj_world->ue_object->IsA<UWorld>())
+	UWorld *u_world = ue_py_check_type<UWorld>(py_world);
+	if (!u_world)
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
 	}
-
-	UWorld *u_world = (UWorld *)py_obj_world->ue_object;
 
 	UClass *streaming_mode_class = ULevelStreamingKismet::StaticClass();
 	if (py_bool && PyObject_IsTrue(py_bool))
@@ -1886,10 +1880,12 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 	}
 
 	ULevel *level = (ULevel *)EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
-	if (level)
+	if (!level)
 	{
-		// TODO: update levels list
+		return PyErr_Format(PyExc_Exception, "unable to add \"%s\" to the world", name);
 	}
+
+	FEditorDelegates::RefreshLevelBrowser.Broadcast();
 
 	ue_PyUObject *ret = ue_get_python_wrapper(level);
 	if (!ret)
@@ -1908,22 +1904,41 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_level))
-		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
-
-	ue_PyUObject *py_obj_level = (ue_PyUObject *)py_level;
-
-	if (!py_obj_level->ue_object->IsA<ULevel>())
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
-	}
-
-	ULevel *level = (ULevel *)py_obj_level->ue_object;
+	ULevel *level = ue_py_check_type<ULevel>(py_level);
+	if (!level)
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
 
 	GEditor->MoveSelectedActorsToLevel(level);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
+{
+	PyObject *py_actor;
+	PyObject *py_level;
+	if (!PyArg_ParseTuple(args, "OO:move_actor_to_level", &py_actor, &py_level))
+	{
+		return NULL;
+	}
+
+	AActor *actor = ue_py_check_type<AActor>(py_actor);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
+
+	ULevel *level = ue_py_check_type<ULevel>(py_level);
+	if (!level)
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
+
+	TArray<AActor *> actors;
+	actors.Add(actor);
+
+	if (UEditorLevelUtils::MoveActorsToLevel(actors, level) != 1)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to move actor to level");
+	}
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, PyObject * args)

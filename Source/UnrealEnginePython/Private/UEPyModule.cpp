@@ -33,6 +33,7 @@
 #include "UObject/UEPyHUD.h"
 #include "UObject/UEPyAnimSequence.h"
 #include "UObject/UEPyCapture.h"
+#include "UObject/UEPyLandscape.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -279,6 +280,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
 	{ "move_selected_actors_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
+	{ "move_actor_to_level", py_unreal_engine_move_actor_to_level, METH_VARARGS, "" },
 
 	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
 
@@ -642,6 +644,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_world_delta_seconds", (PyCFunction)py_ue_get_world_delta_seconds, METH_VARARGS, "" },
 
 	{ "get_levels", (PyCFunction)py_ue_get_levels, METH_VARARGS, "" },
+	{ "get_current_level", (PyCFunction)py_ue_get_current_level, METH_VARARGS, "" },
+	{ "set_current_level", (PyCFunction)py_ue_set_current_level, METH_VARARGS, "" },
 
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
@@ -692,6 +696,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "conditional_begin_destroy", (PyCFunction)py_ue_conditional_begin_destroy, METH_VARARGS, "" },
 
+	// Landscape
+#if WITH_EDITOR
+	{ "create_landscape_info", (PyCFunction)py_ue_create_landscape_info, METH_VARARGS, "" },
+	{ "get_landscape_info", (PyCFunction)py_ue_get_landscape_info, METH_VARARGS, "" },
+	{ "landscape_import", (PyCFunction)py_ue_landscape_import, METH_VARARGS, "" },
+#endif
 
 	// Player
 
