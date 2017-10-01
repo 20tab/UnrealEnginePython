@@ -108,7 +108,7 @@ https://docs.unrealengine.com/latest/INT/Engine/Landscape/TechnicalGuide/index.h
 
 Informations about a Landscape/Terrain are stored in a special uobject called ULandscapeInfo.
 
-To retrieve it (or eventually create a new one), you have the following two functions:
+To retrieve it (or eventually create a new one if you are making weird operations), you have the following two functions:
 
 ```python
 landscape_info = landscape.get_landscape_info()
@@ -130,3 +130,37 @@ for component in landscape.LandscapeComponents:
 ```
 
 this will print the texture width, height and data size of each landscape component.
+
+## Exporting the Terrain to a FRawMesh
+
+FRawMesh is a special structure representing a mesh. You can use it to generate new StaticMesh in UE4.
+
+More infos can be retrieved here:
+
+https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
+
+You can generate a new FRawMesh from a landscape with this function:
+
+
+```python
+# lod is optional, by default it is 0
+raw_mesh = landscape.landscape_export_to_raw_mesh([lod])
+```
+
+Remember that terrains are generally huge in size :)
+
+## The Heightmap api
+
+A heightmap high-level api is exposed to simplify heightmap manipulation
+
+```python
+# expand the heightmap to fit the new size
+expanded_data = ue.heightmap_expand(data, data_width, data_height, new_width, new_height)
+```
+
+```python
+# import a heightmap file (r16 or grayscale 16bit png) and returns a bytearray
+data = ue.heightmap_import(filename[,width, height])
+```
+
+if width and height are not specified, the system will try to retrieve them from the file
