@@ -57,3 +57,23 @@ child_level2 = child_world2.PersistentLevel
 # open main world in the editor
 ue.open_editor_for_asset(main_world)
 ```
+
+## Joining Levels to a single world
+
+So we now know that each world asset has its level counterpart, and this level is the 'joint' a world can use to attach to another world to implement composition (useful if multiple developers works in different areas of the scene) or streaming.
+
+To attach a level to a world you can use the following function:
+
+```python
+import unreal_engine as ue
+
+# note we pass the name of the asset instead of the uobject !
+added_level = ue.add_level_to_world(main_world, child_world1.get_path_name()[, always_loaded])
+```
+
+Remember that you need to pass the asset path of the world you want to attach !
+
+The always_loaded optional boolean parameter, if set, will add a persistent level instead of a streaming one (it means whenever you load the main_world even child_world1 will be enabled too)
+
+
+
