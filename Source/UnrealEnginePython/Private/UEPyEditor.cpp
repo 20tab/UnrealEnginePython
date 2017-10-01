@@ -1882,15 +1882,15 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
 
-	ULevel *level = (ULevel *)EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
-	if (!level)
+	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+	if (!level_streaming)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to add \"%s\" to the world", name);
 	}
 
 	FEditorDelegates::RefreshLevelBrowser.Broadcast();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(level);
+	ue_PyUObject *ret = ue_get_python_wrapper(level_streaming);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 
