@@ -68,12 +68,29 @@ To attach a level to a world you can use the following function:
 import unreal_engine as ue
 
 # note we pass the name of the asset instead of the uobject !
-added_level = ue.add_level_to_world(main_world, child_world1.get_path_name()[, always_loaded])
+# returns a ULevelStreaming, if you want to retrieve a ULevel from ULevelStreaming, use the 'LoadedLevel' property
+added_streaming_level = ue.add_level_to_world(main_world, child_world1.get_path_name()[, always_loaded])
 ```
 
 Remember that you need to pass the asset path of the world you want to attach !
 
 The always_loaded optional boolean parameter, if set, will add a persistent level instead of a streaming one (it means whenever you load the main_world even child_world1 will be enabled too)
 
+# The "CurrentLevel" concept
 
+Each world has the concept of the "current level". As an example, when you call actor_spawn() on a world, the actor will be effectively spawned in the world that is marked as the current level:
 
+```python
+# get a reference to the current level
+current_level = ue.get_editor_world().get_current_level()
+
+# change the current level
+ue.get_editor_world().set_current_level(child_level1)
+
+# spawn an actor in editor world, but effectively it will be spawned
+# in a child level
+actor001 = ue.get_editor_world().actor_spawn(actor001)
+
+# back to the original level
+ue.get_editor_world().set_current_level(current_level)
+```
