@@ -27,23 +27,33 @@ Let's try to clarify things wth another example (read comments carefully):
 
 
 ```python
-from unreal_engine.classes import WorldFactory
+import unreal_engine as ue
+from unreal_engine.classes import WorldFactory, Actor, PlayerStart
 
 factory = WorldFactory()
 
 # create a world (it will be the main one, the one you load into the editor by double clicking it)
-main_world = factory.factory_create_new('/Game/Maps/MainWorld001')
+main_world = factory.factory_create_new('/Game/MapsTest/MainWorld001')
+# spawn actors in the world
+actor0 = main_world.actor_spawn(PlayerStart)
 
 # create another world
-child_world1 = factory.factory_create_new('/Game/Maps/ChildWorld001')
+child_world1 = factory.factory_create_new('/Game/MapsTest/ChildWorld001')
+# spawn actors in the world
+actor1 = child_world1.actor_spawn(Actor)
+actor2 = child_world1.actor_spawn(Actor)
+actor3 = child_world1.actor_spawn(Actor)
 
 # create another world
-child_world2 = factory.factory_create_new('/Game/Maps/ChildWorld002')
+child_world2 = factory.factory_create_new('/Game/MapsTest/ChildWorld002')
+# spawn actors in the world
+actor4 = child_world2.actor_spawn(Actor)
 
 # now the important part, each UWorld, has a ULevel mapped to it (the PersistentLevel):
-
 main_level = main_world.PersistentLevel
 child_level1 = child_world1.PersistentLevel
 child_level2 = child_world2.PersistentLevel
 
+# open main world in the editor
+ue.open_editor_for_asset(main_world)
 ```
