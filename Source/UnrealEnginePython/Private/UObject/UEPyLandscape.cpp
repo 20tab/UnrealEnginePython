@@ -73,4 +73,25 @@ PyObject *py_ue_landscape_import(ue_PyUObject *self, PyObject * args)
 
 	Py_RETURN_NONE;
 }
+
+PyObject *py_ue_landscape_export_to_raw_mesh(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int lod = 0;
+
+	if (!PyArg_ParseTuple(args, "|i:landscape_import", &lod))
+		return nullptr;
+
+	ALandscapeProxy *landscape = ue_py_check_type<ALandscapeProxy>(self);
+	if (!landscape)
+		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
+
+	FRawMesh raw_mesh;
+	if (!landscape->ExportToRawMesh(lod, raw_mesh))
+		return PyErr_Format(PyExc_Exception, "unable to export landscape to FRawMesh");
+
+	return py_ue_new_fraw_mesh(raw_mesh);
+}
 #endif

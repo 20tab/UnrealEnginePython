@@ -255,6 +255,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "new_guid", py_unreal_engine_new_guid, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "heightmap_expand", py_unreal_engine_heightmap_expand, METH_VARARGS, "" },
+	{ "heightmap_import", py_unreal_engine_heightmap_import, METH_VARARGS, "" },
 #endif
 #pragma warning(suppress: 4191)
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
@@ -706,6 +707,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "create_landscape_info", (PyCFunction)py_ue_create_landscape_info, METH_VARARGS, "" },
 	{ "get_landscape_info", (PyCFunction)py_ue_get_landscape_info, METH_VARARGS, "" },
 	{ "landscape_import", (PyCFunction)py_ue_landscape_import, METH_VARARGS, "" },
+	{ "landscape_export_to_raw_mesh", (PyCFunction)py_ue_landscape_export_to_raw_mesh, METH_VARARGS, "" },
 #endif
 
 	// Player
@@ -894,8 +896,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self)
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
+		}
 	}
-}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -2040,7 +2042,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)

@@ -22,6 +22,8 @@
 #include "Toolkits/AssetEditorManager.h"
 #include "LevelEditor.h"
 #include "Editor/LandscapeEditor/Public/LandscapeEditorUtils.h"
+#include "Editor/LandscapeEditor/Public/LandscapeEditorModule.h"
+#include "Editor/LandscapeEditor/Public/LandscapeFileFormatInterface.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -2143,6 +2145,60 @@ PyObject *py_unreal_engine_heightmap_expand(PyObject * self, PyObject * args)
 
 	return PyByteArray_FromStringAndSize((char *)data.GetData(), data.Num() * sizeof(uint16));
 
+}
+
+PyObject *py_unreal_engine_heightmap_import(PyObject * self, PyObject * args)
+{
+	char *filename;
+	int width = 0;
+	int height = 0;
+	if (!PyArg_ParseTuple(args, "s|ii:heightmap_import", &filename, &width, &height))
+		return nullptr;
+
+	ILandscapeEditorModule & LandscapeModule = FModuleManager::GetModuleChecked<ILandscapeEditorModule>("LandscapeEditor");
+	const ILandscapeHeightmapFileFormat *format = LandscapeModule.GetHeightmapFormatByExtension(*FPaths::GetExtension(UTF8_TO_TCHAR(filename), true));
+
+	if (!format)
+	{
+		return PyErr_Format(PyExc_Exception, "invalid heightmap format");
+	}
+
+	FLandscapeFileResolution resolution = { width, height };
+
+	if (width <= 0 || height <= 0)
+	{
+		FLandscapeHeightmapInfo info = format->Validate(UTF8_TO_TCHAR(filename));
+		if (info.ResultCode == ELandscapeImportResult::Error)
+		{
+			return PyErr_Format(PyExc_Exception, "unable to import heightmap: %s", TCHAR_TO_UTF8(*info.ErrorMessage.ToString()));
+		}
+
+		if (info.ResultCode == ELandscapeImportResult::Warning)
+		{
+			UE_LOG(LogPython, Warning, TEXT("%s"), *info.ErrorMessage.ToString());
+		}
+
+		if (info.PossibleResolutions.Num() < 1)
+		{
+			return PyErr_Format(PyExc_Exception, "unable to retrieve heightmap resolution");
+		}
+
+		resolution = info.PossibleResolutions[0];
+	}
+
+	FLandscapeHeightmapImportData imported = format->Import(UTF8_TO_TCHAR(filename), resolution);
+
+	if (imported.ResultCode == ELandscapeImportResult::Error)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to import heightmap: %s", TCHAR_TO_UTF8(*imported.ErrorMessage.ToString()));
+	}
+
+	if (imported.ResultCode == ELandscapeImportResult::Warning)
+	{
+		UE_LOG(LogPython, Warning, TEXT("%s"), *imported.ErrorMessage.ToString());
+	}
+
+	return Py_BuildValue((char *)"Oii", PyByteArray_FromStringAndSize((char *)imported.Data.GetData(), imported.Data.Num() * sizeof(uint16)), resolution.Width, resolution.Height);
 }
 
 #endif
