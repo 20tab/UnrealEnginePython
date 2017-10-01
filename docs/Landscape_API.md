@@ -89,7 +89,7 @@ landscape.landscape_import(quads_per_section, number_of_sections, components_x, 
 landscape.set_actor_scale(1,1,1)
 ```
 
-You should have noted that instead specifying the quads per component we are using the 'section' concept.
+You should have noted that instead of specifying the quads per component we are using the 'section' concept.
 
 The truth is that UE4 allows another level of subdivision for giving better control over optimizations (LOD, mipmapping...). More details here:
 
@@ -97,7 +97,7 @@ https://docs.unrealengine.com/latest/INT/Engine/Landscape/TechnicalGuide/#compon
 
 You can have 1 section (1x1 quad) or 2 (2x2 quads). Other values are not supported.
 
-Even the number of quads is related to textures size, so valid values are: 7x7, 15x15, 31x31, 63x63, 127x127, 255x255 (note the off-by-one weirdness, as all of the terrain tools works with max value on not the size)
+Even the number of quads is related to textures size, so valid values are: 7x7, 15x15, 31x31, 63x63, 127x127, 255x255 (note the off-by-one weirdness, as all of the terrain tools works with max value and not the size)
 
 Note that you need to carefully choose the size of the terrain as well as the heightmap:
 
