@@ -104,3 +104,29 @@ Note that you need to carefully choose the size of the terrain as well as the he
 https://docs.unrealengine.com/latest/INT/Engine/Landscape/TechnicalGuide/index.html#calculatingheightmapdimensions
 
 
+## Getting/Creating ULandscapeInfo
+
+Informations about a Landscape/Terrain are stored in a special uobject called ULandscapeInfo.
+
+To retrieve it (or eventually create a new one), you have the following two functions:
+
+```python
+landscape_info = landscape.get_landscape_info()
+
+# create a new ULandscapeInfo, required if you do not import an heightmap in a manually spawned landscape
+landscape_info = landscape.create_landscape_info()
+```
+
+## Retrieving ULandscapeComponent's textures
+
+If you want to get access to the height values of a terrain, you need to retrieve them from each component:
+
+```python
+import unreal_engine as ue
+
+for component in landscape.LandscapeComponents:
+    heightmap_texture = component.HeightmapTexture
+    print('{0}x{1} -> {2}'.format(heightmap_texture.texture_get_width(), heightmap_texture.texture_get_height(), len(heightmap_texture.texture_get_source_data())))
+```
+
+this will print the texture width, height and data size of each landscape component.
