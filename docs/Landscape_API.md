@@ -1,0 +1,106 @@
+# The Landscape/Terrain API
+
+Terrains in UE4 are special actors built over the 'heightmap' concept.
+
+Each Terrain is a grid of components (ULandscapeComponent). Each component is mapped to a texture holding heights data.
+
+The landscape component concept is really important as it impacts performance and quality of the result. A component is the minimal render unit of a terrain
+(so it is the minimal geometry that can be culled both from the rendering and collisions point of view).
+
+A brief explanaton on landscape components is available here: https://docs.unrealengine.com/latest/INT/Engine/Landscape/TechnicalGuide/#componentsections
+
+To build a new terrain (or Landscape in UE4), you need to get a heightmap. From this heightmap, the UE4 api will generate
+the textures mapped to components.
+
+Heightmaps are simple arrays of unsigned 16bit values (0 to 65535 with 32768 value considered the 'sea level').
+
+In Python (for performance reason, and to simplify integration with numpy) heightsmap are represented as bytearray's (so you eventually need to recast them).
+
+# Creating a new Landscape
+
+We start by creating a heightmap with random values:
+
+```python
+import unreal_engine as ue
+import struct
+import random
+
+width = 1024
+height = 1024
+heightmap = []
+
+# fill the heightmap with random values
+for y in range(0, height):
+    for x in range(0, width):
+        heightmap.append(random.randint(0, 65535))
+
+data = struct.pack('{0}H'.format(width * height), *heightmap)
+```
+
+Now 'data' is something we can use for the landscape api
+
+Before filling up a landscape, we need to spawn it:
+
+```python
+from unreal_engine.classes import Landscape
+
+new_landscape = ue.get_editor_world().actor_spawn(Landscape)
+```
+
+Note: do not run the previous script, as the editor does not like uninitialized terrains. (read: it will brutally crash)
+
+Now it is time to fill the terrain with the heightmap data we created before. We need to choose how many components we need (the grid resolution)and how many quads are required for each component
+(each component geometry is formed by simple quads primitives).
+
+Once we know how big the terrain will be, we can expand/adapt the heightmap accordingly using a special UE4 api function:
+
+```
+unreal_engine.heightmap_expand(data, original_width, original_height, terrain_width, terrain_height)
+```
+
+This function will generate a new heightmap with the optimal dimension for the landscape.
+
+
+```python
+import unreal_engine as ue
+import struct
+import random
+from unreal_engine.classes import Landscape
+
+width = 1024
+height = 1024
+heightmap = []
+
+for y in range(0, height):
+    for x in range(0, width):
+        heightmap.append(random.randint(0, 65535))
+
+data = struct.pack('{0}H'.format(width * height), *heightmap)
+
+quads_per_section = 63
+number_of_sections = 1
+components_x = 8
+components_y = 8
+
+fixed_data = ue.heightmap_expand(data, width, height, quads_per_section * number_of_sections * components_x + 1, quads_per_section * number_of_sections * components_y + 1)
+
+landscape = ue.get_editor_world().actor_spawn(Landscape)
+landscape.landscape_import(quads_per_section, number_of_sections, components_x, components_y, fixed_data)
+landscape.set_actor_scale(1,1,1)
+```
+
+You should have noted that instead specifying the quads per component we are using the 'section' concept.
+
+The truth is that UE4 allows another level of subdivision for giving better control over optimizations (LOD, mipmapping...). More details here:
+
+https://docs.unrealengine.com/latest/INT/Engine/Landscape/TechnicalGuide/#componentsections
+
+You can have 1 section (1x1 quad) or 2 (2x2 quads). Other values are not supported.
+
+Even the number of quads is related to textures size, so valid values are: 7x7, 15x15, 31x31, 63x63, 127x127, 255x255 (note the off-by-one weirdness, as all of the terrain tools works with max value on not the size)
+
+Note that you need to carefully choose the size of the terrain as well as the heightmap:
+
+https://docs.unrealengine.com/latest/INT/Engine/Landscape/TechnicalGuide/index.html#calculatingheightmapdimensions
+
+
