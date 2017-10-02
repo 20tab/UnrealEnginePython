@@ -738,7 +738,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_hud", (PyCFunction)py_ue_controller_get_hud, METH_VARARGS, "" },
 	{ "get_controlled_pawn", (PyCFunction)py_ue_get_controlled_pawn, METH_VARARGS, "" },
 	{ "get_pawn", (PyCFunction)py_ue_get_controlled_pawn, METH_VARARGS, "" },
-
+	{ "project_world_location_to_screen", (PyCFunction)py_ue_controller_project_world_location_to_screen, METH_VARARGS, "" },
 
 	// Attaching
 

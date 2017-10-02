@@ -1,12 +1,14 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
-PyObject *py_ue_controller_posses(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_controller_posses(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O:posses", &obj)) {
+	if (!PyArg_ParseTuple(args, "O:posses", &obj))
+	{
 		return NULL;
 	}
 
@@ -24,7 +26,8 @@ PyObject *py_ue_controller_posses(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_controller_get_hud(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_controller_get_hud(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -39,7 +42,8 @@ PyObject *py_ue_controller_get_hud(ue_PyUObject * self, PyObject * args) {
 	return (PyObject *)ret;
 }
 
-PyObject *py_ue_controller_unposses(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_controller_unposses(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -52,7 +56,8 @@ PyObject *py_ue_controller_unposses(ue_PyUObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_get_controlled_pawn(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_controlled_pawn(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -65,7 +70,8 @@ PyObject *py_ue_get_controlled_pawn(ue_PyUObject * self, PyObject * args) {
 #else
 	APawn *pawn = controller->GetControlledPawn();
 #endif
-	if (!pawn) {
+	if (!pawn)
+	{
 		Py_RETURN_NONE;
 	}
 
@@ -74,4 +80,33 @@ PyObject *py_ue_get_controlled_pawn(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
 	return (PyObject *)ret;
+}
+
+PyObject *py_ue_controller_project_world_location_to_screen(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_obj_point;
+	PyObject *py_relative = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|O:project_world_location_to_screen", &py_obj_point, &py_relative))
+		return nullptr;
+
+	APlayerController *controller = ue_py_check_type<APlayerController>(self);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AController");
+
+	ue_PyFVector *point = py_ue_is_fvector(py_obj_point);
+	if (!point)
+		return PyErr_Format(PyExc_Exception, "argument is not a FVector");
+
+	// TODO: Check return value:
+	FVector2D screenLocation;
+	if (!controller->ProjectWorldLocationToScreen(point->vec, screenLocation, (py_relative && PyObject_IsTrue(py_relative))))
+	{
+		return PyErr_Format(PyExc_Exception, "unable to project coordinates");
+	}
+
+	return Py_BuildValue("(ff)", screenLocation.X, screenLocation.Y);
 }

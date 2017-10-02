@@ -30,6 +30,9 @@ public class UnrealEnginePython : ModuleRules
         "/Library/Frameworks/Python.framework/Versions/3.6",
         "/Library/Frameworks/Python.framework/Versions/3.5",
         "/Library/Frameworks/Python.framework/Versions/2.7",
+        "/System/Library/Frameworks/Python.framework/Versions/3.6",
+        "/System/Library/Frameworks/Python.framework/Versions/3.5",
+        "/System/Library/Frameworks/Python.framework/Versions/2.7"
     };
 
     private string[] linuxKnownIncludesPaths =
