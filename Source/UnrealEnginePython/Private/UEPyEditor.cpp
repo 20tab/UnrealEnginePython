@@ -1869,7 +1869,9 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to add \"%s\" to the world", name);
 	}
 
+#if ENGINE_MINOR_VERSION >= 16
 	FEditorDelegates::RefreshLevelBrowser.Broadcast();
+#endif
 
 	Py_RETURN_UOBJECT(level_streaming);
 }
