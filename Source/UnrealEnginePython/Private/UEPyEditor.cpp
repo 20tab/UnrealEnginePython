@@ -1905,17 +1905,17 @@ PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
 
-	ULevelStreaming *level = ue_py_check_type<ULevelStreaming>(py_level);
+	ULevel *level = ue_py_check_type<ULevel>(py_level);
 	if (!level)
 		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
 
 	TArray<AActor *> actors;
 	actors.Add(actor);
 
-	int32 out = 0;
+	int out = 0;
 
 #if ENGINE_MINOR_VERSION >= 17
-	EditorLevelUtils::MovesActorsToLevel(actors, level, out);
+	out = EditorLevelUtils::MoveActorsToLevel(actors, level);
 #endif
 	if (out != 1)
 	{
