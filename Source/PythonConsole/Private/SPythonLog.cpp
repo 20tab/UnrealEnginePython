@@ -7,6 +7,7 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/GameState.h"
 #include "SSearchBox.h"
+#include "Runtime/Launch/Resources/Version.h"
 //#include "UnrealEnginePython.h"
 #define LOCTEXT_NAMESPACE "PythonConsole"
 
@@ -46,7 +47,8 @@ public:
 			]);
 	}
 
-	void SetPythonBox(SPythonConsoleInputBox *box) {
+	void SetPythonBox(SPythonConsoleInputBox *box)
+	{
 		SPythonConsoleEditableText *PythonEditableText = (SPythonConsoleEditableText *)EditableText.Get();
 		box->HistoryPosition = 0;
 		PythonEditableText->PythonConsoleInputBox = box;
@@ -72,15 +74,15 @@ private:
 			void Construct(const FArguments& InArgs)
 		{
 			SEditableText::Construct
-				(
-					SEditableText::FArguments()
-					.HintText(InArgs._HintText)
-					.OnTextChanged(InArgs._OnTextChanged)
-					.OnTextCommitted(InArgs._OnTextCommitted)
-					.ClearKeyboardFocusOnCommit(false)
-					.IsCaretMovedWhenGainFocus(false)
-					.MinDesiredWidth(400.0f)
-					);
+			(
+				SEditableText::FArguments()
+				.HintText(InArgs._HintText)
+				.OnTextChanged(InArgs._OnTextChanged)
+				.OnTextCommitted(InArgs._OnTextCommitted)
+				.ClearKeyboardFocusOnCommit(false)
+				.IsCaretMovedWhenGainFocus(false)
+				.MinDesiredWidth(400.0f)
+			);
 		}
 
 		virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
@@ -90,16 +92,20 @@ private:
 			{
 				return FReply::Unhandled();
 			}
-			else if (InKeyEvent.GetKey() == EKeys::Up) {
-				if (PythonConsoleInputBox->HistoryPosition > 0) {
+			else if (InKeyEvent.GetKey() == EKeys::Up)
+			{
+				if (PythonConsoleInputBox->HistoryPosition > 0)
+				{
 					PythonConsoleInputBox->HistoryPosition--;
 					this->SetText(FText::FromString(PythonConsoleInputBox->History[PythonConsoleInputBox->HistoryPosition]));
 				}
 
 				return FReply::Handled();
 			}
-			else if (InKeyEvent.GetKey() == EKeys::Down) {
-				if (PythonConsoleInputBox->HistoryPosition < PythonConsoleInputBox->History.Num() - 1) {
+			else if (InKeyEvent.GetKey() == EKeys::Down)
+			{
+				if (PythonConsoleInputBox->HistoryPosition < PythonConsoleInputBox->History.Num() - 1)
+				{
 					PythonConsoleInputBox->HistoryPosition++;
 					this->SetText(FText::FromString(PythonConsoleInputBox->History[PythonConsoleInputBox->HistoryPosition]));
 				}
@@ -213,25 +219,31 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 			//
 			FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
 
-			if (IsMultiline) {
-				if (ExecString.StartsWith(" ")) {
+			if (IsMultiline)
+			{
+				if (ExecString.StartsWith(" "))
+				{
 					MultilineString += FString("\n") + ExecString;
 				}
-				else {
+				else
+				{
 					IsMultiline = false;
 					PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
 				}
 			}
-			else if (ExecString.EndsWith(":")) {
+			else if (ExecString.EndsWith(":"))
+			{
 				IsMultiline = true;
 				MultilineString = ExecString;
 			}
-			else {
+			else
+			{
 				PythonModule.RunString(TCHAR_TO_UTF8(*ExecString));
 			}
 
 		}
-		else if (IsMultiline) {
+		else if (IsMultiline)
+		{
 			IsMultiline = false;
 			FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
 			PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
@@ -349,7 +361,11 @@ FPythonLogTextLayoutMarshaller::FPythonLogTextLayoutMarshaller(TArray< TSharedPt
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SPythonLog::Construct(const FArguments& InArgs)
 {
+#if ENGINE_MINOR_VERSION < 18
 	MessagesTextMarshaller = FPythonLogTextLayoutMarshaller::Create(MoveTemp(InArgs._Messages));
+#else
+	MessagesTextMarshaller = FPythonLogTextLayoutMarshaller::Create(InArgs._Messages);
+#endif
 
 	MessagesTextBox = SNew(SMultiLineEditableTextBox)
 		.Style(FEditorStyle::Get(), "Log.TextBox")
@@ -485,14 +501,14 @@ void SPythonLog::ExtendTextBoxMenu(FMenuBuilder& Builder)
 	FUIAction ClearPythonLogAction(
 		FExecuteAction::CreateRaw(this, &SPythonLog::OnClearLog),
 		FCanExecuteAction::CreateSP(this, &SPythonLog::CanClearLog)
-		);
+	);
 
 	Builder.AddMenuEntry(
 		NSLOCTEXT("PythonConsole", "ClearLogLabel", "Clear Log"),
 		NSLOCTEXT("PythonConsole", "ClearLogTooltip", "Clears all log messages"),
 		FSlateIcon(),
 		ClearPythonLogAction
-		);
+	);
 }
 
 void SPythonLog::OnClearLog()

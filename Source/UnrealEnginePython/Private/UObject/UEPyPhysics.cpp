@@ -441,7 +441,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 #else
 			for (UActorComponent *component : actor->GetComponents())
 			{
-				if (component->Implements<IDestructibleInterface>())
+				if (Cast<IDestructibleInterface>(component))
 				{
 					destructible = (IDestructibleInterface *)component;
 					break;
@@ -460,7 +460,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 #else
 				for (UActorComponent *component : actor->GetComponents())
 				{
-					if (component->Implements<IDestructibleInterface>())
+					if (Cast<IDestructibleInterface>(component))
 					{
 						destructible = (IDestructibleInterface *)component;
 						break;
