@@ -5,7 +5,7 @@ import time
 import shutil
 import zipfile
 
-UE_VERSIONS = ['4.15', '4.16', '4.17']
+UE_VERSIONS = ['4.15', '4.16', '4.17', '4.18']
 PYTHON_VERSIONS = ["C:/Program Files/Python36", "C:/Program Files/Python35", "C:/Python27"]
 
 RELEASE_DIR = sys.argv[1].rstrip('/')
