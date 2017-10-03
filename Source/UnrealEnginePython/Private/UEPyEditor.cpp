@@ -1961,7 +1961,7 @@ PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args)
 	int tid;
 	if (!PyArg_ParseTuple(args, "i:cancel_transaction", &tid))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	GEditor->CancelTransaction(tid);
