@@ -3079,7 +3079,9 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 	function->SetPyCallable(py_callable);
 
+#if ENGINE_MINOR_VERSION < 18
 	function->RepOffset = MAX_uint16;
+#endif
 	function->ReturnValueOffset = MAX_uint16;
 	function->FirstPropertyToInit = NULL;
 	function->Script.Add(EX_EndFunctionParms);
@@ -3356,7 +3358,11 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 
 
 	u_class->Children = function;
+#if ENGINE_MINOR_VERSION < 18
 	u_class->AddFunctionToFunctionMap(function);
+#else
+	u_class->AddFunctionToFunctionMap(function, function->GetFName());
+#endif
 
 	u_class->Bind();
 	u_class->StaticLink(true);
