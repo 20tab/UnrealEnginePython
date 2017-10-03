@@ -11,8 +11,9 @@ for world in ue.all_worlds():
     level_packages.append(world.PersistentLevel.get_outermost())
 
     for streaming_level in world.StreamingLevels:
-        levels.append(streaming_level.LoadedLevel)
-        level_packages.append(streaming_level.LoadedLevel.get_outermost())
+        if streaming_level.LoadedLevel is not None:
+            levels.append(streaming_level.LoadedLevel)
+            level_packages.append(streaming_level.LoadedLevel.get_outermost())
 
 found_uobjects = []
 
