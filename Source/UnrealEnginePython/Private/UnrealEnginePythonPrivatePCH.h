@@ -78,3 +78,9 @@ char *PyUnicode_AsUTF8(PyObject *py_str);
 int PyGILState_Check();
 #endif
 bool PyUnicodeOrString_Check(PyObject *py_obj);
+
+#define Py_RETURN_UOBJECT(py_uobj) ue_PyUObject *ret = ue_get_python_wrapper(py_uobj);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
+	Py_INCREF(ret);\
+	return (PyObject *)ret;

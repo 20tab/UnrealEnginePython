@@ -1660,11 +1660,7 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args)
 		graph->GetSchema()->CreateDefaultNodesForGraph(*graph);
 	}
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(graph);
 }
 
 PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args)
@@ -1673,18 +1669,12 @@ PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * a
 
 	if (!PyArg_ParseTuple(args, "O:blueprint_graphs", &py_blueprint))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
-	if (!py_obj->ue_object->IsA<UBlueprint>())
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
 	PyObject *py_graphs = PyList_New(0);
 
@@ -1766,13 +1756,10 @@ PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * 
 	}
 
 	UObject* NewAsset = AssetToolsModule.Get().CreateAsset(Name, PackagePath, UMaterialInstanceConstant::StaticClass(), Factory);
+	if (!NewAsset)
+		return PyErr_Format(PyExc_Exception, "unable to create new asset");
 
-	ue_PyUObject *ret = ue_get_python_wrapper(NewAsset);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(NewAsset);
 }
 
 PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
@@ -1810,12 +1797,7 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 	FAssetRegistryModule::AssetCreated(u_object);
 	outer->MarkPackageDirty();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args)
@@ -1851,12 +1833,7 @@ PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args)
 	FAssetRegistryModule::AssetCreated(u_object);
 	outer->MarkPackageDirty();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
@@ -1882,7 +1859,11 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
 
+#if ENGINE_MINOR_VERSION >= 17
 	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+#else
+	ULevel *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+#endif
 	if (!level_streaming)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to add \"%s\" to the world", name);
@@ -1890,12 +1871,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 
 	FEditorDelegates::RefreshLevelBrowser.Broadcast();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(level_streaming);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(level_streaming);
 }
 
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args)
@@ -1929,14 +1905,19 @@ PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
 
-	ULevel *level = ue_py_check_type<ULevel>(py_level);
+	ULevelStreaming *level = ue_py_check_type<ULevelStreaming>(py_level);
 	if (!level)
-		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
 
 	TArray<AActor *> actors;
 	actors.Add(actor);
 
-	if (UEditorLevelUtils::MoveActorsToLevel(actors, level) != 1)
+	int32 out = 0;
+
+#if ENGINE_MINOR_VERSION >= 17
+	EditorLevelUtils::MovesActorsToLevel(actors, level, out);
+#endif
+	if (out != 1)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to move actor to level");
 	}
@@ -1949,8 +1930,7 @@ PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, Py
 
 	GEditor->TakeHighResScreenShots();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_begin_transaction(PyObject * self, PyObject * args)
@@ -1984,8 +1964,7 @@ PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args)
 
 	GEditor->CancelTransaction(tid);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_end_transaction(PyObject * self, PyObject * args)
@@ -2023,12 +2002,10 @@ PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * arg
 
 	if (is_active)
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args)
@@ -2042,12 +2019,10 @@ PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args)
 
 	if (redo)
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args)
@@ -2064,8 +2039,7 @@ PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args)
 
 	GEditor->ResetTransaction(FText::FromString(UTF8_TO_TCHAR(reason)));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args)
@@ -2076,12 +2050,10 @@ PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args)
 
 	if (GEditor->Trans->Undo())
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_editor_redo(PyObject * self, PyObject * args)
