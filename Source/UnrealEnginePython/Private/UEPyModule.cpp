@@ -5,6 +5,7 @@
 #include "UEPyEngine.h"
 #include "UEPyTimer.h"
 #include "UEPyTicker.h"
+#include "UEPyVisualLogger.h"
 
 #include "UObject/UEPyObject.h"
 #include "UObject/UEPyActor.h"
@@ -450,6 +451,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "can_modify", (PyCFunction)py_ue_can_modify, METH_VARARGS, "" },
 #endif
 
+
 	{ "set_name", (PyCFunction)py_ue_set_name, METH_VARARGS, "" },
 
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
@@ -541,6 +543,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
 #endif
 
+	// VisualLogger
+	{ "vlog", (PyCFunction)py_ue_vlog, METH_VARARGS, "" },
+	{ "vlog_cylinder", (PyCFunction)py_ue_vlog_cylinder, METH_VARARGS, "" },
 
 	// StaticMesh
 #if WITH_EDITOR
