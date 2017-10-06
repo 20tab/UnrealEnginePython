@@ -2363,10 +2363,24 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 			Py_DECREF(py_long);
 			return true;
 		}
+		if (auto casted_prop = Cast<UUInt32Property>(prop))
+		{
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
 		if (auto casted_prop = Cast<UInt64Property>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLongLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
+		if (auto casted_prop = Cast<UUInt64Property>(prop))
+		{
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLongLong(py_long));
 			Py_DECREF(py_long);
 			return true;
 		}
