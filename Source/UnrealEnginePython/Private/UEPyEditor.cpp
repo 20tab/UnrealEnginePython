@@ -2175,5 +2175,23 @@ PyObject *py_unreal_engine_heightmap_import(PyObject * self, PyObject * args)
 	return Py_BuildValue((char *)"Oii", PyByteArray_FromStringAndSize((char *)imported.Data.GetData(), imported.Data.Num() * sizeof(uint16)), resolution.Width, resolution.Height);
 }
 
+PyObject *py_unreal_engine_play_preview_sound(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *py_sound;
+	if (!PyArg_ParseTuple(args, "O:play_preview_sound", &py_sound))
+		return nullptr;
+
+	USoundBase *sound = ue_py_check_type<USoundBase>(py_sound);
+	if (!sound)
+		return PyErr_Format(PyExc_Exception, "argument is not a USoundBase");
+
+	GEditor->PlayPreviewSound(sound);
+
+	Py_RETURN_NONE;
+}
+
 #endif
 
