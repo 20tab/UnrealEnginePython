@@ -77,11 +77,12 @@ PyObject *py_ue_ivoice_capture_get_voice_data(ue_PyIVoiceCapture *self, PyObject
 	{
 		return nullptr;
 	}
-	uint32 available_data;
-	uint8 *data = (uint8*)FMemory_Alloca(len);
-	EVoiceCaptureState::Type state = self->voice_capture->GetVoiceData(data, len, available_data);
 
-	return Py_BuildValue("iO", (int)state, PyByteArray_FromStringAndSize((char *)data, (Py_ssize_t)available_data));
+	uint32 available_data = 0;
+	uint8 *data = (uint8*)FMemory_Alloca(len);
+
+	EVoiceCaptureState::Type state = self->voice_capture->GetVoiceData(data, len, available_data);
+	return Py_BuildValue("iO", (int)state, PyByteArray_FromStringAndSize((char *)data, (Py_ssize_t)FMath::Min(available_data, (uint32)len)));
 }
 
 static PyMethodDef ue_PyIVoiceCapture_methods[] = {

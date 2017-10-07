@@ -5,7 +5,34 @@
 
 #define sw_python_widget StaticCastSharedRef<SPythonWidget>(self->s_compound_widget.s_widget.s_widget)
 
+static PyObject *py_ue_spython_widget_set_active(ue_PySPythonWidget *self, PyObject *args)
+{
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:set_active", &py_bool))
+	{
+		return nullptr;
+	}
+	bool bActive = true;
+
+	if (py_bool)
+	{
+		if (PyObject_IsTrue(py_bool))
+		{
+			bActive = true;
+		}
+		else
+		{
+			bActive = false;
+		}
+	}
+
+	sw_python_widget->SetActive(bActive);
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyMethodDef ue_PySPythonWidget_methods[] = {
+	{ "set_active", (PyCFunction)py_ue_spython_widget_set_active, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
 

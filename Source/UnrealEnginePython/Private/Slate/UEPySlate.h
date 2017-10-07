@@ -463,6 +463,8 @@ public:
 	bool OnShouldFilterAsset(const FAssetData& AssetData);
 #endif
 
+	void OnWindowClosed(const TSharedRef<SWindow> &Window);
+
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
 	void OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type);

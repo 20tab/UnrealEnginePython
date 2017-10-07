@@ -186,7 +186,6 @@ static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject *
 }
 #endif
 
-
 static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args)
 {
 

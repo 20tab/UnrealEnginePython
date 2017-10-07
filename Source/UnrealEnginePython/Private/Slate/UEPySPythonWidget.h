@@ -21,7 +21,6 @@ public:
 
 	void Construct(const FArguments& Args)
 	{
-
 	}
 
 	virtual bool SupportsKeyboardFocus() const override
@@ -156,9 +155,27 @@ public:
 		self = py_obj;
 	}
 
+	void SetActive(bool bActive)
+	{
+		if (bActive && !ActiveTimerHandle.IsValid())
+		{
+			ActiveTimerHandle = RegisterActiveTimer(0.f, FWidgetActiveTimerDelegate::CreateSP(this, &SPythonWidget::EnsureTick));
+		}
+		else if (!bActive && ActiveTimerHandle.IsValid())
+		{
+			UnRegisterActiveTimer(ActiveTimerHandle.Pin().ToSharedRef());
+		}
+	}
+
 protected:
 	PyObject *self;
 
+	TWeakPtr<FActiveTimerHandle> ActiveTimerHandle;
+
+	EActiveTimerReturnType EnsureTick(double InCurrentTime, float InDeltaTime)
+	{
+		return EActiveTimerReturnType::Continue;
+	}
 };
 
 typedef struct

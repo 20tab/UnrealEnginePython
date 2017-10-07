@@ -7,7 +7,8 @@ extern PyTypeObject ue_PySWidgetType;
 class UPythonSlateDelegate;
 typedef struct ue_PySWidget ue_PySWidget;
 
-struct ue_PySWidget{
+struct ue_PySWidget
+{
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 
