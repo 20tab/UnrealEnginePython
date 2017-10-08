@@ -57,6 +57,7 @@
 #include "UEPySProgressBar.h"
 #include "UEPySSpacer.h"
 #include "UEPySPythonWidget.h"
+#include "UEPySOverlay.h"
 
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"

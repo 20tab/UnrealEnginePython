@@ -752,7 +752,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_sprogress_bar(module);
 	ue_python_init_sspacer(module);
 	ue_python_init_spython_widget(module);
-
+	ue_python_init_soverlay(module);
 
 
 #if WITH_EDITOR
