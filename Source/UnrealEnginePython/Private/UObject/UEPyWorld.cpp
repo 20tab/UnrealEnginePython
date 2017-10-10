@@ -42,6 +42,18 @@ PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_get_world_type(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	return PyLong_FromUnsignedLong(world->WorldType);
+}
+
 PyObject *py_ue_play(ue_PyUObject *self, PyObject * args)
 {
 

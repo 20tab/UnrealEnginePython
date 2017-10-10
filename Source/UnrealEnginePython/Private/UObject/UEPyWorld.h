@@ -27,3 +27,5 @@ PyObject *py_ue_get_game_viewport(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_current_level(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_current_level(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_get_world_type(ue_PyUObject *, PyObject *);

@@ -634,6 +634,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "quit_game", (PyCFunction)py_ue_quit_game, METH_VARARGS, "" },
 	{ "play", (PyCFunction)py_ue_play, METH_VARARGS, "" },
 
+	{ "get_world_type", (PyCFunction)py_ue_get_world_type, METH_VARARGS, "" },
+
 	{ "world_exec", (PyCFunction)py_ue_world_exec, METH_VARARGS, "" },
 
 	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
