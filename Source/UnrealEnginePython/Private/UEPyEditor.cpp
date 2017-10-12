@@ -1889,7 +1889,11 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 	if (!level)
 		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
 
+#if ENGINE_MINOR_VERSION >= 17
+	UEditorLevelUtils::MoveSelectedActorsToLevel(level);
+#else
 	GEditor->MoveSelectedActorsToLevel(level);
+#endif
 
 	Py_RETURN_NONE;
 }
