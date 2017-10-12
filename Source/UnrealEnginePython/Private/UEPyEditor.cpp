@@ -2137,7 +2137,7 @@ PyObject *py_unreal_engine_heightmap_import(PyObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "invalid heightmap format");
 	}
 
-	FLandscapeFileResolution resolution = { width, height };
+	FLandscapeFileResolution resolution = { (uint32)width, (uint32)height };
 
 	if (width <= 0 || height <= 0)
 	{
