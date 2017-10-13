@@ -55,9 +55,9 @@ PyObject *py_ue_hud_draw_rect(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	float x, y, w, h;
-	PyObject *py_fcolor;
+	PyObject *py_flinear_color;
 
-	if (!PyArg_ParseTuple(args, "ffffO:hud_draw_line", &x, &y, &w, &h, &py_fcolor)) {
+	if (!PyArg_ParseTuple(args, "ffffO:hud_draw_line", &x, &y, &w, &h, &py_flinear_color)) {
 		return nullptr;
 	}
 
@@ -65,9 +65,9 @@ PyObject *py_ue_hud_draw_rect(ue_PyUObject *self, PyObject * args) {
 	if (!hud)
 		return PyErr_Format(PyExc_Exception, "UObject is not a AHUD.");
 
-	ue_PyFLinearColor *fcolor = py_ue_is_flinearcolor(py_fcolor);
+	ue_PyFLinearColor *fcolor = py_ue_is_flinearcolor(py_flinear_color);
 	if (!fcolor)
-		return PyErr_Format(PyExc_Exception, "argument is not a FColor.");
+		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor.");
 
 	hud->DrawRect(fcolor->color, x, y, w, h);
 
@@ -81,10 +81,10 @@ PyObject *py_ue_hud_draw_text(ue_PyUObject *self, PyObject * args) {
 
 	char *text;
 	float x, y;
-	PyObject *py_fcolor;
+	PyObject *py_flinear_color;
 	float scale = 1;
 
-	if (!PyArg_ParseTuple(args, "sffO|f:hud_draw_text", &text, &x, &y, &py_fcolor, &scale)) {
+	if (!PyArg_ParseTuple(args, "sffO|f:hud_draw_text", &text, &x, &y, &py_flinear_color, &scale)) {
 		return nullptr;
 	}
 
@@ -92,9 +92,9 @@ PyObject *py_ue_hud_draw_text(ue_PyUObject *self, PyObject * args) {
 	if (!hud)
 		return PyErr_Format(PyExc_Exception, "UObject is not a AHUD.");
 
-	ue_PyFLinearColor *fcolor = py_ue_is_flinearcolor(py_fcolor);
+	ue_PyFLinearColor *fcolor = py_ue_is_flinearcolor(py_flinear_color);
 	if (!fcolor)
-		return PyErr_Format(PyExc_Exception, "argument is not a FColor.");
+		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor.");
 
 	hud->DrawText(FString(UTF8_TO_TCHAR(text)), fcolor->color, x, y, nullptr, scale);
 
