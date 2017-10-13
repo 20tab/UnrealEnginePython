@@ -41,6 +41,73 @@ PyObject *py_ue_class_generated_by(ue_PyUObject * self, PyObject * args)
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_class_get_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	return PyLong_FromUnsignedLongLong((uint64)u_class->GetClassFlags());
+}
+
+PyObject *py_ue_class_set_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "K:class_set_flags", &flags))
+	{
+		return nullptr;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	u_class->ClassFlags = (EClassFlags)flags;
+
+	Py_RETURN_NONE;
+}
+
+#if WITH_EDITOR
+PyObject *py_ue_class_set_config_name(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *config_name;
+	if (!PyArg_ParseTuple(args, "s:class_set_config_name", &config_name))
+	{
+		return nullptr;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	u_class->ClassConfigName = UTF8_TO_TCHAR(config_name);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_class_get_config_name(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*u_class->ClassConfigName.ToString()));
+}
+#endif
+
 PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 {
 
@@ -571,6 +638,99 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 
 	Py_RETURN_NONE;
 
+}
+
+PyObject *py_ue_set_property_flags(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "sK:set_property_flags", &property_name, &flags))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+
+	u_property->SetPropertyFlags(flags);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_add_property_flags(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "sK:add_property_flags", &property_name, &flags))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+
+	u_property->SetPropertyFlags(u_property->GetPropertyFlags() | flags);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_get_property_flags(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_property_flags", &property_name))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	return PyLong_FromUnsignedLong(u_property->GetPropertyFlags());
 }
 
 PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args)

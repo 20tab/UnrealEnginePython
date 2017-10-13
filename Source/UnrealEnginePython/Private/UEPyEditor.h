@@ -108,4 +108,7 @@ PyObject *py_unreal_engine_heightmap_expand(PyObject *, PyObject *);
 PyObject *py_unreal_engine_heightmap_import(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_play_preview_sound(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_register_settings(PyObject *, PyObject *);
+PyObject *py_unreal_engine_unregister_settings(PyObject *, PyObject *);
 #endif

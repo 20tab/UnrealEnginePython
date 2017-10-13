@@ -25,6 +25,8 @@
 #include "Editor/LandscapeEditor/Public/LandscapeEditorModule.h"
 #include "Editor/LandscapeEditor/Public/LandscapeFileFormatInterface.h"
 
+#include "Developer/Settings/Public/ISettingsModule.h"
+
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
 {
@@ -2197,5 +2199,67 @@ PyObject *py_unreal_engine_play_preview_sound(PyObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_unreal_engine_register_settings(PyObject * self, PyObject * args)
+{
+
+
+	char *container_name;
+	char *category_name;
+	char *section_name;
+	char *display_name;
+	char *description;
+	PyObject *py_uobject;
+
+	if (!PyArg_ParseTuple(args, "sssssO:register_settings", &container_name, &category_name, &section_name, &display_name, &description, &py_uobject))
+		return nullptr;
+
+	UObject *u_object = ue_py_check_type<UObject>(py_uobject);
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		TSharedPtr<ISettingsSection> section = SettingsModule->RegisterSettings(UTF8_TO_TCHAR(container_name),
+			UTF8_TO_TCHAR(category_name),
+			UTF8_TO_TCHAR(section_name),
+			FText::FromString(UTF8_TO_TCHAR(display_name)),
+			FText::FromString(UTF8_TO_TCHAR(description)),
+			u_object);
+
+		if (!section.IsValid())
+			return PyErr_Format(PyExc_Exception, "unable to register settings");
+	}
+	else
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find the Settings Module");
+	}
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_unregister_settings(PyObject * self, PyObject * args)
+{
+
+
+	char *container_name;
+	char *category_name;
+	char *section_name;
+
+	if (!PyArg_ParseTuple(args, "sss:unregister_settings", &container_name, &category_name, &section_name))
+		return nullptr;
+
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->UnregisterSettings(UTF8_TO_TCHAR(container_name),
+			UTF8_TO_TCHAR(category_name),
+			UTF8_TO_TCHAR(section_name));
+	}
+	else
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find the Settings Module");
+	}
+
+	Py_RETURN_NONE;
+}
 #endif
 

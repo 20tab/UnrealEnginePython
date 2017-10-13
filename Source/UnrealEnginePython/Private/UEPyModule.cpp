@@ -366,6 +366,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_get_pie_viewport_size", py_unreal_engine_editor_get_pie_viewport_size, METH_VARARGS, "" },
 
 	{ "editor_take_high_res_screen_shots", py_unreal_engine_editor_take_high_res_screen_shots, METH_VARARGS, "" },
+
+	{ "register_settings", py_unreal_engine_register_settings, METH_VARARGS, "" },
+	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
 #endif
 
 
@@ -424,6 +427,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_property", (PyCFunction)py_ue_get_property, METH_VARARGS, "" },
 	{ "set_property", (PyCFunction)py_ue_set_property, METH_VARARGS, "" },
+	{ "set_property_flags", (PyCFunction)py_ue_set_property_flags, METH_VARARGS, "" },
+	{ "add_property_flags", (PyCFunction)py_ue_add_property_flags, METH_VARARGS, "" },
+	{ "get_property_flags", (PyCFunction)py_ue_get_property_flags, METH_VARARGS, "" },
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
 	{ "get_property_class", (PyCFunction)py_ue_get_property_class, METH_VARARGS, "" },
 	{ "has_property", (PyCFunction)py_ue_has_property, METH_VARARGS, "" },
@@ -606,6 +612,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
 	{ "class_generated_by", (PyCFunction)py_ue_class_generated_by, METH_VARARGS, "" },
+	{ "class_get_flags", (PyCFunction)py_ue_class_get_flags, METH_VARARGS, "" },
+	{ "class_set_flags", (PyCFunction)py_ue_class_set_flags, METH_VARARGS, "" },
+
+#if WITH_EDITOR
+	{ "class_get_config_name", (PyCFunction)py_ue_class_get_config_name, METH_VARARGS, "" },
+	{ "class_set_config_name", (PyCFunction)py_ue_class_set_config_name, METH_VARARGS, "" },
+#endif
 	{ "get_actor_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
 	{ "get_components", (PyCFunction)py_ue_actor_components, METH_VARARGS, "" },
@@ -1921,6 +1934,19 @@ void unreal_engine_init_py_module()
 	PyDict_SetItemString(unreal_engine_dict, "IE_RELEASED", PyLong_FromLong(EInputEvent::IE_Released));
 	PyDict_SetItemString(unreal_engine_dict, "IE_REPEAT", PyLong_FromLong(EInputEvent::IE_Repeat));
 
+	// Classes
+	PyDict_SetItemString(unreal_engine_dict, "CLASS_CONFIG", PyLong_FromUnsignedLongLong((uint64)CLASS_Config));
+	PyDict_SetItemString(unreal_engine_dict, "CLASS_DEFAULT_CONFIG", PyLong_FromUnsignedLongLong((uint64)CLASS_DefaultConfig));
+	PyDict_SetItemString(unreal_engine_dict, "CLASS_ABSTRACT", PyLong_FromUnsignedLongLong((uint64)CLASS_Abstract));
+	PyDict_SetItemString(unreal_engine_dict, "CLASS_INTERFACE", PyLong_FromUnsignedLongLong((uint64)CLASS_Interface));
+
+	// Properties
+	PyDict_SetItemString(unreal_engine_dict, "CPF_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_Config));
+	PyDict_SetItemString(unreal_engine_dict, "CPF_GLOBAL_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_GlobalConfig));
+	PyDict_SetItemString(unreal_engine_dict, "CPF_EXPOSE_ON_SPAWN", PyLong_FromUnsignedLongLong((uint64)CPF_ExposeOnSpawn));
+	PyDict_SetItemString(unreal_engine_dict, "CPF_NET", PyLong_FromUnsignedLongLong((uint64)CPF_Net));
+	PyDict_SetItemString(unreal_engine_dict, "CPF_REP_NOTIFY", PyLong_FromUnsignedLongLong((uint64)CPF_RepNotify));
+
 #if WITH_EDITOR
 	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_OK", PyLong_FromLong(EAppMsgType::Ok));
 	PyDict_SetItemString(unreal_engine_dict, "APP_MSG_TYPE_YES_NO", PyLong_FromLong(EAppMsgType::YesNo));
@@ -1997,7 +2023,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-	}
+}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2927,9 +2953,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-		}
-#endif
 	}
+#endif
+}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 
