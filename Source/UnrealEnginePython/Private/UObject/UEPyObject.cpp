@@ -138,6 +138,16 @@ PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args)
 	return Py_None;
 }
 
+PyObject *py_ue_is_valid(ue_PyUObject * self, PyObject * args)
+{
+	if (!self->ue_object || !self->ue_object->IsValidLowLevel() || self->ue_object->IsPendingKillOrUnreachable())
+	{
+		Py_RETURN_FALSE;
+	}
+
+	Py_RETURN_TRUE;
+}
+
 PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args)
 {
 
@@ -158,13 +168,11 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args)
 
 	if (self->ue_object->IsA((UClass *)py_obj->ue_object))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args)

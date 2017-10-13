@@ -433,6 +433,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "functions", (PyCFunction)py_ue_functions, METH_VARARGS, "" },
 
 	{ "is_a", (PyCFunction)py_ue_is_a, METH_VARARGS, "" },
+	{ "is_valid", (PyCFunction)py_ue_is_valid, METH_VARARGS, "" },
 	{ "is_child_of", (PyCFunction)py_ue_is_child_of, METH_VARARGS, "" },
 
 	{ "call", (PyCFunction)py_ue_call, METH_VARARGS, "" },
