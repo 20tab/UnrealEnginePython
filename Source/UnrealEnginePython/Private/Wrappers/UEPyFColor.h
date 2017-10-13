@@ -16,3 +16,5 @@ ue_PyFColor *py_ue_is_fcolor(PyObject *);
 void ue_python_init_fcolor(PyObject *);
 
 bool py_ue_color_arg(PyObject *, FColor &);
+
+bool py_ue_get_fcolor(PyObject *, FColor &);

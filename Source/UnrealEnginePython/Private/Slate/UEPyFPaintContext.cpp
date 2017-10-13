@@ -4,7 +4,8 @@
 
 static FSlateBrush global_simple_brush;
 
-static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObject * args) {
+static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObject * args)
+{
 	float x1, y1, x2, y2;
 	PyObject *py_linear_color = nullptr;
 	PyObject *py_antialias = nullptr;
@@ -15,12 +16,11 @@ static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObje
 
 	FLinearColor tint = FLinearColor::White;
 
-	if (py_linear_color) {
-		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
-			tint = linear_color->color;
-		}
-		else {
-			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+	if (py_linear_color)
+	{
+		if (!py_ue_get_flinearcolor(py_linear_color, tint))
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor or FColor.");
 		}
 	}
 
@@ -43,7 +43,8 @@ static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObje
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObject * args) {
+static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObject * args)
+{
 	float x, y, w, h;
 
 	PyObject *py_brush = nullptr;
@@ -54,18 +55,18 @@ static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObjec
 
 	FLinearColor tint = FLinearColor::White;
 
-	if (py_linear_color) {
-		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
-			tint = linear_color->color;
-		}
-		else {
-			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+	if (py_linear_color)
+	{
+		if (!py_ue_get_flinearcolor(py_linear_color, tint))
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor or FColor.");
 		}
 	}
 
 	FSlateBrush *brush = &global_simple_brush;
 
-	if (py_brush) {
+	if (py_brush)
+	{
 		FSlateBrush *custom_brush = ue_py_check_struct<FSlateBrush>(py_brush);
 		if (!custom_brush)
 			return PyErr_Format(PyExc_Exception, "argument is not a FSlateBrush");
@@ -87,7 +88,8 @@ static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObjec
 }
 
 
-static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObject * args) {
+static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObject * args)
+{
 	float x, y;
 	char *text;
 	float size = 0;
@@ -100,21 +102,23 @@ static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObje
 	FLinearColor tint = FLinearColor::White;
 	FSlateFontInfo font = FCoreStyle::Get().GetWidgetStyle<FTextBlockStyle>("NormalText").Font;
 
-	if (py_linear_color) {
-		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
-			tint = linear_color->color;
-		}
-		else {
-			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+	if (py_linear_color)
+	{
+		if (!py_ue_get_flinearcolor(py_linear_color, tint))
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor or FColor.");
 		}
 	}
 
-	if (py_font) {
+	if (py_font)
+	{
 		FSlateFontInfo *font_struct = ue_py_check_struct<FSlateFontInfo>(py_font);
-		if (font_struct) {
+		if (font_struct)
+		{
 			font = *font_struct;
 		}
-		else {
+		else
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a SlateFontInfo USTRUCT");
 		}
 	}
@@ -140,7 +144,8 @@ static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObje
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyObject * args) {
+static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyObject * args)
+{
 	float x1, y1, dx1, dy1;
 	float x2, y2, dx2, dy2;
 	PyObject *py_linear_color = nullptr;
@@ -152,12 +157,11 @@ static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyOb
 
 	FLinearColor tint = FLinearColor::White;
 
-	if (py_linear_color) {
-		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
-			tint = linear_color->color;
-		}
-		else {
-			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+	if (py_linear_color)
+	{
+		if (!py_ue_get_flinearcolor(py_linear_color, tint))
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor or FColor.");
 		}
 	}
 
@@ -179,7 +183,8 @@ static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyOb
 }
 
 
-static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObject * args) {
+static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObject * args)
+{
 	PyObject *py_points;
 	PyObject *py_linear_color = nullptr;
 	PyObject *py_antialias = nullptr;
@@ -194,14 +199,17 @@ static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObj
 	if (!py_iter)
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of tuples");
 
-	while (PyObject *py_item = PyIter_Next(py_iter)) {
-		if (!PyTuple_Check(py_item)) {
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		if (!PyTuple_Check(py_item))
+		{
 			return PyErr_Format(PyExc_Exception, "iterable item is not a tuple");
 			Py_DECREF(py_iter);
 		}
 
 		float x, y;
-		if (!PyArg_ParseTuple(py_item, "ff", &x, &y)) {
+		if (!PyArg_ParseTuple(py_item, "ff", &x, &y))
+		{
 			Py_DECREF(py_iter);
 			return nullptr;
 		}
@@ -211,12 +219,11 @@ static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObj
 
 	FLinearColor tint = FLinearColor::White;
 
-	if (py_linear_color) {
-		if (ue_PyFLinearColor *linear_color = py_ue_is_flinearcolor(py_linear_color)) {
-			tint = linear_color->color;
-		}
-		else {
-			return PyErr_Format(PyExc_Exception, "argument is not a FlinearColor");
+	if (py_linear_color)
+	{
+		if (!py_ue_get_flinearcolor(py_linear_color, tint))
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor or FColor.");
 		}
 	}
 
@@ -235,7 +242,8 @@ static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObj
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fpaint_context_get_geometry(ue_PyFPaintContext *self, PyObject * args) {
+static PyObject *py_ue_fpaint_context_get_geometry(ue_PyFPaintContext *self, PyObject * args)
+{
 	return py_ue_new_fgeometry(self->paint_context.AllottedGeometry);
 }
 
@@ -286,7 +294,8 @@ static PyTypeObject ue_PyFPaintContextType = {
 	ue_PyFPaintContext_methods,             /* tp_methods */
 };
 
-void ue_python_init_fpaint_context(PyObject *ue_module) {
+void ue_python_init_fpaint_context(PyObject *ue_module)
+{
 	ue_PyFPaintContextType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyFPaintContextType) < 0)
@@ -296,7 +305,8 @@ void ue_python_init_fpaint_context(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FPaintContext", (PyObject *)&ue_PyFPaintContextType);
 }
 
-PyObject *py_ue_new_fpaint_context(FPaintContext paint_context) {
+PyObject *py_ue_new_fpaint_context(FPaintContext paint_context)
+{
 	ue_PyFPaintContext *ret = (ue_PyFPaintContext *)PyObject_New(ue_PyFPaintContext, &ue_PyFPaintContextType);
 	ret->paint_context = paint_context;
 	return (PyObject *)ret;

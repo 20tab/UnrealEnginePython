@@ -1,6 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-static PyObject *py_ue_flinearcolor_to_fcolor(ue_PyFLinearColor *self, PyObject * args) {
+static PyObject *py_ue_flinearcolor_to_fcolor(ue_PyFLinearColor *self, PyObject * args)
+{
 	PyObject *py_srgb = nullptr;
 	if (!PyArg_ParseTuple(args, "|O:to_fcolor", &py_srgb))
 		return NULL;
@@ -15,12 +16,15 @@ static PyMethodDef ue_PyFLinearColor_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static PyObject *py_ue_flinearcolor_get_r(ue_PyFLinearColor *self, void *closure) {
+static PyObject *py_ue_flinearcolor_get_r(ue_PyFLinearColor *self, void *closure)
+{
 	return PyFloat_FromDouble(self->color.R);
 }
 
-static int py_ue_flinearcolor_set_r(ue_PyFLinearColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_flinearcolor_set_r(ue_PyFLinearColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Float(value);
 		self->color.R = PyFloat_AsDouble(l_value);
 		Py_DECREF(l_value);
@@ -30,12 +34,15 @@ static int py_ue_flinearcolor_set_r(ue_PyFLinearColor *self, PyObject *value, vo
 	return -1;
 }
 
-static PyObject *py_ue_flinearcolor_get_g(ue_PyFLinearColor *self, void *closure) {
+static PyObject *py_ue_flinearcolor_get_g(ue_PyFLinearColor *self, void *closure)
+{
 	return PyFloat_FromDouble(self->color.G);
 }
 
-static int py_ue_flinearcolor_set_g(ue_PyFLinearColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_flinearcolor_set_g(ue_PyFLinearColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Float(value);
 		self->color.G = PyFloat_AsDouble(l_value);
 		Py_DECREF(l_value);
@@ -45,12 +52,15 @@ static int py_ue_flinearcolor_set_g(ue_PyFLinearColor *self, PyObject *value, vo
 	return -1;
 }
 
-static PyObject *py_ue_flinearcolor_get_b(ue_PyFLinearColor *self, void *closure) {
+static PyObject *py_ue_flinearcolor_get_b(ue_PyFLinearColor *self, void *closure)
+{
 	return PyFloat_FromDouble(self->color.B);
 }
 
-static int py_ue_flinearcolor_set_b(ue_PyFLinearColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_flinearcolor_set_b(ue_PyFLinearColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Float(value);
 		self->color.B = PyFloat_AsDouble(l_value);
 		Py_DECREF(l_value);
@@ -60,12 +70,15 @@ static int py_ue_flinearcolor_set_b(ue_PyFLinearColor *self, PyObject *value, vo
 	return -1;
 }
 
-static PyObject *py_ue_flinearcolor_get_a(ue_PyFLinearColor *self, void *closure) {
+static PyObject *py_ue_flinearcolor_get_a(ue_PyFLinearColor *self, void *closure)
+{
 	return PyFloat_FromDouble(self->color.A);
 }
 
-static int py_ue_flinearcolor_set_a(ue_PyFLinearColor *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_flinearcolor_set_a(ue_PyFLinearColor *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Float(value);
 		self->color.A = PyFloat_AsDouble(l_value);
 		Py_DECREF(l_value);
@@ -127,13 +140,16 @@ static PyTypeObject ue_PyFLinearColorType = {
 };
 
 
-static PyObject *ue_py_flinearcolor_add(ue_PyFLinearColor *self, PyObject *value) {
+static PyObject *ue_py_flinearcolor_add(ue_PyFLinearColor *self, PyObject *value)
+{
 	FLinearColor color = self->color;
 	ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(value);
-	if (py_color) {
+	if (py_color)
+	{
 		color += py_color->color;
 	}
-	else if (PyNumber_Check(value)) {
+	else if (PyNumber_Check(value))
+	{
 		PyObject *l_value = PyNumber_Float(value);
 		long l = PyFloat_AsDouble(l_value);
 		color.R += l;
@@ -147,12 +163,15 @@ static PyObject *ue_py_flinearcolor_add(ue_PyFLinearColor *self, PyObject *value
 
 PyNumberMethods ue_PyFLinearColor_number_methods;
 
-static Py_ssize_t ue_py_flinearcolor_seq_length(ue_PyFLinearColor *self) {
+static Py_ssize_t ue_py_flinearcolor_seq_length(ue_PyFLinearColor *self)
+{
 	return 4;
 }
 
-static PyObject *ue_py_flinearcolor_seq_item(ue_PyFLinearColor *self, Py_ssize_t i) {
-	switch (i) {
+static PyObject *ue_py_flinearcolor_seq_item(ue_PyFLinearColor *self, Py_ssize_t i)
+{
+	switch (i)
+	{
 	case 0:
 		return PyFloat_FromDouble(self->color.R);
 	case 1:
@@ -167,7 +186,8 @@ static PyObject *ue_py_flinearcolor_seq_item(ue_PyFLinearColor *self, Py_ssize_t
 
 PySequenceMethods ue_PyFLinearColor_sequence_methods;
 
-static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyObject *kwargs)
+{
 	float r = 0;
 	float g = 0;
 	float b = 0;
@@ -175,7 +195,8 @@ static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyOb
 	if (!PyArg_ParseTuple(args, "|ffff", &r, &g, &b, &a))
 		return -1;
 
-	if (PyTuple_Size(args) == 1) {
+	if (PyTuple_Size(args) == 1)
+	{
 		g = a;
 		b = a;
 	}
@@ -187,14 +208,16 @@ static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyOb
 	return 0;
 }
 
-static void flinearcolor_add_color(const char *color_name, FLinearColor lcolor) {
+static void flinearcolor_add_color(const char *color_name, FLinearColor lcolor)
+{
 	PyObject *color = py_ue_new_flinearcolor(lcolor);
 	// not required
 	Py_INCREF(color);
 	PyDict_SetItemString(ue_PyFLinearColorType.tp_dict, color_name, color);
 }
 
-void ue_python_init_flinearcolor(PyObject *ue_module) {
+void ue_python_init_flinearcolor(PyObject *ue_module)
+{
 	ue_PyFLinearColorType.tp_new = PyType_GenericNew;
 
 	ue_PyFLinearColorType.tp_init = (initproc)ue_py_flinearcolor_init;
@@ -223,24 +246,48 @@ void ue_python_init_flinearcolor(PyObject *ue_module) {
 	flinearcolor_add_color("Yellow", FLinearColor::Yellow);
 }
 
-PyObject *py_ue_new_flinearcolor(FLinearColor color) {
+PyObject *py_ue_new_flinearcolor(FLinearColor color)
+{
 	ue_PyFLinearColor *ret = (ue_PyFLinearColor *)PyObject_New(ue_PyFLinearColor, &ue_PyFLinearColorType);
 	ret->color = color;
 	return (PyObject *)ret;
 }
 
-ue_PyFLinearColor *py_ue_is_flinearcolor(PyObject *obj) {
+ue_PyFLinearColor *py_ue_is_flinearcolor(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFLinearColorType))
 		return nullptr;
 	return (ue_PyFLinearColor *)obj;
 }
 
-bool py_ue_color_arg(PyObject *args, FLinearColor &color) {
+bool py_ue_get_flinearcolor(PyObject *obj, FLinearColor &color)
+{
 
-	if (PyTuple_Size(args) == 1) {
+	if (ue_PyFLinearColor *py_flinearcolor = py_ue_is_flinearcolor(obj))
+	{
+		color = py_flinearcolor->color;
+		return true;
+	}
+
+	if (ue_PyFColor *py_fcolor = py_ue_is_fcolor(obj))
+	{
+		color = py_fcolor->color;
+		return true;
+	}
+
+
+	return false;
+}
+
+bool py_ue_color_arg(PyObject *args, FLinearColor &color)
+{
+
+	if (PyTuple_Size(args) == 1)
+	{
 		PyObject *arg = PyTuple_GetItem(args, 0);
 		ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(arg);
-		if (!py_color) {
+		if (!py_color)
+		{
 			PyErr_Format(PyExc_TypeError, "argument is not a FLinearColor");
 			return false;
 		}
