@@ -851,6 +851,7 @@ public:
 
 	void MenuPyBuilder(FMenuBuilder &Builder)
 	{
+		FScopePythonGIL gil;
 		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_fmenu_builder(Builder));
 		if (!ret)
 		{
@@ -868,6 +869,7 @@ public:
 
 	void ToolBarBuilder(FToolBarBuilder &Builder)
 	{
+		FScopePythonGIL gil;
 		PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_ftool_bar_builder(Builder));
 		if (!ret)
 		{
