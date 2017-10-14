@@ -584,6 +584,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "bind_pressed_key", (PyCFunction)py_ue_bind_pressed_key, METH_VARARGS, "" },
 	{ "bind_released_key", (PyCFunction)py_ue_bind_released_key, METH_VARARGS, "" },
 
+	{ "input_key", (PyCFunction)py_ue_input_key, METH_VARARGS, "" },
+	{ "input_axis", (PyCFunction)py_ue_input_axis, METH_VARARGS, "" },
+
 	// HUD
 	{ "hud_draw_2d_line", (PyCFunction)py_ue_hud_draw_2d_line, METH_VARARGS, "" },
 	{ "hud_draw_line", (PyCFunction)py_ue_hud_draw_line, METH_VARARGS, "" },

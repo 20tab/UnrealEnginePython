@@ -22,4 +22,7 @@ PyObject *py_ue_bind_key(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_pressed_key(ue_PyUObject *, PyObject *);
 PyObject *py_ue_bind_released_key(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_input_key(ue_PyUObject *, PyObject *);
+PyObject *py_ue_input_axis(ue_PyUObject *, PyObject *);
+
 PyObject *py_unreal_engine_get_engine_defined_action_mappings(PyObject *, PyObject *);
