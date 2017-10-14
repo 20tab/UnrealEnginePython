@@ -2239,8 +2239,6 @@ PyObject *py_unreal_engine_register_settings(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_unregister_settings(PyObject * self, PyObject * args)
 {
-
-
 	char *container_name;
 	char *category_name;
 	char *section_name;
@@ -2260,6 +2258,17 @@ PyObject *py_unreal_engine_unregister_settings(PyObject * self, PyObject * args)
 	}
 
 	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_all_viewport_clients(PyObject * self, PyObject * args)
+{
+	TArray<FEditorViewportClient *> clients = GEditor->AllViewportClients;
+	PyObject *py_list = PyList_New(0);
+	for (FEditorViewportClient *client : clients)
+	{
+		PyList_Append(py_list, py_ue_new_feditor_viewport_client(TSharedRef<FEditorViewportClient>(client)));
+	}
+	return py_list;
 }
 #endif
 

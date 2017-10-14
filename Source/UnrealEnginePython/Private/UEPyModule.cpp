@@ -309,6 +309,9 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "engine_tick", py_unreal_engine_engine_tick, METH_VARARGS, "" },
+#if WITH_EDITOR
+	{ "all_viewport_clients", py_unreal_engine_all_viewport_clients , METH_VARARGS, "" },
+#endif
 	{ "slate_tick", py_unreal_engine_slate_tick, METH_VARARGS, "" },
 	{ "get_delta_time", py_unreal_engine_get_delta_time, METH_VARARGS, "" },
 
@@ -1849,6 +1852,11 @@ void unreal_engine_init_py_module()
 
 	ue_python_init_fobject_thumbnail(new_unreal_engine_module);
 
+	ue_python_init_fviewport_client(new_unreal_engine_module);
+#if WITH_EDITOR
+	ue_python_init_feditor_viewport_client(new_unreal_engine_module);
+#endif
+
 	ue_python_init_fpython_output_device(new_unreal_engine_module);
 
 	ue_python_init_ftimerhandle(new_unreal_engine_module);
@@ -2023,7 +2031,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2078,7 +2086,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
@@ -2953,9 +2961,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-	}
+		}
 #endif
-}
+	}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 

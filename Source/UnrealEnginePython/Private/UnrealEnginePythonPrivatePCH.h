@@ -47,6 +47,11 @@
 #include "Wrappers/UEPyFMorphTargetDelta.h"
 #include "Wrappers/UEPyFObjectThumbnail.h"
 
+#include "Wrappers/UEPyFViewportClient.h"
+#if WITH_EDITOR
+#include "Wrappers/UEPyFEditorViewportClient.h"
+#endif
+
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
 #include "UEPyEnumsImporter.h"
