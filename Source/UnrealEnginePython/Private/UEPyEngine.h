@@ -69,6 +69,8 @@ PyObject *py_unreal_engine_open_font_dialog(PyObject *, PyObject *);
 PyObject *py_unreal_engine_open_directory_dialog(PyObject *, PyObject *);
 PyObject *py_unreal_engine_save_file_dialog(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_copy_properties_for_unrelated_objects(PyObject *, PyObject *, PyObject *);
+
 #if WITH_EDITOR
 PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_get_pie_viewport_screenshot(PyObject *, PyObject *);

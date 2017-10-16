@@ -374,6 +374,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
 #endif
 
+#pragma warning(suppress: 4191)
+	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
+
 
 	{ NULL, NULL },
 };
@@ -926,7 +929,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self)
 #endif
 			py_delegate->RemoveFromRoot();
 		}
-	}
+}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -1022,9 +1025,9 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 #else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
-						}
 					}
 				}
+			}
 #endif
 				if (self->ue_object->IsA<UEnum>())
 				{
@@ -1036,7 +1039,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
 				}
-			}
+		}
 
 			if (function)
 			{
@@ -1044,8 +1047,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
-		}
 	}
+}
 	return ret;
 }
 
@@ -2034,7 +2037,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-	}
+}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2964,9 +2967,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-		}
-#endif
 	}
+#endif
+}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 

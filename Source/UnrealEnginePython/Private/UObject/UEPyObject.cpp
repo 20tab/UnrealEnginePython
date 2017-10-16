@@ -99,7 +99,7 @@ PyObject *py_ue_class_get_config_name(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
-	
+
 	UClass *u_class = ue_py_check_type<UClass>(self);
 	if (!u_class)
 		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");

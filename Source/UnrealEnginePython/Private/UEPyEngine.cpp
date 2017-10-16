@@ -1160,3 +1160,70 @@ PyObject *py_unreal_engine_save_file_dialog(PyObject *self, PyObject * args)
 	}
 	return py_list;
 }
+
+
+PyObject *py_unreal_engine_copy_properties_for_unrelated_objects(PyObject * self, PyObject * args, PyObject *kwargs)
+{
+
+	PyObject *old_py_object;
+	PyObject *new_py_object;
+
+	PyObject *py_aggressive_default_subobject_replacement = nullptr;
+	PyObject *py_copy_deprecated_properties = nullptr;
+	PyObject *py_do_delta = nullptr;
+	PyObject *py_notify_object_replacement = nullptr;
+	PyObject *py_preserve_root_component = nullptr;
+	PyObject *py_replace_object_class_references = nullptr;
+	PyObject *py_skip_compiler_generated_defaults = nullptr;
+
+	static char *kw_names[] = {
+		(char *)"old_object",
+		(char *)"new_object",
+		(char *)"aggressive_default_subobject_replacement",
+		(char *)"copy_deprecated_properties",
+		(char *)"do_delta",
+		(char *)"notify_object_replacement",
+		(char *)"preserve_root_component",
+		(char *)"replace_object_class_references",
+		(char *)"skip_compiler_generated_defaults",
+		nullptr
+	};
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|OOOOOOO:copy_properties_for_unrelated_objects", kw_names,
+		&old_py_object,
+		&new_py_object,
+		&py_aggressive_default_subobject_replacement,
+		&py_copy_deprecated_properties,
+		&py_do_delta,
+		&py_notify_object_replacement,
+		&py_preserve_root_component,
+		&py_replace_object_class_references,
+		&py_skip_compiler_generated_defaults))
+	{
+		return nullptr;
+	}
+
+	UObject *old_object = ue_py_check_type<UObject>(old_py_object);
+	if (!old_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	UObject *new_object = ue_py_check_type<UObject>(new_py_object);
+	if (!new_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	UEngine::FCopyPropertiesForUnrelatedObjectsParams params;
+	params.bAggressiveDefaultSubobjectReplacement = (py_aggressive_default_subobject_replacement && PyObject_IsTrue(py_aggressive_default_subobject_replacement));
+	params.bCopyDeprecatedProperties = (py_copy_deprecated_properties && PyObject_IsTrue(py_copy_deprecated_properties));
+	params.bDoDelta = (py_do_delta && PyObject_IsTrue(py_do_delta));
+	params.bNotifyObjectReplacement = (py_notify_object_replacement && PyObject_IsTrue(py_notify_object_replacement));
+	params.bPreserveRootComponent = (py_preserve_root_component && PyObject_IsTrue(py_preserve_root_component));
+	params.bReplaceObjectClassReferences = (py_replace_object_class_references && PyObject_IsTrue(py_replace_object_class_references));
+	params.bSkipCompilerGeneratedDefaults = (py_skip_compiler_generated_defaults && PyObject_IsTrue(py_skip_compiler_generated_defaults));
+
+	GEngine->CopyPropertiesForUnrelatedObjects(
+		old_object,
+		new_object,
+		params);
+
+	Py_RETURN_NONE;
+}
