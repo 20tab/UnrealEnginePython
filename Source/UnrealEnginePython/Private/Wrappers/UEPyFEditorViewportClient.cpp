@@ -26,9 +26,74 @@ static PyObject *py_ue_feditor_viewport_client_tick(ue_PyFEditorViewportClient *
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_feditor_viewport_client_get_look_at_location(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	return py_ue_new_fvector(self->editor_viewport_client->GetLookAtLocation());
+}
+
+static PyObject *py_ue_feditor_viewport_client_get_view_location(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	return py_ue_new_fvector(self->editor_viewport_client->GetViewLocation());
+}
+
+static PyObject *py_ue_feditor_viewport_client_get_camera_speed(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	return PyFloat_FromDouble(self->editor_viewport_client->GetCameraSpeed());
+}
+
+static PyObject *py_ue_feditor_viewport_client_get_viewport_dimensions(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	FIntPoint origin;
+	FIntPoint size;
+	self->editor_viewport_client->GetViewportDimensions(origin, size);
+	return Py_BuildValue((char *)"(ii)(ii)", origin.X, origin.Y, size.X, size.Y);
+}
+
+static PyObject *py_ue_feditor_viewport_client_is_visible(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	if (self->editor_viewport_client->IsVisible())
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
+static PyObject *py_ue_feditor_viewport_client_get_scene_depth_at_location(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	int x;
+	int y;
+	if (!PyArg_ParseTuple(args, "ii:get_scene_depth_at_location", &x, &y))
+		return nullptr;
+	return PyFloat_FromDouble(self->editor_viewport_client->GetSceneDepthAtLocation(x, y));
+}
+
+static PyObject *py_ue_feditor_viewport_client_set_look_at_location(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	FVector vec;
+	if (!py_ue_vector_arg(args, vec))
+		return PyErr_Format(PyExc_Exception, "argument is not a FVector");
+	self->editor_viewport_client->SetLookAtLocation(vec);
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_feditor_viewport_client_set_view_location(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	FVector vec;
+	if (!py_ue_vector_arg(args, vec))
+		return PyErr_Format(PyExc_Exception, "argument is not a FVector");
+	self->editor_viewport_client->SetViewLocation(vec);
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyFEditorViewportClient_methods[] = {
 	{ "take_high_res_screen_shot", (PyCFunction)py_ue_feditor_viewport_client_take_high_res_screen_shot, METH_VARARGS, "" },
 	{ "tick", (PyCFunction)py_ue_feditor_viewport_client_tick, METH_VARARGS, "" },
+	{ "get_look_at_location", (PyCFunction)py_ue_feditor_viewport_client_get_look_at_location, METH_VARARGS, "" },
+	{ "get_view_location", (PyCFunction)py_ue_feditor_viewport_client_get_view_location, METH_VARARGS, "" },
+	{ "get_camera_speed", (PyCFunction)py_ue_feditor_viewport_client_get_camera_speed, METH_VARARGS, "" },
+	{ "get_viewport_dimensions", (PyCFunction)py_ue_feditor_viewport_client_get_viewport_dimensions, METH_VARARGS, "" },
+	{ "is_visible", (PyCFunction)py_ue_feditor_viewport_client_is_visible, METH_VARARGS, "" },
+	{ "get_scene_depth_at_location", (PyCFunction)py_ue_feditor_viewport_client_get_scene_depth_at_location, METH_VARARGS, "" },
+	{ "set_look_at_location", (PyCFunction)py_ue_feditor_viewport_client_set_look_at_location, METH_VARARGS, "" },
+	{ "set_view_location", (PyCFunction)py_ue_feditor_viewport_client_set_view_location, METH_VARARGS, "" },
 	{ nullptr }  /* Sentinel */
 };
 
