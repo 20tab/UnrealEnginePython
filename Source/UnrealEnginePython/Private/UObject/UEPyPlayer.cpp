@@ -211,3 +211,27 @@ PyObject *py_ue_get_num_spectators(ue_PyUObject *self, PyObject * args)
 #endif
 }
 
+PyObject *py_ue_restart_level(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int controller_id = 0;
+	if (!PyArg_ParseTuple(args, "|i:restart_level", &controller_id))
+	{
+		return NULL;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	APlayerController *controller = UGameplayStatics::GetPlayerController(world, controller_id);
+	if (!controller)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve controller %d", controller_id);
+
+	controller->RestartLevel();
+
+	Py_RETURN_NONE;
+}
+

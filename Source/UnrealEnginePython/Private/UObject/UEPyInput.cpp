@@ -428,7 +428,7 @@ PyObject *py_ue_bind_axis(ue_PyUObject *self, PyObject * args)
 
 	char *axis_name;
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "sO:bind_action", &axis_name, &py_callable))
+	if (!PyArg_ParseTuple(args, "sO:bind_axis", &axis_name, &py_callable))
 	{
 		return NULL;
 	}

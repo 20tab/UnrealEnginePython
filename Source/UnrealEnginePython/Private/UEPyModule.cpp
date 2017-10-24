@@ -752,6 +752,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_player_hud", (PyCFunction)py_ue_set_player_hud, METH_VARARGS, "" },
 	{ "get_player_camera_manager", (PyCFunction)py_ue_get_player_camera_manager, METH_VARARGS, "" },
 	{ "get_player_pawn", (PyCFunction)py_ue_get_player_pawn, METH_VARARGS, "" },
+	{ "restart_level", (PyCFunction)py_ue_restart_level, METH_VARARGS, "" },
 
 	{ "get_overlapping_actors", (PyCFunction)py_ue_get_overlapping_actors, METH_VARARGS, "" },
 	{ "actor_set_level_sequence", (PyCFunction)py_ue_actor_set_level_sequence, METH_VARARGS, "" },
