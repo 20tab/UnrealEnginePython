@@ -24,16 +24,6 @@ public class UnrealEnginePython : ModuleRules
         "C:/IntelPython35"
     };
 
-    private string[] macKnownPaths =
-    {
-        "/Library/Frameworks/Python.framework/Versions/3.6",
-        "/Library/Frameworks/Python.framework/Versions/3.5",
-        "/Library/Frameworks/Python.framework/Versions/2.7",
-        "/System/Library/Frameworks/Python.framework/Versions/3.6",
-        "/System/Library/Frameworks/Python.framework/Versions/3.5",
-        "/System/Library/Frameworks/Python.framework/Versions/2.7"
-    };
-
     private string[] linuxKnownIncludesPaths =
     {
         "/usr/local/include/python3.6",
