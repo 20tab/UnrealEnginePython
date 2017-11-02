@@ -66,3 +66,13 @@ create a new static collections given a name and a type
 ### create_dynamic_collection(name, ECollectionShareType)
 
 create a new dynamic collections given a name and a type
+
+### create_collection(name, ECollectionShareType, ECollectionStorageMode)
+
+create a new dynamic collections given a name, a type and a storage mode
+
+### reparent_collection(name, ECollectionShareType, new_name, ECollectionShareType)
+
+move the 'name' collection to the 'new_name' parent
+
+
