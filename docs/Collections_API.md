@@ -6,7 +6,11 @@ The ICollectionManager class exposes methods to manage the assets collections:
 from unreal_engine import ICollectionManager
 
 print(ICollectionManager.get_collections())
+# 1 means ECollectionShareType::CST_Local
+print(ICollectionManager.get_child_collections('FooBar', 1))
 ```
+
+Collections can be 'static' (they contain references to assets) or 'dynamic' (they apply a search string to get a list of assets)
 
 The api expects knowledge of a bunch of enums mapped as int:
 
@@ -55,3 +59,10 @@ returns the names of root collections as a python list of strings
 
 returns the names of collections as a python list of strings
 
+### create_static_collection(name, ECollectionShareType)
+
+create a new static collections given a name and a type
+
+### create_dynamic_collection(name, ECollectionShareType)
+
+create a new dynamic collections given a name and a type
