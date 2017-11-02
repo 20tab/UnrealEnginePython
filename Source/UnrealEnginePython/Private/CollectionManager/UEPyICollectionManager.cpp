@@ -69,12 +69,35 @@ static PyObject *py_ue_icollection_manager_reparent_collection(PyObject *cls, Py
 	Py_RETURN_FALSE;
 }
 
+static PyObject *py_ue_icollection_manager_rename_collection(PyObject *cls, PyObject * args)
+{
+	char *name;
+	int type;
+	char *new_name;
+	int new_type;
+
+	if (!PyArg_ParseTuple(args, "sisi", &name, &type, &new_name, &new_type))
+		return nullptr;
+
+	ICollectionManager &CollectionManager = FCollectionManagerModule::GetModule().Get();
+
+	if (CollectionManager.RenameCollection(
+		FName(UTF8_TO_TCHAR(name)),
+		(ECollectionShareType::Type)type,
+		FName(UTF8_TO_TCHAR(new_name)),
+		(ECollectionShareType::Type)new_type
+	))
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
 
 static PyMethodDef ue_PyICollectionManager_methods[] = {
 	{ "get_collections", (PyCFunction)py_ue_icollection_manager_get_collections, METH_VARARGS | METH_CLASS, "" },
 	{ "create_static_collection", (PyCFunction)py_ue_icollection_manager_create_static_collection, METH_VARARGS | METH_CLASS, "" },
 	{ "create_dynamic_collection", (PyCFunction)py_ue_icollection_manager_create_dynamic_collection, METH_VARARGS | METH_CLASS, "" },
 	{ "reparent_collection", (PyCFunction)py_ue_icollection_manager_reparent_collection, METH_VARARGS | METH_CLASS, "" },
+	{ "rename_collection", (PyCFunction)py_ue_icollection_manager_rename_collection, METH_VARARGS | METH_CLASS, "" },
 	{ NULL }  /* Sentinel */
 };
 
