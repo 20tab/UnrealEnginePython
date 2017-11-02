@@ -67,6 +67,7 @@
 #include "UObject/UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
+#include "CollectionManager/UEPyICollectionManager.h"
 #endif
 
 #include "Slate/UEPySlate.h"

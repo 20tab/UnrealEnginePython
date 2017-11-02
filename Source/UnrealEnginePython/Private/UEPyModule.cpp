@@ -1905,6 +1905,10 @@ void unreal_engine_init_py_module()
 
 	ue_python_init_iconsole_manager(new_unreal_engine_module);
 
+#if WITH_EDITOR
+	ue_python_init_icollection_manager(new_unreal_engine_module);
+#endif
+
 	ue_python_init_ivoice_capture(new_unreal_engine_module);
 
 	PyObject *py_sys = PyImport_ImportModule("sys");

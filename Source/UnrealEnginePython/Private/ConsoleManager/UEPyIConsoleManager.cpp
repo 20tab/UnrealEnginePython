@@ -636,7 +636,7 @@ static PyTypeObject ue_PyIConsoleManagerType = {
 
 static int py_ue_iconsole_manager_init(ue_PyIConsoleManager *self, PyObject * args)
 {
-	PyErr_SetString(PyExc_Exception, "IConsoleManage is a singleton");
+	PyErr_SetString(PyExc_Exception, "IConsoleManager is a singleton");
 	return -1;
 }
 
