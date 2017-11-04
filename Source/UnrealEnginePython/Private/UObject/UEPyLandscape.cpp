@@ -63,7 +63,7 @@ PyObject *py_ue_landscape_import(ue_PyUObject *self, PyObject * args)
 	int size_y = component_y * quads_per_component + 1;
 
 	if (heightmap_buffer.len < (Py_ssize_t)(size_x * size_y * sizeof(uint16)))
-		return PyErr_Format(PyExc_Exception, "not enough heightmap data, expecting %d bytes", size_x * size_y * sizeof(uint16));
+		return PyErr_Format(PyExc_Exception, "not enough heightmap data, expecting %lu bytes", size_x * size_y * sizeof(uint16));
 
 	uint16 *data = (uint16 *)heightmap_buffer.buf;
 
