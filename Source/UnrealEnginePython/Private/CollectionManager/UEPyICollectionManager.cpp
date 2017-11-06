@@ -463,7 +463,7 @@ static PyMethodDef ue_PyICollectionManager_methods[] = {
 	{ "rename_collection", (PyCFunction)py_ue_icollection_manager_rename_collection, METH_VARARGS | METH_CLASS, "" },
 	{ "add_to_collection", (PyCFunction)py_ue_icollection_manager_add_to_collection, METH_VARARGS | METH_CLASS, "" },
 	{ "collection_exists", (PyCFunction)py_ue_icollection_manager_collection_exists, METH_VARARGS | METH_CLASS, "" },
-	{ "create_unique_connection_name", (PyCFunction)py_ue_icollection_manager_create_unique_collection_name, METH_VARARGS | METH_CLASS, "" },
+	{ "create_unique_collection_name", (PyCFunction)py_ue_icollection_manager_create_unique_collection_name, METH_VARARGS | METH_CLASS, "" },
 	{ "destroy_collection", (PyCFunction)py_ue_icollection_manager_destroy_collection, METH_VARARGS | METH_CLASS, "" },
 	{ "empty_collection", (PyCFunction)py_ue_icollection_manager_empty_collection, METH_VARARGS | METH_CLASS, "" },
 	{ "get_dynamic_query_text", (PyCFunction)py_ue_icollection_manager_get_dynamic_query_text, METH_VARARGS | METH_CLASS, "" },
