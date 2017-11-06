@@ -75,4 +75,54 @@ create a new dynamic collections given a name, a type and a storage mode
 
 move the 'name' collection to the 'new_name' parent
 
+### add_to_collection(name, ECollectionShareType, objectPath)
 
+add an asset to a static collection using asset's path
+
+### collection_exists(name, ECollectionShareType)
+
+Returns true if a collection already exists
+
+### create_unique_collection_name(name, ECollectionShareType)
+
+returns a string with a unique collection name
+
+### destroy_collection(name, ECollectionShareType)
+
+deletes an existing collection and returns true on success and false on failure
+
+### empty_collection(name, ECollectionShareType)
+
+removes all the existing assets from a collection. Returns true on success and false on failure
+
+### get_dynamic_query_text(name, ECollectionShareType)
+
+returns the search text from a dynamic collection. If you use it on a static collection you will get an error
+
+### set_dynamic_query_text(name, ECollectionShareType, searchText)
+
+sets the search text to a dynamic collection. Returns true on success and false on failure
+
+### remove_from_collection(name, ECollectionShareType, objectPath)
+
+removes an asset from a static collection using asset's path. Returns true on success and false on failure
+
+### get_assets_in_collection(name, ECollectionShareType, recursion(optional))
+
+returns a list with all the asset paths. There is a third optional parameter for recursion. Default value is 1. This function works only with static collections
+
+### get_objects_in_collection(name, ECollectionShareType, recursion(optional))
+
+returns a list with all the object paths. There is a third optional parameter for recursion. Default value is 1. This function works only with static collections
+
+### get_classes_in_collection(name, ECollectionShareType, recursion(optional))
+
+returns a list with all the Classes. There is a third optional parameter for recursion. Default value is 1. This function works only with static collections
+
+### get_parent_collection(name, ECollectionShareType)
+
+returns the parent collection. If the collection has no parent, it returns None.
+
+### has_collections()
+
+returns True or False if the project has or doesn't have any collections.
