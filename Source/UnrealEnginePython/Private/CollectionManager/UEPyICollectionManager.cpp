@@ -59,8 +59,8 @@ static PyObject *py_ue_icollection_manager_get_child_collection_names(PyObject *
 	ICollectionManager &CollectionManager = FCollectionManagerModule::GetModule().Get();
 	TArray<FName> names;
 	CollectionManager.GetChildCollectionNames(FName(UTF8_TO_TCHAR(name)), (ECollectionShareType::Type)type, (ECollectionShareType::Type)child_type, names);
-	for (FName name : names) {
-		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString())));
+	for (FName cname : names) {
+		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*cname.ToString())));
 	}
 	return py_list;
 }
