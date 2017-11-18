@@ -157,7 +157,7 @@ static PyTypeObject ue_PyFToolBarBuilderType = {
 };
 
 static int ue_py_ftool_bar_builder_init(ue_PyFToolBarBuilder *self, PyObject *args, PyObject *kwargs) {
-    self->tool_bar_builder = FToolBarBuilder(nullptr, FMultiBoxCustomization::None);
+    new(&self->tool_bar_builder) FToolBarBuilder(TSharedPtr<FUICommandList>(), FMultiBoxCustomization::None);
 	return 0;
 }
 
