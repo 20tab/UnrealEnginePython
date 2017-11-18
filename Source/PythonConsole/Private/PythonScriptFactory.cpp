@@ -5,7 +5,9 @@
 
 UPythonScriptFactory::UPythonScriptFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
 
+#if !WITH_KNL_PYEXT
 	Formats.Add(FString("py;Python Script"));
+#endif
 
 	bCreateNew = false;
 	bEditAfterNew = true;

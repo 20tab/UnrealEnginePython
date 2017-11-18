@@ -168,8 +168,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
 
 	{ "get_content_dir", py_unreal_engine_get_content_dir, METH_VARARGS, "" },
-    { "get_game_saved_dir", py_unreal_engine_get_game_saved_dir, METH_VARARGS, "" },
-    { "get_game_user_developer_dir", py_unreal_engine_get_game_user_developer_dir, METH_VARARGS, "" },
+	{ "get_game_saved_dir", py_unreal_engine_get_game_saved_dir, METH_VARARGS, "" },
+	{ "get_game_user_developer_dir", py_unreal_engine_get_game_user_developer_dir, METH_VARARGS, "" },
 	{ "convert_relative_path_to_full", py_unreal_engine_convert_relative_path_to_full, METH_VARARGS, "" },
 
 	{ "get_path", py_unreal_engine_get_path, METH_VARARGS, "" },
@@ -310,7 +310,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_mutable_default", py_unreal_engine_get_mutable_default, METH_VARARGS, "" },
 
 	{ "all_classes", (PyCFunction)py_unreal_engine_all_classes, METH_VARARGS, "" },
-
+	{ "all_worlds", (PyCFunction)py_unreal_engine_all_worlds, METH_VARARGS, "" },
+	{ "tobject_iterator", (PyCFunction)py_unreal_engine_tobject_iterator, METH_VARARGS, "" },
 
 	{ "new_class", py_unreal_engine_new_class, METH_VARARGS, "" },
 
@@ -358,6 +359,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_take_high_res_screen_shots", py_unreal_engine_editor_take_high_res_screen_shots, METH_VARARGS, "" },
 #endif
 
+#pragma warning(suppress: 4191)
+	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
 
 	{ NULL, NULL },
 };
@@ -2335,10 +2338,24 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 			Py_DECREF(py_long);
 			return true;
 		}
+		if (auto casted_prop = Cast<UUInt32Property>(prop))
+		{
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
 		if (auto casted_prop = Cast<UInt64Property>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLongLong(py_long));
+			Py_DECREF(py_long);
+			return true;
+		}
+		if (auto casted_prop = Cast<UUInt64Property>(prop))
+		{
+			PyObject *py_long = PyNumber_Long(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLongLong(py_long));
 			Py_DECREF(py_long);
 			return true;
 		}
@@ -2861,6 +2878,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		}
 	}
 
+    //TODO: rdeioris: Should assert warn if u_funciton->ParmsSize != u_function->PropertiesSize bc it overflowed
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 	FMemory::Memzero(buffer, u_function->ParmsSize);
 
@@ -2869,7 +2887,11 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 	for (; IArgs && (IArgs->PropertyFlags & CPF_Parm); ++IArgs)
 	{
 		UProperty *prop = *IArgs;
-		prop->InitializeValue_InContainer(buffer);
+		if (!prop->HasAnyPropertyFlags(CPF_ZeroConstructor))
+		{
+			prop->InitializeValue_InContainer(buffer);
+		}
+
 #if WITH_EDITOR
 		FString default_key = FString("CPP_Default_") + prop->GetName();
 		FString default_key_value = u_function->GetMetaData(FName(*default_key));
@@ -2882,6 +2904,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #endif
 		}
 #endif
+
 	}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);

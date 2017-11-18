@@ -507,6 +507,68 @@ static PyObject *py_ue_iconsole_manager_register_variable_float(PyObject *cls, P
 	Py_RETURN_NONE;
 }
 
+void UPythonConsoleDelegate::OnConsoleCommand(const TArray < FString > & InArgs)
+{
+	FScopePythonGIL gil;
+
+	PyObject *ret = nullptr;
+	if (InArgs.Num() == 0)
+	{
+		ret = PyObject_CallFunction(py_callable, nullptr);
+	}
+	else
+	{
+		PyObject *py_args = PyTuple_New(InArgs.Num());
+		for (int32 i = 0; i < InArgs.Num(); i++)
+		{
+			PyTuple_SetItem(py_args, i, PyUnicode_FromString(TCHAR_TO_UTF8(*InArgs[i])));
+		}
+		ret = PyObject_CallObject(py_callable, py_args);
+		Py_DECREF(py_args);
+	}
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
+static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject * args)
+{
+	char *key;
+	PyObject *py_callable;
+	char *help = nullptr;
+	if (!PyArg_ParseTuple(args, "sO|s:register_command", &key, &py_callable, &help))
+	{
+		return nullptr;
+	}
+
+	if (!PyCallable_Check(py_callable))
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	IConsoleObject *c_object = IConsoleManager::Get().FindConsoleObject(UTF8_TO_TCHAR(key));
+	if (c_object)
+	{
+		return PyErr_Format(PyExc_Exception, "console object \"%s\" already exists", key);
+	}
+
+	UPythonConsoleDelegate *py_delegate = NewObject<UPythonConsoleDelegate>();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->AddToRoot();
+	FConsoleCommandWithArgsDelegate console_delegate;
+	console_delegate.BindUObject(py_delegate, &UPythonConsoleDelegate::OnConsoleCommand);
+
+	if (!IConsoleManager::Get().RegisterConsoleCommand(UTF8_TO_TCHAR(key), help ? UTF8_TO_TCHAR(help) : UTF8_TO_TCHAR(key), console_delegate, 0))
+	{
+		return PyErr_Format(PyExc_Exception, "unable to register console command \"%s\"", key);
+	}
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyIConsoleManager_methods[] = {
 	{ "get_history", (PyCFunction)py_ue_iconsole_manager_get_history, METH_VARARGS | METH_CLASS, "" },
 	{ "add_history_entry", (PyCFunction)py_ue_iconsole_manager_add_history_entry, METH_VARARGS | METH_CLASS, "" },
@@ -533,6 +595,7 @@ static PyMethodDef ue_PyIConsoleManager_methods[] = {
 	{ "register_variable_string", (PyCFunction)py_ue_iconsole_manager_register_variable_string, METH_VARARGS | METH_CLASS, "" },
 	{ "register_variable_int", (PyCFunction)py_ue_iconsole_manager_register_variable_int, METH_VARARGS | METH_CLASS, "" },
 	{ "register_variable_float", (PyCFunction)py_ue_iconsole_manager_register_variable_float, METH_VARARGS | METH_CLASS, "" },
+	{ "register_command", (PyCFunction)py_ue_iconsole_manager_register_command, METH_VARARGS | METH_CLASS, "" },
 	{ NULL }  /* Sentinel */
 };
 

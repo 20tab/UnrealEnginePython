@@ -1,14 +1,26 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "PyUserWidget.h"
+#include "PyNativeWidgetHost.h"
 
 #include "PythonDelegate.h"
 
 #include "Slate/UEPyFGeometry.h"
 #include "Slate/UEPyFPaintContext.h"
 
+#include "Widgets/Layout/SBox.h"
+#include "UMGStyle.h"
+#include "Runtime/UMG/Public/Blueprint/WidgetTree.h"
+
 void UPyUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+    WidgetTree->ForEachWidget([&](UWidget* Widget) {
+        if (Widget->IsA<UPyNativeWidgetHost>())
+        {
+            PyNativeWidgetHost = Cast<UPyNativeWidgetHost>(Widget);
+        }
+    });
 
 	if (PythonModule.IsEmpty())
 		return;
@@ -62,7 +74,7 @@ void UPyUserWidget::NativeConstruct()
 
 	if (PythonPaintForceDisabled)
 		bCanEverPaint = false;
-
+    
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"construct"))
 		return;
 
@@ -215,6 +227,33 @@ FReply UPyUserWidget::NativeOnKeyDown(const FGeometry & InGeometry, const FKeyEv
 	return FReply::Unhandled();
 }
 
+#if WITH_EDITOR
+
+const FText UPyUserWidget::GetPaletteCategory()
+{
+    return NSLOCTEXT("Python", "Python", "Python");
+}
+#endif
+
+void UPyUserWidget::SetSlateWidget(TSharedRef<SWidget> InContent)
+{
+    if (PyNativeWidgetHost.IsValid())
+    {
+        PyNativeWidgetHost->SetContent(InContent);
+    }
+}
+
+
+void UPyUserWidget::ReleaseSlateResources(bool bReleaseChildren)
+{
+    Super::ReleaseSlateResources(bReleaseChildren);
+}
+
+TSharedRef<SWidget> UPyUserWidget::RebuildWidget()
+{
+    return Super::RebuildWidget();
+}
+
 FReply UPyUserWidget::NativeOnMouseWheel(const FGeometry & InGeometry, const FPointerEvent & InMouseEvent)
 {
 	Super::NativeOnMouseWheel(InGeometry, InMouseEvent);
@@ -307,6 +346,10 @@ void UPyUserWidget::NativePaint(FPaintContext & InContext) const
 	}
 	Py_DECREF(ret);
 }
+
+UPyUserWidget::UPyUserWidget(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+{}
 
 UPyUserWidget::~UPyUserWidget()
 {

@@ -3,7 +3,8 @@
 
 #include "UEPySWidget.h"
 
-static PyObject *ue_PySWidget_str(ue_PySWidget *self) {
+static PyObject *ue_PySWidget_str(ue_PySWidget *self)
+{
 #if PY_MAJOR_VERSION >= 3
 	return PyUnicode_FromFormat("<unreal_engine.%s '%p' (slate ref count: %d, py ref count: %d)>",
 		TCHAR_TO_UTF8(*self->s_widget->GetTypeAsString()), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount(), self->ob_base.ob_refcnt);
@@ -13,10 +14,12 @@ static PyObject *ue_PySWidget_str(ue_PySWidget *self) {
 #endif
 }
 
-static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args)
+{
 	FChildren *children = self->s_widget->GetChildren();
 	PyObject *py_list = PyList_New(0);
-	for (int32 i = 0; i < children->Num(); i++) {
+	for (int32 i = 0; i < children->Num(); i++)
+	{
 		TSharedRef<SWidget> widget = children->GetChildAt(i);
 		PyObject *item = (PyObject *)ue_py_get_swidget(widget);
 		PyList_Append(py_list, item);
@@ -25,9 +28,11 @@ static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args)
 	return py_list;
 }
 
-static PyObject *py_ue_swidget_set_tooltip_text(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_set_tooltip_text(ue_PySWidget *self, PyObject * args)
+{
 	char *text;
-	if (!PyArg_ParseTuple(args, "s:set_tooltip_text", &text)) {
+	if (!PyArg_ParseTuple(args, "s:set_tooltip_text", &text))
+	{
 		return NULL;
 	}
 
@@ -37,9 +42,11 @@ static PyObject *py_ue_swidget_set_tooltip_text(ue_PySWidget *self, PyObject * a
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_swidget_set_cursor(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_set_cursor(ue_PySWidget *self, PyObject * args)
+{
 	int cursor;
-	if (!PyArg_ParseTuple(args, "i:set_cursor", &cursor)) {
+	if (!PyArg_ParseTuple(args, "i:set_cursor", &cursor))
+	{
 		return NULL;
 	}
 
@@ -49,9 +56,11 @@ static PyObject *py_ue_swidget_set_cursor(ue_PySWidget *self, PyObject * args) {
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_swidget_set_enabled(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_set_enabled(ue_PySWidget *self, PyObject * args)
+{
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "O:set_enabled", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "O:set_enabled", &py_bool))
+	{
 		return NULL;
 	}
 
@@ -62,13 +71,16 @@ static PyObject *py_ue_swidget_set_enabled(ue_PySWidget *self, PyObject * args) 
 }
 
 #if ENGINE_MINOR_VERSION > 12
-static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_down", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_down", &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
@@ -84,13 +96,16 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyO
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_up", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_up", &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
@@ -106,13 +121,16 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObj
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_swidget_bind_on_mouse_double_click(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_bind_on_mouse_double_click(ue_PySWidget *self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_double_click", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_double_click", &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
@@ -128,13 +146,16 @@ static PyObject *py_ue_swidget_bind_on_mouse_double_click(ue_PySWidget *self, Py
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject * args)
+{
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_move", &py_callable)) {
+	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_move", &py_callable))
+	{
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCallable_Check(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
@@ -152,9 +173,11 @@ static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject *
 #endif
 
 
-static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args)
+{
 
-	if (self->s_widget->HasKeyboardFocus()) {
+	if (self->s_widget->HasKeyboardFocus())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -163,12 +186,25 @@ static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject *
 	return Py_False;
 }
 
-static PyObject *py_ue_swidget_get_type(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_get_type(ue_PySWidget *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->s_widget->GetTypeAsString())));
 }
 
-static PyObject *py_ue_swidget_get_shared_reference_count(ue_PySWidget *self, PyObject * args) {
+static PyObject *py_ue_swidget_get_shared_reference_count(ue_PySWidget *self, PyObject * args)
+{
 	return PyLong_FromLong(self->s_widget.GetSharedReferenceCount());
+}
+
+static PyObject *py_ue_swidget_invalidate(ue_PySWidget *self, PyObject * args)
+{
+	int invalidate_mode = 0;
+	if (!PyArg_ParseTuple(args, "|i:invalidate", &invalidate_mode))
+	{
+		return nullptr;
+	}
+	self->s_widget->Invalidate((EInvalidateWidget)invalidate_mode);
+	Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PySWidget_methods[] = {
@@ -179,6 +215,7 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "set_cursor", (PyCFunction)py_ue_swidget_set_cursor, METH_VARARGS, "" },
 	{ "set_enabled", (PyCFunction)py_ue_swidget_set_enabled, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
+	{ "invalidate", (PyCFunction)py_ue_swidget_invalidate, METH_VARARGS, "" },
 #if ENGINE_MINOR_VERSION > 12
 	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_up", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
@@ -188,30 +225,36 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static void ue_PySWidgett_dealloc(ue_PySWidget *self) {
+static void ue_PySWidgett_dealloc(ue_PySWidget *self)
+{
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySWidget %p mapped to %s %p (slate refcount: %d)"), self, *self->s_widget->GetTypeAsString(), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount());
 #endif
 	Py_DECREF(self->py_dict);
-	for (UPythonSlateDelegate *item : self->delegates) {
+	for (UPythonSlateDelegate *item : self->delegates)
+	{
 		if (item->IsValidLowLevel() && item->IsRooted())
 			item->RemoveFromRoot();
 	}
-	for (ue_PySWidget *item : self->py_swidget_slots) {
+	for (ue_PySWidget *item : self->py_swidget_slots)
+	{
 		Py_DECREF(item);
 	}
 	// decref content (if any)
 	Py_XDECREF(self->py_swidget_content);
-	for (PyObject *item : self->py_refs) {
+	for (PyObject *item : self->py_refs)
+	{
 		Py_DECREF(item);
 	}
 	ue_py_unregister_swidget(&self->s_widget.Get());
 	// decrement widget reference count
 	// but only if python vm is still fully active (hack to avoid crashes on editor shutdown)
-	if (Py_IsInitialized()) {
+	if (Py_IsInitialized())
+	{
 		self->s_widget = SNullWidget::NullWidget;
 	}
-	else {
+	else
+	{
 		UE_LOG(LogPython, Warning, TEXT("Python VM is being destroyed, skipping ue_PySWidget destruction"));
 	}
 	Py_TYPE(self)->tp_free((PyObject *)self);
@@ -255,14 +298,16 @@ ue_PySWidget_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	ue_PySWidget *self;
 
 	self = (ue_PySWidget *)type->tp_alloc(type, 0);
-	if (self != NULL) {
+	if (self != NULL)
+	{
 		ue_py_setup_swidget(self);
 	}
 
 	return (PyObject *)self;
 }
 
-void ue_python_init_swidget(PyObject *ue_module) {
+void ue_python_init_swidget(PyObject *ue_module)
+{
 	ue_PySWidgetType.tp_new = ue_PySWidget_new;
 
 	ue_PySWidgetType.tp_getattro = PyObject_GenericGetAttr;
@@ -276,7 +321,8 @@ void ue_python_init_swidget(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "SWidget", (PyObject *)&ue_PySWidgetType);
 }
 
-ue_PySWidget *py_ue_is_swidget(PyObject *obj) {
+ue_PySWidget *py_ue_is_swidget(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySWidgetType))
 		return nullptr;
 	return (ue_PySWidget *)obj;

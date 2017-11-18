@@ -15,11 +15,11 @@
 	"IsBetaVersion": true,
 	"Installed": false,
 	"Modules": [
-		{
-			"Name": "UnrealEnginePython",
-			"Type": "Editor",
-			"LoadingPhase": "Default"
-		},
+    {
+      "Name": "UnrealEnginePython",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
 		{
 			"Name": "PythonConsole",
 			"Type": "Editor",
@@ -36,5 +36,6 @@
       "Name": "LevelSequenceEditor",
       "Enabled": true
     }
-	]
+  ],
+  "BlacklistTargets": ["Server"]
 }

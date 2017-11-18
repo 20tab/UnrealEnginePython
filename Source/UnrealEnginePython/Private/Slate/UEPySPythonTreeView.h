@@ -6,14 +6,19 @@
 
 extern PyTypeObject ue_PySPythonTreeViewType;
 
-class SPythonTreeView : public STreeView<TSharedPtr<struct FPythonItem>> {
+class SPythonTreeView : public STreeView<TSharedPtr<struct FPythonItem>>
+{
 public:
-	~SPythonTreeView() {
+	~SPythonTreeView()
+	{
 		delete(ItemsSource);
 	}
+
+	void SetPythonItemExpansion(PyObject *item, bool InShouldExpandItem);
 };
 
-typedef struct {
+typedef struct
+{
 	ue_PySTreeView s_tree_view;
 	/* Type-specific fields go here. */
 } ue_PySPythonTreeView;
