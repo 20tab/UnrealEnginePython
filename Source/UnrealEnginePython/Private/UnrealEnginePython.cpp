@@ -159,25 +159,25 @@ void FUnrealEnginePythonModule::StartupModule()
 	BrutalFinalize = false;
 
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	FString IniValue;
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), IniValue, GEngineIni)) {
+	FString PythonHome;
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni)) {
 #if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*IniValue;
+		wchar_t *home = (wchar_t *)*PythonHome;
 #else
-		char *home = TCHAR_TO_UTF8(*IniValue);
+		char *home = TCHAR_TO_UTF8(*PythonHome);
 #endif
-		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *IniValue);
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
 		Py_SetPythonHome(home);
 	}
 
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
-		IniValue = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
-		FPaths::NormalizeFilename(IniValue);
-		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), PythonHome, GEngineIni)) {
+		PythonHome = FPaths::Combine(*PROJECT_CONTENT_DIR, *PythonHome);
+		FPaths::NormalizeFilename(PythonHome);
+		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
 #if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*IniValue;
+		wchar_t *home = (wchar_t *)*PythonHome;
 #else
-		char *home = TCHAR_TO_UTF8(*IniValue);
+		char *home = TCHAR_TO_UTF8(*PythonHome);
 #endif
 
 		Py_SetPythonHome(home);
@@ -245,9 +245,9 @@ void FUnrealEnginePythonModule::StartupModule()
 	// To ensure there are no path conflicts, if we have a valid python home at this point,
 	// we override the current environment entirely with the environment we want to use,
 	// removing any paths to other python environments we aren't using.
-	if (IniValue.Len() > 0)
+	if (PythonHome.Len() > 0)
 	{
-		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *IniValue);
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
 
 		const int32 MaxPathVarLen = 32768;
 		FString OrigPathVar = FString::ChrN(MaxPathVarLen, TEXT('\0'));
@@ -268,9 +268,9 @@ void FUnrealEnginePythonModule::StartupModule()
 
 		// Setup our own paths for PYTHONPATH
 		TArray<FString> OurPythonPaths = {
-			IniValue,
-			FPaths::Combine(IniValue, TEXT("Lib")),
-			FPaths::Combine(IniValue, TEXT("Lib/site-packages")),
+			PythonHome,
+			FPaths::Combine(PythonHome, TEXT("Lib")),
+			FPaths::Combine(PythonHome, TEXT("Lib/site-packages")),
 		};
 		FString PythonPathVars = FString::Join(OurPythonPaths, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONPATH"), *PythonPathVars);
