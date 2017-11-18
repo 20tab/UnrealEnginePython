@@ -7,6 +7,7 @@
 #include "UEPyFPaintContext.h"
 #include "UEPyFCharacterEvent.h"
 #include "UEPyFKeyEvent.h"
+#include "UEPyFPointerEvent.h"
 
 extern PyTypeObject ue_PySPythonWidgetType;
 
@@ -87,6 +88,127 @@ public:
 		Py_DECREF(ret);
 		return FReply::Handled();
 	}
+
+	virtual FReply OnMouseMove(const FGeometry & MyGeometry, const FPointerEvent & MyEvent) override
+	{
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"on_mouse_move"))
+			return FReply::Unhandled();
+
+		PyObject *py_callable_on_mouse_move = PyObject_GetAttrString(self, (char *)"on_mouse_move");
+		if (!PyCallable_Check(py_callable_on_mouse_move))
+		{
+			UE_LOG(LogPython, Error, TEXT("on_mouse_move is not a callable"));
+			return FReply::Unhandled();
+		}
+
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_move, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return FReply::Unhandled();
+		}
+
+		if (ret == Py_False)
+		{
+			Py_DECREF(ret);
+			return FReply::Unhandled();
+		}
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+
+	virtual FReply OnMouseWheel(const FGeometry & MyGeometry, const FPointerEvent & MyEvent) override
+	{
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"on_mouse_wheel"))
+			return FReply::Unhandled();
+
+		PyObject *py_callable_on_mouse_wheel = PyObject_GetAttrString(self, (char *)"on_mouse_wheel");
+		if (!PyCallable_Check(py_callable_on_mouse_wheel))
+		{
+			UE_LOG(LogPython, Error, TEXT("on_mouse_wheel is not a callable"));
+			return FReply::Unhandled();
+		}
+
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_wheel, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return FReply::Unhandled();
+		}
+
+		if (ret == Py_False)
+		{
+			Py_DECREF(ret);
+			return FReply::Unhandled();
+		}
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+
+	virtual FReply OnMouseButtonDown(const FGeometry & MyGeometry, const FPointerEvent & MyEvent) override
+	{
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"on_mouse_button_down"))
+			return FReply::Unhandled();
+
+		PyObject *py_callable_on_mouse_button_down = PyObject_GetAttrString(self, (char *)"on_mouse_button_down");
+		if (!PyCallable_Check(py_callable_on_mouse_button_down))
+		{
+			UE_LOG(LogPython, Error, TEXT("on_mouse_button_down is not a callable"));
+			return FReply::Unhandled();
+		}
+
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_down, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return FReply::Unhandled();
+		}
+
+		if (ret == Py_False)
+		{
+			Py_DECREF(ret);
+			return FReply::Unhandled();
+		}
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+
+	virtual FReply OnMouseButtonUp(const FGeometry & MyGeometry, const FPointerEvent & MyEvent) override
+	{
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"on_mouse_button_up"))
+			return FReply::Unhandled();
+
+		PyObject *py_callable_on_mouse_button_up = PyObject_GetAttrString(self, (char *)"on_mouse_button_up");
+		if (!PyCallable_Check(py_callable_on_mouse_button_up))
+		{
+			UE_LOG(LogPython, Error, TEXT("on_mouse_button_up is not a callable"));
+			return FReply::Unhandled();
+		}
+
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_up, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return FReply::Unhandled();
+		}
+
+		if (ret == Py_False)
+		{
+			Py_DECREF(ret);
+			return FReply::Unhandled();
+		}
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+
 
 	virtual int32 OnPaint(const FPaintArgs & Args,
 		const FGeometry & AllottedGeometry,
