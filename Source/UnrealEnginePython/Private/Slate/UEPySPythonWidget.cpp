@@ -5,7 +5,34 @@
 
 #define sw_python_widget StaticCastSharedRef<SPythonWidget>(self->s_compound_widget.s_widget.s_widget)
 
+static PyObject *py_ue_spython_widget_set_active(ue_PySPythonWidget *self, PyObject *args)
+{
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:set_active", &py_bool))
+	{
+		return nullptr;
+	}
+	bool bActive = true;
+
+	if (py_bool)
+	{
+		if (PyObject_IsTrue(py_bool))
+		{
+			bActive = true;
+		}
+		else
+		{
+			bActive = false;
+		}
+	}
+
+	sw_python_widget->SetActive(bActive);
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyMethodDef ue_PySPythonWidget_methods[] = {
+	{ "set_active", (PyCFunction)py_ue_spython_widget_set_active, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -42,42 +69,12 @@ PyTypeObject ue_PySPythonWidgetType = {
 
 static int ue_py_spython_widget_init(ue_PySPythonWidget *self, PyObject *args, PyObject *kwargs)
 {
-
 	ue_py_snew_simple(SPythonWidget, s_compound_widget.s_widget);
-
-	if (kwargs)
-	{
-		if (PyObject *py_tick = PyDict_GetItemString(kwargs, "tick"))
-		{
-			if (!PyCallable_Check(py_tick))
-			{
-				PyErr_SetString(PyExc_Exception, "tick must be a callable");
-				return -1;
-			}
-			sw_python_widget->SetPythonTick(py_tick);
-		}
-		else
-		{
-			PyErr_Clear();
-		}
-
-		if (PyObject *py_paint = PyDict_GetItemString(kwargs, "paint"))
-		{
-			if (!PyCallable_Check(py_paint))
-			{
-				PyErr_SetString(PyExc_Exception, "paint must be a callable");
-				return -1;
-			}
-			sw_python_widget->SetPythonPaint(py_paint);
-		}
-		else
-		{
-			PyErr_Clear();
-		}
-	}
-
+	UE_LOG(LogPython, Warning, TEXT("Initializing World Widget!!!"));
+	sw_python_widget->SetPyObject((PyObject *)self);
 	return 0;
 }
+
 
 void ue_python_init_spython_widget(PyObject *ue_module)
 {

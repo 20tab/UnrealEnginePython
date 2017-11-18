@@ -21,6 +21,11 @@
 #include "Runtime/Engine/Classes/EdGraph/EdGraphSchema.h"
 #include "Toolkits/AssetEditorManager.h"
 #include "LevelEditor.h"
+#include "Editor/LandscapeEditor/Public/LandscapeEditorUtils.h"
+#include "Editor/LandscapeEditor/Public/LandscapeEditorModule.h"
+#include "Editor/LandscapeEditor/Public/LandscapeFileFormatInterface.h"
+
+#include "Developer/Settings/Public/ISettingsModule.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -1657,11 +1662,7 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args)
 		graph->GetSchema()->CreateDefaultNodesForGraph(*graph);
 	}
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(graph);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(graph);
 }
 
 PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args)
@@ -1670,18 +1671,12 @@ PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * a
 
 	if (!PyArg_ParseTuple(args, "O:blueprint_graphs", &py_blueprint))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
-	if (!py_obj->ue_object->IsA<UBlueprint>())
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
 	PyObject *py_graphs = PyList_New(0);
 
@@ -1763,13 +1758,10 @@ PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * 
 	}
 
 	UObject* NewAsset = AssetToolsModule.Get().CreateAsset(Name, PackagePath, UMaterialInstanceConstant::StaticClass(), Factory);
+	if (!NewAsset)
+		return PyErr_Format(PyExc_Exception, "unable to create new asset");
 
-	ue_PyUObject *ret = ue_get_python_wrapper(NewAsset);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(NewAsset);
 }
 
 PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
@@ -1807,12 +1799,7 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 	FAssetRegistryModule::AssetCreated(u_object);
 	outer->MarkPackageDirty();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args)
@@ -1848,12 +1835,7 @@ PyObject *py_ue_factory_import_object(ue_PyUObject *self, PyObject * args)
 	FAssetRegistryModule::AssetCreated(u_object);
 	outer->MarkPackageDirty();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
@@ -1867,17 +1849,11 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_world))
-		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
-
-	ue_PyUObject *py_obj_world = (ue_PyUObject *)py_world;
-
-	if (!py_obj_world->ue_object->IsA<UWorld>())
+	UWorld *u_world = ue_py_check_type<UWorld>(py_world);
+	if (!u_world)
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
 	}
-
-	UWorld *u_world = (UWorld *)py_obj_world->ue_object;
 
 	UClass *streaming_mode_class = ULevelStreamingKismet::StaticClass();
 	if (py_bool && PyObject_IsTrue(py_bool))
@@ -1885,18 +1861,21 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
 
-	ULevel *level = (ULevel *)EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
-	if (level)
+#if ENGINE_MINOR_VERSION >= 17
+	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+#else
+	ULevel *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
+#endif
+	if (!level_streaming)
 	{
-		// TODO: update levels list
+		return PyErr_Format(PyExc_Exception, "unable to add \"%s\" to the world", name);
 	}
 
-	ue_PyUObject *ret = ue_get_python_wrapper(level);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+#if ENGINE_MINOR_VERSION >= 16
+	FEditorDelegates::RefreshLevelBrowser.Broadcast();
+#endif
 
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(level_streaming);
 }
 
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args)
@@ -1908,26 +1887,50 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(py_level))
-		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
-
-	ue_PyUObject *py_obj_level = (ue_PyUObject *)py_level;
-
-	if (!py_obj_level->ue_object->IsA<ULevel>())
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
-	}
-
-	ULevel *level = (ULevel *)py_obj_level->ue_object;
+	ULevel *level = ue_py_check_type<ULevel>(py_level);
+	if (!level)
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
 
 #if ENGINE_MINOR_VERSION >= 17
-    UEditorLevelUtils::MoveSelectedActorsToLevel(level);
+	UEditorLevelUtils::MoveSelectedActorsToLevel(level);
 #else
 	GEditor->MoveSelectedActorsToLevel(level);
 #endif
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
+{
+	PyObject *py_actor;
+	PyObject *py_level;
+	if (!PyArg_ParseTuple(args, "OO:move_actor_to_level", &py_actor, &py_level))
+	{
+		return NULL;
+	}
+
+	AActor *actor = ue_py_check_type<AActor>(py_actor);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "argument is not an Actor");
+
+	ULevel *level = ue_py_check_type<ULevel>(py_level);
+	if (!level)
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevelStreaming");
+
+	TArray<AActor *> actors;
+	actors.Add(actor);
+
+	int out = 0;
+
+#if ENGINE_MINOR_VERSION >= 17
+	out = EditorLevelUtils::MoveActorsToLevel(actors, level);
+#endif
+	if (out != 1)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to move actor to level");
+	}
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, PyObject * args)
@@ -1935,8 +1938,7 @@ PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject * self, Py
 
 	GEditor->TakeHighResScreenShots();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_begin_transaction(PyObject * self, PyObject * args)
@@ -1965,13 +1967,12 @@ PyObject *py_unreal_engine_cancel_transaction(PyObject * self, PyObject * args)
 	int tid;
 	if (!PyArg_ParseTuple(args, "i:cancel_transaction", &tid))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	GEditor->CancelTransaction(tid);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_end_transaction(PyObject * self, PyObject * args)
@@ -2009,12 +2010,10 @@ PyObject *py_unreal_engine_is_transaction_active(PyObject * self, PyObject * arg
 
 	if (is_active)
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args)
@@ -2028,12 +2027,10 @@ PyObject *py_unreal_engine_redo_transaction(PyObject * self, PyObject * args)
 
 	if (redo)
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args)
@@ -2050,8 +2047,7 @@ PyObject *py_unreal_engine_reset_transaction(PyObject * self, PyObject * args)
 
 	GEditor->ResetTransaction(FText::FromString(UTF8_TO_TCHAR(reason)));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args)
@@ -2062,12 +2058,10 @@ PyObject *py_unreal_engine_editor_undo(PyObject * self, PyObject * args)
 
 	if (GEditor->Trans->Undo())
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_editor_redo(PyObject * self, PyObject * args)
@@ -2107,5 +2101,174 @@ PyObject *py_unreal_engine_transactions(PyObject * self, PyObject * args)
 	return transactions;
 }
 
+PyObject *py_unreal_engine_heightmap_expand(PyObject * self, PyObject * args)
+{
+	Py_buffer buf;
+	int width;
+	int height;
+	int new_width;
+	int new_height;
+	if (!PyArg_ParseTuple(args, "y*iiii:heightmap_expand", &buf, &width, &height, &new_width, &new_height))
+		return nullptr;
+
+	uint16 *original_data_buf = (uint16 *)buf.buf;
+
+	TArray<uint16> original_data;
+	original_data.AddZeroed(buf.len / 2);
+
+	FMemory::Memcpy(original_data.GetData(), original_data_buf, buf.len);
+
+	int offset_x = (new_width - width) / 2;
+	int offset_y = (new_height - height) / 2;
+
+	TArray<uint16> data = LandscapeEditorUtils::ExpandData<uint16>(original_data, 0, 0, width - 1, height - 1, -offset_x, -offset_y, new_width - offset_x - 1, new_height - offset_y - 1);
+
+	return PyByteArray_FromStringAndSize((char *)data.GetData(), data.Num() * sizeof(uint16));
+
+}
+
+PyObject *py_unreal_engine_heightmap_import(PyObject * self, PyObject * args)
+{
+	char *filename;
+	int width = 0;
+	int height = 0;
+	if (!PyArg_ParseTuple(args, "s|ii:heightmap_import", &filename, &width, &height))
+		return nullptr;
+
+	ILandscapeEditorModule & LandscapeModule = FModuleManager::GetModuleChecked<ILandscapeEditorModule>("LandscapeEditor");
+	const ILandscapeHeightmapFileFormat *format = LandscapeModule.GetHeightmapFormatByExtension(*FPaths::GetExtension(UTF8_TO_TCHAR(filename), true));
+
+	if (!format)
+	{
+		return PyErr_Format(PyExc_Exception, "invalid heightmap format");
+	}
+
+	FLandscapeFileResolution resolution = { (uint32)width, (uint32)height };
+
+	if (width <= 0 || height <= 0)
+	{
+		FLandscapeHeightmapInfo info = format->Validate(UTF8_TO_TCHAR(filename));
+		if (info.ResultCode == ELandscapeImportResult::Error)
+		{
+			return PyErr_Format(PyExc_Exception, "unable to import heightmap: %s", TCHAR_TO_UTF8(*info.ErrorMessage.ToString()));
+		}
+
+		if (info.ResultCode == ELandscapeImportResult::Warning)
+		{
+			UE_LOG(LogPython, Warning, TEXT("%s"), *info.ErrorMessage.ToString());
+		}
+
+		if (info.PossibleResolutions.Num() < 1)
+		{
+			return PyErr_Format(PyExc_Exception, "unable to retrieve heightmap resolution");
+		}
+
+		resolution = info.PossibleResolutions[0];
+	}
+
+	FLandscapeHeightmapImportData imported = format->Import(UTF8_TO_TCHAR(filename), resolution);
+
+	if (imported.ResultCode == ELandscapeImportResult::Error)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to import heightmap: %s", TCHAR_TO_UTF8(*imported.ErrorMessage.ToString()));
+	}
+
+	if (imported.ResultCode == ELandscapeImportResult::Warning)
+	{
+		UE_LOG(LogPython, Warning, TEXT("%s"), *imported.ErrorMessage.ToString());
+	}
+
+	return Py_BuildValue((char *)"Oii", PyByteArray_FromStringAndSize((char *)imported.Data.GetData(), imported.Data.Num() * sizeof(uint16)), resolution.Width, resolution.Height);
+}
+
+PyObject *py_unreal_engine_play_preview_sound(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *py_sound;
+	if (!PyArg_ParseTuple(args, "O:play_preview_sound", &py_sound))
+		return nullptr;
+
+	USoundBase *sound = ue_py_check_type<USoundBase>(py_sound);
+	if (!sound)
+		return PyErr_Format(PyExc_Exception, "argument is not a USoundBase");
+
+	GEditor->PlayPreviewSound(sound);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_register_settings(PyObject * self, PyObject * args)
+{
+
+
+	char *container_name;
+	char *category_name;
+	char *section_name;
+	char *display_name;
+	char *description;
+	PyObject *py_uobject;
+
+	if (!PyArg_ParseTuple(args, "sssssO:register_settings", &container_name, &category_name, &section_name, &display_name, &description, &py_uobject))
+		return nullptr;
+
+	UObject *u_object = ue_py_check_type<UObject>(py_uobject);
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		TSharedPtr<ISettingsSection> section = SettingsModule->RegisterSettings(UTF8_TO_TCHAR(container_name),
+			UTF8_TO_TCHAR(category_name),
+			UTF8_TO_TCHAR(section_name),
+			FText::FromString(UTF8_TO_TCHAR(display_name)),
+			FText::FromString(UTF8_TO_TCHAR(description)),
+			u_object);
+
+		if (!section.IsValid())
+			return PyErr_Format(PyExc_Exception, "unable to register settings");
+	}
+	else
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find the Settings Module");
+	}
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_unregister_settings(PyObject * self, PyObject * args)
+{
+	char *container_name;
+	char *category_name;
+	char *section_name;
+
+	if (!PyArg_ParseTuple(args, "sss:unregister_settings", &container_name, &category_name, &section_name))
+		return nullptr;
+
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->UnregisterSettings(UTF8_TO_TCHAR(container_name),
+			UTF8_TO_TCHAR(category_name),
+			UTF8_TO_TCHAR(section_name));
+	}
+	else
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find the Settings Module");
+	}
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_all_viewport_clients(PyObject * self, PyObject * args)
+{
+	TArray<FEditorViewportClient *> clients = GEditor->AllViewportClients;
+	PyObject *py_list = PyList_New(0);
+	for (FEditorViewportClient *client : clients)
+	{
+		PyList_Append(py_list, py_ue_new_feditor_viewport_client(TSharedRef<FEditorViewportClient>(client)));
+	}
+	return py_list;
+}
 #endif
 

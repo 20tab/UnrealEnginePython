@@ -1,5 +1,9 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if ENGINE_MINOR_VERSION >= 18
+#include "Runtime/Engine/Public/DestructibleInterface.h"
+#endif
+
 
 PyObject *py_ue_set_simulate_physics(ue_PyUObject * self, PyObject * args)
 {
@@ -399,8 +403,11 @@ PyObject *py_ue_get_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 	{
 		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
 	}
-
+#if ENGINE_MINOR_VERSION >= 18
+	return py_ue_new_fvector(primitive->GetPhysicsAngularVelocityInDegrees(f_bone_name));
+#else
 	return py_ue_new_fvector(primitive->GetPhysicsAngularVelocity(f_bone_name));
+#endif
 }
 
 
@@ -418,26 +425,52 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 		return NULL;
 	}
 
-	UDestructibleComponent *destructible = nullptr;
-	AActor *actor = nullptr;
+#if ENGINE_MINOR_VERSION < 18
+	UDestructibleComponent *destructible = ue_py_check_type<UDestructibleComponent>(self);
+#else
+	IDestructibleInterface *destructible = ue_py_check_type<IDestructibleInterface>(self);
+#endif
 
-	if (self->ue_object->IsA<UDestructibleComponent>())
+	if (!destructible)
 	{
-		destructible = (UDestructibleComponent *)self->ue_object;
-	}
-	else if (self->ue_object->IsA<AActor>())
-	{
-		actor = (AActor *)self->ue_object;
-		destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
-	}
-	else if (self->ue_object->IsA<UActorComponent>())
-	{
-		actor = (AActor *)self->ue_object->GetOuter();
+		AActor *actor = ue_py_check_type<AActor>(self);
 		if (actor)
 		{
+#if ENGINE_MINOR_VERSION < 18
 			destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
+#else
+			for (UActorComponent *component : actor->GetComponents())
+			{
+				if (Cast<IDestructibleInterface>(component))
+				{
+					destructible = (IDestructibleInterface *)component;
+					break;
+				}
+			}
+#endif
+		}
+		else
+		{
+			UActorComponent *component = ue_py_check_type<UActorComponent>(self);
+			if (component)
+			{
+				actor = (AActor *)component->GetOuter();
+#if ENGINE_MINOR_VERSION < 18
+				destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
+#else
+				for (UActorComponent *component : actor->GetComponents())
+				{
+					if (Cast<IDestructibleInterface>(component))
+					{
+						destructible = (IDestructibleInterface *)component;
+						break;
+					}
+				}
+#endif
+			}
 		}
 	}
+
 
 	FVector location = FVector(0, 0, 0);
 	FVector impulse = FVector(0, 0, 0);
@@ -467,6 +500,5 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "UObject is not a destructible");
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_NONE;
 }

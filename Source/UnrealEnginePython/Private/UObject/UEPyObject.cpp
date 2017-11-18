@@ -21,6 +21,93 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_class_generated_by(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	UObject *u_object = u_class->ClassGeneratedBy;
+	if (!u_object)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_ue_class_get_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	return PyLong_FromUnsignedLongLong((uint64)u_class->GetClassFlags());
+}
+
+PyObject *py_ue_class_set_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "K:class_set_flags", &flags))
+	{
+		return nullptr;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	u_class->ClassFlags = (EClassFlags)flags;
+
+	Py_RETURN_NONE;
+}
+
+#if WITH_EDITOR
+PyObject *py_ue_class_set_config_name(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *config_name;
+	if (!PyArg_ParseTuple(args, "s:class_set_config_name", &config_name))
+	{
+		return nullptr;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	u_class->ClassConfigName = UTF8_TO_TCHAR(config_name);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_class_get_config_name(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*u_class->ClassConfigName.ToString()));
+}
+#endif
+
 PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 {
 
@@ -81,7 +168,11 @@ PyObject *py_ue_get_outer(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetOuter());
+	UObject *outer = self->ue_object->GetOuter();
+	if (!outer)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(outer);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
@@ -93,7 +184,11 @@ PyObject *py_ue_get_outermost(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(self->ue_object->GetOutermost());
+	UObject *outermost = self->ue_object->GetOutermost();
+	if (!outermost)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(outermost);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 	Py_INCREF(ret);
@@ -108,6 +203,16 @@ PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args)
 	self->ue_object->ConditionalBeginDestroy();
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_ue_is_valid(ue_PyUObject * self, PyObject * args)
+{
+	if (!self->ue_object || !self->ue_object->IsValidLowLevel() || self->ue_object->IsPendingKillOrUnreachable())
+	{
+		Py_RETURN_FALSE;
+	}
+
+	Py_RETURN_TRUE;
 }
 
 PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args)
@@ -130,13 +235,11 @@ PyObject *py_ue_is_a(ue_PyUObject * self, PyObject * args)
 
 	if (self->ue_object->IsA((UClass *)py_obj->ue_object))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args)
@@ -497,8 +600,7 @@ PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args)
 
 	self->ue_object->SaveConfig();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
@@ -534,9 +636,101 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 
+}
+
+PyObject *py_ue_set_property_flags(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "sK:set_property_flags", &property_name, &flags))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+
+	u_property->SetPropertyFlags(flags);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_add_property_flags(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "sK:add_property_flags", &property_name, &flags))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+
+	u_property->SetPropertyFlags(u_property->GetPropertyFlags() | flags);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_get_property_flags(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_property_flags", &property_name))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	return PyLong_FromUnsignedLong(u_property->GetPropertyFlags());
 }
 
 PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args)
@@ -676,8 +870,7 @@ PyObject *py_ue_call(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"", call_args);
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
@@ -707,8 +900,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 		return PyErr_Format(PyExc_Exception, "property is not a UMulticastDelegateProperty");
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
@@ -739,6 +931,66 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 
 	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
 }
+
+#if WITH_EDITOR
+PyObject *py_ue_get_thumbnail(ue_PyUObject *self, PyObject * args)
+{
+
+	PyObject *py_generate = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:get_thumbnail", &py_generate))
+	{
+		return nullptr;
+	}
+
+	ue_py_check(self);
+
+	TArray<FName> names;
+	names.Add(FName(*self->ue_object->GetFullName()));
+
+	FThumbnailMap thumb_map;
+
+	FObjectThumbnail *object_thumbnail = nullptr;
+
+	if (!ThumbnailTools::ConditionallyLoadThumbnailsForObjects(names, thumb_map))
+	{
+		if (py_generate && PyObject_IsTrue(py_generate))
+		{
+			object_thumbnail = ThumbnailTools::GenerateThumbnailForObjectToSaveToDisk(self->ue_object);
+		}
+	}
+	else
+	{
+		object_thumbnail = &thumb_map[names[0]];
+	}
+
+	if (!object_thumbnail)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to retrieve thumbnail");
+	}
+
+	return py_ue_new_fobject_thumbnail(*object_thumbnail);
+}
+
+PyObject *py_ue_render_thumbnail(ue_PyUObject *self, PyObject * args)
+{
+
+	int width = ThumbnailTools::DefaultThumbnailSize;
+	int height = ThumbnailTools::DefaultThumbnailSize;
+	PyObject *no_flush = nullptr;
+	if (!PyArg_ParseTuple(args, "|iiO:render_thumbnail", &width, height, &no_flush))
+	{
+		return nullptr;
+	}
+
+	ue_py_check(self);
+	FObjectThumbnail object_thumbnail;
+	ThumbnailTools::RenderThumbnail(self->ue_object, width, height,
+		(no_flush && PyObject_IsTrue(no_flush)) ? ThumbnailTools::EThumbnailTextureFlushMode::NeverFlush : ThumbnailTools::EThumbnailTextureFlushMode::AlwaysFlush,
+		nullptr, &object_thumbnail);
+
+	return py_ue_new_fobject_thumbnail(object_thumbnail);
+}
+#endif
 
 PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
 {

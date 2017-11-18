@@ -5,15 +5,27 @@
 
 #define sw_splitter StaticCastSharedRef<SSplitter>(self->s_panel.s_widget.s_widget)
 
-static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args) {
+static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args, PyObject *kwargs)
+{
 	PyObject *py_content;
 	int index = -1;
-	if (!PyArg_ParseTuple(args, "O|i:add_slot", &py_content, &index)) {
-		return NULL;
+	float size_value = -1;
+	int sizing_rule = -1;
+
+	char *kwlist[] = { (char *)"widget",
+		(char *)"index",
+		(char *)"size_value",
+		(char *)"sizing_rule",
+		nullptr };
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ifi:add_slot", kwlist, &py_content, &index, &size_value, &sizing_rule))
+	{
+		return nullptr;
 	}
 
 	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget) {
+	if (!py_swidget)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
 
@@ -21,6 +33,14 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args)
 	self->s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
+	if (size_value > -1)
+	{
+		fslot.SizeValue = size_value;
+	}
+	if (sizing_rule > -1)
+	{
+		fslot.SizingRule = (SSplitter::ESizeRule)sizing_rule;
+	}
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 
 	Py_INCREF(self);
@@ -28,7 +48,8 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args)
 }
 
 static PyMethodDef ue_PySSplitter_methods[] = {
-	{ "add_slot", (PyCFunction)py_ue_ssplitter_add_slot, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
+	{ "add_slot", (PyCFunction)py_ue_ssplitter_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -63,7 +84,8 @@ PyTypeObject ue_PySSplitterType = {
 	ue_PySSplitter_methods,             /* tp_methods */
 };
 
-static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SSplitter);
 
 	ue_py_slate_farguments_optional_float("hit_detection_splitter_handle_size", HitDetectionSplitterHandleSize);
@@ -77,7 +99,8 @@ static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *
 	return 0;
 }
 
-void ue_python_init_ssplitter(PyObject *ue_module) {
+void ue_python_init_ssplitter(PyObject *ue_module)
+{
 
 	ue_PySSplitterType.tp_init = (initproc)ue_py_ssplitter_init;
 	ue_PySSplitterType.tp_call = (ternaryfunc)py_ue_ssplitter_add_slot;

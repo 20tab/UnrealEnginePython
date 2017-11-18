@@ -448,6 +448,15 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
 }
 
+PyObject *py_unreal_engine_new_guid(PyObject * self, PyObject * args)
+{
+
+	FGuid guid = FGuid::NewGuid();
+
+	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+
+}
+
 PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args)
 {
 	FSlateApplication::Get().PumpMessages();
@@ -638,9 +647,7 @@ PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_all_worlds(PyObject * self, PyObject * args)
 {
-
 	PyObject *ret = PyList_New(0);
-
 	for (TObjectIterator<UWorld> Itr; Itr; ++Itr)
 	{
 		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
@@ -653,7 +660,6 @@ PyObject *py_unreal_engine_all_worlds(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_tobject_iterator(PyObject * self, PyObject * args)
 {
-
 	PyObject *py_class;
 	if (!PyArg_ParseTuple(args, "O:tobject_iterator", &py_class))
 	{
@@ -667,11 +673,12 @@ PyObject *py_unreal_engine_tobject_iterator(PyObject * self, PyObject * args)
 	}
 
 	PyObject *ret = PyList_New(0);
-
 	for (TObjectIterator<UObject> Itr; Itr; ++Itr)
 	{
+
 		if (!(*Itr)->IsA(u_class))
 			continue;
+
 		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
 		if (!py_obj)
 			continue;
@@ -693,8 +700,7 @@ PyObject *py_unreal_engine_create_and_dispatch_when_ready(PyObject * self, PyObj
 
 	Py_INCREF(py_callable);
 
-	FGraphEventRef task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]()
-	{
+	FGraphEventRef task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]() {
 		FScopePythonGIL gil;
 		PyObject *ret = PyObject_CallObject(py_callable, nullptr);
 		if (ret)
@@ -1099,7 +1105,7 @@ PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args
 
 PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args)
 {
-
+	
 	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
 	if (!DesktopPlatform)
 		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");

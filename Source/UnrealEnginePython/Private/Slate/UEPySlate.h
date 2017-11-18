@@ -57,6 +57,7 @@
 #include "UEPySProgressBar.h"
 #include "UEPySSpacer.h"
 #include "UEPySPythonWidget.h"
+#include "UEPySOverlay.h"
 
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
@@ -71,6 +72,7 @@
 #include "UEPyFInputEvent.h"
 #include "UEPyFPointerEvent.h"
 #include "UEPyFKeyEvent.h"
+#include "UEPyFCharacterEvent.h"
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"
@@ -122,7 +124,8 @@ void ue_py_setup_swidget(ue_PySWidget *);
 
 PyObject *ue_py_dict_get_item(PyObject *, const char *);
 
-template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widget, PyTypeObject *py_type) {
+template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widget, PyTypeObject *py_type)
+{
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(T, py_type);
 
 	ue_py_setup_swidget(ret);
@@ -140,7 +143,6 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 #define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
 
 #define ue_py_snew_with_args(T, field, args) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(args), arguments)
-
 
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
@@ -418,10 +420,12 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 void ue_python_init_slate(PyObject *);
 
-struct FPythonItem {
+struct FPythonItem
+{
 	PyObject *py_object;
 
-	FPythonItem(PyObject *item) {
+	FPythonItem(PyObject *item)
+	{
 		py_object = item;
 	}
 };
@@ -456,8 +460,11 @@ public:
 	void OnAssetSelected(const FAssetData& AssetData);
 	TSharedRef<FExtender> OnExtendContentBrowserMenu(const TArray<FAssetData> &SelectedAssets);
 	void MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
-	void OnAssetChanged(const FAssetData &);
+	void OnAssetChanged(const FAssetData &AssetData);
+	bool OnShouldFilterAsset(const FAssetData& AssetData);
 #endif
+
+	void OnWindowClosed(const TSharedRef<SWindow> &Window);
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
@@ -478,15 +485,18 @@ public:
 	void CheckBoxChanged(ECheckBoxState state);
 
 
-	template<typename T> T GetterIntT() const {
+	template<typename T> T GetterIntT() const
+	{
 		FScopePythonGIL gil;
 
 		PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
-		if (!ret) {
+		if (!ret)
+		{
 			unreal_engine_py_log_error();
 			return (T)0;
 		}
-		if (!PyNumber_Check(ret)) {
+		if (!PyNumber_Check(ret))
+		{
 			PyErr_SetString(PyExc_ValueError, "returned value is not a number");
 			Py_DECREF(ret);
 			return (T)0;
@@ -499,17 +509,20 @@ public:
 		return (T)n;
 	}
 
-	template<typename T> T GetterStructT() const {
+	template<typename T> T GetterStructT() const
+	{
 		FScopePythonGIL gil;
 
 		PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
-		if (!ret) {
+		if (!ret)
+		{
 			unreal_engine_py_log_error();
 			return T();
 		}
 
 		T *u_struct = ue_py_check_struct<T>(ret);
-		if (!u_struct) {
+		if (!u_struct)
+		{
 			PyErr_SetString(PyExc_ValueError, "returned value is not a UStruct");
 			Py_DECREF(ret);
 			return T();

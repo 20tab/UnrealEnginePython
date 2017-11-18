@@ -7,6 +7,12 @@
 #include "ClassIconFinder.h"
 #endif
 
+#if ENGINE_MINOR_VERSION >= 18
+#define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()
+#else
+#define PROJECT_CONTENT_DIR FPaths::GameContentDir()
+#endif
+
 void unreal_engine_init_py_module();
 
 #if defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
@@ -153,25 +159,25 @@ void FUnrealEnginePythonModule::StartupModule()
 	BrutalFinalize = false;
 
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	FString PythonHome;
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni)) {
+	FString IniValue;
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), IniValue, GEngineIni)) {
 #if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*PythonHome;
+		wchar_t *home = (wchar_t *)*IniValue;
 #else
-		char *home = TCHAR_TO_UTF8(*PythonHome);
+		char *home = TCHAR_TO_UTF8(*IniValue);
 #endif
-		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *IniValue);
 		Py_SetPythonHome(home);
 	}
 
-	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), PythonHome, GEngineIni)) {
-		PythonHome = FPaths::Combine(*FPaths::GameContentDir(), *PythonHome);
-		FPaths::NormalizeFilename(PythonHome);
-		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), IniValue, GEngineIni)) {
+		IniValue = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+		FPaths::NormalizeFilename(IniValue);
+		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
 #if PY_MAJOR_VERSION >= 3
-		wchar_t *home = (wchar_t *)*PythonHome;
+		wchar_t *home = (wchar_t *)*IniValue;
 #else
-		char *home = TCHAR_TO_UTF8(*PythonHome);
+		char *home = TCHAR_TO_UTF8(*IniValue);
 #endif
 
 		Py_SetPythonHome(home);
@@ -188,7 +194,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeProgramName"), IniValue, GEngineIni)) {
-		IniValue = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
+		IniValue = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
 		FPaths::NormalizeFilename(IniValue);
 		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
 #if PY_MAJOR_VERSION >= 3
@@ -204,7 +210,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni)) {
-		ScriptsPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
+		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni)) {
@@ -212,7 +218,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeAdditionalModulesPath"), IniValue, GEngineIni)) {
-		AdditionalModulesPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
+		AdditionalModulesPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ZipPath"), IniValue, GEngineIni)) {
@@ -220,15 +226,15 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeZipPath"), IniValue, GEngineIni)) {
-		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), *IniValue);
+		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
 	}
 
 	if (ScriptsPath.IsEmpty()) {
-		ScriptsPath = FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("Scripts"));
+		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
 	}
 
 	if (ZipPath.IsEmpty()) {
-		ZipPath = FPaths::Combine(*FPaths::GameContentDir(), UTF8_TO_TCHAR("ue_python.zip"));
+		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("ue_python.zip"));
 	}
 
 	if (!FPaths::DirectoryExists(ScriptsPath)) {
@@ -239,9 +245,9 @@ void FUnrealEnginePythonModule::StartupModule()
 	// To ensure there are no path conflicts, if we have a valid python home at this point,
 	// we override the current environment entirely with the environment we want to use,
 	// removing any paths to other python environments we aren't using.
-	if (PythonHome.Len() > 0)
+	if (IniValue.Len() > 0)
 	{
-		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
+		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *IniValue);
 
 		const int32 MaxPathVarLen = 32768;
 		FString OrigPathVar = FString::ChrN(MaxPathVarLen, TEXT('\0'));
@@ -262,9 +268,9 @@ void FUnrealEnginePythonModule::StartupModule()
 
 		// Setup our own paths for PYTHONPATH
 		TArray<FString> OurPythonPaths = {
-			PythonHome,
-			FPaths::Combine(PythonHome, TEXT("Lib")),
-			FPaths::Combine(PythonHome, TEXT("Lib/site-packages")),
+			IniValue,
+			FPaths::Combine(IniValue, TEXT("Lib")),
+			FPaths::Combine(IniValue, TEXT("Lib/site-packages")),
 		};
 		FString PythonPathVars = FString::Join(OurPythonPaths, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONPATH"), *PythonPathVars);

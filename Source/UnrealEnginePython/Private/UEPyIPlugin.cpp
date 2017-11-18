@@ -5,28 +5,35 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
 
-static PyObject *py_ue_iplugin_get_name(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_get_name(ue_PyIPlugin *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetName())));
 }
 
-static PyObject *py_ue_iplugin_get_base_dir(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_get_base_dir(ue_PyIPlugin *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetBaseDir())));
 }
 
-static PyObject *py_ue_iplugin_get_content_dir(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_get_content_dir(ue_PyIPlugin *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetContentDir())));
 }
 
-static PyObject *py_ue_iplugin_get_descriptor_file_name(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_get_descriptor_file_name(ue_PyIPlugin *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptorFileName())));
 }
 
-static PyObject *py_ue_iplugin_get_mounted_asset_path(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_get_mounted_asset_path(ue_PyIPlugin *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetMountedAssetPath())));
 }
 
-static PyObject *py_ue_iplugin_can_contain_content(ue_PyIPlugin *self, PyObject * args) {
-	if (self->plugin->CanContainContent()) {
+static PyObject *py_ue_iplugin_can_contain_content(ue_PyIPlugin *self, PyObject * args)
+{
+	if (self->plugin->CanContainContent())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -35,8 +42,10 @@ static PyObject *py_ue_iplugin_can_contain_content(ue_PyIPlugin *self, PyObject 
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_is_enabled(ue_PyIPlugin *self, PyObject * args) {
-	if (self->plugin->IsEnabled()) {
+static PyObject *py_ue_iplugin_is_enabled(ue_PyIPlugin *self, PyObject * args)
+{
+	if (self->plugin->IsEnabled())
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -45,16 +54,19 @@ static PyObject *py_ue_iplugin_is_enabled(ue_PyIPlugin *self, PyObject * args) {
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_to_json(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_to_json(ue_PyIPlugin *self, PyObject * args)
+{
 
 
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "O:to_json", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "O:to_json", &py_bool))
+	{
 		return NULL;
 	}
 
 	bool enabled_by_default = false;
-	if (PyObject_IsTrue(py_bool)) {
+	if (PyObject_IsTrue(py_bool))
+	{
 		enabled_by_default = true;
 	}
 
@@ -62,23 +74,28 @@ static PyObject *py_ue_iplugin_to_json(ue_PyIPlugin *self, PyObject * args) {
 	FString text;
 #if ENGINE_MINOR_VERSION < 14
 	text = descriptor.ToString();
-#else
+#elif ENGINE_MINOR_VERSION <= 17
 	descriptor.Write(text, enabled_by_default);
+#else
+	descriptor.Write(text);
 #endif
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*text));
 }
 
-static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args) {
+static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args)
+{
 
 	char *json;
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "sO:from_json", &json, &py_bool)) {
+	if (!PyArg_ParseTuple(args, "sO:from_json", &json, &py_bool))
+	{
 		return NULL;
 	}
 
 	bool enabled_by_default = false;
-	if (PyObject_IsTrue(py_bool)) {
+	if (PyObject_IsTrue(py_bool))
+	{
 		enabled_by_default = true;
 	}
 
@@ -86,10 +103,13 @@ static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args) {
 	FString text = FString(UTF8_TO_TCHAR(json));
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
 #if ENGINE_MINOR_VERSION < 14
-	if (!descriptor.Read(text, error)) {
+	if (!descriptor.Read(text, error))
+#elif ENGINE_MINOR_VERSION <= 17
+	if (!descriptor.Read(text, enabled_by_default, error))
 #else
-	if (!descriptor.Read(text, enabled_by_default, error)) {
+	if (!descriptor.Read(text, error))
 #endif
+	{
 		return PyErr_Format(PyExc_Exception, "unable to update descriptor from json");
 	}
 
@@ -110,12 +130,15 @@ static PyMethodDef ue_PyIPlugin_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static PyObject *py_ue_iplugin_get_category(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_get_category(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().Category)));
 }
 
-static PyObject *py_ue_iplugin_get_can_contain_content(ue_PyIPlugin *self, void *closure) {
-	if (self->plugin->GetDescriptor().bCanContainContent) {
+static PyObject *py_ue_iplugin_get_can_contain_content(ue_PyIPlugin *self, void *closure)
+{
+	if (self->plugin->GetDescriptor().bCanContainContent)
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -124,8 +147,14 @@ static PyObject *py_ue_iplugin_get_can_contain_content(ue_PyIPlugin *self, void 
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_get_enabled_by_default(ue_PyIPlugin *self, void *closure) {
-	if (self->plugin->GetDescriptor().bEnabledByDefault) {
+static PyObject *py_ue_iplugin_get_enabled_by_default(ue_PyIPlugin *self, void *closure)
+{
+#if ENGINE_MINOR_VERSION < 18
+	if (self->plugin->GetDescriptor().bEnabledByDefault)
+#else
+	if (self->plugin->GetDescriptor().EnabledByDefault == EPluginEnabledByDefault::Enabled)
+#endif
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -134,8 +163,10 @@ static PyObject *py_ue_iplugin_get_enabled_by_default(ue_PyIPlugin *self, void *
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_get_installed(ue_PyIPlugin *self, void *closure) {
-	if (self->plugin->GetDescriptor().bInstalled) {
+static PyObject *py_ue_iplugin_get_installed(ue_PyIPlugin *self, void *closure)
+{
+	if (self->plugin->GetDescriptor().bInstalled)
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -144,8 +175,10 @@ static PyObject *py_ue_iplugin_get_installed(ue_PyIPlugin *self, void *closure) 
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_get_is_beta_version(ue_PyIPlugin *self, void *closure) {
-	if (self->plugin->GetDescriptor().bIsBetaVersion) {
+static PyObject *py_ue_iplugin_get_is_beta_version(ue_PyIPlugin *self, void *closure)
+{
+	if (self->plugin->GetDescriptor().bIsBetaVersion)
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -154,48 +187,64 @@ static PyObject *py_ue_iplugin_get_is_beta_version(ue_PyIPlugin *self, void *clo
 	return Py_False;
 }
 
-static PyObject *py_ue_iplugin_created_by(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_created_by(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().CreatedBy)));
 }
 
-static PyObject *py_ue_iplugin_created_by_url(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_created_by_url(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().CreatedByURL)));
 }
 
-static PyObject *py_ue_iplugin_description(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_description(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().Description)));
 }
 
-static PyObject *py_ue_iplugin_docs_url(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_docs_url(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().DocsURL)));
 }
 
-static PyObject *py_ue_iplugin_friendly_name(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_friendly_name(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().FriendlyName)));
 }
 
-static PyObject *py_ue_iplugin_marketplace_url(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_marketplace_url(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().MarketplaceURL)));
 }
 
-static PyObject *py_ue_iplugin_support_url(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_support_url(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().SupportURL)));
 }
 
-static PyObject *py_ue_iplugin_version_name(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_version_name(ue_PyIPlugin *self, void *closure)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->plugin->GetDescriptor().VersionName)));
 }
 
-static PyObject *py_ue_iplugin_file_version(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_file_version(ue_PyIPlugin *self, void *closure)
+{
+#if ENGINE_MINOR_VERSION < 18
 	return PyLong_FromLong(self->plugin->GetDescriptor().FileVersion);
+#else
+	return PyLong_FromLong(self->plugin->GetDescriptor().Version);
+#endif
 }
 
-static PyObject *py_ue_iplugin_version(ue_PyIPlugin *self, void *closure) {
+static PyObject *py_ue_iplugin_version(ue_PyIPlugin *self, void *closure)
+{
 	return PyLong_FromLong(self->plugin->GetDescriptor().Version);
 }
 
-static PyObject *py_ue_iplugin_get_requires_build_platform(ue_PyIPlugin *self, void *closure) {
-	if (self->plugin->GetDescriptor().bRequiresBuildPlatform) {
+static PyObject *py_ue_iplugin_get_requires_build_platform(ue_PyIPlugin *self, void *closure)
+{
+	if (self->plugin->GetDescriptor().bRequiresBuildPlatform)
+	{
 		Py_INCREF(Py_True);
 		return Py_True;
 	}
@@ -264,7 +313,8 @@ static PyTypeObject ue_PyIPluginType = {
 };
 
 
-void ue_python_init_iplugin(PyObject *ue_module) {
+void ue_python_init_iplugin(PyObject *ue_module)
+{
 	ue_PyIPluginType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyIPluginType) < 0)
@@ -274,7 +324,8 @@ void ue_python_init_iplugin(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "IPlugin", (PyObject *)&ue_PyIPluginType);
 }
 
-PyObject *py_ue_new_iplugin(IPlugin *plugin) {
+PyObject *py_ue_new_iplugin(IPlugin *plugin)
+{
 	ue_PyIPlugin *ret = (ue_PyIPlugin *)PyObject_New(ue_PyIPlugin, &ue_PyIPluginType);
 	ret->plugin = plugin;
 	return (PyObject *)ret;

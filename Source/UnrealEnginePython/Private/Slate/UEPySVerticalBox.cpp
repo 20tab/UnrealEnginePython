@@ -10,7 +10,7 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 	PyObject *py_content;
 	int h_align = 0;
 	float max_height = 0;
-	float padding = 0;
+	PyObject *padding = nullptr;
 	int v_align = 0;
 	float fill_height = 0;
 	PyObject *py_auto_height = nullptr;
@@ -24,7 +24,7 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 		(char *)"auto_height",
 		nullptr };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|iffifO:add_slot", kwlist,
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ifOifO:add_slot", kwlist,
 		&py_content,
 		&h_align,
 		&max_height,
@@ -50,7 +50,28 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 		fslot.MaxHeight(max_height);
 	if (fill_height)
 		fslot.FillHeight(fill_height);
-	fslot.Padding(padding);
+	if (padding)
+	{
+		if (PyTuple_Check(padding))
+		{
+			FMargin margin;
+			if (!PyArg_ParseTuple(padding, "f|fff", &margin.Left, &margin.Top, &margin.Right, &margin.Bottom))
+			{
+				return PyErr_Format(PyExc_Exception, "invalid padding value");
+			}
+			fslot.Padding(margin);
+		}
+		else if (PyNumber_Check(padding))
+		{
+			PyObject *py_float = PyNumber_Float(padding);
+			fslot.Padding(PyFloat_AsDouble(py_float));
+			Py_DECREF(py_float);
+		}
+		else
+		{
+			return PyErr_Format(PyExc_Exception, "invalid padding value");
+		}
+	}
 	fslot.VAlign((EVerticalAlignment)v_align);
 	if (py_auto_height && PyObject_IsTrue(py_auto_height))
 		fslot.AutoHeight();

@@ -263,6 +263,25 @@ ue_PyFColor *py_ue_is_fcolor(PyObject *obj)
 	return (ue_PyFColor *)obj;
 }
 
+bool py_ue_get_fcolor(PyObject *obj, FColor &color)
+{
+
+	if (ue_PyFColor *py_fcolor = py_ue_is_fcolor(obj))
+	{
+		color = py_fcolor->color;
+		return true;
+	}
+
+
+	if (ue_PyFLinearColor *py_flinearcolor = py_ue_is_flinearcolor(obj))
+	{
+		color = py_flinearcolor->color.ToFColor(true);
+		return true;
+	}
+
+	return false;
+}
+
 bool py_ue_color_arg(PyObject *args, FColor &color)
 {
 

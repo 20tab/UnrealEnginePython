@@ -5,6 +5,8 @@
 #include "UEPySCompoundWidget.h"
 #include "UEPyFGeometry.h"
 #include "UEPyFPaintContext.h"
+#include "UEPyFCharacterEvent.h"
+#include "UEPyFKeyEvent.h"
 
 extern PyTypeObject ue_PySPythonWidgetType;
 
@@ -13,12 +15,77 @@ class SPythonWidget : public SCompoundWidget
 public:
 
 	SLATE_BEGIN_ARGS(SPythonWidget)
-	{ }
+	{
+	}
 	SLATE_END_ARGS();
 
 	void Construct(const FArguments& Args)
 	{
+	}
 
+	virtual bool SupportsKeyboardFocus() const override
+	{
+		return true;
+	}
+
+	virtual FReply OnKeyChar(const FGeometry & MyGeometry, const FCharacterEvent & InCharacterEvent) override
+	{
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"on_key_char"))
+			return FReply::Unhandled();
+
+		PyObject *py_callable_on_key_char = PyObject_GetAttrString(self, (char *)"on_key_char");
+		if (!PyCallable_Check(py_callable_on_key_char))
+		{
+			UE_LOG(LogPython, Error, TEXT("on_key_char is not a callable"));
+			return FReply::Unhandled();
+		}
+
+		PyObject *ret = PyObject_CallFunction(py_callable_on_key_char, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fcharacter_event(InCharacterEvent));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return FReply::Unhandled();
+		}
+
+		if (ret == Py_False)
+		{
+			Py_DECREF(ret);
+			return FReply::Unhandled();
+		}
+		Py_DECREF(ret);
+		return FReply::Handled();
+	}
+
+	virtual FReply OnKeyDown(const FGeometry & MyGeometry, const FKeyEvent & InKeyEvent) override
+	{
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"on_key_down"))
+			return FReply::Unhandled();
+
+		PyObject *py_callable_on_key_down = PyObject_GetAttrString(self, (char *)"on_key_down");
+		if (!PyCallable_Check(py_callable_on_key_down))
+		{
+			UE_LOG(LogPython, Error, TEXT("on_key_down is not a callable"));
+			return FReply::Unhandled();
+		}
+
+		PyObject *ret = PyObject_CallFunction(py_callable_on_key_down, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fkey_event(InKeyEvent));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return FReply::Unhandled();
+		}
+
+		if (ret == Py_False)
+		{
+			Py_DECREF(ret);
+			return FReply::Unhandled();
+		}
+		Py_DECREF(ret);
+		return FReply::Handled();
 	}
 
 	virtual int32 OnPaint(const FPaintArgs & Args,
@@ -30,22 +97,28 @@ public:
 		bool bParentEnabled) const override
 	{
 
-		if (py_callable_paint)
+		FScopePythonGIL gil;
+
+		if (!PyObject_HasAttrString(self, (char *)"paint"))
+			return LayerId + 1;
+
+		PyObject *py_callable_paint = PyObject_GetAttrString(self, (char *)"paint");
+		if (!PyCallable_Check(py_callable_paint))
 		{
-			FPaintContext context(AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-
-			FScopePythonGIL gil;
-
-			PyObject *ret = PyObject_CallFunction(py_callable_paint, (char *)"O", py_ue_new_fpaint_context(context));
-			if (!ret)
-			{
-				unreal_engine_py_log_error();
-				return LayerId + 1;
-			}
-
-			Py_DECREF(ret);
-
+			UE_LOG(LogPython, Error, TEXT("paint is not a callable"));
+			return LayerId + 1;
 		}
+
+		FPaintContext context(AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+
+		PyObject *ret = PyObject_CallFunction(py_callable_paint, (char *)"O", py_ue_new_fpaint_context(context));
+		if (!ret)
+		{
+			unreal_engine_py_log_error();
+			return LayerId + 1;
+		}
+
+		Py_DECREF(ret);
 
 		return LayerId + 1;
 
@@ -55,11 +128,17 @@ public:
 		const double InCurrentTime,
 		const float InDeltaTime) override
 	{
+		FScopePythonGIL gil;
 
-		if (!py_callable_tick)
+		if (!PyObject_HasAttrString(self, (char *)"tick"))
 			return;
 
-		FScopePythonGIL gil;
+		PyObject *py_callable_tick = PyObject_GetAttrString(self, (char *)"tick");
+		if (!PyCallable_Check(py_callable_tick))
+		{
+			UE_LOG(LogPython, Error, TEXT("tick is not a callable"));
+			return;
+		}
 
 		PyObject *ret = PyObject_CallFunction(py_callable_tick, (char *)"Off", py_ue_new_fgeometry(AllottedGeometry), InCurrentTime, InDeltaTime);
 		if (!ret)
@@ -71,20 +150,32 @@ public:
 		Py_DECREF(ret);
 	}
 
-	void SetPythonPaint(PyObject *py_callable)
+	void SetPyObject(PyObject *py_obj)
 	{
-		py_callable_paint = py_callable;
+		self = py_obj;
 	}
 
-	void SetPythonTick(PyObject *py_callable)
+	void SetActive(bool bActive)
 	{
-		py_callable_tick = py_callable;
+		if (bActive && !ActiveTimerHandle.IsValid())
+		{
+			ActiveTimerHandle = RegisterActiveTimer(0.f, FWidgetActiveTimerDelegate::CreateSP(this, &SPythonWidget::EnsureTick));
+		}
+		else if (!bActive && ActiveTimerHandle.IsValid())
+		{
+			UnRegisterActiveTimer(ActiveTimerHandle.Pin().ToSharedRef());
+		}
 	}
 
 protected:
-	PyObject *py_callable_tick;
-	PyObject *py_callable_paint;
+	PyObject *self;
 
+	TWeakPtr<FActiveTimerHandle> ActiveTimerHandle;
+
+	EActiveTimerReturnType EnsureTick(double InCurrentTime, float InDeltaTime)
+	{
+		return EActiveTimerReturnType::Continue;
+	}
 };
 
 typedef struct

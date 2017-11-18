@@ -17,6 +17,7 @@ static PyObject *py_ue_stree_view_clear_expanded_items(ue_PySTreeView *self, PyO
 	Py_RETURN_NONE;
 }
 
+
 static PyMethodDef ue_PySTreeView_methods[] = {
 	{ "request_tree_refresh", (PyCFunction)py_ue_stree_view_request_tree_refresh, METH_VARARGS, "" },
 	{ "clear_expanded_items", (PyCFunction)py_ue_stree_view_clear_expanded_items, METH_VARARGS, "" },

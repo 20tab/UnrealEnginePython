@@ -28,6 +28,20 @@ static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args)
 	return py_list;
 }
 
+static PyObject *py_ue_swidget_set_visibility(ue_PySWidget *self, PyObject * args)
+{
+	int visibility;
+	if (!PyArg_ParseTuple(args, "i:set_visibility", &visibility))
+	{
+		return nullptr;
+	}
+
+	self->s_widget->SetVisibility(EVisibility::Visible);
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *py_ue_swidget_set_tooltip_text(ue_PySWidget *self, PyObject * args)
 {
 	char *text;
@@ -186,6 +200,14 @@ static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject *
 	return Py_False;
 }
 
+static PyObject *py_ue_swidget_set_keyboard_focus(ue_PySWidget *self, PyObject * args)
+{
+
+	FSlateApplication::Get().SetKeyboardFocus(self->s_widget, EFocusCause::SetDirectly);
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *py_ue_swidget_get_type(ue_PySWidget *self, PyObject * args)
 {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->s_widget->GetTypeAsString())));
@@ -207,6 +229,7 @@ static PyObject *py_ue_swidget_invalidate(ue_PySWidget *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_shared_reference_count", (PyCFunction)py_ue_swidget_get_shared_reference_count, METH_VARARGS, "" },
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
@@ -216,6 +239,8 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "set_enabled", (PyCFunction)py_ue_swidget_set_enabled, METH_VARARGS, "" },
 	{ "has_keyboard_focus", (PyCFunction)py_ue_swidget_has_keyboard_focus, METH_VARARGS, "" },
 	{ "invalidate", (PyCFunction)py_ue_swidget_invalidate, METH_VARARGS, "" },
+	{ "set_keyboard_focus", (PyCFunction)py_ue_swidget_set_keyboard_focus, METH_VARARGS, "" },
+	{ "set_visibility", (PyCFunction)py_ue_swidget_set_visibility, METH_VARARGS, "" },
 #if ENGINE_MINOR_VERSION > 12
 	{ "bind_on_mouse_button_down", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },
 	{ "bind_on_mouse_button_up", (PyCFunction)py_ue_swidget_bind_on_mouse_button_down, METH_VARARGS, "" },

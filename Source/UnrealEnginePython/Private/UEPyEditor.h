@@ -64,7 +64,7 @@ PyObject *py_unreal_engine_editor_save_all(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_add_level_to_world(PyObject *, PyObject *);
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *, PyObject *);
-
+PyObject *py_unreal_engine_move_actor_to_level(PyObject *, PyObject *);
 
 PyObject *py_ue_factory_create_new(ue_PyUObject *, PyObject *);
 PyObject *py_ue_factory_import_object(ue_PyUObject *, PyObject *);
@@ -104,4 +104,13 @@ PyObject *py_unreal_engine_editor_undo(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_redo(PyObject *, PyObject *);
 PyObject *py_unreal_engine_transactions(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_all_viewport_clients(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_heightmap_expand(PyObject *, PyObject *);
+PyObject *py_unreal_engine_heightmap_import(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_play_preview_sound(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_register_settings(PyObject *, PyObject *);
+PyObject *py_unreal_engine_unregister_settings(PyObject *, PyObject *);
 #endif

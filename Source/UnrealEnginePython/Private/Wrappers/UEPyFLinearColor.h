@@ -16,3 +16,5 @@ ue_PyFLinearColor *py_ue_is_flinearcolor(PyObject *);
 void ue_python_init_flinearcolor(PyObject *);
 
 bool py_ue_linearcolor_arg(PyObject *, FLinearColor &);
+
+bool py_ue_get_flinearcolor(PyObject *, FLinearColor &);

@@ -45,6 +45,12 @@
 #include "Wrappers/UEPyFPythonOutputDevice.h"
 #include "Wrappers/UEPyFSoftSkinVertex.h"
 #include "Wrappers/UEPyFMorphTargetDelta.h"
+#include "Wrappers/UEPyFObjectThumbnail.h"
+
+#include "Wrappers/UEPyFViewportClient.h"
+#if WITH_EDITOR
+#include "Wrappers/UEPyFEditorViewportClient.h"
+#endif
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
@@ -61,6 +67,7 @@
 #include "UObject/UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
+#include "CollectionManager/UEPyICollectionManager.h"
 #endif
 
 #include "Slate/UEPySlate.h"
@@ -77,3 +84,9 @@ char *PyUnicode_AsUTF8(PyObject *py_str);
 int PyGILState_Check();
 #endif
 bool PyUnicodeOrString_Check(PyObject *py_obj);
+
+#define Py_RETURN_UOBJECT(py_uobj) ue_PyUObject *ret = ue_get_python_wrapper(py_uobj);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
+	Py_INCREF(ret);\
+	return (PyObject *)ret;

@@ -4,68 +4,85 @@
 #include "UEPyIVoiceCapture.h"
 
 
-PyObject *py_ue_ivoice_capture_start(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_start(ue_PyIVoiceCapture *self, PyObject * args)
+{
 
 	self->voice_capture->Start();
 
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_ivoice_capture_stop(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_stop(ue_PyIVoiceCapture *self, PyObject * args)
+{
 
 	self->voice_capture->Stop();
 
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_ivoice_capture_shutdown(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_shutdown(ue_PyIVoiceCapture *self, PyObject * args)
+{
 
 	self->voice_capture->Shutdown();
 
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_ivoice_capture_init_method(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_init_method(ue_PyIVoiceCapture *self, PyObject * args)
+{
 
 	int sample_rate;
 	int channels;
-	if (!PyArg_ParseTuple(args, "ii", &sample_rate, &channels)) {
+	char *name = (char *)"";
+	if (!PyArg_ParseTuple(args, "ii|s", &sample_rate, &channels, &name))
+	{
 		return nullptr;
 	}
 
-	if (self->voice_capture->Init(sample_rate, channels)) {
+#if ENGINE_MINOR_VERSION < 18
+	if (self->voice_capture->Init(sample_rate, channels))
+#else
+	if (self->voice_capture->Init(UTF8_TO_TCHAR(name), sample_rate, channels))
+#endif
+	{
 		Py_RETURN_TRUE;
 	}
 
 	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_ivoice_capture_is_capturing(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_is_capturing(ue_PyIVoiceCapture *self, PyObject * args)
+{
 
-	if (self->voice_capture->IsCapturing()) {
+	if (self->voice_capture->IsCapturing())
+	{
 		Py_RETURN_TRUE;
 	}
 
 	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_ivoice_capture_get_capture_state(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_get_capture_state(ue_PyIVoiceCapture *self, PyObject * args)
+{
 	uint32 available_data;
 	EVoiceCaptureState::Type state = self->voice_capture->GetCaptureState(available_data);
-	
+
 	return Py_BuildValue("ii", (int)state, available_data);
 }
 
-PyObject *py_ue_ivoice_capture_get_voice_data(ue_PyIVoiceCapture *self, PyObject * args) {
+PyObject *py_ue_ivoice_capture_get_voice_data(ue_PyIVoiceCapture *self, PyObject * args)
+{
 	int len;
-	if (!PyArg_ParseTuple(args, "i", &len)) {
+	if (!PyArg_ParseTuple(args, "i", &len))
+	{
 		return nullptr;
 	}
-	uint32 available_data;
-	uint8 *data = (uint8*)FMemory_Alloca(len);
-	EVoiceCaptureState::Type state = self->voice_capture->GetVoiceData(data, len, available_data);
 
-	return Py_BuildValue("iO", (int)state, PyByteArray_FromStringAndSize((char *)data, (Py_ssize_t)available_data));
+	uint32 available_data = 0;
+	uint8 *data = (uint8*)FMemory_Alloca(len);
+
+	EVoiceCaptureState::Type state = self->voice_capture->GetVoiceData(data, len, available_data);
+	return Py_BuildValue("iO", (int)state, PyByteArray_FromStringAndSize((char *)data, (Py_ssize_t)FMath::Min(available_data, (uint32)len)));
 }
 
 static PyMethodDef ue_PyIVoiceCapture_methods[] = {
@@ -113,10 +130,12 @@ static PyTypeObject ue_PyIVoiceCaptureType = {
 	0,
 };
 
-static int py_ue_ivoice_capture_init(ue_PyIVoiceCapture *self, PyObject * args) {
+static int py_ue_ivoice_capture_init(ue_PyIVoiceCapture *self, PyObject * args)
+{
 
 	TSharedPtr<IVoiceCapture> voice_capture_ptr = FVoiceModule::Get().CreateVoiceCapture();
-	if (!voice_capture_ptr.IsValid()) {
+	if (!voice_capture_ptr.IsValid())
+	{
 		PyErr_SetString(PyExc_Exception, "unable to create a new VoiceCapture");
 		return -1;
 	}
@@ -125,7 +144,8 @@ static int py_ue_ivoice_capture_init(ue_PyIVoiceCapture *self, PyObject * args) 
 	return 0;
 }
 
-void ue_python_init_ivoice_capture(PyObject *ue_module) {
+void ue_python_init_ivoice_capture(PyObject *ue_module)
+{
 	ue_PyIVoiceCaptureType.tp_new = PyType_GenericNew;
 	ue_PyIVoiceCaptureType.tp_init = (initproc)py_ue_ivoice_capture_init;
 

@@ -2,12 +2,14 @@
 
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
-PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *command;
-	if (!PyArg_ParseTuple(args, "s:world_exec", &command)) {
+	if (!PyArg_ParseTuple(args, "s:world_exec", &command))
+	{
 		return NULL;
 	}
 
@@ -15,17 +17,14 @@ PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args) {
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	bool success = world->Exec(world, UTF8_TO_TCHAR(command));
-	if (success) {
-		Py_INCREF(Py_True);
-		return Py_True;
-	}
+	if (world->Exec(world, UTF8_TO_TCHAR(command)))
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
 
-	Py_INCREF(Py_False);
-	return Py_False;
 }
 
-PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -40,11 +39,23 @@ PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args) {
 
 	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_play(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_world_type(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	return PyLong_FromUnsignedLong(world->WorldType);
+}
+
+PyObject *py_ue_play(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -54,17 +65,18 @@ PyObject *py_ue_play(ue_PyUObject *self, PyObject * args) {
 
 	world->BeginPlay();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 // mainly used for testing
-PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	float delta_time;
-	if (!PyArg_ParseTuple(args, "f:world_tick", &delta_time)) {
+	if (!PyArg_ParseTuple(args, "f:world_tick", &delta_time))
+	{
 		return NULL;
 	}
 
@@ -74,11 +86,11 @@ PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args) {
 
 	world->Tick(LEVELTICK_All, delta_time);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -88,7 +100,8 @@ PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *ret = PyList_New(0);
 
-	for (TObjectIterator<UObject> Itr; Itr; ++Itr) {
+	for (TObjectIterator<UObject> Itr; Itr; ++Itr)
+	{
 		UObject *u_obj = *Itr;
 		if (u_obj->GetWorld() != world)
 			continue;
@@ -100,7 +113,8 @@ PyObject *py_ue_all_objects(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
-PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -110,7 +124,8 @@ PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *ret = PyList_New(0);
 
-	for (TActorIterator<AActor> Itr(world); Itr; ++Itr) {
+	for (TActorIterator<AActor> Itr(world); Itr; ++Itr)
+	{
 		UObject *u_obj = *Itr;
 		ue_PyUObject *py_obj = ue_get_python_wrapper(u_obj);
 		if (!py_obj)
@@ -123,32 +138,35 @@ PyObject *py_ue_all_actors(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
-PyObject *py_ue_find_object(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_find_object(ue_PyUObject *self, PyObject * args)
+{
 
-    ue_py_check(self);
+	ue_py_check(self);
 
-    char *name;
-    if (!PyArg_ParseTuple(args, "s:find_object", &name)) {
-        return NULL;
-    }
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:find_object", &name))
+	{
+		return NULL;
+	}
 
-    UWorld *world = ue_get_uworld(self);
-    if (!world)
-        return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-    UObject *u_object = FindObject<UObject>(world->GetOutermost(), UTF8_TO_TCHAR(name));
+	UObject *u_object = FindObject<UObject>(world->GetOutermost(), UTF8_TO_TCHAR(name));
 
-    if (!u_object)
-        return PyErr_Format(PyExc_Exception, "unable to find object %s", name);
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "unable to find object %s", name);
 
-    ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-    if (!ret)
-        return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-    Py_INCREF(ret);
-    return (PyObject *)ret;
+	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
 }
 
-PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -164,7 +182,8 @@ PyObject *py_ue_get_world(ue_PyUObject *self, PyObject * args) {
 
 }
 
-PyObject *py_ue_get_game_viewport(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_get_game_viewport(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -176,29 +195,21 @@ PyObject *py_ue_get_game_viewport(ue_PyUObject *self, PyObject * args) {
 	if (!viewport_client)
 		return PyErr_Format(PyExc_Exception, "world has no GameViewportClient");
 
-	ue_PyUObject *ret = ue_get_python_wrapper(viewport_client);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-
+	Py_RETURN_UOBJECT(viewport_client);
 }
 
-PyObject *py_ue_has_world(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_has_world(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	UWorld *world = ue_get_uworld(self);
-	if (!world) {
-		Py_INCREF(Py_False);
-		return Py_False;
-	}
-
-	Py_INCREF(Py_True);
-	return Py_True;
+	if (ue_get_uworld(self))
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -208,12 +219,14 @@ PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *py_obj;
 	int controller_id = 0;
-	if (!PyArg_ParseTuple(args, "O|i:set_view_target", &py_obj, &controller_id)) {
+	if (!PyArg_ParseTuple(args, "O|i:set_view_target", &py_obj, &controller_id))
+	{
 		return NULL;
 	}
 
 	AActor *actor = ue_py_check_type<AActor>(py_obj);
-	if (!actor) {
+	if (!actor)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not an actor");
 	}
 
@@ -223,12 +236,12 @@ PyObject *py_ue_set_view_target(ue_PyUObject * self, PyObject * args) {
 
 	controller->SetViewTarget(actor);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 
 }
 
-PyObject *py_ue_get_world_delta_seconds(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_world_delta_seconds(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -239,7 +252,8 @@ PyObject *py_ue_get_world_delta_seconds(ue_PyUObject * self, PyObject * args) {
 	return Py_BuildValue("f", UGameplayStatics::GetWorldDeltaSeconds(world));
 }
 
-PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -249,7 +263,8 @@ PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args) {
 
 	PyObject *ret = PyList_New(0);
 
-	for (ULevel *level : world->GetLevels()) {
+	for (ULevel *level : world->GetLevels())
+	{
 		ue_PyUObject *py_obj = ue_get_python_wrapper(level);
 		if (!py_obj)
 			continue;
@@ -257,5 +272,49 @@ PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args) {
 
 	}
 	return ret;
+}
+
+PyObject *py_ue_get_current_level(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	ULevel *level = world->GetCurrentLevel();
+	if (!level)
+		Py_RETURN_NONE;
+
+	ue_PyUObject *ret = ue_get_python_wrapper(level);
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+	Py_INCREF(ret);
+	return (PyObject *)ret;
+}
+
+PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_level;
+
+	if (!PyArg_ParseTuple(args, "O", &py_level))
+		return nullptr;
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	ULevel *level = ue_py_check_type<ULevel>(py_level);
+	if (!level)
+		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
+
+	if (world->SetCurrentLevel(level))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
 }
 

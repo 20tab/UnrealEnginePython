@@ -569,6 +569,7 @@ static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject
 	Py_RETURN_NONE;
 }
 
+
 static PyMethodDef ue_PyIConsoleManager_methods[] = {
 	{ "get_history", (PyCFunction)py_ue_iconsole_manager_get_history, METH_VARARGS | METH_CLASS, "" },
 	{ "add_history_entry", (PyCFunction)py_ue_iconsole_manager_add_history_entry, METH_VARARGS | METH_CLASS, "" },
@@ -635,7 +636,7 @@ static PyTypeObject ue_PyIConsoleManagerType = {
 
 static int py_ue_iconsole_manager_init(ue_PyIConsoleManager *self, PyObject * args)
 {
-	PyErr_SetString(PyExc_Exception, "IConsoleManage is a singleton");
+	PyErr_SetString(PyExc_Exception, "IConsoleManager is a singleton");
 	return -1;
 }
 
