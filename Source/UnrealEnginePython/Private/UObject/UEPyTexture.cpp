@@ -3,7 +3,8 @@
 #include "Runtime/Engine/Public/ImageUtils.h"
 #include "Runtime/Engine/Classes/Engine/Texture.h"
 
-PyObject *py_ue_texture_update_resource(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_texture_update_resource(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -15,7 +16,8 @@ PyObject *py_ue_texture_update_resource(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_texture_get_width(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_texture_get_width(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -26,7 +28,8 @@ PyObject *py_ue_texture_get_width(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(texture->GetSizeX());
 }
 
-PyObject *py_ue_texture_get_height(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_texture_get_height(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -37,13 +40,15 @@ PyObject *py_ue_texture_get_height(ue_PyUObject *self, PyObject * args) {
 	return PyLong_FromLong(texture->GetSizeY());
 }
 
-PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	int mipmap = 0;
 
-	if (!PyArg_ParseTuple(args, "|i:texture_get_data", &mipmap)) {
+	if (!PyArg_ParseTuple(args, "|i:texture_get_data", &mipmap))
+	{
 		return NULL;
 	}
 
@@ -61,13 +66,15 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args) {
 }
 
 #if WITH_EDITOR
-PyObject *py_ue_texture_get_source_data(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_texture_get_source_data(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	int mipmap = 0;
 
-	if (!PyArg_ParseTuple(args, "|i:texture_get_data", &mipmap)) {
+	if (!PyArg_ParseTuple(args, "|i:texture_get_data", &mipmap))
+	{
 		return NULL;
 	}
 
@@ -87,13 +94,15 @@ PyObject *py_ue_texture_get_source_data(ue_PyUObject *self, PyObject * args) {
 }
 #endif
 
-PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	int mipmap = 0;
 
-	if (!PyArg_ParseTuple(args, "|i:render_target_get_data", &mipmap)) {
+	if (!PyArg_ParseTuple(args, "|i:render_target_get_data", &mipmap))
+	{
 		return NULL;
 	}
 
@@ -102,26 +111,68 @@ PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
 
 	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
-	if (!resource) {
+	if (!resource)
+	{
 		return PyErr_Format(PyExc_Exception, "cannot get render target resource");
 	}
 
 	TArray<FColor> pixels;
-	if (!resource->ReadPixels(pixels)) {
+	if (!resource->ReadPixels(pixels))
+	{
 		return PyErr_Format(PyExc_Exception, "unable to read pixels");
 	}
 
 	return PyByteArray_FromStringAndSize((const char *)pixels.GetData(), (Py_ssize_t)(tex->GetSurfaceWidth() * 4 * tex->GetSurfaceHeight()));
 }
 
-PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_render_target_get_data_to_buffer(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+	Py_buffer py_buf;
+	int mipmap = 0;
+
+	if (!PyArg_ParseTuple(args, "z*|i:render_target_get_data_to_buffer", &py_buf, &mipmap))
+	{
+		return NULL;
+	}
+
+	UTextureRenderTarget2D *tex = ue_py_check_type<UTextureRenderTarget2D>(self);
+	if (!tex)
+		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
+
+	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
+	if (!resource)
+	{
+		return PyErr_Format(PyExc_Exception, "cannot get render target resource");
+	}
+
+	Py_ssize_t data_len = (Py_ssize_t)(tex->GetSurfaceWidth() * 4 * tex->GetSurfaceHeight());
+	if (py_buf.len < data_len)
+	{
+		return PyErr_Format(PyExc_Exception, "buffer is not big enough");
+	}
+
+	TArray<FColor> pixels;
+	if (!resource->ReadPixels(pixels))
+	{
+		return PyErr_Format(PyExc_Exception, "unable to read pixels");
+	}
+
+	FMemory::Memcpy(py_buf.buf, pixels.GetData(), data_len);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	Py_buffer py_buf;
 	int mipmap = 0;
 
-	if (!PyArg_ParseTuple(args, "z*|i:texture_set_data", &py_buf, &mipmap)) {
+	if (!PyArg_ParseTuple(args, "z*|i:texture_set_data", &py_buf, &mipmap))
+	{
 		return NULL;
 	}
 
@@ -140,7 +191,8 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	int32 len = tex->PlatformData->Mips[mipmap].BulkData.GetBulkDataSize();
 	int32 wanted_len = py_buf.len;
 	// avoid making mess
-	if (wanted_len > len) {
+	if (wanted_len > len)
+	{
 		UE_LOG(LogPython, Warning, TEXT("truncating buffer to %d bytes"), len);
 		wanted_len = len;
 	}
@@ -158,22 +210,26 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_unreal_engine_compress_image_array(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_compress_image_array(PyObject * self, PyObject * args)
+{
 	int width;
 	int height;
 	Py_buffer py_buf;
-	if (!PyArg_ParseTuple(args, "iiz*:compress_image_array", &width, &height, &py_buf)) {
+	if (!PyArg_ParseTuple(args, "iiz*:compress_image_array", &width, &height, &py_buf))
+	{
 		return NULL;
 	}
 
-	if (py_buf.buf == nullptr || py_buf.len <= 0) {
+	if (py_buf.buf == nullptr || py_buf.len <= 0)
+	{
 		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "invalid image data");
 	}
 
 	TArray<FColor> colors;
 	uint8 *buf = (uint8 *)py_buf.buf;
-	for (int32 i = 0; i < py_buf.len; i += 4) {
+	for (int32 i = 0; i < py_buf.len; i += 4)
+	{
 		colors.Add(FColor(buf[i], buf[1 + 1], buf[i + 2], buf[i + 3]));
 	}
 
@@ -184,11 +240,13 @@ PyObject *py_unreal_engine_compress_image_array(PyObject * self, PyObject * args
 	return PyBytes_FromStringAndSize((char *)output.GetData(), output.Num());
 }
 
-PyObject *py_unreal_engine_create_checkerboard_texture(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_checkerboard_texture(PyObject * self, PyObject * args)
+{
 	PyObject *py_color_one;
 	PyObject *py_color_two;
 	int checker_size;
-	if (!PyArg_ParseTuple(args, "OOi:create_checkboard_texture", &py_color_one, &py_color_two, &checker_size)) {
+	if (!PyArg_ParseTuple(args, "OOi:create_checkboard_texture", &py_color_one, &py_color_two, &checker_size))
+	{
 		return NULL;
 	}
 
@@ -209,11 +267,13 @@ PyObject *py_unreal_engine_create_checkerboard_texture(PyObject * self, PyObject
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * args)
+{
 	int width;
 	int height;
 	int format = PF_B8G8R8A8;
-	if (!PyArg_ParseTuple(args, "ii|i:create_transient_texture", &width, &height, &format)) {
+	if (!PyArg_ParseTuple(args, "ii|i:create_transient_texture", &width, &height, &format))
+	{
 		return NULL;
 	}
 
@@ -231,12 +291,14 @@ PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * 
 	return (PyObject *)ret;
 }
 
-PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * self, PyObject * args)
+{
 	int width;
 	int height;
 	int format = PF_B8G8R8A8;
 	PyObject *py_linear = nullptr;
-	if (!PyArg_ParseTuple(args, "ii|iO:create_transient_texture_render_target2d", &width, &height, &format, &py_linear)) {
+	if (!PyArg_ParseTuple(args, "ii|iO:create_transient_texture_render_target2d", &width, &height, &format, &py_linear))
+	{
 		return NULL;
 	}
 
@@ -254,24 +316,29 @@ PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * s
 }
 
 #if WITH_EDITOR
-PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args) {
+PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args)
+{
 	PyObject *py_package;
 	char *name;
 	int width;
 	int height;
 	Py_buffer py_buf;
 
-	if (!PyArg_ParseTuple(args, "Osiiz*:create_texture", &py_package, &name, &width, &height, &py_buf)) {
+	if (!PyArg_ParseTuple(args, "Osiiz*:create_texture", &py_package, &name, &width, &height, &py_buf))
+	{
 		return nullptr;
 	}
 
 	UPackage *u_package = nullptr;
-	if (py_package == Py_None) {
+	if (py_package == Py_None)
+	{
 		u_package = GetTransientPackage();
 	}
-	else {
+	else
+	{
 		u_package = ue_py_check_type<UPackage>(py_package);
-		if (!u_package) {
+		if (!u_package)
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
 		}
 	}
@@ -286,7 +353,7 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args) {
 		wanted_len = py_buf.len;
 
 	FMemory::Memcpy(colors.GetData(), py_buf.buf, wanted_len);
-	
+
 	UTexture2D *texture = FImageUtils::CreateTexture2D(width, height, colors, u_package, UTF8_TO_TCHAR(name), RF_Public | RF_Standalone, params);
 	if (!texture)
 		return PyErr_Format(PyExc_Exception, "unable to create texture");
