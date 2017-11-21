@@ -1227,3 +1227,16 @@ PyObject *py_unreal_engine_copy_properties_for_unrelated_objects(PyObject * self
 
 	Py_RETURN_NONE;
 }
+
+PyObject *py_unreal_engine_set_random_seed(PyObject * self, PyObject * args)
+{
+	int seed;
+	if (!PyArg_ParseTuple(args, "i:set_random_seed", &seed))
+	{
+		return nullptr;
+	}
+
+	FMath::RandInit(seed);
+
+	Py_RETURN_NONE;
+}

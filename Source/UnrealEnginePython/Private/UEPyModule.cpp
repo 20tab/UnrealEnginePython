@@ -152,6 +152,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
 
+	{ "set_random_seed", py_unreal_engine_set_random_seed, METH_VARARGS, "" },
+
 	{ "find_class", py_unreal_engine_find_class, METH_VARARGS, "" },
 	{ "find_struct", py_unreal_engine_find_struct, METH_VARARGS, "" },
 	{ "find_enum", py_unreal_engine_find_enum, METH_VARARGS, "" },
