@@ -1236,7 +1236,10 @@ PyObject *py_unreal_engine_set_random_seed(PyObject * self, PyObject * args)
 		return nullptr;
 	}
 
+	// Thanks to Sven Mika (Ducandu GmbH) for spotting this
 	FMath::RandInit(seed);
+	FGenericPlatformMath::SRandInit(seed);
+	FGenericPlatformMath::RandInit(seed);
 
 	Py_RETURN_NONE;
 }
