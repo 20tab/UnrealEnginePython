@@ -14,3 +14,5 @@ typedef struct {
 } ue_PySHeaderRow;
 
 void ue_python_init_sheader_row(PyObject *);
+
+ue_PySHeaderRow *py_ue_is_sheader_row(PyObject *);

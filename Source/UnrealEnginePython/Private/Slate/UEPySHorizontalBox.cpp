@@ -65,6 +65,10 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 			}
 			fslot.Padding(margin);
 		}
+        else if (FMargin *parsed_margin = ue_py_check_struct<FMargin>(padding)) 
+        {    
+            fslot.Padding(*parsed_margin);
+        }
 		else if (PyNumber_Check(padding))
 		{
 			PyObject *py_float = PyNumber_Float(padding);

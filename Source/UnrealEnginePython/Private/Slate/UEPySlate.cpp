@@ -19,9 +19,9 @@
 #include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
 #include "Runtime/Slate/Public/Framework/Docking/TabManager.h"
 #include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
+#include "Runtime/SlateCore/Public/Styling/SlateIconFinder.h"
 
 #include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
-
 
 #include "UEPySlate.h"
 
@@ -320,12 +320,41 @@ TSharedRef<SWidget> UPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonIte
 		return SNullWidget::NullWidget;
 	}
 	TSharedRef<SWidget> value = s_widget->s_widget;
-	Py_DECREF(ret);
+
+	Py_INCREF(ret);
 	return value;
+}
+
+TSharedRef<SWidget> UPythonSlateDelegate::OnGetMenuContent()
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return SNullWidget::NullWidget;
+    }
+
+    ue_PySWidget *s_widget = py_ue_is_swidget(ret);
+    if (!s_widget)
+    {
+        Py_DECREF(ret);
+        UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+        return SNullWidget::NullWidget;
+    }
+    TSharedRef<SWidget> value = s_widget->s_widget;
+    Py_DECREF(ret);
+    return value;
 }
 
 void UPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type)
 {
+    if (!py_item.IsValid())
+    {
+        return;
+    }
+
 	FScopePythonGIL gil;
 
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", py_item.Get()->py_object, (int)select_type);
@@ -615,20 +644,29 @@ TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 
 TSharedRef<ITableRow> UPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable)
 {
+    FScopePythonGIL gil;
+
 	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
 	if (!ret)
 	{
 		unreal_engine_py_log_error();
 		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
 	}
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	
+    if (ue_PySPythonMultiColumnTableRow *spython_multicolumn_table_row = py_ue_is_spython_multicolumn_table_row(ret))
+    {
+        Py_INCREF(spython_multicolumn_table_row);
+        TSharedRef<SPythonMultiColumnTableRow> value = StaticCastSharedRef<SPythonMultiColumnTableRow>(spython_multicolumn_table_row->s_compound_widget.s_widget.s_widget->AsShared());
+        return value;
+    }
+	else if (ue_PySWidget *s_widget = py_ue_is_swidget(ret))
 	{
-		UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
-		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
+        return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget];
 	}
 
-	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget];
+    UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
+    return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
+	
 }
 
 void UPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren)
@@ -735,6 +773,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_stable_view_base(module);
 	ue_python_init_slist_view(module);
 	ue_python_init_spython_list_view(module);
+    ue_python_init_spython_multicolumn_table_row(module);
 	ue_python_init_stree_view(module);
 	ue_python_init_spython_tree_view(module);
 	ue_python_init_ssplitter(module);
@@ -756,6 +795,7 @@ void ue_python_init_slate(PyObject *module)
 
 
 #if WITH_EDITOR
+    ue_python_init_idetails_view(module);
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_slevel_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
@@ -785,6 +825,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_fpointer_event(module);
 	ue_python_init_fkey_event(module);
 	ue_python_init_fcharacter_event(module);
+    ue_python_init_eslate_enums(module);
 }
 
 PyObject *ue_py_dict_get_item(PyObject *dict, const char *key)
@@ -804,6 +845,40 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args)
 
 	return (PyObject *)ue_py_get_swidget(FGlobalTabmanager::Get()->GetRootWindow().ToSharedRef());
 }
+
+PyObject *py_unreal_engine_find_slate_style(PyObject *self, PyObject *args)
+{
+    char *name = nullptr;
+    if (!PyArg_ParseTuple(args, "s:find_slate_style", &name))
+        return nullptr;
+    
+    ISlateStyle const* const foundStyleSet = FSlateStyleRegistry::FindSlateStyle(FName(name));
+    if (!foundStyleSet)
+    {
+        UE_LOG(LogPython, Warning, TEXT("Could not find SlateStyle"));
+        Py_RETURN_NONE;
+    }
+
+    ue_PyFSlateStyleSet *ret = py_ue_new_fslate_style_set(static_cast<FSlateStyleSet*>(const_cast<ISlateStyle*>(foundStyleSet)));
+    return (PyObject *)ret;
+}
+
+PyObject *py_unreal_engine_find_icon_for_class(PyObject *self, PyObject *args)
+{
+    PyObject* py_class = nullptr;
+    char *name         = nullptr;
+    if (!PyArg_ParseTuple(args, "O|s:find_icon_for_class", &py_class, &name))
+        return nullptr;
+
+    UClass *u_class = ue_py_check_type<UClass>(py_class);
+    if (!u_class)
+        return PyErr_Format(PyExc_Exception, "argument is not a UClass object");
+
+    FSlateIcon foundIcon = FSlateIconFinder::FindIconForClass(u_class, FName(UTF8_TO_TCHAR(name)));
+    ue_PyFSlateIcon *ret = py_ue_new_fslate_icon(foundIcon);
+    return (PyObject *)ret;
+}
+
 
 // slate commands tool class
 class FPythonSlateCommands : public TCommands<FPythonSlateCommands>
@@ -899,32 +974,54 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 	PyObject *py_object;
 	PyObject *py_allow_search = nullptr;
 
+    PyObject *py_update_from_selection    = nullptr;
+    PyObject *py_lockable                 = nullptr;
+    PyObject *py_name_area_settings       = nullptr;
+    PyObject *py_hide_selection_tip       = nullptr;
+    PyObject *py_search_initial_key_focus = nullptr;
+
 	char *kwlist[] = {
 		(char *)"uobject",
 		(char *)"allow_search",
+
+        (char *)"update_from_selection",
+        (char *)"lockable",
+        (char *)"name_area_settings",
+        (char *)"hide_selection_tip",
+        (char *)"search_initial_key_focus",
 		nullptr };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:create_detail_view", kwlist,
-		&py_object, &py_allow_search))
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_detail_view", kwlist,
+		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
 	{
 		return nullptr;
 	}
 
-	UObject *u_object = ue_py_check_type<UObject>(py_object);
-	if (!u_object)
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	FDetailsViewArgs view_args;
-	view_args.bAllowSearch = (py_allow_search && PyObject_IsTrue(py_allow_search));
-	view_args.NameAreaSettings = FDetailsViewArgs::ENameAreaSettings::HideNameArea;
+	view_args.bAllowSearch           = (py_allow_search            ) ? PyObject_IsTrue(py_allow_search)             : view_args.bAllowSearch;
+    view_args.bUpdatesFromSelection  = (py_update_from_selection   ) ? PyObject_IsTrue(py_update_from_selection)    : view_args.bUpdatesFromSelection;
+    view_args.bLockable              = (py_lockable                ) ? PyObject_IsTrue(py_lockable)                 : view_args.bLockable;
+    view_args.bHideSelectionTip      = (py_hide_selection_tip      ) ? PyObject_IsTrue(py_hide_selection_tip)       : view_args.bHideSelectionTip;
+    view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+    view_args.NameAreaSettings = [py_name_area_settings]() {
+             if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("HideNameArea")) == 0)                   { return FDetailsViewArgs::ENameAreaSettings::HideNameArea;                   }
+        else if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("ObjectsUseNameArea")) == 0)             { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea;             }
+        else if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("ActorsUseNameArea")) == 0)              { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
+        else if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
+        else                                                                                                           { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
+    }();
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
-	view->SetObject(u_object);
+    
+    if (UObject *u_object = ue_py_check_type<UObject>(py_object))
+    {
+	    view->SetObject(u_object);
+    }
 
-	return (PyObject *)py_ue_new_swidget<ue_PySWidget>(view->AsShared(), &ue_PySWidgetType);
+    extern PyTypeObject ue_PyIDetailsViewType;
+	return (PyObject *)py_ue_new_swidget<ue_PyIDetailsView>(view->AsShared(), &ue_PyIDetailsViewType);
 }
 
 PyObject *py_unreal_engine_create_property_view(PyObject *self, PyObject * args, PyObject *kwargs)

@@ -561,7 +561,12 @@ PyObject *py_ue_get_display_name(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 #if WITH_EDITOR
-	if (AActor *actor = ue_py_check_type<AActor>(self))
+    if (UClass *uclass = ue_py_check_type<UClass>(self))
+    {
+        return PyUnicode_FromString(TCHAR_TO_UTF8(*uclass->GetDisplayNameText().ToString()));
+    }
+
+    if (AActor *actor = ue_py_check_type<AActor>(self))
 	{
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*actor->GetActorLabel()));
 	}

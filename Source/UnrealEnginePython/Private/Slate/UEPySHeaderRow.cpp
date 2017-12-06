@@ -39,14 +39,14 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *a
 	if (!default_tooltip)
 		default_tooltip = default_label;
 
-	SHeaderRow::FColumn column = SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
-		.DefaultLabel(FText::FromString(UTF8_TO_TCHAR(default_label)))
-		.DefaultTooltip(FText::FromString(UTF8_TO_TCHAR(default_tooltip)))
-		.FixedWidth(fixed_width)
-		.HAlignCell((EHorizontalAlignment)cell_h_align)
-		.VAlignCell((EVerticalAlignment)cell_v_align);
-
-	sw_header_row->AddColumn(column);
+	sw_header_row->AddColumn(
+        SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
+        .DefaultLabel(FText::FromString(UTF8_TO_TCHAR(default_label)))
+        .DefaultTooltip(FText::FromString(UTF8_TO_TCHAR(default_tooltip)))
+        .FixedWidth(fixed_width)
+        .HAlignCell((EHorizontalAlignment)cell_h_align)
+        .VAlignCell((EVerticalAlignment)cell_v_align)
+    );
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -97,6 +97,7 @@ static int ue_py_sheader_row_init(ue_PySHeaderRow *self, PyObject *args, PyObjec
 void ue_python_init_sheader_row(PyObject *ue_module) {
 
 	ue_PySHeaderRowType.tp_init = (initproc)ue_py_sheader_row_init;
+    ue_PySHeaderRowType.tp_call = (ternaryfunc)py_ue_sheader_row_add_column;
 
 	ue_PySHeaderRowType.tp_base = &ue_PySBorderType;
 
@@ -105,5 +106,12 @@ void ue_python_init_sheader_row(PyObject *ue_module) {
 
 	Py_INCREF(&ue_PySHeaderRowType);
 	PyModule_AddObject(ue_module, "SHeaderRow", (PyObject *)&ue_PySHeaderRowType);
+}
+
+ue_PySHeaderRow * py_ue_is_sheader_row(PyObject *obj)
+{
+    if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySHeaderRowType))
+        return nullptr;
+    return (ue_PySHeaderRow *)obj;
 }
 

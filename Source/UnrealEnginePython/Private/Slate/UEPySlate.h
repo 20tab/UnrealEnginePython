@@ -40,6 +40,7 @@
 #include "UEPySTableViewBase.h"
 #include "UEPySListView.h"
 #include "UEPySPythonListView.h"
+#include "UEPySPythonMultiColumnTableRow.h"
 #include "UEPySTreeView.h"
 #include "UEPySPythonTreeView.h"
 #include "UEPySSplitter.h"
@@ -62,9 +63,9 @@
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
 #include "UEPyFMenuBuilder.h"
-#include "UEPyFSlateStyleSet.h"
 #include "UEPyFToolBarBuilder.h"
 #include "UEPyFSlateIcon.h"
+#include "UEPyFSlateStyleSet.h"
 
 #include "UEPyFGeometry.h"
 #include "UEPyFPaintContext.h"
@@ -84,6 +85,7 @@
 #include "UEPySDropTarget.h"
 #include "UEPySAssetDropTarget.h"
 #include "UEPySObjectPropertyEntryBox.h"
+#include "UEPyIDetailsView.h"
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
@@ -93,9 +95,10 @@
 
 #include "UEPySlate.generated.h"
 
-
-
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_find_slate_style(PyObject *, PyObject *);
+PyObject *py_unreal_engine_find_icon_for_class(PyObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
@@ -139,6 +142,8 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 #define ue_py_snew_base(T, field, required, arguments) self->field.s_widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments); ue_py_register_swidget((SWidget *)&self->field.s_widget.Get(), (ue_PySWidget *)self)
 
 #define ue_py_snew_simple(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), T::FArguments())
+
+#define ue_py_snew_simple_with_req_args(T, field, ... ) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), T::FArguments())
 
 #define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
 
@@ -422,7 +427,7 @@ void ue_python_init_slate(PyObject *);
 
 struct FPythonItem
 {
-	PyObject *py_object;
+	PyObject *py_object = nullptr;
 
 	FPythonItem(PyObject *item)
 	{
@@ -468,6 +473,7 @@ public:
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
+    TSharedRef<SWidget> OnGetMenuContent();
 	void OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type);
 
 	void SimpleExecuteAction();

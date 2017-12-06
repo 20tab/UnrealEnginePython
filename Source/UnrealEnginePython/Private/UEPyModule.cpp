@@ -201,6 +201,9 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	// slate
 
+    { "find_slate_style", py_unreal_engine_find_slate_style, METH_VARARGS, "" },
+    { "find_icon_for_class", py_unreal_engine_find_icon_for_class, METH_VARARGS, "" },
+
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "unregister_nomad_tab_spawner", py_unreal_engine_unregister_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "invoke_tab", py_unreal_engine_invoke_tab, METH_VARARGS, "" },
@@ -855,6 +858,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_changed", (PyCFunction)py_ue_sequencer_changed, METH_VARARGS, "" },
 	{ "sequencer_add_camera_cut_track", (PyCFunction)py_ue_sequencer_add_camera_cut_track, METH_VARARGS, "" },
 	{ "sequencer_add_actor", (PyCFunction)py_ue_sequencer_add_actor, METH_VARARGS, "" },
+    { "sequencer_add_actor_component", (PyCFunction)py_ue_sequencer_add_actor_component, METH_VARARGS, "" },
 	{ "sequencer_make_new_spawnable", (PyCFunction)py_ue_sequencer_make_new_spawnable, METH_VARARGS, "" },
 
 	{ "sequencer_add_possessable", (PyCFunction)py_ue_sequencer_add_possessable, METH_VARARGS, "" },
@@ -3463,4 +3467,28 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 	return function;
+}
+
+uint8 * do_ue_py_check_struct(PyObject *py_obj, UScriptStruct* chk_u_struct)
+{
+    ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_obj);
+    if (!ue_py_struct) {
+        return nullptr;
+    }
+
+    if (ue_py_struct->u_struct == chk_u_struct) {
+        return ue_py_struct->data;
+    }
+
+    return nullptr;
+}
+
+bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct)
+{
+    ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_obj);
+    if (!ue_py_struct) {
+        false;
+    }
+
+    return ue_py_struct->u_struct->IsChildOf(parent_u_struct);
 }
