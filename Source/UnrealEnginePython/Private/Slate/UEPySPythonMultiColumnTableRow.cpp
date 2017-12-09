@@ -6,7 +6,7 @@
 
 #define sw_python_multicolumn_table_row StaticCastSharedRef<SPythonMultiColumnTableRow>(self->s_compound_widget.s_widget.s_widget)
 
-static PyMethodDef ue_PySPythonListView_methods[] = {
+static PyMethodDef ue_PySPythonMultiColumnTableRow_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
@@ -38,7 +38,7 @@ PyTypeObject ue_PySPythonMultiColumnTableRowType = {
 	0,                         /* tp_weaklistoffset */
 	0,                         /* tp_iter */
 	0,                         /* tp_iternext */
-	ue_PySPythonListView_methods,             /* tp_methods */
+	ue_PySPythonMultiColumnTableRow_methods,             /* tp_methods */
 };
 
 static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTableRow *self, PyObject *args, PyObject *kwargs) {
