@@ -75,9 +75,10 @@ PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	float delta_time;
-	if (!PyArg_ParseTuple(args, "f:world_tick", &delta_time))
+	PyObject *py_increase_fc = nullptr;
+	if (!PyArg_ParseTuple(args, "f|O:world_tick", &delta_time, &py_increase_fc))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	UWorld *world = ue_get_uworld(self);
@@ -85,6 +86,9 @@ PyObject *py_ue_world_tick(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	world->Tick(LEVELTICK_All, delta_time);
+
+	if (py_increase_fc && PyObject_IsTrue(py_increase_fc))
+		GFrameCounter++;
 
 	Py_RETURN_NONE;
 }

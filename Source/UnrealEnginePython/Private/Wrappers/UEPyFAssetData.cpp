@@ -44,6 +44,7 @@ static PyObject *py_ue_fassetdata_get_thumbnail(ue_PyFAssetData *self, PyObject 
 }
 
 #if ENGINE_MINOR_VERSION >= 18
+
 static PyObject *py_ue_fassetdata_has_custom_thumbnail(ue_PyFAssetData *self, PyObject * args)
 {
 
@@ -71,6 +72,7 @@ static PyMethodDef ue_PyFAssetData_methods[] = {
 	{ "get_asset", (PyCFunction)py_ue_fassetdata_get_asset, METH_VARARGS, "" },
 	{ "is_asset_loaded", (PyCFunction)py_ue_fassetdata_is_asset_loaded, METH_VARARGS, "" },
 	{ "get_thumbnail", (PyCFunction)py_ue_fassetdata_get_thumbnail, METH_VARARGS, "" },
+
 #if ENGINE_MINOR_VERSION >= 18
 	{ "has_custom_thumbnail", (PyCFunction)py_ue_fassetdata_has_custom_thumbnail, METH_VARARGS, "" },
 #endif
