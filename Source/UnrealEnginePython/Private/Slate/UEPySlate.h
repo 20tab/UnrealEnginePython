@@ -375,6 +375,12 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_optional_string(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (PyUnicode_Check(value)) {\
+		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
+	}\
+}
+
 #define ue_py_slate_farguments_optional_text(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyUnicode_Check(value)) {\
@@ -449,6 +455,7 @@ public:
 	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
+    void OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode);
 
 	void OnLinearColorChanged(FLinearColor color);
 

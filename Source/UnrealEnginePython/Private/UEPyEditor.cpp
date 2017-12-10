@@ -26,6 +26,7 @@
 #include "Editor/LandscapeEditor/Public/LandscapeFileFormatInterface.h"
 
 #include "Developer/Settings/Public/ISettingsModule.h"
+#include "Engine/Blueprint.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -1120,6 +1121,33 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args)
 
 }
 
+PyObject *py_unreal_engine_get_blueprint_hierarchy_from_class(PyObject * self, PyObject * args)
+{
+    PyObject *py_class;
+    if (!PyArg_ParseTuple(args, "O:get_blueprint_hierarchy_from_class", &py_class))
+    {
+        return NULL;
+    }
+
+    UClass* u_class = ue_py_check_type<UClass>(py_class);
+    if (!u_class)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+    }
+
+
+    TArray<UBlueprint*> outBPs;
+    UBlueprint::GetBlueprintHierarchyFromClass(u_class, outBPs);
+
+    PyObject *py_bpClasses = PyList_New(0);
+
+    for (UBlueprint* bpClass : outBPs) {
+        ue_PyUObject *item = ue_get_python_wrapper(bpClass);
+        if (item)
+            PyList_Append(py_bpClasses, (PyObject *)item);
+    }
+    return py_bpClasses;
+}
 
 PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args)
 {
@@ -1602,6 +1630,35 @@ PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject * self, PyObjec
 	return ret;
 }
 
+PyObject *py_unreal_engine_blueprint_get_all_graphs(PyObject * self, PyObject * args)
+{
+    PyObject *py_blueprint;
+
+    if (!PyArg_ParseTuple(args, "O:blueprint_get_all_graphs", &py_blueprint))
+    {
+        return nullptr;
+    }
+
+    UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+    if (!bp)
+        return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+
+    PyObject *py_graphs = PyList_New(0);
+
+    TArray<UEdGraph*> graphs;
+
+    bp->GetAllGraphs(graphs);
+
+    for (UEdGraph *graph : graphs)
+    {
+        ue_PyUObject *item = ue_get_python_wrapper(graph);
+        if (item)
+            PyList_Append(py_graphs, (PyObject *)item);
+    }
+
+    return py_graphs;
+}
+
 PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args)
 {
 
@@ -1663,35 +1720,6 @@ PyObject *py_unreal_engine_create_new_graph(PyObject * self, PyObject * args)
 	}
 
 	Py_RETURN_UOBJECT(graph);
-}
-
-PyObject *py_unreal_engine_editor_blueprint_graphs(PyObject * self, PyObject * args)
-{
-	PyObject *py_blueprint;
-
-	if (!PyArg_ParseTuple(args, "O:blueprint_graphs", &py_blueprint))
-	{
-		return nullptr;
-	}
-
-	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
-	if (!bp)
-		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-
-	PyObject *py_graphs = PyList_New(0);
-
-	TArray<UEdGraph*> graphs;
-
-	bp->GetAllGraphs(graphs);
-
-	for (UEdGraph *graph : graphs)
-	{
-		ue_PyUObject *item = ue_get_python_wrapper(graph);
-		if (item)
-			PyList_Append(py_graphs, (PyObject *)item);
-	}
-
-	return py_graphs;
 }
 
 PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject * args)
@@ -2235,6 +2263,27 @@ PyObject *py_unreal_engine_register_settings(PyObject * self, PyObject * args)
 	}
 
 	Py_RETURN_NONE;
+}
+
+PyObject * py_unreal_engine_show_viewer(PyObject * self, PyObject * args)
+{
+    char *container_name;
+    char *category_name;
+    char *section_name;
+
+    if (!PyArg_ParseTuple(args, "sss:register_settings", &container_name, &category_name, &section_name))
+        return nullptr;
+
+    if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+    {
+        SettingsModule->ShowViewer(container_name, category_name, section_name);
+    }
+    else
+    {
+        return PyErr_Format(PyExc_Exception, "unable to find the Settings Module");
+    }
+
+    Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_unregister_settings(PyObject * self, PyObject * args)

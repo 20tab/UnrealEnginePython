@@ -272,7 +272,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
 	{ "create_blueprint_from_actor", py_unreal_engine_create_blueprint_from_actor, METH_VARARGS, "" },
 	{ "replace_blueprint", py_unreal_engine_replace_blueprint, METH_VARARGS, "" },
-	{ "reload_blueprint", py_unreal_engine_reload_blueprint, METH_VARARGS, "" },
+	{ "get_blueprint_hierarchy_from_class", py_unreal_engine_get_blueprint_hierarchy_from_class, METH_VARARGS, "" },
+    { "reload_blueprint", py_unreal_engine_reload_blueprint, METH_VARARGS, "" },
 	{ "compile_blueprint", py_unreal_engine_compile_blueprint, METH_VARARGS, "" },
 	{ "blueprint_add_member_variable", py_unreal_engine_blueprint_add_member_variable, METH_VARARGS, "" },
 	{ "blueprint_add_event_dispatcher", py_unreal_engine_blueprint_add_event_dispatcher, METH_VARARGS, "" },
@@ -280,6 +281,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "blueprint_set_variable_visibility", py_unreal_engine_blueprint_set_variable_visibility, METH_VARARGS, "" },
 	{ "blueprint_add_function", py_unreal_engine_blueprint_add_function, METH_VARARGS, "" },
 	{ "blueprint_add_ubergraph_page", py_unreal_engine_blueprint_add_ubergraph_page, METH_VARARGS, "" },
+    { "blueprint_get_all_graphs", py_unreal_engine_blueprint_get_all_graphs, METH_VARARGS, "" },
 	{ "blueprint_mark_as_structurally_modified", py_unreal_engine_blueprint_mark_as_structurally_modified, METH_VARARGS, "" },
 	{ "add_component_to_blueprint", py_unreal_engine_add_component_to_blueprint, METH_VARARGS, "" },
 	{ "get_blueprint_components", py_unreal_engine_get_blueprint_components, METH_VARARGS, "" },
@@ -377,6 +379,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_take_high_res_screen_shots", py_unreal_engine_editor_take_high_res_screen_shots, METH_VARARGS, "" },
 
 	{ "register_settings", py_unreal_engine_register_settings, METH_VARARGS, "" },
+    { "show_viewer", py_unreal_engine_show_viewer, METH_VARARGS, "" },
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
 #endif
 
@@ -3490,7 +3493,7 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 {
     ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_obj);
     if (!ue_py_struct) {
-        false;
+        return false;
     }
 
     return ue_py_struct->u_struct->IsChildOf(parent_u_struct);

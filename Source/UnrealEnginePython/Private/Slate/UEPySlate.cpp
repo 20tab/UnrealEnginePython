@@ -176,6 +176,19 @@ void UPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commi
 	Py_DECREF(ret);
 }
 
+void UPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode)
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"isi", (int)SortPriority, TCHAR_TO_UTF8(*ColumnName.ToString()), (int)NewSortMode);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+}
+
 void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state)
 {
 	FScopePythonGIL gil;

@@ -169,6 +169,22 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
     }
     arguments.ListItemsSource(&self->item_source_list);
 
+    {
+        PyObject *value = ue_py_dict_get_item(kwargs, "header_row");
+        if (value) {
+            if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value)) {
+
+                Py_INCREF(_py_swidget);
+                ((ue_PySWidget *)self)->py_refs.Add(value);
+                arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->s_widget));
+            }
+            else {
+                PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " "header_row");
+                return -1;
+            }
+        }
+    }
+
 	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
 	ue_py_slate_farguments_optional_bool("clear_selection_on_click", ClearSelectionOnClick);
 	ue_py_slate_farguments_optional_enum("consume_mouse_wheel", ConsumeMouseWheel, EConsumeMouseWheel);
