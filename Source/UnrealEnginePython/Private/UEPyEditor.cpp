@@ -2270,5 +2270,57 @@ PyObject *py_unreal_engine_all_viewport_clients(PyObject * self, PyObject * args
 	}
 	return py_list;
 }
+
+PyObject *py_unreal_engine_editor_sync_browser_to_assets(PyObject * self, PyObject * args)
+{
+	PyObject *py_items;
+	PyObject *py_focus = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|O:sync_browser_to_assets", &py_items, &py_focus))
+		return nullptr;
+
+	PyObject *py_iter = PyObject_GetIter(py_items);
+	if (!py_iter)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable of UObject or FAssetData");
+	}
+
+	FContentBrowserModule& ContentBrowserModule = FModuleManager::Get().LoadModuleChecked<FContentBrowserModule>("ContentBrowser");
+
+	TArray<FAssetData> asset_data;
+	TArray<UObject *> uobjects;
+
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		ue_PyFAssetData *py_data = py_ue_is_fassetdata(py_item);
+		if (py_data)
+		{
+			asset_data.Add(py_data->asset_data);
+		}
+		else
+		{
+			UObject *u_object = ue_py_check_type<UObject>(py_item);
+			if (!u_object)
+			{
+				return PyErr_Format(PyExc_Exception, "invalid item in iterable, must be UObject or FAssetData");
+			}
+			uobjects.Add(u_object);
+		}
+	}
+
+	if (asset_data.Num() > 0)
+	{
+		ContentBrowserModule.Get().SyncBrowserToAssets(asset_data, false, py_focus && PyObject_IsTrue(py_focus));
+	}
+
+	if (uobjects.Num() > 0)
+	{
+		ContentBrowserModule.Get().SyncBrowserToAssets(uobjects, false, py_focus && PyObject_IsTrue(py_focus));
+	}
+
+	Py_DECREF(py_iter);
+
+	Py_RETURN_NONE;
+}
 #endif
 

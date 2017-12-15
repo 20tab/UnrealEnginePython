@@ -106,6 +106,8 @@ PyObject *py_unreal_engine_transactions(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_all_viewport_clients(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_editor_sync_browser_to_assets(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_heightmap_expand(PyObject *, PyObject *);
 PyObject *py_unreal_engine_heightmap_import(PyObject *, PyObject *);
 
