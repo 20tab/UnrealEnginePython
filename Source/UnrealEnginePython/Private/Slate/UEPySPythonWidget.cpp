@@ -105,7 +105,6 @@ PyTypeObject ue_PySPythonWidgetType = {
 static int ue_py_spython_widget_init(ue_PySPythonWidget *self, PyObject *args, PyObject *kwargs)
 {
 	ue_py_snew_simple(SPythonWidget, s_compound_widget.s_widget);
-	UE_LOG(LogPython, Warning, TEXT("Initializing World Widget!!!"));
 	sw_python_widget->SetPyObject((PyObject *)self);
 	return 0;
 }
