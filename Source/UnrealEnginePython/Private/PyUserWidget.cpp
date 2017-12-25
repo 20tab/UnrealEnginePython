@@ -328,3 +328,28 @@ UPyUserWidget::~UPyUserWidget()
 	// this could trigger the distruction of the python/uobject mapper
 	Py_XDECREF(py_uobject);
 }
+
+void UPyUserWidget::CallPythonUserWidgetMethod(FString method_name, FString args)
+{
+	if (!py_user_widget_instance)
+		return;
+
+	FScopePythonGIL gil;
+
+	PyObject *ret = nullptr;
+	if (args.IsEmpty())
+	{
+		ret = PyObject_CallMethod(py_user_widget_instance, TCHAR_TO_UTF8(*method_name), NULL);
+	}
+	else
+	{
+		ret = PyObject_CallMethod(py_user_widget_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
+	}
+
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}

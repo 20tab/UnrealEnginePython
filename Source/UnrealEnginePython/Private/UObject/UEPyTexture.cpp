@@ -110,6 +110,7 @@ PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args)
 	if (!tex)
 		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
 
+
 	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
 	if (!resource)
 	{
@@ -117,12 +118,19 @@ PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args)
 	}
 
 	TArray<FColor> pixels;
+
+	if (!resource->IsSupportedFormat(tex->GetFormat()))
+	{
+		return PyErr_Format(PyExc_Exception, "unsupported format for render texture");
+	}
+
+
 	if (!resource->ReadPixels(pixels))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to read pixels");
 	}
 
-	return PyByteArray_FromStringAndSize((const char *)pixels.GetData(), (Py_ssize_t)(tex->GetSurfaceWidth() * 4 * tex->GetSurfaceHeight()));
+	return PyByteArray_FromStringAndSize((const char *)pixels.GetData(), (Py_ssize_t)(pixels.GetTypeSize() * pixels.Num()));
 }
 
 PyObject *py_ue_render_target_get_data_to_buffer(ue_PyUObject *self, PyObject * args)
