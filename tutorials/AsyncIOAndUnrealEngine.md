@@ -326,6 +326,8 @@ class RadioStreaming:
 
 ### PyUserWidget WebSocket Echo test
 
+![PyUserWidget Designer](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/AsyncIO_Assets/py_user_widget_designer.png)
+
 ```python
 import unreal_engine as ue
 import ue_asyncio
