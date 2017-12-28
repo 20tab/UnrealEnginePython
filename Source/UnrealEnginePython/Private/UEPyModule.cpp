@@ -36,6 +36,7 @@
 #include "UObject/UEPyCapture.h"
 #include "UObject/UEPyLandscape.h"
 #include "UObject/UEPyUserDefinedStruct.h"
+#include "UObject/UEPyDataTable.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -535,6 +536,14 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "struct_remove_variable", (PyCFunction)py_ue_struct_remove_variable, METH_VARARGS, "" },
 	{ "struct_move_variable_up", (PyCFunction)py_ue_struct_move_variable_up, METH_VARARGS, "" },
 	{ "struct_move_variable_down", (PyCFunction)py_ue_struct_move_variable_down, METH_VARARGS, "" },
+
+	{ "data_table_add_row", (PyCFunction)py_ue_data_table_add_row, METH_VARARGS, "" },
+	{ "data_table_remove_row", (PyCFunction)py_ue_data_table_remove_row, METH_VARARGS, "" },
+	{ "data_table_rename_row", (PyCFunction)py_ue_data_table_rename_row, METH_VARARGS, "" },
+	{ "data_table_as_dict", (PyCFunction)py_ue_data_table_as_dict, METH_VARARGS, "" },
+	{ "data_table_as_json", (PyCFunction)py_ue_data_table_as_json, METH_VARARGS, "" },
+	{ "data_table_find_row", (PyCFunction)py_ue_data_table_find_row, METH_VARARGS, "" },
+	{ "data_table_get_all_rows", (PyCFunction)py_ue_data_table_get_all_rows, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
@@ -2771,14 +2780,14 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 				casted_prop->SetPropertyValue_InContainer(buffer, ue_obj->ue_object);
 				return true;
 			}
-			else if (auto casted_prop = Cast<USoftClassProperty>(prop))
+			else if (auto casted_prop_soft_class = Cast<USoftClassProperty>(prop))
 			{
-				casted_prop->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
+				casted_prop_soft_class->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
 				return true;
 			}
-			else if (auto casted_prop = Cast<USoftObjectProperty>(prop))
+			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 			{
-				casted_prop->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
+				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
 				return true;
 			}
 
@@ -2796,12 +2805,12 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object);
 				return true;
 			}
-			else if (auto casted_prop = Cast<USoftObjectProperty>(prop))
+			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 
 			{
-				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+				if (!ue_obj->ue_object->IsA(casted_prop_soft_object->PropertyClass))
 					return false;
-				casted_prop->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
+				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
 				return true;
 			}
 
