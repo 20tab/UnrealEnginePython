@@ -124,7 +124,8 @@ public class UnrealEnginePython : ModuleRules
                 "Voice",
                 "RenderCore",
                 "MovieSceneCapture",
-                "Landscape"
+                "Landscape",
+                "Foliage"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
