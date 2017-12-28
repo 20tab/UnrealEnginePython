@@ -54,6 +54,12 @@
 
 #include "Slate/UEPySlate.h"
 
+#if ENGINE_MINOR_VERSION < 18
+#define USoftObjectProperty UAssetObjectProperty
+#define USoftClassProperty UAssetClassProperty
+typedef FAssetPtr FSoftObjectPtr;
+#endif
+
 DEFINE_LOG_CATEGORY(LogPython);
 
 
@@ -943,8 +949,8 @@ void ue_pydelegates_cleanup(ue_PyUObject *self)
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
+		}
 	}
-}
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
 	self->python_delegates_gc = nullptr;
@@ -2111,7 +2117,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
