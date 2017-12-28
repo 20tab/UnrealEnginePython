@@ -22,13 +22,13 @@ To add a UFoliageType to a UWorld just do:
 
 ```python
 
-world.add_foliage_type(foliage_type)
+world.add_foliage_asset(foliage_type)
 ```
 
 Eventually you can add a StaticMesh (instead of a FoliageType) directly to the AInstancedFoliageActor:
 
 ```python
-world.add_foliage_type(ue.load_object(StaticMesh, '/Game/Mesh/StaticMesh001'))
+world.add_foliage_asset(ue.load_object(StaticMesh, '/Game/Mesh/StaticMesh001'))
 ```
 
 Note: unfortunately the foliage editor is not automatically updated, just switch the editor mode manually to the foliage mode to update the assets list.
