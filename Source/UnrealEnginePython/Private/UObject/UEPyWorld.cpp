@@ -369,7 +369,9 @@ PyObject *py_ue_add_foliage_asset(ue_PyUObject *self, PyObject * args)
 	}
 	else if (u_object->IsA<UFoliageType>())
 	{
-		ifa->AddFoliageType((UFoliageType *)u_object);
+		foliage_type = (UFoliageType *)u_object;
+		ifa->AddFoliageType(foliage_type);
+		
 	}
 
 	if (!foliage_type)
