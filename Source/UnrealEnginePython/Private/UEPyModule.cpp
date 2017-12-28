@@ -35,6 +35,7 @@
 #include "UObject/UEPyAnimSequence.h"
 #include "UObject/UEPyCapture.h"
 #include "UObject/UEPyLandscape.h"
+#include "UObject/UEPyUserDefinedStruct.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -258,6 +259,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "string_to_guid", py_unreal_engine_string_to_guid, METH_VARARGS, "" },
 	{ "new_guid", py_unreal_engine_new_guid, METH_VARARGS, "" },
+	{ "guid_to_string", py_unreal_engine_guid_to_string, METH_VARARGS, "" },
 
 	{ "heightmap_expand", py_unreal_engine_heightmap_expand, METH_VARARGS, "" },
 	{ "heightmap_import", py_unreal_engine_heightmap_import, METH_VARARGS, "" },
@@ -521,6 +523,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "node_reconstruct", (PyCFunction)py_ue_node_reconstruct, METH_VARARGS, "" },
 
 	{ "get_material_graph", (PyCFunction)py_ue_get_material_graph, METH_VARARGS, "" },
+
+	{ "struct_add_variable", (PyCFunction)py_ue_struct_add_variable, METH_VARARGS, "" },
+	{ "struct_get_variables", (PyCFunction)py_ue_struct_get_variables, METH_VARARGS, "" },
+	{ "struct_remove_variable", (PyCFunction)py_ue_struct_remove_variable, METH_VARARGS, "" },
+	{ "struct_move_variable_up", (PyCFunction)py_ue_struct_move_variable_up, METH_VARARGS, "" },
+	{ "struct_move_variable_down", (PyCFunction)py_ue_struct_move_variable_down, METH_VARARGS, "" },
 #endif
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
@@ -935,7 +943,7 @@ void ue_pydelegates_cleanup(ue_PyUObject *self)
 			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
 #endif
 			py_delegate->RemoveFromRoot();
-		}
+	}
 }
 	self->python_delegates_gc->clear();
 	delete self->python_delegates_gc;
@@ -1032,9 +1040,9 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 #else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
+						}
 					}
 				}
-			}
 #endif
 				if (self->ue_object->IsA<UEnum>())
 				{
@@ -1046,7 +1054,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
 				}
-		}
+			}
 
 			if (function)
 			{
@@ -1054,8 +1062,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
+		}
 	}
-}
 	return ret;
 }
 
@@ -2048,7 +2056,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2234,8 +2242,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer)
 			Py_INCREF(ret);
 			return (PyObject *)ret;
 		}
-		Py_INCREF(Py_None);
-		return Py_None;
+		Py_RETURN_NONE;
 	}
 
 	if (auto casted_prop = Cast<UClassProperty>(prop))
@@ -2753,24 +2760,47 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 		ue_PyUObject *ue_obj = (ue_PyUObject *)py_obj;
 		if (ue_obj->ue_object->IsA<UClass>())
 		{
-			auto casted_prop = Cast<UClassProperty>(prop);
-			if (!casted_prop)
-				return false;
-			casted_prop->SetPropertyValue_InContainer(buffer, (UClass *)ue_obj->ue_object);
-			return true;
+			if (auto casted_prop = Cast<UClassProperty>(prop))
+			{
+				casted_prop->SetPropertyValue_InContainer(buffer, ue_obj->ue_object);
+				return true;
+			}
+			else if (auto casted_prop = Cast<USoftClassProperty>(prop))
+			{
+				casted_prop->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
+				return true;
+			}
+			else if (auto casted_prop = Cast<USoftObjectProperty>(prop))
+			{
+				casted_prop->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
+				return true;
+			}
+
+			return false;
 		}
+
 
 		if (ue_obj->ue_object->IsA<UObject>())
 		{
-			auto casted_prop = Cast<UObjectPropertyBase>(prop);
-			if (!casted_prop)
-				return false;
-			// ensure the object type is correct, otherwise crash could happen (soon or later)
-			if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
-				return false;
-			casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object);
-			return true;
+			if (auto casted_prop = Cast<UObjectPropertyBase>(prop))
+			{
+				// ensure the object type is correct, otherwise crash could happen (soon or later)
+				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+					return false;
+				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object);
+				return true;
+			}
+			else if (auto casted_prop = Cast<USoftObjectProperty>(prop))
+
+			{
+				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+					return false;
+				casted_prop->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object));
+				return true;
+			}
+
 		}
+		return false;
 	}
 
 	if (py_obj == Py_None)
@@ -2978,9 +3008,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-	}
+		}
 #endif
-}
+	}
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 
@@ -3462,4 +3492,20 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 	return function;
+}
+
+FGuid *ue_py_check_fguid(PyObject *py_obj)
+{
+	ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_obj);
+	if (!ue_py_struct)
+	{
+		return nullptr;
+	}
+
+	if (ue_py_struct->u_struct == FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")))
+	{
+		return (FGuid*)ue_py_struct->data;
+	}
+
+	return nullptr;
 }

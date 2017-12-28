@@ -69,3 +69,5 @@ template <typename T> T *ue_py_check_struct(PyObject *py_obj) {
 
 	return nullptr;
 }
+
+FGuid *ue_py_check_fguid(PyObject *);

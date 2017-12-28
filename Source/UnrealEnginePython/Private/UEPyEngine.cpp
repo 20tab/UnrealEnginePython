@@ -425,7 +425,7 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)
 	char *str;
 	if (!PyArg_ParseTuple(args, "s:string_to_guid", &str))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	FGuid guid;
@@ -444,7 +444,21 @@ PyObject *py_unreal_engine_new_guid(PyObject * self, PyObject * args)
 	FGuid guid = FGuid::NewGuid();
 
 	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+}
 
+PyObject *py_unreal_engine_guid_to_string(PyObject * self, PyObject * args)
+{
+	PyObject *py_guid;
+	if (!PyArg_ParseTuple(args, "O:guid_to_string", &py_guid))
+	{
+		return nullptr;
+	}
+
+	FGuid *guid = ue_py_check_fguid(py_guid);
+	if (!guid)
+		return PyErr_Format(PyExc_Exception, "object is not a FGuid");
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*guid->ToString()));
 }
 
 PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args)

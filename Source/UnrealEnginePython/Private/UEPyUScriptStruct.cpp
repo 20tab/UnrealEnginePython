@@ -263,7 +263,8 @@ PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, uint8 *data) {
 	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
 	ret->u_struct = u_struct;
 	uint8 *struct_data = (uint8*)FMemory::Malloc(u_struct->GetStructureSize());
-	FMemory::Memcpy(struct_data, data, u_struct->GetStructureSize());
+	ret->u_struct->InitializeStruct(struct_data);
+	ret->u_struct->CopyScriptStruct(struct_data, data);
 	ret->data = struct_data;
 	return (PyObject *)ret;
 }

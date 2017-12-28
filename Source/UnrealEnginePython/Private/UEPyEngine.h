@@ -33,6 +33,7 @@ PyObject *py_unreal_engine_load_package(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_string_to_guid(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_guid(PyObject *, PyObject *);
+PyObject *py_unreal_engine_guid_to_string(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_engine_tick(PyObject *, PyObject *);
 PyObject *py_unreal_engine_slate_tick(PyObject *, PyObject *);
