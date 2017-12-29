@@ -29,7 +29,7 @@ PyObject *py_ue_data_table_add_row(ue_PyUObject * self, PyObject * args)
 
 	if (data_table->RowStruct != u_struct->u_struct)
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a %s", data_table->RowStruct->GetName());
+		return PyErr_Format(PyExc_Exception, "argument is not a %s", TCHAR_TO_UTF8(*data_table->RowStruct->GetName()));
 	}
 
 	FName row_name = FName(UTF8_TO_TCHAR(name));
