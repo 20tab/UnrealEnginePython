@@ -93,8 +93,10 @@ PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args
 			return NULL;
 		}
 		FString prop_name = SArgs->GetName();
+#if WITH_EDITOR
 		if (py_bool && PyObject_IsTrue(py_bool))
 		{
+
 			if (SArgs->HasMetaData(DisplayNameKey))
 			{
 				FString display_name = SArgs->GetMetaData(DisplayNameKey);
@@ -102,6 +104,7 @@ PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args
 					prop_name = display_name;
 			}
 		}
+#endif
 		PyDict_SetItemString(py_struct_dict, TCHAR_TO_UTF8(*prop_name), struct_value);
 	}
 	return py_struct_dict;
@@ -132,6 +135,7 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 	if (u_property)
 		return u_property;
 
+#if WITH_EDITOR
 	static const FName DisplayNameKey(TEXT("DisplayName"));
 
 	// if the property is not found, attempt to search for DisplayName
@@ -147,6 +151,7 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 			}
 		}
 	}
+#endif
 
 	return nullptr;
 }
