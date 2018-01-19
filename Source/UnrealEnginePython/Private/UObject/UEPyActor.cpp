@@ -343,6 +343,36 @@ PyObject *py_ue_destroy_component(ue_PyUObject * self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_add_instance_component(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_component;
+	if (!PyArg_ParseTuple(args, "O:add_instance_component", &py_component))
+	{
+		return nullptr;
+	}
+
+
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+	}
+
+	UActorComponent *component = ue_py_check_type<UActorComponent>(py_component);
+	if (!component)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a UActorComponent");
+	}
+
+	actor->AddInstanceComponent(component);
+	Py_RETURN_NONE;
+
+}
+
+
 PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);

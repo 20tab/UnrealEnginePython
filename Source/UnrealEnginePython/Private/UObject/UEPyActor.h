@@ -35,3 +35,4 @@ PyObject *py_ue_unregister_component(ue_PyUObject * self, PyObject *);
 PyObject *py_ue_destroy_component(ue_PyUObject * self, PyObject *);
 PyObject *py_ue_component_is_registered(ue_PyUObject * self, PyObject *);
 PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject *);
+PyObject *py_ue_add_instance_component(ue_PyUObject * self, PyObject *);
