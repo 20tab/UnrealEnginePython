@@ -1,6 +1,5 @@
 import unreal_engine as ue
 from unreal_engine.classes import PawnSensingComponent
-from unreal_engine.enums import EComponentCreationMethod
 
 actor = ue.editor_get_selected_actors()[0]
 component = actor.add_actor_component(PawnSensingComponent, 'Foo')
