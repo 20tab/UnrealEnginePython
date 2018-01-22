@@ -3,9 +3,11 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 
-static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObject * args) {
+static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObject * args)
+{
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:get_field", &name)) {
+	if (!PyArg_ParseTuple(args, "s:get_field", &name))
+	{
 		return NULL;
 	}
 
@@ -16,10 +18,12 @@ static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObjec
 	return ue_py_convert_property(u_property, self->data);
 }
 
-static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObject * args) {
+static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObject * args)
+{
 	char *name;
 	PyObject *value;
-	if (!PyArg_ParseTuple(args, "sO:set_field", &name, &value)) {
+	if (!PyArg_ParseTuple(args, "sO:set_field", &name, &value))
+	{
 		return NULL;
 	}
 
@@ -28,7 +32,8 @@ static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObjec
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
 
 
-	if (!ue_py_convert_pyobject(value, u_property, self->data)) {
+	if (!ue_py_convert_pyobject(value, u_property, self->data))
+	{
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", name);
 	}
 
@@ -37,7 +42,8 @@ static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObjec
 
 }
 
-static PyObject *py_ue_uscriptstruct_fields(ue_PyUScriptStruct *self, PyObject * args) {
+static PyObject *py_ue_uscriptstruct_fields(ue_PyUScriptStruct *self, PyObject * args)
+{
 	PyObject *ret = PyList_New(0);
 
 	for (TFieldIterator<UProperty> PropIt(self->u_struct); PropIt; ++PropIt)
@@ -51,7 +57,8 @@ static PyObject *py_ue_uscriptstruct_fields(ue_PyUScriptStruct *self, PyObject *
 	return ret;
 }
 
-static PyObject *py_ue_uscriptstruct_get_struct(ue_PyUScriptStruct *self, PyObject * args) {
+static PyObject *py_ue_uscriptstruct_get_struct(ue_PyUScriptStruct *self, PyObject * args)
+{
 	ue_PyUObject *ret = ue_get_python_wrapper(self->u_struct);
 	if (!ret)
 		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
@@ -59,21 +66,46 @@ static PyObject *py_ue_uscriptstruct_get_struct(ue_PyUScriptStruct *self, PyObje
 	return (PyObject *)ret;
 }
 
-static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * args) {
+static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * args)
+{
 	return py_ue_new_uscriptstruct(self->u_struct, self->data);
 }
 
-PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args) {
+PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args)
+{
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:as_dict", &py_bool))
+	{
+		return nullptr;
+	}
+
+	static const FName DisplayNameKey(TEXT("DisplayName"));
 
 	PyObject *py_struct_dict = PyDict_New();
 	TFieldIterator<UProperty> SArgs(self->u_struct);
-	for (; SArgs; ++SArgs) {
+	for (; SArgs; ++SArgs)
+	{
 		PyObject *struct_value = ue_py_convert_property(*SArgs, self->data);
-		if (!struct_value) {
+		if (!struct_value)
+		{
 			Py_DECREF(py_struct_dict);
 			return NULL;
 		}
-		PyDict_SetItemString(py_struct_dict, TCHAR_TO_UTF8(*SArgs->GetName()), struct_value);
+		FString prop_name = SArgs->GetName();
+#if WITH_EDITOR
+		if (py_bool && PyObject_IsTrue(py_bool))
+		{
+
+			if (SArgs->HasMetaData(DisplayNameKey))
+			{
+				FString display_name = SArgs->GetMetaData(DisplayNameKey);
+				if (display_name.Len() > 0)
+					prop_name = display_name;
+			}
+		}
+#endif
+		PyDict_SetItemString(py_struct_dict, TCHAR_TO_UTF8(*prop_name), struct_value);
 	}
 	return py_struct_dict;
 }
@@ -96,36 +128,51 @@ static PyObject *ue_PyUScriptStruct_str(ue_PyUScriptStruct *self)
 		TCHAR_TO_UTF8(*self->u_struct->GetName()), self->u_struct->GetStructureSize());
 }
 
-static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name) {
+static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
+{
 	FString attr = UTF8_TO_TCHAR(name);
 	UProperty *u_property = u_struct->FindPropertyByName(FName(*attr));
 	if (u_property)
 		return u_property;
-	// if the property is not found, attempt to search for name_XXXX
-	attr += FString("_");
+
+#if WITH_EDITOR
+	static const FName DisplayNameKey(TEXT("DisplayName"));
+
+	// if the property is not found, attempt to search for DisplayName
 	for (TFieldIterator<UProperty> prop(u_struct); prop; ++prop)
 	{
 		UProperty *property = *prop;
-		if (property->GetName().StartsWith(attr)) {
+		if (property->HasMetaData(DisplayNameKey))
+		{
+			FString display_name = property->GetMetaData(DisplayNameKey);
+			if (display_name.Len() > 0 && attr.Equals(display_name))
+			{
 			return property;
 		}
 	}
+	}
+#endif
 
 	return nullptr;
 }
 
-UProperty *ue_struct_get_field_from_name(UScriptStruct *u_struct, char *name) {
+UProperty *ue_struct_get_field_from_name(UScriptStruct *u_struct, char *name)
+{
 	return get_field_from_name(u_struct, name);
 }
 
-static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject *attr_name) {
+static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject *attr_name)
+{
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
-	if (!ret) {
-		if (PyUnicodeOrString_Check(attr_name)) {
+	if (!ret)
+	{
+		if (PyUnicodeOrString_Check(attr_name))
+		{
 			char *attr = PyUnicode_AsUTF8(attr_name);
 			// first check for property
 			UProperty *u_property = get_field_from_name(self->u_struct, attr);
-			if (u_property) {
+			if (u_property)
+			{
 				// swallow previous exception
 				PyErr_Clear();
 				return ue_py_convert_property(u_property, self->data);
@@ -135,14 +182,18 @@ static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject 
 	return ret;
 }
 
-static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_name, PyObject *value) {
+static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_name, PyObject *value)
+{
 	// first of all check for UProperty
-	if (PyUnicodeOrString_Check(attr_name)) {
+	if (PyUnicodeOrString_Check(attr_name))
+	{
 		char *attr = PyUnicode_AsUTF8(attr_name);
 		// first check for property
 		UProperty *u_property = get_field_from_name(self->u_struct, attr);
-		if (u_property) {
-			if (ue_py_convert_pyobject(value, u_property, self->data)) {
+		if (u_property)
+		{
+			if (ue_py_convert_pyobject(value, u_property, self->data))
+			{
 				return 0;
 			}
 			PyErr_SetString(PyExc_ValueError, "invalid value for UProperty");
@@ -153,7 +204,8 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 }
 
 // destructor
-static void ue_PyUScriptStruct_dealloc(ue_PyUScriptStruct *self) {
+static void ue_PyUScriptStruct_dealloc(ue_PyUScriptStruct *self)
+{
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUScriptStruct %p with size %d"), self, self->u_struct->GetStructureSize());
 #endif
@@ -194,18 +246,21 @@ static PyTypeObject ue_PyUScriptStructType = {
 	0,
 };
 
-static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, PyObject *kwargs)
+{
 	PyObject *py_struct;
 	if (!PyArg_ParseTuple(args, "O", &py_struct))
 		return -1;
 
-	if (!ue_is_pyuobject(py_struct)) {
+	if (!ue_is_pyuobject(py_struct))
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a UScriptStruct");
 		return -1;
 	}
 
 	ue_PyUObject *py_u_obj = (ue_PyUObject *)py_struct;
-	if (!py_u_obj->ue_object->IsA<UScriptStruct>()) {
+	if (!py_u_obj->ue_object->IsA<UScriptStruct>())
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a UScriptStruct");
 		return -1;
 	}
@@ -219,16 +274,20 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 	return 0;
 }
 
-static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, PyObject *py_obj, int op) {
+static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, PyObject *py_obj, int op)
+{
 	ue_PyUScriptStruct *u_struct2 = py_ue_is_uscriptstruct(py_obj);
-	if (!u_struct2 || (op != Py_EQ && op != Py_NE)) {
+	if (!u_struct2 || (op != Py_EQ && op != Py_NE))
+	{
 		return PyErr_Format(PyExc_NotImplementedError, "can only compare with another UScriptStruct");
 	}
 
 	bool equals = (u_struct1->u_struct == u_struct2->u_struct && !memcmp(u_struct1->data, u_struct2->data, u_struct1->u_struct->GetStructureSize()));
 
-	if (op == Py_EQ) {
-		if (equals) {
+	if (op == Py_EQ)
+	{
+		if (equals)
+		{
 			Py_INCREF(Py_True);
 			return Py_True;
 		}
@@ -236,7 +295,8 @@ static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, 
 		return Py_False;
 	}
 
-	if (equals) {
+	if (equals)
+	{
 		Py_INCREF(Py_False);
 		return Py_False;
 	}
@@ -245,7 +305,8 @@ static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, 
 }
 
 
-void ue_python_init_uscriptstruct(PyObject *ue_module) {
+void ue_python_init_uscriptstruct(PyObject *ue_module)
+{
 	ue_PyUScriptStructType.tp_new = PyType_GenericNew;
 
 	ue_PyUScriptStructType.tp_richcompare = (richcmpfunc)ue_py_uscriptstruct_richcompare;
@@ -269,7 +330,8 @@ PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, const uint8 *data) {
 	return (PyObject *)ret;
 }
 
-ue_PyUScriptStruct *py_ue_is_uscriptstruct(PyObject *obj) {
+ue_PyUScriptStruct *py_ue_is_uscriptstruct(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyUScriptStructType))
 		return nullptr;
 	return (ue_PyUScriptStruct *)obj;

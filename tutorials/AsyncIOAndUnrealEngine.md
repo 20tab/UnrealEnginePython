@@ -324,6 +324,51 @@ class RadioStreaming:
         self.coroutine.cancel()
 ```
 
+### PyUserWidget WebSocket Echo test
+
+![PyUserWidget Designer](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/AsyncIO_Assets/py_user_widget_designer.PNG)
+
+
+![PyUserWidget Graph](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/AsyncIO_Assets/py_user_widget_graph.PNG)
+
+![PyUserWidget Level Blueprint](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/AsyncIO_Assets/py_user_widget_level_blueprint.PNG)
+
+```python
+import unreal_engine as ue
+import ue_asyncio
+import asyncio
+import aiohttp
+
+class Echo:
+
+    def construct(self):
+        self.coroutine = asyncio.ensure_future(self.ws_connect('ws://echo.websocket.org'))
+        self.coroutine.add_done_callback(self.check_exception)
+        self.ws = None
+
+
+    def button_clicked(self):
+        if self.ws:
+            self.ws.send_str(self.uobject.Input.GetText())
+
+    def check_exception(self, coro):
+        if coro.cancelled():
+            return
+        exc = coro.exception()
+        if exc:
+            raise exc
+
+    async def ws_connect(self, url):
+        session = aiohttp.ClientSession()
+        async with session.ws_connect(url) as ws:
+            self.ws = ws
+            async for msg in ws:
+                orig_text = self.uobject.WSData.GetText()
+                self.uobject.WSData.SetText(orig_text + '\n' + msg.data)
+        await ws.close()              
+
+```
+
 ## Additional 'transient' loop engines
 
 ## Note: concurrency vs parallelism

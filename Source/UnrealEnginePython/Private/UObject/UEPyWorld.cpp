@@ -1,6 +1,8 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "Runtime/Foliage/Public/FoliageType.h"
+#include "Runtime/Foliage/Public/InstancedFoliageActor.h"
 
 PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args)
 {
@@ -321,4 +323,62 @@ PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
 
 	Py_RETURN_FALSE;
 }
+
+PyObject *py_ue_get_instanced_foliage_actor_for_current_level(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	Py_RETURN_UOBJECT(AInstancedFoliageActor::GetInstancedFoliageActorForCurrentLevel(world, true));
+}
+
+#if WITH_EDITOR
+PyObject *py_ue_add_foliage_asset(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_uobject;
+
+	if (!PyArg_ParseTuple(args, "O:add_foliage_asset", &py_uobject))
+	{
+		return nullptr;
+	}
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	UObject *u_object = ue_py_check_type<UObject>(py_uobject);
+	if (!u_object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	UFoliageType *foliage_type = nullptr;
+
+	AInstancedFoliageActor *ifa = AInstancedFoliageActor::GetInstancedFoliageActorForCurrentLevel(world, true);
+	if (u_object->IsA<UStaticMesh>())
+	{
+		foliage_type = ifa->GetLocalFoliageTypeForMesh((UStaticMesh *)u_object);
+		if (!foliage_type)
+		{
+			ifa->AddMesh((UStaticMesh *)u_object, &foliage_type);
+		}
+	}
+	else if (u_object->IsA<UFoliageType>())
+	{
+		foliage_type = (UFoliageType *)u_object;
+		ifa->AddFoliageType(foliage_type);
+		
+	}
+
+	if (!foliage_type)
+		return PyErr_Format(PyExc_Exception, "unable to add foliage asset");
+
+	Py_RETURN_UOBJECT(foliage_type);
+
+}
+#endif
 

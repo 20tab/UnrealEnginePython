@@ -271,57 +271,101 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args)
 
 	if (child->IsChildOf(parent))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
 
-	if (!self->ue_object)
-	{
-		return PyErr_Format(PyExc_Exception, "uobject is not valid");
-	}
 #if WITH_EDITOR
 	self->ue_object->PostEditChange();
 #endif
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_post_edit_change_property(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *prop_name = nullptr;
+	int change_type = 0;
+
+	if (!PyArg_ParseTuple(args, "si:post_edit_change_property", &prop_name, &change_type))
+	{
+		return nullptr;
+	}
+
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UStruct>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *prop = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(prop_name)));
+	if (!prop)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", prop_name);
+
+#if WITH_EDITOR
+	FPropertyChangedEvent changed(prop, change_type);
+	self->ue_object->PostEditChangeProperty(changed);
+#endif
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_modify(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
 
-	if (!self->ue_object)
-	{
-		return PyErr_Format(PyExc_Exception, "uobject is not valid");
-	}
 #if WITH_EDITOR
 	self->ue_object->Modify();
 #endif
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
 
-	if (!self->ue_object)
+	UProperty *prop = nullptr;
+	char *prop_name = nullptr;
+
+	if (!PyArg_ParseTuple(args, "|s:pre_edit_change", &prop_name))
 	{
-		return PyErr_Format(PyExc_Exception, "uobject is not valid");
+		return nullptr;
 	}
+
+	if (prop_name)
+	{
+		UStruct *u_struct = nullptr;
+
+		if (self->ue_object->IsA<UStruct>())
+		{
+			u_struct = (UStruct *)self->ue_object;
+		}
+		else
+		{
+			u_struct = (UStruct *)self->ue_object->GetClass();
+		}
+
+		prop = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(prop_name)));
+		if (!prop)
+			return PyErr_Format(PyExc_Exception, "unable to find property %s", prop_name);
+	}
+
 #if WITH_EDITOR
-	self->ue_object->PreEditChange(nullptr);
+	self->ue_object->PreEditChange(prop);
 #endif
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 
@@ -353,8 +397,7 @@ PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args)

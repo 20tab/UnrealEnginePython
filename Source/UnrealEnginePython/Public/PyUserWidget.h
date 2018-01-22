@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	bool PythonPaintForceDisabled;
 
+	UFUNCTION(BlueprintCallable, Category = "Python")
+	void CallPythonUserWidgetMethod(FString method_name, FString args);
+
     UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite)
     TWeakObjectPtr<class UPyNativeWidgetHost> PyNativeWidgetHost;
 

@@ -68,3 +68,5 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 template <typename T> bool ue_py_check_childstruct(PyObject *py_obj) {
     return do_ue_py_check_childstruct(py_obj, T::StaticStruct());
 }
+
+FGuid *ue_py_check_fguid(PyObject *);
