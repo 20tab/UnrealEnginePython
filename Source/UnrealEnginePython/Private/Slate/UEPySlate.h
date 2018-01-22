@@ -398,6 +398,22 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_optional_named_slot(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (ue_PySWidget *py_swidget = py_ue_is_swidget(value)) {\
+            Py_INCREF(py_swidget);\
+            arguments.attribute()\
+            [\
+                py_swidget->s_widget\
+            ];\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
 
 #define ue_py_slate_farguments_bool(param, attribute) ue_py_slate_up(bool, GetterBool, param, attribute)\
 		else if (PyObject_IsTrue(value)) {\

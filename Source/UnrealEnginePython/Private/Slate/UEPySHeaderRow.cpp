@@ -18,22 +18,30 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *a
 
         ue_py_slate_farguments_optional_string("column_id", ColumnId);
 
-        ue_py_slate_farguments_optional_text("default_label", DefaultLabel);
-        ue_py_slate_farguments_optional_text("default_tooltip", DefaultTooltip);
+        ue_py_slate_farguments_text("default_label", DefaultLabel);
+        ue_py_slate_farguments_text("default_tooltip", DefaultTooltip);
 
         ue_py_slate_farguments_optional_enum("h_align_header", HAlignHeader, EHorizontalAlignment);
         ue_py_slate_farguments_optional_enum("v_align_header", VAlignHeader, EVerticalAlignment);
 
-        ue_py_slate_farguments_optional_float("fill_width", FillWidth);
+        ue_py_slate_farguments_float("fill_width", FillWidth);
         ue_py_slate_farguments_optional_float("fixed_width", FixedWidth);
+        ue_py_slate_farguments_float("manual_width", ManualWidth);
+
+        ue_py_slate_farguments_optional_named_slot("header_content", HeaderContent);
+        ue_py_slate_farguments_optional_struct("header_content_padding", HeaderContentPadding, FMargin);
+
+        ue_py_slate_farguments_optional_named_slot("menu_content", MenuContent);
 
         ue_py_slate_farguments_optional_enum("h_align_cell", HAlignCell, EHorizontalAlignment);
         ue_py_slate_farguments_optional_enum("v_align_cell", VAlignCell, EVerticalAlignment);
 
-        ue_py_slate_farguments_optional_enum("sort_mode", SortMode, EColumnSortMode::Type);
-        ue_py_slate_farguments_optional_enum("sort_priority", SortPriority, EColumnSortPriority::Type);
+        ue_py_slate_farguments_enum("sort_mode", SortMode, EColumnSortMode::Type);
+        ue_py_slate_farguments_enum("sort_priority", SortPriority, EColumnSortPriority::Type);
 
         ue_py_slate_farguments_event("on_sort", OnSort, FOnSortModeChanged, OnSort);
+
+        ue_py_slate_farguments_bool("should_generate_widget", ShouldGenerateWidget);
 
 	    //sw_header_row->AddColumn(
         //    SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
