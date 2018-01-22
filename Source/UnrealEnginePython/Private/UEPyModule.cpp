@@ -3023,7 +3023,10 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		}
 	}
 
-    //TODO: rdeioris: Should assert warn if u_funciton->ParmsSize != u_function->PropertiesSize bc it overflowed
+    if (u_function->PropertiesSize > u_function->ParmsSize)
+    {
+        return PyErr_Format(PyExc_Exception, "UFunction PropertiesSize (%i) > ParmsSize (%i).", u_function->PropertiesSize, u_function->ParmsSize);
+    }
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 	FMemory::Memzero(buffer, u_function->ParmsSize);
 
@@ -3034,7 +3037,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		UProperty *prop = *IArgs;
 		if (!prop->HasAnyPropertyFlags(CPF_ZeroConstructor))
 		{
-		prop->InitializeValue_InContainer(buffer);
+		    prop->InitializeValue_InContainer(buffer);
 		}
 
 #if WITH_EDITOR
@@ -3047,10 +3050,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-	}
+	    }
 #endif
-
-}
+    }
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 
