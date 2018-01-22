@@ -6,6 +6,23 @@
 #include "Components/NativeWidgetHost.h"
 #include "PyNativeWidgetHost.generated.h"
 
+USTRUCT(BlueprintType)
+struct UNREALENGINEPYTHON_API FPythonSWidgetWrapper
+{
+    GENERATED_USTRUCT_BODY()
+
+    TSharedPtr<SWidget> Widget;
+};
+
+template<>
+struct TStructOpsTypeTraits<FPythonSWidgetWrapper> : public TStructOpsTypeTraitsBase2<FPythonSWidgetWrapper>
+{
+	enum 
+	{
+		WithCopy = true,
+	};
+};
+
 /**
  * 
  */

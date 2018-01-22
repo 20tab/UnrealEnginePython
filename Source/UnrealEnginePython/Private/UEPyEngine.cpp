@@ -5,7 +5,9 @@
 
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
-
+#if WITH_EDITOR
+#include "PackageTools.h"
+#endif
 
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
@@ -291,6 +293,31 @@ PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
+#if WITH_EDITOR
+PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
+{
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args, "O:unload_package", &obj))
+    {
+        return NULL;
+    }
+
+    UPackage* packageToUnload = ue_py_check_type<UPackage>(obj);
+    if (!packageToUnload)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+    }
+
+    FText outErrorMsg;
+    if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+    {
+        return PyErr_Format(PyExc_Exception, TCHAR_TO_UTF8(*outErrorMsg.ToString()));
+    }
+
+    Py_RETURN_NONE;
+}
+#endif
 
 PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args)
 {

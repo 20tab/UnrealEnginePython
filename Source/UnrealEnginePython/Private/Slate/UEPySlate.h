@@ -59,6 +59,8 @@
 #include "UEPySSpacer.h"
 #include "UEPySPythonWidget.h"
 #include "UEPySOverlay.h"
+#include "UEPySNodePanel.h"
+#include "UEPySGraphPanel.h"
 
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
@@ -111,6 +113,8 @@ PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self
 #endif
 
 PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_swidget_from_wrapper(PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_wrapper_from_pyswidget(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
@@ -124,6 +128,7 @@ void ue_py_register_swidget(SWidget *, ue_PySWidget *);
 void ue_py_unregister_swidget(SWidget *);
 
 void ue_py_setup_swidget(ue_PySWidget *);
+
 
 PyObject *ue_py_dict_get_item(PyObject *, const char *);
 

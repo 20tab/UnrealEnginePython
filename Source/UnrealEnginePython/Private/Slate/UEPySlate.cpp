@@ -24,6 +24,7 @@
 #include "Runtime/AppFramework/Public/Widgets/Colors/SColorPicker.h"
 
 #include "UEPySlate.h"
+#include "PyNativeWidgetHost.h"
 
 FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
@@ -805,6 +806,8 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_sspacer(module);
 	ue_python_init_spython_widget(module);
 	ue_python_init_soverlay(module);
+    ue_python_init_snode_panel(module);
+    ue_python_init_sgraph_panel(module);
 
 
 #if WITH_EDITOR
@@ -1295,6 +1298,45 @@ PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
 	return Py_None;
 }
 
+
+PyObject * py_unreal_engine_get_swidget_from_wrapper(PyObject *self, PyObject *args)
+{
+    PyObject *py_object;
+
+    if (!PyArg_ParseTuple(args, "O:get_swidget_from_wrapper", &py_object))
+    {
+        return NULL;
+    }
+
+    FPythonSWidgetWrapper *py_swidget_wrapper = ue_py_check_struct<FPythonSWidgetWrapper>(py_object);
+    if (!py_swidget_wrapper)
+        return PyErr_Format(PyExc_Exception, "argument is not a FPythonSWidgetWrapper");
+
+    if (!py_swidget_wrapper->Widget.IsValid())
+        return PyErr_Format(PyExc_Exception, "wrapper contained invalid SWidget!");
+
+    return (PyObject *)py_ue_new_swidget<ue_PySWidget>(py_swidget_wrapper->Widget->AsShared(), &ue_PySWidgetType);
+}
+
+PyObject * py_unreal_engine_create_wrapper_from_pyswidget(PyObject *self, PyObject *args)
+{
+    PyObject *py_object;
+
+    if (!PyArg_ParseTuple(args, "O:create_wrapper_from_pyswidget", &py_object))
+    {
+        return NULL;
+    }
+
+    ue_PySWidget *py_swidget = py_ue_is_swidget(py_object);
+    if (!py_swidget) {
+        return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+    }
+
+    Py_INCREF(py_swidget);
+    FPythonSWidgetWrapper py_swidget_wrapper;
+    py_swidget_wrapper.Widget = py_swidget->s_widget;
+    return py_ue_new_uscriptstruct(FPythonSWidgetWrapper::StaticStruct(), (uint8 *)&py_swidget_wrapper);
+}
 
 PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs)
 {

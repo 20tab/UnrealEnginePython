@@ -166,7 +166,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "load_object", py_unreal_engine_load_object, METH_VARARGS, "" },
 
 	{ "load_package", py_unreal_engine_load_package, METH_VARARGS, "" },
-
+#if WITH_EDITOR
+    { "unload_package", py_unreal_engine_unload_package, METH_VARARGS, "" },
+#endif
 	{ "get_forward_vector", py_unreal_engine_get_forward_vector, METH_VARARGS, "" },
 	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
 	{ "get_right_vector", py_unreal_engine_get_right_vector, METH_VARARGS, "" },
@@ -209,6 +211,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "unregister_nomad_tab_spawner", py_unreal_engine_unregister_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "invoke_tab", py_unreal_engine_invoke_tab, METH_VARARGS, "" },
+    { "get_swidget_from_wrapper", py_unreal_engine_get_swidget_from_wrapper, METH_VARARGS, "" },
+    { "create_wrapper_from_pyswidget", py_unreal_engine_create_wrapper_from_pyswidget, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "get_editor_window", py_unreal_engine_get_editor_window, METH_VARARGS, "" },
 	{ "add_menu_extension", py_unreal_engine_add_menu_extension, METH_VARARGS, "" },

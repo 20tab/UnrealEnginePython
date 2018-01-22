@@ -32,6 +32,9 @@ PyObject *py_unreal_engine_load_class(PyObject *, PyObject *);
 PyObject *py_unreal_engine_load_struct(PyObject *, PyObject *);
 PyObject *py_unreal_engine_load_enum(PyObject *, PyObject *);
 PyObject *py_unreal_engine_load_package(PyObject *, PyObject *);
+#if WITH_EDITOR
+PyObject *py_unreal_engine_unload_package(PyObject *, PyObject *);
+#endif
 
 PyObject *py_unreal_engine_string_to_guid(PyObject *, PyObject *);
 PyObject *py_unreal_engine_new_guid(PyObject *, PyObject *);

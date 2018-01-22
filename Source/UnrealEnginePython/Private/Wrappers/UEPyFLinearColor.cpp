@@ -191,7 +191,7 @@ static int ue_py_flinearcolor_init(ue_PyFLinearColor *self, PyObject *args, PyOb
 	float r = 0;
 	float g = 0;
 	float b = 0;
-	float a = 255;
+	float a = 1.0;
 	if (!PyArg_ParseTuple(args, "|ffff", &r, &g, &b, &a))
 		return -1;
 

@@ -1624,7 +1624,7 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package = (UPackage *)outer;
 		has_package = true;
 	}
-	else if (u_object->IsA<UPackage>() && u_object != GetTransientPackage())
+	else if (u_object && u_object->IsA<UPackage>() && u_object != GetTransientPackage())
 	{
 		package = (UPackage *)u_object;
 		has_package = true;
@@ -1637,13 +1637,13 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
 		}
 		if (!has_package)
-		{
-			// unmark transient object
-			if (u_object->HasAnyFlags(RF_Transient))
-			{
-				u_object->ClearFlags(RF_Transient);
-				u_object->SetFlags(RF_Public | RF_Standalone);
-			}
+	    {
+		    // unmark transient object
+		    if (u_object->HasAnyFlags(RF_Transient))
+		    {
+			    u_object->ClearFlags(RF_Transient);
+			    u_object->SetFlags(RF_Public | RF_Standalone);
+		    }
 		}
 		package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 		// create a new package if it does not exist
@@ -1685,6 +1685,12 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package->FileName = *FPackageName::LongPackageNameToFilename(*package->GetPathName(), FPackageName::GetAssetPackageExtension());
 		UE_LOG(LogPython, Warning, TEXT("no file mapped to UPackage %s, setting its FileName to %s"), *package->GetPathName(), *package->FileName.ToString());
 	}
+
+    // NOTE: FileName may not be a fully qualified filepath
+    if (FPackageName::IsValidLongPackageName(package->FileName.ToString()))
+    {
+        package->FileName = *FPackageName::LongPackageNameToFilename(package->GetPathName(), FPackageName::GetAssetPackageExtension());
+    }
 
 	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString()))
 	{
