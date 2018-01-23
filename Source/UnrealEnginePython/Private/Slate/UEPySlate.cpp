@@ -125,6 +125,32 @@ void UPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type 
 	Py_DECREF(ret);
 }
 
+void UPythonSlateDelegate::OnInt32Changed(int32 value)
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"i", value);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+}
+
+void UPythonSlateDelegate::OnInt32Committed(int32 value, ETextCommit::Type commit_type)
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"ii", value, (int)commit_type);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+}
+
 void UPythonSlateDelegate::OnFloatChanged(float value)
 {
 	FScopePythonGIL gil;

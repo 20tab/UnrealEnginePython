@@ -241,6 +241,13 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 		ue_py_slate_down(param)
 
+#define ue_py_slate_farguments_tint(param, attribute) ue_py_slate_up(TOptional<int32>, GetterIntT<TOptional<int32>>, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((TOptional<int32>)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
 
 
 #define ue_py_slate_farguments_enum(param, attribute, _type) ue_py_slate_up(_type, GetterIntT<_type>, param, attribute)\
@@ -449,6 +456,22 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	ue_py_slate_farguments_text("tool_tip_text", ToolTipText);\
     ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
 
+#define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+    value = value ? value : PyTuple_GetItem(args, 0);\
+	if (ue_PySWidget *py_swidget = value ? py_ue_is_swidget(value) : nullptr) {\
+        Py_INCREF(py_swidget);\
+        ue_PySWidget *self_py_swidget = py_ue_is_swidget((PyObject*)self);\
+        self_py_swidget->py_swidget_slots.Add(py_swidget);\
+        arguments.AttachWidget(py_swidget->s_widget->AsShared());\
+	}\
+	else {\
+		PyErr_SetString(PyExc_TypeError, "unsupported type for required slot " param); \
+		return -1;\
+	}\
+}
+
+#define ue_py_slate_setup_hack_slot_args(_type, _swidget_ref) _type::FSlot &arguments = _swidget_ref->AddSlot();\
+    ue_py_slate_farguments_required_slot("widget");
 
 void ue_python_init_slate(PyObject *);
 
@@ -474,6 +497,8 @@ public:
 	FReply OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event);
 	void OnTextChanged(const FText &text);
 	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
+    void OnInt32Changed(int32 value);
+    void OnInt32Committed(int32 value, ETextCommit::Type commit_type);
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
     void OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode);

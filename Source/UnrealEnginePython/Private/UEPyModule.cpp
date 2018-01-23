@@ -3023,16 +3023,11 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		}
 	}
 
-    if (u_function->PropertiesSize > u_function->ParmsSize)
-    {
-        return PyErr_Format(PyExc_Exception, "UFunction PropertiesSize (%i) > ParmsSize (%i).", u_function->PropertiesSize, u_function->ParmsSize);
-    }
+    //NOTE: Still weird that we're not using u_function->PropertiesSize but mirroring behavior in UObject::CallFunctionByNameWithArguments()
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 	FMemory::Memzero(buffer, u_function->ParmsSize);
-
 	// initialize args
-	TFieldIterator<UProperty> IArgs(u_function);
-	for (; IArgs && (IArgs->PropertyFlags & CPF_Parm); ++IArgs)
+	for (TFieldIterator<UProperty> IArgs(u_function); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
 	{
 		UProperty *prop = *IArgs;
 		if (!prop->HasAnyPropertyFlags(CPF_ZeroConstructor))
@@ -3040,19 +3035,24 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		    prop->InitializeValue_InContainer(buffer);
 		}
 
-#if WITH_EDITOR
-		FString default_key = FString("CPP_Default_") + prop->GetName();
-		FString default_key_value = u_function->GetMetaData(FName(*default_key));
-		if (!default_key_value.IsEmpty())
-		{
-#if ENGINE_MINOR_VERSION >= 17
-			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_None, NULL);
-#else
-			prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
-#endif
-	    }
-#endif
+        //UObject::CallFunctionByNameWithArguments() only does this part on non return value params
+        if((IArgs->PropertyFlags & (CPF_Parm|CPF_ReturnParm)) == CPF_Parm)
+        {
+    #if WITH_EDITOR
+            FString default_key = FString("CPP_Default_") + prop->GetName();
+            FString default_key_value = u_function->GetMetaData(FName(*default_key));
+            if (!default_key_value.IsEmpty())
+            {
+    #if ENGINE_MINOR_VERSION >= 17
+                prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_None, NULL);
+    #else
+                prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
+    #endif
+            }
+    #endif
+        }
     }
+
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
 
