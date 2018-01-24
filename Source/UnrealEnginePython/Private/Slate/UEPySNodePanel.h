@@ -2,6 +2,7 @@
 
 #include "UnrealEnginePython.h"
 
+#if WITH_EDITOR
 #include "UEPySPanel.h"
 
 #include "Editor/GraphEditor/Public/SNodePanel.h"
@@ -15,3 +16,4 @@ typedef struct {
 
 
 void ue_python_init_snode_panel(PyObject *);
+#endif

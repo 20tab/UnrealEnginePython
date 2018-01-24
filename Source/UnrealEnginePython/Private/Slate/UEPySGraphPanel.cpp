@@ -1,5 +1,6 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
 #include "UEPySGraphPanel.h"
 
 #define sw_graph_panel StaticCastSharedRef<SGraphPanel>(self->s_nodePanel.s_panel.s_widget)
@@ -132,3 +133,5 @@ void ue_python_init_sgraph_panel(PyObject *ue_module)
     Py_INCREF(&ue_PySGraphPanelType);
     PyModule_AddObject(ue_module, "SGraphPanel", (PyObject *)&ue_PySGraphPanelType);
 }
+
+#endif

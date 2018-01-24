@@ -832,11 +832,11 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_sspacer(module);
 	ue_python_init_spython_widget(module);
 	ue_python_init_soverlay(module);
-    ue_python_init_snode_panel(module);
-    ue_python_init_sgraph_panel(module);
 
 
 #if WITH_EDITOR
+    ue_python_init_snode_panel(module);
+    ue_python_init_sgraph_panel(module);
     ue_python_init_idetails_view(module);
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_slevel_viewport(module);

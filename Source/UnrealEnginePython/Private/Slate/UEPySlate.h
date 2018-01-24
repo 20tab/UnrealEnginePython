@@ -59,8 +59,6 @@
 #include "UEPySSpacer.h"
 #include "UEPySPythonWidget.h"
 #include "UEPySOverlay.h"
-#include "UEPySNodePanel.h"
-#include "UEPySGraphPanel.h"
 
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
@@ -88,6 +86,8 @@
 #include "UEPySAssetDropTarget.h"
 #include "UEPySObjectPropertyEntryBox.h"
 #include "UEPyIDetailsView.h"
+#include "UEPySNodePanel.h"
+#include "UEPySGraphPanel.h"
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"

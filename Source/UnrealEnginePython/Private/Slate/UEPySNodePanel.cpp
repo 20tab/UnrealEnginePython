@@ -1,6 +1,7 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
 #include "UEPySNodePanel.h"
 
 #define sw_node_panel StaticCastSharedRef<SNodePanel>(self->s_panel.s_widget)
@@ -52,3 +53,5 @@ void ue_python_init_snode_panel(PyObject *ue_module)
     Py_INCREF(&ue_PySNodePanelType);
     PyModule_AddObject(ue_module, "SNodePanel", (PyObject *)&ue_PySNodePanelType);
 }
+
+#endif
