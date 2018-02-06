@@ -13,6 +13,9 @@ PyObject *py_unreal_engine_get_forward_vector(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_right_vector(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_up_vector(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_clipboard_copy(PyObject *, PyObject *);
+PyObject *py_unreal_engine_clipboard_paste(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_set_random_seed(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_get_game_viewport_size(PyObject *, PyObject *);

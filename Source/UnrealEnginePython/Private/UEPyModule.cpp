@@ -387,6 +387,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
 #endif
 
+	{ "clipboard_copy", py_unreal_engine_clipboard_copy, METH_VARARGS, "" },
+	{ "clipboard_paste", py_unreal_engine_clipboard_paste, METH_VARARGS, "" },
+
 #pragma warning(suppress: 4191)
 	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
 

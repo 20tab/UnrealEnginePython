@@ -1257,3 +1257,22 @@ PyObject *py_unreal_engine_set_random_seed(PyObject * self, PyObject * args)
 
 	Py_RETURN_NONE;
 }
+
+PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
+{
+	char *text;
+	if (!PyArg_ParseTuple(args, "s:clipboard_copy", &text))
+	{
+		return nullptr;
+	}
+
+	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
+{
+	FString clipboard;
+	FGenericPlatformMisc::ClipboardPaste(clipboard);
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
+}
