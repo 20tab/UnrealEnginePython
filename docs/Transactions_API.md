@@ -42,6 +42,7 @@ ue.editor_redo()
 
 Managing transactions with property modification
 -
+In this little example we are creating a cone using a static mesh object from the engine content. We start a transaction and move the cone by 15 units and use the `modify` call to keep our property modifications pushed to the undo stack.
 
 ```python
 
