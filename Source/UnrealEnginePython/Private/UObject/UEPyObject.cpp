@@ -7,6 +7,7 @@
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 #include "ObjectTools.h"
 #include "UnrealEd.h"
+#include "Runtime/Core/Public/HAL/FeedbackContextAnsi.h"
 #endif
 
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
@@ -1735,6 +1736,31 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 	}
 
 	return PyErr_Format(PyExc_Exception, "unable to save package");
+}
+
+PyObject *py_ue_import_custom_properties(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *t3d;
+
+	if (!PyArg_ParseTuple(args, "s:import_custom_properties", &t3d))
+	{
+		return nullptr;
+	}
+
+	FFeedbackContextAnsi context;
+	self->ue_object->ImportCustomProperties(UTF8_TO_TCHAR(t3d), &context);
+
+	TArray<FString> errors;
+	context.GetErrors(errors);
+
+	if (errors.Num() > 0)
+	{
+		return PyErr_Format(PyExc_Exception, "%s", TCHAR_TO_UTF8(*errors[0]));
+	}
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_asset_can_reimport(ue_PyUObject * self, PyObject * args)

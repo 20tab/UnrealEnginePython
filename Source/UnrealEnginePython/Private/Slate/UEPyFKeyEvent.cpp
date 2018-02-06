@@ -55,9 +55,33 @@ static PyTypeObject ue_PyFKeyEventType = {
 	ue_PyFKeyEvent_methods,             /* tp_methods */
 };
 
+static int ue_py_fkey_event_init(ue_PyFKeyEvent *self, PyObject *args, PyObject *kwargs)
+{
+	char *key;
+	if (!PyArg_ParseTuple(args, "s", &key))
+	{
+		return -1;
+	}
+
+	FKey InKey(key);
+
+	// TODO make it configurable
+	FModifierKeysState modifier;
+
+	// TODO configure repeat
+	FKeyEvent Event(InKey, modifier, 0, false, 0, 0);
+
+	new(&self->key_event) FKeyEvent(Event);
+	new(&self->f_input.input) FInputEvent(Event);
+
+	return 0;
+}
+
+
 void ue_python_init_fkey_event(PyObject *ue_module) {
 
 	ue_PyFKeyEventType.tp_base = &ue_PyFInputEventType;
+	ue_PyFKeyEventType.tp_init = (initproc)ue_py_fkey_event_init;
 
 	if (PyType_Ready(&ue_PyFKeyEventType) < 0)
 		return;
@@ -71,4 +95,11 @@ PyObject *py_ue_new_fkey_event(FKeyEvent key_event) {
 	new(&ret->key_event) FKeyEvent(key_event);
 	new(&ret->f_input.input) FInputEvent(key_event);
 	return (PyObject *)ret;
+}
+
+ue_PyFKeyEvent *py_ue_is_fkey_event(PyObject *obj)
+{
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFKeyEventType))
+		return nullptr;
+	return (ue_PyFKeyEvent *)obj;
 }

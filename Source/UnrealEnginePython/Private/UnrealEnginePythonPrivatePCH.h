@@ -73,6 +73,7 @@
 #include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
 #include "ConsoleManager/UEPyIConsoleManager.h"
+#include "SlateApplication/UEPyFSlateApplication.h"
 #include "Voice/UEPyIVoiceCapture.h"
 
 

@@ -15,3 +15,5 @@ typedef struct {
 void ue_python_init_fkey_event(PyObject *);
 
 PyObject *py_ue_new_fkey_event(FKeyEvent);
+
+ue_PyFKeyEvent *py_ue_is_fkey_event(PyObject *);
