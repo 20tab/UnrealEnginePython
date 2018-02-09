@@ -31,7 +31,6 @@ void SPythonTreeView::SetPythonItemExpansion(PyObject *item, bool InShouldExpand
 	}
 }
 
-
 static PyMethodDef ue_PySPythonTreeView_methods[] = {
 	{ "set_item_expansion", (PyCFunction)py_ue_spython_tree_view_set_item_expansion, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */

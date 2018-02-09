@@ -39,6 +39,14 @@ static PyObject *py_ue_swindow_resize(ue_PySWindow *self, PyObject * args)
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_swindow_minimize(ue_PySWindow *self, PyObject * args)
+{
+    sw_window->Minimize();
+
+    Py_INCREF(self);
+    return (PyObject *)self;
+}
+
 static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args)
 {
 	PyObject *py_content;
@@ -108,9 +116,31 @@ static PyObject *py_ue_swindow_add_modal(ue_PySWindow *self, PyObject * args)
 }
 #endif
 
+static PyObject *py_ue_swindow_add_child(ue_PySWindow *self, PyObject * args)
+{
+    PyObject *py_obj;
+    if (!PyArg_ParseTuple(args, "O:add_child", &py_obj))
+    {
+        return NULL;
+    }
+
+    ue_PySWindow *py_swindow_child = py_ue_is_swindow(py_obj);
+    if (!py_swindow_child)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a SWindow");
+    }
+
+    FSlateApplication::Get().AddWindowAsNativeChild(
+        StaticCastSharedRef<SWindow>(py_swindow_child->s_compound_widget.s_widget.s_widget), 
+        sw_window);
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySWindow_methods[] = {
-	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
-	{ "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
+    { "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
+    { "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
+    { "minimize", (PyCFunction)py_ue_swindow_minimize, METH_VARARGS, "" },
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
@@ -119,6 +149,7 @@ static PyMethodDef ue_PySWindow_methods[] = {
 #if WITH_EDITOR
 	{ "add_modal", (PyCFunction)py_ue_swindow_add_modal, METH_VARARGS, "" },
 #endif
+    { "add_child", (PyCFunction)py_ue_swindow_add_child, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -222,7 +253,12 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 		sw_window->SetOnWindowClosed(handler);
 	}
 
-	FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(sw_window->AsShared()), true);
+    // is it a child ?
+    PyObject *is_child = ue_py_dict_get_item(kwargs, "child");
+    if (!(is_child && PyObject_IsTrue(is_child)))
+    {
+        FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(sw_window->AsShared()), true);
+    }
 
 	return 0;
 }
@@ -240,4 +276,11 @@ void ue_python_init_swindow(PyObject *ue_module)
 
 	Py_INCREF(&ue_PySWindowType);
 	PyModule_AddObject(ue_module, "SWindow", (PyObject *)&ue_PySWindowType);
+}
+
+ue_PySWindow *py_ue_is_swindow(PyObject *obj)
+{
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySWindowType))
+		return nullptr;
+	return (ue_PySWindow *)obj;
 }

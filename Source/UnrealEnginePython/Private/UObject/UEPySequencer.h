@@ -21,6 +21,7 @@ PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_track_add_section(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_add_actor(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_remove_possessable(ue_PyUObject *, PyObject *);

@@ -132,11 +132,11 @@ static PyObject *py_ue_iconsole_manager_get_string(PyObject *cls, PyObject * arg
 		return PyErr_Format(PyExc_Exception, "console object \"%s\" is not a variable", key);
 	}
 
-	TConsoleVariableData<FString> *c_string = c_object->AsVariableString();
+	/*TConsoleVariableData<FString> *c_string = c_object->AsVariableString();
 	if (!c_string)
 	{
 		return PyErr_Format(PyExc_Exception, "console object \"%s\" is not a string", key);
-	}
+	}*/
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*var->GetString()));
 }

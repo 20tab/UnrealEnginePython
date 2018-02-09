@@ -5,7 +5,9 @@
 
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
-
+#if WITH_EDITOR
+#include "PackageTools.h"
+#endif
 
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
@@ -164,6 +166,16 @@ PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
 }
 
+PyObject *py_unreal_engine_get_game_saved_dir(PyObject * self, PyObject * args)
+{
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameSavedDir()));
+}
+
+PyObject * py_unreal_engine_get_game_user_developer_dir(PyObject *, PyObject *)
+{
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameUserDeveloperDir()));
+}
+
 PyObject *py_unreal_engine_convert_relative_path_to_full(PyObject * self, PyObject * args)
 {
 	char *path;
@@ -281,6 +293,31 @@ PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
 	Py_INCREF(ret);
 	return (PyObject *)ret;
 }
+
+#if WITH_EDITOR
+PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
+{
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args, "O:unload_package", &obj))
+    {
+        return NULL;
+    }
+
+    UPackage* packageToUnload = ue_py_check_type<UPackage>(obj);
+    if (!packageToUnload)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+    }
+
+    FText outErrorMsg;
+    if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+    {
+        return PyErr_Format(PyExc_Exception, TCHAR_TO_UTF8(*outErrorMsg.ToString()));
+    }
+
+    Py_RETURN_NONE;
+}
+#endif
 
 PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args)
 {
@@ -515,7 +552,8 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	PyObject *obj;
 	PyObject *py_outer = NULL;
 	char *name = nullptr;
-	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj, &py_outer, &name))
+    uint64 flags = (uint64)(RF_Public | RF_Standalone);
+	if (!PyArg_ParseTuple(args, "O|OsK:new_object", &obj, &py_outer, &name, &flags))
 	{
 		return NULL;
 	}
@@ -553,7 +591,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 		outer = py_outer_obj->ue_object;
 	}
 
-	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, RF_Public | RF_Standalone);
+	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, (EObjectFlags)flags);
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 
@@ -1109,7 +1147,7 @@ PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args
 
 PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args)
 {
-
+	
 	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
 	if (!DesktopPlatform)
 		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");
@@ -1174,7 +1212,6 @@ PyObject *py_unreal_engine_save_file_dialog(PyObject *self, PyObject * args)
 	}
 	return py_list;
 }
-
 
 PyObject *py_unreal_engine_copy_properties_for_unrelated_objects(PyObject * self, PyObject * args, PyObject *kwargs)
 {

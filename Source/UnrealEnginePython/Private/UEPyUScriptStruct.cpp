@@ -147,9 +147,9 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 			FString display_name = property->GetMetaData(DisplayNameKey);
 			if (display_name.Len() > 0 && attr.Equals(display_name))
 			{
-				return property;
-			}
+			return property;
 		}
+	}
 	}
 #endif
 
@@ -320,8 +320,7 @@ void ue_python_init_uscriptstruct(PyObject *ue_module)
 	PyModule_AddObject(ue_module, "UScriptStruct", (PyObject *)&ue_PyUScriptStructType);
 }
 
-PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, uint8 *data)
-{
+PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, const uint8 *data) {
 	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
 	ret->u_struct = u_struct;
 	uint8 *struct_data = (uint8*)FMemory::Malloc(u_struct->GetStructureSize());

@@ -35,9 +35,17 @@ static PyObject *py_ue_stable_view_base_set_item_width(ue_PySTableViewBase *self
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_stable_view_base_request_list_refresh(ue_PySTableViewBase *self, PyObject * args)
+{
+	sw_table_view_base->RequestListRefresh();
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySTableViewBase_methods[] = {
 	{ "set_item_height", (PyCFunction)py_ue_stable_view_base_set_item_height, METH_VARARGS, "" },
 	{ "set_item_width", (PyCFunction)py_ue_stable_view_base_set_item_width, METH_VARARGS, "" },
+    { "request_list_refresh", (PyCFunction)py_ue_stable_view_base_request_list_refresh, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -82,4 +90,11 @@ void ue_python_init_stable_view_base(PyObject *ue_module)
 
 	Py_INCREF(&ue_PySTableViewBaseType);
 	PyModule_AddObject(ue_module, "STableViewBase", (PyObject *)&ue_PySTableViewBaseType);
+}
+
+ue_PySTableViewBase * py_ue_is_stable_view_base(PyObject *obj)
+{
+    if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySTableViewBaseType))
+        return nullptr;
+    return (ue_PySTableViewBase *)obj;
 }

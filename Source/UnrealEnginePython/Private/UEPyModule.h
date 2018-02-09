@@ -57,17 +57,16 @@ template <typename T> T *ue_py_check_type(ue_PyUObject *py_obj) {
 	return Cast<T>(py_obj->ue_object);
 }
 
+uint8 *do_ue_py_check_struct(PyObject *py_obj, UScriptStruct* chk_u_struct);
+
 template <typename T> T *ue_py_check_struct(PyObject *py_obj) {
-	ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_obj);
-	if (!ue_py_struct) {
-		return nullptr;
-	}
+    return (T*)do_ue_py_check_struct(py_obj, T::StaticStruct());
+}
 
-	if (ue_py_struct->u_struct == T::StaticStruct()) {
-		return (T*)ue_py_struct->data;
-	}
+bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct);
 
-	return nullptr;
+template <typename T> bool ue_py_check_childstruct(PyObject *py_obj) {
+    return do_ue_py_check_childstruct(py_obj, T::StaticStruct());
 }
 
 FGuid *ue_py_check_fguid(PyObject *);

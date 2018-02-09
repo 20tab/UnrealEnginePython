@@ -40,6 +40,7 @@ PyObject *py_unreal_engine_get_long_package_path(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_compile_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_message_dialog_open(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_blueprint_hierarchy_from_class(PyObject *, PyObject *);
 PyObject *py_unreal_engine_reload_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_replace_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject *, PyObject *);
@@ -75,6 +76,7 @@ PyObject *py_unreal_engine_editor_take_high_res_screen_shots(PyObject *, PyObjec
 
 PyObject *py_unreal_engine_blueprint_add_function(PyObject *, PyObject *);
 PyObject *py_unreal_engine_blueprint_add_ubergraph_page(PyObject *, PyObject *);
+PyObject *py_unreal_engine_blueprint_get_all_graphs(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_create_new_graph(PyObject *, PyObject *);
 
@@ -114,5 +116,6 @@ PyObject *py_unreal_engine_heightmap_import(PyObject *, PyObject *);
 PyObject *py_unreal_engine_play_preview_sound(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_register_settings(PyObject *, PyObject *);
+PyObject *py_unreal_engine_show_viewer(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_settings(PyObject *, PyObject *);
 #endif

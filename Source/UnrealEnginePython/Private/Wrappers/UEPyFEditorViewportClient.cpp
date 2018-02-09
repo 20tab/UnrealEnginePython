@@ -83,6 +83,18 @@ static PyObject *py_ue_feditor_viewport_client_set_view_location(ue_PyFEditorVie
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_feditor_viewport_client_set_realtime(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+    PyObject* bInRealtime;
+    PyObject* bStoreCurrentValue;
+    if (!PyArg_ParseTuple(args, "OO", &bInRealtime, &bStoreCurrentValue))
+        return nullptr;
+
+    self->editor_viewport_client->SetRealtime(PyObject_IsTrue(bInRealtime)        ? true : false,
+                                              PyObject_IsTrue(bStoreCurrentValue) ? true : false);
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyFEditorViewportClient_methods[] = {
 	{ "take_high_res_screen_shot", (PyCFunction)py_ue_feditor_viewport_client_take_high_res_screen_shot, METH_VARARGS, "" },
 	{ "tick", (PyCFunction)py_ue_feditor_viewport_client_tick, METH_VARARGS, "" },
@@ -94,6 +106,7 @@ static PyMethodDef ue_PyFEditorViewportClient_methods[] = {
 	{ "get_scene_depth_at_location", (PyCFunction)py_ue_feditor_viewport_client_get_scene_depth_at_location, METH_VARARGS, "" },
 	{ "set_look_at_location", (PyCFunction)py_ue_feditor_viewport_client_set_look_at_location, METH_VARARGS, "" },
 	{ "set_view_location", (PyCFunction)py_ue_feditor_viewport_client_set_view_location, METH_VARARGS, "" },
+    { "set_realtime", (PyCFunction)py_ue_feditor_viewport_client_set_realtime, METH_VARARGS, "" },
 	{ nullptr }  /* Sentinel */
 };
 

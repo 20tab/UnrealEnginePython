@@ -255,12 +255,56 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args) {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
 }
 
+PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *self, PyObject * args) {
+
+    ue_py_check(self);
+
+    PyObject *py_obj;
+    if (!PyArg_ParseTuple(args, "O:sequencer_add_actor_component", &py_obj)) {
+        return NULL;
+    }
+
+    if (!self->ue_object->IsA<ULevelSequence>())
+        return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+    ue_PyUObject *py_ue_obj = ue_is_pyuobject(py_obj);
+    if (!py_ue_obj)
+        return PyErr_Format(PyExc_Exception, "argument is not a uobject");
+
+    if (!py_ue_obj->ue_object->IsA<UActorComponent>())
+        return PyErr_Format(PyExc_Exception, "argument is not an actorcomponent");
+
+    ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+    UActorComponent* actorComponent = (UActorComponent *)py_ue_obj->ue_object;
+
+    // try to open the editor for the asset
+    FAssetEditorManager::Get().OpenEditorForAsset(seq);
+
+    IAssetEditorInstance *editor = FAssetEditorManager::Get().FindEditorForAsset(seq, true);
+    FGuid new_guid;
+    if (editor) {
+        FLevelSequenceEditorToolkit *toolkit = (FLevelSequenceEditorToolkit *)editor;
+        ISequencer *sequencer = toolkit->GetSequencer().Get();
+        new_guid = sequencer->GetHandleToObject(actorComponent);
+    }
+    else {
+        return PyErr_Format(PyExc_Exception, "unable to access sequencer");
+    }
+
+    if (!new_guid.IsValid()) {
+        return PyErr_Format(PyExc_Exception, "unable to find guid");
+    }
+
+    return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
+}
+
 PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *self, PyObject * args) {
 
 	ue_py_check(self);
 
 	PyObject *py_obj;
-	if (!PyArg_ParseTuple(args, "O:sequencer_add_spawnable", &py_obj)) {
+	if (!PyArg_ParseTuple(args, "O:sequencer_make_new_spawnable", &py_obj)) {
 		return NULL;
 	}
 
@@ -752,7 +796,7 @@ PyObject *py_ue_sequencer_remove_master_track(ue_PyUObject *self, PyObject * arg
 	ue_py_check(self);
 
 	PyObject *py_track;
-	if (!PyArg_ParseTuple(args, "track:sequencer_remove_master_track", &py_track)) {
+	if (!PyArg_ParseTuple(args, "O:sequencer_remove_master_track", &py_track)) {
 		return nullptr;
 	}
 
@@ -777,7 +821,7 @@ PyObject *py_ue_sequencer_remove_track(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	PyObject *py_track;
-	if (!PyArg_ParseTuple(args, "track:sequencer_remove_track", &py_track)) {
+	if (!PyArg_ParseTuple(args, "O:sequencer_remove_track", &py_track)) {
 		return nullptr;
 	}
 

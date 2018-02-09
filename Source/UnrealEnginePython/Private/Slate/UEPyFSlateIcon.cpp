@@ -2,14 +2,21 @@
 
 #include "UEPyFSlateIcon.h"
 
+static PyObject *py_ue_fslate_icon_get_icon(ue_PyFSlateIcon *self, PyObject * args)
+{
+    PyObject *ret = py_ue_new_uscriptstruct(FSlateBrush::StaticStruct(), (const uint8*)self->icon.GetIcon());
+    return ret;
+}
+
 static PyMethodDef ue_PyFSlateIcon_methods[] = {
+    { "get_icon", (PyCFunction)py_ue_fslate_icon_get_icon, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
 static PyObject *ue_PyFSlateIcon_str(ue_PyFSlateIcon *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.SlateIcon {'name': %s}>",
-		TCHAR_TO_UTF8(*self->icon->GetStyleName().ToString()));
+		TCHAR_TO_UTF8(*self->icon.GetStyleName().ToString()));
 }
 
 static PyTypeObject ue_PyFSlateIconType = {
@@ -55,10 +62,10 @@ static int ue_py_fslate_icon_init(ue_PyFSlateIcon *self, PyObject *args, PyObjec
 			PyErr_SetString(PyExc_ValueError, "you have not specified as style name");
 			return -1;
 		}
-		self->icon = new FSlateIcon(FName(style_set), FName(style));
+		new(&self->icon) FSlateIcon(FName(style_set), FName(style));
 	}
 	else {
-		self->icon = new FSlateIcon();
+        new(&self->icon) FSlateIcon();
 	}
 	return 0;
 }
@@ -75,8 +82,15 @@ void ue_python_init_fslate_icon(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FSlateIcon", (PyObject *)&ue_PyFSlateIconType);
 }
 
+ue_PyFSlateIcon *py_ue_new_fslate_icon(const FSlateIcon slate_icon)
+{
+    ue_PyFSlateIcon *ret = (ue_PyFSlateIcon *)PyObject_New(ue_PyFSlateIcon, &ue_PyFSlateIconType);
+    ret->icon = slate_icon;
+    return ret;
+}
+
 ue_PyFSlateIcon *py_ue_is_fslate_icon(PyObject *obj) {
-        if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFSlateIconType))
-                return nullptr;
-        return (ue_PyFSlateIcon *)obj;
+    if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFSlateIconType))
+            return nullptr;
+    return (ue_PyFSlateIcon *)obj;
 }

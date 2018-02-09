@@ -40,6 +40,7 @@
 #include "UEPySTableViewBase.h"
 #include "UEPySListView.h"
 #include "UEPySPythonListView.h"
+#include "UEPySPythonMultiColumnTableRow.h"
 #include "UEPySTreeView.h"
 #include "UEPySPythonTreeView.h"
 #include "UEPySSplitter.h"
@@ -62,9 +63,9 @@
 #include "UEPyFTabManager.h"
 #include "UEPyFTabSpawnerEntry.h"
 #include "UEPyFMenuBuilder.h"
-#include "UEPyFSlateStyleSet.h"
 #include "UEPyFToolBarBuilder.h"
 #include "UEPyFSlateIcon.h"
+#include "UEPyFSlateStyleSet.h"
 
 #include "UEPyFGeometry.h"
 #include "UEPyFPaintContext.h"
@@ -84,6 +85,10 @@
 #include "UEPySDropTarget.h"
 #include "UEPySAssetDropTarget.h"
 #include "UEPySObjectPropertyEntryBox.h"
+#include "UEPyIDetailsView.h"
+#include "UEPyIStructureDetailsView.h"
+#include "UEPySNodePanel.h"
+#include "UEPySGraphPanel.h"
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
@@ -93,21 +98,25 @@
 
 #include "UEPySlate.generated.h"
 
-
-
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_find_slate_style(PyObject *, PyObject *);
+PyObject *py_unreal_engine_find_icon_for_class(PyObject *, PyObject *);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_menu_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_tool_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_detail_view(PyObject *, PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_structure_detail_view(PyObject *, PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_property_view(PyObject *, PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self, PyObject *);
 #endif
 
 PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_swidget_from_wrapper(PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_wrapper_from_pyswidget(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject *, PyObject *);
@@ -121,6 +130,7 @@ void ue_py_register_swidget(SWidget *, ue_PySWidget *);
 void ue_py_unregister_swidget(SWidget *);
 
 void ue_py_setup_swidget(ue_PySWidget *);
+
 
 PyObject *ue_py_dict_get_item(PyObject *, const char *);
 
@@ -139,6 +149,8 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 #define ue_py_snew_base(T, field, required, arguments) self->field.s_widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments); ue_py_register_swidget((SWidget *)&self->field.s_widget.Get(), (ue_PySWidget *)self)
 
 #define ue_py_snew_simple(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), T::FArguments())
+
+#define ue_py_snew_simple_with_req_args(T, field, ... ) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), T::FArguments())
 
 #define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
 
@@ -231,6 +243,13 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 		ue_py_slate_down(param)
 
+#define ue_py_slate_farguments_tint(param, attribute) ue_py_slate_up(TOptional<int32>, GetterIntT<TOptional<int32>>, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((TOptional<int32>)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
 
 
 #define ue_py_slate_farguments_enum(param, attribute, _type) ue_py_slate_up(_type, GetterIntT<_type>, param, attribute)\
@@ -370,10 +389,32 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_optional_string(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (PyUnicode_Check(value)) {\
+		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
+	}\
+}
+
 #define ue_py_slate_farguments_optional_text(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyUnicode_Check(value)) {\
 			arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
+#define ue_py_slate_farguments_optional_named_slot(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (ue_PySWidget *py_swidget = py_ue_is_swidget(value)) {\
+            Py_INCREF(py_swidget);\
+            arguments.attribute()\
+            [\
+                py_swidget->s_widget\
+            ];\
 		}\
 		else {\
 				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
@@ -417,12 +458,28 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	ue_py_slate_farguments_text("tool_tip_text", ToolTipText);\
     ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
 
+#define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+    value = value ? value : PyTuple_GetItem(args, 0);\
+	if (ue_PySWidget *py_swidget = value ? py_ue_is_swidget(value) : nullptr) {\
+        Py_INCREF(py_swidget);\
+        ue_PySWidget *self_py_swidget = py_ue_is_swidget((PyObject*)self);\
+        self_py_swidget->py_swidget_slots.Add(py_swidget);\
+        arguments.AttachWidget(py_swidget->s_widget->AsShared());\
+	}\
+	else {\
+		PyErr_SetString(PyExc_TypeError, "unsupported type for required slot " param); \
+		return -1;\
+	}\
+}
+
+#define ue_py_slate_setup_hack_slot_args(_type, _swidget_ref) _type::FSlot &arguments = _swidget_ref->AddSlot();\
+    ue_py_slate_farguments_required_slot("widget");
 
 void ue_python_init_slate(PyObject *);
 
 struct FPythonItem
 {
-	PyObject *py_object;
+	PyObject *py_object = nullptr;
 
 	FPythonItem(PyObject *item)
 	{
@@ -442,8 +499,11 @@ public:
 	FReply OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event);
 	void OnTextChanged(const FText &text);
 	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
+    void OnInt32Changed(int32 value);
+    void OnInt32Committed(int32 value, ETextCommit::Type commit_type);
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
+    void OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode);
 
 	void OnLinearColorChanged(FLinearColor color);
 
@@ -468,6 +528,7 @@ public:
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
+    TSharedRef<SWidget> OnGetMenuContent();
 	void OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type);
 
 	void SimpleExecuteAction();

@@ -29,6 +29,8 @@
 
 #include "UEPyModule.h"
 
+#include "Wrappers/UEPyESlateEnums.h"
+
 #include "Wrappers/UEPyFVector.h"
 #include "Wrappers/UEPyFHitResult.h"
 #include "Wrappers/UEPyFRotator.h"

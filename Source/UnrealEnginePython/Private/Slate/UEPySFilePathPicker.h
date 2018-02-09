@@ -2,9 +2,9 @@
 
 #include "UnrealEnginePython.h"
 
-
 #include "UEPySCompoundWidget.h"
 
+#if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 13
 #include "Developer/DesktopWidgets/Public/Widgets/Input/SFilePathPicker.h"
 
@@ -16,4 +16,5 @@ typedef struct {
 } ue_PySFilePathPicker;
 
 void ue_python_init_sfile_path_picker(PyObject *);
+#endif
 #endif

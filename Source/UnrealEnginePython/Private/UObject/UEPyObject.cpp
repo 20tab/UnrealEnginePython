@@ -74,6 +74,30 @@ PyObject *py_ue_class_set_flags(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_get_obj_flags(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	return PyLong_FromUnsignedLongLong((uint64)self->ue_object->GetFlags());
+}
+
+PyObject *py_ue_set_obj_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "K:set_obj_flags", &flags))
+	{
+		return nullptr;
+	}
+
+	self->ue_object->SetFlags((EObjectFlags)flags);
+
+	Py_RETURN_NONE;
+}
+
+
 #if WITH_EDITOR
 PyObject *py_ue_class_set_config_name(ue_PyUObject * self, PyObject * args)
 {
@@ -605,7 +629,12 @@ PyObject *py_ue_get_display_name(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 #if WITH_EDITOR
-	if (AActor *actor = ue_py_check_type<AActor>(self))
+    if (UClass *uclass = ue_py_check_type<UClass>(self))
+    {
+        return PyUnicode_FromString(TCHAR_TO_UTF8(*uclass->GetDisplayNameText().ToString()));
+    }
+
+    if (AActor *actor = ue_py_check_type<AActor>(self))
 	{
 		return PyUnicode_FromString(TCHAR_TO_UTF8(*actor->GetActorLabel()));
 	}
@@ -1663,7 +1692,7 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package = (UPackage *)outer;
 		has_package = true;
 	}
-	else if (u_object->IsA<UPackage>() && u_object != GetTransientPackage())
+	else if (u_object && u_object->IsA<UPackage>() && u_object != GetTransientPackage())
 	{
 		package = (UPackage *)u_object;
 		has_package = true;
@@ -1676,13 +1705,13 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "the object has no associated package, please specify a name");
 		}
 		if (!has_package)
-		{
-			// unmark transient object
-			if (u_object->HasAnyFlags(RF_Transient))
-			{
-				u_object->ClearFlags(RF_Transient);
-				u_object->SetFlags(RF_Public | RF_Standalone);
-			}
+	    {
+		    // unmark transient object
+		    if (u_object->HasAnyFlags(RF_Transient))
+		    {
+			    u_object->ClearFlags(RF_Transient);
+			    u_object->SetFlags(RF_Public | RF_Standalone);
+		    }
 		}
 		package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 		// create a new package if it does not exist
@@ -1724,6 +1753,12 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package->FileName = *FPackageName::LongPackageNameToFilename(*package->GetPathName(), FPackageName::GetAssetPackageExtension());
 		UE_LOG(LogPython, Warning, TEXT("no file mapped to UPackage %s, setting its FileName to %s"), *package->GetPathName(), *package->FileName.ToString());
 	}
+
+    // NOTE: FileName may not be a fully qualified filepath
+    if (FPackageName::IsValidLongPackageName(package->FileName.ToString()))
+    {
+        package->FileName = *FPackageName::LongPackageNameToFilename(package->GetPathName(), FPackageName::GetAssetPackageExtension());
+    }
 
 	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString()))
 	{

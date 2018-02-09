@@ -3,6 +3,8 @@
 
 #include "UEPySListView.h"
 
+#define sw_slist_view StaticCastSharedRef<SListView<TSharedPtr<FPythonItem>>>(self->s_table_view_base.s_compound_widget.s_widget.s_widget)
+
 static PyMethodDef ue_PySListView_methods[] = {
 	{ NULL }  /* Sentinel */
 };

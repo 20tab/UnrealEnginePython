@@ -1,9 +1,8 @@
-#if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 13
 #include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySFilePathPicker.h"
 
+#if WITH_EDITOR
+#if ENGINE_MINOR_VERSION > 13
 #define sw_file_path_picker StaticCastSharedRef<SFilePathPicker>(self->s_compound_widget.s_widget.s_widget)
 
 

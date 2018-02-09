@@ -31,8 +31,43 @@ static PyObject *py_ue_spython_widget_set_active(ue_PySPythonWidget *self, PyObj
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_spython_widget_set_content(ue_PySPythonWidget *self, PyObject *args)
+{
+    PyObject *py_content;
+    if (!PyArg_ParseTuple(args, "O:set_content", &py_content))
+    {
+        return NULL;
+    }
+
+    ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
+    if (!py_swidget)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+    }
+
+    Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
+    Py_INCREF(py_swidget);
+    self->s_compound_widget.s_widget.py_swidget_content = py_swidget;
+
+    sw_python_widget->SetContent(py_swidget->s_widget->AsShared());
+
+    Py_INCREF(self);
+    return (PyObject *)self;
+}
+
+static PyObject *py_ue_spython_widget_clear_content(ue_PySPythonWidget *self, PyObject *args)
+{
+    sw_python_widget->ClearContent();
+    Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef ue_PySPythonWidget_methods[] = {
-	{ "set_active", (PyCFunction)py_ue_spython_widget_set_active, METH_VARARGS | METH_KEYWORDS, "" },
+	{ "set_active",    (PyCFunction)py_ue_spython_widget_set_active, METH_VARARGS | METH_KEYWORDS, "" },
+    { "set_content",   (PyCFunction)py_ue_spython_widget_set_content, METH_VARARGS, "" },
+    { "clear_content", (PyCFunction)py_ue_spython_widget_clear_content, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -70,7 +105,6 @@ PyTypeObject ue_PySPythonWidgetType = {
 static int ue_py_spython_widget_init(ue_PySPythonWidget *self, PyObject *args, PyObject *kwargs)
 {
 	ue_py_snew_simple(SPythonWidget, s_compound_widget.s_widget);
-	UE_LOG(LogPython, Warning, TEXT("Initializing World Widget!!!"));
 	sw_python_widget->SetPyObject((PyObject *)self);
 	return 0;
 }

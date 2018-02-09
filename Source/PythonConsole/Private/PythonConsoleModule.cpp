@@ -7,7 +7,7 @@
 #include "SDockTab.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructure.h"
 
-IMPLEMENT_MODULE( FPythonConsoleModule, PythonLog );
+IMPLEMENT_MODULE( FPythonConsoleModule, PythonConsole );
 
 namespace PythonConsoleModule
 {
