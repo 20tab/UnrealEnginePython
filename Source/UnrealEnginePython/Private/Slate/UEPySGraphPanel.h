@@ -3,6 +3,7 @@
 #include "UnrealEnginePython.h"
 
 #if WITH_EDITOR
+#if ENGINE_MINOR_VERSION > 12
 #include "UEPySNodePanel.h"
 
 #include "Editor/GraphEditor/Public/SGraphPanel.h"
@@ -16,4 +17,5 @@ typedef struct {
 
 
 void ue_python_init_sgraph_panel(PyObject *);
+#endif
 #endif

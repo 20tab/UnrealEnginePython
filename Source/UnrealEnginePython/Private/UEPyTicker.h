@@ -1,3 +1,5 @@
+// Copyright 20Tab S.r.l.
+
 #pragma once
 
 #include "UnrealEnginePython.h"
