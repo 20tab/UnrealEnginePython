@@ -53,10 +53,31 @@ static PyTypeObject ue_PyFCharacterEventType = {
 	ue_PyFCharacterEvent_methods,             /* tp_methods */
 };
 
+static int ue_py_fcharacter_event_init(ue_PyFCharacterEvent *self, PyObject *args, PyObject *kwargs)
+{
+	char *key;
+	if (!PyArg_ParseTuple(args, "s", &key))
+	{
+		return -1;
+	}
+
+	// TODO make it configurable
+	FModifierKeysState modifier;
+
+	// TODO make repeat configurable
+	FCharacterEvent Event(*UTF8_TO_TCHAR(key), modifier, 0, false);
+
+	new(&self->character_event) FCharacterEvent(Event);
+	new(&self->f_input.input) FInputEvent(Event);
+
+	return 0;
+}
+
 void ue_python_init_fcharacter_event(PyObject *ue_module)
 {
 
 	ue_PyFCharacterEventType.tp_base = &ue_PyFInputEventType;
+	ue_PyFCharacterEventType.tp_init = (initproc)ue_py_fcharacter_event_init;
 
 	if (PyType_Ready(&ue_PyFCharacterEventType) < 0)
 		return;
@@ -71,4 +92,11 @@ PyObject *py_ue_new_fcharacter_event(FCharacterEvent key_event)
 	new(&ret->character_event) FCharacterEvent(key_event);
 	new(&ret->f_input.input) FInputEvent(key_event);
 	return (PyObject *)ret;
+}
+
+ue_PyFCharacterEvent *py_ue_is_fcharacter_event(PyObject *obj)
+{
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFCharacterEventType))
+		return nullptr;
+	return (ue_PyFCharacterEvent *)obj;
 }

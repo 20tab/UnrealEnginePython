@@ -84,6 +84,8 @@ PyObject *py_ue_asset_reimport(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_metadata(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_metadata(ue_PyUObject *, PyObject *);
 PyObject *py_ue_has_metadata(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_import_custom_properties(ue_PyUObject *, PyObject *);
 #endif
 
 PyObject *py_ue_get_thumbnail(ue_PyUObject *, PyObject *);

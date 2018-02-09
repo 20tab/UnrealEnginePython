@@ -208,7 +208,14 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 			this->History.Add(ExecString);
 			this->HistoryPosition = this->History.Num();
 
-			UE_LOG(LogTemp, Log, TEXT(">>> %s"), *ExecString);
+			if (IsMultiline)
+			{
+				UE_LOG(LogTemp, Log, TEXT("... %s"), *ExecString);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT(">>> %s"), *ExecString);
+			}
 
 			// Clear the console input area
 			bIgnoreUIUpdate = true;

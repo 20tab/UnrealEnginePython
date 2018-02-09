@@ -39,6 +39,39 @@ ue.editor_undo()
 ue.editor_redo()
 ```
 
+
+Managing transactions with property modification
+-
+In this little example we are creating a cone using a static mesh object from the engine content. We start a transaction and move the cone by 15 units and use the `modify` call to keep our property modifications pushed to the undo stack.
+
+```python
+
+import unreal_engine as ue
+from unreal_engine import FVector
+from unreal_engine.classes import StaticMesh, StaticMeshActor
+
+#Create procedurally a Cone in the Editor
+world = ue.get_editor_world()
+cone2 = world.actor_spawn(StaticMeshActor)
+cone2.StaticMeshComponent.StaticMesh = ue.load_object(StaticMesh, '/Engine/BasicShapes/Cone')
+
+#Start Transaction 
+ue.begin_transaction("Move Up +15")
+position = cone2.get_actor_location()
+position.y += 15
+
+#Call modify to track property changes before setting the position
+cone2.modify()
+cone2.set_actor_location(position)
+ue.end_transaction()
+
+#Undo "Move Up +15"
+##ue.editor_undo()
+```
+
+
+
+
 Functions
 -
 

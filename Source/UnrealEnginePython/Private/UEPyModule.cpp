@@ -400,6 +400,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
 #endif
 
+	{ "clipboard_copy", py_unreal_engine_clipboard_copy, METH_VARARGS, "" },
+	{ "clipboard_paste", py_unreal_engine_clipboard_paste, METH_VARARGS, "" },
+
 #pragma warning(suppress: 4191)
 	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
 
@@ -487,6 +490,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_display_name", (PyCFunction)py_ue_get_display_name, METH_VARARGS, "" },
 	{ "get_path_name", (PyCFunction)py_ue_get_path_name, METH_VARARGS, "" },
 	{ "get_full_name", (PyCFunction)py_ue_get_full_name, METH_VARARGS, "" },
+
+#if WITH_EDITOR
+	{ "import_custom_properties", (PyCFunction)py_ue_import_custom_properties, METH_VARARGS, "" },
+#endif
 
 #if ENGINE_MINOR_VERSION >= 15
 	{ "can_modify", (PyCFunction)py_ue_can_modify, METH_VARARGS, "" },
@@ -1957,6 +1964,8 @@ void unreal_engine_init_py_module()
 	ue_python_init_ihttp_response(new_unreal_engine_module);
 
 	ue_python_init_iconsole_manager(new_unreal_engine_module);
+
+	ue_python_init_fslate_application(new_unreal_engine_module);
 
 #if WITH_EDITOR
 	ue_python_init_icollection_manager(new_unreal_engine_module);

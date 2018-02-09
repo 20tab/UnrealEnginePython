@@ -15,3 +15,4 @@ typedef struct {
 void ue_python_init_fcharacter_event(PyObject *);
 
 PyObject *py_ue_new_fcharacter_event(FCharacterEvent);
+ue_PyFCharacterEvent *py_ue_is_fcharacter_event(PyObject *);
