@@ -56,10 +56,14 @@ static PyObject *py_ue_istructure_details_view_set_structure_data(ue_PyIStructur
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	self->istructure_details_view->SetStructureData(struct_scope);
 
-#if ENGINE_MINOR_VERSION > 17
+#if ENGINE_MINOR_VERSION > 16
 	if (py_force_refresh && PyObject_IsTrue(py_force_refresh))
 	{
+#if ENGINE_MINOR_VERSION > 17
 		self->istructure_details_view->GetDetailsView()->ForceRefresh();
+#else
+        self->istructure_details_view->GetDetailsView().ForceRefresh();
+#endif
 	}
 #endif
 
