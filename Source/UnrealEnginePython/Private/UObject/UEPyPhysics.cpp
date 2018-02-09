@@ -375,7 +375,6 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 	return Py_None;
 }
 
-
 PyObject *py_ue_get_physics_angular_velocity(ue_PyUObject * self, PyObject * args)
 {
 

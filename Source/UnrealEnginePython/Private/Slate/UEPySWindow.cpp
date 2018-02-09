@@ -39,6 +39,14 @@ static PyObject *py_ue_swindow_resize(ue_PySWindow *self, PyObject * args)
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_swindow_minimize(ue_PySWindow *self, PyObject * args)
+{
+    sw_window->Minimize();
+
+    Py_INCREF(self);
+    return (PyObject *)self;
+}
+
 static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args)
 {
 	PyObject *py_content;
@@ -130,8 +138,9 @@ static PyObject *py_ue_swindow_add_child(ue_PySWindow *self, PyObject * args)
 }
 
 static PyMethodDef ue_PySWindow_methods[] = {
-	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
-	{ "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
+    { "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
+    { "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
+    { "minimize", (PyCFunction)py_ue_swindow_minimize, METH_VARARGS, "" },
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },

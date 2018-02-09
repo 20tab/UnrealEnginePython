@@ -838,6 +838,7 @@ void ue_python_init_slate(PyObject *module)
     ue_python_init_snode_panel(module);
     ue_python_init_sgraph_panel(module);
     ue_python_init_idetails_view(module);
+    ue_python_init_istructure_details_view(module);
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_slevel_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
@@ -1009,7 +1010,6 @@ private:
 };
 
 #if WITH_EDITOR
-
 PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, PyObject *kwargs)
 {
 
@@ -1018,7 +1018,7 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 
     PyObject *py_update_from_selection    = nullptr;
     PyObject *py_lockable                 = nullptr;
-    PyObject *py_name_area_settings       = nullptr;
+    char     *py_name_area_settings       = nullptr;
     PyObject *py_hide_selection_tip       = nullptr;
     PyObject *py_search_initial_key_focus = nullptr;
 
@@ -1047,12 +1047,13 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
     view_args.bLockable              = (py_lockable                ) ? PyObject_IsTrue(py_lockable)                 : view_args.bLockable;
     view_args.bHideSelectionTip      = (py_hide_selection_tip      ) ? PyObject_IsTrue(py_hide_selection_tip)       : view_args.bHideSelectionTip;
     view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
-    view_args.NameAreaSettings = [py_name_area_settings]() {
-             if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("HideNameArea")) == 0)                   { return FDetailsViewArgs::ENameAreaSettings::HideNameArea;                   }
-        else if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("ObjectsUseNameArea")) == 0)             { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea;             }
-        else if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("ActorsUseNameArea")) == 0)              { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
-        else if (FCString::Stricmp(UTF8_TO_TCHAR(py_name_area_settings), TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
-        else                                                                                                           { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
+    FString name_area_string   = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();    
+    view_args.NameAreaSettings = [&name_area_string]() {
+             if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0)                   { return FDetailsViewArgs::ENameAreaSettings::HideNameArea;                   }
+        else if (FCString::Stricmp(*name_area_string, TEXT("ObjectsUseNameArea")) == 0)             { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea;             }
+        else if (FCString::Stricmp(*name_area_string, TEXT("ActorsUseNameArea")) == 0)              { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
+        else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
+        else                                                                                        { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
     }();
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
@@ -1064,6 +1065,80 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 
     extern PyTypeObject ue_PyIDetailsViewType;
 	return (PyObject *)py_ue_new_swidget<ue_PyIDetailsView>(view->AsShared(), &ue_PyIDetailsViewType);
+}
+
+PyObject *py_unreal_engine_create_structure_detail_view(PyObject *self, PyObject * args, PyObject *kwargs)
+{
+    PyObject *py_object = nullptr;
+
+    PyObject *py_allow_search = nullptr;
+    PyObject *py_update_from_selection    = nullptr;
+    PyObject *py_lockable                 = nullptr;
+    char     *py_name_area_settings       = nullptr;
+    PyObject *py_hide_selection_tip       = nullptr;
+    PyObject *py_search_initial_key_focus = nullptr;
+
+    char *kwlist[] = {
+        (char*)"struct_data",
+        (char *)"allow_search",
+        (char *)"update_from_selection",
+        (char *)"lockable",
+        (char *)"name_area_settings",
+        (char *)"hide_selection_tip",
+        (char *)"search_initial_key_focus",
+        nullptr };
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_structure_detail_view", kwlist,
+        &py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
+    {
+        return nullptr;
+    }
+
+    if (py_object && !py_ue_is_uscriptstruct(py_object))
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a UScriptStruct");
+    }
+
+    FDetailsViewArgs view_args;
+	view_args.bAllowSearch           = (py_allow_search            ) ? PyObject_IsTrue(py_allow_search)             : view_args.bAllowSearch;
+    view_args.bUpdatesFromSelection  = (py_update_from_selection   ) ? PyObject_IsTrue(py_update_from_selection)    : view_args.bUpdatesFromSelection;
+    view_args.bLockable              = (py_lockable                ) ? PyObject_IsTrue(py_lockable)                 : view_args.bLockable;
+    view_args.bHideSelectionTip      = (py_hide_selection_tip      ) ? PyObject_IsTrue(py_hide_selection_tip)       : view_args.bHideSelectionTip;
+    view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+    
+    FString name_area_string   = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();    
+    view_args.NameAreaSettings = [&name_area_string]() {
+             if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0)                   { return FDetailsViewArgs::ENameAreaSettings::HideNameArea;                   }
+        else if (FCString::Stricmp(*name_area_string, TEXT("ObjectsUseNameArea")) == 0)             { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea;             }
+        else if (FCString::Stricmp(*name_area_string, TEXT("ActorsUseNameArea")) == 0)              { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
+        else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
+        else                                                                                        { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
+    }();
+    FStructureDetailsViewArgs struct_view_args;
+    {
+        struct_view_args.bShowObjects = true;
+        struct_view_args.bShowAssets = true;
+        struct_view_args.bShowClasses = true;
+        struct_view_args.bShowInterfaces = true;
+    }
+
+    extern PyTypeObject ue_PyIStructureDetailsViewType;
+    ue_PyIStructureDetailsView *ret = (ue_PyIStructureDetailsView *)PyObject_New(ue_PyIStructureDetailsView, &ue_PyIStructureDetailsViewType);
+    new(&ret->istructure_details_view) TSharedPtr<IStructureDetailsView>(nullptr);
+    ret->ue_py_struct = nullptr;
+    TSharedPtr<FStructOnScope> struct_scope;
+
+    if (ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_object))
+    {
+        Py_INCREF(ue_py_struct);
+        ret->ue_py_struct = ue_py_struct;
+        struct_scope      = MakeShared<FStructOnScope>(ue_py_struct->u_struct, ue_py_struct->data);
+    }
+
+    FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+    ret->istructure_details_view                = PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope);
+
+    return (PyObject *)ret;
 }
 
 PyObject *py_unreal_engine_create_property_view(PyObject *self, PyObject * args, PyObject *kwargs)

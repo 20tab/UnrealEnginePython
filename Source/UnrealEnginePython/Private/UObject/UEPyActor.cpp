@@ -508,6 +508,27 @@ PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * a
 
 }
 
+PyObject *py_ue_get_actor_root_component(ue_PyUObject * self, PyObject * args) {
+
+    ue_py_check(self);
+
+    AActor *actor = ue_get_actor(self);
+    if (!actor)
+        return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
+     
+    UActorComponent *component = actor->GetRootComponent();
+    if (component) {
+        ue_PyUObject *py_obj = ue_get_python_wrapper(component);
+        if (!py_obj)
+            return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+        Py_INCREF(py_obj);
+        return (PyObject *)py_obj;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args) {
 
 	ue_py_check(self);

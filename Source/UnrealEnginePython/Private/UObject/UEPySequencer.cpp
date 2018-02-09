@@ -304,7 +304,7 @@ PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *self, PyObject * args
 	ue_py_check(self);
 
 	PyObject *py_obj;
-	if (!PyArg_ParseTuple(args, "O:sequencer_add_spawnable", &py_obj)) {
+	if (!PyArg_ParseTuple(args, "O:sequencer_make_new_spawnable", &py_obj)) {
 		return NULL;
 	}
 
@@ -796,7 +796,7 @@ PyObject *py_ue_sequencer_remove_master_track(ue_PyUObject *self, PyObject * arg
 	ue_py_check(self);
 
 	PyObject *py_track;
-	if (!PyArg_ParseTuple(args, "track:sequencer_remove_master_track", &py_track)) {
+	if (!PyArg_ParseTuple(args, "O:sequencer_remove_master_track", &py_track)) {
 		return nullptr;
 	}
 
@@ -821,7 +821,7 @@ PyObject *py_ue_sequencer_remove_track(ue_PyUObject *self, PyObject * args) {
 	ue_py_check(self);
 
 	PyObject *py_track;
-	if (!PyArg_ParseTuple(args, "track:sequencer_remove_track", &py_track)) {
+	if (!PyArg_ParseTuple(args, "O:sequencer_remove_track", &py_track)) {
 		return nullptr;
 	}
 

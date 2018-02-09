@@ -73,6 +73,30 @@ PyObject *py_ue_class_set_flags(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_get_obj_flags(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	return PyLong_FromUnsignedLongLong((uint64)self->ue_object->GetFlags());
+}
+
+PyObject *py_ue_set_obj_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "K:set_obj_flags", &flags))
+	{
+		return nullptr;
+	}
+
+	self->ue_object->SetFlags((EObjectFlags)flags);
+
+	Py_RETURN_NONE;
+}
+
+
 #if WITH_EDITOR
 PyObject *py_ue_class_set_config_name(ue_PyUObject * self, PyObject * args)
 {

@@ -86,6 +86,7 @@
 #include "UEPySAssetDropTarget.h"
 #include "UEPySObjectPropertyEntryBox.h"
 #include "UEPyIDetailsView.h"
+#include "UEPyIStructureDetailsView.h"
 #include "UEPySNodePanel.h"
 #include "UEPySGraphPanel.h"
 #endif
@@ -107,6 +108,7 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_menu_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_tool_bar_extension(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_detail_view(PyObject *, PyObject *, PyObject *);
+PyObject *py_unreal_engine_create_structure_detail_view(PyObject *, PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_property_view(PyObject *, PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self, PyObject *);

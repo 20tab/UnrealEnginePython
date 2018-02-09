@@ -147,11 +147,35 @@ namespace {
 		}
 	}
 
+    static void consoleExecString(const TArray<FString>& Args)
+    {
+        if (Args.Num() == 0)
+        {
+            UE_LOG(LogPython, Warning, TEXT("Usage: 'py.cmd <command string>'."));
+            UE_LOG(LogPython, Warning, TEXT("  scriptname: Name of script, must reside in Scripts folder. Ex: myscript.py"));
+        }
+        else
+        {
+            FString cmdString;
+            for (const FString& argStr : Args)
+            {
+                cmdString += argStr.TrimQuotes() + '\n';
+            }
+
+            UPythonBlueprintFunctionLibrary::ExecutePythonString(cmdString);
+        }
+    }
+
 }
 FAutoConsoleCommand ExecPythonScriptCommand(
 	TEXT("py.exec"),
 	*NSLOCTEXT("UnrealEnginePython", "CommandText_Exec", "Execute python script").ToString(),
 	FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecScript));
+
+FAutoConsoleCommand ExecPythonStringCommand(
+    TEXT("py.cmd"),
+    *NSLOCTEXT("UnrealEnginePython", "CommandText_Cmd", "Execute python string").ToString(),
+    FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecString));
 
 void FUnrealEnginePythonModule::StartupModule()
 {

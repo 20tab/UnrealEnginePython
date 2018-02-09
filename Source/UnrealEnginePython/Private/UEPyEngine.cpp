@@ -552,7 +552,8 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	PyObject *obj;
 	PyObject *py_outer = NULL;
 	char *name = nullptr;
-	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj, &py_outer, &name))
+    uint64 flags = (uint64)(RF_Public | RF_Standalone);
+	if (!PyArg_ParseTuple(args, "O|OsK:new_object", &obj, &py_outer, &name, &flags))
 	{
 		return NULL;
 	}
@@ -590,7 +591,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 		outer = py_outer_obj->ue_object;
 	}
 
-	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, RF_Public | RF_Standalone);
+	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, (EObjectFlags)flags);
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 

@@ -1,6 +1,6 @@
-#if ENGINE_MINOR_VERSION > 12
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if ENGINE_MINOR_VERSION > 12
 #if WITH_EDITOR
 
 #include "UEPyFbx.h"
@@ -12,6 +12,10 @@ static PyObject *py_ue_fbx_property_get_name(ue_PyFbxProperty *self, PyObject *a
 static PyObject *py_ue_fbx_property_get_double3(ue_PyFbxProperty *self, PyObject *args) {
 	FbxDouble3 value = self->fbx_property.Get<FbxDouble3>();
 	return Py_BuildValue((char *)"(fff)", value[0], value[1], value[2]);
+}
+
+static PyObject *py_ue_fbx_property_get_string(ue_PyFbxProperty *self, PyObject *args) {
+    return PyUnicode_FromString(self->fbx_property.Get<FbxString>());
 }
 
 static PyObject *py_ue_fbx_property_is_valid(ue_PyFbxProperty *self, PyObject *args) {
@@ -44,6 +48,7 @@ static PyObject *py_ue_fbx_property_get_curve_node(ue_PyFbxProperty *self, PyObj
 static PyMethodDef ue_PyFbxProperty_methods[] = {
 	{ "get_name", (PyCFunction)py_ue_fbx_property_get_name, METH_VARARGS, "" },
 	{ "get_double3", (PyCFunction)py_ue_fbx_property_get_double3, METH_VARARGS, "" },
+    { "get_string", (PyCFunction)py_ue_fbx_property_get_string, METH_VARARGS, "" },
 	{ "is_valid", (PyCFunction)py_ue_fbx_property_is_valid, METH_VARARGS, "" },
 	{ "get_curve_node", (PyCFunction)py_ue_fbx_property_get_curve_node, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */

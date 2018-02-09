@@ -230,7 +230,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_asset_view_context_menu_extension", py_unreal_engine_add_asset_view_context_menu_extension, METH_VARARGS, "" },
 
 #pragma warning(suppress: 4191)
-	{ "create_detail_view",  (PyCFunction)py_unreal_engine_create_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
+	{ "create_detail_view", (PyCFunction)py_unreal_engine_create_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
+#pragma warning(suppress: 4191)
+    { "create_structure_detail_view", (PyCFunction)py_unreal_engine_create_structure_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
 #pragma warning(suppress: 4191)
 	{ "create_property_view",  (PyCFunction)py_unreal_engine_create_property_view, METH_VARARGS | METH_KEYWORDS, "" },
 
@@ -662,6 +664,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "class_generated_by", (PyCFunction)py_ue_class_generated_by, METH_VARARGS, "" },
 	{ "class_get_flags", (PyCFunction)py_ue_class_get_flags, METH_VARARGS, "" },
 	{ "class_set_flags", (PyCFunction)py_ue_class_set_flags, METH_VARARGS, "" },
+    { "get_obj_flags", (PyCFunction)py_ue_get_obj_flags, METH_VARARGS, "" },
+    { "set_obj_flags", (PyCFunction)py_ue_set_obj_flags, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "class_get_config_name", (PyCFunction)py_ue_class_get_config_name, METH_VARARGS, "" },
@@ -732,6 +736,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "add_instance_component", (PyCFunction)py_ue_add_instance_component, METH_VARARGS, "" },
+    { "get_actor_root_component", (PyCFunction)py_ue_get_actor_root_component, METH_VARARGS, "" },
 	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "get_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
@@ -2007,6 +2012,37 @@ void unreal_engine_init_py_module()
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_ABSTRACT", PyLong_FromUnsignedLongLong((uint64)CLASS_Abstract));
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_INTERFACE", PyLong_FromUnsignedLongLong((uint64)CLASS_Interface));
 
+    // Objects
+    PyDict_SetItemString(unreal_engine_dict, "RF_NOFLAGS"                     , PyLong_FromUnsignedLongLong((uint64)RF_NoFlags                     ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_PUBLIC"                      , PyLong_FromUnsignedLongLong((uint64)RF_Public                      ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_STANDALONE"                  , PyLong_FromUnsignedLongLong((uint64)RF_Standalone                  ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_MARKASNATIVE"                , PyLong_FromUnsignedLongLong((uint64)RF_MarkAsNative                ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_TRANSACTIONAL"               , PyLong_FromUnsignedLongLong((uint64)RF_Transactional               ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_CLASSDEFAULTOBJECT"          , PyLong_FromUnsignedLongLong((uint64)RF_ClassDefaultObject          ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_ARCHETYPEOBJECT"             , PyLong_FromUnsignedLongLong((uint64)RF_ArchetypeObject             ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_TRANSIENT"                   , PyLong_FromUnsignedLongLong((uint64)RF_Transient                   ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_MARKASROOTSET"               , PyLong_FromUnsignedLongLong((uint64)RF_MarkAsRootSet               ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_TAGGARBAGETEMP"              , PyLong_FromUnsignedLongLong((uint64)RF_TagGarbageTemp              ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_NEEDINITIALIZATION"          , PyLong_FromUnsignedLongLong((uint64)RF_NeedInitialization          ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_NEEDLOAD"                    , PyLong_FromUnsignedLongLong((uint64)RF_NeedLoad                    ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_KEEPFORCOOKER"               , PyLong_FromUnsignedLongLong((uint64)RF_KeepForCooker               ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_NEEDPOSTLOAD"                , PyLong_FromUnsignedLongLong((uint64)RF_NeedPostLoad                ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_NEEDPOSTLOADSUBOBJECTS"      , PyLong_FromUnsignedLongLong((uint64)RF_NeedPostLoadSubobjects      ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_NEWERVERSIONEXISTS"          , PyLong_FromUnsignedLongLong((uint64)RF_NewerVersionExists          ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_BEGINDESTROYED"              , PyLong_FromUnsignedLongLong((uint64)RF_BeginDestroyed              ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_FINISHDESTROYED"             , PyLong_FromUnsignedLongLong((uint64)RF_FinishDestroyed             ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_BEINGREGENERATED"            , PyLong_FromUnsignedLongLong((uint64)RF_BeingRegenerated            ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_DEFAULTSUBOBJECT"            , PyLong_FromUnsignedLongLong((uint64)RF_DefaultSubObject            ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_WASLOADED"                   , PyLong_FromUnsignedLongLong((uint64)RF_WasLoaded                   ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_TEXTEXPORTTRANSIENT"         , PyLong_FromUnsignedLongLong((uint64)RF_TextExportTransient         ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_LOADCOMPLETED"               , PyLong_FromUnsignedLongLong((uint64)RF_LoadCompleted               ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_INHERITABLECOMPONENTTEMPLATE", PyLong_FromUnsignedLongLong((uint64)RF_InheritableComponentTemplate));
+    PyDict_SetItemString(unreal_engine_dict, "RF_DUPLICATETRANSIENT"          , PyLong_FromUnsignedLongLong((uint64)RF_DuplicateTransient          ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_STRONGREFONFRAME"            , PyLong_FromUnsignedLongLong((uint64)RF_StrongRefOnFrame            ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_NONPIEDUPLICATETRANSIENT"    , PyLong_FromUnsignedLongLong((uint64)RF_NonPIEDuplicateTransient    ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_DYNAMIC"                     , PyLong_FromUnsignedLongLong((uint64)RF_Dynamic                     ));
+    PyDict_SetItemString(unreal_engine_dict, "RF_WILLBELOADED"                , PyLong_FromUnsignedLongLong((uint64)RF_WillBeLoaded                ));
+
 	// Properties
 	PyDict_SetItemString(unreal_engine_dict, "CPF_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_Config));
 	PyDict_SetItemString(unreal_engine_dict, "CPF_GLOBAL_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_GlobalConfig));
@@ -3023,7 +3059,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		}
 	}
 
-    //NOTE: Still weird that we're not using u_function->PropertiesSize but mirroring behavior in UObject::CallFunctionByNameWithArguments()
+    //NOTE: u_function->PropertiesSize maps to local variable uproperties + ufunction paramaters uproperties
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
 	FMemory::Memzero(buffer, u_function->ParmsSize);
 	// initialize args
@@ -3038,6 +3074,10 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
         //UObject::CallFunctionByNameWithArguments() only does this part on non return value params
         if((IArgs->PropertyFlags & (CPF_Parm|CPF_ReturnParm)) == CPF_Parm)
         {
+            if (!prop->IsInContainer(u_function->ParmsSize))
+            {
+                return PyErr_Format(PyExc_Exception, "Attempting to import func param property that's out of bounds. %s", *u_function->GetName());
+            }
     #if WITH_EDITOR
             FString default_key = FString("CPP_Default_") + prop->GetName();
             FString default_key_value = u_function->GetMetaData(FName(*default_key));
@@ -3089,7 +3129,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 				}
 			}
 		}
-		if ((PArgs->PropertyFlags & (CPF_ConstParm | CPF_OutParm)) == CPF_OutParm)
+        if (prop->HasAnyPropertyFlags(CPF_OutParm) && (prop->IsA<UArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false))
 		{
 			has_out_params++;
 		}
@@ -3133,7 +3173,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		for (; OProps; ++OProps)
 		{
 			UProperty *prop = *OProps;
-			if ((prop->GetPropertyFlags() & (CPF_ConstParm | CPF_OutParm)) == CPF_OutParm)
+            if (prop->HasAnyPropertyFlags(CPF_OutParm) && (prop->IsA<UArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false))
 			{
 				// skip return param as it must be always the first
 				if (prop->GetPropertyFlags() & CPF_ReturnParm)
