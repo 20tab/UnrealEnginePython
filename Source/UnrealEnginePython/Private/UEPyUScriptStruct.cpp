@@ -123,7 +123,7 @@ static PyMethodDef ue_PyUScriptStruct_methods[] = {
 
 static PyObject *ue_PyUScriptStruct_str(ue_PyUScriptStruct *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.UScriptStruct {'struct': '%s', 'size': %d 'ptr': %p}>",
+	return PyUnicode_FromFormat("<unreal_engine.UScriptStruct {'struct': '%s', 'size': %d, 'ptr': %p}>",
 		TCHAR_TO_UTF8(*self->u_struct->GetName()), self->u_struct->GetStructureSize(), self->data);
 }
 
