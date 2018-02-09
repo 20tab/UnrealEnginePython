@@ -2050,7 +2050,10 @@ void unreal_engine_init_py_module()
     PyDict_SetItemString(unreal_engine_dict, "RF_STRONGREFONFRAME"            , PyLong_FromUnsignedLongLong((uint64)RF_StrongRefOnFrame            ));
     PyDict_SetItemString(unreal_engine_dict, "RF_NONPIEDUPLICATETRANSIENT"    , PyLong_FromUnsignedLongLong((uint64)RF_NonPIEDuplicateTransient    ));
     PyDict_SetItemString(unreal_engine_dict, "RF_DYNAMIC"                     , PyLong_FromUnsignedLongLong((uint64)RF_Dynamic                     ));
-    PyDict_SetItemString(unreal_engine_dict, "RF_WILLBELOADED"                , PyLong_FromUnsignedLongLong((uint64)RF_WillBeLoaded                ));
+    
+#if ENGINE_MINOR_VERSION > 15
+	PyDict_SetItemString(unreal_engine_dict, "RF_WILLBELOADED"                , PyLong_FromUnsignedLongLong((uint64)RF_WillBeLoaded                ));
+#endif
 
 	// Properties
 	PyDict_SetItemString(unreal_engine_dict, "CPF_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_Config));

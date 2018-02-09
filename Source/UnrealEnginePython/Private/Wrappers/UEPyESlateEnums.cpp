@@ -76,6 +76,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyDict_SetItemString(ue_PyESlateEnumsType.tp_dict, enum_name, (PyObject *)native_enum);
     };
 
+#if ENGINE_MINOR_VERSION > 15
 #define ADD_NATIVE_ENUM(EnumType, EnumVal) add_native_enum(#EnumType "." #EnumVal, (uint8)##EnumType::Type::##EnumVal)
     ADD_NATIVE_ENUM(EUserInterfaceActionType, None           );
     ADD_NATIVE_ENUM(EUserInterfaceActionType, Button         );
@@ -84,6 +85,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
     ADD_NATIVE_ENUM(EUserInterfaceActionType, Check          );
     ADD_NATIVE_ENUM(EUserInterfaceActionType, CollapsedButton);
 #undef ADD_NATIVE_ENUM
+#endif
     
 }
 

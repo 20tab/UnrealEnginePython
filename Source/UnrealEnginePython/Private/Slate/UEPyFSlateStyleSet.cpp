@@ -135,8 +135,10 @@ static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject 
 	}
     else if (ue_py_check_childstruct<FSlateWidgetStyle>(py_type))
     {
+
         typedef TFunction<PyObject* (FSlateStyleSet&, FName)> WStyleGetter;
         typedef TPair<UScriptStruct*, WStyleGetter> WStylePair;
+#if ENGINE_MINOR_VERSION > 15
         static const WStylePair validWidgetStyleUStructList[] = {
             WStylePair{ FTextBlockStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTextBlockStyle>              (InStyle, InName); }) },
             WStylePair{ FButtonStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FButtonStyle>                 (InStyle, InName); }) },
@@ -163,6 +165,7 @@ static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject 
             WStylePair{ FScrollBorderStyle::StaticStruct()           , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBorderStyle>           (InStyle, InName); }) },
             WStylePair{ FWindowStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FWindowStyle>                 (InStyle, InName); }) },
         };
+
         
         for(WStylePair widgetStyleUStruct : validWidgetStyleUStructList)
         {
@@ -172,6 +175,7 @@ static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject 
                 break;
             }
         }
+#endif
         
         if (!ret)
         {

@@ -5,8 +5,8 @@
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UScriptStruct *u_struct;
+	/* Type-specific fields go here. */
+	UScriptStruct *u_struct;
 	uint8 *data;
 } ue_PyUScriptStruct;
 

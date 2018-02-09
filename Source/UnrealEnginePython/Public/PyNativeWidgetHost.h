@@ -2,9 +2,11 @@
 
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UObject/Class.h"
+
 #include "Components/NativeWidgetHost.h"
 #include "PyNativeWidgetHost.generated.h"
+
 
 
 USTRUCT(BlueprintType)
