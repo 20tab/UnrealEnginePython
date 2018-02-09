@@ -4,7 +4,7 @@
 
 static PyObject *py_ue_fslate_icon_get_icon(ue_PyFSlateIcon *self, PyObject * args)
 {
-    PyObject *ret = py_ue_new_uscriptstruct(FSlateBrush::StaticStruct(), (const uint8*)self->icon.GetIcon());
+    PyObject *ret = py_ue_new_uscriptstruct(FSlateBrush::StaticStruct(), (uint8*)self->icon.GetIcon());
     return ret;
 }
 
