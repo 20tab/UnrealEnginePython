@@ -58,7 +58,7 @@ static PyObject *py_ue_istructure_details_view_set_structure_data(ue_PyIStructur
 
     if (py_force_refresh && PyObject_IsTrue(py_force_refresh))
     {
-        self->istructure_details_view->GetDetailsView().ForceRefresh();
+        self->istructure_details_view->GetDetailsView()->ForceRefresh();
     }
 
     Py_RETURN_NONE;

@@ -17,7 +17,7 @@
 	"Modules": [
     {
       "Name": "UnrealEnginePython",
-      "Type": "Developer",
+      "Type": "Runtime",
       "LoadingPhase": "Default"
     },
 		{
@@ -36,6 +36,5 @@
       "Name": "LevelSequenceEditor",
       "Enabled": true
     }
-  ],
-  "BlacklistTargets": ["Server"]
+  ]
 }
