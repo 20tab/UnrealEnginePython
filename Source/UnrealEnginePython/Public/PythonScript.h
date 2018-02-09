@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include "UnrealEnginePython.h"
 #include "UObject/Object.h"
 #include "PythonScript.generated.h"
 

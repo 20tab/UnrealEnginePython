@@ -1,3 +1,5 @@
+// Copyright 20Tab S.r.l.
+
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "PyCommandlet.h"
 

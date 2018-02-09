@@ -2,9 +2,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "UObject/Class.h"
+
 #include "Components/NativeWidgetHost.h"
 #include "PyNativeWidgetHost.generated.h"
+
+
 
 USTRUCT(BlueprintType)
 struct UNREALENGINEPYTHON_API FPythonSWidgetWrapper
@@ -39,3 +42,4 @@ class UNREALENGINEPYTHON_API UPyNativeWidgetHost : public UNativeWidgetHost
 #endif
 	
 };
+

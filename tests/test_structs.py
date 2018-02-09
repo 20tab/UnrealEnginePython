@@ -1,6 +1,7 @@
 import unittest
 import unreal_engine as ue
 from unreal_engine.structs import ColorMaterialInput, Key
+from unreal_engine.structs import StaticMeshSourceModel, MeshBuildSettings
 
 
 class TestStructs(unittest.TestCase):
@@ -36,6 +37,21 @@ class TestStructs(unittest.TestCase):
         key1 = Key(KeyName='SpaceBar')
         key2 = Key(KeyName='SpaceBar')
         self.assertEqual(key1, key2)
+
+    def test_ptr(self):
+        source_model = StaticMeshSourceModel()
+        source_model().BuildSettings().bRecomputeNormals=False
+        source_model().BuildSettings().bRecomputeTangents=True
+        source_model().BuildSettings().bUseMikkTSpace=True
+        source_model().BuildSettings().bBuildAdjacencyBuffer=True
+        source_model().BuildSettings().bRemoveDegenerates=True
+
+        source_model2 = source_model.clone()
+        self.assertEqual(source_model2.BuildSettings.bRecomputeNormals, False)
+        self.assertEqual(source_model2.BuildSettings.bRecomputeTangents, True)
+        self.assertEqual(source_model2.BuildSettings.bUseMikkTSpace, True)
+        self.assertEqual(source_model2.BuildSettings.bBuildAdjacencyBuffer, True)
+        self.assertEqual(source_model2.BuildSettings.bRemoveDegenerates, True)
 
    
 

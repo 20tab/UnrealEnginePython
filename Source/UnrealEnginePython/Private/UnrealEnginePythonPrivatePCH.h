@@ -1,4 +1,6 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 20Tab S.r.l.
+
+#pragma once
 
 //#define UEPY_MEMORY_DEBUG	1
 //#define UEPY_THREADING 1
@@ -93,3 +95,11 @@ bool PyUnicodeOrString_Check(PyObject *py_obj);
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
 	Py_INCREF(ret);\
 	return (PyObject *)ret;
+
+#if ENGINE_MINOR_VERSION < 16
+template<class CPPSTRUCT>
+struct TStructOpsTypeTraitsBase2 : TStructOpsTypeTraitsBase
+{
+
+};
+#endif

@@ -836,7 +836,9 @@ void ue_python_init_slate(PyObject *module)
 
 #if WITH_EDITOR
     ue_python_init_snode_panel(module);
+#if ENGINE_MINOR_VERSION > 15
     ue_python_init_sgraph_panel(module);
+#endif
     ue_python_init_idetails_view(module);
     ue_python_init_istructure_details_view(module);
 	ue_python_init_seditor_viewport(module);
