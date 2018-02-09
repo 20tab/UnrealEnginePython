@@ -54,7 +54,7 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 		handler.BindUObject(py_delegate, &UPythonSlateDelegate::SimpleExecuteAction);
 	}
 
-	self->tool_bar_builder.AddToolBarButton(FUIAction(handler), FName(hook), FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), *py_slate_icon->icon);
+	self->tool_bar_builder.AddToolBarButton(FUIAction(handler), FName(hook), FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), py_slate_icon->icon);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -157,7 +157,7 @@ static PyTypeObject ue_PyFToolBarBuilderType = {
 };
 
 static int ue_py_ftool_bar_builder_init(ue_PyFToolBarBuilder *self, PyObject *args, PyObject *kwargs) {
-    self->tool_bar_builder = FToolBarBuilder(nullptr, FMultiBoxCustomization::None);
+    new(&self->tool_bar_builder) FToolBarBuilder(TSharedPtr<FUICommandList>(), FMultiBoxCustomization::None);
 	return 0;
 }
 

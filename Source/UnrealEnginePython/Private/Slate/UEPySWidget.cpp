@@ -30,13 +30,42 @@ static PyObject *py_ue_swidget_get_children(ue_PySWidget *self, PyObject * args)
 
 static PyObject *py_ue_swidget_set_visibility(ue_PySWidget *self, PyObject * args)
 {
-	int visibility;
-	if (!PyArg_ParseTuple(args, "i:set_visibility", &visibility))
+	PyObject* py_object;
+	if (!PyArg_ParseTuple(args, "O:set_visibility", &py_object))
 	{
 		return nullptr;
 	}
 
-	self->s_widget->SetVisibility(EVisibility::Visible);
+    if (!PyNumber_Check(py_object))
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a ESlateVisibility");
+    }
+
+    PyObject *py_value = PyNumber_Long(py_object);
+    ESlateVisibility slateVisibility = (ESlateVisibility)PyLong_AsLong(py_value);
+    Py_DECREF(py_value);
+
+    EVisibility visibility;
+    switch (slateVisibility)
+    {
+    case ESlateVisibility::Visible:
+        visibility = EVisibility::Visible;
+        break;
+    case ESlateVisibility::Collapsed:
+        visibility = EVisibility::Collapsed;
+        break;
+    case ESlateVisibility::Hidden:
+        visibility = EVisibility::Hidden;
+        break;
+    case ESlateVisibility::HitTestInvisible:
+        visibility = EVisibility::HitTestInvisible;
+        break;
+    case ESlateVisibility::SelfHitTestInvisible:
+        visibility = EVisibility::SelfHitTestInvisible;
+        break;
+    }
+
+	self->s_widget->SetVisibility(visibility);
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -185,6 +214,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject *
 	return (PyObject *)self;
 }
 #endif
+
 
 static PyObject *py_ue_swidget_has_keyboard_focus(ue_PySWidget *self, PyObject * args)
 {

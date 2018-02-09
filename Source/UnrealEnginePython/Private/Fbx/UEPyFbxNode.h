@@ -2,7 +2,7 @@
 #include "UnrealEnginePython.h"
 
 #if WITH_EDITOR
-
+#if ENGINE_MINOR_VERSION > 12
 #include <fbxsdk.h>
 
 struct ue_PyFbxNode {
@@ -18,4 +18,5 @@ PyObject *py_ue_new_fbx_node(FbxNode *);
 
 ue_PyFbxNode *py_ue_is_fbx_node(PyObject *);
 
+#endif
 #endif

@@ -218,17 +218,18 @@ public:
 		const FWidgetStyle & InWidgetStyle,
 		bool bParentEnabled) const override
 	{
+        int32 MaxLayer = SCompoundWidget::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 
 		FScopePythonGIL gil;
 
 		if (!PyObject_HasAttrString(self, (char *)"paint"))
-			return LayerId + 1;
+			return MaxLayer;
 
 		PyObject *py_callable_paint = PyObject_GetAttrString(self, (char *)"paint");
 		if (!PyCallable_Check(py_callable_paint))
 		{
 			UE_LOG(LogPython, Error, TEXT("paint is not a callable"));
-			return LayerId + 1;
+			return MaxLayer;
 		}
 
 		FPaintContext context(AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
@@ -237,12 +238,12 @@ public:
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
-			return LayerId + 1;
+			return MaxLayer;
 		}
 
 		Py_DECREF(ret);
 
-		return LayerId + 1;
+		return MaxLayer + 1;
 
 	}
 
@@ -274,6 +275,8 @@ public:
 
 	void SetPyObject(PyObject *py_obj)
 	{
+        Py_XDECREF(self);
+        Py_INCREF(py_obj);
 		self = py_obj;
 	}
 
@@ -288,6 +291,19 @@ public:
 			UnRegisterActiveTimer(ActiveTimerHandle.Pin().ToSharedRef());
 		}
 	}
+
+    void SetContent(TSharedRef<SWidget> InContent)
+    {
+        ChildSlot
+	    [
+		    InContent
+	    ];
+    }
+
+    void ClearContent()
+    {
+        ChildSlot.DetachWidget();
+    }
 
 protected:
 	PyObject *self;

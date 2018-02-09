@@ -14,3 +14,5 @@ typedef struct {
 } ue_PySTableViewBase;
 
 void ue_python_init_stable_view_base(PyObject *);
+
+ue_PySTableViewBase *py_ue_is_stable_view_base(PyObject *);

@@ -4,49 +4,62 @@
 
 #define sw_header_row StaticCastSharedRef<SHeaderRow>(self->s_border.s_compound_widget.s_widget.s_widget)
 
-static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *args, PyObject *kwargs) {
+static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *args, PyObject *kwargs) 
+{
+    int32 retCode = [&]() {    
+        ue_py_slate_setup_farguments(SHeaderRow::FColumn);
 
-	char *column_id;
-	float fixed_width = 0;
-	int cell_h_align = 0;
-	int cell_v_align = 0;
-	char *default_label = nullptr;
-	char *default_tooltip = nullptr;
+        // first of all check for values
+        PyObject *py_columnid = ue_py_dict_get_item(kwargs, "column_id");
+        if (!py_columnid) {
+            PyErr_SetString(PyExc_TypeError, "you must specify the column_id");
+            return -1;
+        }
 
-	char *kwlist[] = {
-		(char *)"column_id",
-		(char *)"fixed_width",
-		(char *)"cell_h_align",
-		(char *)"cell_v_align",
-		(char *)"default_label",
-		(char *)"default_tooltip",
-		nullptr
-	};
+        ue_py_slate_farguments_optional_string("column_id", ColumnId);
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sf|iiss:add_column", kwlist,
-		&column_id,
-		&fixed_width,
-		&cell_h_align,
-		&cell_v_align,
-		&default_label,
-		&default_tooltip)) {
-		return NULL;
-	}
+        ue_py_slate_farguments_text("default_label", DefaultLabel);
+        ue_py_slate_farguments_text("default_tooltip", DefaultTooltip);
 
-	if (!default_label)
-		default_label = column_id;
+        ue_py_slate_farguments_optional_enum("h_align_header", HAlignHeader, EHorizontalAlignment);
+        ue_py_slate_farguments_optional_enum("v_align_header", VAlignHeader, EVerticalAlignment);
 
-	if (!default_tooltip)
-		default_tooltip = default_label;
+        ue_py_slate_farguments_float("fill_width", FillWidth);
+        ue_py_slate_farguments_optional_float("fixed_width", FixedWidth);
+        ue_py_slate_farguments_float("manual_width", ManualWidth);
 
-	SHeaderRow::FColumn column = SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
-		.DefaultLabel(FText::FromString(UTF8_TO_TCHAR(default_label)))
-		.DefaultTooltip(FText::FromString(UTF8_TO_TCHAR(default_tooltip)))
-		.FixedWidth(fixed_width)
-		.HAlignCell((EHorizontalAlignment)cell_h_align)
-		.VAlignCell((EVerticalAlignment)cell_v_align);
+        ue_py_slate_farguments_optional_named_slot("header_content", HeaderContent);
+        ue_py_slate_farguments_optional_struct("header_content_padding", HeaderContentPadding, FMargin);
 
-	sw_header_row->AddColumn(column);
+        ue_py_slate_farguments_optional_named_slot("menu_content", MenuContent);
+
+        ue_py_slate_farguments_optional_enum("h_align_cell", HAlignCell, EHorizontalAlignment);
+        ue_py_slate_farguments_optional_enum("v_align_cell", VAlignCell, EVerticalAlignment);
+
+        ue_py_slate_farguments_enum("sort_mode", SortMode, EColumnSortMode::Type);
+        ue_py_slate_farguments_enum("sort_priority", SortPriority, EColumnSortPriority::Type);
+
+        ue_py_slate_farguments_event("on_sort", OnSort, FOnSortModeChanged, OnSort);
+
+        ue_py_slate_farguments_bool("should_generate_widget", ShouldGenerateWidget);
+
+	    //sw_header_row->AddColumn(
+        //    SHeaderRow::Column(FName(UTF8_TO_TCHAR(column_id)))
+        //    .DefaultLabel(FText::FromString(UTF8_TO_TCHAR(default_label)))
+        //    .DefaultTooltip(FText::FromString(UTF8_TO_TCHAR(default_tooltip)))
+        //    .FixedWidth(fixed_width)
+        //    .HAlignCell((EHorizontalAlignment)cell_h_align)
+        //    .VAlignCell((EVerticalAlignment)cell_v_align)
+        //);
+
+        sw_header_row->AddColumn(arguments);
+        return 0;
+    }();
+
+    if (retCode != 0)
+    {
+        return PyErr_Format(PyExc_Exception, "could not add column slot");
+    }
 
 	Py_INCREF(self);
 	return (PyObject *)self;
@@ -97,6 +110,7 @@ static int ue_py_sheader_row_init(ue_PySHeaderRow *self, PyObject *args, PyObjec
 void ue_python_init_sheader_row(PyObject *ue_module) {
 
 	ue_PySHeaderRowType.tp_init = (initproc)ue_py_sheader_row_init;
+    ue_PySHeaderRowType.tp_call = (ternaryfunc)py_ue_sheader_row_add_column;
 
 	ue_PySHeaderRowType.tp_base = &ue_PySBorderType;
 
@@ -105,5 +119,12 @@ void ue_python_init_sheader_row(PyObject *ue_module) {
 
 	Py_INCREF(&ue_PySHeaderRowType);
 	PyModule_AddObject(ue_module, "SHeaderRow", (PyObject *)&ue_PySHeaderRowType);
+}
+
+ue_PySHeaderRow * py_ue_is_sheader_row(PyObject *obj)
+{
+    if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySHeaderRowType))
+        return nullptr;
+    return (ue_PySHeaderRow *)obj;
 }
 

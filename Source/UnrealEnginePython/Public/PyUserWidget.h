@@ -12,7 +12,7 @@ class UPyUserWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-
+    UPyUserWidget(const FObjectInitializer& ObjectInitializer);
 	~UPyUserWidget();
 
 	virtual void NativeConstruct() override;
@@ -46,6 +46,21 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
 	void CallPythonUserWidgetMethod(FString method_name, FString args);
+
+    UPROPERTY(EditAnywhere, Category = "Python", BlueprintReadWrite)
+    TWeakObjectPtr<class UPyNativeWidgetHost> PyNativeWidgetHost;
+
+#if WITH_EDITOR
+    virtual const FText GetPaletteCategory() override;
+#endif
+
+    void SetSlateWidget(TSharedRef<SWidget> InContent);
+    virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+
+protected:
+    // UWidget interface
+    virtual TSharedRef<SWidget> RebuildWidget() override;
+    // End of UWidget interface
 
 private:
 	PyObject *py_user_widget_instance;

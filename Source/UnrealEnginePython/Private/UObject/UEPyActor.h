@@ -21,6 +21,7 @@ PyObject *py_ue_get_editor_world_counterpart_actor(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_owner(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_actor_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_python_component(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_actor_root_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_actor_root_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);

@@ -69,6 +69,8 @@ PyObject *py_ue_class_generated_by(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_class_get_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_class_set_flags(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_obj_flags(ue_PyUObject *, PyObject *);
+PyObject *py_ue_set_obj_flags(ue_PyUObject *, PyObject *);
 
 
 #if WITH_EDITOR
