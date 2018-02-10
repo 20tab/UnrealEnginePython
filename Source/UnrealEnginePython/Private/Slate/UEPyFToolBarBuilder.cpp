@@ -37,7 +37,7 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 		return PyErr_Format(PyExc_Exception, "argument is not a FSlateIcon");
 	}
 
-	if (!PyCallable_Check(py_callable)) {
+	if (!PyCalllable_Check_Extended(py_callable)) {
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 

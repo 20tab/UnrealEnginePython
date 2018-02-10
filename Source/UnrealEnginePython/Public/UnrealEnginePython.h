@@ -12,6 +12,9 @@
 #include "Runtime/SlateCore/Public/Styling/ISlateStyle.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
 
+// We need to make sure reference structs do not mistaken for callable
+#define PyCalllable_Check_Extended(value) PyCallable_Check(value) && py_ue_is_uscriptstruct(value) == nullptr
+
 DECLARE_LOG_CATEGORY_EXTERN(LogPython, Log, All);
 
 

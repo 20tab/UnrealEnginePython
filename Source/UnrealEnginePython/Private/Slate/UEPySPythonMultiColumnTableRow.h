@@ -22,7 +22,7 @@ public:
         SMultiColumnTableRow<TSharedPtr<struct FPythonItem> >::Construct(FSuperRowType::FArguments(), InOwnerTableView);
     }
 
-    virtual TSharedRef<SWidget> GenerateWidgetForColumn( const FName& ColumnName ) override
+    TSharedRef<SWidget> SPythonMultiColumnTableRow::GenerateWidgetForColumn(const FName& ColumnName)
     {
         FScopePythonGIL gil;
 
@@ -30,7 +30,7 @@ public:
             return SNullWidget::NullWidget;
 
         PyObject *py_callable_generate_widget_for_column = PyObject_GetAttrString(self, (char *)"generate_widget_for_column");
-        if (!PyCallable_Check(py_callable_generate_widget_for_column))
+        if (!PyCalllable_Check_Extended(py_callable_generate_widget_for_column))
         {
             UE_LOG(LogPython, Error, TEXT("generate_widget_for_column is not a callable"));
             return SNullWidget::NullWidget;
@@ -56,14 +56,15 @@ public:
         return value;
     }
 
-    virtual FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent) override
+
+    FReply SPythonMultiColumnTableRow::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
     {
         FScopePythonGIL gil;
 
         if (PyObject_HasAttrString(self, (char *)"on_mouse_button_double_click"))
         {
             PyObject *py_callable_on_mouse_button_double_click = PyObject_GetAttrString(self, (char *)"on_mouse_button_double_click");
-            if (!PyCallable_Check(py_callable_on_mouse_button_double_click))
+            if (!PyCalllable_Check_Extended(py_callable_on_mouse_button_double_click))
             {
                 UE_LOG(LogPython, Error, TEXT("on_mouse_button_double_click is not a callable"));
                 return FReply::Unhandled();

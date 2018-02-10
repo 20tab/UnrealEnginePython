@@ -242,7 +242,7 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 #endif
 
 	PyObject *on_closed = ue_py_dict_get_item(kwargs, "on_closed");
-	if (on_closed && PyCallable_Check(on_closed))
+	if (on_closed && PyCalllable_Check_Extended(on_closed))
 	{
 		FOnWindowClosed handler;
 		UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();

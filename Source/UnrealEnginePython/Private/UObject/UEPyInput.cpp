@@ -380,7 +380,7 @@ PyObject *py_ue_bind_action(ue_PyUObject *self, PyObject * args)
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 	}
@@ -433,7 +433,7 @@ PyObject *py_ue_bind_axis(ue_PyUObject *self, PyObject * args)
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 	}
@@ -487,7 +487,7 @@ PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args)
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 	}
