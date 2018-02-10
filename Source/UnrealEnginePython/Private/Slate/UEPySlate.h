@@ -163,7 +163,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 {\
 	PyObject *value = ue_py_dict_get_item(kwargs, _param);\
 	if (value) {\
-		if (PyCallable_Check(value)) {\
+		if (PyCalllable_Check_Extended(value)) {\
 			_base handler;\
 			UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();\
 			py_delegate->SetPyCallable(value);\
