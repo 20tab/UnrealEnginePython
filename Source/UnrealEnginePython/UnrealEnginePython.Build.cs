@@ -138,8 +138,11 @@ public class UnrealEnginePython : ModuleRules
 			}
             );
 
-
+#if WITH_FORWARDED_MODULE_RULES_CTOR
         if (Target.bBuildEditor)
+#else
+        if (UEBuildConfiguration.bBuildEditor)
+#endif
         {
             PrivateDependencyModuleNames.AddRange(new string[]{
                 "UnrealEd",
