@@ -121,6 +121,8 @@ This is an ad-hoc factory subclassing the standard FbxFactory (many thanks to Ch
 import unreal_engine as ue
 import os
 import os.path
+from unreal_engine.classes import PyFbxFactory, Skeleton
+from unreal_engine.enums import EFBXImportType
 
 """
 Scan a directory for FBX's and import them with a single skeleton
@@ -135,23 +137,19 @@ skeleton_name = 'UE4_Mannequin_Skeleton'
 skeleton = ue.find_object(skeleton_name)
 
 # get the PyFbxFactory
-factory = ue.find_class('PyFbxFactory')
+factory = PyFbxFactory()
 
 # setup fbx importer options
-fbx_import_ui_class = ue.find_class('FbxImportUI')
-fbx_import_ui = ue.new_object(fbx_import_ui_class)
-fbx_import_ui.set_property('Skeleton', skeleton)
-
+factory.ImportUI.MeshTypeToImport = EFBXImportType.FBXIT_Animation
+factory.ImportUI.Skeleton = skeleton
 
 # the fbx import procedure
 def fbx_import(filename, asset_name):
     ue.log('importing ' + filename + ' to ' + asset_name)
-    # set import options
-    ue.set_fbx_import_option(fbx_import_ui)
-    # import he file using PyFbxFactory
-    asset = ue.import_asset(filename, asset_name, factory)
+    # import the file using PyFbxFactory
+    asset = factory.factory_import_object(filename, asset_name)
     # print the skeleton name
-    ue.log('FBX imported with skeleton: ' + asset.get_property('Skeleton').get_name())
+    ue.log('FBX imported with skeleton: ' + asset.Skeleton.get_name())
     
     
 # scan the directory and uatomatically assign a name using an incremental id
