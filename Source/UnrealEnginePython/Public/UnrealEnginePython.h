@@ -9,6 +9,7 @@
 #include "ModuleManager.h"
 
 #include "Engine.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "Runtime/SlateCore/Public/Styling/ISlateStyle.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
 
