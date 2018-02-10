@@ -3558,7 +3558,11 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 	function->FunctionFlags = function_flags;
 #endif
 
+#if ENGINE_MINOR_VERSION > 18
+	function->SetNativeFunc((FNativeFuncPtr)&UPythonFunction::CallPythonCallable);
+#else
 	function->SetNativeFunc((Native)&UPythonFunction::CallPythonCallable);
+#endif
 
 	function->Next = u_class->Children;
 

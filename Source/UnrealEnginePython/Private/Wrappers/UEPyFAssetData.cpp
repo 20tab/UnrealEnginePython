@@ -48,7 +48,11 @@ static PyObject *py_ue_fassetdata_get_thumbnail(ue_PyFAssetData *self, PyObject 
 static PyObject *py_ue_fassetdata_has_custom_thumbnail(ue_PyFAssetData *self, PyObject * args)
 {
 
+#if ENGINE_MINOR_VERSION > 18
+	if (!ThumbnailTools::AssetHasCustomThumbnail(self->asset_data.GetFullName()))
+#else
 	if (!ThumbnailTools::AssetHasCustomThumbnail(self->asset_data))
+#endif
 	{
 		Py_RETURN_FALSE;
 	}

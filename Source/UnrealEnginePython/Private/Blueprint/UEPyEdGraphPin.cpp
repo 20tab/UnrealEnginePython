@@ -79,15 +79,27 @@ static PyMethodDef ue_PyEdGraphPin_methods[] = {
 };
 
 static PyObject *py_ue_edgraphpin_get_name(ue_PyEdGraphPin *self, void *closure) {
+#if ENGINE_MINOR_VERSION > 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName.ToString())));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName)));
+#endif
 }
 
 static PyObject *py_ue_edgraphpin_get_category(ue_PyEdGraphPin *self, void *closure) {
+#if ENGINE_MINOR_VERSION > 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory.ToString())));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory)));
+#endif
 }
 
 static PyObject *py_ue_edgraphpin_get_sub_category(ue_PyEdGraphPin *self, void *closure) {
+#if ENGINE_MINOR_VERSION > 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory.ToString())));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory)));
+#endif
 }
 
 static PyObject *py_ue_edgraphpin_get_default_value(ue_PyEdGraphPin *self, void *closure) {
@@ -139,7 +151,11 @@ static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 static PyObject *ue_PyEdGraphPin_str(ue_PyEdGraphPin *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.EdGraphPin {'name': '%s', 'type': '%s'}>",
+#if ENGINE_MINOR_VERSION > 18
+		TCHAR_TO_UTF8(*self->pin->PinName.ToString()), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory.ToString()));
+#else
 		TCHAR_TO_UTF8(*self->pin->PinName), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory));
+#endif
 }
 
 static PyTypeObject ue_PyEdGraphPinType = {

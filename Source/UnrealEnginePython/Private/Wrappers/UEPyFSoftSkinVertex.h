@@ -3,6 +3,12 @@
 
 #include "Runtime/Engine/Public/SkeletalMeshTypes.h"
 
+#if ENGINE_MINOR_VERSION > 18
+
+#include "Runtime/Engine/Public/Rendering/SkeletalMeshLODModel.h"
+
+#endif
+
 struct ue_PyFSoftSkinVertex {
 	PyObject_HEAD
 	/* Type-specific fields go here. */

@@ -10,7 +10,11 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 }
 
 
+#if ENGINE_MINOR_VERSION > 18
+void UPythonFunction::CallPythonCallable(UObject *Context, FFrame& Stack, RESULT_DECL)
+#else
 void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
+#endif
 {
 
 	FScopePythonGIL gil;

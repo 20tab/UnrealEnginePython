@@ -334,7 +334,11 @@ TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClien
 
 	FExposureSettings settings;
 	settings.bFixed = true;
+#if ENGINE_MINOR_VERSION > 18
+	settings.FixedEV100 = 0;
+#else
 	settings.LogOffset = 0;
+#endif
 
 	client->ExposureSettings = settings;
 
