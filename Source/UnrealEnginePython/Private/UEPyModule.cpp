@@ -589,6 +589,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	// AssetUserData
 	{ "asset_import_data", (PyCFunction)py_ue_asset_import_data, METH_VARARGS, "" },
+	{ "asset_import_data_set_sources", (PyCFunction)py_ue_asset_import_data_set_sources, METH_VARARGS, "" },
 #endif
 
 	// AnimSequence
