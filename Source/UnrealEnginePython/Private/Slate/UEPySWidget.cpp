@@ -122,7 +122,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyO
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
@@ -147,7 +147,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObj
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
@@ -172,7 +172,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_double_click(ue_PySWidget *self, Py
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
@@ -197,7 +197,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject *
 		return NULL;
 	}
 
-	if (!PyCallable_Check(py_callable))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
