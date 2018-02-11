@@ -383,7 +383,7 @@ PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *self, PyObject * args)
 
 	for (UMovieSceneTrack *track : tracks)
 	{
-		ue_PyUObject *ret = ue_get_python_wrapper((UObject *)track);
+		ue_PyUObject *ret = ue_get_python_uobject((UObject *)track);
 		if (!ret)
 		{
 			Py_DECREF(py_tracks);
@@ -485,7 +485,7 @@ PyObject *py_ue_sequencer_folders(ue_PyUObject *self, PyObject * args)
 
 	for (UMovieSceneFolder *folder : folders)
 	{
-		ue_PyUObject *ret = ue_get_python_wrapper((UObject *)folder);
+		ue_PyUObject *ret = ue_get_python_uobject((UObject *)folder);
 		if (!ret)
 		{
 			Py_DECREF(py_folders);

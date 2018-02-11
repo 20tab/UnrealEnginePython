@@ -1,20 +1,21 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-static PyObject *ue_PyEnumsImporter_getattro(ue_PyEnumsImporter *self, PyObject *attr_name) {
+static PyObject *ue_PyEnumsImporter_getattro(ue_PyEnumsImporter *self, PyObject *attr_name)
+{
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
-	if (!ret) {
-		if (PyUnicodeOrString_Check(attr_name)) {
+	if (!ret)
+	{
+		if (PyUnicodeOrString_Check(attr_name))
+		{
 			char *attr = PyUnicode_AsUTF8(attr_name);
-			if (attr[0] != '_') {
+			if (attr[0] != '_')
+			{
 				UEnum *u_enum = FindObject<UEnum>(ANY_PACKAGE, UTF8_TO_TCHAR(attr));
-				if (u_enum) {
+				if (u_enum)
+				{
 					// swallow old exception
 					PyErr_Clear();
-					ue_PyUObject *u_ret = ue_get_python_wrapper(u_enum);
-					if (!u_ret)
-						return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-					Py_INCREF(u_ret);
-					return (PyObject *)u_ret;
+					Py_RETURN_UOBJECT(u_enum);
 				}
 			}
 		}
@@ -55,7 +56,8 @@ static PyTypeObject ue_PyEnumsImporterType = {
 	0,
 };
 
-void ue_python_init_enumsimporter(PyObject *ue_module) {
+void ue_python_init_enumsimporter(PyObject *ue_module)
+{
 	ue_PyEnumsImporterType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyEnumsImporterType) < 0)
@@ -65,7 +67,8 @@ void ue_python_init_enumsimporter(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "EnumsImporter", (PyObject *)&ue_PyEnumsImporterType);
 }
 
-PyObject *py_ue_new_enumsimporter() {
+PyObject *py_ue_new_enumsimporter()
+{
 	ue_PyEnumsImporter *ret = (ue_PyEnumsImporter *)PyObject_New(ue_PyEnumsImporter, &ue_PyEnumsImporterType);
 	return (PyObject *)ret;
 }

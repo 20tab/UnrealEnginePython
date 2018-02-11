@@ -6,13 +6,7 @@
 
 static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * args)
 {
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(self->asset_data.GetAsset());
-	if (!ret)
-	{
-		return PyErr_Format(PyExc_Exception, "unable to get UObject from asset");
-	}
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(self->asset_data.GetAsset());
 }
 
 static PyObject *py_ue_fassetdata_is_asset_loaded(ue_PyFAssetData *self, PyObject * args)

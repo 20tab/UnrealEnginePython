@@ -268,11 +268,7 @@ PyObject *py_unreal_engine_create_checkerboard_texture(PyObject * self, PyObject
 
 	UTexture2D *texture = FImageUtils::CreateCheckerboardTexture(color_one->color, color_two->color, checker_size);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(texture);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(texture);
 }
 
 PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * args)
@@ -292,11 +288,7 @@ PyObject *py_unreal_engine_create_transient_texture(PyObject * self, PyObject * 
 
 	texture->UpdateResource();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(texture);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(texture);
 }
 
 PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * self, PyObject * args)
@@ -316,11 +308,7 @@ PyObject *py_unreal_engine_create_transient_texture_render_target2d(PyObject * s
 
 	texture->InitCustomFormat(width, height, (EPixelFormat)format, py_linear && PyObject_IsTrue(py_linear));
 
-	ue_PyUObject *ret = ue_get_python_wrapper(texture);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(texture);
 }
 
 #if WITH_EDITOR
@@ -366,11 +354,7 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args)
 	if (!texture)
 		return PyErr_Format(PyExc_Exception, "unable to create texture");
 
-	ue_PyUObject *ret = ue_get_python_wrapper(texture);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(texture);
 }
 #endif
 

@@ -185,33 +185,6 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetWindowsPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicAdditionalLibraries.Add(libPath);
-
-            // copy the dlls into the plugins dlls folder, so they don't have to be on the path
-            string dllsDir = Path.Combine(ModuleDirectory, "../../Binaries", Target.Platform == UnrealTargetPlatform.Win32 ? "Win32" : "Win64");
-            try
-            {
-                string[] dllsToCopy =
-                {
-                    "python3.dll",
-                    "python36.dll"
-                };
-                foreach (string dllToCopy in dllsToCopy)
-                {
-                    // If the dll exist, make sure to set attributes so they are actually accessible
-                    if (File.Exists(Path.Combine(dllsDir, dllToCopy)))
-                    {
-                        File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
-                    }
-
-                    File.Copy(Path.Combine(pythonHome, dllToCopy), Path.Combine(dllsDir, dllToCopy), true);
-                    File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
-                }
-            }
-            catch (System.IO.IOException) { }
-            catch (System.UnauthorizedAccessException)
-            {
-                System.Console.WriteLine("WARNING: Unable to copy python dlls, they are probably in use...");
-            }
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
@@ -397,7 +370,7 @@ public class UnrealEnginePython : ModuleRules
         // first try with python3
         for (int i = 9; i >= 0; i--)
         {
-            string fileName = string.Format("python3{0}.lib", i);
+            string fileName = string.Format("python3{0}_d.lib", i);
             string fullPath = Path.Combine(basePath, "libs", fileName);
             if (File.Exists(fullPath))
             {

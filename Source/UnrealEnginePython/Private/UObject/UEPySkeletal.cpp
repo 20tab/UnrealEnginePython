@@ -26,11 +26,7 @@ PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args)
 		return Py_None;
 	}
 
-	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)anim);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT((UObject *)anim);
 }
 
 PyObject *py_ue_set_skeletal_mesh(ue_PyUObject *self, PyObject * args)
