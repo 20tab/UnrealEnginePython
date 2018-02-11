@@ -253,7 +253,7 @@ APyHUD::~APyHUD()
 	Py_XDECREF(py_hud_instance);
 
 #if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Python AHUD %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
+	UE_LOG(LogPython, Warning, TEXT("Python AHUD %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->py_proxy : nullptr);
 #endif
 
 	// this could trigger the distruction of the python/uobject mapper

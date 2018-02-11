@@ -250,7 +250,7 @@ APyPawn::~APyPawn()
 	
 
 #if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Python APawn (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->ue_object : nullptr);
+	UE_LOG(LogPython, Warning, TEXT("Python APawn (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->py_proxy : nullptr);
 #endif
 
 	// this could trigger the distruction of the python/uobject mapper

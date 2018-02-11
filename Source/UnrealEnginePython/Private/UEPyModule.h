@@ -24,7 +24,8 @@ typedef struct {
 
 
 void unreal_engine_py_log_error();
-ue_PyUObject *ue_get_python_wrapper(UObject *);
+ue_PyUObject *ue_get_python_uobject(UObject *);
+ue_PyUObject *ue_get_python_uobject_inc(UObject *);
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
 PyObject *ue_py_convert_property(UProperty *, uint8 *);

@@ -16,7 +16,6 @@ public class UnrealEnginePython : ModuleRules
     // on Linux an include;libs syntax is expected:
     //private string pythonHome = "/usr/local/include/python3.6;/usr/local/lib/libpython3.6.so"
 
-
     private string[] windowsKnownPaths =
     {
         "C:/Program Files/Python36",
@@ -79,6 +78,7 @@ public class UnrealEnginePython : ModuleRules
     public UnrealEnginePython(TargetInfo Target)
 #endif
     {
+
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -207,8 +207,8 @@ public class UnrealEnginePython : ModuleRules
                     File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
                 }
             }
-            catch(System.IO.IOException) { }
-            catch(System.UnauthorizedAccessException)
+            catch (System.IO.IOException) { }
+            catch (System.UnauthorizedAccessException)
             {
                 System.Console.WriteLine("WARNING: Unable to copy python dlls, they are probably in use...");
             }
@@ -285,7 +285,7 @@ public class UnrealEnginePython : ModuleRules
         foreach (string path in paths)
         {
             string actualPath = path;
-            
+
             if (IsPathRelative(actualPath))
             {
                 actualPath = Path.GetFullPath(Path.Combine(ModuleDirectory, actualPath));
