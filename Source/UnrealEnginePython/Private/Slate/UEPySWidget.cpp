@@ -242,6 +242,11 @@ static PyObject *py_ue_swidget_get_type(ue_PySWidget *self, PyObject * args)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->s_widget->GetTypeAsString())));
 }
 
+static PyObject *py_ue_swidget_get_cached_geometry(ue_PySWidget *self, PyObject * args)
+{
+	return py_ue_new_fgeometry(self->s_widget->GetCachedGeometry());
+}
+
 static PyObject *py_ue_swidget_get_shared_reference_count(ue_PySWidget *self, PyObject * args)
 {
 	return PyLong_FromLong(self->s_widget.GetSharedReferenceCount());
@@ -289,8 +294,40 @@ static PyObject *py_ue_swidget_on_mouse_button_down(ue_PySWidget *self, PyObject
 	Py_RETURN_FALSE;
 }
 
+static PyObject *py_ue_swidget_on_mouse_button_up(ue_PySWidget *self, PyObject * args)
+{
+	PyObject *py_geometry;
+	PyObject *py_pointer_event;
+	if (!PyArg_ParseTuple(args, "OO:on_mouse_button_up", &py_geometry, &py_pointer_event))
+	{
+		return nullptr;
+	}
+
+	ue_PyFGeometry *geometry = py_ue_is_fgeometry(py_geometry);
+	if (!geometry)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a FGeomtry");
+	}
+
+	ue_PyFPointerEvent *pointer = py_ue_is_fpointer_event(py_pointer_event);
+	if (!pointer)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a FPointerEvent");
+	}
+
+	FReply reply = self->s_widget->OnMouseButtonUp(geometry->geometry, pointer->pointer);
+
+	if (reply.IsEventHandled())
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_shared_reference_count", (PyCFunction)py_ue_swidget_get_shared_reference_count, METH_VARARGS, "" },
+	{ "get_cached_geometry", (PyCFunction)py_ue_swidget_get_cached_geometry, METH_VARARGS, "" },
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
 	{ "get_type", (PyCFunction)py_ue_swidget_get_type, METH_VARARGS, "" },
 	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },
@@ -307,6 +344,7 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "bind_on_mouse_move", (PyCFunction)py_ue_swidget_bind_on_mouse_move, METH_VARARGS, "" },
 #endif
 	{ "on_mouse_button_down", (PyCFunction)py_ue_swidget_on_mouse_button_down, METH_VARARGS, "" },
+	{ "on_mouse_button_up", (PyCFunction)py_ue_swidget_on_mouse_button_up, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

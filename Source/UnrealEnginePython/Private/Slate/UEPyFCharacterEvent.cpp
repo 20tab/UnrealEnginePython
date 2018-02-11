@@ -56,16 +56,27 @@ static PyTypeObject ue_PyFCharacterEventType = {
 static int ue_py_fcharacter_event_init(ue_PyFCharacterEvent *self, PyObject *args, PyObject *kwargs)
 {
 	char *key;
-	if (!PyArg_ParseTuple(args, "s", &key))
+	PyObject *py_repeat = nullptr;
+	PyObject *py_modifier = nullptr;
+	if (!PyArg_ParseTuple(args, "sO|O", &key, &py_repeat, &py_modifier))
 	{
 		return -1;
 	}
 
-	// TODO make it configurable
 	FModifierKeysState modifier;
+	if (py_modifier)
+	{
+		ue_PyFModifierKeysState *f_modifier = py_ue_is_fmodifier_keys_state(py_modifier);
+		if (!f_modifier)
+		{
+			PyErr_SetString(PyExc_Exception, "argument is not a FModifierKeysState");
+			return -1;
+		}
+		modifier = f_modifier->modifier;
+	}
 
-	// TODO make repeat configurable
-	FCharacterEvent Event(*UTF8_TO_TCHAR(key), modifier, 0, false);
+
+	FCharacterEvent Event(*UTF8_TO_TCHAR(key), modifier, 0, (py_repeat && PyObject_IsTrue(py_repeat)));
 
 	new(&self->character_event) FCharacterEvent(Event);
 	new(&self->f_input.input) FInputEvent(Event);

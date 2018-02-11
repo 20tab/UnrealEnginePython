@@ -78,10 +78,61 @@ static PyTypeObject ue_PyFPointerEventType = {
 	ue_PyFPointerEvent_methods,             /* tp_methods */
 };
 
+static int ue_py_fpointer_event_init(ue_PyFPointerEvent *self, PyObject *args, PyObject *kwargs)
+{
+	int pointer_index;
+	float ssp_x;
+	float ssp_y;
+	float lssp_x;
+	float lssp_y;
+	char *effecting;
+	float wheel_delta;
+	PyObject *py_modifier = nullptr;
+
+	if (!PyArg_ParseTuple(args, "i(ff)(ff)s|fO",
+		&pointer_index,
+		&ssp_x,
+		&ssp_y,
+		&lssp_x,
+		&lssp_y,
+		&effecting,
+		&wheel_delta,
+		&py_modifier))
+	{
+		return -1;
+	}
+
+	TSet<FKey> keys;
+
+	FModifierKeysState modifier;
+	if (py_modifier)
+	{
+		ue_PyFModifierKeysState *f_modifier = py_ue_is_fmodifier_keys_state(py_modifier);
+		if (!f_modifier)
+		{
+			PyErr_SetString(PyExc_Exception, "argument is not a FModifierKeysState");
+			return -1;
+		}
+		modifier = f_modifier->modifier;
+	}
+
+	FPointerEvent Event(pointer_index,
+		FVector2D(ssp_x, ssp_y),
+		FVector2D(lssp_x, lssp_y),
+		keys,
+		FKey(effecting), wheel_delta, modifier);
+
+	new(&self->pointer) FPointerEvent(Event);
+	new(&self->f_input.input) FInputEvent(Event);
+
+	return 0;
+}
+
 void ue_python_init_fpointer_event(PyObject *ue_module)
 {
 
 	ue_PyFPointerEventType.tp_base = &ue_PyFInputEventType;
+	ue_PyFPointerEventType.tp_init = (initproc)ue_py_fpointer_event_init;
 
 	if (PyType_Ready(&ue_PyFPointerEventType) < 0)
 		return;

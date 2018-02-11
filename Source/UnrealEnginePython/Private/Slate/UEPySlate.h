@@ -74,6 +74,7 @@
 #include "UEPyFPointerEvent.h"
 #include "UEPyFKeyEvent.h"
 #include "UEPyFCharacterEvent.h"
+#include "UEPyFModifierKeysState.h"
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"
