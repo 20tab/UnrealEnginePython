@@ -1472,7 +1472,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 					}
 					else
 					{
-						if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass()), class_key, value)))
+						if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass()), class_key, value)))
 						{
 							unreal_engine_py_log_error();
 							return -1;
@@ -1482,7 +1482,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 				}
 				else if (py_obj->ue_object->IsA<UScriptStruct>())
 				{
-					if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass()), class_key, value)))
+					if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass()), class_key, value)))
 					{
 						unreal_engine_py_log_error();
 						return -1;
@@ -1515,7 +1515,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 
 							else
 							{
-								if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass()), class_key, first_item)))
+								if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass()), class_key, first_item)))
 								{
 									unreal_engine_py_log_error();
 									return -1;
@@ -1525,7 +1525,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 						}
 						else if (py_obj->ue_object->IsA<UScriptStruct>())
 						{
-							if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass()), class_key, first_item)))
+							if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass()), class_key, first_item)))
 							{
 								unreal_engine_py_log_error();
 								return -1;
@@ -1560,12 +1560,12 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 							}
 							else
 							{
-								first_item = (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass());
+								first_item = (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass());
 							}
 						}
 						else if (py_obj->ue_object->IsA<UScriptStruct>())
 						{
-							first_item = (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass());
+							first_item = (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass());
 						}
 
 						ue_PyUObject *py_obj2 = (ue_PyUObject *)py_value;
@@ -1578,12 +1578,12 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 							}
 							else
 							{
-								second_item = (PyObject *)ue_get_python_wrapper(UObjectProperty::StaticClass());
+								second_item = (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass());
 							}
 						}
 						else if (py_obj2->ue_object->IsA<UScriptStruct>())
 						{
-							second_item = (PyObject *)ue_get_python_wrapper(UStructProperty::StaticClass());
+							second_item = (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass());
 						}
 
 						if (!py_ue_add_property(self, Py_BuildValue("([OO]sOO)", first_item, second_item, class_key, py_key, py_value)))
@@ -1697,7 +1697,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 
 			if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class))
 			{
-				ue_PyUObject *new_self = ue_get_python_wrapper(ObjectInitializer.GetObj());
+				ue_PyUObject *new_self = ue_get_python_uobject(ObjectInitializer.GetObj());
 				if (!new_self)
 				{
 					unreal_engine_py_log_error();
@@ -1797,7 +1797,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 
 		if (self->py_dict)
 		{
-			ue_PyUObject *new_default_self = ue_get_python_wrapper(new_u_py_class->ClassDefaultObject);
+			ue_PyUObject *new_default_self = ue_get_python_uobject(new_u_py_class->ClassDefaultObject);
 
 			if (!new_default_self)
 			{
@@ -1837,7 +1837,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 		// add default uproperties values
 		if (py_additional_properties)
 		{
-			ue_PyUObject *new_default_self = ue_get_python_wrapper(new_u_py_class->ClassDefaultObject);
+			ue_PyUObject *new_default_self = ue_get_python_uobject(new_u_py_class->ClassDefaultObject);
 			if (!new_default_self)
 			{
 				unreal_engine_py_log_error();
@@ -1863,7 +1863,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 			// fake initializer
 			FObjectInitializer initializer(new_u_py_class->ClassDefaultObject, nullptr, false, true);
 			new_u_py_class->SetPyConstructor(py_init);
-			ue_PyUObject *new_default_self = ue_get_python_wrapper(new_u_py_class->ClassDefaultObject);
+			ue_PyUObject *new_default_self = ue_get_python_uobject(new_u_py_class->ClassDefaultObject);
 
 			if (!new_default_self)
 			{
@@ -2122,16 +2122,15 @@ ue_PyUObject *ue_get_python_uobject(UObject *ue_obj)
 		//Py_INCREF(ue_py_object);
 		return ue_py_object;
 	}
-	Py_INCREF(it->second);
 	return it->second;
 }
 
-ue_PyUObject *ue_get_python_uobject_noinc(UObject *ue_obj)
+ue_PyUObject *ue_get_python_uobject_inc(UObject *ue_obj)
 {
 	ue_PyUObject *ret = ue_get_python_uobject(ue_obj);
 	if (ret)
 	{
-		Py_DECREF(ret);
+		Py_INCREF(ret);
 	}
 	return ret;
 }
@@ -2973,7 +2972,7 @@ void ue_bind_events_for_py_class_by_attribute(UObject *u_obj, PyObject *py_class
 							{
 								if (component->GetFName() == FName(*parts[0]))
 								{
-									if (!ue_bind_pyevent(ue_get_python_wrapper(component), parts[1], item, true))
+									if (!ue_bind_pyevent(ue_get_python_uobject(component), parts[1], item, true))
 									{
 										unreal_engine_py_log_error();
 									}

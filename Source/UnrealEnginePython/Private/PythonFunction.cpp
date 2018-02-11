@@ -36,7 +36,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	PyObject *py_args = PyTuple_New(argn);
 
 	if (Stack.Object && !is_static) {
-		PyObject *py_obj = (PyObject *)ue_get_python_wrapper(Stack.Object);
+		PyObject *py_obj = (PyObject *)ue_get_python_uobject(Stack.Object);
 		if (!py_obj) {
 			unreal_engine_py_log_error();
 			on_error = true;

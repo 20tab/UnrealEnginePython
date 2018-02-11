@@ -13,18 +13,21 @@
 #include "Editor/AIGraph/Classes/AIGraph.h"
 #include "Editor/AIGraph/Classes/AIGraphNode.h"
 
-PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	PyObject *py_function = NULL;
 	int x = 0;
 	int y = 0;
-	if (!PyArg_ParseTuple(args, "O|ii:graph_add_node_call_function", &py_function, &x, &y)) {
+	if (!PyArg_ParseTuple(args, "O|ii:graph_add_node_call_function", &py_function, &x, &y))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
@@ -32,16 +35,20 @@ PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * arg
 
 	UFunction *function = nullptr;
 
-	if (ue_is_pyuobject(py_function)) {
+	if (ue_is_pyuobject(py_function))
+	{
 		ue_PyUObject *py_function_obj = (ue_PyUObject *)py_function;
-		if (py_function_obj->ue_object->IsA<UFunction>()) {
+		if (py_function_obj->ue_object->IsA<UFunction>())
+		{
 			function = (UFunction *)py_function_obj->ue_object;
 		}
-		else {
+		else
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
 	}
-	else if (py_ue_is_callable(py_function)) {
+	else if (py_ue_is_callable(py_function))
+	{
 		ue_PyCallable *py_callable = (ue_PyCallable *)py_function;
 		function = py_callable->u_function;
 	}
@@ -61,30 +68,29 @@ PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * arg
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 	graph->AddNode(node);
 
-	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
-
+	Py_RETURN_UOBJECT(node);
 }
 
-PyObject *py_ue_graph_add_node_custom_event(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_add_node_custom_event(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *name = nullptr;
 	int x = 0;
 	int y = 0;
-	if (!PyArg_ParseTuple(args, "s|ii:graph_add_node_custom_event", &name, &x, &y)) {
+	if (!PyArg_ParseTuple(args, "s|ii:graph_add_node_custom_event", &name, &x, &y))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
@@ -102,23 +108,21 @@ PyObject *py_ue_graph_add_node_custom_event(ue_PyUObject * self, PyObject * args
 	UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 	graph->AddNode(node);
 
-	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
-
+	Py_RETURN_UOBJECT(node);
 }
 
-PyObject *py_ue_graph_get_good_place_for_new_node(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_get_good_place_for_new_node(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
@@ -131,7 +135,8 @@ PyObject *py_ue_graph_get_good_place_for_new_node(ue_PyUObject * self, PyObject 
 	return ret;
 }
 
-PyObject *py_ue_graph_add_node_event(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_add_node_event(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -140,22 +145,26 @@ PyObject *py_ue_graph_add_node_event(ue_PyUObject * self, PyObject * args) {
 	int x = 0;
 	int y = 0;
 
-	if (!PyArg_ParseTuple(args, "Os|ii:graph_add_node_event", &py_class, &name, &x, &y)) {
+	if (!PyArg_ParseTuple(args, "Os|ii:graph_add_node_event", &py_class, &name, &x, &y))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
 	UEdGraph *graph = (UEdGraph *)self->ue_object;
 
-	if (!ue_is_pyuobject(py_class)) {
+	if (!ue_is_pyuobject(py_class))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_class;
-	if (!py_obj->ue_object->IsA<UClass>()) {
+	if (!py_obj->ue_object->IsA<UClass>())
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 	}
 
@@ -163,7 +172,8 @@ PyObject *py_ue_graph_add_node_event(ue_PyUObject * self, PyObject * args) {
 	UBlueprint *bp = (UBlueprint *)graph->GetOuter();
 
 	UK2Node_Event *node = FBlueprintEditorUtils::FindOverrideForFunction(bp, u_class, UTF8_TO_TCHAR(name));
-	if (!node) {
+	if (!node)
+	{
 		node = NewObject<UK2Node_Event>(graph);
 		UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 		node->EventReference.SetExternalMember(UTF8_TO_TCHAR(name), u_class);
@@ -172,15 +182,11 @@ PyObject *py_ue_graph_add_node_event(ue_PyUObject * self, PyObject * args) {
 
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
-
+	Py_RETURN_UOBJECT(node);
 }
 
-PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -188,23 +194,28 @@ PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args
 	PyObject *py_struct = nullptr;
 	int x = 0;
 	int y = 0;
-	if (!PyArg_ParseTuple(args, "s|Oii:graph_add_node_variable_get", &name, &py_struct, &x, &y)) {
+	if (!PyArg_ParseTuple(args, "s|Oii:graph_add_node_variable_get", &name, &py_struct, &x, &y))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
 	UEdGraph *graph = (UEdGraph *)self->ue_object;
 	UStruct *u_struct = nullptr;
 
-	if (py_struct && py_struct != Py_None) {
-		if (!ue_is_pyuobject(py_struct)) {
+	if (py_struct && py_struct != Py_None)
+	{
+		if (!ue_is_pyuobject(py_struct))
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
 		ue_PyUObject *ue_py_struct = (ue_PyUObject *)py_struct;
-		if (!ue_py_struct->ue_object->IsA<UStruct>()) {
+		if (!ue_py_struct->ue_object->IsA<UStruct>())
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UStruct");
 		}
 		u_struct = (UStruct *)ue_py_struct->ue_object;
@@ -216,18 +227,14 @@ PyObject *py_ue_graph_add_node_variable_get(ue_PyUObject * self, PyObject * args
 
 	UEdGraphSchema_K2::ConfigureVarNode(node, FName(UTF8_TO_TCHAR(name)), u_struct, bp);
 	node = FEdGraphSchemaAction_K2NewNode::SpawnNodeFromTemplate<UK2Node_VariableGet>(graph, node, FVector2D(x, y));
-	
+
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
-
+	Py_RETURN_UOBJECT(node);
 }
 
-PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -235,23 +242,28 @@ PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args
 	PyObject *py_struct = nullptr;
 	int x = 0;
 	int y = 0;
-	if (!PyArg_ParseTuple(args, "s|Oii:graph_add_node_variable_set", &name, &py_struct, &x, &y)) {
+	if (!PyArg_ParseTuple(args, "s|Oii:graph_add_node_variable_set", &name, &py_struct, &x, &y))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
 	UEdGraph *graph = (UEdGraph *)self->ue_object;
 	UStruct *u_struct = nullptr;
 
-	if (py_struct && py_struct != Py_None) {
-		if (!ue_is_pyuobject(py_struct)) {
+	if (py_struct && py_struct != Py_None)
+	{
+		if (!ue_is_pyuobject(py_struct))
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 		}
 		ue_PyUObject *ue_py_struct = (ue_PyUObject *)py_struct;
-		if (!ue_py_struct->ue_object->IsA<UStruct>()) {
+		if (!ue_py_struct->ue_object->IsA<UStruct>())
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a UStruct");
 		}
 		u_struct = (UStruct *)ue_py_struct->ue_object;
@@ -266,15 +278,11 @@ PyObject *py_ue_graph_add_node_variable_set(ue_PyUObject * self, PyObject * args
 
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
-
+	Py_RETURN_UOBJECT(node);
 }
 
-PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -283,39 +291,47 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	int y = 0;
 	PyObject *py_data = nullptr;
 	char *metadata = nullptr;
-	if (!PyArg_ParseTuple(args, "O|iisO:graph_add_node", &py_node_class, &x, &y, &metadata, &py_data)) {
+	if (!PyArg_ParseTuple(args, "O|iisO:graph_add_node", &py_node_class, &x, &y, &metadata, &py_data))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>()) {
+	if (!self->ue_object->IsA<UEdGraph>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
 	}
 
 	UEdGraph *graph = (UEdGraph *)self->ue_object;
 
-	if (!ue_is_pyuobject(py_node_class)) {
+	if (!ue_is_pyuobject(py_node_class))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
 	UEdGraphNode *node = nullptr;
 
 	ue_PyUObject *py_obj = (ue_PyUObject *)py_node_class;
-	if (py_obj->ue_object->IsA<UClass>()) {
+	if (py_obj->ue_object->IsA<UClass>())
+	{
 		UClass *u_class = (UClass *)py_obj->ue_object;
-		if (!u_class->IsChildOf<UEdGraphNode>()) {
+		if (!u_class->IsChildOf<UEdGraphNode>())
+		{
 			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
 		}
 		node = (UEdGraphNode *)NewObject<UObject>(graph, u_class);
 		node->PostLoad();
 	}
-	else if (py_obj->ue_object->IsA<UEdGraphNode>()) {
+	else if (py_obj->ue_object->IsA<UEdGraphNode>())
+	{
 		node = (UEdGraphNode *)py_obj->ue_object;
-		if (node->GetOuter() != graph) {
+		if (node->GetOuter() != graph)
+		{
 			node->Rename(*node->GetName(), graph);
 		}
 	}
 
-	if (!node) {
+	if (!node)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a supported type");
 	}
 
@@ -327,63 +343,71 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args) {
 	node->NodePosY = y;
 
 	// do something with data, based on the node type
-	if (node->IsA<UAIGraphNode>()) {
+	if (node->IsA<UAIGraphNode>())
+	{
 		UAIGraphNode *ai_node = (UAIGraphNode *)node;
-		if (py_data) {
+		if (py_data)
+		{
 			FGraphNodeClassData *class_data = ue_py_check_struct<FGraphNodeClassData>(py_data);
-			if (class_data == nullptr) {
+			if (class_data == nullptr)
+			{
 				UE_LOG(LogPython, Warning, TEXT("Unable to manage data argument for UAIGraphNode"));
 			}
-			else {
+			else
+			{
 				ai_node->ClassData = *class_data;
 			}
 		}
 
 	}
 
-	if (metadata == nullptr || strlen(metadata) == 0) {
+	if (metadata == nullptr || strlen(metadata) == 0)
+	{
 		UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
 	}
-	else {
+	else
+	{
 		UEdGraphSchema_K2::SetNodeMetaData(node, FName(UTF8_TO_TCHAR(metadata)));
 	}
 	graph->AddNode(node);
 
-	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
 
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(node);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(node);
 }
 
-PyObject *py_ue_node_pins(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_node_pins(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UEdGraphNode>()) {
+	if (!self->ue_object->IsA<UEdGraphNode>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
 	}
 
 	UEdGraphNode *node = (UEdGraphNode *)self->ue_object;
 
 	PyObject *pins_list = PyList_New(0);
-	for (UEdGraphPin *pin : node->Pins) {
+	for (UEdGraphPin *pin : node->Pins)
+	{
 		PyList_Append(pins_list, (PyObject *)py_ue_new_edgraphpin(pin));
 	}
 	return pins_list;
 }
 
-PyObject *py_ue_node_get_title(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_node_get_title(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	int title_type = ENodeTitleType::FullTitle;
 
-	if (!PyArg_ParseTuple(args, "|i:node_get_title", &title_type)) {
+	if (!PyArg_ParseTuple(args, "|i:node_get_title", &title_type))
+	{
 		return NULL;
 	}
 
@@ -392,11 +416,12 @@ PyObject *py_ue_node_get_title(ue_PyUObject * self, PyObject * args) {
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
 
 	FText title = node->GetNodeTitle((ENodeTitleType::Type)title_type);
-	
+
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(title.ToString())));
 }
 
-PyObject *py_ue_node_allocate_default_pins(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_node_allocate_default_pins(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -410,7 +435,8 @@ PyObject *py_ue_node_allocate_default_pins(ue_PyUObject * self, PyObject * args)
 	return Py_None;
 }
 
-PyObject *py_ue_node_reconstruct(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_node_reconstruct(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -424,23 +450,27 @@ PyObject *py_ue_node_reconstruct(ue_PyUObject * self, PyObject * args) {
 	return Py_None;
 }
 
-PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	char *name = nullptr;
-	if (!PyArg_ParseTuple(args, "s:node_find_pin", &name)) {
+	if (!PyArg_ParseTuple(args, "s:node_find_pin", &name))
+	{
 		return NULL;
 	}
 
-	if (!self->ue_object->IsA<UEdGraphNode>()) {
+	if (!self->ue_object->IsA<UEdGraphNode>())
+	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
 	}
 
 	UEdGraphNode *node = (UEdGraphNode *)self->ue_object;
 
 	UEdGraphPin *pin = node->FindPin(UTF8_TO_TCHAR(name));
-	if (!pin) {
+	if (!pin)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to find pin \"%s\"", name);
 	}
 
@@ -449,7 +479,8 @@ PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args) {
 	return ret;
 }
 
-PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args) {
+PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -457,7 +488,8 @@ PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args) {
 	PyObject *pin_type;
 	char *name = nullptr;
 	int index = 0;
-	if (!PyArg_ParseTuple(args, "iOs|i:node_create_pin", &pin_direction, &pin_type, &name, &index)) {
+	if (!PyArg_ParseTuple(args, "iOs|i:node_create_pin", &pin_direction, &pin_type, &name, &index))
+	{
 		return nullptr;
 	}
 
@@ -471,18 +503,22 @@ PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args) {
 
 	UEdGraphPin *pin = nullptr;
 
-	if (node->IsA<UK2Node_EditablePinBase>()) {
+	if (node->IsA<UK2Node_EditablePinBase>())
+	{
 		UK2Node_EditablePinBase *node_base = (UK2Node_EditablePinBase *)node;
 		pin = node_base->CreateUserDefinedPin(UTF8_TO_TCHAR(name), *pin_struct, (EEdGraphPinDirection)pin_direction);
 	}
-	else {
+	else
+	{
 		pin = node->CreatePin((EEdGraphPinDirection)pin_direction, *pin_struct, UTF8_TO_TCHAR(name), index);
 	}
-	if (!pin) {
+	if (!pin)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to create pin \"%s\"", name);
 	}
 
-	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter())) {
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
 

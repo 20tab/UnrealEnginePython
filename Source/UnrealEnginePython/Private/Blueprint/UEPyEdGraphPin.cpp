@@ -119,14 +119,9 @@ static int py_ue_edgraphpin_set_default_value(ue_PyEdGraphPin *self, PyObject *v
 static PyObject *py_ue_edgraphpin_get_default_object(ue_PyEdGraphPin *self, void *closure) {
 	UObject *u_object = self->pin->DefaultObject;
 	if (!u_object) {
-		Py_INCREF(Py_None);
-		return Py_None;
+		Py_RETURN_NONE;
 	}
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 static int py_ue_edgraphpin_set_default_object(ue_PyEdGraphPin *self, PyObject *value, void *closure) {

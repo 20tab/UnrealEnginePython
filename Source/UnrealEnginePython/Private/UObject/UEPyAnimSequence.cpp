@@ -15,11 +15,7 @@ PyObject *py_ue_anim_get_skeleton(ue_PyUObject * self, PyObject * args) {
 		Py_RETURN_NONE;
 	}
 
-	ue_PyUObject *ret = ue_get_python_wrapper((UObject *)skeleton);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT((UObject *)skeleton);
 }
 
 

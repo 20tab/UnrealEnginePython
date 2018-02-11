@@ -113,7 +113,7 @@ bool UPythonDelegate::Tick(float DeltaTime)
 void UPythonDelegate::PyFOnAssetPostImport(UFactory *factory, UObject *u_object)
 {
 	FScopePythonGIL gil;
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", ue_get_python_wrapper((UObject *)factory), ue_get_python_wrapper(u_object));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", ue_get_python_uobject((UObject *)factory), ue_get_python_uobject(u_object));
 	if (!ret) {
 		unreal_engine_py_log_error();
 		return;

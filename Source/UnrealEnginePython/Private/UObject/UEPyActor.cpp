@@ -159,7 +159,7 @@ PyObject *py_ue_actor_components(ue_PyUObject * self, PyObject * args)
 
 	for (UActorComponent *component : actor->GetComponents())
 	{
-		ue_PyUObject *py_obj = ue_get_python_uobject_noinc(component);
+		ue_PyUObject *py_obj = ue_get_python_uobject(component);
 		if (!py_obj)
 			continue;
 		PyList_Append(ret, (PyObject *)py_obj);
@@ -658,7 +658,7 @@ PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject * args
 
 		if (u_class)
 		{
-			py_obj = ue_get_python_uobject_noinc(u_class);
+			py_obj = ue_get_python_uobject(u_class);
 		}
 	}
 
@@ -707,7 +707,7 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 		if (u_class)
 		{
-			py_obj = ue_get_python_uobject_noinc(u_class);
+			py_obj = ue_get_python_uobject(u_class);
 		}
 	}
 
@@ -725,8 +725,7 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 	for (UActorComponent *component : actor->GetComponentsByClass((UClass *)py_obj->ue_object))
 	{
-		// noinc as list will increase refcnt
-		ue_PyUObject *item = ue_get_python_uobject_noinc(component);
+		ue_PyUObject *item = ue_get_python_uobject(component);
 		if (item)
 			PyList_Append(components, (PyObject *)item);
 	}
@@ -872,7 +871,7 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args)
 
 	for (AActor *overlapping_actor : overalpping_actors)
 	{
-		ue_PyUObject *item = ue_get_python_uobject_noinc(overlapping_actor);
+		ue_PyUObject *item = ue_get_python_uobject(overlapping_actor);
 		if (item)
 		{
 			PyList_Append(py_overlapping_actors, (PyObject *)item);

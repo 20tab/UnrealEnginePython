@@ -27,7 +27,7 @@ void UPyUserWidget::NativeConstruct()
 
 	FScopePythonGIL gil;
 
-	py_uobject = ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_uobject(this);
 	if (!py_uobject) {
 		unreal_engine_py_log_error();
 		return;

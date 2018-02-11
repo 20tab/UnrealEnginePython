@@ -10,11 +10,7 @@ static PyObject *ue_PyUStructsImporter_getattro(ue_PyUStructsImporter *self, PyO
 				if (u_struct) {
 					// swallow old exception
 					PyErr_Clear();
-					ue_PyUObject *u_ret = ue_get_python_wrapper(u_struct);
-					if (!u_ret)
-						return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-					Py_INCREF(u_ret);
-					return (PyObject *)u_ret;
+					Py_RETURN_UOBJECT(u_struct);
 				}
 			}
 		}
