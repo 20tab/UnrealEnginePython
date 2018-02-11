@@ -2,27 +2,32 @@
 
 #include "UEPyFPointerEvent.h"
 
-static PyObject *py_ue_fpointer_event_get_effecting_button(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_effecting_button(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FKey key = self->pointer.GetEffectingButton();
 	return py_ue_new_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
 }
 
-static PyObject *py_ue_fpointer_event_get_effecting_button_name(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_effecting_button_name(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FKey key = self->pointer.GetEffectingButton();
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*key.ToString()));
 }
 
-static PyObject *py_ue_fpointer_event_get_wheel_delta(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_wheel_delta(ue_PyFPointerEvent *self, PyObject * args)
+{
 	float delta = self->pointer.GetWheelDelta();
 	return PyFloat_FromDouble(delta);
 }
 
-static PyObject *py_ue_fpointer_event_get_cursor_delta(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_cursor_delta(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FVector2D delta = self->pointer.GetCursorDelta();
 	return Py_BuildValue((char *)"(ff)", delta.X, delta.Y);
 }
 
-static PyObject *py_ue_fpointer_event_get_screen_space_position(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_screen_space_position(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FVector2D pos = self->pointer.GetScreenSpacePosition();
 	return Py_BuildValue((char *)"(ff)", pos.X, pos.Y);
 }
@@ -73,7 +78,8 @@ static PyTypeObject ue_PyFPointerEventType = {
 	ue_PyFPointerEvent_methods,             /* tp_methods */
 };
 
-void ue_python_init_fpointer_event(PyObject *ue_module) {
+void ue_python_init_fpointer_event(PyObject *ue_module)
+{
 
 	ue_PyFPointerEventType.tp_base = &ue_PyFInputEventType;
 
@@ -84,9 +90,17 @@ void ue_python_init_fpointer_event(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FPointerEvent", (PyObject *)&ue_PyFPointerEventType);
 }
 
-PyObject *py_ue_new_fpointer_event(FPointerEvent pointer) {
+PyObject *py_ue_new_fpointer_event(FPointerEvent pointer)
+{
 	ue_PyFPointerEvent *ret = (ue_PyFPointerEvent *)PyObject_New(ue_PyFPointerEvent, &ue_PyFPointerEventType);
 	new(&ret->pointer) FPointerEvent(pointer);
 	new(&ret->f_input.input) FInputEvent(pointer);
 	return (PyObject *)ret;
+}
+
+ue_PyFPointerEvent *py_ue_is_fpointer_event(PyObject *obj)
+{
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFPointerEventType))
+		return nullptr;
+	return (ue_PyFPointerEvent *)obj;
 }

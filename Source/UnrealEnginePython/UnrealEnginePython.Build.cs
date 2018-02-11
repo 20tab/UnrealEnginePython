@@ -370,7 +370,7 @@ public class UnrealEnginePython : ModuleRules
         // first try with python3
         for (int i = 9; i >= 0; i--)
         {
-            string fileName = string.Format("python3{0}_d.lib", i);
+            string fileName = string.Format("python3{0}.lib", i);
             string fullPath = Path.Combine(basePath, "libs", fileName);
             if (File.Exists(fullPath))
             {

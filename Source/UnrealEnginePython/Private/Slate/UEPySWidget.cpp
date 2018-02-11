@@ -36,34 +36,34 @@ static PyObject *py_ue_swidget_set_visibility(ue_PySWidget *self, PyObject * arg
 		return nullptr;
 	}
 
-    if (!PyNumber_Check(py_object))
-    {
-        return PyErr_Format(PyExc_Exception, "argument is not a ESlateVisibility");
-    }
+	if (!PyNumber_Check(py_object))
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a ESlateVisibility");
+	}
 
-    PyObject *py_value = PyNumber_Long(py_object);
-    ESlateVisibility slateVisibility = (ESlateVisibility)PyLong_AsLong(py_value);
-    Py_DECREF(py_value);
+	PyObject *py_value = PyNumber_Long(py_object);
+	ESlateVisibility slateVisibility = (ESlateVisibility)PyLong_AsLong(py_value);
+	Py_DECREF(py_value);
 
-    EVisibility visibility;
-    switch (slateVisibility)
-    {
-    case ESlateVisibility::Visible:
-        visibility = EVisibility::Visible;
-        break;
-    case ESlateVisibility::Collapsed:
-        visibility = EVisibility::Collapsed;
-        break;
-    case ESlateVisibility::Hidden:
-        visibility = EVisibility::Hidden;
-        break;
-    case ESlateVisibility::HitTestInvisible:
-        visibility = EVisibility::HitTestInvisible;
-        break;
-    case ESlateVisibility::SelfHitTestInvisible:
-        visibility = EVisibility::SelfHitTestInvisible;
-        break;
-    }
+	EVisibility visibility;
+	switch (slateVisibility)
+	{
+	case ESlateVisibility::Visible:
+		visibility = EVisibility::Visible;
+		break;
+	case ESlateVisibility::Collapsed:
+		visibility = EVisibility::Collapsed;
+		break;
+	case ESlateVisibility::Hidden:
+		visibility = EVisibility::Hidden;
+		break;
+	case ESlateVisibility::HitTestInvisible:
+		visibility = EVisibility::HitTestInvisible;
+		break;
+	case ESlateVisibility::SelfHitTestInvisible:
+		visibility = EVisibility::SelfHitTestInvisible;
+		break;
+	}
 
 	self->s_widget->SetVisibility(visibility);
 
@@ -258,6 +258,36 @@ static PyObject *py_ue_swidget_invalidate(ue_PySWidget *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_swidget_on_mouse_button_down(ue_PySWidget *self, PyObject * args)
+{
+	PyObject *py_geometry;
+	PyObject *py_pointer_event;
+	if (!PyArg_ParseTuple(args, "OO:on_mouse_button_down", &py_geometry, &py_pointer_event))
+	{
+		return nullptr;
+	}
+
+	ue_PyFGeometry *geometry = py_ue_is_fgeometry(py_geometry);
+	if (!geometry)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a FGeomtry");
+	}
+
+	ue_PyFPointerEvent *pointer = py_ue_is_fpointer_event(py_pointer_event);
+	if (!pointer)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a FPointerEvent");
+	}
+
+	FReply reply = self->s_widget->OnMouseButtonDown(geometry->geometry, pointer->pointer);
+
+	if (reply.IsEventHandled())
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
 
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_shared_reference_count", (PyCFunction)py_ue_swidget_get_shared_reference_count, METH_VARARGS, "" },
@@ -276,6 +306,7 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "bind_on_mouse_double_click", (PyCFunction)py_ue_swidget_bind_on_mouse_double_click, METH_VARARGS, "" },
 	{ "bind_on_mouse_move", (PyCFunction)py_ue_swidget_bind_on_mouse_move, METH_VARARGS, "" },
 #endif
+	{ "on_mouse_button_down", (PyCFunction)py_ue_swidget_on_mouse_button_down, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

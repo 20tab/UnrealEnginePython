@@ -298,6 +298,6 @@ APyActor::~APyActor()
 	UE_LOG(LogPython, Warning, TEXT("Python AActor %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->py_proxy : nullptr);
 #endif
 
-	// this could trigger the distruction of the python/uobject mapper
+	// this could trigger the destruction of the python/uobject mapper
 	Py_XDECREF(py_uobject);
 }
