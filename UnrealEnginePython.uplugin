@@ -17,17 +17,17 @@
   "Modules": [
     {
       "Name": "UnrealEnginePython",
-      "Type": "Developer",
+      "Type": "RuntimeNoCommandlet",
       "LoadingPhase": "Default"
     },
     {
       "Name": "PythonConsole",
-      "Type": "Editor",
+      "Type": "EditorNoCommandlet",
       "LoadingPhase": "PostDefault"
     },
     {
       "Name": "PythonEditor",
-      "Type": "Editor",
+      "Type": "EditorNoCommandlet",
       "LoadingPhase": "PostDefault"
     }
   ],

@@ -157,6 +157,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 
+    { "is_editor", py_unreal_engine_is_editor, METH_VARARGS, "" },
+    { "is_running_game", py_unreal_engine_is_running_game, METH_VARARGS, "" },
+    { "is_running_commandlet", py_unreal_engine_is_running_commandlet, METH_VARARGS, "" },
+    { "is_running_dedicated_server", py_unreal_engine_is_running_dedicated_server, METH_VARARGS, "" },
+
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
 

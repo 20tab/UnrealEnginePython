@@ -1,5 +1,6 @@
-#if WITH_EDITOR
 #include "UnrealEnginePythonPrivatePCH.h"
+
+#if WITH_EDITOR
 
 #if ENGINE_MINOR_VERSION > 14
 

@@ -7,6 +7,12 @@
 PyObject *py_unreal_engine_log(PyObject *, PyObject *);
 PyObject *py_unreal_engine_log_warning(PyObject *, PyObject *);
 PyObject *py_unreal_engine_log_error(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_is_editor(PyObject *, PyObject *);
+PyObject *py_unreal_engine_is_running_game(PyObject *, PyObject *);
+PyObject *py_unreal_engine_is_running_commandlet(PyObject *, PyObject *);
+PyObject *py_unreal_engine_is_running_dedicated_server(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject *, PyObject *);
 PyObject *py_unreal_engine_print_string(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_forward_vector(PyObject *, PyObject *);

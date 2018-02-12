@@ -69,6 +69,54 @@ PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args)
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_is_editor(PyObject * self, PyObject * args)
+{
+    if (GIsEditor)
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
+PyObject *py_unreal_engine_is_running_game(PyObject * self, PyObject * args)
+{
+    if (IsRunningGame())
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
+PyObject *py_unreal_engine_is_running_commandlet(PyObject * self, PyObject * args)
+{
+    if (IsRunningCommandlet())
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
+PyObject *py_unreal_engine_is_running_dedicated_server(PyObject * self, PyObject * args)
+{
+    if (IsRunningDedicatedServer())
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
 PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args)
 {
 	int key;
