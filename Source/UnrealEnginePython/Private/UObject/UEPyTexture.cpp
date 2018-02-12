@@ -426,12 +426,12 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args)
 	char *name;
 	int width;
 	int height;
-	bool useAlpha;
-	bool useSRGB;
-	TextureCompressionSettings compressionSettings;
+	PyObject *useAlpha = Py_True;
+	PyObject *useSRGB = Py_True;
+	TextureCompressionSettings compressionSettings = TextureCompressionSettings::TC_Default;
 	Py_buffer py_buf;
 
-	if (!PyArg_ParseTuple(args, "Osiiz*ppi:create_texture", &py_package, &name, &width, &height, &py_buf, &useAlpha, &useSRGB, &compressionSettings))
+	if (!PyArg_ParseTuple(args, "Osiiz*|OOi:create_texture", &py_package, &name, &width, &height, &py_buf, &useAlpha, &useSRGB, &compressionSettings))
 	{
 		return nullptr;
 	}
@@ -455,9 +455,10 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args)
 
 	TArray<FColor> colors;
 	colors.AddZeroed(wanted_len);
+
 	FCreateTexture2DParameters params;
-	params.bUseAlpha = useAlpha;
-	params.bSRGB = useSRGB;
+	params.bUseAlpha = PyObject_IsTrue(useAlpha) != 0;
+	params.bSRGB = PyObject_IsTrue(useSRGB) != 0;
 	params.CompressionSettings = compressionSettings;
 
 	if ((SIZE_T)py_buf.len < wanted_len)
