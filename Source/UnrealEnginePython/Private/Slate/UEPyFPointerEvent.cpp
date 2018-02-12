@@ -2,27 +2,32 @@
 
 #include "UEPyFPointerEvent.h"
 
-static PyObject *py_ue_fpointer_event_get_effecting_button(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_effecting_button(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FKey key = self->pointer.GetEffectingButton();
 	return py_ue_new_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
 }
 
-static PyObject *py_ue_fpointer_event_get_effecting_button_name(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_effecting_button_name(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FKey key = self->pointer.GetEffectingButton();
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*key.ToString()));
 }
 
-static PyObject *py_ue_fpointer_event_get_wheel_delta(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_wheel_delta(ue_PyFPointerEvent *self, PyObject * args)
+{
 	float delta = self->pointer.GetWheelDelta();
 	return PyFloat_FromDouble(delta);
 }
 
-static PyObject *py_ue_fpointer_event_get_cursor_delta(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_cursor_delta(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FVector2D delta = self->pointer.GetCursorDelta();
 	return Py_BuildValue((char *)"(ff)", delta.X, delta.Y);
 }
 
-static PyObject *py_ue_fpointer_event_get_screen_space_position(ue_PyFPointerEvent *self, PyObject * args) {
+static PyObject *py_ue_fpointer_event_get_screen_space_position(ue_PyFPointerEvent *self, PyObject * args)
+{
 	FVector2D pos = self->pointer.GetScreenSpacePosition();
 	return Py_BuildValue((char *)"(ff)", pos.X, pos.Y);
 }
@@ -73,9 +78,61 @@ static PyTypeObject ue_PyFPointerEventType = {
 	ue_PyFPointerEvent_methods,             /* tp_methods */
 };
 
-void ue_python_init_fpointer_event(PyObject *ue_module) {
+static int ue_py_fpointer_event_init(ue_PyFPointerEvent *self, PyObject *args, PyObject *kwargs)
+{
+	int pointer_index;
+	float ssp_x;
+	float ssp_y;
+	float lssp_x;
+	float lssp_y;
+	char *effecting;
+	float wheel_delta;
+	PyObject *py_modifier = nullptr;
+
+	if (!PyArg_ParseTuple(args, "i(ff)(ff)s|fO",
+		&pointer_index,
+		&ssp_x,
+		&ssp_y,
+		&lssp_x,
+		&lssp_y,
+		&effecting,
+		&wheel_delta,
+		&py_modifier))
+	{
+		return -1;
+	}
+
+	TSet<FKey> keys;
+
+	FModifierKeysState modifier;
+	if (py_modifier)
+	{
+		ue_PyFModifierKeysState *f_modifier = py_ue_is_fmodifier_keys_state(py_modifier);
+		if (!f_modifier)
+		{
+			PyErr_SetString(PyExc_Exception, "argument is not a FModifierKeysState");
+			return -1;
+		}
+		modifier = f_modifier->modifier;
+	}
+
+	FPointerEvent Event(pointer_index,
+		FVector2D(ssp_x, ssp_y),
+		FVector2D(lssp_x, lssp_y),
+		keys,
+		FKey(effecting), wheel_delta, modifier);
+
+	new(&self->pointer) FPointerEvent(Event);
+	new(&self->f_input.input) FInputEvent(Event);
+
+	return 0;
+}
+
+void ue_python_init_fpointer_event(PyObject *ue_module)
+{
 
 	ue_PyFPointerEventType.tp_base = &ue_PyFInputEventType;
+	ue_PyFPointerEventType.tp_init = (initproc)ue_py_fpointer_event_init;
 
 	if (PyType_Ready(&ue_PyFPointerEventType) < 0)
 		return;
@@ -84,9 +141,17 @@ void ue_python_init_fpointer_event(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FPointerEvent", (PyObject *)&ue_PyFPointerEventType);
 }
 
-PyObject *py_ue_new_fpointer_event(FPointerEvent pointer) {
+PyObject *py_ue_new_fpointer_event(FPointerEvent pointer)
+{
 	ue_PyFPointerEvent *ret = (ue_PyFPointerEvent *)PyObject_New(ue_PyFPointerEvent, &ue_PyFPointerEventType);
 	new(&ret->pointer) FPointerEvent(pointer);
 	new(&ret->f_input.input) FInputEvent(pointer);
 	return (PyObject *)ret;
+}
+
+ue_PyFPointerEvent *py_ue_is_fpointer_event(PyObject *obj)
+{
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFPointerEventType))
+		return nullptr;
+	return (ue_PyFPointerEvent *)obj;
 }

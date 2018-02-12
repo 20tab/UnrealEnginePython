@@ -79,15 +79,27 @@ static PyMethodDef ue_PyEdGraphPin_methods[] = {
 };
 
 static PyObject *py_ue_edgraphpin_get_name(ue_PyEdGraphPin *self, void *closure) {
+#if ENGINE_MINOR_VERSION > 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName.ToString())));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName)));
+#endif
 }
 
 static PyObject *py_ue_edgraphpin_get_category(ue_PyEdGraphPin *self, void *closure) {
+#if ENGINE_MINOR_VERSION > 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory.ToString())));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory)));
+#endif
 }
 
 static PyObject *py_ue_edgraphpin_get_sub_category(ue_PyEdGraphPin *self, void *closure) {
+#if ENGINE_MINOR_VERSION > 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory.ToString())));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory)));
+#endif
 }
 
 static PyObject *py_ue_edgraphpin_get_default_value(ue_PyEdGraphPin *self, void *closure) {
@@ -107,14 +119,9 @@ static int py_ue_edgraphpin_set_default_value(ue_PyEdGraphPin *self, PyObject *v
 static PyObject *py_ue_edgraphpin_get_default_object(ue_PyEdGraphPin *self, void *closure) {
 	UObject *u_object = self->pin->DefaultObject;
 	if (!u_object) {
-		Py_INCREF(Py_None);
-		return Py_None;
+		Py_RETURN_NONE;
 	}
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 static int py_ue_edgraphpin_set_default_object(ue_PyEdGraphPin *self, PyObject *value, void *closure) {
@@ -139,7 +146,11 @@ static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 static PyObject *ue_PyEdGraphPin_str(ue_PyEdGraphPin *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.EdGraphPin {'name': '%s', 'type': '%s'}>",
+#if ENGINE_MINOR_VERSION > 18
+		TCHAR_TO_UTF8(*self->pin->PinName.ToString()), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory.ToString()));
+#else
 		TCHAR_TO_UTF8(*self->pin->PinName), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory));
+#endif
 }
 
 static PyTypeObject ue_PyEdGraphPinType = {

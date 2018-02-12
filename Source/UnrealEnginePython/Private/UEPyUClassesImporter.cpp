@@ -15,11 +15,7 @@ static PyObject *ue_PyUClassesImporter_getattro(ue_PyUClassesImporter *self, PyO
 				{
 					// swallow old exception
 					PyErr_Clear();
-					ue_PyUObject *u_ret = ue_get_python_wrapper(u_class);
-					if (!u_ret)
-						return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-					Py_INCREF(u_ret);
-					return (PyObject *)u_ret;
+					Py_RETURN_UOBJECT(u_class);
 				}
 			}
 		}

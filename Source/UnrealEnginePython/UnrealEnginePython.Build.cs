@@ -16,7 +16,6 @@ public class UnrealEnginePython : ModuleRules
     // on Linux an include;libs syntax is expected:
     //private string pythonHome = "/usr/local/include/python3.6;/usr/local/lib/libpython3.6.so"
 
-
     private string[] windowsKnownPaths =
     {
         "../../../../../ThirdParty/Python3",
@@ -82,6 +81,7 @@ public class UnrealEnginePython : ModuleRules
     {
         Definitions.Add("WITH_KNL_PYEXT=1");
 
+
         PublicIncludePaths.AddRange(
             new string[] {
                 "UnrealEnginePython/Public",
@@ -140,8 +140,11 @@ public class UnrealEnginePython : ModuleRules
 			}
             );
 
-
+#if WITH_FORWARDED_MODULE_RULES_CTOR
+        if (Target.bBuildEditor)
+#else
         if (UEBuildConfiguration.bBuildEditor)
+#endif
         {
             PrivateDependencyModuleNames.AddRange(new string[]{
                 "UnrealEd",
@@ -184,33 +187,6 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetWindowsPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicAdditionalLibraries.Add(libPath);
-
-            // copy the dlls into the plugins dlls folder, so they don't have to be on the path
-            string dllsDir = Path.Combine(ModuleDirectory, "../../Binaries", Target.Platform == UnrealTargetPlatform.Win32 ? "Win32" : "Win64");
-            try
-            {
-                string[] dllsToCopy =
-                {
-                    "python3.dll",
-                    "python36.dll"
-                };
-                foreach (string dllToCopy in dllsToCopy)
-                {
-                    // If the dll exist, make sure to set attributes so they are actually accessible
-                    if (File.Exists(Path.Combine(dllsDir, dllToCopy)))
-                    {
-                        File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
-                    }
-
-                    File.Copy(Path.Combine(pythonHome, dllToCopy), Path.Combine(dllsDir, dllToCopy), true);
-                    File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
-                }
-            }
-            catch(System.IO.IOException) { }
-            catch(System.UnauthorizedAccessException)
-            {
-                System.Console.WriteLine("WARNING: Unable to copy python dlls, they are probably in use...");
-            }
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
@@ -284,7 +260,7 @@ public class UnrealEnginePython : ModuleRules
         foreach (string path in paths)
         {
             string actualPath = path;
-            
+
             if (IsPathRelative(actualPath))
             {
                 actualPath = Path.GetFullPath(Path.Combine(ModuleDirectory, actualPath));

@@ -6,13 +6,7 @@
 
 static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * args)
 {
-	PyObject *ret = (PyObject *)ue_get_python_wrapper(self->asset_data.GetAsset());
-	if (!ret)
-	{
-		return PyErr_Format(PyExc_Exception, "unable to get UObject from asset");
-	}
-	Py_INCREF(ret);
-	return ret;
+	Py_RETURN_UOBJECT(self->asset_data.GetAsset());
 }
 
 static PyObject *py_ue_fassetdata_is_asset_loaded(ue_PyFAssetData *self, PyObject * args)
@@ -48,7 +42,11 @@ static PyObject *py_ue_fassetdata_get_thumbnail(ue_PyFAssetData *self, PyObject 
 static PyObject *py_ue_fassetdata_has_custom_thumbnail(ue_PyFAssetData *self, PyObject * args)
 {
 
+#if ENGINE_MINOR_VERSION > 18
+	if (!ThumbnailTools::AssetHasCustomThumbnail(self->asset_data.GetFullName()))
+#else
 	if (!ThumbnailTools::AssetHasCustomThumbnail(self->asset_data))
+#endif
 	{
 		Py_RETURN_FALSE;
 	}

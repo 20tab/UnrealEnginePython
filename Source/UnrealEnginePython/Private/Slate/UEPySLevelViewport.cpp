@@ -8,18 +8,16 @@
 
 #define sw_level_viewport StaticCastSharedRef<SLevelViewport>(self->s_editor_viewport.s_compound_widget.s_widget.s_widget)
 
-static PyObject *py_ue_slevel_viewport_get_world(ue_PySLevelViewport *self, PyObject * args) {
-
-	ue_PyUObject *ret = ue_get_python_wrapper(sw_level_viewport->GetWorld());
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+static PyObject *py_ue_slevel_viewport_get_world(ue_PySLevelViewport *self, PyObject * args)
+{
+	Py_RETURN_UOBJECT(sw_level_viewport->GetWorld());
 }
 
-static PyObject *py_ue_slevel_viewport_set_show_bounds(ue_PySLevelViewport *self, PyObject * args) {
+static PyObject *py_ue_slevel_viewport_set_show_bounds(ue_PySLevelViewport *self, PyObject * args)
+{
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "O:set_show_bounds", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "O:set_show_bounds", &py_bool))
+	{
 		return NULL;
 	}
 
@@ -29,9 +27,11 @@ static PyObject *py_ue_slevel_viewport_set_show_bounds(ue_PySLevelViewport *self
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_slevel_viewport_set_show_stats(ue_PySLevelViewport *self, PyObject * args) {
+static PyObject *py_ue_slevel_viewport_set_show_stats(ue_PySLevelViewport *self, PyObject * args)
+{
 	PyObject *py_bool;
-	if (!PyArg_ParseTuple(args, "O:set_show_stats", &py_bool)) {
+	if (!PyArg_ParseTuple(args, "O:set_show_stats", &py_bool))
+	{
 		return NULL;
 	}
 
@@ -41,9 +41,11 @@ static PyObject *py_ue_slevel_viewport_set_show_stats(ue_PySLevelViewport *self,
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_slevel_viewport_set_view_mode(ue_PySLevelViewport *self, PyObject * args) {
+static PyObject *py_ue_slevel_viewport_set_view_mode(ue_PySLevelViewport *self, PyObject * args)
+{
 	int mode;
-	if (!PyArg_ParseTuple(args, "i:set_view_mode", &mode)) {
+	if (!PyArg_ParseTuple(args, "i:set_view_mode", &mode))
+	{
 		return NULL;
 	}
 
@@ -53,14 +55,17 @@ static PyObject *py_ue_slevel_viewport_set_view_mode(ue_PySLevelViewport *self, 
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_slevel_viewport_set_exposure_settings(ue_PySPythonEditorViewport *self, PyObject * args) {
+static PyObject *py_ue_slevel_viewport_set_exposure_settings(ue_PySPythonEditorViewport *self, PyObject * args)
+{
 	PyObject *py_settings;
-	if (!PyArg_ParseTuple(args, "O:set_exposure_settings", &py_settings)) {
+	if (!PyArg_ParseTuple(args, "O:set_exposure_settings", &py_settings))
+	{
 		return NULL;
 	}
 
 	FExposureSettings *settings = ue_py_check_struct<FExposureSettings>(py_settings);
-	if (!settings) {
+	if (!settings)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FExposureSettings");
 	}
 
@@ -120,7 +125,8 @@ PyTypeObject ue_PySLevelViewportType = {
 	ue_PySLevelViewport_methods,             /* tp_methods */
 };
 
-static int ue_py_slevel_viewport_init(ue_PySLevelViewport *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_slevel_viewport_init(ue_PySLevelViewport *self, PyObject *args, PyObject *kwargs)
+{
 
 	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
@@ -130,7 +136,7 @@ static int ue_py_slevel_viewport_init(ue_PySLevelViewport *self, PyObject *args,
 
 	ue_py_slate_farguments_optional_bool("realtime", Realtime);
 	ue_py_slate_farguments_optional_enum("viewport_type", ViewportType, ELevelViewportType);
-	
+
 	ue_py_snew(SLevelViewport, s_editor_viewport.s_compound_widget.s_widget);
 
 	EditorModule.GetFirstLevelEditor()->AddStandaloneLevelViewport(sw_level_viewport);
@@ -138,7 +144,8 @@ static int ue_py_slevel_viewport_init(ue_PySLevelViewport *self, PyObject *args,
 	return 0;
 }
 
-void ue_python_init_slevel_viewport(PyObject *ue_module) {
+void ue_python_init_slevel_viewport(PyObject *ue_module)
+{
 
 	ue_PySLevelViewportType.tp_init = (initproc)ue_py_slevel_viewport_init;
 

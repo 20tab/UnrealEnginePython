@@ -27,7 +27,7 @@ void UPyUserWidget::NativeConstruct()
 
 	FScopePythonGIL gil;
 
-	py_uobject = ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_uobject(this);
 	if (!py_uobject) {
 		unreal_engine_py_log_error();
 		return;
@@ -365,7 +365,7 @@ UPyUserWidget::~UPyUserWidget()
 	Py_XDECREF(py_user_widget_instance);
 
 #if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Python UUserWidget %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
+	UE_LOG(LogPython, Warning, TEXT("Python UUserWidget %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->py_proxy : nullptr);
 #endif
 
 	// this could trigger the distruction of the python/uobject mapper

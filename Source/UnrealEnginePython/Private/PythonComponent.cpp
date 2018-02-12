@@ -24,7 +24,7 @@ void UPythonComponent::InitializePythonComponent() {
 
 	FScopePythonGIL gil;
 
-	py_uobject = ue_get_python_wrapper(this);
+	py_uobject = ue_get_python_uobject(this);
 	if (!py_uobject) {
 		unreal_engine_py_log_error();
 		return;
@@ -191,7 +191,7 @@ void UPythonComponent::SetPythonAttrObject(FString attr, UObject *object)
 
 	FScopePythonGIL gil;
 
-	ue_PyUObject *py_obj = ue_get_python_wrapper(object);
+	ue_PyUObject *py_obj = ue_get_python_uobject(object);
 	if (!py_obj) {
 		PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 		unreal_engine_py_log_error();
@@ -425,7 +425,7 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
 	else {
-		PyObject *py_arg_uobject = (PyObject *)ue_get_python_wrapper(arg);
+		PyObject *py_arg_uobject = (PyObject *)ue_get_python_uobject(arg);
 		if (!py_arg_uobject) {
 			unreal_engine_py_log_error();
 			return nullptr;
@@ -566,7 +566,7 @@ UPythonComponent::~UPythonComponent()
 	Py_XDECREF(py_component_instance);
 
 #if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->ue_object : nullptr);
+	UE_LOG(LogPython, Warning, TEXT("Python UActorComponent %p (mapped to %p) wrapper XDECREF'ed"), this, py_uobject ? py_uobject->py_proxy : nullptr);
 #endif
 
 	// this could trigger the distruction of the python/uobject mapper

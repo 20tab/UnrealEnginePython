@@ -276,11 +276,7 @@ PyObject *py_unreal_engine_create_world(PyObject * self, PyObject * args)
 
 	UWorld *world = UWorld::CreateWorld((EWorldType::Type)world_type, false);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(world);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(world);
 }
 
 PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args)
@@ -296,11 +292,7 @@ PyObject *py_unreal_engine_find_class(PyObject * self, PyObject * args)
 	if (!u_class)
 		return PyErr_Format(PyExc_Exception, "unable to find class %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_class);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_class);
 }
 
 PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args)
@@ -316,12 +308,7 @@ PyObject *py_unreal_engine_find_enum(PyObject * self, PyObject * args)
 	if (!u_enum)
 		return PyErr_Format(PyExc_Exception, "unable to find enum %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_enum);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-
+	Py_RETURN_UOBJECT(u_enum);
 }
 
 PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
@@ -337,35 +324,31 @@ PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
 	if (!u_package)
 		return PyErr_Format(PyExc_Exception, "unable to load package %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_package);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_package);
 }
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 {
-    PyObject *obj;
-    if (!PyArg_ParseTuple(args, "O:unload_package", &obj))
-    {
-        return NULL;
-    }
+	PyObject *obj;
+	if (!PyArg_ParseTuple(args, "O:unload_package", &obj))
+	{
+		return NULL;
+	}
 
-    UPackage* packageToUnload = ue_py_check_type<UPackage>(obj);
-    if (!packageToUnload)
-    {
-        return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
-    }
+	UPackage* packageToUnload = ue_py_check_type<UPackage>(obj);
+	if (!packageToUnload)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+	}
 
-    FText outErrorMsg;
-    if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
-    {
-        return PyErr_Format(PyExc_Exception, TCHAR_TO_UTF8(*outErrorMsg.ToString()));
-    }
+	FText outErrorMsg;
+	if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+	{
+		return PyErr_Format(PyExc_Exception, TCHAR_TO_UTF8(*outErrorMsg.ToString()));
+	}
 
-    Py_RETURN_NONE;
+	Py_RETURN_NONE;
 }
 #endif
 
@@ -387,11 +370,7 @@ PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args)
 	if (!u_class)
 		return PyErr_Format(PyExc_Exception, "unable to find class %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_class);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_class);
 }
 
 PyObject *py_unreal_engine_load_enum(PyObject * self, PyObject * args)
@@ -412,11 +391,7 @@ PyObject *py_unreal_engine_load_enum(PyObject * self, PyObject * args)
 	if (!u_enum)
 		return PyErr_Format(PyExc_Exception, "unable to find enum %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_enum);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_enum);
 }
 
 PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args)
@@ -432,12 +407,7 @@ PyObject *py_unreal_engine_find_struct(PyObject * self, PyObject * args)
 	if (!u_struct)
 		return PyErr_Format(PyExc_Exception, "unable to find struct %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-
+	Py_RETURN_UOBJECT(u_struct);
 }
 
 PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args)
@@ -458,12 +428,7 @@ PyObject *py_unreal_engine_load_struct(PyObject * self, PyObject * args)
 	if (!u_struct)
 		return PyErr_Format(PyExc_Exception, "unable to find struct %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_struct);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
-
+	Py_RETURN_UOBJECT(u_struct);
 }
 
 
@@ -499,11 +464,7 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args)
 	if (!u_object)
 		return PyErr_Format(PyExc_Exception, "unable to load object %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_object);
 
 }
 
@@ -588,11 +549,7 @@ PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args)
 	if (!u_object)
 		return PyErr_Format(PyExc_Exception, "unable to find object %s", name);
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_object);
 }
 
 
@@ -602,7 +559,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	PyObject *obj;
 	PyObject *py_outer = NULL;
 	char *name = nullptr;
-    uint64 flags = (uint64)(RF_Public | RF_Standalone);
+	uint64 flags = (uint64)(RF_Public | RF_Standalone);
 	if (!PyArg_ParseTuple(args, "O|OsK:new_object", &obj, &py_outer, &name, &flags))
 	{
 		return NULL;
@@ -647,11 +604,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 
 	new_object->PostLoad();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(new_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(new_object);
 }
 
 PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
@@ -679,11 +632,7 @@ PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
 	if (!mutable_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 
-	ue_PyUObject *ret = ue_get_python_wrapper(mutable_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(mutable_object);
 }
 
 
@@ -715,11 +664,7 @@ PyObject *py_unreal_engine_new_class(PyObject * self, PyObject * args)
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create UClass");
 
-	ue_PyUObject *ret = ue_get_python_wrapper(new_object);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(new_object);
 }
 
 PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args)
@@ -729,7 +674,7 @@ PyObject *py_unreal_engine_all_classes(PyObject * self, PyObject * args)
 
 	for (TObjectIterator<UClass> Itr; Itr; ++Itr)
 	{
-		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
+		ue_PyUObject *py_obj = ue_get_python_uobject(*Itr);
 		if (!py_obj)
 			continue;
 		PyList_Append(ret, (PyObject *)py_obj);
@@ -742,7 +687,7 @@ PyObject *py_unreal_engine_all_worlds(PyObject * self, PyObject * args)
 	PyObject *ret = PyList_New(0);
 	for (TObjectIterator<UWorld> Itr; Itr; ++Itr)
 	{
-		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
+		ue_PyUObject *py_obj = ue_get_python_uobject(*Itr);
 		if (!py_obj)
 			continue;
 		PyList_Append(ret, (PyObject *)py_obj);
@@ -771,7 +716,7 @@ PyObject *py_unreal_engine_tobject_iterator(PyObject * self, PyObject * args)
 		if (!(*Itr)->IsA(u_class))
 			continue;
 
-		ue_PyUObject *py_obj = ue_get_python_wrapper(*Itr);
+		ue_PyUObject *py_obj = ue_get_python_uobject(*Itr);
 		if (!py_obj)
 			continue;
 		PyList_Append(ret, (PyObject *)py_obj);
@@ -1075,11 +1020,7 @@ PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args)
 	u_package->FullyLoad();
 	u_package->MarkPackageDirty();
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_package);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_package);
 }
 
 PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args)
@@ -1105,21 +1046,12 @@ PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args
 		u_package->MarkPackageDirty();
 	}
 
-	ue_PyUObject *ret = ue_get_python_wrapper(u_package);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(u_package);
 }
 
 PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args)
 {
-
-	ue_PyUObject *ret = ue_get_python_wrapper(GetTransientPackage());
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(GetTransientPackage());
 }
 
 PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args)
@@ -1197,7 +1129,7 @@ PyObject *py_unreal_engine_open_directory_dialog(PyObject *self, PyObject * args
 
 PyObject *py_unreal_engine_open_font_dialog(PyObject *self, PyObject * args)
 {
-	
+
 	IDesktopPlatform *DesktopPlatform = FDesktopPlatformModule::Get();
 	if (!DesktopPlatform)
 		return PyErr_Format(PyExc_Exception, "unable to get reference to DesktopPlatform module");

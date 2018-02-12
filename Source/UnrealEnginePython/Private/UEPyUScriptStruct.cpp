@@ -58,11 +58,7 @@ static PyObject *py_ue_uscriptstruct_fields(ue_PyUScriptStruct *self, PyObject *
 
 static PyObject *py_ue_uscriptstruct_get_struct(ue_PyUScriptStruct *self, PyObject * args)
 {
-	ue_PyUObject *ret = ue_get_python_wrapper(self->u_struct);
-	if (!ret)
-		return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-	Py_INCREF(ret);
-	return (PyObject *)ret;
+	Py_RETURN_UOBJECT(self->u_struct);
 }
 
 static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * args)

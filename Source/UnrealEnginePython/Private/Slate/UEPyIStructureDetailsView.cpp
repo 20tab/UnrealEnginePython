@@ -98,7 +98,7 @@ static PyMethodDef ue_PyIStructureDetailsView_methods[] = {
 static void ue_PyIStructureDetailsView_dealloc(ue_PyIStructureDetailsView *self)
 {
 #if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyIStructureDetailsView %p mapped to IStructureDetailsView %p"), self, &self->istructure_details_view.Get());
+	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyIStructureDetailsView %p mapped to IStructureDetailsView %p"), self, self->istructure_details_view.Get());
 #endif
 	Py_DECREF(self->ue_py_struct);
 	Py_TYPE(self)->tp_free((PyObject *)self);

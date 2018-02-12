@@ -90,10 +90,14 @@ int PyGILState_Check();
 #endif
 bool PyUnicodeOrString_Check(PyObject *py_obj);
 
-#define Py_RETURN_UOBJECT(py_uobj) ue_PyUObject *ret = ue_get_python_wrapper(py_uobj);\
+#define Py_RETURN_UOBJECT(py_uobj) ue_PyUObject *ret = ue_get_python_uobject_inc(py_uobj);\
 	if (!ret)\
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
-	Py_INCREF(ret);\
+	return (PyObject *)ret;
+
+#define Py_RETURN_UOBJECT_NOINC(py_uobj) ue_PyUObject *ret = ue_get_python_uobject(py_uobj);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
 	return (PyObject *)ret;
 
 #if ENGINE_MINOR_VERSION < 16

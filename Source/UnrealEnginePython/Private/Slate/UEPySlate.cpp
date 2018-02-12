@@ -870,6 +870,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_fpointer_event(module);
 	ue_python_init_fkey_event(module);
 	ue_python_init_fcharacter_event(module);
+	ue_python_init_fmodifier_keys_state(module);
     ue_python_init_eslate_enums(module);
 }
 
