@@ -187,6 +187,35 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetWindowsPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicAdditionalLibraries.Add(libPath);
+
+            // @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - Workaround for our deployment process
+            // copy the dlls into the plugins dlls folder, so they don't have to be on the path
+            string dllsDir = Path.Combine(ModuleDirectory, "../../Binaries", Target.Platform == UnrealTargetPlatform.Win32 ? "Win32" : "Win64");
+            try
+            {
+                string[] dllsToCopy =
+                {
+                    "python3.dll",
+                    "python36.dll"
+                };
+                foreach (string dllToCopy in dllsToCopy)
+                {
+                    // If the dll exist, make sure to set attributes so they are actually accessible
+                    if (File.Exists(Path.Combine(dllsDir, dllToCopy)))
+                    {
+                        File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
+                    }
+
+                    File.Copy(Path.Combine(pythonHome, dllToCopy), Path.Combine(dllsDir, dllToCopy), true);
+                    File.SetAttributes(Path.Combine(dllsDir, dllToCopy), FileAttributes.Normal);
+                }
+            }
+            catch (System.IO.IOException) { }
+            catch (System.UnauthorizedAccessException)
+            {
+                System.Console.WriteLine("WARNING: Unable to copy python dlls, they are probably in use...");
+            }
+            // @third party code - END Bebylon
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
