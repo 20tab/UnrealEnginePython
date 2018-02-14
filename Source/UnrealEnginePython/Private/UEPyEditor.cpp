@@ -1404,7 +1404,7 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility))
 	{
 		return NULL;
-}
+	}
 
 	if (!ue_is_pyuobject(py_blueprint))
 	{
@@ -1678,12 +1678,10 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
 	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	FEditorDelegates::OnAssetPostImport.AddUObject(py_delegate, &UPythonDelegate::PyFOnAssetPostImport);
-	Py_INCREF(Py_None);
-	return Py_None;
+	FEditorDelegates::OnAssetPostImport.AddSP(py_delegate, &FPythonSmartDelegate::PyFOnAssetPostImport);
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * args)

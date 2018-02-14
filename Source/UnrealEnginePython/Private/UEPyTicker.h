@@ -8,7 +8,6 @@ typedef struct {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 	FDelegateHandle dhandle;
-	UPythonDelegate *py_delegate;
 	bool garbaged;
 } ue_PyFDelegateHandle;
 

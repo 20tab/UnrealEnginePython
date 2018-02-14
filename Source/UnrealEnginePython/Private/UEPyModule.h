@@ -2,6 +2,7 @@
 
 #include "UnrealEnginePython.h"
 #include "PythonDelegate.h"
+#include "PythonSmartDelegate.h"
 #include "UEPyUScriptStruct.h"
 #include <map>
 #include <list>

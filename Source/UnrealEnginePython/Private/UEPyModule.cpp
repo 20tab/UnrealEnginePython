@@ -2156,7 +2156,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2211,7 +2211,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
@@ -3102,10 +3102,10 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 				prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-		}
+			}
 #endif
+		}
 	}
-}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);

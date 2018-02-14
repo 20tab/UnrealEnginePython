@@ -3,18 +3,15 @@
 #include "UnrealEnginePython.h"
 
 #include "Runtime/Core/Public/HAL/IConsoleManager.h"
-#include "UEPyIConsoleManager.generated.h"
 
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
+	/* Type-specific fields go here. */
 } ue_PyIConsoleManager;
 
-UCLASS()
-class UPythonConsoleDelegate : public UPythonDelegate
+class FPythonSmartConsoleDelegate : public FPythonSmartDelegate
 {
-	GENERATED_BODY()
 
 public:
 	void OnConsoleCommand(const TArray < FString > &InArgs);
