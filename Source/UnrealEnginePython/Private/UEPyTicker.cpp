@@ -11,6 +11,12 @@ static void ue_pyfdelegatehandle_dealloc(ue_PyFDelegateHandle *self)
 		// useless ;)
 		self->garbaged = true;
 	}
+
+	if (self->delegate_ptr.IsValid())
+	{
+		self->delegate_ptr.Reset();
+	}
+
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -55,6 +61,7 @@ void ue_python_init_fdelegatehandle(PyObject *ue_module)
 	PyModule_AddObject(ue_module, "FDelegateHandle", (PyObject *)&ue_PyFDelegateHandleType);
 }
 
+
 PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args)
 {
 
@@ -68,20 +75,25 @@ PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args)
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not a callable");
 
+	ue_PyFDelegateHandle *ret = (ue_PyFDelegateHandle *)PyObject_New(ue_PyFDelegateHandle, &ue_PyFDelegateHandleType);
+	if (!ret)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to allocate FDelegateHandle python object");
+	}
+
 	FTickerDelegate ticker_delegate;
 	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
 	py_delegate->SetPyCallable(py_callable);
 
 	ticker_delegate.BindSP(py_delegate, &FPythonSmartDelegate::Tick);
 
-	FDelegateHandle dhandle = FTicker::GetCoreTicker().AddTicker(ticker_delegate, delay);
-	ue_PyFDelegateHandle *ret = (ue_PyFDelegateHandle *)PyObject_New(ue_PyFDelegateHandle, &ue_PyFDelegateHandleType);
-	if (!ret)
+	ret->dhandle = FTicker::GetCoreTicker().AddTicker(ticker_delegate, delay);
+	if (!ret->dhandle.IsValid())
 	{
-		FTicker::GetCoreTicker().RemoveTicker(dhandle);
-		return PyErr_Format(PyExc_Exception, "unable to allocate FDelegateHandle python object");
+		Py_DECREF(ret);
+		return PyErr_Format(PyExc_Exception, "unable to add FTicker");
 	}
-	ret->dhandle = dhandle;
+	new(&ret->delegate_ptr) TSharedPtr<FPythonSmartDelegate>(py_delegate);
 	ret->garbaged = false;
 	return (PyObject *)ret;
 }
@@ -104,6 +116,10 @@ PyObject *py_unreal_engine_remove_ticker(PyObject * self, PyObject * args)
 	{
 		FTicker::GetCoreTicker().RemoveTicker(py_handle->dhandle);
 		py_handle->garbaged = true;
+		if (py_handle->delegate_ptr.IsValid())
+		{
+			py_handle->delegate_ptr.Reset();
+		}
 	}
 
 	Py_RETURN_NONE;
