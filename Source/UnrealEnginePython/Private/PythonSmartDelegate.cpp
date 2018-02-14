@@ -33,6 +33,18 @@ bool FPythonSmartDelegate::Tick(float DeltaTime)
 	return false;
 }
 
+void FPythonSmartDelegate::Void()
+{
+	FScopePythonGIL gil;
+	PyObject *ret = PyObject_CallFunction(py_callable, nullptr);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+
 #if WITH_EDITOR
 void FPythonSmartDelegate::PyFOnAssetPostImport(UFactory *factory, UObject *u_object)
 {

@@ -284,8 +284,6 @@ APyActor::~APyActor()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_actor_instance && py_actor_instance->ob_refcnt != 1)
 	{
@@ -299,5 +297,9 @@ APyActor::~APyActor()
 #endif
 
 	// this could trigger the destruction of the python/uobject mapper
+	if (py_uobject)
+	{
+		UE_LOG(LogPython, Error, TEXT("UObject refcnt = %d"), py_uobject->ob_base.ob_refcnt);
+	}
 	Py_XDECREF(py_uobject);
 }

@@ -239,8 +239,6 @@ APyPawn::~APyPawn()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_pawn_instance && py_pawn_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python APawn wrapper refcnt = %d"), py_pawn_instance->ob_refcnt);

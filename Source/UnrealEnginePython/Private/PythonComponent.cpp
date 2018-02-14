@@ -556,8 +556,6 @@ UPythonComponent::~UPythonComponent()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_component_instance && py_component_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UActorComponent wrapper refcnt = %d"), py_component_instance->ob_refcnt);

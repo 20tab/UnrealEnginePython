@@ -81,13 +81,76 @@ static PyObject *init_unreal_engine(void)
 }
 #endif
 
-std::map<UObject *, ue_PyUObject *> ue_python_gc;
+namespace UnrealEnginePythonHouseKeeper
+{
+	std::map<UObject *, ue_PyUObject *> u_object_py_mapping;
+
+	struct FPythonDelegateTracker
+	{
+		FWeakObjectPtr owner;
+		UPythonDelegate *delegate;
+
+		FPythonDelegateTracker(UPythonDelegate *delegate_to_track, UObject *delegate_owner) : owner(delegate_owner), delegate(delegate_to_track)
+		{
+		}
+
+		~FPythonDelegateTracker()
+		{
+		}
+	};
+
+	std::list<FPythonDelegateTracker> py_delegates_tracker;
+};
+
+static void ue_py_delegates_gc()
+{
+	auto &lst = UnrealEnginePythonHouseKeeper::py_delegates_tracker;
+	for (auto itr = lst.begin(); itr != lst.end(); /*noop*/)
+		//for (auto itr = lst.begin(); itr != lst.end(); ++itr)
+	{
+		/*if (itr->owner.IsValid())
+		{
+			UE_LOG(LogPython, Error, TEXT("Delegate for %s"), *itr->owner.Get()->GetName());
+		}
+		else
+		{
+			UE_LOG(LogPython, Error, TEXT("Found bad delegate"));
+		}
+		*/
+		if (!itr->owner.IsValid())
+		{
+			itr->delegate->RemoveFromRoot();
+			itr = lst.erase(itr);
+		}
+		else
+			++itr;
+	}
+}
+
+UPythonDelegate *ue_py_new_delegate(UObject *owner, PyObject *py_callable, UFunction *signature)
+{
+	// TODO: do a round of gc only if enough time passed 
+	ue_py_delegates_gc();
+
+	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+	if (!py_delegate)
+		return nullptr;
+
+	py_delegate->AddToRoot();
+	py_delegate->SetPyCallable(py_callable);
+	py_delegate->SetSignature(signature);
+
+	UnrealEnginePythonHouseKeeper::FPythonDelegateTracker tracker(py_delegate, owner);
+	UnrealEnginePythonHouseKeeper::py_delegates_tracker.push_back(tracker);
+
+	return py_delegate;
+}
 
 
 static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args)
 {
 	std::list<UObject *> broken_list;
-	for (auto it : ue_python_gc)
+	for (auto it : UnrealEnginePythonHouseKeeper::u_object_py_mapping)
 	{
 #if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("Checking for UObject at %p"), it.first);
@@ -100,12 +163,17 @@ static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args)
 #endif
 			broken_list.push_back(u_obj);
 		}
+		else
+		{
+			UE_LOG(LogPython, Error, TEXT("UObject at %p %s is in use"), u_obj, *u_obj->GetName());
+		}
 	}
+	/*
 	for (UObject *u_obj : broken_list)
 	{
-		ue_PyUObject *py_obj = ue_python_gc.at(u_obj);
+		ue_PyUObject *py_obj = UnrealEnginePythonHouseKeeper::u_object_py_mapping.at(u_obj);
 		Py_DECREF(py_obj);
-	}
+	}*/
 
 	return PyLong_FromLong(broken_list.size());
 
@@ -975,43 +1043,21 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-void ue_pydelegates_cleanup(ue_PyUObject *self)
-{
-	// this could happen during engine shutdown, so have mercy
-	// start deallocating delegates mapped to the object
-	if (!self || !self->python_delegates_gc)
-		return;
-	UE_LOG(LogPython, Warning, TEXT("Delegates = %d"), self->python_delegates_gc->size());
-	for (UPythonDelegate *py_delegate : *(self->python_delegates_gc))
-	{
-		if (py_delegate && py_delegate->IsValidLowLevel())
-		{
-#if defined(UEPY_MEMORY_DEBUG)
-			UE_LOG(LogPython, Warning, TEXT("Removing UPythonDelegate %p from ue_PyUObject %p mapped to UObject %p"), py_delegate, self, self->ue_object);
-#endif
-			py_delegate->RemoveFromRoot();
-		}
-	}
-	self->python_delegates_gc->clear();
-	delete self->python_delegates_gc;
-	self->python_delegates_gc = nullptr;
 
-	if (self->auto_rooted && self->ue_object->IsRooted())
+// destructor
+static void ue_pyobject_dealloc(ue_PyUObject *self)
+{
+	PyObject_GC_UnTrack(self);
+#if defined(UEPY_MEMORY_DEBUG)
+	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
+#endif
+	if (self->auto_rooted && (self->ue_object && self->ue_object->IsValidLowLevel() && self->ue_object->IsRooted()))
 	{
 		self->ue_object->RemoveFromRoot();
 	}
 
 	Py_XDECREF(self->py_dict);
-}
-
-// destructor
-static void ue_pyobject_dealloc(ue_PyUObject *self)
-{
-#if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
-#endif
-	ue_pydelegates_cleanup(self);
-	ue_python_gc.erase(self->ue_object);
+	UnrealEnginePythonHouseKeeper::u_object_py_mapping.erase(self->ue_object);
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -1162,6 +1208,12 @@ static PyObject *ue_PyUObject_str(ue_PyUObject *self)
 #endif
 }
 
+static int ue_PyUObject_traverse(ue_PyUObject *self, visitproc visit, void *arg)
+{
+	UE_LOG(LogPython, Error, TEXT("TRAVERSING %p"), self);
+	return 0;
+}
+
 static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject *kw)
 {
 	// if it is a class, create a new object
@@ -1277,9 +1329,9 @@ static PyTypeObject ue_PyUObjectType = {
 	(getattrofunc)ue_PyUObject_getattro, /* tp_getattro */
 	(setattrofunc)ue_PyUObject_setattro, /* tp_setattro */
 	0,                         /* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT,        /* tp_flags */
+	Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_GC,        /* tp_flags */
 	"Unreal Engine generic UObject",           /* tp_doc */
-	0,                         /* tp_traverse */
+	(traverseproc)ue_PyUObject_traverse,                         /* tp_traverse */
 	0,                         /* tp_clear */
 	0,                         /* tp_richcompare */
 	0,                         /* tp_weaklistoffset */
@@ -1727,12 +1779,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 									FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(ObjectInitializer.GetObj());
 
 									FScriptDelegate script_delegate;
-									UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-									py_delegate->SetPyCallable(mc_value);
-									py_delegate->SetSignature(casted_prop->SignatureFunction);
-									// avoid delegates to be destroyed by the GC
-									py_delegate->AddToRoot();
-
+									UPythonDelegate *py_delegate = ue_py_new_delegate(ObjectInitializer.GetObj(), mc_value, casted_prop->SignatureFunction);
 									// fake UFUNCTION for bypassing checks
 									script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
@@ -2100,21 +2147,21 @@ ue_PyUObject *ue_get_python_uobject(UObject *ue_obj)
 {
 	if (!ue_obj || !ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
 		return nullptr;
-	std::map<UObject *, ue_PyUObject *>::iterator it = ue_python_gc.find(ue_obj);
+	std::map<UObject *, ue_PyUObject *>::iterator it = UnrealEnginePythonHouseKeeper::u_object_py_mapping.find(ue_obj);
 	// not found ??
-	if (it == ue_python_gc.end())
+	if (it == UnrealEnginePythonHouseKeeper::u_object_py_mapping.end())
 	{
 
-		ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
+		//ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
+		ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_GC_New(ue_PyUObject, &ue_PyUObjectType);
 		if (!ue_py_object)
 		{
 			return nullptr;
 		}
 		ue_py_object->ue_object = ue_obj;
-		ue_py_object->python_delegates_gc = new std::list<UPythonDelegate *>;
 		ue_py_object->py_dict = PyDict_New();
 
-		ue_python_gc[ue_obj] = ue_py_object;
+		UnrealEnginePythonHouseKeeper::u_object_py_mapping[ue_obj] = ue_py_object;
 
 #if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p %s"), ue_py_object, ue_obj, *ue_obj->GetName());
@@ -2211,7 +2258,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
@@ -3235,13 +3282,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
 
 		FScriptDelegate script_delegate;
-		UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-		py_delegate->SetPyCallable(py_callable);
-		py_delegate->SetSignature(casted_prop->SignatureFunction);
-		// avoid delegates to be destroyed by the GC
-		py_delegate->AddToRoot();
-		u_obj->python_delegates_gc->push_back(py_delegate);
-
+		UPythonDelegate *py_delegate = ue_py_new_delegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 

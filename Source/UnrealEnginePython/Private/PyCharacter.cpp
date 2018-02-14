@@ -443,8 +443,6 @@ APyCharacter::~APyCharacter()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_character_instance && py_character_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python ACharacter wrapper refcnt = %d"), py_character_instance->ob_refcnt);

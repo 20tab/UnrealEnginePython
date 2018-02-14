@@ -355,8 +355,6 @@ UPyUserWidget::~UPyUserWidget()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_user_widget_instance && py_user_widget_instance->ob_refcnt != 1) {
 		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UUserWidget wrapper refcnt = %d"), py_user_widget_instance->ob_refcnt);

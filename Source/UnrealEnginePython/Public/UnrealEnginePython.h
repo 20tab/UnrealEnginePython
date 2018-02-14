@@ -13,6 +13,9 @@
 #include "Runtime/SlateCore/Public/Styling/ISlateStyle.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
 
+#include <map>
+#include <list>
+
 // We need to make sure reference structs do not mistaken for callable
 #define PyCalllable_Check_Extended(value) PyCallable_Check(value) && py_ue_is_uscriptstruct(value) == nullptr
 
@@ -59,7 +62,10 @@ private:
 	TSharedPtr<FSlateStyleSet> StyleSet;
 };
 
-struct FScopePythonGIL {
+
+
+struct FScopePythonGIL
+{
 	FScopePythonGIL()
 	{
 #if defined(UEPY_THREADING)
@@ -71,7 +77,8 @@ struct FScopePythonGIL {
 	~FScopePythonGIL()
 	{
 #if defined(UEPY_THREADING)
-		if (safeForRelease) {
+		if (safeForRelease)
+		{
 			UnrealEnginePythonModule.PythonGILRelease();
 		}
 #endif

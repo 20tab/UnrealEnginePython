@@ -14,6 +14,7 @@ public:
 
 
 	bool Tick(float DeltaTime);
+	void Void();
 
 #if WITH_EDITOR
 	void PyFOnAssetPostImport(UFactory *factory, UObject *u_object);

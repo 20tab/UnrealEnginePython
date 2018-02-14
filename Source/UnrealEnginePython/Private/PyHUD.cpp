@@ -242,8 +242,6 @@ APyHUD::~APyHUD()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
 #if defined(UEPY_MEMORY_DEBUG)
 	if (py_hud_instance && py_hud_instance->ob_refcnt != 1)
 	{

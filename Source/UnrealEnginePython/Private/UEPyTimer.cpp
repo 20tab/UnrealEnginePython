@@ -108,14 +108,10 @@ PyObject *py_ue_set_timer(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
 	FTimerDelegate timer_delegate;
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
+	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
 	py_delegate->SetPyCallable(py_callable);
-	// fake UFUNCTION for bypassing checks
-	timer_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
-	// allow the delegate to not be destroyed
-	py_delegate->AddToRoot();
-	self->python_delegates_gc->push_back(py_delegate);
+	timer_delegate.BindSP(py_delegate, &FPythonSmartDelegate::Void);
 
 	FTimerHandle thandle;
 	world->GetTimerManager().SetTimer(thandle, timer_delegate, rate, loop, first_delay);

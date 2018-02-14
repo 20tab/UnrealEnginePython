@@ -2,6 +2,7 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 #include "PythonBlueprintFunctionLibrary.h"
+#include "PythonCanary.h"
 #include "HAL/IConsoleManager.h"
 #if ENGINE_MINOR_VERSION < 13
 #include "ClassIconFinder.h"
@@ -338,6 +339,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	// release the GIL
 	PythonGILRelease();
 
+	NewObject<UPythonCanary>();
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()

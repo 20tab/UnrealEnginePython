@@ -10,6 +10,7 @@ typedef struct {
 	FTimerHandle thandle;
 	PyObject *py_callable;
 	UWorld *world;
+	TSharedPtr<FTimerDelegate> delegate_ptr;
 } ue_PyFTimerHandle;
 
 PyObject *py_ue_set_timer(ue_PyUObject *, PyObject *);
