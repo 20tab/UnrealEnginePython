@@ -245,7 +245,6 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "close_all_asset_editors", py_unreal_engine_close_all_asset_editors, METH_VARARGS, "" },
 	{ "allow_actor_script_execution_in_editor", py_unreal_engine_allow_actor_script_execution_in_editor , METH_VARARGS, "" },
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
-	{ "console_exec", py_unreal_engine_console_exec, METH_VARARGS, "" },
 	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
@@ -406,6 +405,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "clipboard_copy", py_unreal_engine_clipboard_copy, METH_VARARGS, "" },
 	{ "clipboard_paste", py_unreal_engine_clipboard_paste, METH_VARARGS, "" },
+    { "console_exec", py_unreal_engine_console_exec, METH_VARARGS, "" },
 
 #pragma warning(suppress: 4191)
 	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
@@ -506,6 +506,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "set_name", (PyCFunction)py_ue_set_name, METH_VARARGS, "" },
 
+	{ "clear_event", (PyCFunction)py_ue_clear_event, METH_VARARGS, "" },
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
 
 	{ "get_py_proxy", (PyCFunction)py_ue_get_py_proxy, METH_VARARGS, "" },
@@ -1729,7 +1730,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 							{
 								if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 								{
-									FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(ObjectInitializer.GetObj());
+									FMulticastScriptDelegate* multiscript_delegate = casted_prop->GetPropertyValuePtr_InContainer(ObjectInitializer.GetObj());
 
 									FScriptDelegate script_delegate;
 									UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
@@ -1742,10 +1743,11 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 									script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
 									// add the new delegate
-									multiscript_delegate.Add(script_delegate);
+									multiscript_delegate->Add(script_delegate);
 
-									// re-assign multicast delegate
-									casted_prop->SetPropertyValue_InContainer(ObjectInitializer.GetObj(), multiscript_delegate);
+                                    // Should not be needed anymore
+									//// re-assign multicast delegate
+									//casted_prop->SetPropertyValue_InContainer(ObjectInitializer.GetObj(), multiscript_delegate);
 								}
 								else
 								{
@@ -3237,7 +3239,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 	{
-		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
+		FMulticastScriptDelegate* multiscript_delegate = casted_prop->GetPropertyValuePtr_InContainer(u_obj->ue_object);
 
 		FScriptDelegate script_delegate;
 		UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
@@ -3251,10 +3253,11 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
 		// add the new delegate
-		multiscript_delegate.Add(script_delegate);
+		multiscript_delegate->Add(script_delegate);
 
-		// re-assign multicast delegate
-		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
+        // Should not be needed anymore
+		//// re-assign multicast delegate
+		//casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
 	}
 	else
 	{
