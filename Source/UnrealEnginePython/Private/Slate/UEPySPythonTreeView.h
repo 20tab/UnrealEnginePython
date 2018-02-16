@@ -16,7 +16,7 @@ public:
 
 	void SetPythonItemExpansion(PyObject *item, bool InShouldExpandItem);
 
-    TSharedPtr<struct FPythonItem> const* SPythonTreeView::Find(PyObject *item);
+    TSharedPtr<struct FPythonItem> const* Find(PyObject *item);
 };
 
 typedef struct

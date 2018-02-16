@@ -1295,3 +1295,49 @@ PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardPaste(clipboard);
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
 }
+PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)
+{
+
+    char *command;
+
+
+    if (!PyArg_ParseTuple(args, "s:console_exec", &command))
+    {
+        return NULL;
+    }
+
+    FWorldContext* worldContext = nullptr;
+#if WITH_EDITOR
+    if (!GEditor)
+        return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+    worldContext = GEditor->GetPIEWorldContext();
+    worldContext = worldContext ? worldContext : &GEditor->GetEditorWorldContext();
+    if (!worldContext)
+    {
+        // error!
+        return NULL;
+    }
+    GEditor->Exec(worldContext->World(), UTF8_TO_TCHAR(command), *GLog);
+#else
+#include "Engine/Engine.h"
+    extern ENGINE_API class UEngine* GEngine;
+    for (auto Context : GEngine->GetWorldContexts())
+    {
+        if (Context.World()->IsGameWorld())
+        {
+            worldContext = &Context;
+            break;
+        }
+    }
+
+    if (!worldContext)
+    {
+        // error!
+        return NULL;
+    }
+    GEngine->Exec(worldContext->World(), UTF8_TO_TCHAR(command), *GLog);
+#endif
+
+    Py_RETURN_NONE;
+}

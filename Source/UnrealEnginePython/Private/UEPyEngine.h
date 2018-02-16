@@ -89,6 +89,7 @@ PyObject *py_unreal_engine_open_directory_dialog(PyObject *, PyObject *);
 PyObject *py_unreal_engine_save_file_dialog(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_copy_properties_for_unrelated_objects(PyObject *, PyObject *, PyObject *);
+PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args);
 
 #if WITH_EDITOR
 PyObject *py_unreal_engine_editor_get_active_viewport_screenshot(PyObject *, PyObject *);

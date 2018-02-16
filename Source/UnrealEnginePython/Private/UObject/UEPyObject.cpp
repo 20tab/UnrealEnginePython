@@ -1177,6 +1177,32 @@ PyObject *py_ue_remove_from_root(ue_PyUObject *self, PyObject * args)
 	return Py_None;
 }
 
+PyObject *py_ue_clear_event(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *event_name;
+	if (!PyArg_ParseTuple(args, "s:clear_events", &event_name))
+	{
+		return NULL;
+	}
+
+	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(*FString(event_name)));
+	if (!u_property)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(*FString(event_name)));
+	}
+
+	if (UMulticastDelegateProperty* casted_prop = Cast<UMulticastDelegateProperty>(u_property))
+	{
+		FMulticastScriptDelegate* multiscript_delegate = casted_prop->GetPropertyValuePtr_InContainer(self->ue_object);
+		multiscript_delegate->Clear();
+        Py_RETURN_NONE;
+	}
+
+	return PyErr_Format(PyExc_Exception, "property %s is not an event", TCHAR_TO_UTF8(*FString(event_name)));
+}
+
 PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args)
 {
 
