@@ -244,6 +244,28 @@ PyTypeObject ue_PyUScriptStructType = {
 	0,
 };
 
+
+void ue_py_uscriptstruct_alloc(ue_PyUScriptStruct *self, UScriptStruct* in_u_struct, uint8 const* in_src_data, bool keep_src_ptr)
+{
+    self->u_struct      = in_u_struct;
+	self->data          = (uint8*)FMemory::Malloc(self->u_struct->GetStructureSize());
+	self->u_struct->InitializeStruct(self->data);
+
+    if (in_src_data)
+    {
+        self->u_struct->CopyScriptStruct(self->data, in_src_data);
+    }
+    else
+    {
+#if WITH_EDITOR
+	    self->u_struct->InitializeDefaultValue(self->data);
+#endif
+    }
+
+	self->original_data = keep_src_ptr && in_src_data ? const_cast<uint8*>(in_src_data) : self->data;
+	self->is_ptr        = 0;
+}
+
 static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, PyObject *kwargs)
 {
 	PyObject *py_struct;
@@ -262,20 +284,8 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 		PyErr_SetString(PyExc_Exception, "argument is not a UScriptStruct");
 		return -1;
 	}
-    ue_py_uscriptstruct_alloc(self, (UScriptStruct *)py_u_obj->ue_object);
+    ue_py_uscriptstruct_alloc(self, (UScriptStruct *)py_u_obj->ue_object, nullptr, false);
 	return 0;
-}
-
-void ue_py_uscriptstruct_alloc(ue_PyUScriptStruct *self, UScriptStruct* in_u_struct)
-{
-    self->u_struct      = in_u_struct;
-	self->data          = (uint8*)FMemory::Malloc(self->u_struct->GetStructureSize());
-	self->u_struct->InitializeStruct(self->data);
-#if WITH_EDITOR
-	self->u_struct->InitializeDefaultValue(self->data);
-#endif
-	self->original_data = self->data;
-	self->is_ptr        = 0;
 }
 
 static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, PyObject *py_obj, int op)
@@ -336,9 +346,7 @@ void ue_python_init_uscriptstruct(PyObject *ue_module)
 PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, uint8 *in_data)
 {
 	ue_PyUScriptStruct* ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
-    ue_py_uscriptstruct_alloc(ret, u_struct);
-	ret->u_struct->CopyScriptStruct(ret->data, in_data);
-	ret->original_data      = in_data;
+    ue_py_uscriptstruct_alloc(ret, u_struct, in_data, true);
 	return (PyObject *)ret;
 }
 

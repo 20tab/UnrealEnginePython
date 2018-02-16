@@ -23,6 +23,7 @@ static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, 
 	ue_PyFTransform *py_transform = py_ue_is_ftransform(py_obj);
 	if (!py_transform)
 		return PyErr_Format(PyExc_Exception, "argument is not a FTransform");
+
 	return py_ue_new_ftransform(py_ue_ftransform_get(self).GetRelativeTransform(py_ue_ftransform_get(py_transform)));
 }
 
@@ -109,9 +110,9 @@ static PyGetSetDef ue_PyFTransform_getseters[] = {
 
 static PyObject *ue_PyFTransform_str(ue_PyFTransform *self)
 {
-	FVector vec = py_ue_ftransform_get(self).GetTranslation();
-	FRotator rot = py_ue_ftransform_get(self).Rotator();
-	FVector scale = py_ue_ftransform_get(self).GetScale3D();
+	FVector  vec   = py_ue_ftransform_get(self).GetTranslation();
+	FRotator rot   = py_ue_ftransform_get(self).Rotator();
+	FVector  scale = py_ue_ftransform_get(self).GetScale3D();
 
 	return PyUnicode_FromFormat("<unreal_engine.FTransform {'translation': (%S, %S, %S), 'rotation': (%S, %S, %S), 'scale': (%S, %S, %S)}>",
 		PyFloat_FromDouble(vec.X),
@@ -170,7 +171,7 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 		return -1;
 	}
 
-    ue_py_uscriptstruct_alloc(&self->py_base, TBaseStructure<FTransform>::Get());
+    ue_py_uscriptstruct_alloc(&self->py_base, TBaseStructure<FTransform>::Get(), nullptr, false);
 
 	if (py_translation)
 	{
@@ -292,6 +293,7 @@ void ue_python_init_ftransform(PyObject *ue_module)
 	ue_PyFTransformType.tp_new = PyType_GenericNew;
 
 	ue_PyFTransformType.tp_init = (initproc)ue_py_ftransform_init;
+    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
     ue_PyFTransformType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
 
 	memset(&ue_PyFTransform_number_methods, 0, sizeof(PyNumberMethods));
@@ -309,48 +311,20 @@ void ue_python_init_ftransform(PyObject *ue_module)
 
 PyObject *py_ue_new_ftransform(const FTransform& transform)
 {
-	//ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
-	//ret->transform = transform;
-	//return (PyObject *)ret;
-
-    ue_PyFTransform *xfm_ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
+    ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
     
-    {
-        ue_PyUScriptStruct *ret  = (ue_PyUScriptStruct *)xfm_ret;
-        UScriptStruct *u_struct  = TBaseStructure<FTransform>::Get();
-        uint8 const * const data = (uint8 const*)&transform;
+    ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FTransform>::Get(), (uint8 const*)&transform, false);
 
-        ret->u_struct           = u_struct;
-        uint8 *struct_data      = (uint8*)FMemory::Malloc(u_struct->GetStructureSize());
-        ret->u_struct->InitializeStruct(struct_data);
-        ret->u_struct->CopyScriptStruct(struct_data, data);
-        ret->data               = struct_data;
-        ret->original_data      = struct_data;
-        ret->is_ptr             = 0;
-    }
-
-    return (PyObject *)xfm_ret;
+    return (PyObject *)ret;
 }
 
 PyObject* py_ue_new_ftransform_ptr(FTransform* transform_ptr)
 {
-    ue_PyFTransform *xfm_ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
+    ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
 
-    {
-        ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)xfm_ret;
-        UScriptStruct *u_struct = TBaseStructure<FTransform>::Get();
-        uint8 *data             = (uint8*)transform_ptr;
+    ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FTransform>::Get(), (uint8*)transform_ptr, true);
 
-        ret->u_struct           = u_struct;
-        uint8 *struct_data      = (uint8*)FMemory::Malloc(u_struct->GetStructureSize());
-        ret->u_struct->InitializeStruct(struct_data);
-        ret->u_struct->CopyScriptStruct(struct_data, data);
-        ret->data               = struct_data;
-        ret->original_data      = data;
-        ret->is_ptr             = 0;
-    }
-
-    return (PyObject *)xfm_ret;
+    return (PyObject *)ret;
 }
 
 ue_PyFTransform *py_ue_is_ftransform(PyObject *obj)

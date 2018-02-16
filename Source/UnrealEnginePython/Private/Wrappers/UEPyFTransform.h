@@ -7,10 +7,6 @@
 extern PyTypeObject ue_PyUScriptStructType;
 
 typedef struct {
-	//PyObject_HEAD
-	///* Type-specific fields go here. */
-	//FTransform transform;
-
     ue_PyUScriptStruct py_base;
 } ue_PyFTransform;
 
