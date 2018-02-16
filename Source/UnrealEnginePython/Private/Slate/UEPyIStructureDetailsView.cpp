@@ -52,7 +52,7 @@ static PyObject *py_ue_istructure_details_view_set_structure_data(ue_PyIStructur
 	Py_XDECREF(self->ue_py_struct);
 	self->ue_py_struct = ue_py_struct;
 	Py_INCREF(self->ue_py_struct);
-	TSharedPtr<FStructOnScope> struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, ue_py_struct->data);
+	TSharedPtr<FStructOnScope> struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, py_ue_uscriptstruct_get_data(ue_py_struct));
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	self->istructure_details_view->SetStructureData(struct_scope);
 
@@ -196,7 +196,7 @@ static int ue_py_istructure_details_view_init(ue_PyIStructureDetailsView *self, 
 
 	self->ue_py_struct = ue_py_struct;
 	Py_INCREF(self->ue_py_struct);
-	TSharedPtr<FStructOnScope> struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, ue_py_struct->data);
+	TSharedPtr<FStructOnScope> struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, py_ue_uscriptstruct_get_data(ue_py_struct));
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	self->istructure_details_view = PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope);
 

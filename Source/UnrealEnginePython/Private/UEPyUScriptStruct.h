@@ -16,7 +16,14 @@ typedef struct
 
 PyObject *py_ue_new_uscriptstruct(UScriptStruct *, uint8 *);
 PyObject *py_ue_wrap_uscriptstruct(UScriptStruct *, uint8 *);
+void ue_py_uscriptstruct_alloc(ue_PyUScriptStruct *, UScriptStruct *);
+PyObject *ue_py_uscriptstruct_get_ptr(ue_PyUScriptStruct *, PyObject *);
 ue_PyUScriptStruct *py_ue_is_uscriptstruct(PyObject *);
+
+inline uint8* py_ue_uscriptstruct_get_data(ue_PyUScriptStruct *py_u_struct)
+{
+    return (uint8*)(py_u_struct->is_ptr ? py_u_struct->original_data : py_u_struct->data);
+}
 
 UProperty *ue_struct_get_field_from_name(UScriptStruct *, char *);
 

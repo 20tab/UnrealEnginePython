@@ -2376,8 +2376,8 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer)
 			}
 			if (casted_struct == TBaseStructure<FTransform>::Get())
 			{
-				FTransform transform = *casted_prop->ContainerPtrToValuePtr<FTransform>(buffer);
-				return py_ue_new_ftransform(transform);
+				FTransform* transform_ptr = casted_prop->ContainerPtrToValuePtr<FTransform>(buffer);
+				return py_ue_new_ftransform_ptr(transform_ptr);
 			}
 			if (casted_struct == FHitResult::StaticStruct())
 			{
@@ -2784,7 +2784,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 		{
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get())
 			{
-				*casted_prop->ContainerPtrToValuePtr<FTransform>(buffer) = py_transform->transform;
+				*casted_prop->ContainerPtrToValuePtr<FTransform>(buffer) = py_ue_ftransform_get(py_transform);
 				return true;
 			}
 		}
@@ -2839,7 +2839,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 			if (casted_prop->Struct == py_u_struct->u_struct)
 			{
 				uint8 *dest = casted_prop->ContainerPtrToValuePtr<uint8>(buffer);
-				FMemory::Memcpy(dest, py_u_struct->data, py_u_struct->u_struct->GetStructureSize());
+				FMemory::Memcpy(dest, py_ue_uscriptstruct_get_data(py_u_struct), py_u_struct->u_struct->GetStructureSize());
 				return true;
 			}
 		}
@@ -3226,6 +3226,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 	return Py_None;
 }
 
+
 PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property)
 {
 
@@ -3610,7 +3611,7 @@ FGuid *ue_py_check_fguid(PyObject *py_obj)
 
 	if (ue_py_struct->u_struct == FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")))
 	{
-		return (FGuid*)ue_py_struct->data;
+		return (FGuid*)(py_ue_uscriptstruct_get_data(ue_py_struct));
 	}
 
 	return nullptr;
@@ -3625,7 +3626,7 @@ uint8 * do_ue_py_check_struct(PyObject *py_obj, UScriptStruct* chk_u_struct)
 
 	if (ue_py_struct->u_struct == chk_u_struct)
 	{
-		return ue_py_struct->data;
+		return py_ue_uscriptstruct_get_data(ue_py_struct);
 	}
 
 	return nullptr;

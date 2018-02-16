@@ -709,7 +709,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 		if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_value))
 		{
 			bool unwind = false;
-			FTransform transform = py_transform->transform;
+			FTransform transform = py_ue_ftransform_get(py_transform);
 
 
 			FTransformKey tx = FTransformKey(EKey3DTransformChannel::Translation, EAxis::X, transform.GetLocation().X, unwind);
