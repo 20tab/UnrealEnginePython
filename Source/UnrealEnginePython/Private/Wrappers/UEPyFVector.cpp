@@ -243,7 +243,7 @@ static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value)
 	}
 	else if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
 	{
-		return py_ue_new_fvector(py_quat->quat.RotateVector(vec));
+		return py_ue_new_fvector(py_ue_fquat_get(py_quat).RotateVector(vec));
 	}
 	else if (PyNumber_Check(value))
 	{
@@ -391,16 +391,13 @@ PyObject *py_ue_new_fvector(const FVector& vec)
 {
 	ue_PyFVector *ret = (ue_PyFVector *)PyObject_New(ue_PyFVector, &ue_PyFVectorType);
     ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FVector>::Get(), (uint8 const*)&vec, false);
-
 	return (PyObject *)ret;
 }
 
 PyObject *py_ue_new_fvector_ptr(FVector* vec_ptr)
 {
     ue_PyFVector *ret = (ue_PyFVector *)PyObject_New(ue_PyFVector, &ue_PyFVectorType);
-
     ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FVector>::Get(), (uint8*)vec_ptr, true);
-
     return (PyObject *)ret;
 }
 

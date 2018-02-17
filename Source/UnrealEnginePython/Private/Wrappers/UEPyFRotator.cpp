@@ -227,7 +227,7 @@ static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kw
     
     if (PyTuple_Size(args) == 1) {
         if (ue_PyFQuat *py_quat = py_ue_is_fquat(PyTuple_GetItem(args, 0))) {
-            py_ue_frotator_get(self) = FRotator(py_quat->quat);
+            py_ue_frotator_get(self) = FRotator(py_ue_fquat_get(py_quat));
             return 0;
         }
     }

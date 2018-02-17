@@ -83,6 +83,15 @@ static PyObject *init_unreal_engine(void)
 
 std::map<UObject *, ue_PyUObject *> ue_python_gc;
 
+//Missing map in Class.cpp
+UScriptStruct* TBaseStructure<FQuat>::Get()
+{
+    //static auto ScriptStruct = StaticGetBaseStructureInternal(TEXT("Quat"));
+    static auto* CoreUObjectPkg = FindObjectChecked<UPackage>(nullptr, TEXT("/Script/CoreUObject"));
+    static auto ScriptStruct    = FindObjectChecked<UScriptStruct>(CoreUObjectPkg, TEXT("Quat"));
+    return ScriptStruct;
+}
+
 
 static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args)
 {
@@ -2372,10 +2381,13 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer)
 			{
 				return py_ue_new_frotator_ptr(casted_prop->ContainerPtrToValuePtr<FRotator>(buffer));
 			}
+            if (casted_struct == TBaseStructure<FQuat>::Get())
+            {
+                return py_ue_new_fquat_ptr(casted_prop->ContainerPtrToValuePtr<FQuat>(buffer));
+            }
 			if (casted_struct == TBaseStructure<FTransform>::Get())
 			{
-				FTransform* transform_ptr = casted_prop->ContainerPtrToValuePtr<FTransform>(buffer);
-				return py_ue_new_ftransform_ptr(transform_ptr);
+				return py_ue_new_ftransform_ptr(casted_prop->ContainerPtrToValuePtr<FTransform>(buffer));
 			}
 			if (casted_struct == FHitResult::StaticStruct())
 			{
@@ -2775,6 +2787,19 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 		}
 		return false;
 	}
+
+    if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_obj))
+    {
+        if (auto casted_prop = Cast<UStructProperty>(prop))
+        {
+            if (casted_prop->Struct == TBaseStructure<FQuat>::Get())
+            {
+                *casted_prop->ContainerPtrToValuePtr<FQuat>(buffer) = py_ue_fquat_get(py_quat);
+                return true;
+            }
+        }
+        return false;
+    }
 
 	if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_obj))
 	{

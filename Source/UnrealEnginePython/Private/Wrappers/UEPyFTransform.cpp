@@ -80,7 +80,7 @@ static int py_ue_ftransform_set_quaternion(ue_PyFTransform *self, PyObject *valu
 {
 	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
 	{
-		py_ue_ftransform_get(self).SetRotation(py_quat->quat);
+		py_ue_ftransform_get(self).SetRotation(py_ue_fquat_get(py_quat));
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a quaternion");
@@ -232,7 +232,7 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 		}
 		else if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_rotation))
 		{
-			py_ue_ftransform_get(self).SetRotation(py_quat->quat);
+			py_ue_ftransform_get(self).SetRotation(py_ue_fquat_get(py_quat));
 		}
 		else
 		{
@@ -269,7 +269,7 @@ static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value)
 	FTransform t = py_ue_ftransform_get(self);
 	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
 	{
-		t *= py_quat->quat;
+		t *= py_ue_fquat_get(py_quat);
 	}
 	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
 	{

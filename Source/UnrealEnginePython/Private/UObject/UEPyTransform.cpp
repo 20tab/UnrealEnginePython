@@ -55,7 +55,7 @@ static bool check_rotation_args(PyObject *args, FQuat &quat, bool &sweep, bool &
 		ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
 		if (ue_py_quat)
 		{
-			quat = ue_py_quat->quat;
+			quat = py_ue_fquat_get(ue_py_quat);
 		}
 		else
 		{
@@ -99,7 +99,7 @@ static bool check_rotation_args_no_sweep(PyObject *args, FQuat &quat, bool &tele
 		ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
 		if (ue_py_quat)
 		{
-			quat = ue_py_quat->quat;
+			quat = py_ue_fquat_get(ue_py_quat);
 		}
 		else
 		{
