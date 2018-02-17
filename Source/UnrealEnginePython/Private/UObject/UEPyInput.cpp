@@ -405,7 +405,7 @@ PyObject *py_ue_bind_action(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
 	}
 
-	UPythonDelegate *py_delegate = ue_py_new_delegate(input, py_callable, nullptr);
+	UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(input, py_callable, nullptr);
 
 	FInputActionBinding input_action_binding(FName(UTF8_TO_TCHAR(action_name)), (const EInputEvent)key);
 	input_action_binding.ActionDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);
@@ -452,7 +452,7 @@ PyObject *py_ue_bind_axis(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
 	}
 
-	UPythonDelegate *py_delegate = ue_py_new_delegate(input, py_callable, nullptr);
+	UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(input, py_callable, nullptr);
 
 	FInputAxisBinding input_axis_binding(FName(UTF8_TO_TCHAR(axis_name)));
 	input_axis_binding.AxisDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputAxisHandler);
@@ -503,7 +503,7 @@ PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
 	}
 
-	UPythonDelegate *py_delegate = ue_py_new_delegate(input, py_callable, nullptr);
+	UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(input, py_callable, nullptr);
 
 	FInputKeyBinding input_key_binding(FKey(UTF8_TO_TCHAR(key_name)), (const EInputEvent)key);
 	input_key_binding.KeyDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);

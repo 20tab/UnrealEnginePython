@@ -1,7 +1,5 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
-
-
 #include "UEPyEngine.h"
 #include "UEPyTimer.h"
 #include "UEPyTicker.h"
@@ -66,6 +64,7 @@ DEFINE_LOG_CATEGORY(LogPython);
 
 PyDoc_STRVAR(unreal_engine_py_doc, "Unreal Engine Python module.");
 
+
 #if PY_MAJOR_VERSION >= 3
 static PyModuleDef unreal_engine_module = {
 	PyModuleDef_HEAD_INIT,
@@ -74,108 +73,21 @@ static PyModuleDef unreal_engine_module = {
 	-1,
 	NULL,
 };
+static PyObject *init_unreal_engine(void);
 
-static PyObject *init_unreal_engine(void)
+
+
+void init_unreal_engine_builtin()
 {
-	return PyModule_Create(&unreal_engine_module);
+	PyImport_AppendInittab("unreal_engine", &init_unreal_engine);
 }
 #endif
-
-namespace UnrealEnginePythonHouseKeeper
-{
-	std::map<UObject *, ue_PyUObject *> u_object_py_mapping;
-
-	struct FPythonDelegateTracker
-	{
-		FWeakObjectPtr owner;
-		UPythonDelegate *delegate;
-
-		FPythonDelegateTracker(UPythonDelegate *delegate_to_track, UObject *delegate_owner) : owner(delegate_owner), delegate(delegate_to_track)
-		{
-		}
-
-		~FPythonDelegateTracker()
-		{
-		}
-	};
-
-	std::list<FPythonDelegateTracker> py_delegates_tracker;
-};
-
-static void ue_py_delegates_gc()
-{
-	auto &lst = UnrealEnginePythonHouseKeeper::py_delegates_tracker;
-	for (auto itr = lst.begin(); itr != lst.end(); /*noop*/)
-		//for (auto itr = lst.begin(); itr != lst.end(); ++itr)
-	{
-		/*if (itr->owner.IsValid())
-		{
-			UE_LOG(LogPython, Error, TEXT("Delegate for %s"), *itr->owner.Get()->GetName());
-		}
-		else
-		{
-			UE_LOG(LogPython, Error, TEXT("Found bad delegate"));
-		}
-		*/
-		if (!itr->owner.IsValid())
-		{
-			itr->delegate->RemoveFromRoot();
-			itr = lst.erase(itr);
-		}
-		else
-			++itr;
-	}
-}
-
-UPythonDelegate *ue_py_new_delegate(UObject *owner, PyObject *py_callable, UFunction *signature)
-{
-	// TODO: do a round of gc only if enough time passed 
-	ue_py_delegates_gc();
-
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-	if (!py_delegate)
-		return nullptr;
-
-	py_delegate->AddToRoot();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->SetSignature(signature);
-
-	UnrealEnginePythonHouseKeeper::FPythonDelegateTracker tracker(py_delegate, owner);
-	UnrealEnginePythonHouseKeeper::py_delegates_tracker.push_back(tracker);
-
-	return py_delegate;
-}
 
 
 static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args)
 {
-	std::list<UObject *> broken_list;
-	for (auto it : UnrealEnginePythonHouseKeeper::u_object_py_mapping)
-	{
-#if defined(UEPY_MEMORY_DEBUG)
-		UE_LOG(LogPython, Warning, TEXT("Checking for UObject at %p"), it.first);
-#endif
-		UObject *u_obj = it.first;
-		if (!u_obj || !u_obj->IsValidLowLevel() || u_obj->IsPendingKillOrUnreachable())
-		{
-#if defined(UEPY_MEMORY_DEBUG)
-			UE_LOG(LogPython, Warning, TEXT("Removing UObject at %p (refcnt: %d)"), it.first, it.second->ob_base.ob_refcnt);
-#endif
-			broken_list.push_back(u_obj);
-		}
-		else
-		{
-			UE_LOG(LogPython, Error, TEXT("UObject at %p %s is in use"), u_obj, *u_obj->GetName());
-		}
-	}
-	/*
-	for (UObject *u_obj : broken_list)
-	{
-		ue_PyUObject *py_obj = UnrealEnginePythonHouseKeeper::u_object_py_mapping.at(u_obj);
-		Py_DECREF(py_obj);
-	}*/
-
-	return PyLong_FromLong(broken_list.size());
+	int32 Garbaged = FUnrealEnginePythonHouseKeeper::Get()->RunGC();
+	return PyLong_FromLong(Garbaged);
 
 }
 
@@ -201,8 +113,7 @@ static PyObject *py_unreal_engine_sandbox_exec(PyObject * self, PyObject * args)
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
 	PythonModule.RunFileSandboxed(filename, nullptr, nullptr);
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args)
@@ -213,6 +124,7 @@ static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args)
 	if (self->py_proxy)
 	{
 		Py_INCREF(self->py_proxy);
+		UE_LOG(LogPython, Error, TEXT("PROXY %d"), self->py_proxy->ob_refcnt);
 		return (PyObject *)self->py_proxy;
 	}
 
@@ -1047,7 +959,6 @@ static PyMethodDef ue_PyUObject_methods[] = {
 // destructor
 static void ue_pyobject_dealloc(ue_PyUObject *self)
 {
-	PyObject_GC_UnTrack(self);
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
 #endif
@@ -1057,12 +968,14 @@ static void ue_pyobject_dealloc(ue_PyUObject *self)
 	}
 
 	Py_XDECREF(self->py_dict);
-	UnrealEnginePythonHouseKeeper::u_object_py_mapping.erase(self->ue_object);
+
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 {
+	ue_py_check(self);
+
 	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
 	if (!ret)
 	{
@@ -1162,6 +1075,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 
 static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObject *value)
 {
+	ue_py_check_int(self);
+
 	// first of all check for UProperty
 	if (PyUnicodeOrString_Check(attr_name))
 	{
@@ -1199,6 +1114,8 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 
 static PyObject *ue_PyUObject_str(ue_PyUObject *self)
 {
+	ue_py_check(self);
+
 #if PY_MAJOR_VERSION >= 3
 	return PyUnicode_FromFormat("<unreal_engine.UObject '%s' (%p) UClass '%s' (refcnt: %d)>",
 		TCHAR_TO_UTF8(*self->ue_object->GetName()), self->ue_object, TCHAR_TO_UTF8(*self->ue_object->GetClass()->GetName()), self->ob_base.ob_refcnt);
@@ -1208,14 +1125,9 @@ static PyObject *ue_PyUObject_str(ue_PyUObject *self)
 #endif
 }
 
-static int ue_PyUObject_traverse(ue_PyUObject *self, visitproc visit, void *arg)
-{
-	UE_LOG(LogPython, Error, TEXT("TRAVERSING %p"), self);
-	return 0;
-}
-
 static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject *kw)
 {
+	ue_py_check(self);
 	// if it is a class, create a new object
 	if (self->ue_object->IsA<UClass>())
 	{
@@ -1329,9 +1241,9 @@ static PyTypeObject ue_PyUObjectType = {
 	(getattrofunc)ue_PyUObject_getattro, /* tp_getattro */
 	(setattrofunc)ue_PyUObject_setattro, /* tp_setattro */
 	0,                         /* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_GC,        /* tp_flags */
-	"Unreal Engine generic UObject",           /* tp_doc */
-	(traverseproc)ue_PyUObject_traverse,                         /* tp_traverse */
+	Py_TPFLAGS_DEFAULT,        /* tp_flags */
+	"Unreal Engine UObject wrapper",           /* tp_doc */
+	0,                         /* tp_traverse */
 	0,                         /* tp_clear */
 	0,                         /* tp_richcompare */
 	0,                         /* tp_weaklistoffset */
@@ -1339,6 +1251,11 @@ static PyTypeObject ue_PyUObjectType = {
 	0,                         /* tp_iternext */
 	ue_PyUObject_methods,             /* tp_methods */
 };
+
+
+
+
+
 
 UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent)
 {
@@ -1779,7 +1696,7 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 									FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(ObjectInitializer.GetObj());
 
 									FScriptDelegate script_delegate;
-									UPythonDelegate *py_delegate = ue_py_new_delegate(ObjectInitializer.GetObj(), mc_value, casted_prop->SignatureFunction);
+									UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(ObjectInitializer.GetObj(), mc_value, casted_prop->SignatureFunction);
 									// fake UFUNCTION for bypassing checks
 									script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
@@ -1930,13 +1847,10 @@ static int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *k
 void unreal_engine_init_py_module()
 {
 #if PY_MAJOR_VERSION >= 3
-	PyImport_AppendInittab("unreal_engine", init_unreal_engine);
 	PyObject *new_unreal_engine_module = PyImport_AddModule("unreal_engine");
 #else
 	PyObject *new_unreal_engine_module = Py_InitModule3("unreal_engine", NULL, unreal_engine_py_doc);
 #endif
-
-
 	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
 
 	PyMethodDef *unreal_engine_function;
@@ -1947,16 +1861,6 @@ void unreal_engine_init_py_module()
 		Py_DECREF(func);
 	}
 
-
-	ue_PyUObjectType.tp_new = PyType_GenericNew;
-	ue_PyUObjectType.tp_init = (initproc)unreal_engine_py_init;
-	ue_PyUObjectType.tp_dictoffset = offsetof(ue_PyUObject, py_dict);
-	if (PyType_Ready(&ue_PyUObjectType) < 0)
-		return;
-
-	Py_INCREF(&ue_PyUObjectType);
-	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
-
 	ue_python_init_fvector(new_unreal_engine_module);
 	ue_python_init_frotator(new_unreal_engine_module);
 	ue_python_init_ftransform(new_unreal_engine_module);
@@ -1964,6 +1868,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_fcolor(new_unreal_engine_module);
 	ue_python_init_flinearcolor(new_unreal_engine_module);
 	ue_python_init_fquat(new_unreal_engine_module);
+
 
 	ue_python_init_frandomstream(new_unreal_engine_module);
 
@@ -2141,35 +2046,39 @@ void unreal_engine_init_py_module()
 }
 
 
+
 // utility functions
 
 ue_PyUObject *ue_get_python_uobject(UObject *ue_obj)
 {
-	if (!ue_obj || !ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
+	if (!ue_obj)
 		return nullptr;
-	std::map<UObject *, ue_PyUObject *>::iterator it = UnrealEnginePythonHouseKeeper::u_object_py_mapping.find(ue_obj);
-	// not found ??
-	if (it == UnrealEnginePythonHouseKeeper::u_object_py_mapping.end())
-	{
 
-		//ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
-		ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_GC_New(ue_PyUObject, &ue_PyUObjectType);
+	ue_PyUObject *ret = FUnrealEnginePythonHouseKeeper::Get()->GetPyUObject(ue_obj);
+	if (!ret)
+	{
+		if (!ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
+			return nullptr;
+
+		ue_PyUObject *ue_py_object = (ue_PyUObject *)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
 		if (!ue_py_object)
 		{
 			return nullptr;
 		}
 		ue_py_object->ue_object = ue_obj;
+		ue_py_object->py_proxy = nullptr;
+		ue_py_object->auto_rooted = 0;
 		ue_py_object->py_dict = PyDict_New();
 
-		UnrealEnginePythonHouseKeeper::u_object_py_mapping[ue_obj] = ue_py_object;
+		FUnrealEnginePythonHouseKeeper::Get()->RegisterPyUObject(ue_obj, ue_py_object);
 
 #if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p %s"), ue_py_object, ue_obj, *ue_obj->GetName());
 #endif
-		//Py_INCREF(ue_py_object);
 		return ue_py_object;
 	}
-	return it->second;
+	return ret;
+
 }
 
 ue_PyUObject *ue_get_python_uobject_inc(UObject *ue_obj)
@@ -2258,7 +2167,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
@@ -3282,7 +3191,7 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
 
 		FScriptDelegate script_delegate;
-		UPythonDelegate *py_delegate = ue_py_new_delegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
+		UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
@@ -3673,4 +3582,24 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 	}
 
 	return ue_py_struct->u_struct->IsChildOf(parent_u_struct);
+}
+
+static PyObject *init_unreal_engine()
+{
+	
+	ue_PyUObjectType.tp_new = PyType_GenericNew;
+	ue_PyUObjectType.tp_init = (initproc)unreal_engine_py_init;
+	ue_PyUObjectType.tp_dictoffset = offsetof(ue_PyUObject, py_dict);
+
+	if (PyType_Ready(&ue_PyUObjectType) < 0)
+		return nullptr;
+
+	PyObject *new_unreal_engine_module = PyModule_Create(&unreal_engine_module);
+	if (!new_unreal_engine_module)
+		return nullptr;
+
+	Py_INCREF(&ue_PyUObjectType);
+	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
+
+	return new_unreal_engine_module;
 }

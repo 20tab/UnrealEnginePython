@@ -12,6 +12,7 @@ void UPythonDelegate::SetPyCallable(PyObject *callable)
 	// do not acquire the gil here as we set the callable in python call themselves
 	py_callable = callable;
 	Py_INCREF(py_callable);
+	UE_LOG(LogPython, Error, TEXT("CALLABLE %d"), py_callable->ob_refcnt);
 }
 
 void UPythonDelegate::SetSignature(UFunction *original_signature)
@@ -104,6 +105,11 @@ void UPythonDelegate::PyInputAxisHandler(float value)
 UPythonDelegate::~UPythonDelegate()
 {
 	FScopePythonGIL gil;
+
+	if (py_callable)
+	{
+		UE_LOG(LogPython, Error, TEXT("DELEGATE N %d\n"), py_callable->ob_refcnt);
+	}
 	Py_XDECREF(py_callable);
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("PythonDelegate callable XDECREF'ed"));

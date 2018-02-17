@@ -132,12 +132,11 @@ PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<AActor>())
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
 	{
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 	}
-
-	AActor *actor = (AActor *)self->ue_object;
 
 	actor->Destroy();
 
@@ -739,7 +738,7 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 {
 
 	ue_py_check(self);
-	
+
 	PyObject *py_class;
 
 	PyObject *py_obj_location = nullptr;

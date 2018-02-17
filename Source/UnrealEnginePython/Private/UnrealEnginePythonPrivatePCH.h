@@ -80,9 +80,17 @@
 #include "SlateApplication/UEPyFSlateApplication.h"
 #include "Voice/UEPyIVoiceCapture.h"
 
+#include "PythonHouseKeeper.h"
 
-#define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
-							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
+
+#define ue_py_check(py_u) if (!FUnrealEnginePythonHouseKeeper::Get()->IsValidPyUObject(py_u))\
+	return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
+
+#define ue_py_check_int(py_u) if (!FUnrealEnginePythonHouseKeeper::Get()->IsValidPyUObject(py_u))\
+	{\
+		PyErr_SetString(PyExc_Exception, "PyUObject is in invalid state");\
+		return -1;\
+	}
 
 #if PY_MAJOR_VERSION < 3
 char *PyUnicode_AsUTF8(PyObject *py_str);

@@ -511,7 +511,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	PyObject *obj;
 	PyObject *py_outer = NULL;
 	char *name = nullptr;
-	uint64 flags = (uint64)(RF_Public | RF_Standalone);
+	uint64 flags = (uint64)(RF_Public);
 	if (!PyArg_ParseTuple(args, "O|OsK:new_object", &obj, &py_outer, &name, &flags))
 	{
 		return NULL;

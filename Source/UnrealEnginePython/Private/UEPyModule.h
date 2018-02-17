@@ -89,4 +89,3 @@ template <typename T> bool ue_py_check_childstruct(PyObject *py_obj)
 
 FGuid *ue_py_check_fguid(PyObject *);
 
-UPythonDelegate *ue_py_new_delegate(UObject *, PyObject *p_callable, UFunction *);
