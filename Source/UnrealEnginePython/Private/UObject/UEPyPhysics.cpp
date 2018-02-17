@@ -457,11 +457,11 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 #if ENGINE_MINOR_VERSION < 18
 				destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
 #else
-				for (UActorComponent *component : actor->GetComponents())
+				for (UActorComponent *checked_component : actor->GetComponents())
 				{
-					if (Cast<IDestructibleInterface>(component))
+					if (Cast<IDestructibleInterface>(checked_component))
 					{
-						destructible = (IDestructibleInterface *)component;
+						destructible = (IDestructibleInterface *)checked_component;
 						break;
 					}
 				}

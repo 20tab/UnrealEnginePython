@@ -19,10 +19,10 @@ public:
     void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView, PyObject *in_py_self)
     {
         SetPyObject(in_py_self);
-        SMultiColumnTableRow<TSharedPtr<struct FPythonItem> >::Construct(FSuperRowType::FArguments(), InOwnerTableView);
+        SMultiColumnTableRow<TSharedPtr<struct FPythonItem>>::Construct(FSuperRowType::FArguments(), InOwnerTableView);
     }
 
-    TSharedRef<SWidget> SPythonMultiColumnTableRow::GenerateWidgetForColumn(const FName& ColumnName)
+    TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName)
     {
         FScopePythonGIL gil;
 
@@ -57,7 +57,7 @@ public:
     }
 
 
-    FReply SPythonMultiColumnTableRow::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
+    FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
     {
         FScopePythonGIL gil;
 
