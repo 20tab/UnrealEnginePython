@@ -566,6 +566,7 @@ PyObject *py_ue_sequencer_sections(ue_PyUObject *self, PyObject * args)
 
 	for (UMovieSceneSection *section : sections)
 	{
+
 		ue_PyUObject *ret = ue_get_python_uobject((UObject *)section);
 		if (!ret)
 		{
