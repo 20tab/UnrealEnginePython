@@ -250,6 +250,8 @@ static int ue_py_fquat_init(ue_PyFQuat *self, PyObject *args, PyObject *kwargs) 
 	if (!PyArg_ParseTuple(args, "|ffff", &x, &y, &z, &w))
 		return -1;
 
+    ue_py_uscriptstruct_alloc(&self->py_base, TBaseStructure<FQuat>::Get(), nullptr, false);
+
 	py_ue_fquat_get(self).X = x;
 	py_ue_fquat_get(self).Y = y;
 	py_ue_fquat_get(self).Z = z;
