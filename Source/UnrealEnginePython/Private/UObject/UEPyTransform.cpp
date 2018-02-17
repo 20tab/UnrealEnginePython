@@ -25,7 +25,7 @@ static bool check_vector_args(PyObject *args, FVector &vec, bool &sweep, bool &t
 	}
 	else
 	{
-		vec = ue_py_vec->vec;
+		vec = py_ue_fvector_get(ue_py_vec);
 	}
 
 	sweep = (py_sweep && PyObject_IsTrue(py_sweep));

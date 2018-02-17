@@ -132,9 +132,9 @@ PyObject *py_ue_set_material_vector_parameter(ue_PyUObject *self, PyObject * arg
 		}
 		else
 		{
-			vectorParameter.R = py_true_vector->vec.X;
-			vectorParameter.G = py_true_vector->vec.Y;
-			vectorParameter.B = py_true_vector->vec.Z;
+			vectorParameter.R = py_ue_fvector_get(py_true_vector).X;
+			vectorParameter.G = py_ue_fvector_get(py_true_vector).Y;
+			vectorParameter.B = py_ue_fvector_get(py_true_vector).Z;
 			vectorParameter.A = 1;
 		}
 	}

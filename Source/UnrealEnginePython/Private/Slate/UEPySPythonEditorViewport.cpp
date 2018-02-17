@@ -91,7 +91,7 @@ static PyObject *py_ue_spython_editor_viewport_set_view_location(ue_PySPythonEdi
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
 		}
-		vec = ue_py_vec->vec;
+		vec = py_ue_fvector_get(ue_py_vec);
 	}
 	else
 	{

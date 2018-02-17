@@ -42,7 +42,7 @@ static int py_ue_fraw_anim_sequence_track_set_pos_keys(ue_PyFRawAnimSequenceTrac
 					failed = true;
 					break;
 				}
-				pos.Add(py_vec->vec);
+				pos.Add(py_ue_fvector_get(py_vec));
 			}
 			Py_DECREF(py_iter);
 			if (!failed) {
@@ -67,7 +67,7 @@ static int py_ue_fraw_anim_sequence_track_set_scale_keys(ue_PyFRawAnimSequenceTr
 					failed = true;
 					break;
 				}
-				scale.Add(py_vec->vec);
+				scale.Add(py_ue_fvector_get(py_vec));
 			}
 			Py_DECREF(py_iter);
 			if (!failed) {

@@ -189,7 +189,7 @@ static PyObject *ue_py_fquat_sub(ue_PyFQuat *self, PyObject *value) {
 
 static PyObject *ue_py_fquat_mul(ue_PyFQuat *self, PyObject *value) {
 	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
-		FVector vec = self->quat * py_vec->vec;
+		FVector vec = self->quat * py_ue_fvector_get(py_vec);
 		return py_ue_new_fvector(vec);
 	}
 	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {

@@ -94,7 +94,7 @@ PyObject *py_unreal_engine_editor_set_view_location(PyObject * self, PyObject * 
 
 	FLevelEditorViewportClient &viewport_client = EditorModule.GetFirstActiveViewport()->GetLevelViewportClient();
 
-	viewport_client.SetViewLocation(vector->vec);
+	viewport_client.SetViewLocation(py_ue_fvector_get(vector));
 
 	Py_RETURN_NONE;
 }

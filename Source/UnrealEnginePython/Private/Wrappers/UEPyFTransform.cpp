@@ -58,7 +58,7 @@ static int py_ue_ftransform_set_translation(ue_PyFTransform *self, PyObject *val
 {
 	if (ue_PyFVector *py_vec = py_ue_is_fvector(value))
 	{
-		py_ue_ftransform_get(self).SetLocation(py_vec->vec);
+		py_ue_ftransform_get(self).SetLocation(py_ue_fvector_get(py_vec));
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a vector");
@@ -91,7 +91,7 @@ static int py_ue_ftransform_set_scale(ue_PyFTransform *self, PyObject *value, vo
 {
 	if (ue_PyFVector *py_vec = py_ue_is_fvector(value))
 	{
-		py_ue_ftransform_get(self).SetScale3D(py_vec->vec);
+		py_ue_ftransform_get(self).SetScale3D(py_ue_fvector_get(py_vec));
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a vector");
@@ -177,7 +177,7 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	{
 		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_translation))
 		{
-			py_ue_ftransform_get(self).SetTranslation(py_vec->vec);
+			py_ue_ftransform_get(self).SetTranslation(py_ue_fvector_get(py_vec));
 		}
 		else
 		{
@@ -252,7 +252,7 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	{
 		if (ue_PyFVector *py_vec = py_ue_is_fvector(py_scale))
 		{
-			scale = py_vec->vec;
+			scale = py_ue_fvector_get(py_vec);
 		}
 		else
 		{
@@ -293,13 +293,13 @@ void ue_python_init_ftransform(PyObject *ue_module)
 	ue_PyFTransformType.tp_new = PyType_GenericNew;
 
 	ue_PyFTransformType.tp_init = (initproc)ue_py_ftransform_init;
-    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
-    ue_PyFTransformType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
 
 	memset(&ue_PyFTransform_number_methods, 0, sizeof(PyNumberMethods));
 	ue_PyFTransformType.tp_as_number = &ue_PyFTransform_number_methods;
 	ue_PyFTransform_number_methods.nb_multiply = (binaryfunc)ue_py_ftransform_mul;
 
+    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
+    ue_PyFTransformType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
     ue_PyFTransformType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFTransformType) < 0)

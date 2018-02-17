@@ -2366,8 +2366,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer)
 			// check for FVector
 			if (casted_struct == TBaseStructure<FVector>::Get())
 			{
-				FVector vec = *casted_prop->ContainerPtrToValuePtr<FVector>(buffer);
-				return py_ue_new_fvector(vec);
+				return py_ue_new_fvector_ptr(casted_prop->ContainerPtrToValuePtr<FVector>(buffer));
 			}
 			if (casted_struct == TBaseStructure<FRotator>::Get())
 			{
@@ -2758,7 +2757,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 		{
 			if (casted_prop->Struct == TBaseStructure<FVector>::Get())
 			{
-				*casted_prop->ContainerPtrToValuePtr<FVector>(buffer) = py_vec->vec;
+				*casted_prop->ContainerPtrToValuePtr<FVector>(buffer) = py_ue_fvector_get(py_vec);
 				return true;
 			}
 		}

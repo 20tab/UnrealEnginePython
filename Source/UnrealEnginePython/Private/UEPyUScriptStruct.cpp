@@ -189,6 +189,12 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 		{
 			if (ue_py_convert_pyobject(value, u_property, py_ue_uscriptstruct_get_data(self)))
 			{
+                if (self->is_ptr)
+                {
+                    // NOTE: We just wrote out to original pointer block; now we need to update our local shadow copy
+                    // This might be unnecessary
+                    FMemory::Memcpy(self->data, self->original_data, self->u_struct->GetStructureSize());
+                }
 				return 0;
 			}
 			PyErr_SetString(PyExc_ValueError, "invalid value for UProperty");

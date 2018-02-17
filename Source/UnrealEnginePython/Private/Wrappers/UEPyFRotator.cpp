@@ -168,7 +168,7 @@ static PyObject *ue_py_frotator_sub(ue_PyFRotator *self, PyObject *value) {
 static PyObject *ue_py_frotator_mul(ue_PyFRotator *self, PyObject *value) {
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec) {
-		FVector vec = self->rot.RotateVector(py_vec->vec);
+		FVector vec = self->rot.RotateVector(py_ue_fvector_get(py_vec));
 		return py_ue_new_fvector(vec);
 	}
 	else if (PyNumber_Check(value)) {

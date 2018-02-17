@@ -146,7 +146,7 @@ PyObject *py_ue_add_movement_input(ue_PyUObject *self, PyObject * args) {
 	if (!movement)
 		return PyErr_Format(PyExc_Exception, "movement input must be a FVector");
 
-	pawn->AddMovementInput(movement->vec, scale, force);
+	pawn->AddMovementInput(py_ue_fvector_get(movement), scale, force);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -335,7 +335,7 @@ PyObject *py_ue_launch(ue_PyUObject *self, PyObject * args) {
 	if (!force)
 		return PyErr_Format(PyExc_Exception, "launch force must be a FVector");
 
-	character->LaunchCharacter(force->vec, xy_override, z_override);
+	character->LaunchCharacter(py_ue_fvector_get(force), xy_override, z_override);
 
 	Py_INCREF(Py_None);
 	return Py_None;

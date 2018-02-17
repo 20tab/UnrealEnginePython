@@ -29,7 +29,7 @@ PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * arg
 
 	FHitResult hit;
 
-	bool got_hit = world->LineTraceSingleByChannel(hit, start->vec, end->vec, (ECollisionChannel)channel);
+	bool got_hit = world->LineTraceSingleByChannel(hit, py_ue_fvector_get(start), py_ue_fvector_get(end), (ECollisionChannel)channel);
 
 	if (got_hit)
 	{
@@ -70,7 +70,7 @@ PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject * self, PyObject * args
 
 	PyObject *hits_list = PyList_New(0);
 
-	bool got_hits = world->LineTraceMultiByChannel(hits, start->vec, end->vec, (ECollisionChannel)channel);
+	bool got_hits = world->LineTraceMultiByChannel(hits, py_ue_fvector_get(start), py_ue_fvector_get(end), (ECollisionChannel)channel);
 
 	if (got_hits)
 	{
@@ -158,7 +158,7 @@ PyObject *py_ue_draw_debug_line(ue_PyUObject * self, PyObject * args)
 	if (!py_linear_color)
 		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
 
-	UKismetSystemLibrary::DrawDebugLine(world, start->vec, end->vec, py_linear_color->color, duration, thickness);
+	UKismetSystemLibrary::DrawDebugLine(world, py_ue_fvector_get(start), py_ue_fvector_get(end), py_linear_color->color, duration, thickness);
 
 	Py_RETURN_NONE;
 }

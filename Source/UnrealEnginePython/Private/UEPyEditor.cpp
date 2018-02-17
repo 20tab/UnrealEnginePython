@@ -48,7 +48,7 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
 		if (!vector)
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
-		v = vector->vec;
+		v = py_ue_fvector_get(vector);
 	}
 
 	if (py_rotator)
@@ -220,7 +220,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
 		if (!vector)
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
-		v = vector->vec;
+		v = py_ue_fvector_get(vector);
 	}
 
 	if (py_rotator)
