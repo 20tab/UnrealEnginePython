@@ -9,7 +9,7 @@ typedef struct {
 	/* Type-specific fields go here. */
 	FDelegateHandle dhandle;
 	bool garbaged;
-	TSharedPtr<FTickerDelegate> delegate_ptr;
+	TSharedPtr<FPythonSmartDelegate> delegate_ptr;
 } ue_PyFDelegateHandle;
 
 PyObject *py_unreal_engine_add_ticker(PyObject *, PyObject *);

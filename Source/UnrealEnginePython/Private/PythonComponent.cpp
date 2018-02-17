@@ -556,11 +556,7 @@ UPythonComponent::~UPythonComponent()
 {
 	FScopePythonGIL gil;
 
-#if defined(UEPY_MEMORY_DEBUG)
-	if (py_component_instance && py_component_instance->ob_refcnt != 1) {
-		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UActorComponent wrapper refcnt = %d"), py_component_instance->ob_refcnt);
-	}
-#endif
+#
 	Py_XDECREF(py_component_instance);
 
 #if defined(UEPY_MEMORY_DEBUG)
@@ -569,4 +565,5 @@ UPythonComponent::~UPythonComponent()
 
 	// this could trigger the distruction of the python/uobject mapper
 	Py_XDECREF(py_uobject);
+	FUnrealEnginePythonHouseKeeper::Get()->UnregisterPyUObject(this);
 }
