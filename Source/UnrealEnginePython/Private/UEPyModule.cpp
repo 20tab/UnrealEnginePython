@@ -2370,8 +2370,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer)
 			}
 			if (casted_struct == TBaseStructure<FRotator>::Get())
 			{
-				FRotator rot = *casted_prop->ContainerPtrToValuePtr<FRotator>(buffer);
-				return py_ue_new_frotator(rot);
+				return py_ue_new_frotator_ptr(casted_prop->ContainerPtrToValuePtr<FRotator>(buffer));
 			}
 			if (casted_struct == TBaseStructure<FTransform>::Get())
 			{
@@ -2770,7 +2769,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 		{
 			if (casted_prop->Struct == TBaseStructure<FRotator>::Get())
 			{
-				*casted_prop->ContainerPtrToValuePtr<FRotator>(buffer) = py_rot->rot;
+				*casted_prop->ContainerPtrToValuePtr<FRotator>(buffer) = py_ue_frotator_get(py_rot);
 				return true;
 			}
 		}

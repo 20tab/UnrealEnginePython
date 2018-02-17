@@ -69,7 +69,7 @@ static int py_ue_ftransform_set_rotation(ue_PyFTransform *self, PyObject *value,
 {
 	if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
 	{
-		py_ue_ftransform_get(self).SetRotation(py_rot->rot.Quaternion());
+		py_ue_ftransform_get(self).SetRotation(py_ue_frotator_get(py_rot).Quaternion());
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a rotator");
@@ -228,7 +228,7 @@ static int ue_py_ftransform_init(ue_PyFTransform *self, PyObject *args, PyObject
 	{
 		if (ue_PyFRotator *py_rot = py_ue_is_frotator(py_rotation))
 		{
-			py_ue_ftransform_get(self).SetRotation(py_rot->rot.Quaternion());
+			py_ue_ftransform_get(self).SetRotation(py_ue_frotator_get(py_rot).Quaternion());
 		}
 		else if (ue_PyFQuat *py_quat = py_ue_is_fquat(py_rotation))
 		{
@@ -273,7 +273,7 @@ static PyObject *ue_py_ftransform_mul(ue_PyFTransform *self, PyObject *value)
 	}
 	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
 	{
-		t *= py_rot->rot.Quaternion();
+		t *= py_ue_frotator_get(py_rot).Quaternion();
 	}
 	else if (ue_PyFTransform *py_transform = py_ue_is_ftransform(value))
 	{

@@ -56,7 +56,7 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
 		if (!rotator)
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
-		r = rotator->rot;
+		r = py_ue_frotator_get(rotator);
 	}
 
 	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
@@ -228,7 +228,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
 		if (!rotator)
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
-		r = rotator->rot;
+		r = py_ue_frotator_get(rotator);
 	}
 
 #if ENGINE_MINOR_VERSION >= 17

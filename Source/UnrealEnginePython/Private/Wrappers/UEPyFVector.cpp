@@ -239,7 +239,7 @@ static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value)
 	}
 	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
 	{
-		return py_ue_new_fvector(py_rot->rot.RotateVector(vec));
+		return py_ue_new_fvector(py_ue_frotator_get(py_rot).RotateVector(vec));
 	}
 	else if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
 	{

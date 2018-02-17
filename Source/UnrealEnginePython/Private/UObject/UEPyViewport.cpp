@@ -120,7 +120,7 @@ PyObject *py_unreal_engine_editor_set_view_rotation(PyObject * self, PyObject * 
 
 	FLevelEditorViewportClient &viewport_client = EditorModule.GetFirstActiveViewport()->GetLevelViewportClient();
 
-	viewport_client.SetViewRotation(rotator->rot);
+	viewport_client.SetViewRotation(py_ue_frotator_get(rotator));
 
 	Py_RETURN_NONE;
 }
