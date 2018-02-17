@@ -70,6 +70,13 @@ import unreal_engine as ue
 material_instance = ue.create_material_instance(new_material)
 ```
 
+```python
+import unreal_engine as ue
+# you can also specify a path and a name to the new material instance.
+material_instance = ue.create_material_instance(new_material, '/Game/Materials/', 'New Funny Material Instance')
+```
+
+
 Or the factory way:
 
 ```python
