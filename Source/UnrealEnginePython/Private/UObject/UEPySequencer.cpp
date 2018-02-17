@@ -121,13 +121,17 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	char *guid;
-	if (!PyArg_ParseTuple(args, "s:sequencer_find_possessable", &guid))
+	PyObject *py_parent = nullptr;
+	if (!PyArg_ParseTuple(args, "s|O:sequencer_find_possessable", &guid, &py_parent))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<ULevelSequence>())
-		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a ULevelSequence");
+	}
 
 	FGuid f_guid;
 	if (!FGuid::Parse(FString(guid), f_guid))
@@ -135,14 +139,21 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "invalid GUID");
 	}
 
-	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
-
 #if ENGINE_MINOR_VERSION < 15
 	UObject *u_obj = seq->FindPossessableObject(f_guid, seq);
 #else
+	UObject *parent = nullptr;
+	if (py_parent)
+	{
+		parent = ue_py_check_type<UObject>(py_parent);
+		if (!parent)
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		}
+	}
 	UObject *u_obj = nullptr;
 	TArray<UObject *, TInlineAllocator<1>> u_objects;
-	seq->LocateBoundObjects(f_guid, nullptr, u_objects);
+	seq->LocateBoundObjects(f_guid, parent, u_objects);
 	if (u_objects.Num() > 0)
 	{
 		u_obj = u_objects[0];
@@ -152,7 +163,7 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find uobject with GUID \"%s\"", guid);
 
 	Py_RETURN_UOBJECT(u_obj);
-}
+	}
 
 PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *self, PyObject * args)
 {
@@ -273,7 +284,7 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args)
 	}
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
-}
+	}
 
 PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *self, PyObject * args)
 {
@@ -393,6 +404,26 @@ PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *self, PyObject * args)
 	}
 
 	return py_tracks;
+}
+
+PyObject *py_ue_sequencer_get_camera_cut_track(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	UMovieSceneTrack *track = scene->GetCameraCutTrack();
+	if (!track)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find camera cut track");
+	}
+
+	Py_RETURN_UOBJECT(track);
 }
 
 PyObject *py_ue_sequencer_possessables(ue_PyUObject *self, PyObject * args)

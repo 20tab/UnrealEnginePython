@@ -885,6 +885,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	// Sequencer
 	{ "sequencer_master_tracks", (PyCFunction)py_ue_sequencer_master_tracks, METH_VARARGS, "" },
 	{ "sequencer_possessable_tracks", (PyCFunction)py_ue_sequencer_possessable_tracks, METH_VARARGS, "" },
+	{ "sequencer_get_camera_cut_track", (PyCFunction)py_ue_sequencer_get_camera_cut_track, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "sequencer_folders", (PyCFunction)py_ue_sequencer_folders, METH_VARARGS, "" },
 	{ "sequencer_create_folder", (PyCFunction)py_ue_sequencer_create_folder, METH_VARARGS, "" },
