@@ -4,23 +4,26 @@
 
 static PyObject *py_ue_ftimerhandle_clear(ue_PyFTimerHandle *self, PyObject * args)
 {
-	self->world->GetTimerManager().ClearTimer(self->thandle);
-	Py_INCREF(Py_None);
-	return Py_None;
+	if (!self->world.IsValid())
+		return PyErr_Format(PyExc_Exception, "World's timer is invalid");
+	self->world.Get()->GetTimerManager().ClearTimer(self->thandle);
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftimerhandle_pause(ue_PyFTimerHandle *self, PyObject * args)
 {
-	self->world->GetTimerManager().PauseTimer(self->thandle);
-	Py_INCREF(Py_None);
-	return Py_None;
+	if (!self->world.IsValid())
+		return PyErr_Format(PyExc_Exception, "World's timer is invalid");
+	self->world.Get()->GetTimerManager().PauseTimer(self->thandle);
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftimerhandle_unpause(ue_PyFTimerHandle *self, PyObject * args)
 {
-	self->world->GetTimerManager().UnPauseTimer(self->thandle);
-	Py_INCREF(Py_None);
-	return Py_None;
+	if (!self->world.IsValid())
+		return PyErr_Format(PyExc_Exception, "World's timer is invalid");
+	self->world.Get()->GetTimerManager().UnPauseTimer(self->thandle);
+	Py_RETURN_NONE;
 }
 
 
@@ -37,7 +40,14 @@ static PyMethodDef ue_PyFTimerHandle_methods[] = {
 // destructor
 static void ue_pyftimerhandle_dealloc(ue_PyFTimerHandle *self)
 {
-	Py_DECREF(self->py_callable);
+	if (self->world.IsValid())
+	{
+		self->world.Get()->GetTimerManager().ClearTimer(self->thandle);
+	}
+	if (self->delegate_ptr.IsValid())
+	{
+		self->delegate_ptr.Reset();
+	}
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -107,30 +117,24 @@ PyObject *py_ue_set_timer(ue_PyUObject *self, PyObject * args)
 	if (!world)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
 
-	FTimerDelegate timer_delegate;
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	// fake UFUNCTION for bypassing checks
-	timer_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
-	// allow the delegate to not be destroyed
-	py_delegate->AddToRoot();
-	self->python_delegates_gc->push_back(py_delegate);
-
-	FTimerHandle thandle;
-	world->GetTimerManager().SetTimer(thandle, timer_delegate, rate, loop, first_delay);
 
 	ue_PyFTimerHandle *ret = (ue_PyFTimerHandle *)PyObject_New(ue_PyFTimerHandle, &ue_PyFTimerHandleType);
 	if (!ret)
 	{
-		world->GetTimerManager().ClearTimer(thandle);
 		return PyErr_Format(PyExc_Exception, "unable to allocate FTimerHandle python object");
 	}
-	ret->thandle = thandle;
-	ret->py_callable = py_callable;
-	// will be decref'ed on clear
-	Py_INCREF(ret->py_callable);
-	ret->world = world;
+
+	FTimerDelegate timer_delegate;
+	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
+	py_delegate->SetPyCallable(py_callable);
+
+	timer_delegate.BindSP(py_delegate, &FPythonSmartDelegate::Void);
+
+	world->GetTimerManager().SetTimer(ret->thandle, timer_delegate, rate, loop, first_delay);
+
+	new(&ret->delegate_ptr) TSharedPtr<FPythonSmartDelegate>(py_delegate);
+	ret->world = TWeakObjectPtr<UWorld>(world);
 
 	return (PyObject *)ret;
 }

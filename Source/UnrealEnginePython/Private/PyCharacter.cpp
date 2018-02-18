@@ -443,13 +443,7 @@ APyCharacter::~APyCharacter()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
 
-#if defined(UEPY_MEMORY_DEBUG)
-	if (py_character_instance && py_character_instance->ob_refcnt != 1) {
-		UE_LOG(LogPython, Error, TEXT("Inconsistent Python ACharacter wrapper refcnt = %d"), py_character_instance->ob_refcnt);
-	}
-#endif
 	Py_XDECREF(py_character_instance);
 	
 #if defined(UEPY_MEMORY_DEBUG)
@@ -458,4 +452,5 @@ APyCharacter::~APyCharacter()
 
 	// this could trigger the distruction of the python/uobject mapper
 	Py_XDECREF(py_uobject);
+	FUnrealEnginePythonHouseKeeper::Get()->UnregisterPyUObject(this);
 }

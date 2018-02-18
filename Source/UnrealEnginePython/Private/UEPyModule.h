@@ -2,26 +2,28 @@
 
 #include "UnrealEnginePython.h"
 #include "PythonDelegate.h"
+#include "PythonSmartDelegate.h"
 #include "UEPyUScriptStruct.h"
-#include <map>
-#include <list>
+
+
 
 //#include "UEPyModule.generated.h"
 
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UObject *ue_object;
+	/* Type-specific fields go here. */
+	UObject *ue_object;
 	// reference to proxy class (can be null)
 	PyObject *py_proxy;
-	// list of exposed delegates
-	std::list<UPythonDelegate*> *python_delegates_gc;
 	// the __dict__
 	PyObject *py_dict;
 	// if true RemoveFromRoot will be called at object destruction time
 	int auto_rooted;
 } ue_PyUObject;
+
+
+
 
 
 void unreal_engine_py_log_error();
@@ -39,8 +41,6 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *, PyObject *);
 PyObject *ue_bind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
 
 PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject *);
-
-void ue_pydelegates_cleanup(ue_PyUObject *);
 
 UClass *unreal_engine_new_uclass(char *, UClass *);
 UFunction *unreal_engine_add_function(UClass *, char *, PyObject *, uint32);
@@ -92,3 +92,4 @@ template <typename T> bool ue_py_check_childstruct(PyObject *py_obj)
 }
 
 FGuid *ue_py_check_fguid(PyObject *);
+

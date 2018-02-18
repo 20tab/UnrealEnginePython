@@ -405,19 +405,13 @@ PyObject *py_ue_bind_action(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
 	}
 
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-
-	// allow the delegate to not be destroyed
-	self->python_delegates_gc->push_back(py_delegate);
+	UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(input, py_callable, nullptr);
 
 	FInputActionBinding input_action_binding(FName(UTF8_TO_TCHAR(action_name)), (const EInputEvent)key);
 	input_action_binding.ActionDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);
 	input->AddActionBinding(input_action_binding);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 
 }
 
@@ -458,19 +452,13 @@ PyObject *py_ue_bind_axis(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
 	}
 
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-
-	// allow the delegate to not be destroyed
-	self->python_delegates_gc->push_back(py_delegate);
+	UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(input, py_callable, nullptr);
 
 	FInputAxisBinding input_axis_binding(FName(UTF8_TO_TCHAR(axis_name)));
 	input_axis_binding.AxisDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputAxisHandler);
 	input->AxisBindings.Add(input_axis_binding);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 
 }
 
@@ -515,19 +503,13 @@ PyObject *py_ue_bind_key(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "no input manager for this uobject");
 	}
 
-	UPythonDelegate *py_delegate = NewObject<UPythonDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-
-	// allow the delegate to not be destroyed
-	self->python_delegates_gc->push_back(py_delegate);
+	UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(input, py_callable, nullptr);
 
 	FInputKeyBinding input_key_binding(FKey(UTF8_TO_TCHAR(key_name)), (const EInputEvent)key);
 	input_key_binding.KeyDelegate.BindDelegate(py_delegate, &UPythonDelegate::PyInputHandler);
 	input->KeyBindings.Add(input_key_binding);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 
 }
 

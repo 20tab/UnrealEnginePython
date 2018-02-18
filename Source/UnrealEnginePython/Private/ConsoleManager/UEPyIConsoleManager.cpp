@@ -515,7 +515,7 @@ static PyObject *py_ue_iconsole_manager_register_variable_float(PyObject *cls, P
 	Py_RETURN_NONE;
 }
 
-void UPythonConsoleDelegate::OnConsoleCommand(const TArray < FString > & InArgs)
+void FPythonSmartConsoleDelegate::OnConsoleCommand(const TArray < FString > & InArgs)
 {
 	FScopePythonGIL gil;
 
@@ -563,11 +563,10 @@ static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject
 		return PyErr_Format(PyExc_Exception, "console object \"%s\" already exists", key);
 	}
 
-	UPythonConsoleDelegate *py_delegate = NewObject<UPythonConsoleDelegate>();
+	TSharedRef<FPythonSmartConsoleDelegate> py_delegate = MakeShareable(new FPythonSmartConsoleDelegate);
 	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
 	FConsoleCommandWithArgsDelegate console_delegate;
-	console_delegate.BindUObject(py_delegate, &UPythonConsoleDelegate::OnConsoleCommand);
+	console_delegate.BindSP(py_delegate, &FPythonSmartConsoleDelegate::OnConsoleCommand);
 
 	if (!IConsoleManager::Get().RegisterConsoleCommand(UTF8_TO_TCHAR(key), help ? UTF8_TO_TCHAR(help) : UTF8_TO_TCHAR(key), console_delegate, 0))
 	{

@@ -122,7 +122,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 UPythonFunction::~UPythonFunction()
 {
 	Py_XDECREF(py_callable);
+	FUnrealEnginePythonHouseKeeper::Get()->UnregisterPyUObject(this);
 #if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("PythonFunction callable XDECREF'ed"));
+	UE_LOG(LogPython, Warning, TEXT("PythonFunction callable %p XDECREF'ed"), this);
 #endif
 }

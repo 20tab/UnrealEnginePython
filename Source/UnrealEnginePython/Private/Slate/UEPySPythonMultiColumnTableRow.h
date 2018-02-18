@@ -22,8 +22,74 @@ public:
         SMultiColumnTableRow<TSharedPtr<struct FPythonItem> >::Construct(FSuperRowType::FArguments(), InOwnerTableView);
     }
 
-    TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName);
-    FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent);
+    TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName)
+    {
+        FScopePythonGIL gil;
+
+        if (!PyObject_HasAttrString(self, (char *)"generate_widget_for_column"))
+            return SNullWidget::NullWidget;
+
+        PyObject *py_callable_generate_widget_for_column = PyObject_GetAttrString(self, (char *)"generate_widget_for_column");
+        if (!PyCalllable_Check_Extended(py_callable_generate_widget_for_column))
+        {
+            UE_LOG(LogPython, Error, TEXT("generate_widget_for_column is not a callable"));
+            return SNullWidget::NullWidget;
+        }
+
+        PyObject *ret = PyObject_CallFunction(py_callable_generate_widget_for_column, (char *)"s", TCHAR_TO_UTF8(*ColumnName.ToString()));
+        if (!ret)
+        {
+            unreal_engine_py_log_error();
+            return SNullWidget::NullWidget;
+        }
+
+        ue_PySWidget *s_widget = py_ue_is_swidget(ret);
+        if (!s_widget)
+        {
+            Py_DECREF(ret);
+            UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+            return SNullWidget::NullWidget;
+        }
+
+        TSharedRef<SWidget> value = s_widget->s_widget;
+        Py_DECREF(ret);
+        return value;
+    }
+
+
+    FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
+    {
+        FScopePythonGIL gil;
+
+        if (PyObject_HasAttrString(self, (char *)"on_mouse_button_double_click"))
+        {
+            PyObject *py_callable_on_mouse_button_double_click = PyObject_GetAttrString(self, (char *)"on_mouse_button_double_click");
+            if (!PyCalllable_Check_Extended(py_callable_on_mouse_button_double_click))
+            {
+                UE_LOG(LogPython, Error, TEXT("on_mouse_button_double_click is not a callable"));
+                return FReply::Unhandled();
+            }
+
+            PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_double_click, (char *)"OO", py_ue_new_fgeometry(InMyGeometry), py_ue_new_fpointer_event(InMouseEvent));
+            if (!ret)
+            {
+                unreal_engine_py_log_error();
+                return FReply::Unhandled();
+            }
+
+            if (ret == Py_False)
+            {
+                Py_DECREF(ret);
+                return FReply::Unhandled();
+            }
+            Py_DECREF(ret);
+            return FReply::Handled();
+        }
+        else
+        {
+            return SPythonMultiColumnTableRow::OnMouseButtonDoubleClick(InMyGeometry, InMouseEvent);
+        }
+    }
 
     void SetPyObject(PyObject *py_obj)
     {

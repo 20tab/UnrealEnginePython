@@ -103,6 +103,7 @@ static int ue_py_fpointer_event_init(ue_PyFPointerEvent *self, PyObject *args, P
 	}
 
 	TSet<FKey> keys;
+	keys.Add(FKey(effecting));
 
 	FModifierKeysState modifier;
 	if (py_modifier)

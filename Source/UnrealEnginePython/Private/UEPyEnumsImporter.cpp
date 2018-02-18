@@ -2,8 +2,8 @@
 
 static PyObject *ue_PyEnumsImporter_getattro(ue_PyEnumsImporter *self, PyObject *attr_name)
 {
-	PyObject *ret = PyObject_GenericGetAttr((PyObject *)self, attr_name);
-	if (!ret)
+	PyObject *py_attr = PyObject_GenericGetAttr((PyObject *)self, attr_name);
+	if (!py_attr)
 	{
 		if (PyUnicodeOrString_Check(attr_name))
 		{
@@ -20,7 +20,7 @@ static PyObject *ue_PyEnumsImporter_getattro(ue_PyEnumsImporter *self, PyObject 
 			}
 		}
 	}
-	return ret;
+	return py_attr;
 }
 
 static PyTypeObject ue_PyEnumsImporterType = {

@@ -355,13 +355,6 @@ UPyUserWidget::~UPyUserWidget()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
-
-#if defined(UEPY_MEMORY_DEBUG)
-	if (py_user_widget_instance && py_user_widget_instance->ob_refcnt != 1) {
-		UE_LOG(LogPython, Error, TEXT("Inconsistent Python UUserWidget wrapper refcnt = %d"), py_user_widget_instance->ob_refcnt);
-}
-#endif
 	Py_XDECREF(py_user_widget_instance);
 
 #if defined(UEPY_MEMORY_DEBUG)
@@ -370,6 +363,7 @@ UPyUserWidget::~UPyUserWidget()
 
 	// this could trigger the distruction of the python/uobject mapper
 	Py_XDECREF(py_uobject);
+	FUnrealEnginePythonHouseKeeper::Get()->UnregisterPyUObject(this);
 }
 
 void UPyUserWidget::CallPythonUserWidgetMethod(FString method_name, FString args)

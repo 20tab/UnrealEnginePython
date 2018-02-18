@@ -242,14 +242,7 @@ APyHUD::~APyHUD()
 {
 	FScopePythonGIL gil;
 
-	ue_pydelegates_cleanup(py_uobject);
 
-#if defined(UEPY_MEMORY_DEBUG)
-	if (py_hud_instance && py_hud_instance->ob_refcnt != 1)
-	{
-		UE_LOG(LogPython, Error, TEXT("Inconsistent Python AHUD wrapper refcnt = %d"), py_hud_instance->ob_refcnt);
-	}
-#endif
 	Py_XDECREF(py_hud_instance);
 
 #if defined(UEPY_MEMORY_DEBUG)
@@ -258,4 +251,5 @@ APyHUD::~APyHUD()
 
 	// this could trigger the distruction of the python/uobject mapper
 	Py_XDECREF(py_uobject);
+	FUnrealEnginePythonHouseKeeper::Get()->UnregisterPyUObject(this);
 }

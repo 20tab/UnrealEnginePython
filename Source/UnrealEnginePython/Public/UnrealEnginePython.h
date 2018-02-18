@@ -59,7 +59,10 @@ private:
 	TSharedPtr<FSlateStyleSet> StyleSet;
 };
 
-struct FScopePythonGIL {
+
+
+struct FScopePythonGIL
+{
 	FScopePythonGIL()
 	{
 #if defined(UEPY_THREADING)
@@ -71,7 +74,8 @@ struct FScopePythonGIL {
 	~FScopePythonGIL()
 	{
 #if defined(UEPY_THREADING)
-		if (safeForRelease) {
+		if (safeForRelease)
+		{
 			UnrealEnginePythonModule.PythonGILRelease();
 		}
 #endif
