@@ -175,7 +175,6 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
             if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value)) {
 
                 Py_INCREF(_py_swidget);
-                ((ue_PySWidget *)self)->py_refs.Add(value);
                 arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->s_widget));
             }
             else {

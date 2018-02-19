@@ -41,7 +41,6 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 	}
 	
 	Py_INCREF(py_swidget);
-	self->s_box_panel.s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SVerticalBox::FSlot &fslot = sw_vertical_box->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());

@@ -4,7 +4,8 @@
 
 #include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
 
-static PyObject *py_ue_ftool_bar_builder_begin_section(ue_PyFToolBarBuilder *self, PyObject * args) {
+static PyObject *py_ue_ftool_bar_builder_begin_section(ue_PyFToolBarBuilder *self, PyObject * args)
+{
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:begin_section", &name))
 		return NULL;
@@ -15,14 +16,16 @@ static PyObject *py_ue_ftool_bar_builder_begin_section(ue_PyFToolBarBuilder *sel
 	return Py_None;
 }
 
-static PyObject *py_ue_ftool_bar_builder_end_section(ue_PyFToolBarBuilder *self, PyObject * args) {
+static PyObject *py_ue_ftool_bar_builder_end_section(ue_PyFToolBarBuilder *self, PyObject * args)
+{
 	self->tool_bar_builder.EndSection();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilder *self, PyObject * args) {
+static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilder *self, PyObject * args)
+{
 	char *hook;
 	char *label;
 	char *tooltip;
@@ -33,25 +36,27 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 		return NULL;
 
 	ue_PyFSlateIcon *py_slate_icon = py_ue_is_fslate_icon(py_icon);
-	if (!py_slate_icon) {
+	if (!py_slate_icon)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FSlateIcon");
 	}
 
-	if (!PyCalllable_Check_Extended(py_callable)) {
+	if (!PyCalllable_Check_Extended(py_callable))
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
 
 	FExecuteAction handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
 
-	if (py_obj) {
+	if (py_obj)
+	{
 		Py_INCREF(py_obj);
-		handler.BindUObject(py_delegate, &UPythonSlateDelegate::ExecuteAction, py_obj);
+		handler.BindSP(py_delegate, &FPythonSlateDelegate::ExecuteAction, py_obj);
 	}
-	else {
-		handler.BindUObject(py_delegate, &UPythonSlateDelegate::SimpleExecuteAction);
+	else
+	{
+		handler.BindSP(py_delegate, &FPythonSlateDelegate::SimpleExecuteAction);
 	}
 
 	self->tool_bar_builder.AddToolBarButton(FUIAction(handler), FName(hook), FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), py_slate_icon->icon);
@@ -60,7 +65,8 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 	return Py_None;
 }
 
-static PyObject *py_ue_ftool_bar_builder_add_separator(ue_PyFToolBarBuilder *self, PyObject * args) {
+static PyObject *py_ue_ftool_bar_builder_add_separator(ue_PyFToolBarBuilder *self, PyObject * args)
+{
 	char *hook = nullptr;
 
 	if (!PyArg_ParseTuple(args, "|s:add_separator", &hook))
@@ -78,25 +84,28 @@ static PyObject *py_ue_ftool_bar_builder_add_separator(ue_PyFToolBarBuilder *sel
 }
 
 
-static PyObject *py_ue_ftool_bar_builder_begin_block_group(ue_PyFToolBarBuilder *self, PyObject * args) {
+static PyObject *py_ue_ftool_bar_builder_begin_block_group(ue_PyFToolBarBuilder *self, PyObject * args)
+{
 	self->tool_bar_builder.BeginBlockGroup();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-static PyObject *py_ue_ftool_bar_builder_end_block_group(ue_PyFToolBarBuilder *self, PyObject * args) {
+static PyObject *py_ue_ftool_bar_builder_end_block_group(ue_PyFToolBarBuilder *self, PyObject * args)
+{
 	self->tool_bar_builder.EndBlockGroup();
 
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-static PyObject *py_ue_ftool_bar_builder_make_widget(ue_PyFToolBarBuilder *self, PyObject * args) {
-    ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
+static PyObject *py_ue_ftool_bar_builder_make_widget(ue_PyFToolBarBuilder *self, PyObject * args)
+{
+	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
 	ue_py_setup_swidget(ret);
-    ret->s_widget = self->tool_bar_builder.MakeWidget();
-    return (PyObject *)ret;
+	ret->s_widget = self->tool_bar_builder.MakeWidget();
+	return (PyObject *)ret;
 }
 
 static PyMethodDef ue_PyFToolBarBuilder_methods[] = {
@@ -106,7 +115,7 @@ static PyMethodDef ue_PyFToolBarBuilder_methods[] = {
 	{ "add_separator", (PyCFunction)py_ue_ftool_bar_builder_add_separator, METH_VARARGS, "" },
 	{ "begin_block_group", (PyCFunction)py_ue_ftool_bar_builder_begin_block_group, METH_VARARGS, "" },
 	{ "end_block_group", (PyCFunction)py_ue_ftool_bar_builder_end_block_group, METH_VARARGS, "" },
-    { "make_widget", (PyCFunction)py_ue_ftool_bar_builder_make_widget, METH_VARARGS, "" },
+	{ "make_widget", (PyCFunction)py_ue_ftool_bar_builder_make_widget, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -117,7 +126,8 @@ static PyObject *ue_PyFToolBarBuilder_str(ue_PyFToolBarBuilder *self)
 		&self->tool_bar_builder);
 }
 
-static void ue_py_ftool_bar_builder_dealloc(ue_PyFToolBarBuilder *self) {
+static void ue_py_ftool_bar_builder_dealloc(ue_PyFToolBarBuilder *self)
+{
 #if PY_MAJOR_VERSION < 3
 	self->ob_type->tp_free((PyObject*)self);
 #else
@@ -156,13 +166,15 @@ static PyTypeObject ue_PyFToolBarBuilderType = {
 	ue_PyFToolBarBuilder_methods,             /* tp_methods */
 };
 
-static int ue_py_ftool_bar_builder_init(ue_PyFToolBarBuilder *self, PyObject *args, PyObject *kwargs) {
-    new(&self->tool_bar_builder) FToolBarBuilder(TSharedPtr<FUICommandList>(), FMultiBoxCustomization::None);
+static int ue_py_ftool_bar_builder_init(ue_PyFToolBarBuilder *self, PyObject *args, PyObject *kwargs)
+{
+	new(&self->tool_bar_builder) FToolBarBuilder(TSharedPtr<FUICommandList>(), FMultiBoxCustomization::None);
 	return 0;
 }
 
 
-void ue_python_init_ftool_bar_builder(PyObject *ue_module) {
+void ue_python_init_ftool_bar_builder(PyObject *ue_module)
+{
 	ue_PyFToolBarBuilderType.tp_new = PyType_GenericNew;
 
 	ue_PyFToolBarBuilderType.tp_init = (initproc)ue_py_ftool_bar_builder_init;
@@ -174,7 +186,8 @@ void ue_python_init_ftool_bar_builder(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FToolBarBuilder", (PyObject *)&ue_PyFToolBarBuilderType);
 }
 
-PyObject *py_ue_new_ftool_bar_builder(FToolBarBuilder tool_bar_builder) {
+PyObject *py_ue_new_ftool_bar_builder(FToolBarBuilder tool_bar_builder)
+{
 	ue_PyFToolBarBuilder *ret = (ue_PyFToolBarBuilder *)PyObject_New(ue_PyFToolBarBuilder, &ue_PyFToolBarBuilderType);
 	new(&ret->tool_bar_builder) FToolBarBuilder(tool_bar_builder);
 	return (PyObject *)ret;

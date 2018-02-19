@@ -99,8 +99,6 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 	TArray<TSharedPtr<FPythonItem>> *items = new TArray<TSharedPtr<FPythonItem>>();
 	while (PyObject *item = PyIter_Next(values)) {
 		Py_INCREF(item);
-		// keep track of items
-		self->s_panel.s_widget.py_refs.Add(item);
 		items->Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
 	}
 	Py_DECREF(values);
@@ -142,9 +140,6 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 
 	// keep track of the list, so we can delete on destruction
 	sw_python_combo_box->PythonOptionsSource = items;
-
-	// eventually track the content
-	self->s_panel.s_widget.py_swidget_content = s_widget_content;
 
 	return 0;
 }

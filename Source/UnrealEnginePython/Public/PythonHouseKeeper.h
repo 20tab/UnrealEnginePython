@@ -31,6 +31,32 @@ class FUnrealEnginePythonHouseKeeper
 		}
 	};
 
+	struct FPythonSWidgetTracker
+	{
+		TWeakPtr<SWidget> Owner;
+		ue_PySWidget *PySWidget;
+
+		FPythonSWidgetTracker(TSharedRef<SWidget> InOwner, ue_PySWidget *InPySWidget)
+		{
+			Owner = InOwner;
+			PySWidget = InPySWidget;
+		}
+	};
+
+	struct FPythonSWidgetDelegateTracker
+	{
+		TWeakPtr<SWidget> Owner;
+		TSharedPtr<FPythonSlateDelegate> Delegate;
+
+		FPythonSWidgetDelegateTracker(TSharedRef<FPythonSlateDelegate> DelegateToTrack, TSharedRef<SWidget> DelegateOwner) : Owner(DelegateOwner), Delegate(DelegateToTrack)
+		{
+		}
+
+		~FPythonSWidgetDelegateTracker()
+		{
+		}
+	};
+
 public:
 
 	static FUnrealEnginePythonHouseKeeper *Get()
@@ -181,7 +207,22 @@ public:
 		return Delegate;
 	}
 
+	TSharedRef<FPythonSlateDelegate> NewSlateDelegate(TSharedRef<SWidget> Owner, PyObject *PyCallable)
+	{
+		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
+		Delegate->SetPyCallable(PyCallable);
+
+		FPythonSWidgetDelegateTracker Tracker(Delegate, Owner);
+		PySlateDelegatesTracker.Add(Tracker);
+
+		return Delegate;
+	}
+
 private:
 	TMap<UObject *, FPythonUOjectTracker> UObjectPyMapping;
 	TArray<FPythonDelegateTracker> PyDelegatesTracker;
+
+
+	TArray<FPythonSWidgetTracker> PySlateTracker;
+	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
 };
