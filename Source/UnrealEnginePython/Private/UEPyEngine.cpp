@@ -9,6 +9,7 @@
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 #if WITH_EDITOR
 #include "PackageTools.h"
+#include "PackageHelperFunctions.h"
 #endif
 
 
@@ -1053,6 +1054,33 @@ PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args
 {
 	Py_RETURN_UOBJECT(GetTransientPackage());
 }
+
+#if WITH_EDITOR
+PyObject *py_unreal_engine_save_package_helper(PyObject *self, PyObject *args)
+{
+	char *name        = nullptr;
+	UPackage *package = nullptr;
+    PyObject *py_obj  = nullptr;
+    uint64 flags      = (uint64)(RF_Standalone);
+	if (!PyArg_ParseTuple(args, "Os|K:save_package_helper",&py_obj, &name, &flags))
+	{
+		return nullptr;
+	}
+
+    UPackage* pkg = ue_py_check_type<UPackage>(py_obj);
+    if (!pkg)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+    }
+
+    if (!SavePackageHelper(pkg, UTF8_TO_TCHAR(name), (EObjectFlags)flags))
+    {
+        return PyErr_Format(PyExc_Exception, "unable to save package");
+    }
+
+    Py_RETURN_NONE;
+}
+#endif
 
 PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args)
 {

@@ -199,7 +199,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_package", (PyCFunction)py_unreal_engine_create_package, METH_VARARGS, "" },
 	{ "get_or_create_package", (PyCFunction)py_unreal_engine_get_or_create_package, METH_VARARGS, "" },
 	{ "get_transient_package", (PyCFunction)py_unreal_engine_get_transient_package, METH_VARARGS, "" },
-
+#if WITH_EDITOR
+    { "save_package_helper", (PyCFunction)py_unreal_engine_save_package_helper, METH_VARARGS, "" },
+#endif
 
 	{ "open_file_dialog", py_unreal_engine_open_file_dialog, METH_VARARGS, "" },
 	{ "save_file_dialog", py_unreal_engine_save_file_dialog, METH_VARARGS, "" },
