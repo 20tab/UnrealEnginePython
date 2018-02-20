@@ -5,12 +5,6 @@
 
 UPythonScriptFactory::UPythonScriptFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
 
-    // @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - Workaround for our deployment process
-#if !WITH_KNL_PYEXT
-	Formats.Add(FString("py;Python Script"));
-#endif
-    // @third party code - END Bebylon
-
 	bCreateNew = false;
 	bEditAfterNew = true;
 
