@@ -1326,7 +1326,7 @@ PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self
 	TArray<FContentBrowserMenuExtender_SelectedAssets> &Extenders = ContentBrowser.GetAllAssetViewContextMenuExtenders();
 
 	FContentBrowserMenuExtender_SelectedAssets handler;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnExtendContentBrowserMenu);
 
 	Extenders.Add(handler);
@@ -1349,7 +1349,7 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
 	FOnSpawnTab spawn_tab;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab);
 
 	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
@@ -1454,7 +1454,7 @@ PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyO
 		return PyErr_Format(PyExc_Exception, "on_color_committed must be a callable");
 	}
 
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 	FColorPickerArgs color_args;
 	color_args.OnColorCommitted.BindSP(py_delegate, &FPythonSlateDelegate::OnLinearColorChanged);
 

@@ -218,6 +218,16 @@ public:
 		return Delegate;
 	}
 
+	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable)
+	{
+		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
+		Delegate->SetPyCallable(PyCallable);
+
+		PyStaticSlateDelegatesTracker.Add(Delegate);
+
+		return Delegate;
+	}
+
 private:
 	TMap<UObject *, FPythonUOjectTracker> UObjectPyMapping;
 	TArray<FPythonDelegateTracker> PyDelegatesTracker;
@@ -225,4 +235,5 @@ private:
 
 	TArray<FPythonSWidgetTracker> PySlateTracker;
 	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
+	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
 };

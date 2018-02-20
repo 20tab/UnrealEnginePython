@@ -146,7 +146,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 	if (py_callable_double_clicked)
 	{
 		FOnAssetDoubleClicked handler;
-		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable_double_clicked);
+		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable_double_clicked);
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::OnAssetDoubleClicked);
 
 
@@ -156,7 +156,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 	if (py_callable_get_context_menu)
 	{
 		FOnGetAssetContextMenu handler;
-		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable_get_context_menu);
+		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable_get_context_menu);
 
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::OnGetAssetContextMenu);
 
@@ -166,7 +166,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 	if (py_callable_asset_selected)
 	{
 		FOnAssetSelected handler;
-		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable_asset_selected);
+		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable_asset_selected);
 
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::OnAssetSelected);
 

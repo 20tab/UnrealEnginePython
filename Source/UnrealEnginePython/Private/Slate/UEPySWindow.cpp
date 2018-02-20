@@ -243,7 +243,7 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	if (on_closed && PyCalllable_Check_Extended(on_closed))
 	{
 		FOnWindowClosed handler;
-		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, on_closed);
+		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_compound_widget.s_widget.s_widget, on_closed);
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::OnWindowClosed);
 
 		sw_window->SetOnWindowClosed(handler);

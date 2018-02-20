@@ -47,7 +47,7 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 	}
 
 	FExecuteAction handler;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 
 	if (py_obj)
 	{
