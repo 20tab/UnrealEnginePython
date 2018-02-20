@@ -79,7 +79,10 @@ public class UnrealEnginePython : ModuleRules
     public UnrealEnginePython(TargetInfo Target)
 #endif
     {
+        // @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - Workaround for our deployment process
         Definitions.Add("WITH_KNL_PYEXT=1");
+        // @third party code - END Bebylon
+
 
 
         PublicIncludePaths.AddRange(
