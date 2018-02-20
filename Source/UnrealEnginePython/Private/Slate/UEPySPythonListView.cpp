@@ -5,11 +5,6 @@
 #include "UEPySPythonListView.h"
 
 
-void SPythonListView::SetHeaderRow(TSharedPtr<SHeaderRow> InHeaderRowWidget)
-{
-    HeaderRow = InHeaderRowWidget;
-}
-
 #define sw_python_list_view StaticCastSharedRef<SPythonListView>(self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args) {
@@ -37,28 +32,7 @@ static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonList
 	return PyLong_FromLong(sw_python_list_view->GetNumItemsSelected());
 }
 
-static PyObject *py_ue_spython_list_view_set_header_row(ue_PySPythonListView *self, PyObject * args)
-{
-    PyObject *py_content;
-	if (!PyArg_ParseTuple(args, "O:set_header_row", &py_content))
-	{
-		return NULL;
-	}
-
-    ue_PySHeaderRow *py_sheader_row = py_ue_is_sheader_row(py_content);
-    if (!py_sheader_row)
-    {
-        return PyErr_Format(PyExc_Exception, "argument is not a SHeaderRow");
-    }
-
-    Py_INCREF(py_sheader_row);
-    sw_python_list_view->SetHeaderRow(StaticCastSharedRef<SHeaderRow>(py_sheader_row->s_border.s_compound_widget.s_widget.s_widget->AsShared()));
-
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *py_spython_list_view_update_item_source_list(ue_PySPythonListView *self, PyObject * args)
+static PyObject *py_ue_spython_list_view_update_item_source_list(ue_PySPythonListView *self, PyObject * args)
 {
     PyObject *values;
     if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
@@ -94,8 +68,7 @@ static PyMethodDef ue_PySPythonListView_methods[] = {
 	{ "get_selected_items", (PyCFunction)py_ue_spython_list_view_get_selected_items, METH_VARARGS, "" },
 	{ "get_num_items_selected", (PyCFunction)py_ue_spython_list_view_get_num_items_selected, METH_VARARGS, "" },
 	{ "clear_selection", (PyCFunction)py_ue_spython_list_view_clear_selection, METH_VARARGS, "" },
-    { "set_header_row", (PyCFunction)py_ue_spython_list_view_set_header_row, METH_VARARGS, "" },
-    { "update_item_source_list", (PyCFunction)py_spython_list_view_update_item_source_list, METH_VARARGS, "" },
+    { "update_item_source_list", (PyCFunction)py_ue_spython_list_view_update_item_source_list, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -145,25 +118,30 @@ PyTypeObject ue_PySPythonListViewType = {
 	ue_PySPythonListView_methods,             /* tp_methods */
 };
 
-static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *args, PyObject *kwargs) 
+{
 
 	ue_py_slate_setup_farguments(SPythonListView);
 
     // first of all check for values
     PyObject *values = ue_py_dict_get_item(kwargs, "list_items_source");
-    if (!values) {
+    if (!values) 
+    {
         PyErr_SetString(PyExc_Exception, "you must specify list items");
         return -1;
     }
 
     values = PyObject_GetIter(values);
-    if (!values) {
+    if (!values) 
+    {
+        PyErr_SetString(PyExc_Exception, "list_items_source field is not an iterable");
         Py_DECREF(values);
         return -1;
     }
 
     new(&self->item_source_list) TArray<TSharedPtr<FPythonItem>>();
-    while (PyObject *item = PyIter_Next(values)) {
+    while (PyObject *item = PyIter_Next(values)) 
+    {
         Py_INCREF(item);
         self->item_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
     }
@@ -195,6 +173,7 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
 	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
+    ue_py_slate_farguments_event("on_context_menu_opening", OnContextMenuOpening, FOnContextMenuOpening, OnContextMenuOpening);
 #if ENGINE_MINOR_VERSION > 12
 	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
 #endif

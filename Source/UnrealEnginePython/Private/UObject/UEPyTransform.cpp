@@ -25,7 +25,7 @@ static bool check_vector_args(PyObject *args, FVector &vec, bool &sweep, bool &t
 	}
 	else
 	{
-		vec = ue_py_vec->vec;
+		vec = py_ue_fvector_get(ue_py_vec);
 	}
 
 	sweep = (py_sweep && PyObject_IsTrue(py_sweep));
@@ -55,7 +55,7 @@ static bool check_rotation_args(PyObject *args, FQuat &quat, bool &sweep, bool &
 		ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
 		if (ue_py_quat)
 		{
-			quat = ue_py_quat->quat;
+			quat = py_ue_fquat_get(ue_py_quat);
 		}
 		else
 		{
@@ -65,7 +65,7 @@ static bool check_rotation_args(PyObject *args, FQuat &quat, bool &sweep, bool &
 				PyErr_SetString(PyExc_Exception, "argument is not a FQuat or FRotator");
 				return false;
 			}
-			quat = ue_py_rot->rot.Quaternion();
+			quat = py_ue_frotator_get(ue_py_rot).Quaternion();
 		}
 	}
 	else
@@ -99,7 +99,7 @@ static bool check_rotation_args_no_sweep(PyObject *args, FQuat &quat, bool &tele
 		ue_PyFQuat *ue_py_quat = py_ue_is_fquat(py_rotation);
 		if (ue_py_quat)
 		{
-			quat = ue_py_quat->quat;
+			quat = py_ue_fquat_get(ue_py_quat);
 		}
 		else
 		{
@@ -109,7 +109,7 @@ static bool check_rotation_args_no_sweep(PyObject *args, FQuat &quat, bool &tele
 				PyErr_SetString(PyExc_Exception, "argument is not a FQuat or FRotator");
 				return false;
 			}
-			quat = ue_py_rot->rot.Quaternion();
+			quat = py_ue_frotator_get(ue_py_rot).Quaternion();
 		}
 	}
 	else

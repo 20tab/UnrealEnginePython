@@ -91,7 +91,7 @@ static PyObject *py_ue_spython_editor_viewport_set_view_location(ue_PySPythonEdi
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
 		}
-		vec = ue_py_vec->vec;
+		vec = py_ue_fvector_get(ue_py_vec);
 	}
 	else
 	{
@@ -123,7 +123,7 @@ static PyObject *py_ue_spython_editor_viewport_set_view_rotation(ue_PySPythonEdi
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
 		}
-		rot = ue_py_rot->rot;
+		rot = py_ue_frotator_get(ue_py_rot);
 	}
 	else
 	{
@@ -185,7 +185,7 @@ static PyObject *py_ue_spython_editor_viewport_set_light_direction(ue_PySPythonE
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
 		}
-		rot = ue_py_rot->rot;
+		rot = py_ue_frotator_get(ue_py_rot);
 	}
 	else
 	{

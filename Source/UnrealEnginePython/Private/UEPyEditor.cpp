@@ -48,7 +48,7 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
 		if (!vector)
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
-		v = vector->vec;
+		v = py_ue_fvector_get(vector);
 	}
 
 	if (py_rotator)
@@ -56,7 +56,7 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
 		if (!rotator)
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
-		r = rotator->rot;
+		r = py_ue_frotator_get(rotator);
 	}
 
 	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
@@ -79,24 +79,6 @@ PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args)
 
 	UWorld *world = GEditor->GetEditorWorldContext().World();
 	Py_RETURN_UOBJECT(world);
-}
-
-PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)
-{
-
-	char *command;
-
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
-	if (!PyArg_ParseTuple(args, "s:console_exec", &command))
-	{
-		return NULL;
-	}
-
-	GEditor->Exec(GEditor->GetEditorWorldContext().World(), UTF8_TO_TCHAR(command), *GLog);
-
-	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * self, PyObject * args)
@@ -238,7 +220,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 		ue_PyFVector *vector = py_ue_is_fvector(py_vector);
 		if (!vector)
 			return PyErr_Format(PyExc_Exception, "argument is not a FVector");
-		v = vector->vec;
+		v = py_ue_fvector_get(vector);
 	}
 
 	if (py_rotator)
@@ -246,7 +228,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 		ue_PyFRotator *rotator = py_ue_is_frotator(py_rotator);
 		if (!rotator)
 			return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
-		r = rotator->rot;
+		r = py_ue_frotator_get(rotator);
 	}
 
 #if ENGINE_MINOR_VERSION >= 17

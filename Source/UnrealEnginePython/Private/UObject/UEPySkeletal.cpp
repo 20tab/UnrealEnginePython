@@ -184,7 +184,7 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
 
 		TCHAR *bone_name = UTF8_TO_TCHAR(name);
 
-		modifier.Add(FMeshBoneInfo(FName(bone_name), FString(bone_name), parent_index), transform->transform);
+		modifier.Add(FMeshBoneInfo(FName(bone_name), FString(bone_name), parent_index), py_ue_ftransform_get(transform));
 	}
 
 

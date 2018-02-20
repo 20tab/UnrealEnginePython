@@ -65,7 +65,7 @@ PyObject *py_ue_vlog_cylinder(ue_PyUObject *self, PyObject * args)
 		FVisualLogger::GeometryShapeLogf(self->ue_object,
 			FLogCategoryBase(UTF8_TO_TCHAR(category), (ELogVerbosity::Type)verbosity, (ELogVerbosity::Type)verbosity),
 			(ELogVerbosity::Type)verbosity,
-			py_vec_start->vec, py_vec_end->vec, radius, color,
+            py_ue_fvector_get(py_vec_start), py_ue_fvector_get(py_vec_end), radius, color,
 			TEXT("%s"), UTF8_TO_TCHAR(text));
 	}
 #endif

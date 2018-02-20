@@ -4,14 +4,20 @@
 
 #include "Runtime/Core/Public/Math/Quat.h"
 
+extern PyTypeObject ue_PyUScriptStructType;
+
 typedef struct {
-	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FQuat quat;
+    ue_PyUScriptStruct py_base;
 } ue_PyFQuat;
 
-PyObject *py_ue_new_fquat(FQuat);
+PyObject *py_ue_new_fquat(const FQuat&);
+PyObject *py_ue_new_fquat_ptr(FQuat*);
 ue_PyFQuat *py_ue_is_fquat(PyObject *);
+
+inline static FQuat& py_ue_fquat_get(ue_PyFQuat *self)
+{
+    return *((FQuat*)py_ue_uscriptstruct_get_data((ue_PyUScriptStruct *)self));
+}
 
 void ue_python_init_fquat(PyObject *);
 

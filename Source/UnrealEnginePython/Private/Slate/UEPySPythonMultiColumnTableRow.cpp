@@ -6,6 +6,7 @@
 
 #define sw_python_multicolumn_table_row StaticCastSharedRef<SPythonMultiColumnTableRow>(self->s_compound_widget.s_widget.s_widget)
 
+
 static PyMethodDef ue_PySPythonMultiColumnTableRow_methods[] = {
 	{ NULL }  /* Sentinel */
 };

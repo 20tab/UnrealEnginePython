@@ -772,7 +772,7 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 		ue_PyFVector *py_location = py_ue_is_fvector(py_obj_location);
 		if (!py_location)
 			return PyErr_Format(PyExc_Exception, "location must be an FVector");
-		location = py_location->vec;
+		location = py_ue_fvector_get(py_location);
 	}
 
 	if (py_obj_rotation)
@@ -780,7 +780,7 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 		ue_PyFRotator *py_rotation = py_ue_is_frotator(py_obj_rotation);
 		if (!py_rotation)
 			return PyErr_Format(PyExc_Exception, "location must be an FRotator");
-		rotation = py_rotation->rot;
+		rotation = py_ue_frotator_get(py_rotation);
 	}
 
 	if (kwargs && PyDict_Size(kwargs) > 0)

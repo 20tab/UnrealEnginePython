@@ -5,8 +5,6 @@
 
 UPythonScriptFactory::UPythonScriptFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
 
-	Formats.Add(FString("py;Python Script"));
-
 	bCreateNew = false;
 	bEditAfterNew = true;
 

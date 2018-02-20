@@ -2,24 +2,24 @@
 
 static PyObject *py_ue_fvector_length(ue_PyFVector *self, PyObject * args)
 {
-	return PyFloat_FromDouble(self->vec.Size());
+	return PyFloat_FromDouble(py_ue_fvector_get(self).Size());
 }
 
 static PyObject *py_ue_fvector_length_squared(ue_PyFVector *self, PyObject * args)
 {
-	return PyFloat_FromDouble(self->vec.SizeSquared());
+	return PyFloat_FromDouble(py_ue_fvector_get(self).SizeSquared());
 }
 
 static PyObject *py_ue_fvector_normalized(ue_PyFVector *self, PyObject * args)
 {
-	FVector vec = self->vec;
+	FVector vec = py_ue_fvector_get(self);
 	vec.Normalize();
 	return py_ue_new_fvector(vec);
 }
 
 static PyObject *py_ue_fvector_rotation(ue_PyFVector *self, PyObject * args)
 {
-	FRotator rot = self->vec.Rotation();
+	FRotator rot = py_ue_fvector_get(self).Rotation();
 	return py_ue_new_frotator(rot);
 }
 
@@ -31,7 +31,7 @@ static PyObject *py_ue_fvector_dot(ue_PyFVector *self, PyObject * args)
 	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
 	if (!py_vec)
 		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
-	return PyFloat_FromDouble(FVector::DotProduct(self->vec, py_vec->vec));
+	return PyFloat_FromDouble(FVector::DotProduct(py_ue_fvector_get(self), py_ue_fvector_get(py_vec)));
 }
 
 static PyObject *py_ue_fvector_cross(ue_PyFVector *self, PyObject * args)
@@ -42,7 +42,7 @@ static PyObject *py_ue_fvector_cross(ue_PyFVector *self, PyObject * args)
 	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
 	if (!py_vec)
 		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
-	return py_ue_new_fvector(FVector::CrossProduct(self->vec, py_vec->vec));
+	return py_ue_new_fvector(FVector::CrossProduct(py_ue_fvector_get(self), py_ue_fvector_get(py_vec)));
 }
 
 static PyObject *py_ue_fvector_project_on_to(ue_PyFVector *self, PyObject * args)
@@ -53,7 +53,7 @@ static PyObject *py_ue_fvector_project_on_to(ue_PyFVector *self, PyObject * args
 	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
 	if (!py_vec)
 		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
-	return py_ue_new_fvector(self->vec.ProjectOnTo(py_vec->vec));
+	return py_ue_new_fvector(py_ue_fvector_get(self).ProjectOnTo(py_ue_fvector_get(py_vec)));
 }
 
 static PyObject *py_ue_fvector_project_on_to_normal(ue_PyFVector *self, PyObject * args)
@@ -64,7 +64,7 @@ static PyObject *py_ue_fvector_project_on_to_normal(ue_PyFVector *self, PyObject
 	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
 	if (!py_vec)
 		return PyErr_Format(PyExc_TypeError, "argument is not a FVector");
-	return py_ue_new_fvector(self->vec.ProjectOnToNormal(py_vec->vec));
+	return py_ue_new_fvector(py_ue_fvector_get(self).ProjectOnToNormal(py_ue_fvector_get(py_vec)));
 }
 
 
@@ -85,7 +85,7 @@ static PyMethodDef ue_PyFVector_methods[] = {
 
 static PyObject *py_ue_fvector_get_x(ue_PyFVector *self, void *closure)
 {
-	return PyFloat_FromDouble(self->vec.X);
+	return PyFloat_FromDouble(py_ue_fvector_get(self).X);
 }
 
 static int py_ue_fvector_set_x(ue_PyFVector *self, PyObject *value, void *closure)
@@ -93,7 +93,7 @@ static int py_ue_fvector_set_x(ue_PyFVector *self, PyObject *value, void *closur
 	if (value && PyNumber_Check(value))
 	{
 		PyObject *f_value = PyNumber_Float(value);
-		self->vec.X = PyFloat_AsDouble(f_value);
+		py_ue_fvector_get(self).X = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
 		return 0;
 	}
@@ -103,7 +103,7 @@ static int py_ue_fvector_set_x(ue_PyFVector *self, PyObject *value, void *closur
 
 static PyObject *py_ue_fvector_get_y(ue_PyFVector *self, void *closure)
 {
-	return PyFloat_FromDouble(self->vec.Y);
+	return PyFloat_FromDouble(py_ue_fvector_get(self).Y);
 }
 
 static int py_ue_fvector_set_y(ue_PyFVector *self, PyObject *value, void *closure)
@@ -111,7 +111,7 @@ static int py_ue_fvector_set_y(ue_PyFVector *self, PyObject *value, void *closur
 	if (value && PyNumber_Check(value))
 	{
 		PyObject *f_value = PyNumber_Float(value);
-		self->vec.Y = PyFloat_AsDouble(f_value);
+		py_ue_fvector_get(self).Y = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
 		return 0;
 	}
@@ -121,7 +121,7 @@ static int py_ue_fvector_set_y(ue_PyFVector *self, PyObject *value, void *closur
 
 static PyObject *py_ue_fvector_get_z(ue_PyFVector *self, void *closure)
 {
-	return PyFloat_FromDouble(self->vec.Z);
+	return PyFloat_FromDouble(py_ue_fvector_get(self).Z);
 }
 
 static int py_ue_fvector_set_z(ue_PyFVector *self, PyObject *value, void *closure)
@@ -129,7 +129,7 @@ static int py_ue_fvector_set_z(ue_PyFVector *self, PyObject *value, void *closur
 	if (value && PyNumber_Check(value))
 	{
 		PyObject *f_value = PyNumber_Float(value);
-		self->vec.Z = PyFloat_AsDouble(f_value);
+		py_ue_fvector_get(self).Z = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
 		return 0;
 	}
@@ -148,7 +148,7 @@ static PyGetSetDef ue_PyFVector_getseters[] = {
 static PyObject *ue_PyFVector_str(ue_PyFVector *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.FVector {'x': %S, 'y': %S, 'z': %S}>",
-		PyFloat_FromDouble(self->vec.X), PyFloat_FromDouble(self->vec.Y), PyFloat_FromDouble(self->vec.Z));
+		PyFloat_FromDouble(py_ue_fvector_get(self).X), PyFloat_FromDouble(py_ue_fvector_get(self).Y), PyFloat_FromDouble(py_ue_fvector_get(self).Z));
 }
 
 static PyTypeObject ue_PyFVectorType = {
@@ -191,11 +191,11 @@ static PyTypeObject ue_PyFVectorType = {
 
 static PyObject *ue_py_fvector_add(ue_PyFVector *self, PyObject *value)
 {
-	FVector vec = self->vec;
+	FVector vec = py_ue_fvector_get(self);
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		vec += py_vec->vec;
+		vec += py_ue_fvector_get(py_vec);
 	}
 	else if (PyNumber_Check(value))
 	{
@@ -211,11 +211,11 @@ static PyObject *ue_py_fvector_add(ue_PyFVector *self, PyObject *value)
 
 static PyObject *ue_py_fvector_sub(ue_PyFVector *self, PyObject *value)
 {
-	FVector vec = self->vec;
+	FVector vec = py_ue_fvector_get(self);
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		vec -= py_vec->vec;
+		vec -= py_ue_fvector_get(py_vec);
 	}
 	else if (PyNumber_Check(value))
 	{
@@ -231,19 +231,19 @@ static PyObject *ue_py_fvector_sub(ue_PyFVector *self, PyObject *value)
 
 static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value)
 {
-	FVector vec = self->vec;
+	FVector vec = py_ue_fvector_get(self);
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		vec *= py_vec->vec;
+		vec *= py_ue_fvector_get(py_vec);
 	}
 	else if (ue_PyFRotator *py_rot = py_ue_is_frotator(value))
 	{
-		return py_ue_new_fvector(py_rot->rot.RotateVector(vec));
+		return py_ue_new_fvector(py_ue_frotator_get(py_rot).RotateVector(vec));
 	}
 	else if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
 	{
-		return py_ue_new_fvector(py_quat->quat.RotateVector(vec));
+		return py_ue_new_fvector(py_ue_fquat_get(py_quat).RotateVector(vec));
 	}
 	else if (PyNumber_Check(value))
 	{
@@ -257,13 +257,13 @@ static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value)
 
 static PyObject *ue_py_fvector_div(ue_PyFVector *self, PyObject *value)
 {
-	FVector vec = self->vec;
+	FVector vec = py_ue_fvector_get(self);
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		if (py_vec->vec.X == 0 || py_vec->vec.Y == 0 || py_vec->vec.Z == 0)
+		if (py_ue_fvector_get(py_vec).X == 0 || py_ue_fvector_get(py_vec).Y == 0 || py_ue_fvector_get(py_vec).Z == 0)
 			return PyErr_Format(PyExc_ZeroDivisionError, "division by zero");
-		vec /= py_vec->vec;
+		vec /= py_ue_fvector_get(py_vec);
 	}
 	else if (PyNumber_Check(value))
 	{
@@ -289,11 +289,11 @@ static PyObject *ue_py_fvector_seq_item(ue_PyFVector *self, Py_ssize_t i)
 	switch (i)
 	{
 	case 0:
-		return PyFloat_FromDouble(self->vec.X);
+		return PyFloat_FromDouble(py_ue_fvector_get(self).X);
 	case 1:
-		return PyFloat_FromDouble(self->vec.Y);
+		return PyFloat_FromDouble(py_ue_fvector_get(self).Y);
 	case 2:
-		return PyFloat_FromDouble(self->vec.Z);
+		return PyFloat_FromDouble(py_ue_fvector_get(self).Z);
 	}
 	return PyErr_Format(PyExc_IndexError, "FVector has only 3 items");
 }
@@ -306,15 +306,17 @@ static int ue_py_fvector_init(ue_PyFVector *self, PyObject *args, PyObject *kwar
 	if (!PyArg_ParseTuple(args, "|fff", &x, &y, &z))
 		return -1;
 
+    ue_py_uscriptstruct_alloc(&self->py_base, TBaseStructure<FVector>::Get(), nullptr, false);
+
 	if (PyTuple_Size(args) == 1)
 	{
 		y = x;
 		z = x;
 	}
 
-	self->vec.X = x;
-	self->vec.Y = y;
-	self->vec.Z = z;
+	py_ue_fvector_get(self).X = x;
+	py_ue_fvector_get(self).Y = y;
+	py_ue_fvector_get(self).Z = z;
 
 	return 0;
 }
@@ -329,9 +331,9 @@ static PyObject *ue_py_fvector_richcompare(ue_PyFVector *vec1, PyObject *b, int 
 
 	if (op == Py_EQ)
 	{
-		if (vec1->vec.X == vec2->vec.X &&
-			vec1->vec.Y == vec2->vec.Y &&
-			vec1->vec.Z == vec2->vec.Z)
+		if (py_ue_fvector_get(vec1).X == py_ue_fvector_get(vec2).X &&
+			py_ue_fvector_get(vec1).Y == py_ue_fvector_get(vec2).Y &&
+			py_ue_fvector_get(vec1).Z == py_ue_fvector_get(vec2).Z)
 		{
 			Py_INCREF(Py_True);
 			return Py_True;
@@ -340,9 +342,9 @@ static PyObject *ue_py_fvector_richcompare(ue_PyFVector *vec1, PyObject *b, int 
 		return Py_False;
 	}
 
-	if (vec1->vec.X == vec2->vec.X &&
-		vec1->vec.Y == vec2->vec.Y &&
-		vec1->vec.Z == vec2->vec.Z)
+	if (py_ue_fvector_get(vec1).X == py_ue_fvector_get(vec2).X &&
+		py_ue_fvector_get(vec1).Y == py_ue_fvector_get(vec2).Y &&
+		py_ue_fvector_get(vec1).Z == py_ue_fvector_get(vec2).Z)
 	{
 		Py_INCREF(Py_False);
 		return Py_False;
@@ -370,6 +372,10 @@ void ue_python_init_fvector(PyObject *ue_module)
 	ue_PyFVector_sequence_methods.sq_length = (lenfunc)ue_py_fvector_seq_length;
 	ue_PyFVector_sequence_methods.sq_item = (ssizeargfunc)ue_py_fvector_seq_item;
 
+    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
+    ue_PyFVectorType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
+    ue_PyFVectorType.tp_base = &ue_PyUScriptStructType;
+
 	if (PyType_Ready(&ue_PyFVectorType) < 0)
 		return;
 
@@ -381,11 +387,18 @@ void ue_python_init_fvector(PyObject *ue_module)
 	PyModule_AddObject(ue_module, "FVector", (PyObject *)&ue_PyFVectorType);
 }
 
-PyObject *py_ue_new_fvector(FVector vec)
+PyObject *py_ue_new_fvector(const FVector& vec)
 {
 	ue_PyFVector *ret = (ue_PyFVector *)PyObject_New(ue_PyFVector, &ue_PyFVectorType);
-	ret->vec = vec;
+    ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FVector>::Get(), (uint8 const*)&vec, false);
 	return (PyObject *)ret;
+}
+
+PyObject *py_ue_new_fvector_ptr(FVector* vec_ptr)
+{
+    ue_PyFVector *ret = (ue_PyFVector *)PyObject_New(ue_PyFVector, &ue_PyFVectorType);
+    ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FVector>::Get(), (uint8*)vec_ptr, true);
+    return (PyObject *)ret;
 }
 
 ue_PyFVector *py_ue_is_fvector(PyObject *obj)
@@ -407,7 +420,7 @@ bool py_ue_vector_arg(PyObject *args, FVector &vec)
 			PyErr_Format(PyExc_TypeError, "argument is not a FVector");
 			return false;
 		}
-		vec = py_vec->vec;
+		vec = py_ue_fvector_get(py_vec);
 		return true;
 	}
 

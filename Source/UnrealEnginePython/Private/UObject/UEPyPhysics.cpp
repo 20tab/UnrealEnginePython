@@ -74,7 +74,7 @@ PyObject *py_ue_add_impulse(ue_PyUObject * self, PyObject * args)
 		ue_PyFVector *py_impulse = py_ue_is_fvector(py_obj_impulse);
 		if (!py_impulse)
 			return PyErr_Format(PyExc_Exception, "impulse must be a FVector");
-		impulse = py_impulse->vec;
+		impulse = py_ue_fvector_get(py_impulse);
 	}
 
 	FName f_bone_name = NAME_None;
@@ -124,7 +124,7 @@ PyObject *py_ue_add_angular_impulse(ue_PyUObject * self, PyObject * args)
 		ue_PyFVector *py_impulse = py_ue_is_fvector(py_obj_impulse);
 		if (!py_impulse)
 			return PyErr_Format(PyExc_Exception, "impulse must be a FVector");
-		impulse = py_impulse->vec;
+		impulse = py_ue_fvector_get(py_impulse);
 	}
 
 	FName f_bone_name = NAME_None;
@@ -174,7 +174,7 @@ PyObject *py_ue_add_force(ue_PyUObject * self, PyObject * args)
 		ue_PyFVector *py_force = py_ue_is_fvector(py_obj_force);
 		if (!py_force)
 			return PyErr_Format(PyExc_Exception, "force must be a FVector");
-		force = py_force->vec;
+		force = py_ue_fvector_get(py_force);
 	}
 
 	FName f_bone_name = NAME_None;
@@ -224,7 +224,7 @@ PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args)
 		ue_PyFVector *py_torque = py_ue_is_fvector(py_obj_torque);
 		if (!py_torque)
 			return PyErr_Format(PyExc_Exception, "torque must be a FVector");
-		torque = py_torque->vec;
+		torque = py_ue_fvector_get(py_torque);
 	}
 
 	FName f_bone_name = NAME_None;
@@ -274,7 +274,7 @@ PyObject *py_ue_set_physics_linear_velocity(ue_PyUObject * self, PyObject * args
 		ue_PyFVector *py_new_vel = py_ue_is_fvector(py_obj_new_vel);
 		if (!py_new_vel)
 			return PyErr_Format(PyExc_Exception, "torque must be a FVector");
-		new_vel = py_new_vel->vec;
+		new_vel = py_ue_fvector_get(py_new_vel);
 	}
 
 	bool add_to_current = false;
@@ -356,7 +356,7 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 		ue_PyFVector *py_new_ang_vel = py_ue_is_fvector(py_obj_new_ang_vel);
 		if (!py_new_ang_vel)
 			return PyErr_Format(PyExc_Exception, "torque must be a FVector");
-		new_ang_vel = py_new_ang_vel->vec;
+		new_ang_vel = py_ue_fvector_get(py_new_ang_vel);
 	}
 
 	bool add_to_current = false;
@@ -479,7 +479,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 		ue_PyFVector *py_location = py_ue_is_fvector(py_obj_location);
 		if (!py_location)
 			return PyErr_Format(PyExc_Exception, "location must be a FVector");
-		location = py_location->vec;
+		location = py_ue_fvector_get(py_location);
 	}
 
 	if (py_obj_impulse)
@@ -487,7 +487,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 		ue_PyFVector *py_impulse = py_ue_is_fvector(py_obj_impulse);
 		if (!py_impulse)
 			return PyErr_Format(PyExc_Exception, "impulse must be a FVector");
-		impulse = py_impulse->vec;
+		impulse = py_ue_fvector_get(py_impulse);
 	}
 
 	if (destructible)

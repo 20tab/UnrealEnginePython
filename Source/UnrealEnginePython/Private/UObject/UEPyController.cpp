@@ -95,7 +95,7 @@ PyObject *py_ue_controller_project_world_location_to_screen(ue_PyUObject * self,
 
 	// TODO: Check return value:
 	FVector2D screenLocation;
-	if (!controller->ProjectWorldLocationToScreen(point->vec, screenLocation, (py_relative && PyObject_IsTrue(py_relative))))
+	if (!controller->ProjectWorldLocationToScreen(py_ue_fvector_get(point), screenLocation, (py_relative && PyObject_IsTrue(py_relative))))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to project coordinates");
 	}

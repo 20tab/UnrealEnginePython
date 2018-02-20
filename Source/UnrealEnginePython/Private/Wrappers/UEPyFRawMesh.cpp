@@ -26,7 +26,7 @@ static PyObject *py_ue_fraw_mesh_set_vertex_positions(ue_PyFRawMesh *self, PyObj
 
 		if (ue_PyFVector *py_fvector = py_ue_is_fvector(item_x))
 		{
-			vertex.Add(py_fvector->vec);
+			vertex.Add(py_ue_fvector_get(py_fvector));
 		}
 		else
 		{
@@ -261,7 +261,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_x(ue_PyFRawMesh *self, PyObje
 			break;
 		if (ue_PyFVector *py_fvector = py_ue_is_fvector(item_x))
 		{
-			vertex.Add(py_fvector->vec);
+			vertex.Add(py_ue_fvector_get(py_fvector));
 		}
 		else
 		{
@@ -322,7 +322,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_y(ue_PyFRawMesh *self, PyObje
 			break;
 		if (ue_PyFVector *py_fvector = py_ue_is_fvector(item_x))
 		{
-			vertex.Add(py_fvector->vec);
+			vertex.Add(py_ue_fvector_get(py_fvector));
 		}
 		else
 		{
@@ -384,7 +384,7 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_z(ue_PyFRawMesh *self, PyObje
 
 		if (ue_PyFVector *py_fvector = py_ue_is_fvector(item_x))
 		{
-			vertex.Add(py_fvector->vec);
+			vertex.Add(py_ue_fvector_get(py_fvector));
 		}
 		else
 		{

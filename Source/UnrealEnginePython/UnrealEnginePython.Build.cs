@@ -18,6 +18,7 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] windowsKnownPaths =
     {
+        "../../../../../ThirdParty/Python3",
         "C:/Program Files/Python36",
         "C:/Program Files/Python35",
         "C:/Python27",
@@ -78,6 +79,7 @@ public class UnrealEnginePython : ModuleRules
     public UnrealEnginePython(TargetInfo Target)
 #endif
     {
+
 
 
         PublicIncludePaths.AddRange(
