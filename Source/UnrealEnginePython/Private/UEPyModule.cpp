@@ -85,12 +85,15 @@ void init_unreal_engine_builtin()
 
 std::map<UObject *, ue_PyUObject *> ue_python_gc;
 
-//Missing map in Class.cpp
+//Missing structs in Class.cpp for some noexport types 
+static UScriptStruct* StaticGetBaseStructureInternal(const TCHAR* Name)
+{
+	static auto* CoreUObjectPkg = FindObjectChecked<UPackage>(nullptr, TEXT("/Script/CoreUObject"));
+	return FindObjectChecked<UScriptStruct>(CoreUObjectPkg, Name);
+}
 UScriptStruct* TBaseStructure<FQuat>::Get()
 {
-    //static auto ScriptStruct = StaticGetBaseStructureInternal(TEXT("Quat"));
-    static auto* CoreUObjectPkg = FindObjectChecked<UPackage>(nullptr, TEXT("/Script/CoreUObject"));
-    static auto ScriptStruct    = FindObjectChecked<UScriptStruct>(CoreUObjectPkg, TEXT("Quat"));
+    static auto ScriptStruct = StaticGetBaseStructureInternal(TEXT("Quat"));
     return ScriptStruct;
 }
 
@@ -1162,11 +1165,12 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 		}
 		PyObject *py_name = nullptr;
 		PyObject *py_outer = Py_None;
-		if (!PyArg_ParseTuple(args, "|OO:new_object", &py_name, &py_outer))
+        uint64 flags = (uint64)(RF_Public);
+		if (!PyArg_ParseTuple(args, "|OOK:new_object", &py_name, &py_outer, &flags))
 		{
 			return NULL;
 		}
-		int num_args = py_name ? 3 : 1;
+		int num_args = py_name ? 4 : 1;
 		PyObject *py_args = PyTuple_New(num_args);
 		Py_INCREF((PyObject *)self);
 		PyTuple_SetItem(py_args, 0, (PyObject *)self);
@@ -1176,6 +1180,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 			PyTuple_SetItem(py_args, 1, py_outer);
 			Py_INCREF(py_name);
 			PyTuple_SetItem(py_args, 2, py_name);
+            PyTuple_SetItem(py_args, 3, PyLong_FromLongLong(flags));
 		}
 		PyObject *ret = py_unreal_engine_new_object(nullptr, py_args);
 		Py_DECREF(py_args);
@@ -3587,7 +3592,7 @@ FGuid *ue_py_check_fguid(PyObject *py_obj)
 		return nullptr;
 	}
 
-	if (ue_py_struct->u_struct == FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")))
+	if (ue_py_struct->u_struct == TBaseStructure<FGuid>::Get())
 	{
 		return (FGuid*)(py_ue_uscriptstruct_get_data(ue_py_struct));
 	}

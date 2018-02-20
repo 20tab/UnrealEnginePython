@@ -481,7 +481,7 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)
 
 	if (FGuid::Parse(FString(str), guid))
 	{
-		return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+		return py_ue_new_uscriptstruct(TBaseStructure<FGuid>::Get(), (uint8 *)&guid);
 	}
 
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
@@ -492,7 +492,7 @@ PyObject *py_unreal_engine_new_guid(PyObject * self, PyObject * args)
 
 	FGuid guid = FGuid::NewGuid();
 
-	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+	return py_ue_new_uscriptstruct(TBaseStructure<FGuid>::Get(), (uint8 *)&guid);
 }
 
 PyObject *py_unreal_engine_guid_to_string(PyObject * self, PyObject * args)
@@ -1075,10 +1075,11 @@ PyObject *py_unreal_engine_save_package_helper(PyObject *self, PyObject *args)
 
     if (!SavePackageHelper(pkg, UTF8_TO_TCHAR(name), (EObjectFlags)flags))
     {
-        return PyErr_Format(PyExc_Exception, "unable to save package");
+        PyErr_SetString(PyExc_Exception, "unable to save package");
+        Py_RETURN_FALSE;
     }
 
-    Py_RETURN_NONE;
+    Py_RETURN_TRUE;
 }
 #endif
 
