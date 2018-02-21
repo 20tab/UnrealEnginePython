@@ -1,27 +1,27 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 static PyObject *py_ue_frotator_get_vector(ue_PyFRotator *self, PyObject * args) {
-	FVector vec = self->rot.Vector();
+	FVector vec = py_ue_frotator_get(self).Vector();
 	return py_ue_new_fvector(vec);
 }
 
 static PyObject *py_ue_frotator_get_euler(ue_PyFRotator *self, PyObject * args) {
-	FVector vec = self->rot.Euler();
+	FVector vec = py_ue_frotator_get(self).Euler();
 	return py_ue_new_fvector(vec);
 }
 
 static PyObject *py_ue_frotator_inversed(ue_PyFRotator *self, PyObject * args) {
-	FRotator rot = self->rot.GetInverse();
+	FRotator rot = py_ue_frotator_get(self).GetInverse();
 	return py_ue_new_frotator(rot);
 }
 
 static PyObject *py_ue_frotator_normalized(ue_PyFRotator *self, PyObject * args) {
-	FRotator rot = self->rot.GetNormalized();
+	FRotator rot = py_ue_frotator_get(self).GetNormalized();
 	return py_ue_new_frotator(rot);
 }
 
 static PyObject *py_ue_frotator_quaternion(ue_PyFRotator *self, PyObject * args) {
-	FQuat quat = self->rot.Quaternion();
+	FQuat quat = py_ue_frotator_get(self).Quaternion();
 	return py_ue_new_fquat(quat);
 }
 
@@ -35,13 +35,13 @@ static PyMethodDef ue_PyFRotator_methods[] = {
 };
 
 static PyObject *py_ue_frotator_get_pitch(ue_PyFRotator *self, void *closure) {
-	return PyFloat_FromDouble(self->rot.Pitch);
+	return PyFloat_FromDouble(py_ue_frotator_get(self).Pitch);
 }
 
 static int py_ue_frotator_set_pitch(ue_PyFRotator *self, PyObject *value, void *closure) {
 	if (value && PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
-		self->rot.Pitch = PyFloat_AsDouble(f_value);
+		py_ue_frotator_get(self).Pitch = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
 		return 0;
 	}
@@ -50,13 +50,13 @@ static int py_ue_frotator_set_pitch(ue_PyFRotator *self, PyObject *value, void *
 }
 
 static PyObject *py_ue_frotator_get_yaw(ue_PyFRotator *self, void *closure) {
-	return PyFloat_FromDouble(self->rot.Yaw);
+	return PyFloat_FromDouble(py_ue_frotator_get(self).Yaw);
 }
 
 static int py_ue_frotator_set_yaw(ue_PyFRotator *self, PyObject *value, void *closure) {
 	if (value && PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
-		self->rot.Yaw = PyFloat_AsDouble(f_value);
+		py_ue_frotator_get(self).Yaw = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
 		return 0;
 	}
@@ -65,13 +65,13 @@ static int py_ue_frotator_set_yaw(ue_PyFRotator *self, PyObject *value, void *cl
 }
 
 static PyObject *py_ue_frotator_get_roll(ue_PyFRotator *self, void *closure) {
-	return PyFloat_FromDouble(self->rot.Roll);
+	return PyFloat_FromDouble(py_ue_frotator_get(self).Roll);
 }
 
 static int py_ue_frotator_set_roll(ue_PyFRotator *self, PyObject *value, void *closure) {
 	if (value && PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
-		self->rot.Roll = PyFloat_AsDouble(f_value);
+		py_ue_frotator_get(self).Roll = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
 		return 0;
 	}
@@ -90,7 +90,7 @@ static PyGetSetDef ue_PyFRotator_getseters[] = {
 static PyObject *ue_PyFRotator_str(ue_PyFRotator *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.FRotator {'roll': %S, 'pitch': %S, 'yaw': %S}>",
-		PyFloat_FromDouble(self->rot.Roll), PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw));
+		PyFloat_FromDouble(py_ue_frotator_get(self).Roll), PyFloat_FromDouble(py_ue_frotator_get(self).Pitch), PyFloat_FromDouble(py_ue_frotator_get(self).Yaw));
 }
 
 static PyTypeObject ue_PyFRotatorType = {
@@ -132,10 +132,10 @@ static PyTypeObject ue_PyFRotatorType = {
 
 
 static PyObject *ue_py_frotator_add(ue_PyFRotator *self, PyObject *value) {
-	FRotator rot = self->rot;
+	FRotator rot = py_ue_frotator_get(self);
 	ue_PyFRotator *py_rot = py_ue_is_frotator(value);
 	if (py_rot) {
-		rot += py_rot->rot;
+		rot += py_ue_frotator_get(py_rot);
 	}
 	else if (PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
@@ -149,10 +149,10 @@ static PyObject *ue_py_frotator_add(ue_PyFRotator *self, PyObject *value) {
 }
 
 static PyObject *ue_py_frotator_sub(ue_PyFRotator *self, PyObject *value) {
-	FRotator rot = self->rot;
+	FRotator rot = py_ue_frotator_get(self);
 	ue_PyFRotator *py_rot = py_ue_is_frotator(value);
 	if (py_rot) {
-		rot -= py_rot->rot;
+		rot -= py_ue_frotator_get(py_rot);
 	}
 	else if (PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
@@ -168,11 +168,11 @@ static PyObject *ue_py_frotator_sub(ue_PyFRotator *self, PyObject *value) {
 static PyObject *ue_py_frotator_mul(ue_PyFRotator *self, PyObject *value) {
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec) {
-		FVector vec = self->rot.RotateVector(py_vec->vec);
+		FVector vec = py_ue_frotator_get(self).RotateVector(py_ue_fvector_get(py_vec));
 		return py_ue_new_fvector(vec);
 	}
 	else if (PyNumber_Check(value)) {
-		FRotator rot = self->rot;
+		FRotator rot = py_ue_frotator_get(self);
 		PyObject *f_value = PyNumber_Float(value);
 		float f = PyFloat_AsDouble(f_value);
 		rot.Pitch *= f;
@@ -185,7 +185,7 @@ static PyObject *ue_py_frotator_mul(ue_PyFRotator *self, PyObject *value) {
 }
 
 static PyObject *ue_py_frotator_div(ue_PyFRotator *self, PyObject *value) {
-	FRotator rot = self->rot;
+	FRotator rot = py_ue_frotator_get(self);
 	
 	if (PyNumber_Check(value)) {
 		PyObject *f_value = PyNumber_Float(value);
@@ -211,11 +211,11 @@ static Py_ssize_t ue_py_frotator_seq_length(ue_PyFRotator *self) {
 static PyObject *ue_py_frotator_seq_item(ue_PyFRotator *self, Py_ssize_t i) {
 	switch (i) {
 	case 0:
-		return PyFloat_FromDouble(self->rot.Roll);
+		return PyFloat_FromDouble(py_ue_frotator_get(self).Roll);
 	case 1:
-		return PyFloat_FromDouble(self->rot.Pitch);
+		return PyFloat_FromDouble(py_ue_frotator_get(self).Pitch);
 	case 2:
-		return PyFloat_FromDouble(self->rot.Yaw);
+		return PyFloat_FromDouble(py_ue_frotator_get(self).Yaw);
 	}
 	return PyErr_Format(PyExc_IndexError, "FRotator has only 3 items");
 }
@@ -223,28 +223,37 @@ static PyObject *ue_py_frotator_seq_item(ue_PyFRotator *self, Py_ssize_t i) {
 PySequenceMethods ue_PyFRotator_sequence_methods;
 
 static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kwargs) {
-	float pitch = 0, yaw = 0, roll = 0;
-    
-    if (PyTuple_Size(args) == 1) {
-        if (ue_PyFQuat *py_quat = py_ue_is_fquat(PyTuple_GetItem(args, 0))) {
-            self->rot = FRotator(py_quat->quat);
-            return 0;
-        }
+    float pitch = 0, yaw = 0, roll = 0;
+
+    if (PyTuple_Size(args) == 3 && PyArg_ParseTuple(args, "|fff", &roll, &pitch, &yaw))
+    {
     }
-    
-	if (!PyArg_ParseTuple(args, "|fff", &roll, &pitch, &yaw))
-		return -1;
+    else if (PyTuple_Size(args) == 1 && PyArg_ParseTuple(args, "|f", &roll))
+    {
+        pitch = roll;
+        yaw   = roll;
+    }
+    else if (ue_PyFQuat *py_quat = PyTuple_Size(args) == 1 ? py_ue_is_fquat(PyTuple_GetItem(args, 0)) : nullptr)
+    {
+        FRotator rot_from_quat = FRotator(py_ue_fquat_get(py_quat));
+        roll                   = rot_from_quat.Roll;
+        pitch                  = rot_from_quat.Pitch;
+        yaw                    = rot_from_quat.Yaw;
+    }
+    else if (PyTuple_Size(args) == 0)
+    {
+    }
+    else
+    {
+        return -1;
+    }
 
-	if (PyTuple_Size(args) == 1) {
-		yaw = pitch;
-		roll = pitch;
-	}
+    ue_py_uscriptstruct_alloc(&self->py_base, TBaseStructure<FRotator>::Get(), nullptr, false);
+    py_ue_frotator_get(self).Pitch = pitch;
+    py_ue_frotator_get(self).Yaw = yaw;
+    py_ue_frotator_get(self).Roll = roll;
 
-	self->rot.Pitch = pitch;
-	self->rot.Yaw = yaw;
-	self->rot.Roll = roll;
-
-	return 0;
+    return 0;
 }
 
 void ue_python_init_frotator(PyObject *ue_module) {
@@ -263,6 +272,8 @@ void ue_python_init_frotator(PyObject *ue_module) {
 	ue_PyFRotatorType.tp_as_sequence = &ue_PyFRotator_sequence_methods;
 	ue_PyFRotator_sequence_methods.sq_length = (lenfunc)ue_py_frotator_seq_length;
 	ue_PyFRotator_sequence_methods.sq_item = (ssizeargfunc)ue_py_frotator_seq_item;
+    
+    ue_PyFRotatorType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFRotatorType) < 0)
 		return;
@@ -271,10 +282,19 @@ void ue_python_init_frotator(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FRotator", (PyObject *)&ue_PyFRotatorType);
 }
 
-PyObject *py_ue_new_frotator(FRotator rot) {
+PyObject *py_ue_new_frotator(const FRotator& rot) 
+{
 	ue_PyFRotator *ret = (ue_PyFRotator *)PyObject_New(ue_PyFRotator, &ue_PyFRotatorType);
-	ret->rot = rot;
+    ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FRotator>::Get(), (uint8 const*)&rot, false);
 	return (PyObject *)ret;
+}
+
+
+PyObject *py_ue_new_frotator_ptr(FRotator* rot_ptr)
+{
+    ue_PyFRotator *ret = (ue_PyFRotator *)PyObject_New(ue_PyFRotator, &ue_PyFRotatorType);    
+    ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FRotator>::Get(), (uint8*)rot_ptr, true);
+    return (PyObject *)ret;
 }
 
 ue_PyFRotator *py_ue_is_frotator(PyObject *obj) {
@@ -292,7 +312,7 @@ bool py_ue_rotator_arg(PyObject *args, FRotator &rot) {
 			PyErr_Format(PyExc_TypeError, "argument is not a FRotator");
 			return false;
 		}
-		rot = py_rot->rot;
+		rot = py_ue_frotator_get(py_rot);
 		return true;
 	}
 

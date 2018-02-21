@@ -15,12 +15,15 @@ public:
 	}
 
 	void SetPythonItemExpansion(PyObject *item, bool InShouldExpandItem);
+
+    TSharedPtr<struct FPythonItem> const* Find(PyObject *item);
 };
 
 typedef struct
 {
 	ue_PySTreeView s_tree_view;
 	/* Type-specific fields go here. */
+    TArray<TSharedPtr<struct FPythonItem>> item_source_list;
 } ue_PySPythonTreeView;
 
 void ue_python_init_spython_tree_view(PyObject *);

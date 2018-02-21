@@ -11,8 +11,6 @@ public:
 	~SPythonListView() {
 		delete(ItemsSource);
 	}
-
-    void SetHeaderRow(TSharedPtr<SHeaderRow> InHeaderRowWidget);
 };
 
 typedef struct {

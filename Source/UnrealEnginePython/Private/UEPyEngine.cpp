@@ -9,6 +9,7 @@
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 #if WITH_EDITOR
 #include "PackageTools.h"
+#include "PackageHelperFunctions.h"
 #endif
 
 
@@ -67,6 +68,54 @@ PyObject *py_unreal_engine_log_error(PyObject * self, PyObject * args)
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_unreal_engine_is_editor(PyObject * self, PyObject * args)
+{
+    if (GIsEditor)
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
+PyObject *py_unreal_engine_is_running_game(PyObject * self, PyObject * args)
+{
+    if (IsRunningGame())
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
+PyObject *py_unreal_engine_is_running_commandlet(PyObject * self, PyObject * args)
+{
+    if (IsRunningCommandlet())
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
+}
+
+PyObject *py_unreal_engine_is_running_dedicated_server(PyObject * self, PyObject * args)
+{
+    if (IsRunningDedicatedServer())
+    {
+        Py_RETURN_TRUE;
+    }
+    else
+    {
+        Py_RETURN_FALSE;
+    }
 }
 
 PyObject *py_unreal_engine_add_on_screen_debug_message(PyObject * self, PyObject * args)
@@ -432,7 +481,7 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)
 
 	if (FGuid::Parse(FString(str), guid))
 	{
-		return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+		return py_ue_new_uscriptstruct(TBaseStructure<FGuid>::Get(), (uint8 *)&guid);
 	}
 
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
@@ -443,7 +492,7 @@ PyObject *py_unreal_engine_new_guid(PyObject * self, PyObject * args)
 
 	FGuid guid = FGuid::NewGuid();
 
-	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+	return py_ue_new_uscriptstruct(TBaseStructure<FGuid>::Get(), (uint8 *)&guid);
 }
 
 PyObject *py_unreal_engine_guid_to_string(PyObject * self, PyObject * args)
@@ -1006,6 +1055,34 @@ PyObject *py_unreal_engine_get_transient_package(PyObject *self, PyObject * args
 	Py_RETURN_UOBJECT(GetTransientPackage());
 }
 
+#if WITH_EDITOR
+PyObject *py_unreal_engine_save_package_helper(PyObject *self, PyObject *args)
+{
+	char *name        = nullptr;
+	UPackage *package = nullptr;
+    PyObject *py_obj  = nullptr;
+    uint64 flags      = (uint64)(RF_Standalone);
+	if (!PyArg_ParseTuple(args, "Os|K:save_package_helper",&py_obj, &name, &flags))
+	{
+		return nullptr;
+	}
+
+    UPackage* pkg = ue_py_check_type<UPackage>(py_obj);
+    if (!pkg)
+    {
+        return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
+    }
+
+    if (!SavePackageHelper(pkg, UTF8_TO_TCHAR(name), (EObjectFlags)flags))
+    {
+        PyErr_SetString(PyExc_Exception, "unable to save package");
+        Py_RETURN_FALSE;
+    }
+
+    Py_RETURN_TRUE;
+}
+#endif
+
 PyObject *py_unreal_engine_open_file_dialog(PyObject *self, PyObject * args)
 {
 	char *title;
@@ -1246,4 +1323,50 @@ PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 	FString clipboard;
 	FGenericPlatformMisc::ClipboardPaste(clipboard);
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
+}
+PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)
+{
+
+    char *command;
+
+
+    if (!PyArg_ParseTuple(args, "s:console_exec", &command))
+    {
+        return NULL;
+    }
+
+    FWorldContext* worldContext = nullptr;
+#if WITH_EDITOR
+    if (!GEditor)
+        return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+    worldContext = GEditor->GetPIEWorldContext();
+    worldContext = worldContext ? worldContext : &GEditor->GetEditorWorldContext();
+    if (!worldContext)
+    {
+        // error!
+        return NULL;
+    }
+    GEditor->Exec(worldContext->World(), UTF8_TO_TCHAR(command), *GLog);
+#else
+#include "Engine/Engine.h"
+    extern ENGINE_API class UEngine* GEngine;
+    for (auto Context : GEngine->GetWorldContexts())
+    {
+        if (Context.World()->IsGameWorld())
+        {
+            worldContext = &Context;
+            break;
+        }
+    }
+
+    if (!worldContext)
+    {
+        // error!
+        return NULL;
+    }
+    GEngine->Exec(worldContext->World(), UTF8_TO_TCHAR(command), *GLog);
+#endif
+
+    Py_RETURN_NONE;
 }

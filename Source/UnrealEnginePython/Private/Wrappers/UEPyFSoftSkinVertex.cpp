@@ -27,7 +27,7 @@ static int py_ue_fsoft_skin_vertex_set_position(ue_PyFSoftSkinVertex *self, PyOb
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		self->ss_vertex.Position = py_vec->vec;
+		self->ss_vertex.Position = py_ue_fvector_get(py_vec);
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");
@@ -44,7 +44,7 @@ static int py_ue_fsoft_skin_vertex_set_tangent_x(ue_PyFSoftSkinVertex *self, PyO
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		self->ss_vertex.TangentX = py_vec->vec;
+		self->ss_vertex.TangentX = py_ue_fvector_get(py_vec);
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");
@@ -61,7 +61,7 @@ static int py_ue_fsoft_skin_vertex_set_tangent_y(ue_PyFSoftSkinVertex *self, PyO
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		self->ss_vertex.TangentY = py_vec->vec;
+		self->ss_vertex.TangentY = py_ue_fvector_get(py_vec);
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");
@@ -78,7 +78,7 @@ static int py_ue_fsoft_skin_vertex_set_tangent_z(ue_PyFSoftSkinVertex *self, PyO
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
-		self->ss_vertex.TangentZ = py_vec->vec;
+		self->ss_vertex.TangentZ = py_ue_fvector_get(py_vec);
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");

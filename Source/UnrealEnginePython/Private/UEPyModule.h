@@ -45,6 +45,10 @@ PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject
 UClass *unreal_engine_new_uclass(char *, UClass *);
 UFunction *unreal_engine_add_function(UClass *, char *, PyObject *, uint32);
 
+template<> struct TBaseStructure<FQuat>
+{
+    static UScriptStruct* Get();
+};
 
 template <typename T> T *ue_py_check_type(PyObject *py_obj)
 {

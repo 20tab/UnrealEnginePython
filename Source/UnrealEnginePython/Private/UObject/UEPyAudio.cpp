@@ -129,7 +129,7 @@ PyObject *py_ue_play_sound_at_location(ue_PyUObject *self, PyObject * args) {
 	if (!location)
 		return PyErr_Format(PyExc_TypeError, "sound location must be a FVector");
 
-	UGameplayStatics::PlaySoundAtLocation(self->ue_object, sound_object, location->vec, volume, pitch, start);
+	UGameplayStatics::PlaySoundAtLocation(self->ue_object, sound_object, py_ue_fvector_get(location), volume, pitch, start);
 
 	Py_INCREF(Py_None);
 	return Py_None;
