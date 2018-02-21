@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define UEPY_MEMORY_DEBUG	1
+//#define UEPY_MEMORY_DEBUG	1
 //#define UEPY_THREADING 1
 
 #include "UnrealEnginePython.h"

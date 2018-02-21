@@ -195,7 +195,7 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 			if (ue_py_convert_pyobject(value, u_property, py_ue_uscriptstruct_get_data(self)))
 			{
                 if (self->is_ptr)
-			{
+			    {
                     // NOTE: We just wrote out to original pointer block; now we need to update our local shadow copy
                     // This might be unnecessary
                     FMemory::Memcpy(self->data, self->original_data, self->u_struct->GetStructureSize());
@@ -305,10 +305,10 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *self, PyObject * args)
 {
 	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
-	ret->u_struct = self->u_struct;
-	ret->data = self->original_data;
-	ret->original_data = ret->data;
-	ret->is_ptr = 1;
+	ret->u_struct           = self->u_struct;
+	ret->data               = self->original_data;
+	ret->original_data      = self->original_data;
+	ret->is_ptr             = 1;
 	return (PyObject *)ret;
 }
 
@@ -367,10 +367,10 @@ PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, uint8 *in_data)
 PyObject *py_ue_wrap_uscriptstruct(UScriptStruct *u_struct, uint8 *data)
 {
 	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
-	ret->u_struct = u_struct;
-	ret->data = data;
-	ret->original_data = data;
-	ret->is_ptr = 0;
+	ret->u_struct           = u_struct;
+	ret->data               = data;
+	ret->original_data      = data;
+	ret->is_ptr             = 0;
 	return (PyObject *)ret;
 }
 
