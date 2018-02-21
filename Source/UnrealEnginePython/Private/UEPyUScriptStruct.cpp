@@ -105,6 +105,10 @@ PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args
 	return py_struct_dict;
 }
 
+static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *, PyObject *);
+
+
+
 
 static PyMethodDef ue_PyUScriptStruct_methods[] = {
 	{ "get_field", (PyCFunction)py_ue_uscriptstruct_get_field, METH_VARARGS, "" },
@@ -113,6 +117,7 @@ static PyMethodDef ue_PyUScriptStruct_methods[] = {
 	{ "get_struct", (PyCFunction)py_ue_uscriptstruct_get_struct, METH_VARARGS, "" },
 	{ "clone", (PyCFunction)py_ue_uscriptstruct_clone, METH_VARARGS, "" },
 	{ "as_dict", (PyCFunction)py_ue_uscriptstruct_as_dict, METH_VARARGS, "" },
+	{ "ref", (PyCFunction)py_ue_uscriptstruct_ref, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -198,6 +203,8 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 	return PyObject_GenericSetAttr((PyObject *)self, attr_name, value);
 }
 
+
+
 // destructor
 static void ue_PyUScriptStruct_dealloc(ue_PyUScriptStruct *self)
 {
@@ -274,6 +281,17 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 	return 0;
 }
 
+// get the original pointer of a struct
+static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *self, PyObject * args)
+{
+	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
+	ret->u_struct = self->u_struct;
+	ret->data = self->original_data;
+	ret->original_data = ret->data;
+	ret->is_ptr = 1;
+	return (PyObject *)ret;
+}
+
 static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, PyObject *py_obj, int op)
 {
 	ue_PyUScriptStruct *u_struct2 = py_ue_is_uscriptstruct(py_obj);
@@ -300,16 +318,7 @@ static PyObject *ue_py_uscriptstruct_richcompare(ue_PyUScriptStruct *u_struct1, 
 	Py_RETURN_TRUE;
 }
 
-// get the original pointer of a struct
-static PyObject *ue_py_uscriptstruct_get_ptr(ue_PyUScriptStruct *self, PyObject * args)
-{
-	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
-	ret->u_struct = self->u_struct;
-	ret->data = self->original_data;
-	ret->original_data = ret->data;
-	ret->is_ptr = 1;
-	return (PyObject *)ret;
-}
+
 
 
 void ue_python_init_uscriptstruct(PyObject *ue_module)
@@ -319,8 +328,6 @@ void ue_python_init_uscriptstruct(PyObject *ue_module)
 	ue_PyUScriptStructType.tp_richcompare = (richcmpfunc)ue_py_uscriptstruct_richcompare;
 
 	ue_PyUScriptStructType.tp_init = (initproc)ue_py_uscriptstruct_init;
-
-	ue_PyUScriptStructType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
 
 	if (PyType_Ready(&ue_PyUScriptStructType) < 0)
 		return;
