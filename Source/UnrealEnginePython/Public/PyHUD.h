@@ -8,7 +8,7 @@
 
 
 UCLASS(BlueprintType, Blueprintable)
-class APyHUD : public AHUD
+class UNREALENGINEPYTHON_API APyHUD : public AHUD
 {
 	GENERATED_BODY()
 
