@@ -253,12 +253,13 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni))
 	{
 		ScriptsPath = IniValue;
-		UE_LOG(LogPython, Log, TEXT("Scripts path set %s"), UTF8_TO_TCHAR(*IniValue)); // Legit?
+		UE_LOG(LogPython, Log, TEXT("Scripts path set %s"), UTF8_TO_TCHAR(*ScriptsPath)); // Legit?
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni))
 	{
 		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+		UE_LOG(LogPython, Log, TEXT("Scripts path set (Relative) %s"), UTF8_TO_TCHAR(*ScriptsPath)); // Legit?
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni))
