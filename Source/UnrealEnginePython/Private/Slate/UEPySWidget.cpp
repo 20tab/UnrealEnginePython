@@ -128,10 +128,8 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_down(ue_PySWidget *self, PyO
 	}
 
 	FPointerEventHandler handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnMouseEvent);
 
 	self->s_widget->SetOnMouseButtonDown(handler);
 
@@ -144,7 +142,7 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObj
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:bind_on_mouse_button_up", &py_callable))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!PyCalllable_Check_Extended(py_callable))
@@ -153,10 +151,8 @@ static PyObject *py_ue_swidget_bind_on_mouse_button_up(ue_PySWidget *self, PyObj
 	}
 
 	FPointerEventHandler handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnMouseEvent);
 
 	self->s_widget->SetOnMouseButtonUp(handler);
 
@@ -178,10 +174,8 @@ static PyObject *py_ue_swidget_bind_on_mouse_double_click(ue_PySWidget *self, Py
 	}
 
 	FPointerEventHandler handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnMouseEvent);
 
 	self->s_widget->SetOnMouseDoubleClick(handler);
 
@@ -203,10 +197,8 @@ static PyObject *py_ue_swidget_bind_on_mouse_move(ue_PySWidget *self, PyObject *
 	}
 
 	FPointerEventHandler handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnMouseEvent);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_widget, py_callable);
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnMouseEvent);
 
 	self->s_widget->SetOnMouseMove(handler);
 
@@ -354,21 +346,6 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySWidget %p mapped to %s %p (slate refcount: %d)"), self, *self->s_widget->GetTypeAsString(), &self->s_widget.Get(), self->s_widget.GetSharedReferenceCount());
 #endif
 	Py_DECREF(self->py_dict);
-	for (UPythonSlateDelegate *item : self->delegates)
-	{
-		if (item->IsValidLowLevel() && item->IsRooted())
-			item->RemoveFromRoot();
-	}
-	for (ue_PySWidget *item : self->py_swidget_slots)
-	{
-		Py_DECREF(item);
-	}
-	// decref content (if any)
-	Py_XDECREF(self->py_swidget_content);
-	for (PyObject *item : self->py_refs)
-	{
-		Py_DECREF(item);
-	}
 	ue_py_unregister_swidget(&self->s_widget.Get());
 	// decrement widget reference count
 	// but only if python vm is still fully active (hack to avoid crashes on editor shutdown)

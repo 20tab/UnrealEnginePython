@@ -45,9 +45,7 @@ static PyObject *py_ue_spython_widget_set_content(ue_PySPythonWidget *self, PyOb
         return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
     }
 
-    Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
     Py_INCREF(py_swidget);
-    self->s_compound_widget.s_widget.py_swidget_content = py_swidget;
 
     sw_python_widget->SetContent(py_swidget->s_widget->AsShared());
 
@@ -58,7 +56,6 @@ static PyObject *py_ue_spython_widget_set_content(ue_PySPythonWidget *self, PyOb
 static PyObject *py_ue_spython_widget_clear_content(ue_PySPythonWidget *self, PyObject *args)
 {
     sw_python_widget->ClearContent();
-    Py_XDECREF(self->s_compound_widget.s_widget.py_swidget_content);
 
     Py_INCREF(Py_None);
     return Py_None;

@@ -6,7 +6,8 @@
 
 #define sw_scroll_box StaticCastSharedRef<SScrollBox>(self->s_compound_widget.s_widget.s_widget)
 
-static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * args, PyObject *kwargs) {
+static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * args, PyObject *kwargs)
+{
 	PyObject *py_content;
 	int h_align = 0;
 	int v_align = 0;
@@ -19,17 +20,18 @@ static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * ar
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ii:add_slot", kwlist,
 		&py_content,
 		&h_align,
-		&v_align)) {
+		&v_align))
+	{
 		return NULL;
 	}
 
 	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget) {
+	if (!py_swidget)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
 
 	Py_INCREF(py_swidget);
-	self->s_compound_widget.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SScrollBox::FSlot &fslot = sw_scroll_box->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
@@ -40,11 +42,8 @@ static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * ar
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_sscroll_box_clear_children(ue_PySScrollBox *self, PyObject * args) {
-	for (ue_PySWidget *child : self->s_compound_widget.s_widget.py_swidget_slots) {
-		Py_DECREF(child);
-	}
-	self->s_compound_widget.s_widget.py_swidget_slots.Empty();
+static PyObject *py_ue_sscroll_box_clear_children(ue_PySScrollBox *self, PyObject * args)
+{
 	sw_scroll_box->ClearChildren();
 
 	Py_RETURN_NONE;
@@ -88,7 +87,8 @@ PyTypeObject ue_PySScrollBoxType = {
 	ue_PySScrollBox_methods,             /* tp_methods */
 };
 
-static int ue_py_sscroll_box_init(ue_PySScrollBox *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sscroll_box_init(ue_PySScrollBox *self, PyObject *args, PyObject *kwargs)
+{
 
 	ue_py_slate_setup_farguments(SScrollBox);
 
@@ -105,7 +105,8 @@ static int ue_py_sscroll_box_init(ue_PySScrollBox *self, PyObject *args, PyObjec
 	return 0;
 }
 
-void ue_python_init_sscroll_box(PyObject *ue_module) {
+void ue_python_init_sscroll_box(PyObject *ue_module)
+{
 
 	ue_PySScrollBoxType.tp_init = (initproc)ue_py_sscroll_box_init;
 	ue_PySScrollBoxType.tp_call = (ternaryfunc)py_ue_sscroll_box_add_slot;

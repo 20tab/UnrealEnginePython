@@ -223,8 +223,8 @@ static PyObject *ue_py_frotator_seq_item(ue_PyFRotator *self, Py_ssize_t i) {
 PySequenceMethods ue_PyFRotator_sequence_methods;
 
 static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kwargs) {
-	float pitch = 0, yaw = 0, roll = 0;
-    
+    float pitch = 0, yaw = 0, roll = 0;
+
     if (PyTuple_Size(args) == 3 && PyArg_ParseTuple(args, "|fff", &roll, &pitch, &yaw))
     {
     }
@@ -233,12 +233,15 @@ static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kw
         pitch = roll;
         yaw   = roll;
     }
-    else if (ue_PyFQuat *py_quat = PyTuple_Size(args) == 1 ? py_ue_is_fquat(PyTuple_GetItem(args, 0)) : nullptr) 
+    else if (ue_PyFQuat *py_quat = PyTuple_Size(args) == 1 ? py_ue_is_fquat(PyTuple_GetItem(args, 0)) : nullptr)
     {
         FRotator rot_from_quat = FRotator(py_ue_fquat_get(py_quat));
-        roll  = rot_from_quat.Roll;
-        pitch = rot_from_quat.Pitch;
-        yaw   = rot_from_quat.Yaw;
+        roll                   = rot_from_quat.Roll;
+        pitch                  = rot_from_quat.Pitch;
+        yaw                    = rot_from_quat.Yaw;
+    }
+    else if (PyTuple_Size(args) == 0)
+    {
     }
     else
     {
@@ -246,11 +249,11 @@ static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kw
     }
 
     ue_py_uscriptstruct_alloc(&self->py_base, TBaseStructure<FRotator>::Get(), nullptr, false);
-	py_ue_frotator_get(self).Pitch = pitch;
-	py_ue_frotator_get(self).Yaw   = yaw;
-	py_ue_frotator_get(self).Roll  = roll;
+    py_ue_frotator_get(self).Pitch = pitch;
+    py_ue_frotator_get(self).Yaw = yaw;
+    py_ue_frotator_get(self).Roll = roll;
 
-	return 0;
+    return 0;
 }
 
 void ue_python_init_frotator(PyObject *ue_module) {
@@ -270,8 +273,6 @@ void ue_python_init_frotator(PyObject *ue_module) {
 	ue_PyFRotator_sequence_methods.sq_length = (lenfunc)ue_py_frotator_seq_length;
 	ue_PyFRotator_sequence_methods.sq_item = (ssizeargfunc)ue_py_frotator_seq_item;
     
-    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
-    ue_PyFRotatorType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
     ue_PyFRotatorType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFRotatorType) < 0)

@@ -298,8 +298,6 @@ void ue_python_init_ftransform(PyObject *ue_module)
 	ue_PyFTransformType.tp_as_number = &ue_PyFTransform_number_methods;
 	ue_PyFTransform_number_methods.nb_multiply = (binaryfunc)ue_py_ftransform_mul;
 
-    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
-    ue_PyFTransformType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
     ue_PyFTransformType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFTransformType) < 0)

@@ -17,7 +17,6 @@ typedef struct
 PyObject *py_ue_new_uscriptstruct(UScriptStruct *, uint8 *);
 PyObject *py_ue_wrap_uscriptstruct(UScriptStruct *, uint8 *);
 void ue_py_uscriptstruct_alloc(ue_PyUScriptStruct *, UScriptStruct *, uint8 const*, bool);
-PyObject *ue_py_uscriptstruct_get_ptr(ue_PyUScriptStruct *, PyObject *);
 ue_PyUScriptStruct *py_ue_is_uscriptstruct(PyObject *);
 
 inline static uint8* py_ue_uscriptstruct_get_data(ue_PyUScriptStruct *py_u_struct)

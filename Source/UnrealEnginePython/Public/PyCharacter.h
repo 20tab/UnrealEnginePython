@@ -7,7 +7,7 @@
 
 
 UCLASS()
-class APyCharacter : public ACharacter
+class UNREALENGINEPYTHON_API APyCharacter : public ACharacter
 {
 	GENERATED_BODY()
 

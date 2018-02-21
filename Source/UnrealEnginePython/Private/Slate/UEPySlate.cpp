@@ -26,7 +26,7 @@
 #include "UEPySlate.h"
 #include "PyNativeWidgetHost.h"
 
-FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
+FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
 	FScopePythonGIL gil;
 
@@ -46,7 +46,7 @@ FReply UPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPoin
 	return FReply::Handled();
 }
 
-FReply UPythonSlateDelegate::OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event)
+FReply FPythonSlateDelegate::OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event)
 {
 	FScopePythonGIL gil;
 
@@ -66,7 +66,7 @@ FReply UPythonSlateDelegate::OnKeyDown(const FGeometry &geometry, const FKeyEven
 	return FReply::Handled();
 }
 
-FReply UPythonSlateDelegate::OnClicked()
+FReply FPythonSlateDelegate::OnClicked()
 {
 	FScopePythonGIL gil;
 
@@ -86,7 +86,7 @@ FReply UPythonSlateDelegate::OnClicked()
 	return FReply::Handled();
 }
 
-void UPythonSlateDelegate::OnTextChanged(const FText& text)
+void FPythonSlateDelegate::OnTextChanged(const FText& text)
 {
 	FScopePythonGIL gil;
 
@@ -99,7 +99,7 @@ void UPythonSlateDelegate::OnTextChanged(const FText& text)
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnStringChanged(const FString& text)
+void FPythonSlateDelegate::OnStringChanged(const FString& text)
 {
 	FScopePythonGIL gil;
 
@@ -112,7 +112,7 @@ void UPythonSlateDelegate::OnStringChanged(const FString& text)
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type commit_type)
+void FPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type commit_type)
 {
 	FScopePythonGIL gil;
 
@@ -125,7 +125,7 @@ void UPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type 
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnInt32Changed(int32 value)
+void FPythonSlateDelegate::OnInt32Changed(int32 value)
 {
     FScopePythonGIL gil;
 
@@ -138,7 +138,7 @@ void UPythonSlateDelegate::OnInt32Changed(int32 value)
     Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnInt32Committed(int32 value, ETextCommit::Type commit_type)
+void FPythonSlateDelegate::OnInt32Committed(int32 value, ETextCommit::Type commit_type)
 {
     FScopePythonGIL gil;
 
@@ -151,7 +151,7 @@ void UPythonSlateDelegate::OnInt32Committed(int32 value, ETextCommit::Type commi
     Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnFloatChanged(float value)
+void FPythonSlateDelegate::OnFloatChanged(float value)
 {
 	FScopePythonGIL gil;
 
@@ -164,7 +164,7 @@ void UPythonSlateDelegate::OnFloatChanged(float value)
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnLinearColorChanged(FLinearColor color)
+void FPythonSlateDelegate::OnLinearColorChanged(FLinearColor color)
 {
 	FScopePythonGIL gil;
 
@@ -177,7 +177,7 @@ void UPythonSlateDelegate::OnLinearColorChanged(FLinearColor color)
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnWindowClosed(const TSharedRef<SWindow> &Window)
+void FPythonSlateDelegate::OnWindowClosed(const TSharedRef<SWindow> &Window)
 {
 	FScopePythonGIL gil;
 
@@ -190,7 +190,7 @@ void UPythonSlateDelegate::OnWindowClosed(const TSharedRef<SWindow> &Window)
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commit_type)
+void FPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commit_type)
 {
 	FScopePythonGIL gil;
 
@@ -203,7 +203,7 @@ void UPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commi
 	Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode)
+void FPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode)
 {
     FScopePythonGIL gil;
 
@@ -216,7 +216,7 @@ void UPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, 
     Py_DECREF(ret);
 }
 
-void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state)
+void FPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state)
 {
 	FScopePythonGIL gil;
 
@@ -230,7 +230,7 @@ void UPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state)
 }
 
 #if WITH_EDITOR
-void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData)
+void FPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData)
 {
 	FScopePythonGIL gil;
 
@@ -242,7 +242,7 @@ void UPythonSlateDelegate::OnAssetDoubleClicked(const FAssetData& AssetData)
 	Py_XDECREF(ret);
 }
 
-void UPythonSlateDelegate::OnAssetSelected(const FAssetData& AssetData)
+void FPythonSlateDelegate::OnAssetSelected(const FAssetData& AssetData)
 {
 	FScopePythonGIL gil;
 
@@ -254,7 +254,7 @@ void UPythonSlateDelegate::OnAssetSelected(const FAssetData& AssetData)
 	Py_XDECREF(ret);
 }
 
-void UPythonSlateDelegate::OnAssetChanged(const FAssetData& AssetData)
+void FPythonSlateDelegate::OnAssetChanged(const FAssetData& AssetData)
 {
 	FScopePythonGIL gil;
 
@@ -266,7 +266,7 @@ void UPythonSlateDelegate::OnAssetChanged(const FAssetData& AssetData)
 	Py_XDECREF(ret);
 }
 
-bool UPythonSlateDelegate::OnShouldFilterAsset(const FAssetData& AssetData)
+bool FPythonSlateDelegate::OnShouldFilterAsset(const FAssetData& AssetData)
 {
 	FScopePythonGIL gil;
 
@@ -281,7 +281,7 @@ bool UPythonSlateDelegate::OnShouldFilterAsset(const FAssetData& AssetData)
 	return bValue;
 }
 
-TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets)
+TSharedPtr<SWidget> FPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAssetData>& SelectedAssets)
 {
 	FScopePythonGIL gil;
 
@@ -311,7 +311,7 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 	return value;
 }
 
-void UPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets)
+void FPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets)
 {
 	FScopePythonGIL gil;
 
@@ -330,18 +330,18 @@ void UPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAss
 	Py_DECREF(ret);
 }
 
-TSharedRef<FExtender> UPythonSlateDelegate::OnExtendContentBrowserMenu(const TArray<FAssetData>& SelectedAssets)
+TSharedRef<FExtender> FPythonSlateDelegate::OnExtendContentBrowserMenu(const TArray<FAssetData>& SelectedAssets)
 {
 	TSharedRef<FExtender> Extender(new FExtender());
 
-	Extender->AddMenuExtension((char *)"GetAssetActions", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateUObject(this, &UPythonSlateDelegate::MenuPyAssetBuilder, SelectedAssets));
+	Extender->AddMenuExtension((char *)"GetAssetActions", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateSP(this, &FPythonSlateDelegate::MenuPyAssetBuilder, SelectedAssets));
 
 	return Extender;
 }
 
 #endif
 
-TSharedRef<SWidget> UPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonItem> py_item)
+TSharedRef<SWidget> FPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonItem> py_item)
 {
 	FScopePythonGIL gil;
 
@@ -365,7 +365,7 @@ TSharedRef<SWidget> UPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonIte
 	return value;
 }
 
-TSharedRef<SWidget> UPythonSlateDelegate::OnGetMenuContent()
+TSharedRef<SWidget> FPythonSlateDelegate::OnGetMenuContent()
 {
     FScopePythonGIL gil;
 
@@ -388,7 +388,7 @@ TSharedRef<SWidget> UPythonSlateDelegate::OnGetMenuContent()
     return value;
 }
 
-void UPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type)
+void FPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type)
 {
     if (!py_item.IsValid())
     {
@@ -406,7 +406,7 @@ void UPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, E
 	Py_DECREF(ret);
 }
 
-TSharedPtr<SWidget> UPythonSlateDelegate::OnContextMenuOpening()
+TSharedPtr<SWidget> FPythonSlateDelegate::OnContextMenuOpening()
 {
 	FScopePythonGIL gil;
 
@@ -429,7 +429,7 @@ TSharedPtr<SWidget> UPythonSlateDelegate::OnContextMenuOpening()
 	return value;
 }
 
-void UPythonSlateDelegate::SimpleExecuteAction()
+void FPythonSlateDelegate::SimpleExecuteAction()
 {
 	FScopePythonGIL gil;
 
@@ -441,7 +441,7 @@ void UPythonSlateDelegate::SimpleExecuteAction()
 	Py_XDECREF(ret);
 }
 
-void UPythonSlateDelegate::ExecuteAction(PyObject *py_obj)
+void FPythonSlateDelegate::ExecuteAction(PyObject *py_obj)
 {
 	FScopePythonGIL gil;
 
@@ -453,7 +453,7 @@ void UPythonSlateDelegate::ExecuteAction(PyObject *py_obj)
 	Py_XDECREF(ret);
 }
 
-FText UPythonSlateDelegate::GetterFText() const
+FText FPythonSlateDelegate::GetterFText() const
 {
 	FScopePythonGIL gil;
 
@@ -477,7 +477,7 @@ FText UPythonSlateDelegate::GetterFText() const
 	return text;
 }
 
-FString UPythonSlateDelegate::GetterFString() const
+FString FPythonSlateDelegate::GetterFString() const
 {
 	FScopePythonGIL gil;
 
@@ -501,7 +501,7 @@ FString UPythonSlateDelegate::GetterFString() const
 	return fstr;
 }
 
-float UPythonSlateDelegate::GetterFloat() const
+float FPythonSlateDelegate::GetterFloat() const
 {
 	FScopePythonGIL gil;
 
@@ -525,7 +525,7 @@ float UPythonSlateDelegate::GetterFloat() const
 	return n;
 }
 
-TOptional<float> UPythonSlateDelegate::GetterTFloat() const
+TOptional<float> FPythonSlateDelegate::GetterTFloat() const
 {
 	FScopePythonGIL gil;
 
@@ -549,7 +549,7 @@ TOptional<float> UPythonSlateDelegate::GetterTFloat() const
 	return n;
 }
 
-int UPythonSlateDelegate::GetterInt() const
+int FPythonSlateDelegate::GetterInt() const
 {
 	FScopePythonGIL gil;
 
@@ -573,7 +573,7 @@ int UPythonSlateDelegate::GetterInt() const
 	return n;
 }
 
-bool UPythonSlateDelegate::GetterBool() const
+bool FPythonSlateDelegate::GetterBool() const
 {
 	FScopePythonGIL gil;
 
@@ -593,7 +593,7 @@ bool UPythonSlateDelegate::GetterBool() const
 	return false;
 }
 
-FVector2D UPythonSlateDelegate::GetterFVector2D() const
+FVector2D FPythonSlateDelegate::GetterFVector2D() const
 {
 	FScopePythonGIL gil;
 
@@ -640,7 +640,7 @@ FVector2D UPythonSlateDelegate::GetterFVector2D() const
 	return FVector2D(x, y);
 }
 
-FLinearColor UPythonSlateDelegate::GetterFLinearColor() const
+FLinearColor FPythonSlateDelegate::GetterFLinearColor() const
 {
 	FScopePythonGIL gil;
 
@@ -666,7 +666,7 @@ FLinearColor UPythonSlateDelegate::GetterFLinearColor() const
 	return color;
 }
 
-TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args)
+TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args)
 {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
@@ -682,7 +682,7 @@ TSharedRef<SDockTab> UPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	return dock_tab;
 }
 
-TSharedRef<ITableRow> UPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable)
+TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable)
 {
     FScopePythonGIL gil;
 
@@ -709,7 +709,7 @@ TSharedRef<ITableRow> UPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> 
 	
 }
 
-void UPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren)
+void FPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren)
 {
 	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
 	if (!ret)
@@ -772,10 +772,6 @@ void ue_py_setup_swidget(ue_PySWidget *self)
 #endif
 	self->py_dict = PyDict_New();
 	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
-	new(&self->delegates) TArray<UPythonSlateDelegate *>();
-	new(&self->py_swidget_slots) TArray<ue_PySWidget *>();
-	new(&self->py_refs) TArray<PyObject *>();
-	self->py_swidget_content = nullptr;
 }
 
 void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget)
@@ -1330,10 +1326,8 @@ PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self
 	TArray<FContentBrowserMenuExtender_SelectedAssets> &Extenders = ContentBrowser.GetAllAssetViewContextMenuExtenders();
 
 	FContentBrowserMenuExtender_SelectedAssets handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnExtendContentBrowserMenu);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnExtendContentBrowserMenu);
 
 	Extenders.Add(handler);
 
@@ -1355,10 +1349,8 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
 	FOnSpawnTab spawn_tab;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	spawn_tab.BindUObject(py_delegate, &UPythonSlateDelegate::SpawnPythonTab);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab);
 
 	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
 		// TODO: more generic way to set the group
@@ -1432,7 +1424,8 @@ PyObject * py_unreal_engine_create_wrapper_from_pyswidget(PyObject *self, PyObje
     }
 
     ue_PySWidget *py_swidget = py_ue_is_swidget(py_object);
-    if (!py_swidget) {
+	if (!py_swidget)
+	{
         return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
     }
 
@@ -1445,29 +1438,25 @@ PyObject * py_unreal_engine_create_wrapper_from_pyswidget(PyObject *self, PyObje
 PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs)
 {
 
-	PyObject *py_callable_on_color_committed = nullptr;
+	PyObject *py_callable = nullptr;
 
 	char *kwlist[] = {
 		(char *)"on_color_committed",
 		nullptr };
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:open_color_picker", kwlist,
-		&py_callable_on_color_committed))
+		&py_callable))
 	{
 		return nullptr;
 	}
 
-	if (!PyCalllable_Check_Extended(py_callable_on_color_committed))
+	if (!PyCalllable_Check_Extended(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "on_color_committed must be a callable");
 	}
 
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable_on_color_committed);
-	// TODO: this memory should be freed...
-	py_delegate->AddToRoot();
-
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 	FColorPickerArgs color_args;
-	color_args.OnColorCommitted.BindUObject(py_delegate, &UPythonSlateDelegate::OnLinearColorChanged);
+	color_args.OnColorCommitted.BindSP(py_delegate, &FPythonSlateDelegate::OnLinearColorChanged);
 
 	if (OpenColorPicker(color_args))
 	{

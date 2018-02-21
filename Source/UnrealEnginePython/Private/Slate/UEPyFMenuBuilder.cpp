@@ -41,8 +41,8 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	char *label;
 	char *tooltip;
 	PyObject *py_callable;
-	PyObject *py_obj          = nullptr;
-    PyObject *py_uiaction_obj = nullptr;
+	PyObject *py_obj = nullptr;
+	PyObject *py_uiaction_obj = nullptr;
 	if (!PyArg_ParseTuple(args, "ssO|OO:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &py_uiaction_obj))
 		return nullptr;
 
@@ -53,23 +53,21 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 
 
 	FExecuteAction handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
-	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 
 	if (py_obj)
 	{
 		Py_INCREF(py_obj);
-		handler.BindUObject(py_delegate, &UPythonSlateDelegate::ExecuteAction, py_obj);
+		handler.BindSP(py_delegate, &FPythonSlateDelegate::ExecuteAction, py_obj);
 	}
 	else
 	{
-		handler.BindUObject(py_delegate, &UPythonSlateDelegate::SimpleExecuteAction);
+		handler.BindSP(py_delegate, &FPythonSlateDelegate::SimpleExecuteAction);
 	}
 
-    ue_PyESlateEnums *py_uiaction_enum = py_uiaction_obj ? py_ue_is_eslate_enums(py_uiaction_obj) : nullptr;
-    self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler), NAME_None, 
-        py_uiaction_enum ? (EUserInterfaceActionType::Type)(py_uiaction_enum->val) : EUserInterfaceActionType::Button);
+	ue_PyESlateEnums *py_uiaction_enum = py_uiaction_obj ? py_ue_is_eslate_enums(py_uiaction_obj) : nullptr;
+	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler), NAME_None,
+		py_uiaction_enum ? (EUserInterfaceActionType::Type)(py_uiaction_enum->val) : EUserInterfaceActionType::Button);
 
 	Py_RETURN_NONE;
 }
