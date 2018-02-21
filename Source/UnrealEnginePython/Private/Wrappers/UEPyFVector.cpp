@@ -372,8 +372,6 @@ void ue_python_init_fvector(PyObject *ue_module)
 	ue_PyFVector_sequence_methods.sq_length = (lenfunc)ue_py_fvector_seq_length;
 	ue_PyFVector_sequence_methods.sq_item = (ssizeargfunc)ue_py_fvector_seq_item;
 
-    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
-    ue_PyFVectorType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
     ue_PyFVectorType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFVectorType) < 0)

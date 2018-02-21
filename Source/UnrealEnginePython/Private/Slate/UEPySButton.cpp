@@ -33,11 +33,9 @@ static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * ar
 	}
 
 	FOnClicked handler;
-	UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();
+	TSharedRef<FPythonSlateDelegate>py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_border.s_compound_widget.s_widget.s_widget, py_callable);
 	py_delegate->SetPyCallable(py_callable);
-	py_delegate->AddToRoot();
-	handler.BindUObject(py_delegate, &UPythonSlateDelegate::OnClicked);
-	self->s_border.s_compound_widget.s_widget.delegates.Add(py_delegate);
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnClicked);
 
 	sw_button->SetOnClicked(handler);
 
@@ -106,7 +104,7 @@ static int ue_py_sbutton_init(ue_PySButton *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_text("text", Text);
 	ue_py_slate_farguments_optional_enum("text_flow_direction", TextFlowDirection, ETextFlowDirection);
 	ue_py_slate_farguments_optional_enum("text_shaping_method", TextShapingMethod, ETextShapingMethod);
-    ue_py_slate_farguments_optional_struct_ptr("button_style", ButtonStyle, FButtonStyle);
+	ue_py_slate_farguments_optional_struct_ptr("button_style", ButtonStyle, FButtonStyle);
 	ue_py_slate_farguments_optional_struct_ptr("text_style", TextStyle, FTextBlockStyle);
 	ue_py_slate_farguments_optional_enum("touch_method", TouchMethod, EButtonTouchMethod::Type);
 	ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);

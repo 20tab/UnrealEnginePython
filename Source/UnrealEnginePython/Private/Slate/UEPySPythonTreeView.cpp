@@ -82,17 +82,17 @@ static PyObject *py_ue_spython_tree_view_get_num_items_selected(ue_PySPythonTree
 }
 
 static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTreeView *self, PyObject * args)
-{
+	{
     PyObject *values;
     if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
-    {
+		{
         return NULL;
     }
 
     values = PyObject_GetIter(values);
     if (!values) {
         return PyErr_Format(PyExc_Exception, "argument is not an iterable");
-    }
+		}
 
     //NOTE: ikrimae: Increment first so we don't decrement and destroy python objects that 
     //we're passing in e.g. if you pass the same item source array into update_items(). 
@@ -101,7 +101,7 @@ static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTre
     while (PyObject *item = PyIter_Next(values)) {
         Py_INCREF(item);
         tempNewArray.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
-    }
+	}
 
     for (TSharedPtr<struct FPythonItem>& item : self->item_source_list)
     {
@@ -187,7 +187,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	{
 		PyErr_SetString(PyExc_Exception, "tree_items_source field is not an iterable");
         Py_DECREF(values);
-        return -1;
+		return -1;
 	}
 
     new(&self->item_source_list) TArray<TSharedPtr<FPythonItem>>();
@@ -205,7 +205,6 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
             if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value)) {
 
                 Py_INCREF(_py_swidget);
-                ((ue_PySWidget *)self)->py_refs.Add(value);
                 arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->s_widget));
             }
             else {

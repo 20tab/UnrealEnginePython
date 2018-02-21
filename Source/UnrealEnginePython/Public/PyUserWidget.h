@@ -7,7 +7,7 @@
 
 
 UCLASS(BlueprintType, Blueprintable)
-class UPyUserWidget : public UUserWidget
+class UNREALENGINEPYTHON_API UPyUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

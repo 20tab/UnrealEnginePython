@@ -277,8 +277,6 @@ void ue_python_init_fquat(PyObject *ue_module) {
 	ue_PyFQuat_sequence_methods.sq_length = (lenfunc)ue_py_fquat_seq_length;
 	ue_PyFQuat_sequence_methods.sq_item = (ssizeargfunc)ue_py_fquat_seq_item;
 
-    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
-    ue_PyFQuatType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
     ue_PyFQuatType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFQuatType) < 0)

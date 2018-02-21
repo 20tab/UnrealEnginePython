@@ -273,8 +273,6 @@ void ue_python_init_frotator(PyObject *ue_module) {
 	ue_PyFRotator_sequence_methods.sq_length = (lenfunc)ue_py_frotator_seq_length;
 	ue_PyFRotator_sequence_methods.sq_item = (ssizeargfunc)ue_py_frotator_seq_item;
     
-    //NOTE: Should this be required? Shouldn't it automatically get inherited from the base type?
-    ue_PyFRotatorType.tp_call = (ternaryfunc)ue_py_uscriptstruct_get_ptr;
     ue_PyFRotatorType.tp_base = &ue_PyUScriptStructType;
 
 	if (PyType_Ready(&ue_PyFRotatorType) < 0)

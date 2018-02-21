@@ -97,8 +97,6 @@
 
 #include "PythonDelegate.h"
 
-#include "UEPySlate.generated.h"
-
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_find_slate_style(PyObject *, PyObject *);
@@ -166,11 +164,21 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	if (value) {\
 		if (PyCalllable_Check_Extended(value)) {\
 			_base handler;\
-			UPythonSlateDelegate *py_delegate = NewObject<UPythonSlateDelegate>();\
-			py_delegate->SetPyCallable(value);\
-			py_delegate->AddToRoot();\
-			handler.BindUObject(py_delegate, &UPythonSlateDelegate::_func);\
-			((ue_PySWidget *)self)->delegates.Add(py_delegate);\
+			ue_PySWidget *py_swidget = (ue_PySWidget *)self;\
+			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(py_swidget->s_widget, value);\
+			handler.Bind(py_delegate, &FPythonSlateDelegate::_func);\
+			arguments._attribute(handler);\
+		}
+
+#define ue_py_slate_base_event_up(_base, _func, _param, _attribute) \
+{\
+	PyObject *value = ue_py_dict_get_item(kwargs, _param);\
+	if (value) {\
+		if (PyCalllable_Check_Extended(value)) {\
+			_base handler;\
+			ue_PySWidget *py_swidget = (ue_PySWidget *)self;\
+			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(py_swidget->s_widget, value);\
+			handler.BindSP(py_delegate, &FPythonSlateDelegate::_func);\
 			arguments._attribute(handler);\
 		}
 
@@ -296,7 +304,6 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		if (value) {\
 			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
 				Py_INCREF(value);\
-				((ue_PySWidget *)self)->py_refs.Add(value);\
 				arguments.attribute((_type *)u_struct);\
 			}\
 			else {\
@@ -449,7 +456,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
-#define ue_py_slate_farguments_event(param, attribute, type, method) ue_py_slate_base_up(type, method, param, attribute)\
+#define ue_py_slate_farguments_event(param, attribute, type, method) ue_py_slate_base_event_up(type, method, param, attribute)\
 		ue_py_slate_down(param)
 
 
@@ -464,7 +471,6 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	if (ue_PySWidget *py_swidget = value ? py_ue_is_swidget(value) : nullptr) {\
         Py_INCREF(py_swidget);\
         ue_PySWidget *self_py_swidget = py_ue_is_swidget((PyObject*)self);\
-        self_py_swidget->py_swidget_slots.Add(py_swidget);\
         arguments.AttachWidget(py_swidget->s_widget->AsShared());\
 	}\
 	else {\
@@ -488,10 +494,9 @@ struct FPythonItem
 	}
 };
 
-UCLASS()
-class UPythonSlateDelegate : public UPythonDelegate
+
+class FPythonSlateDelegate : public FPythonSmartDelegate
 {
-	GENERATED_BODY()
 
 public:
 	FReply OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event);

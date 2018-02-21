@@ -13,16 +13,7 @@ struct ue_PySWidget
 	/* Type-specific fields go here. */
 
 	TSharedRef<SWidget> s_widget;
-
 	PyObject *py_dict;
-
-	TArray<UPythonSlateDelegate *> delegates;
-
-	ue_PySWidget *py_swidget_content;
-
-	TArray<ue_PySWidget *> py_swidget_slots;
-
-	TArray<PyObject *> py_refs;
 };
 
 void ue_python_init_swidget(PyObject *);

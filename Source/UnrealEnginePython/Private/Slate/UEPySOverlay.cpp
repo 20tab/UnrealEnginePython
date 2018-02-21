@@ -38,7 +38,6 @@ static PyObject *py_ue_soverlay_add_slot(ue_PySOverlay *self, PyObject * args, P
 	}
 
 	Py_INCREF(py_swidget);
-	self->s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SOverlay::FOverlaySlot &fslot = sw_overlay->AddSlot(z_order);
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());

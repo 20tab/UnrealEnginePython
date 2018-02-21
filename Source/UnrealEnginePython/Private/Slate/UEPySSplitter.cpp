@@ -30,7 +30,6 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
 	}
 
 	Py_INCREF(py_swidget);
-	self->s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
 	if (size_value > -1)

@@ -6,18 +6,15 @@
 
 #define sw_canvas StaticCastSharedRef<SCanvas>(self->s_panel.s_widget.s_widget)
 
-static PyObject *py_ue_scanvas_clear_children(ue_PySCanvas *self, PyObject * args) {
-
+static PyObject *py_ue_scanvas_clear_children(ue_PySCanvas *self, PyObject * args)
+{
 	sw_canvas->ClearChildren();
-	for (ue_PySWidget *item : self->s_panel.s_widget.py_swidget_slots) {
-		Py_DECREF(item);
-	}
-	self->s_panel.s_widget.py_swidget_slots.Empty();
 
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyObject *kwargs) {
+static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyObject *kwargs)
+{
 	PyObject *py_content;
 	int h_align = 0;
 	int v_align = 0;
@@ -37,28 +34,32 @@ static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyO
 		&h_align,
 		&v_align,
 		&position,
-		&size)) {
+		&size))
+	{
 		return NULL;
 	}
 
 	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget) {
+	if (!py_swidget)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
 	}
 
 	Py_INCREF(py_swidget);
-	self->s_panel.s_widget.py_swidget_slots.Add(py_swidget);
 
 	SCanvas::FSlot &fslot = sw_canvas->AddSlot();
 	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	fslot.VAlign((EVerticalAlignment)v_align);
 
-	if (position && PyTuple_Check(position)) {
-		if (PyTuple_Size(position) == 2) {
+	if (position && PyTuple_Check(position))
+	{
+		if (PyTuple_Size(position) == 2)
+		{
 			PyObject *py_x = PyTuple_GetItem(position, 0);
 			PyObject *py_y = PyTuple_GetItem(position, 1);
-			if (PyNumber_Check(py_x)) {
+			if (PyNumber_Check(py_x))
+			{
 				PyObject *py_x_float = PyNumber_Float(py_x);
 				float x = PyFloat_AsDouble(py_x_float);
 				Py_DECREF(py_x_float);
@@ -70,11 +71,14 @@ static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyO
 		}
 	}
 
-	if (size && PyTuple_Check(size)) {
-		if (PyTuple_Size(size) == 2) {
+	if (size && PyTuple_Check(size))
+	{
+		if (PyTuple_Size(size) == 2)
+		{
 			PyObject *py_x = PyTuple_GetItem(size, 0);
 			PyObject *py_y = PyTuple_GetItem(size, 1);
-			if (PyNumber_Check(py_x)) {
+			if (PyNumber_Check(py_x))
+			{
 				PyObject *py_x_float = PyNumber_Float(py_x);
 				float x = PyFloat_AsDouble(py_x_float);
 				Py_DECREF(py_x_float);
@@ -128,12 +132,14 @@ PyTypeObject ue_PySCanvasType = {
 	ue_PySCanvas_methods,             /* tp_methods */
 };
 
-static int ue_py_scanvas_init(ue_PySCanvas *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_scanvas_init(ue_PySCanvas *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_snew_simple(SCanvas, s_panel.s_widget);
 	return 0;
 }
 
-void ue_python_init_scanvas(PyObject *ue_module) {
+void ue_python_init_scanvas(PyObject *ue_module)
+{
 
 	ue_PySCanvasType.tp_base = &ue_PySPanelType;
 	ue_PySCanvasType.tp_call = (ternaryfunc)py_ue_scanvas_add_slot;

@@ -6,16 +6,12 @@
 
 #define sw_box_panel StaticCastSharedRef<SBoxPanel>(self->s_panel.s_widget.s_widget)
 
-static PyObject *py_ue_sbox_panel_clear_children(ue_PySGridPanel *self, PyObject * args) {
+static PyObject *py_ue_sbox_panel_clear_children(ue_PySGridPanel *self, PyObject * args)
+{
 
 	sw_box_panel->ClearChildren();
-	for (ue_PySWidget *item : self->s_panel.s_widget.py_swidget_slots) {
-		Py_DECREF(item);
-	}
-	self->s_panel.s_widget.py_swidget_slots.Empty();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PySBoxPanel_methods[] = {
@@ -54,7 +50,8 @@ PyTypeObject ue_PySBoxPanelType = {
 	ue_PySBoxPanel_methods,             /* tp_methods */
 };
 
-void ue_python_init_sbox_panel(PyObject *ue_module) {
+void ue_python_init_sbox_panel(PyObject *ue_module)
+{
 
 	ue_PySBoxPanelType.tp_base = &ue_PySPanelType;
 
