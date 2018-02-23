@@ -25,6 +25,7 @@
 
 #include "UEPySlate.h"
 #include "PyNativeWidgetHost.h"
+#include "IStructureDetailsView.h"
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
@@ -1136,6 +1137,14 @@ PyObject *py_unreal_engine_create_structure_detail_view(PyObject *self, PyObject
 
     FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
     ret->istructure_details_view                = PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope);
+    //ret->istructure_details_view->GetOnFinishedChangingPropertiesDelegate().AddLambda([ret](const FPropertyChangedEvent& ChangeEvent) {
+    //    //NOTE: Kind of risque but YOLO
+    //    if (ret->istructure_details_view.IsValid() && ret->ue_py_struct != nullptr 
+    //        && ret->ue_py_struct->is_ptr && ret->ue_py_struct->original_data && ret->ue_py_struct->data)
+    //    {
+    //        FMemory::Memcpy(ret->ue_py_struct->original_data, ret->ue_py_struct->data, ret->ue_py_struct->u_struct->GetStructureSize());
+    //    }
+    //});
 
     return (PyObject *)ret;
 }
