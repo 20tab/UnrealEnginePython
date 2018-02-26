@@ -1869,7 +1869,9 @@ PyObject *py_ue_from_bytes(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
-	TArray<uint8> Bytes((const uint8 *)py_buf.buf, py_buf.len);
+	TArray<uint8> Bytes;
+	Bytes.AddUninitialized(py_buf.len);
+	FMemory::Memcpy(Bytes.GetData(), py_buf.buf, py_buf.len);
 
 	FObjectReader(self->ue_object, Bytes);
 

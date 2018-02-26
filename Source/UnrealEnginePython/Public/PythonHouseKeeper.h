@@ -66,7 +66,11 @@ public:
 		{
 			Singleton = new FUnrealEnginePythonHouseKeeper();
 			// register a new delegate for the GC
+#if ENGINE_MINOR_VERSION >= 18
 			FCoreUObjectDelegates::GetPostGarbageCollect().AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);
+#else
+			FCoreUObjectDelegates::PostGarbageCollect.AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);
+#endif
 		}
 		return Singleton;
 	}

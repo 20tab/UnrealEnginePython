@@ -120,7 +120,9 @@ private:
 		PlayInEditorSettings->GameGetsMouseControl = false;
 		PlayInEditorSettings->ShowMouseControlLabel = false;
 		PlayInEditorSettings->ViewportGetsHMDControl = false;
+#if ENGINE_MINOR_VERSION >= 17
 		PlayInEditorSettings->ShouldMinimizeEditorOnVRPIE = true;
+#endif
 		PlayInEditorSettings->EnableGameSound = false;
 		PlayInEditorSettings->bOnlyLoadVisibleLevelsInPIE = false;
 		PlayInEditorSettings->bPreferToStreamLevelsInPIE = false;
