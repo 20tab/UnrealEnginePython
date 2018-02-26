@@ -133,7 +133,9 @@ private:
 			.AutoCenter(EAutoCenter::PrimaryWorkArea)
 			.UseOSWindowBorder(true)
 			.FocusWhenFirstShown(false)
+#if ENGINE_MINOR_VERSION > 15
 			.ActivationPolicy(EWindowActivationPolicy::Never)
+#endif
 			.HasCloseButton(true)
 			.SupportsMaximize(false)
 			.SupportsMinimize(true)
@@ -151,8 +153,8 @@ private:
 		PlayInEditorSettings->ViewportGetsHMDControl = false;
 #if ENGINE_MINOR_VERSION >= 17
 		PlayInEditorSettings->ShouldMinimizeEditorOnVRPIE = true;
-#endif
 		PlayInEditorSettings->EnableGameSound = false;
+#endif
 		PlayInEditorSettings->bOnlyLoadVisibleLevelsInPIE = false;
 		PlayInEditorSettings->bPreferToStreamLevelsInPIE = false;
 		PlayInEditorSettings->PIEAlwaysOnTop = false;
