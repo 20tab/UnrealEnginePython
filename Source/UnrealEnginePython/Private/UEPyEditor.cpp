@@ -2371,7 +2371,7 @@ PyObject *py_unreal_engine_export_assets(PyObject * self, PyObject * args)
 	Py_DECREF(py_iter);
 
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MINOR_VERSION > 16
 	AssetToolsModule.Get().ExportAssets(UObjects, FString(UTF8_TO_TCHAR(filename)));
 #endif
 
