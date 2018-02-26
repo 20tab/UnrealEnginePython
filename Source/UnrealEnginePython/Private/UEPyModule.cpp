@@ -802,6 +802,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "capture_stop", (PyCFunction)py_ue_capture_stop, METH_VARARGS, "" },
 	{ "capture_load_from_config", (PyCFunction)py_ue_capture_load_from_config, METH_VARARGS, "" },
 
+#if WITH_EDITOR
+	{ "in_editor_capture", (PyCFunction)py_ue_in_editor_capture, METH_VARARGS, "" },
+	{ "set_level_sequence_asset", (PyCFunction)py_ue_set_level_sequence_asset, METH_VARARGS, "" },
+#endif
+
 	// Pawn
 	{ "get_controller", (PyCFunction)py_ue_pawn_get_controller, METH_VARARGS, "" },
 
