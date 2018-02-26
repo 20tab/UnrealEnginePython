@@ -360,6 +360,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "play_sound", py_unreal_engine_play_sound, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "editor_play_in_viewport", py_unreal_engine_editor_play_in_viewport, METH_VARARGS, "" },
+	{ "request_play_session", py_unreal_engine_request_play_session, METH_VARARGS, "" },
 	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },
 	{ "editor_get_active_viewport_screenshot", py_unreal_engine_editor_get_active_viewport_screenshot, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_screenshot", py_unreal_engine_editor_get_pie_viewport_screenshot, METH_VARARGS, "" },
@@ -799,6 +800,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "capture_initialize", (PyCFunction)py_ue_capture_initialize, METH_VARARGS, "" },
 	{ "capture_start", (PyCFunction)py_ue_capture_start, METH_VARARGS, "" },
 	{ "capture_stop", (PyCFunction)py_ue_capture_stop, METH_VARARGS, "" },
+	{ "capture_load_from_config", (PyCFunction)py_ue_capture_load_from_config, METH_VARARGS, "" },
 
 	// Pawn
 	{ "get_controller", (PyCFunction)py_ue_pawn_get_controller, METH_VARARGS, "" },
@@ -953,6 +955,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if ENGINE_MINOR_VERSION >= 15
 	{ "enum_user_defined_names", (PyCFunction)py_ue_enum_user_defined_names, METH_VARARGS, "" },
 #endif
+
+	// serialization
+	{ "to_bytes", (PyCFunction)py_ue_to_bytes, METH_VARARGS, "" },
+	{ "to_bytearray", (PyCFunction)py_ue_to_bytearray, METH_VARARGS, "" },
+	{ "from_bytes", (PyCFunction)py_ue_from_bytes, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

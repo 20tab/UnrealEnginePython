@@ -70,6 +70,26 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 
 }
 
+PyObject *py_unreal_engine_request_play_session(PyObject * self, PyObject * args)
+{
+
+	PyObject *py_at_player_start = nullptr;
+	PyObject *py_simulate_in_editor = nullptr;
+
+	if (!PyArg_ParseTuple(args, "|OO:request_play_session", &py_at_player_start, &py_simulate_in_editor))
+	{
+		return nullptr;
+	}
+
+	bool bAtPlayerStart = py_at_player_start && PyObject_IsTrue(py_at_player_start);
+	bool bSimulate = py_simulate_in_editor && PyObject_IsTrue(py_simulate_in_editor);
+
+	GEditor->RequestPlaySession(bAtPlayerStart, nullptr, bSimulate);
+
+	Py_RETURN_NONE;
+
+}
+
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args)
 {
@@ -396,7 +416,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
 		char * filename = PyString_AsString(PyObject_Str(assetsObject));
 #endif
 		files.Add(UTF8_TO_TCHAR(filename));
-	}
+}
 	else
 	{
 		return PyErr_Format(PyExc_Exception, "Not a string nor valid list of string");

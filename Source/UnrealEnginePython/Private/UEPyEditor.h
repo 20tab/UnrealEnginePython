@@ -118,4 +118,6 @@ PyObject *py_unreal_engine_play_preview_sound(PyObject *, PyObject *);
 PyObject *py_unreal_engine_register_settings(PyObject *, PyObject *);
 PyObject *py_unreal_engine_show_viewer(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_settings(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_request_play_session(PyObject *, PyObject *);
 #endif
