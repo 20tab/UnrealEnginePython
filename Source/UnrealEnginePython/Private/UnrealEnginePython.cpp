@@ -334,7 +334,9 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
 		}
 
+#if PY_MAJOR_VERSION >= 3
 	init_unreal_engine_builtin();
+#endif
 
 	Py_Initialize();
 

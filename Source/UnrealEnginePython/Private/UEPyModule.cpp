@@ -1868,6 +1868,15 @@ void unreal_engine_init_py_module()
 	PyObject *new_unreal_engine_module = PyImport_AddModule("unreal_engine");
 #else
 	PyObject *new_unreal_engine_module = Py_InitModule3("unreal_engine", NULL, unreal_engine_py_doc);
+	ue_PyUObjectType.tp_new = PyType_GenericNew;
+	ue_PyUObjectType.tp_init = (initproc)unreal_engine_py_init;
+	ue_PyUObjectType.tp_dictoffset = offsetof(ue_PyUObject, py_dict);
+
+	if (PyType_Ready(&ue_PyUObjectType) < 0)
+		return;
+
+	Py_INCREF(&ue_PyUObjectType);
+	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
 #endif
 	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
 
@@ -3603,6 +3612,7 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 	return ue_py_struct->u_struct->IsChildOf(parent_u_struct);
 }
 
+#if PY_MAJOR_VERSION >= 3
 static PyObject *init_unreal_engine()
 {
 	
@@ -3622,3 +3632,4 @@ static PyObject *init_unreal_engine()
 
 	return new_unreal_engine_module;
 }
+#endif
