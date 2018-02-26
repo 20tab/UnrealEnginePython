@@ -416,7 +416,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
 		char * filename = PyString_AsString(PyObject_Str(assetsObject));
 #endif
 		files.Add(UTF8_TO_TCHAR(filename));
-}
+	}
 	else
 	{
 		return PyErr_Format(PyExc_Exception, "Not a string nor valid list of string");
@@ -2331,6 +2331,47 @@ PyObject *py_unreal_engine_editor_sync_browser_to_assets(PyObject * self, PyObje
 	}
 
 	Py_DECREF(py_iter);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_export_assets(PyObject * self, PyObject * args)
+{
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject * py_assets = nullptr;
+	char *filename;
+
+	if (!PyArg_ParseTuple(args, "Os:export_assets", &py_assets, &filename))
+	{
+		return nullptr;
+	}
+
+	TArray<UObject *> UObjects;
+	PyObject *py_iter = PyObject_GetIter(py_assets);
+
+	if (!py_iter)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable of UObject");
+	}
+
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		UObject *Object = ue_py_check_type<UObject>(py_item);
+		if (!Object)
+		{
+			Py_DECREF(py_iter);
+			return PyErr_Format(PyExc_Exception, "argument is not an iterable of UObject");
+		}
+		UObjects.Add(Object);
+	}
+
+	Py_DECREF(py_iter);
+
+	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+	AssetToolsModule.Get().ExportAssets(UObjects, FString(UTF8_TO_TCHAR(filename)));
 
 	Py_RETURN_NONE;
 }

@@ -120,4 +120,5 @@ PyObject *py_unreal_engine_show_viewer(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_settings(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_request_play_session(PyObject *, PyObject *);
+PyObject *py_unreal_engine_export_assets(PyObject *, PyObject *);
 #endif

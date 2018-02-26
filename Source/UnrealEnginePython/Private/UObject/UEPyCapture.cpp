@@ -7,7 +7,8 @@
 /*
 
 This is taken as-is (more or less) from MovieSceneCaptureDialogModule.cpp
-to automate sequencer capturing
+to automate sequencer capturing. The only relevant implementation is the support
+for a queue of UMovieSceneCapture objects
 
 */
 
@@ -16,44 +17,61 @@ to automate sequencer capturing
 #include "Slate/SceneViewport.h"
 #include "AutomatedLevelSequenceCapture.h"
 
-struct FInEditorCapture : TSharedFromThis<FInEditorCapture>
+struct FInEditorMultiCapture : TSharedFromThis<FInEditorMultiCapture>
 {
 
-	static TWeakPtr<FInEditorCapture> CreateInEditorCapture(UMovieSceneCapture* InCaptureObject)
+	static TWeakPtr<FInEditorMultiCapture> CreateInEditorMultiCapture(TArray<UMovieSceneCapture*> InCaptureObjects)
 	{
 		// FInEditorCapture owns itself, so should only be kept alive by itself, or a pinned (=> temporary) weakptr
-		FInEditorCapture* Capture = new FInEditorCapture;
-		Capture->Start(InCaptureObject);
+		FInEditorMultiCapture* Capture = new FInEditorMultiCapture;
+		Capture->CaptureObjects = InCaptureObjects;
+		for (UMovieSceneCapture *SceneCapture : Capture->CaptureObjects)
+		{
+			SceneCapture->AddToRoot();
+		}
+		Capture->Dequeue();
 		return Capture->AsShared();
 	}
 
-	UWorld* GetWorld() const
-	{
-		return CapturingFromWorld;
-	}
-
 private:
-	FInEditorCapture()
+	FInEditorMultiCapture()
 	{
 		CapturingFromWorld = nullptr;
-		CaptureObject = nullptr;
 	}
 
-	void Start(UMovieSceneCapture* InCaptureObject)
+	void Die()
 	{
-		check(InCaptureObject);
+		for (UMovieSceneCapture *SceneCapture : CaptureObjects)
+		{
+			SceneCapture->RemoveFromRoot();
+		}
+		OnlyStrongReference = nullptr;
+	}
+
+	void Dequeue()
+	{
+
+		if (CaptureObjects.Num() < 1)
+		{
+			Die();
+			return;
+		}
+
+		CurrentCaptureObject = CaptureObjects[0];
+
+		check(CurrentCaptureObject);
 
 		CapturingFromWorld = nullptr;
-		OnlyStrongReference = MakeShareable(this);
 
-		CaptureObject = InCaptureObject;
+		if (!OnlyStrongReference.IsValid())
+			OnlyStrongReference = MakeShareable(this);
 
 		ULevelEditorPlaySettings* PlayInEditorSettings = GetMutableDefault<ULevelEditorPlaySettings>();
 
 		bScreenMessagesWereEnabled = GAreScreenMessagesEnabled;
 		GAreScreenMessagesEnabled = false;
 
-		if (!InCaptureObject->Settings.bEnableTextureStreaming)
+		if (!CurrentCaptureObject->Settings.bEnableTextureStreaming)
 		{
 			const int32 UndefinedTexturePoolSize = -1;
 			IConsoleVariable* CVarStreamingPoolSize = IConsoleManager::Get().FindConsoleVariable(TEXT("r.Streaming.PoolSize"));
@@ -71,14 +89,18 @@ private:
 			}
 		}
 
+		// cleanup from previous run
+		BackedUpPlaySettings.Empty();
+
 		FObjectWriter(PlayInEditorSettings, BackedUpPlaySettings);
+
 		OverridePlaySettings(PlayInEditorSettings);
 
-		CaptureObject->AddToRoot();
-		CaptureObject->OnCaptureFinished().AddRaw(this, &FInEditorCapture::OnEnd);
+		//CurrentCaptureObject->AddToRoot();
+		CurrentCaptureObject->OnCaptureFinished().AddRaw(this, &FInEditorMultiCapture::OnEnd);
 
-		UGameViewportClient::OnViewportCreated().AddRaw(this, &FInEditorCapture::OnStart);
-		FEditorDelegates::EndPIE.AddRaw(this, &FInEditorCapture::OnEndPIE);
+		UGameViewportClient::OnViewportCreated().AddRaw(this, &FInEditorMultiCapture::OnStart);
+		FEditorDelegates::EndPIE.AddRaw(this, &FInEditorMultiCapture::OnEndPIE);
 
 		FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
 		if (AudioDevice != nullptr)
@@ -87,12 +109,19 @@ private:
 			AudioDevice->SetTransientMasterVolume(0.0f);
 		}
 
+		// play at the next tick
+		FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FInEditorMultiCapture::PlaySession), 0);
+	}
+
+	bool PlaySession(float DeltaTime)
+	{
 		GEditor->RequestPlaySession(true, nullptr, false);
+		return false;
 	}
 
 	void OverridePlaySettings(ULevelEditorPlaySettings* PlayInEditorSettings)
 	{
-		const FMovieSceneCaptureSettings& Settings = CaptureObject->GetSettings();
+		const FMovieSceneCaptureSettings& Settings = CurrentCaptureObject->GetSettings();
 
 		PlayInEditorSettings->NewWindowWidth = Settings.Resolution.ResX;
 		PlayInEditorSettings->NewWindowHeight = Settings.Resolution.ResY;
@@ -150,7 +179,7 @@ private:
 
 					TSharedPtr<SWindow> Window = SlatePlayInEditorSession->SlatePlayInEditorWindow.Pin();
 
-					const FMovieSceneCaptureSettings& Settings = CaptureObject->GetSettings();
+					const FMovieSceneCaptureSettings& Settings = CurrentCaptureObject->GetSettings();
 
 					SlatePlayInEditorSession->SlatePlayInEditorWindowViewport->SetViewportSize(Settings.Resolution.ResX, Settings.Resolution.ResY);
 
@@ -171,30 +200,29 @@ private:
 					FVector2D PreviewWindowPosition(50, 50);
 					Window->ReshapeWindow(PreviewWindowPosition, PreviewWindowSize);
 
-					if (CaptureObject->Settings.GameModeOverride != nullptr)
+					if (CurrentCaptureObject->Settings.GameModeOverride != nullptr)
 					{
 						CachedGameMode = CapturingFromWorld->GetWorldSettings()->DefaultGameMode;
-						CapturingFromWorld->GetWorldSettings()->DefaultGameMode = CaptureObject->Settings.GameModeOverride;
+						CapturingFromWorld->GetWorldSettings()->DefaultGameMode = CurrentCaptureObject->Settings.GameModeOverride;
 					}
 
-					CaptureObject->Initialize(SlatePlayInEditorSession->SlatePlayInEditorWindowViewport, Context.PIEInstance);
+					CurrentCaptureObject->Initialize(SlatePlayInEditorSession->SlatePlayInEditorWindowViewport, Context.PIEInstance);
 				}
 				return;
 			}
 		}
 
-		// todo: error?
 	}
 
 	void Shutdown()
 	{
 		FEditorDelegates::EndPIE.RemoveAll(this);
 		UGameViewportClient::OnViewportCreated().RemoveAll(this);
-		CaptureObject->OnCaptureFinished().RemoveAll(this);
+		CurrentCaptureObject->OnCaptureFinished().RemoveAll(this);
 
 		GAreScreenMessagesEnabled = bScreenMessagesWereEnabled;
 
-		if (!CaptureObject->Settings.bEnableTextureStreaming)
+		if (!CurrentCaptureObject->Settings.bEnableTextureStreaming)
 		{
 			IConsoleVariable* CVarStreamingPoolSize = IConsoleManager::Get().FindConsoleVariable(TEXT("r.Streaming.PoolSize"));
 			if (CVarStreamingPoolSize)
@@ -209,7 +237,7 @@ private:
 			}
 		}
 
-		if (CaptureObject->Settings.GameModeOverride != nullptr)
+		if (CurrentCaptureObject->Settings.GameModeOverride != nullptr)
 		{
 			CapturingFromWorld->GetWorldSettings()->DefaultGameMode = CachedGameMode;
 		}
@@ -222,25 +250,43 @@ private:
 			AudioDevice->SetTransientMasterVolume(TransientMasterVolume);
 		}
 
-		CaptureObject->Close();
-		CaptureObject->RemoveFromRoot();
+		CurrentCaptureObject->Close();
+		//CurrentCaptureObject->RemoveFromRoot();
 
 	}
 	void OnEndPIE(bool bIsSimulating)
 	{
 		Shutdown();
-		OnlyStrongReference = nullptr;
+
+		Die();
+	}
+
+	void NextCapture(bool bIsSimulating)
+	{
+		
+		FEditorDelegates::EndPIE.RemoveAll(this);
+		// remove item from the TArray;
+		CaptureObjects.RemoveAt(0);
+
+		if (CaptureObjects.Num() > 0)
+		{
+			Dequeue();
+		}
+		else
+		{
+			Die();
+		}
 	}
 
 	void OnEnd()
 	{
 		Shutdown();
-		OnlyStrongReference = nullptr;
 
+		FEditorDelegates::EndPIE.AddRaw(this, &FInEditorMultiCapture::NextCapture);
 		GEditor->RequestEndPlayMap();
 	}
 
-	TSharedPtr<FInEditorCapture> OnlyStrongReference;
+	TSharedPtr<FInEditorMultiCapture> OnlyStrongReference;
 	UWorld* CapturingFromWorld;
 
 	bool bScreenMessagesWereEnabled;
@@ -248,20 +294,49 @@ private:
 	int32 BackedUpStreamingPoolSize;
 	int32 BackedUpUseFixedPoolSize;
 	TArray<uint8> BackedUpPlaySettings;
-	UMovieSceneCapture* CaptureObject;
+	UMovieSceneCapture* CurrentCaptureObject;
 
 	TSubclassOf<AGameModeBase> CachedGameMode;
+	TArray<UMovieSceneCapture*> CaptureObjects;
 };
 
-PyObject *py_ue_in_editor_capture(ue_PyUObject * self, PyObject * args)
+PyObject *py_unreal_engine_in_editor_capture(PyObject * self, PyObject * args)
 {
-	ue_py_check(self);
+	PyObject *py_scene_captures;
 
-	UMovieSceneCapture *capture = ue_py_check_type<UMovieSceneCapture>(self);
+	if (!PyArg_ParseTuple(args, "O:in_editor_capture", &py_scene_captures))
+	{
+		return nullptr;
+	}
+
+	TArray<UMovieSceneCapture *> Captures;
+
+	UMovieSceneCapture *capture = ue_py_check_type<UMovieSceneCapture>(py_scene_captures);
 	if (!capture)
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMovieSceneCapture");
+	{
+		PyObject *py_iter = PyObject_GetIter(py_scene_captures);
+		if (!py_iter)
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a UMovieSceneCapture or an iterable of UMovieSceneCapture");
+		}
+		while (PyObject *py_item = PyIter_Next(py_iter))
+		{
+			capture = ue_py_check_type<UMovieSceneCapture>(py_item);
+			if (!capture)
+			{
+				Py_DECREF(py_iter);
+				return PyErr_Format(PyExc_Exception, "argument is not an iterable of UMovieSceneCapture");
+			}
+			Captures.Add(capture);
+		}
+		Py_DECREF(py_iter);
+	}
+	else
+	{
+		Captures.Add(capture);
+	}
 
-	FInEditorCapture::CreateInEditorCapture(capture);
+	FInEditorMultiCapture::CreateInEditorMultiCapture(Captures);
 
 	Py_RETURN_NONE;
 }

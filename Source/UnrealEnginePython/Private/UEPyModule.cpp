@@ -35,6 +35,7 @@
 #include "UObject/UEPyLandscape.h"
 #include "UObject/UEPyUserDefinedStruct.h"
 #include "UObject/UEPyDataTable.h"
+#include "UObject/UEPyExporter.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -225,6 +226,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
 	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
+	{ "export_assets", py_unreal_engine_export_assets, METH_VARARGS, "" },
 	{ "get_asset", py_unreal_engine_get_asset, METH_VARARGS, "" },
 	{ "find_asset", py_unreal_engine_find_asset, METH_VARARGS, "" },
 	{ "delete_object", py_unreal_engine_delete_object, METH_VARARGS, "" },
@@ -378,6 +380,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "register_settings", py_unreal_engine_register_settings, METH_VARARGS, "" },
 	{ "show_viewer", py_unreal_engine_show_viewer, METH_VARARGS, "" },
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
+
+	{ "in_editor_capture", py_unreal_engine_in_editor_capture, METH_VARARGS, "" },
 #endif
 
 	{ "clipboard_copy", py_unreal_engine_clipboard_copy, METH_VARARGS, "" },
@@ -545,6 +549,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "data_table_find_row", (PyCFunction)py_ue_data_table_find_row, METH_VARARGS, "" },
 	{ "data_table_get_all_rows", (PyCFunction)py_ue_data_table_get_all_rows, METH_VARARGS, "" },
 #endif
+
+	{ "export_to_file", (PyCFunction)py_ue_export_to_file, METH_VARARGS, "" },
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
 	{ "add_to_root", (PyCFunction)py_ue_add_to_root, METH_VARARGS, "" },
@@ -803,7 +809,6 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "capture_load_from_config", (PyCFunction)py_ue_capture_load_from_config, METH_VARARGS, "" },
 
 #if WITH_EDITOR
-	{ "in_editor_capture", (PyCFunction)py_ue_in_editor_capture, METH_VARARGS, "" },
 	{ "set_level_sequence_asset", (PyCFunction)py_ue_set_level_sequence_asset, METH_VARARGS, "" },
 #endif
 
