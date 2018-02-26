@@ -169,7 +169,7 @@ bone_map = mesh.skeletal_mesh_get_bone_map()
 and to assign a new one:
 
 ```python
-mesh.skeletal_mesh_get_bone_map([17, 22, 26, 30, ...])
+mesh.skeletal_mesh_set_bone_map([17, 22, 26, 30, ...])
 ```
 
 In the same way you can retrieve soft skin vertices:
