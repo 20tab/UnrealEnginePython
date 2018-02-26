@@ -27,9 +27,55 @@ static PyObject *py_ue_paste_nodes_here(PyObject *cls, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_update_material_after_graph_change(PyObject *cls, PyObject * args)
+{
+	PyObject *py_graph;
+
+	if (!PyArg_ParseTuple(args, "O:update_material_after_graph_change", &py_graph))
+		return nullptr;
+
+	UEdGraph *Graph = ue_py_check_type<UEdGraph>(py_graph);
+	if (!Graph)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a UEdGraph");
+	}
+
+	FMaterialEditorUtilities::UpdateMaterialAfterGraphChange(Graph);
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_command_apply(PyObject *cls, PyObject * args)
+{
+	PyObject *py_material;
+
+	if (!PyArg_ParseTuple(args, "O:command_apply", &py_material))
+		return nullptr;
+
+	UMaterial *Material = ue_py_check_type<UMaterial>(py_material);
+	if (!Material)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterial");
+	}
+
+	IAssetEditorInstance *Instance = FAssetEditorManager::Get().FindEditorForAsset(Material, false);
+	if (!Instance)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to retrieve editor for UMaterial");
+	}
+
+	IMaterialEditor *MaterialEditor = (IMaterialEditor *)Instance;
+
+	MaterialEditor->GetToolkitCommands()->ExecuteAction(FMaterialEditorCommands::Get().Apply.ToSharedRef());
+
+	Py_RETURN_NONE;
+
+}
+
 
 static PyMethodDef ue_PyFMaterialEditorUtilities_methods[] = {
 	{ "paste_nodes_here", (PyCFunction)py_ue_paste_nodes_here, METH_VARARGS | METH_CLASS, "" },
+	{ "update_material_after_graph_change", (PyCFunction)py_ue_update_material_after_graph_change, METH_VARARGS | METH_CLASS, "" },
+	{ "command_apply", (PyCFunction)py_ue_command_apply, METH_VARARGS | METH_CLASS, "" },
 	{ NULL }  /* Sentinel */
 };
 
