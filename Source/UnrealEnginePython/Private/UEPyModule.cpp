@@ -1947,6 +1947,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_fslate_application(new_unreal_engine_module);
 
 #if WITH_EDITOR
+	ue_python_init_fmaterial_editor_utilities(new_unreal_engine_module);
 	ue_python_init_icollection_manager(new_unreal_engine_module);
 #endif
 
