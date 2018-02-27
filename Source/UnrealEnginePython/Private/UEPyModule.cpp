@@ -35,6 +35,7 @@
 #include "UObject/UEPyLandscape.h"
 #include "UObject/UEPyUserDefinedStruct.h"
 #include "UObject/UEPyDataTable.h"
+#include "UObject/UEPyExporter.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -245,6 +246,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
 	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
+	{ "export_assets", py_unreal_engine_export_assets, METH_VARARGS, "" },
 	{ "get_asset", py_unreal_engine_get_asset, METH_VARARGS, "" },
 	{ "find_asset", py_unreal_engine_find_asset, METH_VARARGS, "" },
 	{ "delete_object", py_unreal_engine_delete_object, METH_VARARGS, "" },
@@ -380,6 +382,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "play_sound", py_unreal_engine_play_sound, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "editor_play_in_viewport", py_unreal_engine_editor_play_in_viewport, METH_VARARGS, "" },
+	{ "request_play_session", py_unreal_engine_request_play_session, METH_VARARGS, "" },
 	{ "get_editor_pie_game_viewport_client", py_unreal_engine_get_editor_pie_game_viewport_client, METH_VARARGS, "" },
 	{ "editor_get_active_viewport_screenshot", py_unreal_engine_editor_get_active_viewport_screenshot, METH_VARARGS, "" },
 	{ "editor_get_pie_viewport_screenshot", py_unreal_engine_editor_get_pie_viewport_screenshot, METH_VARARGS, "" },
@@ -397,6 +400,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "register_settings", py_unreal_engine_register_settings, METH_VARARGS, "" },
 	{ "show_viewer", py_unreal_engine_show_viewer, METH_VARARGS, "" },
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
+
+	{ "in_editor_capture", py_unreal_engine_in_editor_capture, METH_VARARGS, "" },
 #endif
 
 	{ "clipboard_copy", py_unreal_engine_clipboard_copy, METH_VARARGS, "" },
@@ -568,6 +573,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "data_table_find_row", (PyCFunction)py_ue_data_table_find_row, METH_VARARGS, "" },
 	{ "data_table_get_all_rows", (PyCFunction)py_ue_data_table_get_all_rows, METH_VARARGS, "" },
 #endif
+
+	{ "export_to_file", (PyCFunction)py_ue_export_to_file, METH_VARARGS, "" },
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
 	{ "add_to_root", (PyCFunction)py_ue_add_to_root, METH_VARARGS, "" },
@@ -823,6 +830,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "capture_initialize", (PyCFunction)py_ue_capture_initialize, METH_VARARGS, "" },
 	{ "capture_start", (PyCFunction)py_ue_capture_start, METH_VARARGS, "" },
 	{ "capture_stop", (PyCFunction)py_ue_capture_stop, METH_VARARGS, "" },
+	{ "capture_load_from_config", (PyCFunction)py_ue_capture_load_from_config, METH_VARARGS, "" },
+
+#if WITH_EDITOR
+	{ "set_level_sequence_asset", (PyCFunction)py_ue_set_level_sequence_asset, METH_VARARGS, "" },
+#endif
 
 	// Pawn
 	{ "get_controller", (PyCFunction)py_ue_pawn_get_controller, METH_VARARGS, "" },
@@ -977,6 +989,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if ENGINE_MINOR_VERSION >= 15
 	{ "enum_user_defined_names", (PyCFunction)py_ue_enum_user_defined_names, METH_VARARGS, "" },
 #endif
+
+	// serialization
+	{ "to_bytes", (PyCFunction)py_ue_to_bytes, METH_VARARGS, "" },
+	{ "to_bytearray", (PyCFunction)py_ue_to_bytearray, METH_VARARGS, "" },
+	{ "from_bytes", (PyCFunction)py_ue_from_bytes, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -1878,6 +1895,15 @@ void unreal_engine_init_py_module()
 	PyObject *new_unreal_engine_module = PyImport_AddModule("unreal_engine");
 #else
 	PyObject *new_unreal_engine_module = Py_InitModule3("unreal_engine", NULL, unreal_engine_py_doc);
+	ue_PyUObjectType.tp_new = PyType_GenericNew;
+	ue_PyUObjectType.tp_init = (initproc)unreal_engine_py_init;
+	ue_PyUObjectType.tp_dictoffset = offsetof(ue_PyUObject, py_dict);
+
+	if (PyType_Ready(&ue_PyUObjectType) < 0)
+		return;
+
+	Py_INCREF(&ue_PyUObjectType);
+	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject *)&ue_PyUObjectType);
 #endif
 	PyObject *unreal_engine_dict = PyModule_GetDict(new_unreal_engine_module);
 
@@ -1957,6 +1983,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_fslate_application(new_unreal_engine_module);
 
 #if WITH_EDITOR
+	ue_python_init_fmaterial_editor_utilities(new_unreal_engine_module);
 	ue_python_init_icollection_manager(new_unreal_engine_module);
 #endif
 
@@ -3628,6 +3655,7 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 	return ue_py_struct->u_struct->IsChildOf(parent_u_struct);
 }
 
+#if PY_MAJOR_VERSION >= 3
 static PyObject *init_unreal_engine()
 {
 	
@@ -3647,3 +3675,4 @@ static PyObject *init_unreal_engine()
 
 	return new_unreal_engine_module;
 }
+#endif

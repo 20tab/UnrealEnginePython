@@ -72,6 +72,7 @@
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
 #include "CollectionManager/UEPyICollectionManager.h"
+#include "MaterialEditorUtilities/UEPyFMaterialEditorUtilities.h"
 #endif
 
 #include "Slate/UEPySlate.h"

@@ -1860,3 +1860,46 @@ PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
 }
 #endif
 
+
+PyObject *py_ue_to_bytes(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	TArray<uint8> Bytes;
+
+	FObjectWriter(self->ue_object, Bytes);
+
+	return PyBytes_FromStringAndSize((const char *)Bytes.GetData(), Bytes.Num());
+}
+
+PyObject *py_ue_to_bytearray(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	TArray<uint8> Bytes;
+
+	FObjectWriter(self->ue_object, Bytes);
+
+	return PyByteArray_FromStringAndSize((const char *)Bytes.GetData(), Bytes.Num());
+}
+
+PyObject *py_ue_from_bytes(ue_PyUObject * self, PyObject * args)
+{
+
+	Py_buffer py_buf;
+
+	if (!PyArg_ParseTuple(args, "z*:from_bytes", &py_buf))
+		return nullptr;
+
+	ue_py_check(self);
+
+	TArray<uint8> Bytes;
+	Bytes.AddUninitialized(py_buf.len);
+	FMemory::Memcpy(Bytes.GetData(), py_buf.buf, py_buf.len);
+
+	FObjectReader(self->ue_object, Bytes);
+
+	Py_RETURN_NONE;
+}

@@ -116,7 +116,7 @@ static int ue_py_fmodifier_keys_state_init(ue_PyFModifierKeysState *self, PyObje
 
 void ue_python_init_fmodifier_keys_state(PyObject *ue_module)
 {
-
+	ue_PyFModifierKeysStateType.tp_new = PyType_GenericNew;
 	ue_PyFModifierKeysStateType.tp_init = (initproc)ue_py_fmodifier_keys_state_init;
 
 	if (PyType_Ready(&ue_PyFModifierKeysStateType) < 0)

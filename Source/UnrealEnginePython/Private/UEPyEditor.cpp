@@ -70,6 +70,26 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 
 }
 
+PyObject *py_unreal_engine_request_play_session(PyObject * self, PyObject * args)
+{
+
+	PyObject *py_at_player_start = nullptr;
+	PyObject *py_simulate_in_editor = nullptr;
+
+	if (!PyArg_ParseTuple(args, "|OO:request_play_session", &py_at_player_start, &py_simulate_in_editor))
+	{
+		return nullptr;
+	}
+
+	bool bAtPlayerStart = py_at_player_start && PyObject_IsTrue(py_at_player_start);
+	bool bSimulate = py_simulate_in_editor && PyObject_IsTrue(py_simulate_in_editor);
+
+	GEditor->RequestPlaySession(bAtPlayerStart, nullptr, bSimulate);
+
+	Py_RETURN_NONE;
+
+}
+
 
 PyObject *py_unreal_engine_get_editor_world(PyObject * self, PyObject * args)
 {
@@ -2293,6 +2313,49 @@ PyObject *py_unreal_engine_editor_sync_browser_to_assets(PyObject * self, PyObje
 	}
 
 	Py_DECREF(py_iter);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_export_assets(PyObject * self, PyObject * args)
+{
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject * py_assets = nullptr;
+	char *filename;
+
+	if (!PyArg_ParseTuple(args, "Os:export_assets", &py_assets, &filename))
+	{
+		return nullptr;
+	}
+
+	TArray<UObject *> UObjects;
+	PyObject *py_iter = PyObject_GetIter(py_assets);
+
+	if (!py_iter)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable of UObject");
+	}
+
+	while (PyObject *py_item = PyIter_Next(py_iter))
+	{
+		UObject *Object = ue_py_check_type<UObject>(py_item);
+		if (!Object)
+		{
+			Py_DECREF(py_iter);
+			return PyErr_Format(PyExc_Exception, "argument is not an iterable of UObject");
+		}
+		UObjects.Add(Object);
+	}
+
+	Py_DECREF(py_iter);
+
+	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+#if ENGINE_MINOR_VERSION > 16
+	AssetToolsModule.Get().ExportAssets(UObjects, FString(UTF8_TO_TCHAR(filename)));
+#endif
 
 	Py_RETURN_NONE;
 }

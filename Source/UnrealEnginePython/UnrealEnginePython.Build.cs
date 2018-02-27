@@ -171,7 +171,8 @@ public class UnrealEnginePython : ModuleRules
                 "FBX",
                 "Persona",
                 "PropertyEditor",
-                "LandscapeEditor"
+                "LandscapeEditor",
+                "MaterialEditor"
             });
         }
 

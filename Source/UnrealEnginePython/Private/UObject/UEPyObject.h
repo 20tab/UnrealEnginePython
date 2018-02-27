@@ -91,3 +91,7 @@ PyObject *py_ue_import_custom_properties(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_thumbnail(ue_PyUObject *, PyObject *);
 PyObject *py_ue_render_thumbnail(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_to_bytes(ue_PyUObject *, PyObject *);
+PyObject *py_ue_to_bytearray(ue_PyUObject *, PyObject *);
+PyObject *py_ue_from_bytes(ue_PyUObject *, PyObject *);

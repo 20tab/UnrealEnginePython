@@ -455,16 +455,16 @@ PyObject *py_ue_get_material_graph(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UMaterial>())
-	{
+	UMaterial *material = ue_py_check_type<UMaterial>(self);
+	if (!material)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
-	}
-
-	UMaterial *material = (UMaterial *)self->ue_object;
 
 	UMaterialGraph *graph = material->MaterialGraph;
 	if (!graph)
-		material->MaterialGraph = (UMaterialGraph *)FBlueprintEditorUtils::CreateNewGraph(material, NAME_None, UMaterialGraph::StaticClass(), UMaterialGraphSchema::StaticClass());
+	{
+		graph = (UMaterialGraph *)FBlueprintEditorUtils::CreateNewGraph(material, NAME_None, UMaterialGraph::StaticClass(), UMaterialGraphSchema::StaticClass());
+		material->MaterialGraph = graph;
+	}
 	if (!graph)
 		return PyErr_Format(PyExc_Exception, "Unable to retrieve/allocate MaterialGraph");
 
