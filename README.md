@@ -487,6 +487,30 @@ To access the fields of a struct just call the fields() method.
 
 A good example of struct usage is available here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Settings.md
 
+As structs are passed by value, you need to pay attention when manipulating structs fields that are structs by themselves:
+
+```python
+from unreal_engine.structs import TerrificStruct, DumbStruct
+
+ts = TerrificStruct()
+ts.dumb = DumbStruct(Foo=17, Bar=22)
+
+# will not modify the original DumbStruct but a copy of it !!!
+ts.dumb.Foo = 22
+```
+
+You can eventually force structs to be passed by ref (extremely dangerous as the internal C pointer could be a dangling one) using the ref() function:
+
+```python
+from unreal_engine.structs import TerrificStruct, DumbStruct
+
+ts = TerrificStruct()
+ts.dumb = DumbStruct(Foo=17, Bar=22)
+
+# ref() will return a pointer to a struct
+ts.ref().dumb.foo().Foo = 22
+```
+
 The ue_site.py file
 -------------------
 
