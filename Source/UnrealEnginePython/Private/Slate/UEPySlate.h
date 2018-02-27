@@ -516,7 +516,7 @@ public:
 
 	void OnStringChanged(const FString &text);
 
-	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
+	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args, bool bShouldAutosize);
 
 	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 	void GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren);

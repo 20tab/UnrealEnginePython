@@ -666,9 +666,9 @@ FLinearColor FPythonSlateDelegate::GetterFLinearColor() const
 	return color;
 }
 
-TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args)
+TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args, bool bShouldAutosize)
 {
-	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
+	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(bShouldAutosize);
 	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_dock);
 	if (!ret)
@@ -1348,7 +1348,8 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 
 	char *name;
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "sO:register_nomad_tab_spawner", &name, &py_callable))
+    PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "sO|O:register_nomad_tab_spawner", &name, &py_callable, &py_bool))
 	{
 		return NULL;
 	}
@@ -1358,7 +1359,8 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 
 	FOnSpawnTab spawn_tab;
 	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
-	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab);
+    bool bshould_auto_size = py_bool && PyObject_IsTrue(py_bool) ? true : false;
+	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab, bshould_auto_size);
 
 	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
 		// TODO: more generic way to set the group
