@@ -13,6 +13,7 @@ PyObject *py_ue_actor_components(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_velocity(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_set_level_sequence(ue_PyUObject *, PyObject *);
 #if WITH_EDITOR
+PyObject *py_ue_actor_set_folder_path(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_label(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_actor_label(ue_PyUObject *, PyObject *);
 PyObject *py_ue_find_actor_by_label(ue_PyUObject *, PyObject *);

@@ -2196,7 +2196,7 @@ PyObject * py_unreal_engine_show_viewer(PyObject * self, PyObject * args)
 	char *category_name;
 	char *section_name;
 
-	if (!PyArg_ParseTuple(args, "sss:register_settings", &container_name, &category_name, &section_name))
+	if (!PyArg_ParseTuple(args, "sss:show_viewer", &container_name, &category_name, &section_name))
 		return nullptr;
 
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))

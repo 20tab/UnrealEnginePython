@@ -415,6 +415,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+// SLATE_DEFAULT_SLOT == SLATE_NAMED_SLOT with difference that slate declarative syntax [] defaults to this slot
 #define ue_py_slate_farguments_optional_named_slot(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (ue_PySWidget *py_swidget = py_ue_is_swidget(value)) {\

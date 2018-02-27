@@ -183,6 +183,36 @@ PyObject *py_ue_get_actor_velocity(ue_PyUObject *self, PyObject * args)
 
 
 #if WITH_EDITOR
+PyObject * py_ue_actor_set_folder_path(ue_PyUObject* self, PyObject * args)
+{
+    ue_py_check(self);
+
+    char *folder_path = nullptr;
+    PyObject *py_bool = nullptr;
+    if (!PyArg_ParseTuple(args, "s|O:set_folder_path", &folder_path, &py_bool))
+    {
+        return NULL;
+    }
+
+    AActor *actor = ue_py_check_type<AActor>(self);
+    if (!actor)
+    {
+        return PyErr_Format(PyExc_Exception, "uobject is not an Actor!");
+    }
+
+    bool bSetRecursively = py_bool && PyObject_IsTrue(py_bool) ? true : false;
+    if (bSetRecursively)
+    {
+        actor->SetFolderPath(FName(folder_path));
+    }
+    else
+    {
+        actor->SetFolderPath_Recursively(FName(folder_path));
+    }
+
+    Py_RETURN_NONE;
+}
+
 PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args)
 {
 

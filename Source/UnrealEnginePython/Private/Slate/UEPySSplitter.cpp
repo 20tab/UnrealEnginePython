@@ -7,41 +7,19 @@
 
 static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args, PyObject *kwargs)
 {
-	PyObject *py_content;
-	int index = -1;
-	float size_value = -1;
-	int sizing_rule = -1;
+    int32 retCode = [&]() {
+        ue_py_slate_setup_hack_slot_args(SSplitter, sw_splitter);
+        ue_py_slate_farguments_float("value", Value);
+        ue_py_slate_farguments_enum("size_rule", SizeRule, SSplitter::ESizeRule);
+        ue_py_slate_farguments_event("on_slot_resized", OnSlotResized, SSplitter::FOnSlotResized, OnFloatChanged);
 
-	char *kwlist[] = { (char *)"widget",
-		(char *)"index",
-		(char *)"size_value",
-		(char *)"sizing_rule",
-		nullptr };
+        return 0;
+    }();
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ifi:add_slot", kwlist, &py_content, &index, &size_value, &sizing_rule))
-	{
-		return nullptr;
-	}
-
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget)
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
-	}
-
-	Py_INCREF(py_swidget);
-
-	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
-	if (size_value > -1)
-	{
-		fslot.SizeValue = size_value;
-	}
-	if (sizing_rule > -1)
-	{
-		fslot.SizingRule = (SSplitter::ESizeRule)sizing_rule;
-	}
-	fslot.AttachWidget(py_swidget->s_widget->AsShared());
-
+    if (retCode != 0)
+    {
+        return PyErr_Format(PyExc_Exception, "could not add horizontal slot");
+    }
 	Py_INCREF(self);
 	return (PyObject *)self;
 }

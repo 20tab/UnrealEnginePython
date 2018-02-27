@@ -25,7 +25,6 @@
 
 #include "UEPySlate.h"
 #include "PyNativeWidgetHost.h"
-#include "IStructureDetailsView.h"
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {

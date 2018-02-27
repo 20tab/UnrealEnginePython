@@ -519,8 +519,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 #if WITH_EDITOR
 	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },
+    { "set_folder_path", (PyCFunction)py_ue_actor_set_folder_path, METH_VARARGS, "" },
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
+
 
 	{ "get_editor_world_counterpart_actor", (PyCFunction)py_ue_get_editor_world_counterpart_actor, METH_VARARGS, "" },
 

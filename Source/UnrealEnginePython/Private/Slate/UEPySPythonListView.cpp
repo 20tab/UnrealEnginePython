@@ -83,6 +83,7 @@ static void ue_PySPythonListView_dealloc(ue_PySPythonListView *self)
         Py_XDECREF(item->py_object);
     }
     self->item_source_list.Empty();
+    self->item_source_list.~TArray();
 
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
@@ -120,7 +121,6 @@ PyTypeObject ue_PySPythonListViewType = {
 
 static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *args, PyObject *kwargs) 
 {
-
 	ue_py_slate_setup_farguments(SPythonListView);
 
     // first of all check for values
@@ -146,6 +146,9 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
         self->item_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
     }
     arguments.ListItemsSource(&self->item_source_list);
+    //TODO: ikrimae: #PyUE: #BUG: We are on purpose not doing Py_DECREF(values) because we're stealing the reference from _GetIter
+    //             But we never decref values in the dealloc function. We should store a py_ref to the python list
+    //             Ask roberto for the new refactored way for this
 
     {
         PyObject *value = ue_py_dict_get_item(kwargs, "header_row");
