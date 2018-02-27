@@ -138,6 +138,108 @@ static PyObject *py_ue_fbx_object_key_get_seconds(ue_PyFbxObject *self, PyObject
 	return PyFloat_FromDouble(fbx_anim_curve->KeyGetTime(index).GetSecondDouble());
 }
 
+static PyObject *py_ue_fbx_object_key_get_left_tangent(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+	return PyFloat_FromDouble(fbx_anim_curve->KeyGetLeftDerivative(index));
+}
+
+static PyObject *py_ue_fbx_object_key_get_right_tangent(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+	return PyFloat_FromDouble(fbx_anim_curve->KeyGetRightDerivative(index));
+}
+
+static PyObject *py_ue_fbx_object_key_get_interp_mode(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+
+	ERichCurveInterpMode Mode = RCIM_Linear;
+	// Convert the interpolation type from FBX to Unreal.
+	switch (fbx_anim_curve->KeyGetInterpolation(index))
+	{
+	case FbxAnimCurveDef::eInterpolationCubic:
+		Mode = RCIM_Cubic;
+		break;
+
+	case FbxAnimCurveDef::eInterpolationConstant:
+		if (fbx_anim_curve->KeyGetTangentMode(index) != (FbxAnimCurveDef::ETangentMode)FbxAnimCurveDef::eConstantStandard)
+		{
+			// warning not support
+			;
+		}
+		Mode = RCIM_Constant;
+		break;
+
+	case FbxAnimCurveDef::eInterpolationLinear:
+		Mode = RCIM_Linear;
+		break;
+	}
+
+	return PyLong_FromUnsignedLong(uint64(Mode));
+}
+
+static PyObject *py_ue_fbx_object_key_get_tangent_mode(ue_PyFbxObject *self, PyObject *args) {
+	int index;
+	if (!PyArg_ParseTuple(args, "i", &index)) {
+		return nullptr;
+	}
+	FbxAnimCurve *fbx_anim_curve = FbxCast<FbxAnimCurve>(self->fbx_object);
+	if (!fbx_anim_curve)
+		return PyErr_Format(PyExc_Exception, "object is not a FbxAnimCurve");
+
+	ERichCurveTangentMode Mode = RCTM_Auto;
+	// Convert the interpolation type from FBX to Unreal.
+	if ( fbx_anim_curve->KeyGetInterpolation(index) == 
+		FbxAnimCurveDef::eInterpolationCubic )
+	{
+		switch (fbx_anim_curve->KeyGetTangentMode(index))
+		{
+			// Auto tangents will now be imported as user tangents to allow the
+			// user to modify them without inadvertently resetting other tangents
+			// 				case KFbxAnimCurveDef::eTANGENT_AUTO:
+			// 					if ((KFbxAnimCurveDef::eTANGENT_GENERIC_CLAMP & FbxKey.GetTangentMode(true)))
+			// 					{
+			// 						Mode = CIM_CurveAutoClamped;
+			// 					}
+			// 					else
+			// 					{
+			// 						Mode = CIM_CurveAuto;
+			// 					}
+			// 					break;
+		case FbxAnimCurveDef::eTangentBreak:
+			Mode = RCTM_Break;
+			break;
+		case FbxAnimCurveDef::eTangentAuto:
+			Mode = RCTM_Auto;
+			break;
+		case FbxAnimCurveDef::eTangentUser:
+		case FbxAnimCurveDef::eTangentTCB:
+			Mode = RCTM_User;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return PyLong_FromUnsignedLong(uint64(Mode));
+}
+
 static PyMethodDef ue_PyFbxObject_methods[] = {
 	{ "get_member_count", (PyCFunction)py_ue_fbx_object_get_member_count, METH_VARARGS, "" },
 	{ "get_member", (PyCFunction)py_ue_fbx_object_get_member, METH_VARARGS, "" },
@@ -153,6 +255,10 @@ static PyMethodDef ue_PyFbxObject_methods[] = {
 	{ "key_get_count", (PyCFunction)py_ue_fbx_object_key_get_count, METH_VARARGS, "" },
 	{ "key_get_value", (PyCFunction)py_ue_fbx_object_key_get_value, METH_VARARGS, "" },
 	{ "key_get_seconds", (PyCFunction)py_ue_fbx_object_key_get_seconds, METH_VARARGS, "" },
+	{ "key_get_left_tangent", (PyCFunction)py_ue_fbx_object_key_get_left_tangent, METH_VARARGS, "" },
+	{ "key_get_right_tangent", (PyCFunction)py_ue_fbx_object_key_get_right_tangent, METH_VARARGS, "" },
+	{ "key_get_interp_mode", (PyCFunction)py_ue_fbx_object_key_get_interp_mode, METH_VARARGS, "" },
+	{ "key_get_tangent_mode", (PyCFunction)py_ue_fbx_object_key_get_tangent_mode, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
