@@ -116,6 +116,14 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'Autosized',
                     'UserSized',
                 ]),
+
+        EnumDef(name='EEditDefaultsOnlyNodeVisibility', 
+                cppNameScope='FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility',
+                values=[
+                    'Show',
+                    'Hide',
+                    'Automatic',
+                ]),
     ]
     
 
@@ -196,6 +204,20 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_ESizingRule, "FixedSize"      , PyLong_FromLong((int)ESizingRule::FixedSize));
         PyObject_SetAttrString((PyObject*)native_ESizingRule, "Autosized"      , PyLong_FromLong((int)ESizingRule::Autosized));
         PyObject_SetAttrString((PyObject*)native_ESizingRule, "UserSized"      , PyLong_FromLong((int)ESizingRule::UserSized));
+    }
+
+    // Enum Wrapper: EEditDefaultsOnlyNodeVisibility
+    {
+        PyObject* native_EEditDefaultsOnlyNodeVisibility = PyDict_GetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility");
+        if (native_EEditDefaultsOnlyNodeVisibility == nullptr)
+        {
+            native_EEditDefaultsOnlyNodeVisibility = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility", (PyObject*)native_EEditDefaultsOnlyNodeVisibility);
+        }
+        
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Show"           , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Show));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Hide"           , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Hide));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Automatic"      , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Automatic));
     }
 
     //[[[end]]]

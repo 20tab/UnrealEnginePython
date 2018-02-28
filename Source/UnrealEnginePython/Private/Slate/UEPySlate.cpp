@@ -1020,6 +1020,7 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
     char     *py_name_area_settings       = nullptr;
     PyObject *py_hide_selection_tip       = nullptr;
     PyObject *py_search_initial_key_focus = nullptr;
+    int       defaults_show_visibility    = (int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Show;
 
 	char *kwlist[] = {
 		(char *)"uobject",
@@ -1030,10 +1031,12 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
         (char *)"name_area_settings",
         (char *)"hide_selection_tip",
         (char *)"search_initial_key_focus",
+        (char *)"defaults_only_visibility",
 		nullptr };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_detail_view", kwlist,
-		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOOi:create_detail_view", kwlist,
+		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus,
+        &defaults_show_visibility))
 	{
 		return nullptr;
 	}
@@ -1054,6 +1057,7 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
         else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
         else                                                                                        { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
     }();
+    view_args.DefaultsOnlyVisibility = (FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility)defaults_show_visibility;
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
     
