@@ -42,6 +42,25 @@ static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * ar
 	return (PyObject *)self;
 }
 
+static PyObject * py_ue_sscroll_box_remove_slot(ue_PySScrollBox *self, PyObject * args)
+{
+	PyObject *py_content;
+	if (!PyArg_ParseTuple(args, "O:remove_slot", &py_content))
+	{
+		return NULL;
+	}
+
+	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
+	if (!py_swidget)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+	}
+
+	sw_scroll_box->RemoveSlot(py_swidget->s_widget);
+	
+	Py_RETURN_NONE;
+}
+
 static PyObject *py_ue_sscroll_box_clear_children(ue_PySScrollBox *self, PyObject * args)
 {
 	sw_scroll_box->ClearChildren();
@@ -53,6 +72,7 @@ static PyMethodDef ue_PySScrollBox_methods[] = {
 	{ "clear_children", (PyCFunction)py_ue_sscroll_box_clear_children, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
 	{ "add_slot", (PyCFunction)py_ue_sscroll_box_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
+	{ "remove_slot", (PyCFunction)py_ue_sscroll_box_remove_slot, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
