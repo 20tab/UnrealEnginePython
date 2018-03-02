@@ -26,10 +26,22 @@ static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, 
 	return py_ue_new_ftransform(self->transform.GetRelativeTransform(py_transform->transform));
 }
 
+static PyObject *py_ue_ftransform_get_matrix(ue_PyFTransform *self, PyObject * args)
+{
+	FMatrix matrix = self->transform.ToMatrixWithScale();
+	UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR("Matrix"));
+	if (!u_struct)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to get Matrix struct");
+	}
+	return py_ue_new_uscriptstruct(u_struct, (uint8 *)&matrix);
+}
+
 static PyMethodDef ue_PyFTransform_methods[] = {
 	{ "inverse", (PyCFunction)py_ue_ftransform_inverse, METH_VARARGS, "" },
 	{ "get_relative_transform", (PyCFunction)py_ue_ftransform_get_relative_transform, METH_VARARGS, "" },
 	{ "normalize_rotation", (PyCFunction)py_ue_ftransform_normalize_rotation, METH_VARARGS, "" },
+	{ "get_matrix", (PyCFunction)py_ue_ftransform_get_matrix, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
