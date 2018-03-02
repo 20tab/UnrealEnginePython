@@ -24,7 +24,7 @@ Once the plugin is installed and enabled, you get access to the 'PythonConsole' 
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
-The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15, 4.16, 4.17 and 4.18.
+The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15, 4.16, 4.17, 4.18 and 4.19
 
 We support official python.org releases as well as IntelPython and Anaconda distributions.
 
@@ -487,6 +487,30 @@ To access the fields of a struct just call the fields() method.
 
 A good example of struct usage is available here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Settings.md
 
+As structs are passed by value, you need to pay attention when manipulating structs fields that are structs by themselves:
+
+```python
+from unreal_engine.structs import TerrificStruct, DumbStruct
+
+ts = TerrificStruct()
+ts.dumb = DumbStruct(Foo=17, Bar=22)
+
+# will not modify the original DumbStruct but a copy of it !!!
+ts.dumb.Foo = 22
+```
+
+You can eventually force structs to be passed by ref (extremely dangerous as the internal C pointer could be a dangling one) using the ref() function:
+
+```python
+from unreal_engine.structs import TerrificStruct, DumbStruct
+
+ts = TerrificStruct()
+ts.dumb = DumbStruct(Foo=17, Bar=22)
+
+# ref() will return a pointer to a struct
+ts.ref().dumb.foo().Foo = 22
+```
+
 The ue_site.py file
 -------------------
 
@@ -808,15 +832,9 @@ Memory management
 
 Dealing with 2 different GC's is really challenging.
 
-PyActor, PyPawn and PythonComponent automatically DECREF's the mapped classes. This should be enough unless you hold references
-in the python modules themselves. As this would be a bad programming practice, the current approach should be safe enough.
+Starting from release 20180226 a new memory management system has been added (FUnrealEnginePythonHouseKeeper, available here https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/Public/PythonHouseKeeper.h). This new system is completely integrated with the Unreal Engine reflection-based GC and will hold track of each ue_PyUObject abd the related UObject to understand when a python object can be safely destroyed.
 
-In addition to this, every time a uobject has to return its UObject mapping, it checks for its validity and safety:
-
-```c
-#define ue_py_check(py_u) if (!py_u->ue_object || !py_u->ue_object->IsValidLowLevel() || py_u->ue_object->IsPendingKillOrUnreachable())\
-							return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state")
-```
+The same system works for delegates, as well as Slate.
 
 
 Unit Testing
