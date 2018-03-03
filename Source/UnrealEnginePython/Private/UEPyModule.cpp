@@ -109,8 +109,6 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args)
 /******************************************************************************/
 /******************************************************************************/
 
-#if ENABLE_RECOGNI_ARGS_EXT
-
 static PyObject *py_unreal_engine_exec1(PyObject * self, PyObject * args)
 {
 	char *filename = nullptr;
@@ -120,7 +118,7 @@ static PyObject *py_unreal_engine_exec1(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFile1(filename, arg0);
+	PythonModule.RunFileWithArgs(filename, arg0, (char *)"");
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -135,12 +133,10 @@ static PyObject *py_unreal_engine_exec2(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFile2(filename, arg0, arg1);
+	PythonModule.RunFileWithArgs(filename, arg0, arg1);
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
-#endif // ENABLE_RECOGNI_ARGS_EXT
 
 /******************************************************************************/
 /******************************************************************************/

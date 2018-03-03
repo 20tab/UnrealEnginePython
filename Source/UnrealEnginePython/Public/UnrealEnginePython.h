@@ -46,10 +46,7 @@ public:
 	void RunStringSandboxed(char *);
 	void RunFile(char *);
 
-#if ENABLE_RECOGNI_ARGS_EXT
-	void RunFile1(char *, char *);
-	void RunFile2(char *, char *, char *);
-#endif
+	void RunFileWithArgs(char *, char *, char *);
 
 	void RunFileSandboxed(char *, void(*callback)(void *arg), void *arg);
 
