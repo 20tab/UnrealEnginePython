@@ -7,9 +7,9 @@ void UPythonBlueprintFunctionLibrary::ExecutePythonScript(FString script) {
 	PythonModule.RunFile(TCHAR_TO_UTF8(*script));
 }
 
-void UPythonBlueprintFunctionLibrary::ExecutePythonScriptWithArgs(FString script, FString arg0, FString arg1) {
+void UPythonBlueprintFunctionLibrary::ExecutePythonScriptWithArgs(FString script, TArray<FString>& args) {
     FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-    PythonModule.RunFileWithArgs(TCHAR_TO_UTF8(*script), TCHAR_TO_UTF8(*arg0), TCHAR_TO_UTF8(*arg1));
+    PythonModule.RunFileWithArgs(TCHAR_TO_UTF8(*script), args);
 }
 
 void UPythonBlueprintFunctionLibrary::ExecutePythonString(const FString& PythonCmd) {

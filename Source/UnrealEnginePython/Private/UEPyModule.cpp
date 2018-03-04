@@ -118,7 +118,10 @@ static PyObject *py_unreal_engine_exec1(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFileWithArgs(filename, arg0, (char *)"");
+	
+	TArray<FString> cargs;
+	cargs.Add(UTF8_TO_TCHAR(arg0));
+	PythonModule.RunFileWithArgs(filename, cargs);
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -133,7 +136,11 @@ static PyObject *py_unreal_engine_exec2(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFileWithArgs(filename, arg0, arg1);
+	
+	TArray<FString> cargs;
+	cargs.Add(UTF8_TO_TCHAR(arg0));
+	cargs.Add(UTF8_TO_TCHAR(arg1));
+	PythonModule.RunFileWithArgs(filename, cargs);
 	Py_INCREF(Py_None);
 	return Py_None;
 }

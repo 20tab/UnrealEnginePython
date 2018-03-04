@@ -46,7 +46,7 @@ public:
 	void RunStringSandboxed(char *);
 	void RunFile(char *);
 
-	void RunFileWithArgs(char *, char *, char *);
+	void RunFileWithArgs(char *, TArray<FString>&);
 
 	void RunFileSandboxed(char *, void(*callback)(void *arg), void *arg);
 

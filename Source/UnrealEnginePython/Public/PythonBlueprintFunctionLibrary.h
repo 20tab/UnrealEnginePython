@@ -15,7 +15,7 @@ public:
 	static void ExecutePythonScript(FString script);
 
     UFUNCTION(BlueprintCallable, Exec, Category = "Python")
-    static void ExecutePythonScriptWithArgs(FString script, FString arg0, FString arg1);
+    static void ExecutePythonScriptWithArgs(FString script, TArray<FString>& args);
 
     UFUNCTION(BlueprintCallable, Exec, Category = "Python")
     static void ExecutePythonString(const FString& PythonCmd);

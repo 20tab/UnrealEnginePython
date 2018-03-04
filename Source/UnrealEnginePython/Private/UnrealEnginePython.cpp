@@ -197,22 +197,17 @@ FAutoConsoleCommand ExecPythonStringCommand(
 namespace {
 	static void consoleExecScriptWithArgs(const TArray<FString>& Args)
 	{
-		switch (Args.Num()) {
-		default:
-		case 0:
+		if (Args.Num() < 1) {
 			UE_LOG(LogPython, Warning, TEXT("Usage: 'py.exec_args <scriptname> [arg0 [arg1]]'."));
 			UE_LOG(LogPython, Warning, TEXT("  scriptname: Name of script, must reside in Scripts folder. Ex: myscript.py"));
-			break;
-		case 1:
-			UPythonBlueprintFunctionLibrary::ExecutePythonScript(Args[0]);
-			break;
-		case 2:
-			UPythonBlueprintFunctionLibrary::ExecutePythonScriptWithArgs(Args[0], Args[1], "");
-			break;
-		case 3:
-			UPythonBlueprintFunctionLibrary::ExecutePythonScriptWithArgs(Args[0], Args[1], Args[2]);
-			break;
+			return;
 		}
+			
+		TArray<FString> args;
+		for (int i = 1; i < Args.Num(); i++)
+			args.Add(Args[i]);
+
+		UPythonBlueprintFunctionLibrary::ExecutePythonScriptWithArgs(Args[0], args);
 	}
 }
 FAutoConsoleCommand ExecPythonScriptCommandWithArgs(
@@ -572,7 +567,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
  *  to the invocation of our python scripts.
  */
 
-void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, char *arg0, char *arg1) {
+void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, TArray<FString>& args) {
 	FScopePythonGIL gil;
 	FString full_path = UTF8_TO_TCHAR(filename);
 
@@ -596,7 +591,9 @@ void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, char *arg0, char
 		return;
 }
 #endif
-
+	
+	// TODO: Since we do not use py3 - this is never hit. `args` are ignored
+	// 		 for this case.
 	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	fclose(fd);
 	if (!eval_ret) {
@@ -604,17 +601,22 @@ void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, char *arg0, char
 		return;
 	}
 	Py_DECREF(eval_ret);
+
 #else
+
 	// Ughhh
 	FString command = "import sys\n";
-	command += FString::Printf(TEXT("sys.argv = [\"%s\", \"%s\", \"%s\"]\n"), UTF8_TO_TCHAR(filename), UTF8_TO_TCHAR(arg0), UTF8_TO_TCHAR(arg1));
-	command += FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
+	command += FString::Printf(TEXT("sys.argv = [\"%s\""), UTF8_TO_TCHAR(filename));
+	for (int i = 0; i < args.Num(); i++)
+		command += FString::Printf(TEXT(", \"%s\""), *args[i]);
+	command += FString::Printf(TEXT("]\nexecfile(\"%s\")"), *full_path);
 
 	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret) {
 		unreal_engine_py_log_error();
 		return;
 	}
+	
 #endif
 }
 
