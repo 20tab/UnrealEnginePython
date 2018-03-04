@@ -11,6 +11,8 @@ public class PythonConsole : ModuleRules
     public PythonConsole(TargetInfo Target)
 #endif
     {
+        PCHUsage = PCHUsageMode.NoSharedPCHs;
+        
         PrivateIncludePaths.AddRange(
             new string[] {
                 "PythonConsole/Private",

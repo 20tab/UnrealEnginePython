@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 public class UnrealEnginePython : ModuleRules
 {
-
     // leave this string as empty for triggering auto-discovery of python installations...
     private string pythonHome = "";
     // otherwise specify the path of your python installation
@@ -78,7 +77,7 @@ public class UnrealEnginePython : ModuleRules
     public UnrealEnginePython(TargetInfo Target)
 #endif
     {
-
+        PCHUsage = PCHUsageMode.NoSharedPCHs;
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -254,8 +253,8 @@ public class UnrealEnginePython : ModuleRules
     private bool IsPathRelative(string Path)
     {
         bool IsRooted = Path.StartsWith("\\", System.StringComparison.Ordinal) || // Root of the current directory on Windows. Also covers "\\" for UNC or "network" paths.
-                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes. 
-                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".	
+                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes.
+                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".
                         (Path.Length >= 2 && char.IsLetter(Path[0]) && Path[1] == ':'); // Starts with "<DriveLetter>:"
         return !IsRooted;
     }
