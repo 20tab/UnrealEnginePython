@@ -755,6 +755,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 
 	{ "get_game_viewport", (PyCFunction)py_ue_get_game_viewport, METH_VARARGS, "" },
+		
+	{ "game_viewport_client_set_rendering_flag", (PyCFunction)py_ue_game_viewport_client_set_rendering_flag, METH_VARARGS, "" },
 
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
 	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },

@@ -208,3 +208,28 @@ PyObject *py_ue_remove_all_viewport_widgets(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_game_viewport_client_set_rendering_flag(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_bool;
+
+	if (!PyArg_ParseTuple(args, "O:game_viewport_client_set_rendering_flag", &py_bool))
+	{
+		return nullptr;
+	}
+
+	bool bEnabled = PyObject_IsTrue(py_bool) ? true : false;
+
+	UGameViewportClient *ViewportClient = ue_py_check_type<UGameViewportClient>(self);
+	if (!ViewportClient)
+	{
+		return PyErr_Format(PyExc_Exception, "object is not a UGameViewportClient");
+	}
+
+	ViewportClient->EngineShowFlags.Rendering = bEnabled;
+
+	Py_RETURN_NONE;
+}
+
