@@ -2,6 +2,9 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPyFSlateApplication.h"
+#include "Framework/Application/MenuStack.h"
+#include "Layout/WidgetPath.h"
+#include "Slate/UEPySWidget.h"
 
 
 static PyObject *py_ue_get_average_delta_time(PyObject *cls, PyObject * args)
@@ -154,6 +157,37 @@ static PyObject *py_ue_process_key_char_event(PyObject *cls, PyObject * args)
 	Py_RETURN_FALSE;
 }
 
+static PyObject *py_ue_push_menu(PyObject *cls, PyObject * args)
+{
+	PyObject *py_parent_widget;
+	PyObject *py_menu_widget;
+	float x;
+	float y;
+	int menuSlideDirection = (int)FPopupTransitionEffect::ESlideDirection::None;
+
+	if (!PyArg_ParseTuple(args, "OOffi:push_menu", &py_parent_widget, &py_menu_widget, &x, &y, &menuSlideDirection))
+	{
+		return nullptr;
+	}
+	// Parse cursor position as a blueprint struct
+	ue_PySWidget *parent_widget = py_ue_is_swidget(py_parent_widget);
+	if (!parent_widget)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a Widget");
+	}
+
+	ue_PySWidget *menu_widget = py_ue_is_swidget(py_menu_widget);
+	if (!menu_widget)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a Widget");
+	}
+
+	FVector2D CursorPos = FVector2D(x, y);
+	
+	FSlateApplication::Get().PushMenu(parent_widget->s_widget, FWidgetPath(), menu_widget->s_widget, CursorPos, FPopupTransitionEffect((FPopupTransitionEffect::ESlideDirection)menuSlideDirection));
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyFSlateApplication_methods[] = {
 	{ "get_average_delta_time", (PyCFunction)py_ue_get_average_delta_time, METH_VARARGS | METH_CLASS, "" },
 	{ "get_cursor_radius", (PyCFunction)py_ue_get_cursor_radius, METH_VARARGS | METH_CLASS, "" },
@@ -167,6 +201,7 @@ static PyMethodDef ue_PyFSlateApplication_methods[] = {
 	{ "set_application_scale", (PyCFunction)py_ue_set_application_scale, METH_VARARGS | METH_CLASS, "" },
 	{ "set_all_user_focus", (PyCFunction)py_ue_set_all_user_focus, METH_VARARGS | METH_CLASS, "" },
 	{ "set_cursor_pos", (PyCFunction)py_ue_set_cursor_pos, METH_VARARGS | METH_CLASS, "" },
+	{ "push_menu", (PyCFunction)py_ue_push_menu, METH_VARARGS | METH_CLASS, "" },
 	{ NULL }  /* Sentinel */
 };
 

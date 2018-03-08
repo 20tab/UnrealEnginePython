@@ -29,7 +29,12 @@ PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "|O:sequencer_changed", &py_bool))
+#if ENGINE_MINOR_VERSION < 13
+    int changeNotificationType = (int)EMovieSceneDataChangeType::Unknown;
+#else
+    int changeNotificationType = 0;
+#endif
+	if (!PyArg_ParseTuple(args, "|Oi:sequencer_changed", &py_bool, &changeNotificationType))
 	{
 		return NULL;
 	}
@@ -55,7 +60,7 @@ PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args)
 #if ENGINE_MINOR_VERSION < 13
 		sequencer->NotifyMovieSceneDataChanged();
 #else
-		sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::Unknown);
+		sequencer->NotifyMovieSceneDataChanged((EMovieSceneDataChangeType)changeNotificationType);
 #endif
 
 	}

@@ -203,6 +203,19 @@ void FPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commi
 	Py_DECREF(ret);
 }
 
+void FPythonSlateDelegate::OnBoolChanged(bool value)
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", value ? Py_True : Py_False);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+}
+
 void FPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode)
 {
     FScopePythonGIL gil;
@@ -828,6 +841,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_sspacer(module);
 	ue_python_init_spython_widget(module);
 	ue_python_init_soverlay(module);
+    ue_python_init_sexpandable_area(module);
 
 
 #if WITH_EDITOR

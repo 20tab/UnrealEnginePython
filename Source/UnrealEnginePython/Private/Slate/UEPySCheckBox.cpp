@@ -2,7 +2,8 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySCheckBox.h"
-
+// Needed for PROPERTY_BINDING macro
+#include "Widget.h"
 
 #define sw_check_box StaticCastSharedRef<SCheckBox>(self->s_compound_widget.s_widget.s_widget)
 
@@ -39,9 +40,25 @@ static PyObject *py_ue_scheck_box_is_checked(ue_PySCheckBox *self, PyObject * ar
 	Py_RETURN_FALSE;
 }
 
+static PyObject *py_ue_scheck_box_set_is_checked(ue_PySCheckBox *self, PyObject * args) {
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "O:set_is_checked", &py_bool))
+	{
+		return NULL;
+	}
+
+	ECheckBoxState CheckedState = PyObject_IsTrue(py_bool) ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+
+	sw_check_box->SetIsChecked(TAttribute<ECheckBoxState>(CheckedState));
+
+	Py_RETURN_NONE;
+}
+
+
 static PyMethodDef ue_PySCheckBox_methods[] = {
 	{ "is_checked", (PyCFunction)py_ue_scheck_box_is_checked, METH_VARARGS, "" },
     { "set_content",      (PyCFunction)py_ue_scheck_box_set_content, METH_VARARGS, "" },
+	{ "set_is_checked",      (PyCFunction)py_ue_scheck_box_set_is_checked, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

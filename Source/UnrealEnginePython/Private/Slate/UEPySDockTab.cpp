@@ -33,9 +33,19 @@ static PyObject *py_ue_sdock_tab_new_tab_manager(ue_PySButton *self, PyObject * 
 	return py_ue_new_ftab_manager(tab_manager);
 }
 
+
+static PyObject *py_ue_sdock_tab_bring_to_front(ue_PySButton *self, PyObject * args) {
+
+	TSharedPtr<SWindow> parentWindow = sw_dock_tab->GetParentWindow();
+	if(parentWindow.Get() == nullptr)
+		parentWindow->BringToFront(true);
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySDockTab_methods[] = {
 	{ "set_label", (PyCFunction)py_ue_sdock_tab_set_label, METH_VARARGS, "" },
 	{ "request_close_tab", (PyCFunction)py_ue_sdock_tab_request_close_tab, METH_VARARGS, "" },
+	{ "bring_to_front", (PyCFunction)py_ue_sdock_tab_bring_to_front, METH_VARARGS, "" },
 	{ "new_tab_manager", (PyCFunction)py_ue_sdock_tab_new_tab_manager, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };

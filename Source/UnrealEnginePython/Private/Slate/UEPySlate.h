@@ -30,6 +30,7 @@
 #include "UEPySPanel.h"
 #include "UEPySGridPanel.h"
 #include "UEPySBoxPanel.h"
+#include "UEPySExpandableArea.h"
 #include "UEPySHorizontalBox.h"
 #include "UEPySVerticalBox.h"
 #include "UEPySViewport.h"
@@ -158,6 +159,11 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
+
+//----------------------------------------------------------------------------
+// Slate Attribute Parameters macros
+//----------------------------------------------------------------------------
+
 #define ue_py_slate_base_up(_base, _func, _param, _attribute) \
 {\
 	PyObject *value = ue_py_dict_get_item(kwargs, _param);\
@@ -191,12 +197,17 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_up(_type, _func, _param, _attribute) ue_py_slate_base_up(TAttribute<_type>, _func, _param, _attribute)
 
+
+#define ue_py_slate_farguments_attribute_text(param, attribute) ue_py_slate_farguments_text(param, attribute)
+
 #define ue_py_slate_farguments_text(param, attribute) ue_py_slate_up(FText, GetterFText, param, attribute)\
 	else if (PyUnicode_Check(value)) {\
 		arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
 	}\
 	ue_py_slate_down(param)
 
+
+#define ue_py_slate_farguments_attribute_string(param, attribute) ue_py_slate_farguments_string(param, attribute)
 
 #define ue_py_slate_farguments_string(param, attribute) ue_py_slate_up(FString, GetterFString, param, attribute)\
 	else if (PyUnicode_Check(value)) {\
@@ -205,6 +216,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	ue_py_slate_down(param)
 
 
+#define ue_py_slate_farguments_attribute_float(param, attribute) ue_py_slate_farguments_float(param, attribute)
 
 #define ue_py_slate_farguments_float(param, attribute) ue_py_slate_up(float, GetterFloat, param, attribute)\
 		else if (PyNumber_Check(value)) {\
@@ -215,6 +227,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		ue_py_slate_down(param)
 
 
+#define ue_py_slate_farguments_attribute_tfloat(param, attribute) ue_py_slate_farguments_tfloat(param, attribute)
+
 #define ue_py_slate_farguments_tfloat(param, attribute) ue_py_slate_up(TOptional<float>, GetterTFloat, param, attribute)\
 		else if (PyNumber_Check(value)) {\
 			PyObject *py_float = PyNumber_Float(value);\
@@ -223,6 +237,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 		ue_py_slate_down(param)
 
+
+#define ue_py_slate_farguments_attribute_fvector2d(param, attribute) ue_py_slate_farguments_fvector2d(param, attribute)
 
 #define ue_py_slate_farguments_fvector2d(param, attribute) ue_py_slate_up(FVector2D, GetterFVector2D, param, attribute)\
 		else if (PyTuple_Check(value)) {\
@@ -242,7 +258,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
-
+#define ue_py_slate_farguments_attribute_int(param, attribute) ue_py_slate_farguments_int(param, attribute)
 
 #define ue_py_slate_farguments_int(param, attribute) ue_py_slate_up(int, GetterInt, param, attribute)\
 		else if (PyNumber_Check(value)) {\
@@ -252,6 +268,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 		ue_py_slate_down(param)
 
+#define ue_py_slate_farguments_attribute_tint(param, attribute) ue_py_slate_farguments_tint(param, attribute)
+
 #define ue_py_slate_farguments_tint(param, attribute) ue_py_slate_up(TOptional<int32>, GetterIntT<TOptional<int32>>, param, attribute)\
 		else if (PyNumber_Check(value)) {\
 			PyObject *py_int = PyNumber_Long(value);\
@@ -260,6 +278,9 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 		ue_py_slate_down(param)
 
+
+
+#define ue_py_slate_farguments_attribute_enum(param, attribute, _type) ue_py_slate_farguments_enum(param, attribute, _type)
 
 #define ue_py_slate_farguments_enum(param, attribute, _type) ue_py_slate_up(_type, GetterIntT<_type>, param, attribute)\
 		else if (PyNumber_Check(value)) {\
@@ -271,6 +292,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
+#define ue_py_slate_farguments_attribute_flinear_color(param, attribute) ue_py_slate_farguments_flinear_color(param, attribute)
+
 #define ue_py_slate_farguments_flinear_color(param, attribute) ue_py_slate_up(FLinearColor, GetterFLinearColor, param, attribute)\
 		else if (ue_PyFLinearColor *py_color = py_ue_is_flinearcolor(value)) {\
 			arguments.attribute(py_color->color); \
@@ -278,6 +301,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		ue_py_slate_down(param)
 
 
+#define ue_py_slate_farguments_attribute_struct(param, attribute, _type) ue_py_slate_farguments_struct(param, attribute, _type)
 
 #define ue_py_slate_farguments_struct(param, attribute, _type) ue_py_slate_up(_type, GetterStructT<_type>, param, attribute)\
 		else if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
@@ -286,6 +310,28 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		ue_py_slate_down(param)
 
 
+#define ue_py_slate_farguments_attribute_bool(param, attribute) ue_py_slate_farguments_bool(param, attribute)
+
+#define ue_py_slate_farguments_bool(param, attribute) ue_py_slate_up(bool, GetterBool, param, attribute)\
+		else if (PyObject_IsTrue(value)) {\
+			arguments.attribute(true); \
+		}\
+		else {\
+			arguments.attribute(false); \
+		}\
+	}\
+}
+
+
+#define ue_py_slate_farguments_attribute_event(param, attribute, type, method) ue_py_slate_farguments_event(param, attribute, type, method) 
+
+#define ue_py_slate_farguments_event(param, attribute, type, method) ue_py_slate_base_event_up(type, method, param, attribute)\
+		ue_py_slate_down(param)
+
+//----------------------------------------------------------------------------
+// Slate Argument Parameters macros
+//----------------------------------------------------------------------------
+#define ue_py_slate_farguments_argument_struct(param, attribute, _type) ue_py_slate_farguments_optional_struct(param, attribute, _type)
 
 #define ue_py_slate_farguments_optional_struct(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
@@ -300,6 +346,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
+#define ue_py_slate_farguments_argument_struct_ptr(param, attribute, _type) ue_py_slate_farguments_optional_struct_ptr(param, attribute, _type) 
+
 #define ue_py_slate_farguments_optional_struct_ptr(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
 			if (_type *u_struct = ue_py_check_struct<_type>(value)) {\
@@ -313,6 +361,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 }
 
+#define ue_py_slate_farguments_argument_uobject(param, attribute, _type) ue_py_slate_farguments_optional_uobject(param, attribute, _type)
+
 #define ue_py_slate_farguments_optional_uobject(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
 			if (_type *u_object = ue_py_check_type<_type>(value)) {\
@@ -325,6 +375,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 }
 
+
+#define ue_py_slate_farguments_argument_fvector2d(param, attribute) ue_py_slate_farguments_optional_fvector2d(param, attribute)
 
 #define ue_py_slate_farguments_optional_fvector2d(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
@@ -353,6 +405,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
+#define ue_py_slate_farguments_argument_enum(param, attribute, _type) ue_py_slate_farguments_optional_enum(param, attribute, _type)
+
 #define ue_py_slate_farguments_optional_enum(param, attribute, _type) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 		if (value) {\
 			if (PyNumber_Check(value)) {\
@@ -369,6 +423,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 
+#define ue_py_slate_farguments_argument_float(param, attribute) ue_py_slate_farguments_optional_float(param, attribute)
+
 #define ue_py_slate_farguments_optional_float(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (PyNumber_Check(value)) {\
@@ -382,6 +438,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 	}\
 }
+
+#define ue_py_slate_farguments_argument_foptional_size(param, attribute) ue_py_slate_farguments_optional_foptional_size(param, attribute)
 
 #define ue_py_slate_farguments_optional_foptional_size(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
@@ -397,11 +455,15 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_argument_string(param, attribute) ue_py_slate_farguments_optional_string(param, attribute)
+
 #define ue_py_slate_farguments_optional_string(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (PyUnicode_Check(value)) {\
 		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
 	}\
 }
+
+#define ue_py_slate_farguments_argument_text(param, attribute) ue_py_slate_farguments_optional_text(param, attribute)
 
 #define ue_py_slate_farguments_optional_text(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
@@ -415,7 +477,24 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+
+#define ue_py_slate_farguments_argument_bool(param, attribute) ue_py_slate_farguments_optional_bool(param, attribute)
+
+#define ue_py_slate_farguments_optional_bool(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (PyObject_IsTrue(value)) {\
+			arguments.attribute(true); \
+		}\
+		else {\
+			arguments.attribute(false); \
+		}\
+	}\
+}
+
+#define ue_py_slate_farguments_named_slot(param, attribute) ue_py_slate_farguments_optional_named_slot(param, attribute)
 // SLATE_DEFAULT_SLOT == SLATE_NAMED_SLOT with difference that slate declarative syntax [] defaults to this slot
+#define ue_py_slate_farguments_default_slot(param, attribute) ue_py_slate_farguments_named_slot(param, attribute)
+
 #define ue_py_slate_farguments_optional_named_slot(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
 		if (ue_PySWidget *py_swidget = py_ue_is_swidget(value)) {\
@@ -431,35 +510,6 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 	}\
 }
-
-
-#define ue_py_slate_farguments_bool(param, attribute) ue_py_slate_up(bool, GetterBool, param, attribute)\
-		else if (PyObject_IsTrue(value)) {\
-			arguments.attribute(true); \
-		}\
-		else {\
-			arguments.attribute(false); \
-		}\
-	}\
-}
-
-
-#define ue_py_slate_farguments_optional_bool(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
-	if (value) {\
-		if (PyObject_IsTrue(value)) {\
-			arguments.attribute(true); \
-		}\
-		else {\
-			arguments.attribute(false); \
-		}\
-	}\
-}
-
-
-
-#define ue_py_slate_farguments_event(param, attribute, type, method) ue_py_slate_base_event_up(type, method, param, attribute)\
-		ue_py_slate_down(param)
-
 
 
 #define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
@@ -510,6 +560,7 @@ public:
     void OnInt32Committed(int32 value, ETextCommit::Type commit_type);
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
+    void OnBoolChanged(bool value);
     void OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode);
 
 	void OnLinearColorChanged(FLinearColor color);
