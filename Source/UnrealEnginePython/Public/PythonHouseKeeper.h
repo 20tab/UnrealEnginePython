@@ -181,7 +181,7 @@ public:
 	{
 		int32 Garbaged = 0;
 #if defined(UEPY_MEMORY_DEBUG)
-		UE_LOG(LogPython, Error, TEXT("Checking %d delegates"), PyDelegatesTracker.Num());
+		UE_LOG(LogPython, Display, TEXT("Garbage collecting %d delegates"), PyDelegatesTracker.Num());
 #endif
 		for (int32 i = PyDelegatesTracker.Num() - 1; i >= 0; --i)
 		{
