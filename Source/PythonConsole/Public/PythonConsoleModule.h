@@ -1,4 +1,4 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 1998-2018 20Tab S.r.l. All Rights Reserved.
 
 #pragma once
 
@@ -32,12 +32,6 @@ public:
 	/** Generates a console input box widget.  Remember, this widget will become invalid if the
 	    output log DLL is unloaded on the fly. */
 	virtual TSharedRef< SWidget > MakeConsoleInputBox( TSharedPtr< SEditableTextBox >& OutExposedEditableTextBox ) const;
-
-	/** Opens a debug console in the specified window, if not already open */
-	virtual void TogglePythonConsoleForWindow( const TSharedRef< SWindow >& Window, const EPythonConsoleStyle::Type InStyle, const FPythonConsoleDelegates& PythonConsoleDelegates );
-
-	/** Closes the debug console for the specified window */
-	virtual void ClosePythonConsole();
 
 
 private:

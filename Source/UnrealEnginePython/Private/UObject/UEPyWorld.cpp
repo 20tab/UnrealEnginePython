@@ -195,6 +195,9 @@ PyObject *py_ue_get_game_viewport(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_UOBJECT(viewport_client);
 }
 
+
+
+
 PyObject *py_ue_has_world(ue_PyUObject *self, PyObject * args)
 {
 

@@ -488,30 +488,30 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 void FUnrealEnginePythonModule::RunFile(char *filename)
 {
 	FScopePythonGIL gil;
-	char *full_path = filename;
+	FString full_path = UTF8_TO_TCHAR(filename);
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
+		full_path = FPaths::Combine(*ScriptsPath, full_path);
 	}
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
 
 #if PLATFORM_WINDOWS
-	if (fopen_s(&fd, full_path, "r") != 0)
+	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #else
-	fd = fopen(full_path, "r");
+	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");
 	if (!fd)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #endif
 
-	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	fclose(fd);
 	if (!eval_ret)
 	{
@@ -521,7 +521,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	Py_DECREF(eval_ret);
 #else
 	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
-	FString command = FString::Printf(TEXT("execfile(\"%s\")"), UTF8_TO_TCHAR(full_path));
+	FString command = FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
 	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret)
 	{
@@ -536,10 +536,10 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)(void *arg), void *arg)
 {
 	FScopePythonGIL gil;
-	char *full_path = filename;
+	FString full_path = filename;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
+		full_path = FPaths::Combine(*ScriptsPath, full_path);
 	}
 
 	PyThreadState *_main = PyThreadState_Get();
@@ -571,21 +571,21 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 	FILE *fd = nullptr;
 
 #if PLATFORM_WINDOWS
-	if (fopen_s(&fd, full_path, "r") != 0)
+	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #else
-	fd = fopen(full_path, "r");
+	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");
 	if (!fd)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #endif
 
-	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, global_dict, global_dict);
+	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, global_dict, global_dict);
 	fclose(fd);
 	if (!eval_ret)
 	{
@@ -597,7 +597,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 	Py_DECREF(eval_ret);
 #else
 	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
-	FString command = FString::Printf(TEXT("execfile(\"%s\")"), UTF8_TO_TCHAR(full_path));
+	FString command = FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
 	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, global_dict, global_dict);
 	if (!eval_ret)
 	{
