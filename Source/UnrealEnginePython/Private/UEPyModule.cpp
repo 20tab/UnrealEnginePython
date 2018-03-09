@@ -1401,7 +1401,7 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent)
 	return new_object;
 }
 
-int unreal_engine_py_init(ue_PyUObject *, PyObject *, PyObject *);
+extern int unreal_engine_py_init(ue_PyUObject *, PyObject *, PyObject *);
 
 void unreal_engine_init_py_module()
 {
