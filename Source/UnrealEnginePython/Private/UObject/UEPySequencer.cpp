@@ -751,9 +751,9 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, ty, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, tz, (EMovieSceneKeyInterpolation)interpolation);
 
-			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().X, unwind);
-			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Y, unwind);
-			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Z, unwind);
+			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.Rotator().Roll, unwind);
+			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.Rotator().Pitch, unwind);
+			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.Rotator().Yaw, unwind);
 			section_transform->AddKey(time, rx, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, ry, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, rz, (EMovieSceneKeyInterpolation)interpolation);
