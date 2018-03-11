@@ -1,8 +1,12 @@
 
 #include "UnrealEnginePythonPrivatePCH.h"
 
-
 #include "UEPySDockTab.h"
+#include "Private/Framework/Docking/SDockingArea.h"
+#include "SlateWindowHelper.h"
+#include "WidgetPath.h"
+#include "IMenu.h"
+#include "SlateApplication.h"
 
 #define sw_dock_tab StaticCastSharedRef<SDockTab>(self->s_border.s_compound_widget.s_widget.s_widget)
 
@@ -37,9 +41,38 @@ static PyObject *py_ue_sdock_tab_new_tab_manager(ue_PySButton *self, PyObject * 
 static PyObject *py_ue_sdock_tab_bring_to_front(ue_PySButton *self, PyObject * args) {
 
 	TSharedPtr<SWindow> parentWindow = sw_dock_tab->GetParentWindow();
-	if(parentWindow.Get() == nullptr)
-		parentWindow->BringToFront(true);
+	if (parentWindow.Get() != nullptr)
+	{
+		parentWindow->HACK_ForceToFront();
+	}
 	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_sdock_get_parent_window(ue_PySButton *self, PyObject * args) {
+
+	TSharedPtr<SWindow> ParentWindow = sw_dock_tab->GetParentWindow();
+	if (ParentWindow.IsValid())
+	{
+		// Check to see if the widget exists already
+		ue_PySWidget *ret = ue_py_get_swidget(StaticCastSharedRef<SWidget>(ParentWindow.ToSharedRef()));
+		return (PyObject *)ret;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *py_ue_sdock_get_docking_area(ue_PySButton *self, PyObject * args) {
+
+	TSharedPtr<SDockingArea> DockingArea = sw_dock_tab->GetDockArea();
+	if (DockingArea.IsValid())
+	{
+		ue_PySWidget *ret = nullptr;
+		// Checks to see if the widget exists already, is added to mapping if not
+		ret = ue_py_get_swidget(StaticCastSharedRef<SWidget>(DockingArea.ToSharedRef()));
+		return (PyObject *)ret;
+	}
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyMethodDef ue_PySDockTab_methods[] = {
@@ -47,6 +80,8 @@ static PyMethodDef ue_PySDockTab_methods[] = {
 	{ "request_close_tab", (PyCFunction)py_ue_sdock_tab_request_close_tab, METH_VARARGS, "" },
 	{ "bring_to_front", (PyCFunction)py_ue_sdock_tab_bring_to_front, METH_VARARGS, "" },
 	{ "new_tab_manager", (PyCFunction)py_ue_sdock_tab_new_tab_manager, METH_VARARGS, "" },
+	{ "get_parent_window", (PyCFunction)py_ue_sdock_get_parent_window, METH_VARARGS, "" },
+	{ "get_docking_area", (PyCFunction)py_ue_sdock_get_docking_area, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 

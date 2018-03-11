@@ -234,6 +234,20 @@ static PyObject *py_ue_swidget_get_type(ue_PySWidget *self, PyObject * args)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->s_widget->GetTypeAsString())));
 }
 
+static PyObject *py_ue_swidget_get_visibility(ue_PySWidget *self, PyObject * args)
+{
+	if (self->s_widget->GetVisibility().IsVisible())
+	{
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+	else
+	{
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+}
+
 static PyObject *py_ue_swidget_get_cached_geometry(ue_PySWidget *self, PyObject * args)
 {
 	return py_ue_new_fgeometry(self->s_widget->GetCachedGeometry());
@@ -317,10 +331,23 @@ static PyObject *py_ue_swidget_on_mouse_button_up(ue_PySWidget *self, PyObject *
 	Py_RETURN_FALSE;
 }
 
+static PyObject *py_ue_swidget_is_valid(ue_PySWidget *self, PyObject * args)
+{
+	TSharedPtr<SWidget> checkPtr = self->s_widget;
+	if (checkPtr.IsValid())
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_shared_reference_count", (PyCFunction)py_ue_swidget_get_shared_reference_count, METH_VARARGS, "" },
 	{ "get_cached_geometry", (PyCFunction)py_ue_swidget_get_cached_geometry, METH_VARARGS, "" },
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
+	{ "get_visibility", (PyCFunction)py_ue_swidget_get_visibility, METH_VARARGS, "" },
+	{ "is_valid", (PyCFunction)py_ue_swidget_is_valid, METH_VARARGS, "" },
 	{ "get_type", (PyCFunction)py_ue_swidget_get_type, METH_VARARGS, "" },
 	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },
 	{ "set_cursor", (PyCFunction)py_ue_swidget_set_cursor, METH_VARARGS, "" },

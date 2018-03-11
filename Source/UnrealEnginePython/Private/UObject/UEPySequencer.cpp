@@ -20,7 +20,14 @@
 #include "Sections/MovieSceneVectorSection.h"
 #include "Runtime/MovieScene/Public/MovieSceneFolder.h"
 #include "Runtime/MovieScene/Public/MovieSceneSpawnable.h"
+#include "Private/SequencerSelection.h"
 #endif
+#include "MovieSceneSection.h"
+#include "Set.h"
+
+namespace {
+    const FName LevelSequenceEditorName("LevelSequenceEditor");
+}
 
 #if WITH_EDITOR
 PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args)
@@ -168,7 +175,7 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find uobject with GUID \"%s\"", guid);
 
 	Py_RETURN_UOBJECT(u_obj);
-	}
+}
 
 PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *self, PyObject * args)
 {
@@ -615,6 +622,45 @@ PyObject *py_ue_sequencer_sections(ue_PyUObject *self, PyObject * args)
 	return py_sections;
 }
 
+// @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - GetSelectedSections() is not exported in vanilla 4.17 
+#if WITH_KNL_PYEXT
+// Returns the selected sections
+PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+    ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+    if (!seq)
+        return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	IAssetEditorInstance *editor = FAssetEditorManager::Get().FindEditorForAsset(seq, true);
+	if (!editor || editor->GetEditorName() != LevelSequenceEditorName)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to access level sequence editor");
+	}
+
+	FLevelSequenceEditorToolkit *toolkit = static_cast<FLevelSequenceEditorToolkit*>(editor);
+	ISequencer *sequencer                                = toolkit->GetSequencer().Get();
+	FSequencerSelection seqSelection                     = sequencer->GetSelection();
+	TSet<TWeakObjectPtr<UMovieSceneSection>> sectionList = seqSelection.GetSelectedSections();
+
+	PyObject *py_sections = PyList_New(0);
+	for (TWeakObjectPtr<UMovieSceneSection> section : sectionList)
+	{
+		ue_PyUObject *ret = ue_get_python_uobject(section.Get());
+		if (!ret)
+		{
+			Py_DECREF(py_sections);
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		}
+		PyList_Append(py_sections, (PyObject *)ret);
+	}
+
+	return py_sections;
+}
+#endif
+// @third party code - END Bebylon
+
 PyObject *py_ue_sequencer_track_sections(ue_PyUObject *self, PyObject * args)
 {
 
@@ -756,9 +802,9 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, ty, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, tz, (EMovieSceneKeyInterpolation)interpolation);
 
-			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().X, unwind);
-			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Y, unwind);
-			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Z, unwind);
+			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Rotator().Roll, unwind);
+			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Rotator().Pitch, unwind);
+			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Rotator().Yaw, unwind);
 			section_transform->AddKey(time, rx, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, ry, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, rz, (EMovieSceneKeyInterpolation)interpolation);

@@ -244,6 +244,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
 	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
+	{ "editor_select_component", py_unreal_engine_editor_select_component, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
 	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
 	{ "export_assets", py_unreal_engine_export_assets, METH_VARARGS, "" },
@@ -315,6 +316,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
 	{ "move_selected_actors_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
 	{ "move_actor_to_level", py_unreal_engine_move_actor_to_level, METH_VARARGS, "" },
+	{ "move_viewport_cameras_to_actor", py_unreal_engine_move_viewport_cameras_to_actor, METH_VARARGS, "" },
 
 	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
 
@@ -946,6 +948,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_remove_track", (PyCFunction)py_ue_sequencer_remove_track, METH_VARARGS, "" },
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
+	{ "sequencer_get_selected_sections", (PyCFunction)py_ue_sequencer_get_selected_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },
 	{ "sequencer_possessables", (PyCFunction)py_ue_sequencer_possessables, METH_VARARGS, "" },
 	{ "sequencer_possessables_guid", (PyCFunction)py_ue_sequencer_possessables_guid, METH_VARARGS, "" },

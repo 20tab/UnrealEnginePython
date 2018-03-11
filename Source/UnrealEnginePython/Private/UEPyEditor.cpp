@@ -27,6 +27,10 @@
 
 #include "Developer/Settings/Public/ISettingsModule.h"
 #include "Engine/Blueprint.h"
+#include "Components/PrimitiveComponent.h"
+#include "GameFramework/Actor.h"
+#include "Editor/EditorEngine.h"
+#include "Components/ActorComponent.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -287,6 +291,28 @@ PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args)
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_unreal_engine_editor_select_component(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:editor_select_component", &py_obj))
+	{
+		return NULL;
+	}
+
+	UActorComponent *actor_component = ue_py_check_type<UActorComponent>(py_obj);
+    if (!actor_component)
+    {
+        return PyErr_Format(PyExc_Exception, "object is not an Actor Component");
+    }
+
+	GEditor->SelectComponent(actor_component, true, true);
+
+    Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
@@ -1902,6 +1928,56 @@ PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to move actor to level");
 	}
+
+	Py_RETURN_NONE;
+}
+
+// Accepts actors and components, will prefer to focus on components first and actors next if component list is empty
+PyObject *py_unreal_engine_move_viewport_cameras_to_actor(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	PyObject *py_actor;
+	PyObject *py_component;
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "OOO:move_viewport_cameras_to_actor", &py_actor, &py_component, &py_bool))
+	{
+		return NULL;
+	}
+	
+	// Pack the provided actors and components into a array and call the more robust version of this function.
+	TArray<AActor*> Actors;
+	TArray<UPrimitiveComponent*> Components;
+
+	AActor* const in_actor = ue_py_check_type<AActor>(py_actor);
+	if (py_actor && !in_actor)
+		return PyErr_Format(PyExc_Exception, "actor argument is not an actor");
+
+	if (in_actor)
+	{
+		Actors.Add(in_actor);
+	}
+
+	UPrimitiveComponent* const in_component = ue_py_check_type<UPrimitiveComponent>(py_component);
+    if (py_component && !in_component)
+    {
+	    return PyErr_Format(PyExc_Exception, "component argument is not a primitive component");
+    }
+
+	if (in_component)
+	{
+		Components.Add(in_component);
+	}
+
+    if (!in_actor && !in_component)
+    {
+        return PyErr_Format(PyExc_Exception, "must pass in an actor or component.");
+    }
+
+	bool bActiveViewportOnly = PyObject_IsTrue(py_bool) ? true : false;
+
+	GEditor->MoveViewportCamerasToActor(Actors, Components, bActiveViewportOnly);
 
 	Py_RETURN_NONE;
 }
