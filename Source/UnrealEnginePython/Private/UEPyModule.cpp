@@ -243,6 +243,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "allow_actor_script_execution_in_editor", py_unreal_engine_allow_actor_script_execution_in_editor , METH_VARARGS, "" },
 	{ "get_editor_world", py_unreal_engine_get_editor_world, METH_VARARGS, "" },
 	{ "editor_get_selected_actors", py_unreal_engine_editor_get_selected_actors, METH_VARARGS, "" },
+	{ "editor_get_actors_in_folder", py_unreal_engine_editor_get_actors_in_folder, METH_VARARGS, "" },
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_select_component", py_unreal_engine_editor_select_component, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
@@ -492,6 +493,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_outermost", (PyCFunction)py_ue_get_outermost, METH_VARARGS, "" },
 
 	{ "get_super_class", (PyCFunction)py_ue_get_super_class, METH_VARARGS, "" },
+
+    { "get_archetype", (PyCFunction)py_ue_get_archetype, METH_VARARGS, "" },
+    { "get_archetype_instances", (PyCFunction)py_ue_get_archetype_instances, METH_VARARGS, "" },
 
 	{ "get_name", (PyCFunction)py_ue_get_name, METH_VARARGS, "" },
 	{ "get_display_name", (PyCFunction)py_ue_get_display_name, METH_VARARGS, "" },
@@ -2429,6 +2433,48 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
 		}
 		return false;
 	}
+
+    if (PyCallable_Check(py_obj))
+    {
+	    if (auto casted_prop = Cast<UMulticastDelegateProperty>(prop))
+	    {
+            FMulticastScriptDelegate* multiscript_delegate = casted_prop->GetPropertyValuePtr_InContainer(buffer);
+            new(multiscript_delegate) FMulticastScriptDelegate();
+
+		    FScriptDelegate script_delegate;
+            //TODO: ikrimae: #PyUE: Not sure if this will auto cleanup when the function parameters are destroyed or if the GWorld owner will force it to keep alive
+		    UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(GWorld, py_obj, casted_prop->SignatureFunction);
+		    // fake UFUNCTION for bypassing checks
+		    script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
+
+		    // add the new delegate
+		    multiscript_delegate->Add(script_delegate);
+
+            // Should not be needed anymore
+		    //// re-assign multicast delegate
+		    //casted_prop->SetPropertyValue_InContainer(buffer, multiscript_delegate);
+            return true;
+	    }
+        else if (auto casted_prop = Cast<UDelegateProperty>(prop))
+        {
+            FScriptDelegate* script_delegate = casted_prop->GetPropertyValuePtr_InContainer(buffer);
+            new(script_delegate) FScriptDelegate();
+
+            //TODO: ikrimae: #PyUE: Not sure if this will auto cleanup when the function parameters are destroyed or if the GWorld owner will force it to keep alive
+            UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(GWorld, py_obj, casted_prop->SignatureFunction);
+            // fake UFUNCTION for bypassing checks
+            script_delegate->BindUFunction(py_delegate, FName("PyFakeCallable"));
+
+            // add the new delegate
+            //multiscript_delegate->Add(script_delegate);
+
+            // Should not be needed anymore
+            //// re-assign multicast delegate
+            //casted_prop->SetPropertyValue_InContainer(buffer, multiscript_delegate);
+            return true;
+        }
+
+    }
 
 	if (py_obj == Py_None)
 	{

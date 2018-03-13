@@ -153,6 +153,39 @@ PyObject *py_unreal_engine_editor_get_selected_actors(PyObject * self, PyObject 
 	return actors;
 }
 
+PyObject *py_unreal_engine_editor_get_actors_in_folder(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	char *folder_path = nullptr;
+	if (!PyArg_ParseTuple(args, "s:get_actors_in_folder", &folder_path))
+	{
+		return NULL;
+	}
+
+	PyObject *actors = PyList_New(0);
+
+	FName FolderPath(folder_path);
+	UWorld *world = GEditor->GetEditorWorldContext().World();
+
+	for (AActor* actor : TActorRange<AActor>(world))
+	{
+		//NOTE: WORKAROUND: UE4 Editor does not update folder path for children after attachment. So some childnodes in a folder
+		//                  may erroneously have an outdated folder path
+		if (actor->GetFolderPath() == FolderPath)
+		{
+			if (!actor->IsA<AActor>())
+				continue;
+			ue_PyUObject *item = ue_get_python_uobject(actor);
+			if (item)
+				PyList_Append(actors, (PyObject *)item);
+		}
+	}
+
+	return actors;
+}
+
 PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args)
 {
 
@@ -1951,7 +1984,7 @@ PyObject *py_unreal_engine_move_viewport_cameras_to_actor(PyObject * self, PyObj
 	TArray<UPrimitiveComponent*> Components;
 
 	AActor* const in_actor = ue_py_check_type<AActor>(py_actor);
-	if (py_actor && !in_actor)
+	if (py_actor != Py_None && in_actor == nullptr)
 		return PyErr_Format(PyExc_Exception, "actor argument is not an actor");
 
 	if (in_actor)
@@ -1960,7 +1993,7 @@ PyObject *py_unreal_engine_move_viewport_cameras_to_actor(PyObject * self, PyObj
 	}
 
 	UPrimitiveComponent* const in_component = ue_py_check_type<UPrimitiveComponent>(py_component);
-    if (py_component && !in_component)
+    if (py_component != Py_None && in_component == nullptr)
     {
 	    return PyErr_Format(PyExc_Exception, "component argument is not a primitive component");
     }

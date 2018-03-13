@@ -1645,6 +1645,33 @@ PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_UOBJECT(u_class->GetDefaultObject());
 }
 
+PyObject *py_ue_get_archetype(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	Py_RETURN_UOBJECT(self->ue_object->GetArchetype());
+}
+
+PyObject *py_ue_get_archetype_instances(ue_PyUObject * self, PyObject * args)
+{
+    ue_py_check(self);
+
+    TArray<UObject*> ObjectArchetypeInstances;
+    self->ue_object->GetArchetypeInstances(ObjectArchetypeInstances);
+
+    PyObject *retArchInstances = PyList_New(0);
+    for (UObject* ObjectArchetype : ObjectArchetypeInstances)
+    {
+        ue_PyUObject *archInstance = ue_get_python_uobject(ObjectArchetype);
+        if (archInstance)
+        {
+            PyList_Append(retArchInstances, (PyObject *)archInstance);
+        }
+    }
+
+    return retArchInstances;
+}
+
 
 #if WITH_EDITOR
 PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)

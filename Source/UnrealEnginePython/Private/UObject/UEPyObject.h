@@ -34,6 +34,8 @@ PyObject *py_ue_auto_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_save_config(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_cdo(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_archetype(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_archetype_instances(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enum_values(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enum_names(ue_PyUObject *, PyObject *);
 #if ENGINE_MINOR_VERSION >= 15
