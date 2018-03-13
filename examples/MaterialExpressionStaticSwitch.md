@@ -1,3 +1,6 @@
+
+![MaterialExpressionStaticSwitch Screenshot](https://github.com/20tab/UnrealEnginePython/blob/master/examples/MaterialExpressionStaticSwitch.png)
+
 ```python
 import unreal_engine as ue
 from unreal_engine.classes import MaterialFactoryNew
