@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
+#if WITH_EDITOR
 #include "ISequencer.h"
+#endif
 
 static PyGetSetDef ue_PyESlateEnums_getseters[] = {
     { NULL }  /* Sentinel */
@@ -118,6 +120,19 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'UserSized',
                 ]),
 
+        EnumDef(name='ESlideDirection', 
+                cppNameScope='FPopupTransitionEffect::ESlideDirection',
+                values=[
+                    'None',
+                    'ComboButton',
+                    'TopMenu',
+                    'SubMenu',
+                    'TypeInPopup',
+                    'ContextMenu',
+                ]),
+    ]    
+
+    editor_native_enums_list = [
         EnumDef(name='EEditDefaultsOnlyNodeVisibility', 
                 cppNameScope='FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility',
                 values=[
@@ -138,40 +153,36 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'RefreshAllImmediately',
                     'Unknown',
                 ]),
-
-        EnumDef(name='ESlideDirection', 
-                cppNameScope='FPopupTransitionEffect::ESlideDirection',
-                values=[
-                    'None',
-                    'ComboButton',
-                    'TopMenu',
-                    'SubMenu',
-                    'TypeInPopup',
-                    'ContextMenu',
-                ]),
     ]
-    
 
-    for enum_def in native_enums_list:
-        enumVar_str = f'native_{enum_def.name}'
-        cog.out(f"""
-        // Enum Wrapper: {enum_def.name}
-        {{
-            PyObject* {enumVar_str} = PyDict_GetItemString(unreal_engine_dict, "{enum_def.name}");
-            if ({enumVar_str} == nullptr)
+    def output_cpp_enums(in_enum_list):
+        for enum_def in in_enum_list:
+            enumVar_str = f'native_{enum_def.name}'
+            cog.out(f"""
+            // Enum Wrapper: {enum_def.name}
             {{
-                {enumVar_str} = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-                PyDict_SetItemString(unreal_engine_dict, "{enum_def.name}", (PyObject*){enumVar_str});
-            }}
+                PyObject* {enumVar_str} = PyDict_GetItemString(unreal_engine_dict, "{enum_def.name}");
+                if ({enumVar_str} == nullptr)
+                {{
+                    {enumVar_str} = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+                    PyDict_SetItemString(unreal_engine_dict, "{enum_def.name}", (PyObject*){enumVar_str});
+                }}
             
-        """, dedent=True, trimblanklines=True)
+            """, dedent=True, trimblanklines=True)
         
-        for enum_val in enum_def.values:
-            enum_val_str = '"' + enum_val + '"'
-            cog.outl(f'    PyObject_SetAttrString((PyObject*){enumVar_str}, {enum_val_str:17}, PyLong_FromLong((int){enum_def.cppNameScope}::{enum_val}));');
+            for enum_val in enum_def.values:
+                enum_val_str = '"' + enum_val + '"'
+                cog.outl(f'    PyObject_SetAttrString((PyObject*){enumVar_str}, {enum_val_str:17}, PyLong_FromLong((int){enum_def.cppNameScope}::{enum_val}));');
 
-        cog.outl("}")
-        cog.outl("")
+            cog.outl("}")
+            cog.outl("")
+        
+    output_cpp_enums(native_enums_list)
+
+    cog.outl("#if WITH_EDITOR")
+    output_cpp_enums(editor_native_enums_list)
+    cog.outl("#endif")
+
     ]]]*/
     // Enum Wrapper: ESizeRule
     {
@@ -181,7 +192,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             native_ESizeRule = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
             PyDict_SetItemString(unreal_engine_dict, "ESizeRule", (PyObject*)native_ESizeRule);
         }
-        
+
         PyObject_SetAttrString((PyObject*)native_ESizeRule, "SizeToContent"  , PyLong_FromLong((int)SSplitter::ESizeRule::SizeToContent));
         PyObject_SetAttrString((PyObject*)native_ESizeRule, "FractionOfParent", PyLong_FromLong((int)SSplitter::ESizeRule::FractionOfParent));
     }
@@ -194,7 +205,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             native_EUserInterfaceActionType = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
             PyDict_SetItemString(unreal_engine_dict, "EUserInterfaceActionType", (PyObject*)native_EUserInterfaceActionType);
         }
-        
+
         PyObject_SetAttrString((PyObject*)native_EUserInterfaceActionType, "None"           , PyLong_FromLong((int)EUserInterfaceActionType::Type::None));
         PyObject_SetAttrString((PyObject*)native_EUserInterfaceActionType, "Button"         , PyLong_FromLong((int)EUserInterfaceActionType::Type::Button));
         PyObject_SetAttrString((PyObject*)native_EUserInterfaceActionType, "ToggleButton"   , PyLong_FromLong((int)EUserInterfaceActionType::Type::ToggleButton));
@@ -211,7 +222,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             native_ESplitterResizeMode = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
             PyDict_SetItemString(unreal_engine_dict, "ESplitterResizeMode", (PyObject*)native_ESplitterResizeMode);
         }
-        
+
         PyObject_SetAttrString((PyObject*)native_ESplitterResizeMode, "FixedPosition"  , PyLong_FromLong((int)ESplitterResizeMode::Type::FixedPosition));
         PyObject_SetAttrString((PyObject*)native_ESplitterResizeMode, "FixedSize"      , PyLong_FromLong((int)ESplitterResizeMode::Type::FixedSize));
         PyObject_SetAttrString((PyObject*)native_ESplitterResizeMode, "Fill"           , PyLong_FromLong((int)ESplitterResizeMode::Type::Fill));
@@ -225,12 +236,30 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             native_ESizingRule = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
             PyDict_SetItemString(unreal_engine_dict, "ESizingRule", (PyObject*)native_ESizingRule);
         }
-        
+
         PyObject_SetAttrString((PyObject*)native_ESizingRule, "FixedSize"      , PyLong_FromLong((int)ESizingRule::FixedSize));
         PyObject_SetAttrString((PyObject*)native_ESizingRule, "Autosized"      , PyLong_FromLong((int)ESizingRule::Autosized));
         PyObject_SetAttrString((PyObject*)native_ESizingRule, "UserSized"      , PyLong_FromLong((int)ESizingRule::UserSized));
     }
 
+    // Enum Wrapper: ESlideDirection
+    {
+        PyObject* native_ESlideDirection = PyDict_GetItemString(unreal_engine_dict, "ESlideDirection");
+        if (native_ESlideDirection == nullptr)
+        {
+            native_ESlideDirection = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ESlideDirection", (PyObject*)native_ESlideDirection);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "None"           , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::None));
+        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "ComboButton"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::ComboButton));
+        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "TopMenu"        , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::TopMenu));
+        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "SubMenu"        , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::SubMenu));
+        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "TypeInPopup"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::TypeInPopup));
+        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "ContextMenu"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::ContextMenu));
+    }
+
+    #if WITH_EDITOR
     // Enum Wrapper: EEditDefaultsOnlyNodeVisibility
     {
         PyObject* native_EEditDefaultsOnlyNodeVisibility = PyDict_GetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility");
@@ -239,7 +268,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             native_EEditDefaultsOnlyNodeVisibility = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
             PyDict_SetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility", (PyObject*)native_EEditDefaultsOnlyNodeVisibility);
         }
-        
+
         PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Show"           , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Show));
         PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Hide"           , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Hide));
         PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Automatic"      , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Automatic));
@@ -253,7 +282,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             native_EMovieSceneDataChangeType = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
             PyDict_SetItemString(unreal_engine_dict, "EMovieSceneDataChangeType", (PyObject*)native_EMovieSceneDataChangeType);
         }
-        
+
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "TrackValueChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::TrackValueChanged));
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "TrackValueChangedRefreshImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::TrackValueChangedRefreshImmediately));
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemAdded", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemAdded));
@@ -264,23 +293,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
     }
 
-    // Enum Wrapper: ESlideDirection
-    {
-        PyObject* native_ESlideDirection = PyDict_GetItemString(unreal_engine_dict, "ESlideDirection");
-        if (native_ESlideDirection == nullptr)
-        {
-            native_ESlideDirection = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-            PyDict_SetItemString(unreal_engine_dict, "ESlideDirection", (PyObject*)native_ESlideDirection);
-        }
-        
-        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "None"           , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::None));
-        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "ComboButton"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::ComboButton));
-        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "TopMenu"        , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::TopMenu));
-        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "SubMenu"        , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::SubMenu));
-        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "TypeInPopup"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::TypeInPopup));
-        PyObject_SetAttrString((PyObject*)native_ESlideDirection, "ContextMenu"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::ContextMenu));
-    }
-
+    #endif
     //[[[end]]]
 }
 

@@ -30,13 +30,14 @@ PyObject *py_ue_sequencer_remove_spawnable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_camera_cut_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_master_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_track(ue_PyUObject *, PyObject *);
-#endif
-PyObject *py_ue_sequencer_sections(ue_PyUObject *, PyObject *);
 // @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - GetSelectedSections() is not exported in vanilla 4.17 
 #if WITH_KNL_PYEXT
 PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args);
 #endif
 // @third party code - END Bebylon
+#endif
+PyObject *py_ue_sequencer_sections(ue_PyUObject *, PyObject *);
+
 PyObject *py_ue_sequencer_possessables(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_possessables_guid(ue_PyUObject *, PyObject *);
 

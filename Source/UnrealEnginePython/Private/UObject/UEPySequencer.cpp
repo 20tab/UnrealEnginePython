@@ -622,45 +622,6 @@ PyObject *py_ue_sequencer_sections(ue_PyUObject *self, PyObject * args)
 	return py_sections;
 }
 
-// @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - GetSelectedSections() is not exported in vanilla 4.17 
-#if WITH_KNL_PYEXT
-// Returns the selected sections
-PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args)
-{
-	ue_py_check(self);
-
-    ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
-    if (!seq)
-        return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
-
-	IAssetEditorInstance *editor = FAssetEditorManager::Get().FindEditorForAsset(seq, true);
-	if (!editor || editor->GetEditorName() != LevelSequenceEditorName)
-	{
-		return PyErr_Format(PyExc_Exception, "unable to access level sequence editor");
-	}
-
-	FLevelSequenceEditorToolkit *toolkit = static_cast<FLevelSequenceEditorToolkit*>(editor);
-	ISequencer *sequencer                                = toolkit->GetSequencer().Get();
-	FSequencerSelection seqSelection                     = sequencer->GetSelection();
-	TSet<TWeakObjectPtr<UMovieSceneSection>> sectionList = seqSelection.GetSelectedSections();
-
-	PyObject *py_sections = PyList_New(0);
-	for (TWeakObjectPtr<UMovieSceneSection> section : sectionList)
-	{
-		ue_PyUObject *ret = ue_get_python_uobject(section.Get());
-		if (!ret)
-		{
-			Py_DECREF(py_sections);
-			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
-		}
-		PyList_Append(py_sections, (PyObject *)ret);
-	}
-
-	return py_sections;
-}
-#endif
-// @third party code - END Bebylon
-
 PyObject *py_ue_sequencer_track_sections(ue_PyUObject *self, PyObject * args)
 {
 
@@ -981,6 +942,45 @@ PyObject *py_ue_sequencer_remove_track(ue_PyUObject *self, PyObject * args)
 
 	Py_RETURN_FALSE;
 }
+
+// @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - GetSelectedSections() is not exported in vanilla 4.17 
+#if WITH_KNL_PYEXT
+// Returns the selected sections
+PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args)
+{
+    ue_py_check(self);
+
+    ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+    if (!seq)
+        return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+    IAssetEditorInstance *editor = FAssetEditorManager::Get().FindEditorForAsset(seq, true);
+    if (!editor || editor->GetEditorName() != LevelSequenceEditorName)
+    {
+        return PyErr_Format(PyExc_Exception, "unable to access level sequence editor");
+    }
+
+    FLevelSequenceEditorToolkit *toolkit = static_cast<FLevelSequenceEditorToolkit*>(editor);
+    ISequencer *sequencer = toolkit->GetSequencer().Get();
+    FSequencerSelection seqSelection = sequencer->GetSelection();
+    TSet<TWeakObjectPtr<UMovieSceneSection>> sectionList = seqSelection.GetSelectedSections();
+
+    PyObject *py_sections = PyList_New(0);
+    for (TWeakObjectPtr<UMovieSceneSection> section : sectionList)
+    {
+        ue_PyUObject *ret = ue_get_python_uobject(section.Get());
+        if (!ret)
+        {
+            Py_DECREF(py_sections);
+            return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+        }
+        PyList_Append(py_sections, (PyObject *)ret);
+    }
+
+    return py_sections;
+}
+#endif
+// @third party code - END Bebylon
 
 #endif
 
