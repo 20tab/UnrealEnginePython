@@ -5,6 +5,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "HAL/PlatformApplicationMisc.h"
+
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 #if WITH_EDITOR
@@ -165,12 +167,12 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 {
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectContentDir()));
 }
 
 PyObject *py_unreal_engine_get_game_saved_dir(PyObject * self, PyObject * args)
 {
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameSavedDir()));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectSavedDir()));
 }
 
 PyObject * py_unreal_engine_get_game_user_developer_dir(PyObject *, PyObject *)
@@ -1237,13 +1239,13 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 		return nullptr;
 	}
 
-	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
+	FPlatformApplicationMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {
 	FString clipboard;
-	FGenericPlatformMisc::ClipboardPaste(clipboard);
+	FPlatformApplicationMisc::ClipboardPaste(clipboard);
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
 }
