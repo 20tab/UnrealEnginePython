@@ -125,7 +125,7 @@ public class UnrealEnginePython : ModuleRules
                 "RenderCore",
                 "MovieSceneCapture",
                 "Landscape",
-                "Foliage",
+                "Foliage"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
@@ -214,7 +214,7 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetMacPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicDelayLoadDLLs.Add(libPath);
-            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
+            PublicDefinitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -239,13 +239,13 @@ public class UnrealEnginePython : ModuleRules
                 PublicIncludePaths.Add(items[0]);
                 PublicAdditionalLibraries.Add(items[1]);
             }
-            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
+            PublicDefinitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
         }
 
         string enableThreads = System.Environment.GetEnvironmentVariable("UEP_ENABLE_THREADS");
         if (!string.IsNullOrEmpty(enableThreads))
         {
-            Definitions.Add("UEPY_THREADING");
+            PublicDefinitions.Add("UEPY_THREADING");
             System.Console.WriteLine("*** Enabled Python Threads support ***");
         }
 
