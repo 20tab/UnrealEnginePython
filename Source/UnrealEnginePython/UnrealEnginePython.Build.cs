@@ -130,9 +130,10 @@ public class UnrealEnginePython : ModuleRules
 			}
             );
 
+
 #if WITH_FORWARDED_MODULE_RULES_CTOR
         BuildVersion Version;
-        if (BuildVersion.TryRead(out Version))
+        if (BuildVersion.TryRead(BuildVersion.GetDefaultFileName(), out Version))
         {
             if (Version.MinorVersion >= 18)
             {
