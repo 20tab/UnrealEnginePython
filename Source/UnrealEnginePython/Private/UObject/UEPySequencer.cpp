@@ -751,9 +751,12 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, ty, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, tz, (EMovieSceneKeyInterpolation)interpolation);
 
-			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.Rotator().Roll, unwind);
-			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.Rotator().Pitch, unwind);
-			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.Rotator().Yaw, unwind);
+			/*FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Rotator().Roll, unwind);
+			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Rotator().Pitch, unwind);
+			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Rotator().Yaw, unwind);*/
+			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Euler().X, unwind);
+			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Euler().Y, unwind);
+			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Euler().Z, unwind);
 			section_transform->AddKey(time, rx, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, ry, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, rz, (EMovieSceneKeyInterpolation)interpolation);
