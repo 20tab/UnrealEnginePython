@@ -6,6 +6,7 @@
 #if ENGINE_MINOR_VERSION > 18
 
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshLODModel.h"
+#include "Runtime/Engine/Public/Rendering/SkeletalMeshTypes.h"
 
 #endif
 
