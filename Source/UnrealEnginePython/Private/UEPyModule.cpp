@@ -755,7 +755,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 
 	{ "get_game_viewport", (PyCFunction)py_ue_get_game_viewport, METH_VARARGS, "" },
-		
+
 	{ "game_viewport_client_set_rendering_flag", (PyCFunction)py_ue_game_viewport_client_set_rendering_flag, METH_VARARGS, "" },
 
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
@@ -2602,7 +2602,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		{
 			if (!prop->IsInContainer(u_function->ParmsSize))
 			{
-				return PyErr_Format(PyExc_Exception, "Attempting to import func param property that's out of bounds. %s", *u_function->GetName());
+				return PyErr_Format(PyExc_Exception, "Attempting to import func param property that's out of bounds. %s", TCHAR_TO_UTF8(*u_function->GetName()));
 			}
 #if WITH_EDITOR
 			FString default_key = FString("CPP_Default_") + prop->GetName();
@@ -3145,7 +3145,7 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 #if PY_MAJOR_VERSION >= 3
 static PyObject *init_unreal_engine()
 {
-	
+
 	PyObject *new_unreal_engine_module = PyModule_Create(&unreal_engine_module);
 	if (!new_unreal_engine_module)
 		return nullptr;

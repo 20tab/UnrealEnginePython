@@ -239,7 +239,7 @@ const TCHAR* BuiltInKeywords[] =
 TSharedRef< FPYRichTextSyntaxHighlighterTextLayoutMarshaller > FPYRichTextSyntaxHighlighterTextLayoutMarshaller::Create(const FSyntaxTextStyle& InSyntaxTextStyle)
 {
 	TArray<FPythonSyntaxTokenizer::FRule> TokenizerRules;
-	
+
 	// operators
 	for(const auto& Operator : Operators)
 	{
@@ -304,14 +304,14 @@ void FPYRichTextSyntaxHighlighterTextLayoutMarshaller::ParseTokens(const FString
 					hasNextChar = true;
 				}
 			}
-			
+
 			const FTextRange ModelRange(ModelString->Len(), ModelString->Len() + TokenText.Len());
 			ModelString->Append(TokenText);
 
 			FRunInfo RunInfo(TEXT("SyntaxHighlight.PY.Normal"));
 			FTextBlockStyle TextBlockStyle = SyntaxTextStyle.NormalTextStyle;
 
-			const bool bIsWhitespace = FString(TokenText).TrimTrailing().IsEmpty();
+			const bool bIsWhitespace = FString(TokenText).TrimEnd().IsEmpty();
 			if(!bIsWhitespace)
 			{
 				bool bHasMatchedSyntax = false;
@@ -398,7 +398,7 @@ void FPYRichTextSyntaxHighlighterTextLayoutMarshaller::ParseTokens(const FString
 					}
 
 				}
-				
+
 				// It's possible that we fail to match a syntax token if we're in a state where it isn't parsed
 				// In this case, we treat it as a literal token
 				if(Token.Type == FPythonSyntaxTokenizer::ETokenType::Literal || !bHasMatchedSyntax)

@@ -442,7 +442,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 	return NewCode;
 }
 
-// run a python string in a new sub interpreter 
+// run a python string in a new sub interpreter
 void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 {
 	FScopePythonGIL gil;

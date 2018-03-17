@@ -137,7 +137,7 @@ PyObject *py_ue_add_angular_impulse(ue_PyUObject * self, PyObject * args)
 	if (py_obj_b_vel_change && PyObject_IsTrue(py_obj_b_vel_change))
 		b_vel_change = true;
 
-	primitive->AddAngularImpulse(impulse, f_bone_name, b_vel_change);
+	primitive->AddAngularImpulseInRadians(impulse, f_bone_name, b_vel_change);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -237,7 +237,7 @@ PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args)
 	if (py_obj_b_accel_change && PyObject_IsTrue(py_obj_b_accel_change))
 		b_accel_change = true;
 
-	primitive->AddTorque(torque, f_bone_name, b_accel_change);
+	primitive->AddTorqueInRadians(torque, f_bone_name, b_accel_change);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -369,7 +369,7 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
 	}
 
-	primitive->SetPhysicsAngularVelocity(new_ang_vel, add_to_current, f_bone_name);
+	primitive->SetPhysicsAngularVelocityInDegrees(new_ang_vel, add_to_current, f_bone_name);
 
 	Py_INCREF(Py_None);
 	return Py_None;
