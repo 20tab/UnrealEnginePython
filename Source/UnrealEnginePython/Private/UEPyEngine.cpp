@@ -309,7 +309,7 @@ PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 	FText outErrorMsg;
 	if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
 	{
-		return PyErr_Format(PyExc_Exception, TCHAR_TO_UTF8(*outErrorMsg.ToString()));
+		return PyErr_Format(PyExc_Exception, "%s", TCHAR_TO_UTF8(*outErrorMsg.ToString()));
 	}
 
 	Py_RETURN_NONE;
