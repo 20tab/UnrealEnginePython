@@ -585,7 +585,7 @@ void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, TArray<FString>&
 		return;
 	}
 #else
-	fd = fopen(full_path, "r");
+	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");	
 	if (!fd) {
 		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
@@ -594,7 +594,7 @@ void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, TArray<FString>&
 	
 	// TODO: Since we do not use py3 - this is never hit. `args` are ignored
 	// 		 for this case.
-	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	fclose(fd);
 	if (!eval_ret) {
 		unreal_engine_py_log_error();
