@@ -8,6 +8,7 @@
 #endif
 #endif
 
+#if WITH_EDITOR
 
 PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args)
 {
@@ -1218,4 +1219,5 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 
 	return py_list;
 }
+
 #endif

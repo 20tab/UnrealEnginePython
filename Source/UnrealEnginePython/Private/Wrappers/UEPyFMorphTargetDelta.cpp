@@ -1,5 +1,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
+#if WITH_EDITOR
+
 static PyObject *py_ue_fmorph_target_delta_get_position_delta(ue_PyFMorphTargetDelta *self, void *closure)
 {
 	return py_ue_new_fvector(self->morph_target_delta.PositionDelta);
@@ -138,3 +140,5 @@ PyObject *py_ue_new_fmorph_target_delta(FMorphTargetDelta morph_target_delta)
 	new(&ret->morph_target_delta) FMorphTargetDelta(morph_target_delta);
 	return (PyObject *)ret;
 }
+
+#endif

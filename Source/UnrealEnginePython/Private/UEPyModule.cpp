@@ -270,6 +270,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
 	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
 	{ "export_assets", py_unreal_engine_export_assets, METH_VARARGS, "" },
+	{ "loading_assets", py_unreal_engine_loading_assets, METH_VARARGS, ""},
 	{ "get_asset", py_unreal_engine_get_asset, METH_VARARGS, "" },
 	{ "find_asset", py_unreal_engine_find_asset, METH_VARARGS, "" },
 	{ "delete_object", py_unreal_engine_delete_object, METH_VARARGS, "" },
