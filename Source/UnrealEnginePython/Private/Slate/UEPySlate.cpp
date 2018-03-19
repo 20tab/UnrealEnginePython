@@ -1034,7 +1034,7 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
     char     *py_name_area_settings       = nullptr;
     PyObject *py_hide_selection_tip       = nullptr;
     PyObject *py_search_initial_key_focus = nullptr;
-    int       defaults_show_visibility    = (int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Show;
+    int       defaults_show_visibility    = (int)EEditDefaultsOnlyNodeVisibility::Show;
 
 	char *kwlist[] = {
 		(char *)"uobject",
@@ -1071,7 +1071,7 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
         else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
         else                                                                                        { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
     }();
-    view_args.DefaultsOnlyVisibility = (FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility)defaults_show_visibility;
+    view_args.DefaultsOnlyVisibility = (EEditDefaultsOnlyNodeVisibility)defaults_show_visibility;
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
     

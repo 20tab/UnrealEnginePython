@@ -18,6 +18,18 @@ static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * ar
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_stext_block_set_highlight_text(ue_PySTextBlock *self, PyObject * args) {
+	char *text;
+	if (!PyArg_ParseTuple(args, "s:set_text", &text)) {
+		return NULL;
+	}
+
+	sw_text_block->SetHighlightText(FText::FromString(FString(UTF8_TO_TCHAR(text))));
+
+	Py_INCREF(self);
+	return (PyObject *)self;
+}
+
 static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, PyObject * args) {
 
 	PyObject *py_color;
@@ -46,6 +58,7 @@ static PyObject *py_ue_stext_block_get_text(ue_PySTextBlock *self, PyObject * ar
 static PyMethodDef ue_PySTextBlock_methods[] = {
 	{ "set_color_and_opacity", (PyCFunction)py_ue_stext_block_set_color_and_opacity, METH_VARARGS, "" },
 	{ "set_text", (PyCFunction)py_ue_stext_block_set_text, METH_VARARGS, "" },
+	{ "set_highlight_text", (PyCFunction)py_ue_stext_block_set_highlight_text, METH_VARARGS, "" },
 	{ "get_text", (PyCFunction)py_ue_stext_block_get_text, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };

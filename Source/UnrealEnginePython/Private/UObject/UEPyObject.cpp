@@ -1143,6 +1143,19 @@ PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args)
 	return Py_False;
 }
 
+PyObject *py_ue_is_selected(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	if (self->ue_object->IsSelected())
+	{
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
 
 PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args)
 {

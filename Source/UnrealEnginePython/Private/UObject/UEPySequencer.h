@@ -13,6 +13,8 @@ PyObject *py_ue_sequencer_folders(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_create_folder(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_display_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_get_display_name(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_track_display_name(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_track_unique_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_changed(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *, PyObject *);
 

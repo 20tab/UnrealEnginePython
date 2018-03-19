@@ -31,6 +31,7 @@
 #include "GameFramework/Actor.h"
 #include "Editor/EditorEngine.h"
 #include "Components/ActorComponent.h"
+#include "UnrealClient.h"
 
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -256,6 +257,48 @@ PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * ar
 
 	Py_INCREF(Py_None);
 	return Py_None;
+}
+
+PyObject *py_unreal_engine_editor_is_ctrl_down(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FViewport * activeViewport = GEditor->GetActiveViewport();
+
+	if (IsCtrlDown(activeViewport))
+		Py_RETURN_TRUE;
+	else
+		Py_RETURN_FALSE;
+
+}
+
+PyObject *py_unreal_engine_editor_is_shift_down(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FViewport * activeViewport = GEditor->GetActiveViewport();
+
+	if (IsShiftDown(activeViewport))
+		Py_RETURN_TRUE;
+	else
+		Py_RETURN_FALSE;
+
+}
+
+PyObject *py_unreal_engine_editor_is_alt_down(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FViewport * activeViewport = GEditor->GetActiveViewport();
+
+	if (IsAltDown(activeViewport))
+		Py_RETURN_TRUE;
+	else
+		Py_RETURN_FALSE;
+
 }
 
 PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)

@@ -92,11 +92,14 @@ static UScriptStruct* StaticGetBaseStructureInternal(const TCHAR* Name)
 	static auto* CoreUObjectPkg = FindObjectChecked<UPackage>(nullptr, TEXT("/Script/CoreUObject"));
 	return FindObjectChecked<UScriptStruct>(CoreUObjectPkg, Name);
 }
+
+#if ENGINE_MINOR_VERSION <= 17
 UScriptStruct* TBaseStructure<FQuat>::Get()
 {
     static auto ScriptStruct = StaticGetBaseStructureInternal(TEXT("Quat"));
     return ScriptStruct;
 }
+#endif
 
 
 static PyObject *py_unreal_engine_py_gc(PyObject * self, PyObject * args)
@@ -247,6 +250,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "editor_select_actor", py_unreal_engine_editor_select_actor, METH_VARARGS, "" },
 	{ "editor_select_component", py_unreal_engine_editor_select_component, METH_VARARGS, "" },
 	{ "editor_deselect_actors", py_unreal_engine_editor_deselect_actors, METH_VARARGS, "" },
+	{ "editor_is_ctrl_down", py_unreal_engine_editor_is_ctrl_down, METH_VARARGS, "" },
+	{ "editor_is_shift_down", py_unreal_engine_editor_is_shift_down, METH_VARARGS, "" },
+	{ "editor_is_alt_down", py_unreal_engine_editor_is_alt_down, METH_VARARGS, "" },
 	{ "import_asset", py_unreal_engine_import_asset, METH_VARARGS, "" },
 	{ "export_assets", py_unreal_engine_export_assets, METH_VARARGS, "" },
 	{ "get_asset", py_unreal_engine_get_asset, METH_VARARGS, "" },
@@ -583,6 +589,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "export_to_file", (PyCFunction)py_ue_export_to_file, METH_VARARGS, "" },
 
 	{ "is_rooted", (PyCFunction)py_ue_is_rooted, METH_VARARGS, "" },
+	{ "is_selected", (PyCFunction)py_ue_is_selected, METH_VARARGS, "" },
 	{ "add_to_root", (PyCFunction)py_ue_add_to_root, METH_VARARGS, "" },
 	{ "auto_root", (PyCFunction)py_ue_auto_root, METH_VARARGS, "" },
 	{ "remove_from_root", (PyCFunction)py_ue_remove_from_root, METH_VARARGS, "" },
@@ -935,6 +942,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_create_folder", (PyCFunction)py_ue_sequencer_create_folder, METH_VARARGS, "" },
 	{ "sequencer_set_display_name", (PyCFunction)py_ue_sequencer_set_display_name, METH_VARARGS, "" },
 	{ "sequencer_get_display_name", (PyCFunction)py_ue_sequencer_get_display_name, METH_VARARGS, "" },
+	{ "sequencer_get_track_display_name", (PyCFunction)py_ue_sequencer_get_track_display_name, METH_VARARGS, "" },
+	{ "sequencer_get_track_unique_name", (PyCFunction)py_ue_sequencer_get_track_unique_name, METH_VARARGS, "" },
 	{ "sequencer_changed", (PyCFunction)py_ue_sequencer_changed, METH_VARARGS, "" },
 	{ "sequencer_add_camera_cut_track", (PyCFunction)py_ue_sequencer_add_camera_cut_track, METH_VARARGS, "" },
 	{ "sequencer_add_actor", (PyCFunction)py_ue_sequencer_add_actor, METH_VARARGS, "" },

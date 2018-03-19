@@ -963,12 +963,13 @@ PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * a
     FLevelSequenceEditorToolkit *toolkit = static_cast<FLevelSequenceEditorToolkit*>(editor);
     ISequencer *sequencer = toolkit->GetSequencer().Get();
     FSequencerSelection seqSelection = sequencer->GetSelection();
-    TSet<TWeakObjectPtr<UMovieSceneSection>> sectionList = seqSelection.GetSelectedSections();
+    TArray<UMovieSceneSection*> sectionList;
+    sequencer->GetSelectedSections(sectionList);
 
     PyObject *py_sections = PyList_New(0);
-    for (TWeakObjectPtr<UMovieSceneSection> section : sectionList)
+    for (UMovieSceneSection* section : sectionList)
     {
-        ue_PyUObject *ret = ue_get_python_uobject(section.Get());
+        ue_PyUObject *ret = ue_get_python_uobject(section);
         if (!ret)
         {
             Py_DECREF(py_sections);
@@ -1065,6 +1066,36 @@ PyObject *py_ue_sequencer_get_display_name(ue_PyUObject *self, PyObject * args)
 	}
 
 	return PyErr_Format(PyExc_Exception, "the uobject does not expose the GetDefaultDisplayName() method");
+}
+
+PyObject *py_ue_sequencer_get_track_display_name(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (self->ue_object->IsA<UMovieSceneNameableTrack>())
+	{
+		UMovieSceneNameableTrack *track = (UMovieSceneNameableTrack *)self->ue_object;
+		FText name = track->GetDisplayName();
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString()));
+	}
+
+	return PyErr_Format(PyExc_Exception, "the uobject does not expose the GetDisplayName() method");
+}
+
+PyObject *py_ue_sequencer_get_track_unique_name(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (self->ue_object->IsA<UMovieSceneNameableTrack>())
+	{
+		UMovieSceneNameableTrack *track = (UMovieSceneNameableTrack *)self->ue_object;
+		FName name = track->GetTrackName();
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*name.ToString()));
+	}
+
+	return PyErr_Format(PyExc_Exception, "the uobject does not expose the GetDisplayName() method");
 }
 #endif
 

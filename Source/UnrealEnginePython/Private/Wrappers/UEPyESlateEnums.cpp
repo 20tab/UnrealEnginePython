@@ -134,7 +134,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
 
     editor_native_enums_list = [
         EnumDef(name='EEditDefaultsOnlyNodeVisibility', 
-                cppNameScope='FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility',
+                cppNameScope='EEditDefaultsOnlyNodeVisibility',
                 values=[
                     'Show',
                     'Hide',
@@ -269,9 +269,9 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
             PyDict_SetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility", (PyObject*)native_EEditDefaultsOnlyNodeVisibility);
         }
 
-        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Show"           , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Show));
-        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Hide"           , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Hide));
-        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Automatic"      , PyLong_FromLong((int)FDetailsViewArgs::EEditDefaultsOnlyNodeVisibility::Automatic));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Show"           , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Show));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Hide"           , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Hide));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Automatic"      , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Automatic));
     }
 
     // Enum Wrapper: EMovieSceneDataChangeType
