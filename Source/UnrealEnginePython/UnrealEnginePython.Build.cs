@@ -131,10 +131,21 @@ public class UnrealEnginePython : ModuleRules
                 "MovieSceneCapture",
                 "Landscape",
                 "Foliage",
-                "ApplicationCore"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
+
+
+#if WITH_FORWARDED_MODULE_RULES_CTOR
+        BuildVersion Version;
+        if (BuildVersion.TryRead(BuildVersion.GetDefaultFileName(), out Version))
+        {
+            if (Version.MinorVersion >= 18)
+            {
+                PrivateDependencyModuleNames.Add("ApplicationCore");
+            }
+        }
+#endif
 
 
         DynamicallyLoadedModuleNames.AddRange(

@@ -30,7 +30,11 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	const FRegexPattern myPattern(RegexString);
 	FRegexMatcher myMatcher(myPattern, *CommandLine);
 	myMatcher.FindNext();
-	FString PyCommandLine = myMatcher.GetCaptureGroup(0).TrimStartAndEnd();
+#if ENGINE_MINOR_VERSION >= 18
+	FString PyCommandLine = myMatcher.GetCaptureGroup(0).TrimStart().TrimEnd();
+#else
+	FString PyCommandLine = myMatcher.GetCaptureGroup(0).Trim().TrimTrailing();
+#endif
 
 	TArray<FString> PyArgv;
 	PyArgv.Add(FString());

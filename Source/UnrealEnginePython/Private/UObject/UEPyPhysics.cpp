@@ -138,13 +138,12 @@ PyObject *py_ue_add_angular_impulse(ue_PyUObject * self, PyObject * args)
 		b_vel_change = true;
 
 #if ENGINE_MINOR_VERSION >= 18
-    primitive->AddAngularImpulseInRadians(impulse, f_bone_name, b_vel_change);
+	primitive->AddAngularImpulseInRadians(impulse, f_bone_name, b_vel_change);
 #else
 	primitive->AddAngularImpulse(impulse, f_bone_name, b_vel_change);
 #endif
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 
@@ -242,13 +241,12 @@ PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args)
 		b_accel_change = true;
 
 #if ENGINE_MINOR_VERSION >= 18
-    primitive->AddTorqueInRadians(torque, f_bone_name, b_accel_change);
+	primitive->AddTorqueInRadians(torque, f_bone_name, b_accel_change);
 #else
 	primitive->AddTorque(torque, f_bone_name, b_accel_change);
 #endif
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 
@@ -378,13 +376,12 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 	}
 
 #if ENGINE_MINOR_VERSION >= 18
-    primitive->SetPhysicsAngularVelocityInDegrees(new_ang_vel, add_to_current, f_bone_name);
+	primitive->SetPhysicsAngularVelocityInDegrees(new_ang_vel, add_to_current, f_bone_name);
 #else
 	primitive->SetPhysicsAngularVelocity(new_ang_vel, add_to_current, f_bone_name);
 #endif
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_get_physics_angular_velocity(ue_PyUObject * self, PyObject * args)

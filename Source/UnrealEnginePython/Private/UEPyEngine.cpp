@@ -13,6 +13,10 @@
 #endif
 #include "HAL/PlatformApplicationMisc.h"
 
+#if ENGINE_MINOR_VERSION >= 18
+#include "HAL/PlatformApplicationMisc.h"
+#endif
+
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
 {
@@ -216,7 +220,7 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args)
 PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 {
 #if ENGINE_MINOR_VERSION >= 18
-    return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectContentDir()));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectContentDir()));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
 #endif
@@ -225,7 +229,7 @@ PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 PyObject *py_unreal_engine_get_game_saved_dir(PyObject * self, PyObject * args)
 {
 #if ENGINE_MINOR_VERSION >= 18
-    return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectSavedDir()));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectSavedDir()));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameSavedDir()));
 #endif
@@ -1322,8 +1326,9 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	{
 		return nullptr;
 	}
+
 #if ENGINE_MINOR_VERSION >= 18
-    FPlatformApplicationMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
+	FPlatformApplicationMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #else
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
@@ -1334,12 +1339,13 @@ PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {
 	FString clipboard;
 #if ENGINE_MINOR_VERSION >= 18
-    FPlatformApplicationMisc::ClipboardPaste(clipboard);
+	FPlatformApplicationMisc::ClipboardPaste(clipboard);
 #else
 	FGenericPlatformMisc::ClipboardPaste(clipboard);
 #endif
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
 }
+
 PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)
 {
 
