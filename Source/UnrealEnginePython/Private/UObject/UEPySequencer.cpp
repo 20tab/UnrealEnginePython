@@ -163,7 +163,7 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find uobject with GUID \"%s\"", guid);
 
 	Py_RETURN_UOBJECT(u_obj);
-	}
+}
 
 PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *self, PyObject * args)
 {
@@ -284,7 +284,7 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args)
 	}
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
-	}
+}
 
 PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *self, PyObject * args)
 {
@@ -702,9 +702,10 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 	float time;
 	PyObject *py_value;
 	int interpolation = 0;
-	if (!PyArg_ParseTuple(args, "fO|i:sequencer_section_add_key", &time, &py_value, &interpolation))
+	PyObject *py_unwind = nullptr;
+	if (!PyArg_ParseTuple(args, "fO|iO:sequencer_section_add_key", &time, &py_value, &interpolation, &py_unwind))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!self->ue_object->IsA<UMovieSceneSection>())
@@ -740,7 +741,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 	{
 		if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_value))
 		{
-			bool unwind = false;
+			bool unwind = (py_unwind && PyObject_IsTrue(py_unwind));
 			FTransform transform = py_transform->transform;
 
 
@@ -751,9 +752,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, ty, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, tz, (EMovieSceneKeyInterpolation)interpolation);
 
-			/*FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Rotator().Roll, unwind);
-			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Rotator().Pitch, unwind);
-			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Rotator().Yaw, unwind);*/
+			
 			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Euler().X, unwind);
 			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Euler().Y, unwind);
 			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Euler().Z, unwind);
