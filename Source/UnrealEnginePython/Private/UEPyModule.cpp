@@ -920,6 +920,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_remove_camera_cut_track", (PyCFunction)py_ue_sequencer_remove_camera_cut_track, METH_VARARGS, "" },
 	{ "sequencer_remove_master_track", (PyCFunction)py_ue_sequencer_remove_master_track, METH_VARARGS, "" },
 	{ "sequencer_remove_track", (PyCFunction)py_ue_sequencer_remove_track, METH_VARARGS, "" },
+	{ "sequencer_import_fbx_transform", (PyCFunction)py_ue_sequencer_import_fbx_transform, METH_VARARGS, "" },
+		
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },

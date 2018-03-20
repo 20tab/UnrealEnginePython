@@ -30,6 +30,7 @@ PyObject *py_ue_sequencer_remove_spawnable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_camera_cut_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_master_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_track(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *, PyObject *);
 #endif
 PyObject *py_ue_sequencer_sections(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_possessables(ue_PyUObject *, PyObject *);
