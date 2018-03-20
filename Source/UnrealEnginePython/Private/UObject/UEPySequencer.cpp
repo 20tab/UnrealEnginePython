@@ -20,7 +20,11 @@
 #include "Sections/MovieSceneVectorSection.h"
 #include "Runtime/MovieScene/Public/MovieSceneFolder.h"
 #include "Runtime/MovieScene/Public/MovieSceneSpawnable.h"
+#if ENGINE_MINOR_VERSION < 18
+#include "Editor/UnrealEd/Private/FbxImporter.h"
+#else
 #include "Editor/UnrealEd/Public/FbxImporter.h"
+#endif
 #include "Editor/MovieSceneTools/Public/MatineeImportTools.h"
 #endif
 
@@ -1063,7 +1067,11 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 	FbxImporter->PopulateAnimatedCurveData(CurveAPI);
 
 	TArray<FString> AllNodeNames;
+#if ENGINE_MINOR_VERSION < 18
+	CurveAPI.GetAnimatedNodeNameArray(AllNodeNames);
+#else
 	CurveAPI.GetAllNodeNameArray(AllNodeNames);
+#endif
 
 	for (FString NodeName : AllNodeNames)
 	{
@@ -1075,6 +1083,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 		FInterpCurveFloat EulerRotation[3];
 		FInterpCurveFloat Scale[3];
 		FTransform DefaultTransform;
+#if ENGINE_MINOR_VERSION >= 18
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
 
 		for (int32 ChannelIndex = 0; ChannelIndex < 3; ++ChannelIndex)
@@ -1092,6 +1101,10 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 			section->GetRotationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetRotation().Euler()[ChannelIndex]);
 			section->GetScaleCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetScale3D()[ChannelIndex]);
 		}
+#else
+		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2]);
+
+#endif
 
 		float MinTime = FLT_MAX;
 		float MaxTime = -FLT_MAX;
