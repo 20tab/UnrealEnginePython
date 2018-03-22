@@ -1,6 +1,6 @@
 #pragma once
 #include "UnrealEnginePython.h"
-
+#if WITH_EDITOR
 #include "Runtime/Engine/Public/SkeletalMeshTypes.h"
 
 #if ENGINE_MINOR_VERSION > 18
@@ -22,3 +22,4 @@ void ue_python_init_fsoft_skin_vertex(PyObject *);
 PyObject *py_ue_new_fsoft_skin_vertex(FSoftSkinVertex);
 
 ue_PyFSoftSkinVertex *py_ue_is_fsoft_skin_vertex(PyObject *);
+#endif

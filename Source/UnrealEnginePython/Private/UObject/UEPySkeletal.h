@@ -14,8 +14,10 @@ PyObject *py_ue_skeleton_find_bone_index(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeleton_add_bone(ue_PyUObject *, PyObject *);
 
+#if WITH_EDITOR
 PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *, PyObject *);
+
 PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *, PyObject *);
@@ -36,3 +38,4 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *, PyObject *);
 PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *, PyObject *);
 PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *, PyObject *);
 PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *, PyObject *);
+#endif

@@ -197,6 +197,7 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
+#if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * args)
 {
@@ -1210,3 +1211,5 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 
 	return py_list;
 }
+
+#endif

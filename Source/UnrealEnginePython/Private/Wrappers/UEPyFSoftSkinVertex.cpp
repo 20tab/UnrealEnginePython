@@ -1,3 +1,5 @@
+#if WITH_EDITOR
+
 #include "UnrealEnginePythonPrivatePCH.h"
 
 static PyObject *py_ue_fsoft_skin_vertex_get_color(ue_PyFSoftSkinVertex *self, void *closure)
@@ -362,3 +364,5 @@ PyObject *py_ue_new_fsoft_skin_vertex(FSoftSkinVertex ss_vertex)
 	new(&ret->ss_vertex) FSoftSkinVertex(ss_vertex);
 	return (PyObject *)ret;
 }
+
+#endif
