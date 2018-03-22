@@ -28,8 +28,38 @@ static PyObject *py_ue_sbox_set_content(ue_PySBox *self, PyObject * args)
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_sbox_set_height_override(ue_PySBox *self, PyObject * args)
+{
+	float height_override = 0;
+	if (!PyArg_ParseTuple(args, "f:set_height_override", &height_override))
+	{
+		return NULL;
+	}
+
+	if (height_override != 0)
+		sw_box->SetHeightOverride(height_override);
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_sbox_set_width_override(ue_PySBox *self, PyObject * args)
+{
+	float width_override = 0;
+	if (!PyArg_ParseTuple(args, "f:set_width_override", &width_override))
+	{
+		return NULL;
+	}
+
+	if (width_override != 0)
+		sw_box->SetWidthOverride(width_override);
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySBox_methods[] = {
 	{ "set_content", (PyCFunction)py_ue_sbox_set_content, METH_VARARGS, "" },
+	{ "set_height_override", (PyCFunction)py_ue_sbox_set_height_override, METH_VARARGS, "" },
+	{ "set_width_override", (PyCFunction)py_ue_sbox_set_width_override, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -73,6 +103,7 @@ static int ue_py_sbox_init(ue_PySBox *self, PyObject *args, PyObject *kwargs)
 	ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
 	ue_py_slate_farguments_struct("padding", Padding, FMargin);
 	ue_py_slate_farguments_optional_foptional_size("height_override", HeightOverride);
+	ue_py_slate_farguments_optional_foptional_size("width_override", WidthOverride);
 #if ENGINE_MINOR_VERSION > 12
 	ue_py_slate_farguments_optional_foptional_size("max_aspect_ratio", MaxAspectRatio);
 #endif
