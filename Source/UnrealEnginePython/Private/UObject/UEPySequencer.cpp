@@ -21,6 +21,12 @@
 #include "Runtime/MovieScene/Public/MovieSceneFolder.h"
 #include "Runtime/MovieScene/Public/MovieSceneSpawnable.h"
 #include "Private/SequencerSelection.h"
+#if ENGINE_MINOR_VERSION < 18
+#include "Editor/UnrealEd/Private/FbxImporter.h"
+#else
+#include "Editor/UnrealEd/Public/FbxImporter.h"
+#endif
+#include "Editor/MovieSceneTools/Public/MatineeImportTools.h"
 #endif
 #include "MovieSceneSection.h"
 #include "Set.h"
@@ -714,9 +720,10 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 	float time;
 	PyObject *py_value;
 	int interpolation = 0;
-	if (!PyArg_ParseTuple(args, "fO|i:sequencer_section_add_key", &time, &py_value, &interpolation))
+	PyObject *py_unwind = nullptr;
+	if (!PyArg_ParseTuple(args, "fO|iO:sequencer_section_add_key", &time, &py_value, &interpolation, &py_unwind))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!self->ue_object->IsA<UMovieSceneSection>())
@@ -752,7 +759,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 	{
 		if (ue_PyFTransform *py_transform = py_ue_is_ftransform(py_value))
 		{
-			bool unwind = false;
+			bool unwind = (py_unwind && PyObject_IsTrue(py_unwind));
 			FTransform transform = py_ue_ftransform_get(py_transform);
 
 
@@ -763,9 +770,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, ty, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, tz, (EMovieSceneKeyInterpolation)interpolation);
 
-			/*FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Rotator().Roll, unwind);
-			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Rotator().Pitch, unwind);
-			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Rotator().Yaw, unwind);*/
+
 			FTransformKey rx = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::X, transform.GetRotation().Euler().X, unwind);
 			FTransformKey ry = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Y, transform.GetRotation().Euler().Y, unwind);
 			FTransformKey rz = FTransformKey(EKey3DTransformChannel::Rotation, EAxis::Z, transform.GetRotation().Euler().Z, unwind);
@@ -1099,6 +1104,187 @@ PyObject *py_ue_sequencer_get_track_unique_name(ue_PyUObject *self, PyObject * a
 	}
 
 	return PyErr_Format(PyExc_Exception, "the uobject does not expose the GetDisplayName() method");
+}
+
+PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *filename;
+	char *nodename;
+	PyObject *py_force_front_x_axis = nullptr;
+
+	if (!PyArg_ParseTuple(args, "ss|o:sequencer_import_fbx_transform", &filename, &nodename, &py_force_front_x_axis))
+		return nullptr;
+
+	UMovieScene3DTransformSection *section = ue_py_check_type<UMovieScene3DTransformSection>(self);
+	if (!section)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMovieScene3DTransformSection");
+
+	UnFbx::FFbxImporter* FbxImporter = UnFbx::FFbxImporter::GetInstance();
+
+	UnFbx::FBXImportOptions* ImportOptions = FbxImporter->GetImportOptions();
+	bool bConverteScene = ImportOptions->bConvertScene;
+	bool bConverteSceneUnit = ImportOptions->bConvertSceneUnit;
+	bool bForceFrontXAxis = ImportOptions->bForceFrontXAxis;
+
+	ImportOptions->bConvertScene = true;
+	ImportOptions->bConvertSceneUnit = true;
+	ImportOptions->bForceFrontXAxis = py_force_front_x_axis && PyObject_IsTrue(py_force_front_x_axis);
+
+	FString FbxFilename = FString(UTF8_TO_TCHAR(filename));
+	FString FbxNodeName = FString(UTF8_TO_TCHAR(nodename));
+
+	const FString Extension = FPaths::GetExtension(FbxFilename);
+	if (!FbxImporter->ImportFromFile(FbxFilename, Extension, true))
+	{
+		FbxImporter->ReleaseScene();
+		ImportOptions->bConvertScene = bConverteScene;
+		ImportOptions->bConvertSceneUnit = bConverteSceneUnit;
+		ImportOptions->bForceFrontXAxis = bForceFrontXAxis;
+		return PyErr_Format(PyExc_Exception, "unable to import Fbx file");
+	}
+
+	UnFbx::FFbxCurvesAPI CurveAPI;
+	FbxImporter->PopulateAnimatedCurveData(CurveAPI);
+
+	TArray<FString> AllNodeNames;
+#if ENGINE_MINOR_VERSION < 18
+	CurveAPI.GetAnimatedNodeNameArray(AllNodeNames);
+#else
+	CurveAPI.GetAllNodeNameArray(AllNodeNames);
+#endif
+
+	for (FString NodeName : AllNodeNames)
+	{
+		if (NodeName != FbxNodeName)
+			continue;
+
+		// Look for transforms explicitly
+		FInterpCurveFloat Translation[3];
+		FInterpCurveFloat EulerRotation[3];
+		FInterpCurveFloat Scale[3];
+		FTransform DefaultTransform;
+#if ENGINE_MINOR_VERSION >= 18
+		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
+
+		for (int32 ChannelIndex = 0; ChannelIndex < 3; ++ChannelIndex)
+		{
+			EAxis::Type ChannelAxis = EAxis::X;
+			if (ChannelIndex == 1)
+			{
+				ChannelAxis = EAxis::Y;
+			}
+			else if (ChannelIndex == 2)
+			{
+				ChannelAxis = EAxis::Z;
+			}
+			section->GetTranslationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetLocation()[ChannelIndex]);
+			section->GetRotationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetRotation().Euler()[ChannelIndex]);
+			section->GetScaleCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetScale3D()[ChannelIndex]);
+		}
+#else
+		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2]);
+
+#endif
+
+		float MinTime = FLT_MAX;
+		float MaxTime = -FLT_MAX;
+
+		const int NumCurves = 3; // Trans, Rot, Scale
+		for (int32 CurveIndex = 0; CurveIndex < NumCurves; ++CurveIndex)
+		{
+			for (int32 ChannelIndex = 0; ChannelIndex < 3; ++ChannelIndex)
+			{
+				EAxis::Type ChannelAxis = EAxis::X;
+				if (ChannelIndex == 1)
+				{
+					ChannelAxis = EAxis::Y;
+				}
+				else if (ChannelIndex == 2)
+				{
+					ChannelAxis = EAxis::Z;
+				}
+
+				FInterpCurveFloat* CurveFloat = nullptr;
+				FRichCurve* ChannelCurve = nullptr;
+				bool bNegative = false;
+
+				if (CurveIndex == 0)
+				{
+					CurveFloat = &Translation[ChannelIndex];
+					ChannelCurve = &section->GetTranslationCurve(ChannelAxis);
+					if (ChannelIndex == 1)
+					{
+						bNegative = true;
+					}
+				}
+				else if (CurveIndex == 1)
+				{
+					CurveFloat = &EulerRotation[ChannelIndex];
+					ChannelCurve = &section->GetRotationCurve(ChannelAxis);
+					if (ChannelIndex == 1 || ChannelIndex == 2)
+					{
+						bNegative = true;
+					}
+				}
+				else if (CurveIndex == 2)
+				{
+					CurveFloat = &Scale[ChannelIndex];
+					ChannelCurve = &section->GetScaleCurve(ChannelAxis);
+				}
+
+				if (ChannelCurve != nullptr && CurveFloat != nullptr)
+				{
+					ChannelCurve->Reset();
+
+					for (int32 KeyIndex = 0; KeyIndex < CurveFloat->Points.Num(); ++KeyIndex)
+					{
+						MinTime = FMath::Min(MinTime, CurveFloat->Points[KeyIndex].InVal);
+						MaxTime = FMath::Max(MaxTime, CurveFloat->Points[KeyIndex].InVal);
+
+						float ArriveTangent = CurveFloat->Points[KeyIndex].ArriveTangent;
+						if (KeyIndex > 0)
+						{
+							ArriveTangent = ArriveTangent / (CurveFloat->Points[KeyIndex].InVal - CurveFloat->Points[KeyIndex - 1].InVal);
+						}
+
+						float LeaveTangent = CurveFloat->Points[KeyIndex].LeaveTangent;
+						if (KeyIndex < CurveFloat->Points.Num() - 1)
+						{
+							LeaveTangent = LeaveTangent / (CurveFloat->Points[KeyIndex + 1].InVal - CurveFloat->Points[KeyIndex].InVal);
+						}
+
+						if (bNegative)
+						{
+							ArriveTangent = -ArriveTangent;
+							LeaveTangent = -LeaveTangent;
+						}
+
+						FMatineeImportTools::SetOrAddKey(*ChannelCurve, CurveFloat->Points[KeyIndex].InVal, CurveFloat->Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, CurveFloat->Points[KeyIndex].InterpMode);
+					}
+
+					ChannelCurve->RemoveRedundantKeys(KINDA_SMALL_NUMBER);
+					ChannelCurve->AutoSetTangents();
+				}
+			}
+		}
+
+		section->SetStartTime(MinTime);
+		section->SetEndTime(MaxTime);
+
+		FbxImporter->ReleaseScene();
+		ImportOptions->bConvertScene = bConverteScene;
+		ImportOptions->bConvertSceneUnit = bConverteScene;
+		ImportOptions->bForceFrontXAxis = bConverteScene;
+		Py_RETURN_NONE;
+	}
+
+	FbxImporter->ReleaseScene();
+	ImportOptions->bConvertScene = bConverteScene;
+	ImportOptions->bConvertSceneUnit = bConverteSceneUnit;
+	ImportOptions->bForceFrontXAxis = bForceFrontXAxis;
+	return PyErr_Format(PyExc_Exception, "unable to find specified node in Fbx file");
 }
 #endif
 

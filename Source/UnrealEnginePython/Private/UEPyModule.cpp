@@ -792,7 +792,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 
 	{ "get_game_viewport", (PyCFunction)py_ue_get_game_viewport, METH_VARARGS, "" },
-
+		
 	{ "game_viewport_client_set_rendering_flag", (PyCFunction)py_ue_game_viewport_client_set_rendering_flag, METH_VARARGS, "" },
 
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
@@ -961,6 +961,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_remove_master_track", (PyCFunction)py_ue_sequencer_remove_master_track, METH_VARARGS, "" },
 	{ "sequencer_remove_track", (PyCFunction)py_ue_sequencer_remove_track, METH_VARARGS, "" },
     { "sequencer_get_selected_sections", (PyCFunction)py_ue_sequencer_get_selected_sections, METH_VARARGS, "" },
+	{ "sequencer_import_fbx_transform", (PyCFunction)py_ue_sequencer_import_fbx_transform, METH_VARARGS, "" },
+		
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },

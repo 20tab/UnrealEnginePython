@@ -37,6 +37,7 @@ PyObject *py_ue_sequencer_remove_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args);
 #endif
 // @third party code - END Bebylon
+PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *, PyObject *);
 #endif
 PyObject *py_ue_sequencer_sections(ue_PyUObject *, PyObject *);
 
