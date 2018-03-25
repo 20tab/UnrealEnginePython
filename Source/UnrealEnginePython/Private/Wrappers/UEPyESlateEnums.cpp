@@ -130,6 +130,16 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'TypeInPopup',
                     'ContextMenu',
                 ]),
+
+        EnumDef(name='ETabRole',
+                cppNameScope='ETabRole',
+                values=[
+                    'MajorTab',
+                    'PanelTab',
+                    'NomadTab',
+                    'DocumentTab',
+                    'NumRoles'
+                ]),
     ]    
 
     editor_native_enums_list = [
@@ -257,6 +267,22 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_ESlideDirection, "SubMenu"        , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::SubMenu));
         PyObject_SetAttrString((PyObject*)native_ESlideDirection, "TypeInPopup"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::TypeInPopup));
         PyObject_SetAttrString((PyObject*)native_ESlideDirection, "ContextMenu"    , PyLong_FromLong((int)FPopupTransitionEffect::ESlideDirection::ContextMenu));
+    }
+
+    // Enum Wrapper: ETabRole
+    {
+        PyObject* native_ETabRole = PyDict_GetItemString(unreal_engine_dict, "ETabRole");
+        if (native_ETabRole == nullptr)
+        {
+            native_ETabRole = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ETabRole", (PyObject*)native_ETabRole);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ETabRole, "MajorTab"       , PyLong_FromLong((int)ETabRole::MajorTab));
+        PyObject_SetAttrString((PyObject*)native_ETabRole, "PanelTab"       , PyLong_FromLong((int)ETabRole::PanelTab));
+        PyObject_SetAttrString((PyObject*)native_ETabRole, "NomadTab"       , PyLong_FromLong((int)ETabRole::NomadTab));
+        PyObject_SetAttrString((PyObject*)native_ETabRole, "DocumentTab"    , PyLong_FromLong((int)ETabRole::DocumentTab));
+        PyObject_SetAttrString((PyObject*)native_ETabRole, "NumRoles"       , PyLong_FromLong((int)ETabRole::NumRoles));
     }
 
     #if WITH_EDITOR

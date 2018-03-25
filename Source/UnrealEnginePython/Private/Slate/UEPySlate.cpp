@@ -25,6 +25,9 @@
 
 #include "UEPySlate.h"
 #include "PyNativeWidgetHost.h"
+#include <SDockTab.h>
+#include <SharedPointer.h>
+#include "UEPySWidget.h"
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
@@ -682,7 +685,9 @@ FLinearColor FPythonSlateDelegate::GetterFLinearColor() const
 TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args, bool bShouldAutosize)
 {
 	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(bShouldAutosize);
-	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
+	ue_PySWidget * py_docktab_widget = ue_py_get_swidget(dock_tab);
+	PyObject *py_dock = (PyObject *)py_docktab_widget;
+
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_dock);
 	if (!ret)
 	{
@@ -692,6 +697,10 @@ TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	{
 		Py_DECREF(ret);
 	}
+
+	SDockTab::FOnTabClosedCallback tabClosedDelegate;
+	tabClosedDelegate.BindStatic(&ue_remove_docktab_from_mapping);
+	dock_tab->SetOnTabClosed(tabClosedDelegate);
 	return dock_tab;
 }
 
@@ -785,6 +794,15 @@ void ue_py_setup_swidget(ue_PySWidget *self)
 #endif
 	self->py_dict = PyDict_New();
 	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
+}
+
+void ue_remove_docktab_from_mapping(TSharedRef<SDockTab> dock_tab)
+{
+	ue_PySWidget * py_docktab_widget = ue_py_get_swidget(dock_tab);
+    //TODO: sai: #PyUE: #BUG: FIX/HACK for how Python spawned tabs aren't properly garbage collected 
+	// after the tabs are closed as holding onto this reference prevents GC from cleaning up the widget
+	while (((PyObject *)py_docktab_widget)->ob_refcnt > 0)
+		Py_DECREF(py_docktab_widget);
 }
 
 void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget)
