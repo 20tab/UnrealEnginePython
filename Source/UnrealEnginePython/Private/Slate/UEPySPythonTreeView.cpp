@@ -62,7 +62,21 @@ static PyObject *py_ue_spython_tree_view_get_selected_items(ue_PySPythonTreeView
 
 	TArray<TSharedPtr<FPythonItem>> items = sw_python_tree_view->GetSelectedItems();
 
-	for (auto item : items) {
+	for (TSharedPtr<FPythonItem>& item : items) {
+		PyList_Append(py_list, item->py_object);
+	}
+
+	return py_list;
+}
+
+static PyObject *py_ue_spython_tree_view_get_expanded_items(ue_PySPythonTreeView *self, PyObject * args) {
+
+	PyObject *py_list = PyList_New(0);
+
+	TSet <TSharedPtr<FPythonItem>> ExpandedItems;
+	sw_python_tree_view->GetExpandedItems(ExpandedItems);
+
+	for (TSharedPtr<FPythonItem>& item : ExpandedItems) {
 		PyList_Append(py_list, item->py_object);
 	}
 
@@ -90,9 +104,13 @@ static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTre
     }
 
     values = PyObject_GetIter(values);
-    if (!values) {
+    if (!values) 
+    {
         return PyErr_Format(PyExc_Exception, "argument is not an iterable");
-		}
+    }
+
+	TSet<TSharedPtr<FPythonItem>> expanded_items;
+	sw_python_tree_view->GetExpandedItems(expanded_items);
 
     //NOTE: ikrimae: Increment first so we don't decrement and destroy python objects that 
     //we're passing in e.g. if you pass the same item source array into update_items(). 
@@ -100,21 +118,34 @@ static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTre
     TArray<TSharedPtr<FPythonItem>> tempNewArray;
     while (PyObject *item = PyIter_Next(values)) {
         Py_INCREF(item);
-        tempNewArray.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
+        tempNewArray.Add(MakeShared<FPythonItem>(item));
 	}
 
-    for (TSharedPtr<struct FPythonItem>& item : self->item_source_list)
+    for (TSharedPtr<FPythonItem>& item : self->item_source_list)
     {
         Py_XDECREF(item->py_object);
     }
     self->item_source_list.Empty();
 
     Move<TArray<TSharedPtr<FPythonItem>>>(self->item_source_list, tempNewArray);
-    Py_RETURN_NONE;
+    
+	for (TSharedPtr<FPythonItem>& old_item : expanded_items)
+	{
+		for (TSharedPtr<FPythonItem>& new_item : self->item_source_list)
+		{
+			if (old_item->py_object == new_item->py_object)
+			{
+				sw_python_tree_view->SetItemExpansion(new_item, true);
+			}
+		}
+	}
+
+	Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PySPythonTreeView_methods[] = {
     { "get_selected_items", (PyCFunction)     py_ue_spython_tree_view_get_selected_items, METH_VARARGS, "" },
+	{ "get_expanded_items", (PyCFunction)py_ue_spython_tree_view_get_expanded_items, METH_VARARGS, "" },
     { "get_num_items_selected", (PyCFunction) py_ue_spython_tree_view_get_num_items_selected, METH_VARARGS, "" },
     { "clear_selection", (PyCFunction)        py_ue_spython_tree_view_clear_selection, METH_VARARGS, "" },
     { "update_item_source_list", (PyCFunction)py_ue_spython_tree_view_update_item_source_list, METH_VARARGS, "" },
@@ -195,7 +226,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	{
 		Py_INCREF(item);
 		// keep track of items
-        self->item_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
+        self->item_source_list.Add(MakeShared<FPythonItem>(item));
 	}
 	arguments.TreeItemsSource(&self->item_source_list);
 
