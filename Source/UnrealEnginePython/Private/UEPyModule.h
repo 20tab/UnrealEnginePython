@@ -31,8 +31,8 @@ ue_PyUObject *ue_get_python_uobject(UObject *);
 ue_PyUObject *ue_get_python_uobject_inc(UObject *);
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
-PyObject *ue_py_convert_property(UProperty *, uint8 *);
-bool ue_py_convert_pyobject(PyObject *, UProperty *, uint8 *);
+PyObject *ue_py_convert_property(UProperty *, uint8 *, int32);
+bool ue_py_convert_pyobject(PyObject *, UProperty *, uint8 *, int32);
 ue_PyUObject *ue_is_pyuobject(PyObject *);
 
 void ue_bind_events_for_py_class_by_attribute(UObject *, PyObject *);
