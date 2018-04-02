@@ -28,7 +28,9 @@ static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, 
 
 static PyObject *py_ue_ftransform_get_matrix(ue_PyFTransform *self, PyObject * args)
 {
-	FMatrix matrix = self->transform.ToMatrixWithScale();
+	FTransform transform = self->transform;
+	transform.NormalizeRotation();
+	FMatrix matrix = transform.ToMatrixWithScale();
 	UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR("Matrix"));
 	if (!u_struct)
 	{
