@@ -15,3 +15,5 @@ typedef struct {
 } ue_PySDockTab;
 
 void ue_python_init_sdock_tab(PyObject *);
+
+ue_PySDockTab* py_ue_is_sdock_tab(PyObject *obj);

@@ -131,8 +131,6 @@ void ue_py_unregister_swidget(SWidget *);
 
 void ue_py_setup_swidget(ue_PySWidget *);
 
-static void ue_remove_docktab_from_mapping(TSharedRef<SDockTab> dock_tab);
-
 PyObject *ue_py_dict_get_item(PyObject *, const char *);
 
 template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widget, PyTypeObject *py_type)

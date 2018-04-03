@@ -141,3 +141,10 @@ void ue_python_init_sdock_tab(PyObject *ue_module) {
 	Py_INCREF(&ue_PySDockTabType);
 	PyModule_AddObject(ue_module, "SDockTab", (PyObject *)&ue_PySDockTabType);
 }
+
+ue_PySDockTab* py_ue_is_sdock_tab(PyObject *obj)
+{
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySDockTabType))
+		return nullptr;
+	return (ue_PySDockTab* )obj;
+}

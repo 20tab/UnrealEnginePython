@@ -28,6 +28,7 @@
 #include <SDockTab.h>
 #include <SharedPointer.h>
 #include "UEPySWidget.h"
+#include <ModuleManager.h>
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
@@ -684,23 +685,26 @@ FLinearColor FPythonSlateDelegate::GetterFLinearColor() const
 
 TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args, bool bShouldAutosize)
 {
-	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab).ShouldAutosize(bShouldAutosize);
-	ue_PySWidget * py_docktab_widget = ue_py_get_swidget(dock_tab);
-	PyObject *py_dock = (PyObject *)py_docktab_widget;
-
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_dock);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", bShouldAutosize ? Py_True : Py_False);
 	if (!ret)
 	{
+		PyErr_Format(PyExc_Exception, "Object returned by dock tab spawning in python is in invalid state");
 		unreal_engine_py_log_error();
+		return SNew(SDockTab);
 	}
-	else
+	ue_PySDockTab* py_dock = py_ue_is_sdock_tab(ret);
+	if (!py_dock)
 	{
 		Py_DECREF(ret);
+		PyErr_Format(PyExc_Exception, "Object returned by dock tab spawning in python is not a dock tab");
+		unreal_engine_py_log_error();
+		return SNew(SDockTab);
 	}
 
-	SDockTab::FOnTabClosedCallback tabClosedDelegate;
-	tabClosedDelegate.BindStatic(&ue_remove_docktab_from_mapping);
-	dock_tab->SetOnTabClosed(tabClosedDelegate);
+	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(py_dock->s_border.s_compound_widget.s_widget.s_widget);
+
+	Py_DECREF(py_dock);
+	
 	return dock_tab;
 }
 
@@ -794,15 +798,6 @@ void ue_py_setup_swidget(ue_PySWidget *self)
 #endif
 	self->py_dict = PyDict_New();
 	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
-}
-
-void ue_remove_docktab_from_mapping(TSharedRef<SDockTab> dock_tab)
-{
-	ue_PySWidget * py_docktab_widget = ue_py_get_swidget(dock_tab);
-    //TODO: sai: #PyUE: #BUG: FIX/HACK for how Python spawned tabs aren't properly garbage collected 
-	// after the tabs are closed as holding onto this reference prevents GC from cleaning up the widget
-	while (((PyObject *)py_docktab_widget)->ob_refcnt > 0)
-		Py_DECREF(py_docktab_widget);
 }
 
 void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget)
@@ -1433,8 +1428,11 @@ PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
 	{
 		return NULL;
 	}
-
-	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+	FLevelEditorModule& level_editor_module = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
+	TSharedPtr<FTabManager> level_editor_tab_manager = level_editor_module.GetLevelEditorTabManager();
+	level_editor_tab_manager->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+	// FIX for nomad tabs not docking properly with editor docking areas is to use the editor tab manager to invoke thems
+	//FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
 
 	Py_INCREF(Py_None);
 	return Py_None;
