@@ -125,7 +125,6 @@ static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args)
 	if (self->py_proxy)
 	{
 		Py_INCREF(self->py_proxy);
-		UE_LOG(LogPython, Error, TEXT("PROXY %d"), self->py_proxy->ob_refcnt);
 		return (PyObject *)self->py_proxy;
 	}
 
