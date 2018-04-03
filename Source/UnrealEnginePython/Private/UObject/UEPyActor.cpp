@@ -791,7 +791,7 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 		AActor *actor = world->SpawnActorDeferred<AActor>(u_class, transform);
 		if (!actor)
 			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
-		ue_PyUObject *py_actor = ue_get_python_uobject(actor);
+		ue_PyUObject *py_actor = ue_get_python_uobject_inc(actor);
 		if (!py_actor)
 			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
 
@@ -802,6 +802,7 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 			PyObject *void_ret = py_ue_set_property(py_actor, Py_BuildValue("OO", py_key, PyDict_GetItem(kwargs, py_key)));
 			if (!void_ret)
 			{
+				Py_DECREF(py_iter);
 				return PyErr_Format(PyExc_Exception, "unable to set property for new Actor");
 			}
 		}
