@@ -48,6 +48,73 @@ PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * arg
 
 }
 
+PyObject *py_ue_set_material_static_switch_parameter(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *switchName = nullptr;
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "sO:set_material_static_switch_parameter", &switchName, &py_bool))
+	{
+		return NULL;
+	}
+
+	FName parameterName(UTF8_TO_TCHAR(switchName));	
+
+	bool switchValue = false;
+	if (PyObject_IsTrue(py_bool))
+	{
+		switchValue = true;
+	}
+
+	bool valid = false;
+
+#if WITH_EDITOR
+	if (self->ue_object->IsA<UMaterialInstance>())
+	{
+		UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+		valid = true;
+		FStaticParameterSet staticParameterSet = material_instance->GetStaticParameters();
+
+		bool isExisting = false;
+		for (auto& parameter : staticParameterSet.StaticSwitchParameters)
+		{
+			if (parameter.bOverride && parameter.ParameterInfo.Name == parameterName)
+			{
+				parameter.Value = switchValue;
+				isExisting = true;
+				break;
+			}
+		}
+
+		if (!isExisting)
+		{
+			FStaticSwitchParameter SwitchParameter;
+			SwitchParameter.ParameterInfo.Name = parameterName;
+			SwitchParameter.Value = switchValue;
+
+			SwitchParameter.bOverride = true;
+			staticParameterSet.StaticSwitchParameters.Add(SwitchParameter);
+		}
+
+
+		material_instance->UpdateStaticPermutation(staticParameterSet);
+
+	}
+
+
+#endif
+
+	if (!valid)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a MaterialInstance");
+	}
+
+	Py_RETURN_NONE;
+
+}
+
 PyObject *py_ue_get_material_scalar_parameter(ue_PyUObject *self, PyObject * args)
 {
 
