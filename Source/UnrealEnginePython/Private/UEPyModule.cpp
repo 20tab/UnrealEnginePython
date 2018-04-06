@@ -2393,14 +2393,20 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				return true;
 			}
 			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
-
 			{
 				if (!ue_obj->ue_object->IsA(casted_prop_soft_object->PropertyClass))
 					return false;
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
 				return true;
 			}
-
+			else if (auto casted_prop_interface = Cast<UInterfaceProperty>(prop))
+			{
+				// ensure the object type is correct, otherwise crash could happen (soon or later)
+				if (!ue_obj->ue_object->GetClass()->ImplementsInterface(casted_prop_interface->InterfaceClass))
+					return false;
+				casted_prop_interface->SetPropertyValue_InContainer(buffer, FScriptInterface(ue_obj->ue_object), index);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -2622,8 +2628,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #endif
 			}
 #endif
-			}
 		}
+	}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
@@ -2735,7 +2741,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	Py_INCREF(Py_None);
 	return Py_None;
-	}
+}
 
 PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property)
 {
@@ -3102,7 +3108,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 	return function;
-}
+	}
 
 FGuid *ue_py_check_fguid(PyObject *py_obj)
 {
