@@ -521,6 +521,22 @@ PyObject *py_unreal_engine_create_modal_save_asset_dialog(PyObject * self, PyObj
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*ret));
 }
 
+PyObject *py_unreal_engine_loading_assets(PyObject * self, PyObject * args)
+{
+  	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+
+	if (AssetRegistryModule.Get().IsLoadingAssets()) {
+		Py_INCREF(Py_True);
+		return Py_True;	  
+	}
+	
+	Py_INCREF(Py_False);
+	return Py_False;	
+}
+
 PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args)
 {
 	char *path;

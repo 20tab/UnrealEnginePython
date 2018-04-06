@@ -3,7 +3,7 @@
 #pragma once
 
 //#define UEPY_MEMORY_DEBUG	1
-//#define UEPY_THREADING 1
+#define UEPY_THREADING 1
 
 #include "UnrealEnginePython.h"
 
@@ -47,9 +47,11 @@
 #include "Wrappers/UEPyFRandomStream.h"
 
 #include "Wrappers/UEPyFPythonOutputDevice.h"
+
 #if WITH_EDITOR
 #include "Wrappers/UEPyFSoftSkinVertex.h"
 #endif
+
 #include "Wrappers/UEPyFMorphTargetDelta.h"
 #include "Wrappers/UEPyFObjectThumbnail.h"
 

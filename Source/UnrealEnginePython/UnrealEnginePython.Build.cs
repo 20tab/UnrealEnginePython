@@ -6,12 +6,11 @@ using System.Collections.Generic;
 
 public class UnrealEnginePython : ModuleRules
 {
-
     // leave this string as empty for triggering auto-discovery of python installations...
     private string pythonHome = "";
     // otherwise specify the path of your python installation
     //private string pythonHome = "C:/Program Files/Python36";
-    // this is an example for Homebrew on Mac 
+    // this is an example for Homebrew on Mac
     //private string pythonHome = "/usr/local/Cellar/python3/3.6.0/Frameworks/Python.framework/Versions/3.6/";
     // on Linux an include;libs syntax is expected:
     //private string pythonHome = "/usr/local/include/python3.6;/usr/local/lib/libpython3.6.so"
@@ -22,16 +21,6 @@ public class UnrealEnginePython : ModuleRules
         "C:/Program Files/Python35",
         "C:/Python27",
         "C:/IntelPython35"
-    };
-
-    private string[] macKnownPaths =
-    {
-        "/Library/Frameworks/Python.framework/Versions/3.6",
-        "/Library/Frameworks/Python.framework/Versions/3.5",
-        "/Library/Frameworks/Python.framework/Versions/2.7",
-        "/System/Library/Frameworks/Python.framework/Versions/3.6",
-        "/System/Library/Frameworks/Python.framework/Versions/3.5",
-        "/System/Library/Frameworks/Python.framework/Versions/2.7"
     };
 
     private string[] linuxKnownIncludesPaths =
@@ -72,13 +61,23 @@ public class UnrealEnginePython : ModuleRules
         "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
     };
 
+    private string[] macKnownPaths =
+    {
+        "/Library/Frameworks/Python.framework/Versions/3.6",
+        "/Library/Frameworks/Python.framework/Versions/3.5",
+        "/Library/Frameworks/Python.framework/Versions/2.7",
+        "/System/Library/Frameworks/Python.framework/Versions/3.6",
+        "/System/Library/Frameworks/Python.framework/Versions/3.5",
+        "/System/Library/Frameworks/Python.framework/Versions/2.7",
+    };
+
 #if WITH_FORWARDED_MODULE_RULES_CTOR
     public UnrealEnginePython(ReadOnlyTargetRules Target) : base(Target)
 #else
     public UnrealEnginePython(TargetInfo Target)
 #endif
     {
-
+        PCHUsage = PCHUsageMode.NoSharedPCHs;
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -254,8 +253,8 @@ public class UnrealEnginePython : ModuleRules
     private bool IsPathRelative(string Path)
     {
         bool IsRooted = Path.StartsWith("\\", System.StringComparison.Ordinal) || // Root of the current directory on Windows. Also covers "\\" for UNC or "network" paths.
-                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes. 
-                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".	
+                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes.
+                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".
                         (Path.Length >= 2 && char.IsLetter(Path[0]) && Path[1] == ':'); // Starts with "<DriveLetter>:"
         return !IsRooted;
     }

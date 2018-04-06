@@ -4,7 +4,7 @@
 #include "BaseTextLayoutMarshaller.h"
 #include "TextFilterExpressionEvaluator.h"
 
-#include "UnrealEnginePython/Public/UnrealEnginePython.h"
+#include "UnrealEnginePython.h"
 
 class FPythonLogTextLayoutMarshaller;
 class SSearchBox;

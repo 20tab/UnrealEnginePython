@@ -8,9 +8,9 @@
 #endif
 
 #if ENGINE_MINOR_VERSION >= 18
-#define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()
+#define PROJECT_CONTENT_DIR FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir())
 #else
-#define PROJECT_CONTENT_DIR FPaths::GameContentDir()
+#define PROJECT_CONTENT_DIR FPaths::ConvertRelativePathToFull(FPaths::GameContentDir())
 #endif
 
 void unreal_engine_init_py_module();
@@ -125,6 +125,7 @@ static void setup_stdout_stderr()
 	// Redirecting stdout
 	char const* code = "import sys\n"
 		"import unreal_engine\n"
+		"import unreal_engine as ue\n"
 		"class UnrealEngineOutput:\n"
 		"    def __init__(self, logger):\n"
 		"        self.logger = logger\n"
@@ -181,7 +182,6 @@ namespace
 			UPythonBlueprintFunctionLibrary::ExecutePythonString(cmdString);
 		}
 	}
-
 }
 FAutoConsoleCommand ExecPythonScriptCommand(
 	TEXT("py.exec"),
@@ -192,6 +192,29 @@ FAutoConsoleCommand ExecPythonStringCommand(
 	TEXT("py.cmd"),
 	*NSLOCTEXT("UnrealEnginePython", "CommandText_Cmd", "Execute python string").ToString(),
 	FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecString));
+
+
+namespace {
+	static void consoleExecScriptWithArgs(const TArray<FString>& Args)
+	{
+		if (Args.Num() < 1) {
+			UE_LOG(LogPython, Warning, TEXT("Usage: 'py.exec_args <scriptname> [arg0 [arg1]]'."));
+			UE_LOG(LogPython, Warning, TEXT("  scriptname: Name of script, must reside in Scripts folder. Ex: myscript.py"));
+			return;
+		}
+			
+		TArray<FString> args;
+		for (int i = 1; i < Args.Num(); i++)
+			args.Add(Args[i]);
+
+		UPythonBlueprintFunctionLibrary::ExecutePythonScriptWithArgs(Args[0], args);
+	}
+}
+FAutoConsoleCommand ExecPythonScriptCommandWithArgs(
+	TEXT("py.exec_args"),
+	*NSLOCTEXT("UnrealEnginePython", "CommandText_Exec", "Execute python script with (two) arguments").ToString(),
+	FConsoleCommandWithArgsDelegate::CreateStatic(consoleExecScriptWithArgs));
+
 
 void FUnrealEnginePythonModule::StartupModule()
 {
@@ -252,11 +275,13 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni))
 	{
 		ScriptsPath = IniValue;
+		UE_LOG(LogPython, Log, TEXT("Scripts path set %s"), UTF8_TO_TCHAR(*ScriptsPath)); // Legit?
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni))
 	{
 		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+		UE_LOG(LogPython, Log, TEXT("Scripts path set (Relative) %s"), UTF8_TO_TCHAR(*ScriptsPath)); // Legit?
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni))
@@ -469,7 +494,7 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 		Py_EndInterpreter(py_new_state);
 		PyThreadState_Swap(_main);
 		return;
-}
+	}
 	PyObject *global_dict = PyModule_GetDict(m);
 
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, global_dict, global_dict);
@@ -493,6 +518,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	{
 		full_path = FPaths::Combine(*ScriptsPath, full_path);
 	}
+
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
 
@@ -531,6 +557,72 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 #endif
 
 }
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
+
+/*
+ *  These are recogni specific RunFile variants to allow passing of arguments
+ *  to the invocation of our python scripts.
+ */
+
+void FUnrealEnginePythonModule::RunFileWithArgs(char *filename, TArray<FString>& args) {
+	FScopePythonGIL gil;
+	FString full_path = UTF8_TO_TCHAR(filename);
+
+	if (!FPaths::FileExists(filename))
+	{
+		full_path = FPaths::Combine(*ScriptsPath, full_path);
+	}
+
+#if PY_MAJOR_VERSION >= 3
+	FILE *fd = nullptr;
+
+#if PLATFORM_WINDOWS
+	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
+		return;
+	}
+#else
+	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");	
+	if (!fd) {
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
+		return;
+}
+#endif
+	
+	// TODO: Since we do not use py3 - this is never hit. `args` are ignored
+	// 		 for this case.
+	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	fclose(fd);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(eval_ret);
+
+#else
+
+	// Ughhh
+	FString command = "import sys\n";
+	command += FString::Printf(TEXT("sys.argv = [\"%s\""), UTF8_TO_TCHAR(filename));
+	for (int i = 0; i < args.Num(); i++)
+		command += FString::Printf(TEXT(", \"%s\""), *args[i]);
+	command += FString::Printf(TEXT("]\nexecfile(\"%s\")"), *full_path);
+
+	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	if (!eval_ret) {
+		unreal_engine_py_log_error();
+		return;
+	}
+	
+#endif
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/******************************************************************************/
 
 // run a python script in a new sub interpreter (useful for unit tests)
 void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)(void *arg), void *arg)
