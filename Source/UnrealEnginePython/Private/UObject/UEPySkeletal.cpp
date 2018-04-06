@@ -8,8 +8,6 @@
 #endif
 #endif
 
-#if WITH_EDITOR
-
 PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args)
 {
 
