@@ -5,18 +5,16 @@
 
 #include "UEPySPythonTreeView.h"
 
-
-#define sw_python_tree_view StaticCastSharedRef<SPythonTreeView>(self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
-
 static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView *self, PyObject * args)
 {
+	ue_py_slate_cast(SPythonTreeView);
 	PyObject *py_item;
 	PyObject *py_bool;
 	if (!PyArg_ParseTuple(args, "OO:set_item_expansion", &py_item, &py_bool))
 	{
 		return nullptr;
 	}
-	sw_python_tree_view->SetPythonItemExpansion(py_item, PyObject_IsTrue(py_bool) ? true : false);
+	py_SPythonTreeView->SetPythonItemExpansion(py_item, PyObject_IsTrue(py_bool) ? true : false);
 	Py_RETURN_NONE;
 }
 
@@ -109,7 +107,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 #endif
 	ue_py_slate_farguments_event("on_get_children", OnGetChildren, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGetChildren, GetChildren);
 
-	ue_py_snew(SPythonTreeView, s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget);
+	ue_py_snew(SPythonTreeView);
 	return 0;
 }
 

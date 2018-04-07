@@ -4,8 +4,6 @@
 #if WITH_EDITOR
 #include "UEPySNodePanel.h"
 
-#define sw_node_panel StaticCastSharedRef<SNodePanel>(self->s_panel.s_widget)
-
 static PyMethodDef ue_PySNodePanel_methods[] = {
     { NULL }  /* Sentinel */
 };

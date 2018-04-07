@@ -299,16 +299,17 @@ TSharedPtr<SWidget> FPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 		return nullptr;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
+		PyErr_Clear();
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
 		return nullptr;
 	}
-	TSharedPtr<SWidget> value = s_widget->s_widget;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
 	Py_DECREF(ret);
-	return value;
+	return RefWidget;
 }
 
 void FPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets)
@@ -352,17 +353,17 @@ TSharedRef<SWidget> FPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonIte
 		return SNullWidget::NullWidget;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+		PyErr_Clear();
 		return SNullWidget::NullWidget;
 	}
-	TSharedRef<SWidget> value = s_widget->s_widget;
-
-	Py_INCREF(ret);
-	return value;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
+	Py_DECREF(ret);
+	return RefWidget;
 }
 
 TSharedRef<SWidget> FPythonSlateDelegate::OnGetMenuContent()
@@ -376,16 +377,17 @@ TSharedRef<SWidget> FPythonSlateDelegate::OnGetMenuContent()
 		return SNullWidget::NullWidget;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
+		PyErr_Clear();
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
 		return SNullWidget::NullWidget;
 	}
-	TSharedRef<SWidget> value = s_widget->s_widget;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
 	Py_DECREF(ret);
-	return value;
+	return RefWidget;
 }
 
 void FPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type)
@@ -417,16 +419,17 @@ TSharedPtr<SWidget> FPythonSlateDelegate::OnContextMenuOpening()
 		return nullptr;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
+		PyErr_Clear();
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
 		return nullptr;
 	}
-	TSharedPtr<SWidget> value = s_widget->s_widget;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
 	Py_DECREF(ret);
-	return value;
+	return RefWidget;
 }
 
 void FPythonSlateDelegate::SimpleExecuteAction()
@@ -695,14 +698,17 @@ TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> 
 
 	if (ue_PySPythonMultiColumnTableRow *spython_multicolumn_table_row = py_ue_is_spython_multicolumn_table_row(ret))
 	{
-		Py_INCREF(spython_multicolumn_table_row);
-		TSharedRef<SPythonMultiColumnTableRow> value = StaticCastSharedRef<SPythonMultiColumnTableRow>(spython_multicolumn_table_row->s_compound_widget.s_widget.s_widget->AsShared());
-		return value;
+		return StaticCastSharedRef<SPythonMultiColumnTableRow>(spython_multicolumn_table_row->s_compound_widget.s_widget.Widget->AsShared());
 	}
-	else if (ue_PySWidget *s_widget = py_ue_is_swidget(ret))
+
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	Py_DECREF(ret);
+	if (Widget.IsValid())
 	{
-		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget];
+		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[Widget.ToSharedRef()];
 	}
+
+	PyErr_Clear();
 
 	UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
 	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
@@ -735,59 +741,27 @@ void FPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TS
 	Py_DECREF(ret);
 }
 
-static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
-
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget)
 {
 	ue_PySWidget *ret = nullptr;
-	auto it = py_slate_mapping->find(&s_widget.Get());
-	// not found, it means it is an SWidget not generated from python
-	if (it == py_slate_mapping->end())
+
+	if (s_widget->GetType().Compare(FName("SWindow")) == 0)
 	{
-		if (s_widget->GetType().Compare(FName("SWindow")) == 0)
-		{
-			return py_ue_new_swidget<ue_PySWindow>(s_widget, &ue_PySWindowType);
-		}
-		if (s_widget->GetType().Compare(FName("SDockTab")) == 0)
-		{
-			return py_ue_new_swidget<ue_PySDockTab>(s_widget, &ue_PySDockTabType);
-		}
-		else
-		{
-			return py_ue_new_swidget<ue_PySWidget>(s_widget, &ue_PySWidgetType);
-		}
+		return py_ue_new_swidget<ue_PySWindow>(s_widget, &ue_PySWindowType);
+	}
+	if (s_widget->GetType().Compare(FName("SDockTab")) == 0)
+	{
+		return py_ue_new_swidget<ue_PySDockTab>(s_widget, &ue_PySDockTabType);
 	}
 	else
 	{
-		ret = it->second;
+		return py_ue_new_swidget<ue_PySWidget>(s_widget, &ue_PySWidgetType);
 	}
-	Py_INCREF(ret);
-	return ret;
-}
 
-void ue_py_setup_swidget(ue_PySWidget *self)
-{
-#if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Allocating new %s..."), UTF8_TO_TCHAR(self->ob_base.ob_type->tp_name));
-#endif
-	self->py_dict = PyDict_New();
-	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
-}
-
-void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget)
-{
-	(*py_slate_mapping)[s_widget] = py_s_widget;
-}
-
-void ue_py_unregister_swidget(SWidget *s_widget)
-{
-	(*py_slate_mapping).erase(s_widget);
 }
 
 void ue_python_init_slate(PyObject *module)
 {
-
-	py_slate_mapping = new std::map<SWidget *, ue_PySWidget *>();
 
 	ue_python_init_swidget(module);
 	ue_python_init_scompound_widget(module);
@@ -1423,15 +1397,14 @@ PyObject * py_unreal_engine_create_wrapper_from_pyswidget(PyObject *self, PyObje
 		return NULL;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_object);
-	if (!py_swidget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(py_object);
+	if (!Widget.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
 
-	Py_INCREF(py_swidget);
 	FPythonSWidgetWrapper py_swidget_wrapper;
-	py_swidget_wrapper.Widget = py_swidget->s_widget;
+	py_swidget_wrapper.Widget = Widget;
 	return py_ue_new_uscriptstruct(FPythonSWidgetWrapper::StaticStruct(), (uint8 *)&py_swidget_wrapper);
 }
 

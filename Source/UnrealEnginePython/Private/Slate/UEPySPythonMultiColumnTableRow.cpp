@@ -3,9 +3,6 @@
 
 #include "UEPySPythonMultiColumnTableRow.h"
 
-
-#define sw_python_multicolumn_table_row StaticCastSharedRef<SPythonMultiColumnTableRow>(self->s_compound_widget.s_widget.s_widget)
-
 static PyMethodDef ue_PySPythonMultiColumnTableRow_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -41,38 +38,40 @@ PyTypeObject ue_PySPythonMultiColumnTableRowType = {
 	ue_PySPythonMultiColumnTableRow_methods,             /* tp_methods */
 };
 
-static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTableRow *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTableRow *self, PyObject *args, PyObject *kwargs)
+{
 
-    PyObject *py_object = nullptr;
-    if (!PyArg_ParseTuple(args, "O", &py_object))
-    {
-        return -1;
-    }
+	PyObject *py_object = nullptr;
+	if (!PyArg_ParseTuple(args, "O", &py_object))
+	{
+		return -1;
+	}
 
-    ue_PySTableViewBase* py_owner_table_view_base = py_ue_is_stable_view_base(py_object);
-    if (!py_owner_table_view_base) {
-        PyErr_SetString(PyExc_Exception, "Argument is not a STableViewBase");
-        return -1;
-    }
+	ue_PySTableViewBase* py_owner_table_view_base = py_ue_is_stable_view_base(py_object);
+	if (!py_owner_table_view_base)
+	{
+		PyErr_SetString(PyExc_Exception, "Argument is not a STableViewBase");
+		return -1;
+	}
 
-    Py_INCREF(py_owner_table_view_base);
-    ue_py_snew_simple_with_req_args(
-        SPythonMultiColumnTableRow, s_compound_widget.s_widget, 
-        StaticCastSharedRef<STableViewBase>(py_owner_table_view_base->s_compound_widget.s_widget.s_widget),
-        (PyObject *)self);
+	Py_INCREF(py_owner_table_view_base);
+	ue_py_snew_simple_with_req_args(
+		SPythonMultiColumnTableRow,
+		StaticCastSharedRef<STableViewBase>(py_owner_table_view_base->s_compound_widget.s_widget.Widget),
+		(PyObject *)self);
 	return 0;
 }
 
 void ue_python_init_spython_multicolumn_table_row(PyObject *ue_module)
 {
-    ue_PySPythonMultiColumnTableRowType.tp_base = &ue_PySCompoundWidgetType;
-    ue_PySPythonMultiColumnTableRowType.tp_init = (initproc)ue_py_spython_multicolumn_table_row_init;
+	ue_PySPythonMultiColumnTableRowType.tp_base = &ue_PySCompoundWidgetType;
+	ue_PySPythonMultiColumnTableRowType.tp_init = (initproc)ue_py_spython_multicolumn_table_row_init;
 
-    if (PyType_Ready(&ue_PySPythonMultiColumnTableRowType) < 0)
-        return;
+	if (PyType_Ready(&ue_PySPythonMultiColumnTableRowType) < 0)
+		return;
 
-    Py_INCREF(&ue_PySPythonMultiColumnTableRowType);
-    PyModule_AddObject(ue_module, "SPythonMultiColumnTableRow", (PyObject *)&ue_PySPythonMultiColumnTableRowType);
+	Py_INCREF(&ue_PySPythonMultiColumnTableRowType);
+	PyModule_AddObject(ue_module, "SPythonMultiColumnTableRow", (PyObject *)&ue_PySPythonMultiColumnTableRowType);
 }
 
 ue_PySPythonMultiColumnTableRow *py_ue_is_spython_multicolumn_table_row(PyObject *obj)

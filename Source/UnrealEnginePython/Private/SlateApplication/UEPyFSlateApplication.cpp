@@ -64,15 +64,13 @@ static PyObject *py_ue_set_all_user_focus(PyObject *cls, PyObject * args)
 		return nullptr;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
-	if (!py_swidget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(py_widget);
+	if (!Widget.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
 
-	TSharedPtr<SWidget> widget_ptr(py_swidget->s_widget);
-
-	FSlateApplication::Get().SetAllUserFocus(widget_ptr, (EFocusCause)focus_cause);
+	FSlateApplication::Get().SetAllUserFocus(Widget, (EFocusCause)focus_cause);
 
 	Py_RETURN_NONE;
 }

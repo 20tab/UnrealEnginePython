@@ -32,7 +32,7 @@ static PyObject *py_ue_fmenu_builder_end_section(ue_PyFMenuBuilder *self, PyObje
 static PyObject *py_ue_fmenu_builder_make_widget(ue_PyFMenuBuilder *self, PyObject * args)
 {
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
-	new (&ret->s_widget) TSharedRef<SWidget>(self->menu_builder.MakeWidget());
+	new (&ret->Widget) TSharedRef<SWidget>(self->menu_builder.MakeWidget());
 	return (PyObject *)ret;
 }
 

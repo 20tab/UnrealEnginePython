@@ -46,7 +46,7 @@ static int ue_py_sspacer_init(ue_PySSpacer *self, PyObject *args, PyObject *kwar
 
 	ue_py_slate_farguments_fvector2d("size", Size);
 
-	ue_py_snew(SSpacer, s_leaf_widget.s_widget);
+	ue_py_snew(SSpacer);
 	return 0;
 }
 

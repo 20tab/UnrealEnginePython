@@ -71,7 +71,7 @@ static int ue_py_snumeric_entry_box_init(ue_PySNumericEntryBox *self, PyObject *
         ue_py_slate_farguments_event("on_value_changed", OnValueChanged, FOnInt32ValueChanged, OnInt32Changed);
         ue_py_slate_farguments_event("on_value_committed", OnValueCommitted, FOnInt32ValueCommitted, OnInt32Committed);
 
-        ue_py_snew(SNumericEntryBox<int32>, s_compound_widget.s_widget);
+        ue_py_snew(SNumericEntryBox<int32>);
     }
     else
     {
@@ -99,7 +99,7 @@ static int ue_py_snumeric_entry_box_init(ue_PySNumericEntryBox *self, PyObject *
 	    ue_py_slate_farguments_event("on_value_changed", OnValueChanged, FOnFloatValueChanged, OnFloatChanged);
 	    ue_py_slate_farguments_event("on_value_committed", OnValueCommitted, FOnFloatValueCommitted, OnFloatCommitted);
 	
-	    ue_py_snew(SNumericEntryBox<float>, s_compound_widget.s_widget);
+	    ue_py_snew(SNumericEntryBox<float>);
     }
 
 	return 0;

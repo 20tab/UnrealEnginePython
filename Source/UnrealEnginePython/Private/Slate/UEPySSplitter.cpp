@@ -3,10 +3,9 @@
 
 #include "UEPySSplitter.h"
 
-#define sw_splitter StaticCastSharedRef<SSplitter>(self->s_panel.s_widget.s_widget)
-
 static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args, PyObject *kwargs)
 {
+	ue_py_slate_cast(SSplitter);
 	PyObject *py_content;
 	int index = -1;
 	float size_value = -1;
@@ -23,15 +22,13 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
 		return nullptr;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget)
+	TSharedPtr<SWidget> Child = py_ue_is_swidget<SWidget>(py_content);
+	if (!Child.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
 
-	Py_INCREF(py_swidget);
-
-	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
+	SSplitter::FSlot &fslot = py_SSplitter->AddSlot(index);
 	if (size_value > -1)
 	{
 		fslot.SizeValue = size_value;
@@ -40,10 +37,9 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
 	{
 		fslot.SizingRule = (SSplitter::ESizeRule)sizing_rule;
 	}
-	fslot.AttachWidget(py_swidget->s_widget->AsShared());
+	fslot.AttachWidget(Child.ToSharedRef());
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySSplitter_methods[] = {
@@ -94,7 +90,7 @@ static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *
 	ue_py_slate_farguments_optional_enum("resize_mode", ResizeMode, ESplitterResizeMode::Type);
 	ue_py_slate_farguments_optional_struct_ptr("style", Style, FSplitterStyle);
 
-	ue_py_snew(SSplitter, s_panel.s_widget);
+	ue_py_snew(SSplitter);
 	return 0;
 }
 

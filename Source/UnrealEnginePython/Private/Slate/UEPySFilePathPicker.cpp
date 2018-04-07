@@ -3,8 +3,6 @@
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 13
-#define sw_file_path_picker StaticCastSharedRef<SFilePathPicker>(self->s_compound_widget.s_widget.s_widget)
-
 
 static PyMethodDef ue_PySFilePathPicker_methods[] = {
 	{ NULL }  /* Sentinel */
@@ -41,7 +39,8 @@ PyTypeObject ue_PySFilePathPickerType = {
 	ue_PySFilePathPicker_methods,             /* tp_methods */
 };
 
-static int ue_py_sfile_path_picker_init(ue_PySFilePathPicker *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sfile_path_picker_init(ue_PySFilePathPicker *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SFilePathPicker);
 
 	ue_py_slate_farguments_optional_struct_ptr("browse_button_image", BrowseButtonImage, FSlateBrush);
@@ -55,11 +54,12 @@ static int ue_py_sfile_path_picker_init(ue_PySFilePathPicker *self, PyObject *ar
 	ue_py_slate_farguments_bool("is_read_only", IsReadOnly);
 	ue_py_slate_farguments_event("on_path_picked", OnPathPicked, FOnPathPicked, OnStringChanged);
 
-	ue_py_snew(SFilePathPicker, s_compound_widget.s_widget);
+	ue_py_snew(SFilePathPicker);
 	return 0;
 }
 
-void ue_python_init_sfile_path_picker(PyObject *ue_module) {
+void ue_python_init_sfile_path_picker(PyObject *ue_module)
+{
 
 	ue_PySFilePathPickerType.tp_init = (initproc)ue_py_sfile_path_picker_init;
 
