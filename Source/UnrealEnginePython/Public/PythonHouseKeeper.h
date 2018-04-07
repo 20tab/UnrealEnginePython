@@ -193,7 +193,7 @@ public:
 			FPythonSWidgetDelegateTracker &Tracker = PySlateDelegatesTracker[i];
 			if (!Tracker.Owner.IsValid())
 			{
-				PyDelegatesTracker.RemoveAt(i);
+				PySlateDelegatesTracker.RemoveAt(i);
 				Garbaged++;
 			}
 
@@ -224,6 +224,20 @@ public:
 		PySlateDelegatesTracker.Add(Tracker);
 
 		return Delegate;
+	}
+
+	TSharedRef<FPythonSlateDelegate> NewDeferredSlateDelegate(PyObject *PyCallable)
+	{
+		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
+		Delegate->SetPyCallable(PyCallable);
+
+		return Delegate;
+	}
+
+	void TrackDeferredSlateDelegate(TSharedRef<FPythonSlateDelegate> Delegate, TSharedRef<SWidget> Owner)
+	{
+		FPythonSWidgetDelegateTracker Tracker(Delegate, Owner);
+		PySlateDelegatesTracker.Add(Tracker);
 	}
 
 	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable)
