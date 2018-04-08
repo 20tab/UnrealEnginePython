@@ -1,6 +1,6 @@
-#if WITH_EDITOR
-
 #include "UnrealEnginePythonPrivatePCH.h"
+
+#if WITH_EDITOR
 
 static PyObject *py_ue_fsoft_skin_vertex_get_color(ue_PyFSoftSkinVertex *self, void *closure)
 {

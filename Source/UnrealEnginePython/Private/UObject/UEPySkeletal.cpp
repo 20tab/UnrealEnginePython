@@ -198,6 +198,7 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
 #endif
 
 #if WITH_EDITOR
+
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * args)
 {
@@ -276,6 +277,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 
 }
 #endif
+
 
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * args)
@@ -392,6 +394,7 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 	return py_list;
 }
 
+
 PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * args)
 {
 
@@ -437,6 +440,7 @@ PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * arg
 	return py_list;
 }
 
+#endif
 
 PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 {
@@ -473,6 +477,7 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+#if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 {
@@ -809,7 +814,9 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 
 	Py_RETURN_NONE;
 }
+#endif
 
+#if WITH_EDITOR
 PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -1211,5 +1218,4 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 
 	return py_list;
 }
-
 #endif

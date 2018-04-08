@@ -56,7 +56,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 			if (prop->PropertyFlags & CPF_ReturnParm)
 				continue;
 			if (!on_error) {
-				PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals);
+				PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals, 0);
 				if (!arg) {
 					unreal_engine_py_log_error();
 					on_error = true;
@@ -76,7 +76,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 			if (prop->PropertyFlags & CPF_ReturnParm)
 				continue;
 			if (!on_error) {
-				PyObject *arg = ue_py_convert_property(prop, frame);
+				PyObject *arg = ue_py_convert_property(prop, frame, 0);
 				if (!arg) {
 					unreal_engine_py_log_error();
 					on_error = true;
@@ -108,7 +108,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 #if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("FOUND RETURN VALUE"));
 #endif
-		if (ue_py_convert_pyobject(ret, return_property, frame)) {
+		if (ue_py_convert_pyobject(ret, return_property, frame, 0)) {
 			// copy value to stack result value
 			FMemory::Memcpy(RESULT_PARAM, frame + function->ReturnValueOffset, return_property->ArrayDim * return_property->ElementSize);
 		}

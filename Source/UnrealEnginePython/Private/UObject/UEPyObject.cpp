@@ -1338,7 +1338,8 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 
 	char *property_name;
 	PyObject *property_value;
-	if (!PyArg_ParseTuple(args, "sO:set_property", &property_name, &property_value))
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "sO|i:set_property", &property_name, &property_value, &index))
 	{
 		return NULL;
 	}
@@ -1359,7 +1360,7 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
 
-	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object))
+	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object, index))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
 	}
@@ -1637,7 +1638,8 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_property", &property_name))
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "s|i:get_property", &property_name, &index))
 	{
 		return NULL;
 	}
@@ -1657,7 +1659,36 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
+	return ue_py_convert_property(u_property, (uint8 *)self->ue_object, index);
+}
+
+PyObject *py_ue_get_property_array_dim(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_property_array_dim", &property_name))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UClass>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	return PyLong_FromLongLong(u_property->ArrayDim);
 }
 
 #if WITH_EDITOR
@@ -2312,7 +2343,7 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args)
 	TFieldIterator<UProperty> SArgs(u_struct);
 	for (; SArgs; ++SArgs)
 	{
-		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object);
+		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object, 0);
 		if (!struct_value)
 		{
 			Py_DECREF(py_struct_dict);

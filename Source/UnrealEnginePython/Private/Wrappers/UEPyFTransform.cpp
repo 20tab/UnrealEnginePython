@@ -29,7 +29,9 @@ static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, 
 
 static PyObject *py_ue_ftransform_get_matrix(ue_PyFTransform *self, PyObject * args)
 {
-	FMatrix matrix = py_ue_ftransform_get(self).ToMatrixWithScale();
+	FTransform transform = py_ue_ftransform_get(self);
+	transform.NormalizeRotation();
+	FMatrix matrix = transform.ToMatrixWithScale();
 	UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR("Matrix"));
 	if (!u_struct)
 	{
@@ -330,11 +332,11 @@ PyObject *py_ue_new_ftransform(const FTransform& transform)
 
 PyObject* py_ue_new_ftransform_ptr(FTransform* transform_ptr)
 {
-    ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
+	ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
 
     ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FTransform>::Get(), (uint8*)transform_ptr, true);
 
-    return (PyObject *)ret;
+	return (PyObject *)ret;
 }
 
 ue_PyFTransform *py_ue_is_ftransform(PyObject *obj)
