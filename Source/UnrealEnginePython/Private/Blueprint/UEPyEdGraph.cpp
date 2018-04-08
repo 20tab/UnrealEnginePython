@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyEdGraph.h"
 
 #if WITH_EDITOR
 

@@ -1,4 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyModule.h"
+#include "PythonClass.h"
+#include "UObject/UEPyObject.h"
 
 int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 {

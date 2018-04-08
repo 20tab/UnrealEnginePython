@@ -1,4 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPyTicker.h"
 

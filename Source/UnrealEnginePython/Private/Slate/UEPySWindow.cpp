@@ -1,11 +1,11 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySWindow.h"
 
 #if WITH_EDITOR
 #include "Editor/MainFrame/Public/Interfaces/IMainFrameModule.h"
 #endif
 
-#include "UEPySWindow.h"
+
 
 static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args)
 {

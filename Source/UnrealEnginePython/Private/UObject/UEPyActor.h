@@ -2,7 +2,18 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
+#include "EngineUtils.h"
+
+#include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
+#include "Runtime/LevelSequence/Public/LevelSequence.h"
+
+#include "PythonComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Wrappers/UEPyFVector.h"
+#include "Wrappers/UEPyFRotator.h"
+#include "UObject/UEPyObject.h"
+#include "UObject/UObjectThreadContext.h"
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_begin_play(ue_PyUObject *, PyObject *);

@@ -1,4 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPyFSlateStyleSet.h"
 #include "SlateTypes.h"
@@ -89,123 +88,124 @@ static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject 
 	return PyErr_Format(PyExc_ValueError, "unsupported value type");
 }
 
-namespace {
-    template <typename WidgetStyleType> 
-    PyObject* pyGetWidgetStyle(FSlateStyleSet& InStyle, FName PropertyName)
-    {
-        const WidgetStyleType styleWidgetStyle = InStyle.GetWidgetStyle<WidgetStyleType>(PropertyName);
-        return py_ue_new_uscriptstruct(WidgetStyleType::StaticStruct(), (uint8*)&styleWidgetStyle);
-    }
+namespace
+{
+	template <typename WidgetStyleType>
+	PyObject* pyGetWidgetStyle(FSlateStyleSet& InStyle, FName PropertyName)
+	{
+		const WidgetStyleType styleWidgetStyle = InStyle.GetWidgetStyle<WidgetStyleType>(PropertyName);
+		return py_ue_new_uscriptstruct(WidgetStyleType::StaticStruct(), (uint8*)&styleWidgetStyle);
+	}
 }
 
 static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject * args)
 {
-    if (!(self && self->style_set))
-        return PyErr_Format(PyExc_Exception, "fstyleset is in invalid state");
+	if (!(self && self->style_set))
+		return PyErr_Format(PyExc_Exception, "fstyleset is in invalid state");
 
-	char *name         = nullptr;
-    PyObject *py_type  = nullptr;
+	char *name = nullptr;
+	PyObject *py_type = nullptr;
 
 	if (!PyArg_ParseTuple(args, "sO:get", &name, &py_type))
 		return NULL;
 
-    PyObject *ret = nullptr;
+	PyObject *ret = nullptr;
 
 	if (ue_py_check_struct<FSlateSound>(py_type))
 	{
-        const FSlateSound& styleSound = self->style_set->GetSound(FName(name));
-        ret = py_ue_new_uscriptstruct(FSlateSound::StaticStruct(), (uint8*)&styleSound);
+		const FSlateSound& styleSound = self->style_set->GetSound(FName(name));
+		ret = py_ue_new_uscriptstruct(FSlateSound::StaticStruct(), (uint8*)&styleSound);
 	}
 	else if (ue_py_check_struct<FSlateBrush>(py_type))
 	{
-        if (const FSlateBrush* styleBrush = self->style_set->GetBrush(FName(name)))
-        {
-            ret = py_ue_new_uscriptstruct(FSlateBrush::StaticStruct(), (uint8*)styleBrush);
-        }
+		if (const FSlateBrush* styleBrush = self->style_set->GetBrush(FName(name)))
+		{
+			ret = py_ue_new_uscriptstruct(FSlateBrush::StaticStruct(), (uint8*)styleBrush);
+		}
 	}
 	else if (ue_py_check_struct<FSlateColor>(py_type))
 	{
-        const FSlateColor styleSlateColor = self->style_set->GetSlateColor(FName(name));
-        ret = py_ue_new_uscriptstruct(FSlateColor::StaticStruct(), (uint8*)&styleSlateColor);
+		const FSlateColor styleSlateColor = self->style_set->GetSlateColor(FName(name));
+		ret = py_ue_new_uscriptstruct(FSlateColor::StaticStruct(), (uint8*)&styleSlateColor);
 	}
-    else if (ue_py_check_struct<FSlateFontInfo>(py_type))
+	else if (ue_py_check_struct<FSlateFontInfo>(py_type))
 	{
-        const FSlateFontInfo styleFontInfo = self->style_set->GetFontStyle(FName(name));
-        ret = py_ue_new_uscriptstruct(FSlateFontInfo::StaticStruct(), (uint8*)&styleFontInfo);
+		const FSlateFontInfo styleFontInfo = self->style_set->GetFontStyle(FName(name));
+		ret = py_ue_new_uscriptstruct(FSlateFontInfo::StaticStruct(), (uint8*)&styleFontInfo);
 	}
-    else if (ue_py_check_childstruct<FSlateWidgetStyle>(py_type))
-    {
+	else if (ue_py_check_childstruct<FSlateWidgetStyle>(py_type))
+	{
 
-        typedef TFunction<PyObject* (FSlateStyleSet&, FName)> WStyleGetter;
-        typedef TPair<UScriptStruct*, WStyleGetter> WStylePair;
+		typedef TFunction<PyObject* (FSlateStyleSet&, FName)> WStyleGetter;
+		typedef TPair<UScriptStruct*, WStyleGetter> WStylePair;
 #if ENGINE_MINOR_VERSION > 15
-        static const WStylePair validWidgetStyleUStructList[] = {
-            WStylePair{ FTextBlockStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTextBlockStyle>              (InStyle, InName); }) },
-            WStylePair{ FButtonStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FButtonStyle>                 (InStyle, InName); }) },
-            WStylePair{ FComboButtonStyle::StaticStruct()            , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FComboButtonStyle>            (InStyle, InName); }) },
-            WStylePair{ FComboBoxStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FComboBoxStyle>               (InStyle, InName); }) },
-            WStylePair{ FHyperlinkStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FHyperlinkStyle>              (InStyle, InName); }) },
-            WStylePair{ FEditableTextStyle::StaticStruct()           , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FEditableTextStyle>           (InStyle, InName); }) },
-            WStylePair{ FScrollBarStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBarStyle>              (InStyle, InName); }) },
-            WStylePair{ FEditableTextBoxStyle::StaticStruct()        , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FEditableTextBoxStyle>        (InStyle, InName); }) },
-            WStylePair{ FInlineEditableTextBlockStyle::StaticStruct(), WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FInlineEditableTextBlockStyle>(InStyle, InName); }) },
-            WStylePair{ FProgressBarStyle::StaticStruct()            , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FProgressBarStyle>            (InStyle, InName); }) },
-            WStylePair{ FExpandableAreaStyle::StaticStruct()         , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FExpandableAreaStyle>         (InStyle, InName); }) },
-            WStylePair{ FSearchBoxStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSearchBoxStyle>              (InStyle, InName); }) },
-            WStylePair{ FSliderStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSliderStyle>                 (InStyle, InName); }) },
-            WStylePair{ FVolumeControlStyle::StaticStruct()          , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FVolumeControlStyle>          (InStyle, InName); }) },
-            WStylePair{ FInlineTextImageStyle::StaticStruct()        , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FInlineTextImageStyle>        (InStyle, InName); }) },
-            WStylePair{ FSpinBoxStyle::StaticStruct()                , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSpinBoxStyle>                (InStyle, InName); }) },
-            WStylePair{ FSplitterStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSplitterStyle>               (InStyle, InName); }) },
-            WStylePair{ FTableRowStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTableRowStyle>               (InStyle, InName); }) },
-            WStylePair{ FTableColumnHeaderStyle::StaticStruct()      , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTableColumnHeaderStyle>      (InStyle, InName); }) },
-            WStylePair{ FHeaderRowStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FHeaderRowStyle>              (InStyle, InName); }) },
-            WStylePair{ FDockTabStyle::StaticStruct()                , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FDockTabStyle>                (InStyle, InName); }) },
-            WStylePair{ FScrollBoxStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBoxStyle>              (InStyle, InName); }) },
-            WStylePair{ FScrollBorderStyle::StaticStruct()           , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBorderStyle>           (InStyle, InName); }) },
-            WStylePair{ FWindowStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FWindowStyle>                 (InStyle, InName); }) },
-        };
+		static const WStylePair validWidgetStyleUStructList[] = {
+			WStylePair{ FTextBlockStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTextBlockStyle>(InStyle, InName); }) },
+			WStylePair{ FButtonStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FButtonStyle>(InStyle, InName); }) },
+			WStylePair{ FComboButtonStyle::StaticStruct()            , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FComboButtonStyle>(InStyle, InName); }) },
+			WStylePair{ FComboBoxStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FComboBoxStyle>(InStyle, InName); }) },
+			WStylePair{ FHyperlinkStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FHyperlinkStyle>(InStyle, InName); }) },
+			WStylePair{ FEditableTextStyle::StaticStruct()           , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FEditableTextStyle>(InStyle, InName); }) },
+			WStylePair{ FScrollBarStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBarStyle>(InStyle, InName); }) },
+			WStylePair{ FEditableTextBoxStyle::StaticStruct()        , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FEditableTextBoxStyle>(InStyle, InName); }) },
+			WStylePair{ FInlineEditableTextBlockStyle::StaticStruct(), WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FInlineEditableTextBlockStyle>(InStyle, InName); }) },
+			WStylePair{ FProgressBarStyle::StaticStruct()            , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FProgressBarStyle>(InStyle, InName); }) },
+			WStylePair{ FExpandableAreaStyle::StaticStruct()         , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FExpandableAreaStyle>(InStyle, InName); }) },
+			WStylePair{ FSearchBoxStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSearchBoxStyle>(InStyle, InName); }) },
+			WStylePair{ FSliderStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSliderStyle>(InStyle, InName); }) },
+			WStylePair{ FVolumeControlStyle::StaticStruct()          , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FVolumeControlStyle>(InStyle, InName); }) },
+			WStylePair{ FInlineTextImageStyle::StaticStruct()        , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FInlineTextImageStyle>(InStyle, InName); }) },
+			WStylePair{ FSpinBoxStyle::StaticStruct()                , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSpinBoxStyle>(InStyle, InName); }) },
+			WStylePair{ FSplitterStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FSplitterStyle>(InStyle, InName); }) },
+			WStylePair{ FTableRowStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTableRowStyle>(InStyle, InName); }) },
+			WStylePair{ FTableColumnHeaderStyle::StaticStruct()      , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTableColumnHeaderStyle>(InStyle, InName); }) },
+			WStylePair{ FHeaderRowStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FHeaderRowStyle>(InStyle, InName); }) },
+			WStylePair{ FDockTabStyle::StaticStruct()                , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FDockTabStyle>(InStyle, InName); }) },
+			WStylePair{ FScrollBoxStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBoxStyle>(InStyle, InName); }) },
+			WStylePair{ FScrollBorderStyle::StaticStruct()           , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FScrollBorderStyle>(InStyle, InName); }) },
+			WStylePair{ FWindowStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FWindowStyle>(InStyle, InName); }) },
+		};
 
-        
-        for(WStylePair widgetStyleUStruct : validWidgetStyleUStructList)
-        {
-            if (do_ue_py_check_struct(py_type, widgetStyleUStruct.Key))
-            {
-                ret = widgetStyleUStruct.Value(*self->style_set, FName(name));
-                break;
-            }
-        }
+
+		for (WStylePair widgetStyleUStruct : validWidgetStyleUStructList)
+		{
+			if (do_ue_py_check_struct(py_type, widgetStyleUStruct.Key))
+			{
+				ret = widgetStyleUStruct.Value(*self->style_set, FName(name));
+				break;
+			}
+		}
 #endif
-        
-        if (!ret)
-        {
-            return PyErr_Format(PyExc_ValueError, "Unsupported FSlateWidgetStyle type. Add it manually.");
-        }
-    }
-    else if (py_ue_is_flinearcolor(py_type))
-	{
-        ret = py_ue_new_flinearcolor(self->style_set->GetColor(FName(name)));
-	}
-    else if (PyNumber_Check(py_type))
-	{
-        ret = PyFloat_FromDouble(self->style_set->GetFloat(FName(name)));
-	}
-    else
-    {
-        return PyErr_Format(PyExc_ValueError, "unsupported value type");
-    }
 
-    if (!ret)
-        return PyErr_Format(PyExc_Exception, "Retrieved style object is in invalid state");
+		if (!ret)
+		{
+			return PyErr_Format(PyExc_ValueError, "Unsupported FSlateWidgetStyle type. Add it manually.");
+		}
+	}
+	else if (py_ue_is_flinearcolor(py_type))
+	{
+		ret = py_ue_new_flinearcolor(self->style_set->GetColor(FName(name)));
+	}
+	else if (PyNumber_Check(py_type))
+	{
+		ret = PyFloat_FromDouble(self->style_set->GetFloat(FName(name)));
+	}
+	else
+	{
+		return PyErr_Format(PyExc_ValueError, "unsupported value type");
+	}
 
-    return ret;
+	if (!ret)
+		return PyErr_Format(PyExc_Exception, "Retrieved style object is in invalid state");
+
+	return ret;
 
 }
 
 static PyMethodDef ue_PyFSlateStyleSet_methods[] = {
 	{ "set_content_root", (PyCFunction)py_ue_fslate_style_set_set_content_root, METH_VARARGS, "" },
 	{ "set", (PyCFunction)py_ue_fslate_style_set_set, METH_VARARGS, "" },
-    { "get", (PyCFunction)py_ue_fslate_style_set_get, METH_VARARGS, "" },
+	{ "get", (PyCFunction)py_ue_fslate_style_set_get, METH_VARARGS, "" },
 	{ "register", (PyCFunction)py_ue_fslate_style_set_register, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
@@ -255,16 +255,16 @@ static int ue_py_fslate_style_set_init(ue_PyFSlateStyleSet *self, PyObject *args
 	{
 		return -1;
 	}
-    //TODO: roberto: ikrimae- I think this leaks? How is FSlateIcon destroyed ever?
+	//TODO: roberto: ikrimae- I think this leaks? How is FSlateIcon destroyed ever?
 	self->style_set = new FSlateStyleSet(name);
 	return 0;
 }
 
 ue_PyFSlateStyleSet* py_ue_new_fslate_style_set(FSlateStyleSet* styleSet)
 {
-    ue_PyFSlateStyleSet *ret = (ue_PyFSlateStyleSet *)PyObject_New(ue_PyFSlateStyleSet, &ue_PyFSlateStyleSetType);
-    ret->style_set           = styleSet;
-    return ret;
+	ue_PyFSlateStyleSet *ret = (ue_PyFSlateStyleSet *)PyObject_New(ue_PyFSlateStyleSet, &ue_PyFSlateStyleSetType);
+	ret->style_set = styleSet;
+	return ret;
 }
 
 void ue_python_init_fslate_style_set(PyObject *ue_module)

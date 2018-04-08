@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyAudio.h"
 #include "Sound/SoundWaveProcedural.h"
 
 PyObject *py_ue_queue_audio(ue_PyUObject *self, PyObject * args) {

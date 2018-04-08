@@ -1,12 +1,11 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
-
 #include "UEPyFInputEvent.h"
 
 extern PyTypeObject ue_PyFInputEventType;
 
-typedef struct {
+typedef struct
+{
 	/* Type-specific fields go here. */
 	ue_PyFInputEvent f_input;
 	FCharacterEvent character_event;

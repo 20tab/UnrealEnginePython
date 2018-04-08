@@ -1,6 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyNavigation.h"
 
-
+#include "AI/Navigation/NavigationSystem.h"
 
 PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args)
 {

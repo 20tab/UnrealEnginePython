@@ -2,7 +2,7 @@
 
 
 #include "GameFramework/Actor.h"
-
+#include "UEPyModule.h"
 #include "PyActor.generated.h"
 
 

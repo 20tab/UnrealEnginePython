@@ -1,8 +1,10 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySkeletal.h"
 
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
 #if WITH_EDITOR
 #include "Developer/MeshUtilities/Public/MeshUtilities.h"
+#include "Wrappers/UEPyFMorphTargetDelta.h"
+#include "Wrappers/UEPyFSoftSkinVertex.h"
 #if ENGINE_MINOR_VERSION > 18
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshModel.h"
 #endif

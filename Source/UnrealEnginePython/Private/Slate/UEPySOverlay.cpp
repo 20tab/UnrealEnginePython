@@ -1,7 +1,6 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
-#include "UEPySBox.h"
+#include "UEPySOverlay.h"
 
 static PyObject *py_ue_soverlay_add_slot(ue_PySOverlay *self, PyObject * args, PyObject *kwargs)
 {

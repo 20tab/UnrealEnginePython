@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyWidgetComponent.h"
 
 
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"

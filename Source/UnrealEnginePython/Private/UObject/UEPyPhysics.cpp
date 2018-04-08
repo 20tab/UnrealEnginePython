@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyPhysics.h"
 
 #if ENGINE_MINOR_VERSION >= 18
 #include "Runtime/Engine/Public/DestructibleInterface.h"

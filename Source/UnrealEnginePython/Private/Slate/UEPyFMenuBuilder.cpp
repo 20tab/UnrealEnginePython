@@ -1,12 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFMenuBuilder.h"
 
-#include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
-#if WITH_EDITOR
-#include "Developer/AssetTools/Public/AssetToolsModule.h"
-#include "Developer/AssetTools/Public/IAssetTools.h"
-#endif
+
 
 static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args)
 {

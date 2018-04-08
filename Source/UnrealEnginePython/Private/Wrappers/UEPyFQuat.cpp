@@ -1,9 +1,11 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFQuat.h"
 
 #if ENGINE_MINOR_VERSION > 12
-static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args)
+{
 	FQuat q;
-	if (!py_ue_quat_arg(args, q)) {
+	if (!py_ue_quat_arg(args, q))
+	{
 		return nullptr;
 	}
 
@@ -11,31 +13,38 @@ static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args)
 }
 #endif
 
-static PyObject *py_ue_fquat_euler(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_euler(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fvector(self->quat.Euler());
 }
 
-static PyObject *py_ue_fquat_get_axis_x(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_get_axis_x(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fvector(self->quat.GetAxisX());
 }
 
-static PyObject *py_ue_fquat_get_axis_y(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_get_axis_y(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fvector(self->quat.GetAxisY());
 }
 
-static PyObject *py_ue_fquat_get_axis_z(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_get_axis_z(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fvector(self->quat.GetAxisZ());
 }
 
-static PyObject *py_ue_fquat_inverse(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_inverse(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fquat(self->quat.Inverse());
 }
 
-static PyObject *py_ue_fquat_get_normalized(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_get_normalized(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fquat(self->quat.GetNormalized());
 }
 
-static PyObject *py_ue_fquat_vector(ue_PyFQuat *self, PyObject * args) {
+static PyObject *py_ue_fquat_vector(ue_PyFQuat *self, PyObject * args)
+{
 	return py_ue_new_fvector(self->quat.Vector());
 }
 
@@ -57,12 +66,15 @@ static PyMethodDef ue_PyFQuat_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static PyObject *py_ue_fquat_get_x(ue_PyFQuat *self, void *closure) {
+static PyObject *py_ue_fquat_get_x(ue_PyFQuat *self, void *closure)
+{
 	return PyFloat_FromDouble(self->quat.X);
 }
 
-static int py_ue_fquat_set_x(ue_PyFQuat *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fquat_set_x(ue_PyFQuat *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *f_value = PyNumber_Float(value);
 		self->quat.X = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
@@ -72,12 +84,15 @@ static int py_ue_fquat_set_x(ue_PyFQuat *self, PyObject *value, void *closure) {
 	return -1;
 }
 
-static PyObject *py_ue_fquat_get_y(ue_PyFQuat *self, void *closure) {
+static PyObject *py_ue_fquat_get_y(ue_PyFQuat *self, void *closure)
+{
 	return PyFloat_FromDouble(self->quat.Y);
 }
 
-static int py_ue_fquat_set_y(ue_PyFQuat *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fquat_set_y(ue_PyFQuat *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *f_value = PyNumber_Float(value);
 		self->quat.Y = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
@@ -87,12 +102,15 @@ static int py_ue_fquat_set_y(ue_PyFQuat *self, PyObject *value, void *closure) {
 	return -1;
 }
 
-static PyObject *py_ue_fquat_get_z(ue_PyFQuat *self, void *closure) {
+static PyObject *py_ue_fquat_get_z(ue_PyFQuat *self, void *closure)
+{
 	return PyFloat_FromDouble(self->quat.Z);
 }
 
-static int py_ue_fquat_set_z(ue_PyFQuat *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fquat_set_z(ue_PyFQuat *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *f_value = PyNumber_Float(value);
 		self->quat.Z = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
@@ -102,12 +120,15 @@ static int py_ue_fquat_set_z(ue_PyFQuat *self, PyObject *value, void *closure) {
 	return -1;
 }
 
-static PyObject *py_ue_fquat_get_w(ue_PyFQuat *self, void *closure) {
+static PyObject *py_ue_fquat_get_w(ue_PyFQuat *self, void *closure)
+{
 	return PyFloat_FromDouble(self->quat.W);
 }
 
-static int py_ue_fquat_set_w(ue_PyFQuat *self, PyObject *value, void *closure) {
-	if (value && PyNumber_Check(value)) {
+static int py_ue_fquat_set_w(ue_PyFQuat *self, PyObject *value, void *closure)
+{
+	if (value && PyNumber_Check(value))
+	{
 		PyObject *f_value = PyNumber_Float(value);
 		self->quat.W = PyFloat_AsDouble(f_value);
 		Py_DECREF(f_value);
@@ -169,34 +190,42 @@ static PyTypeObject ue_PyFQuatType = {
 };
 
 
-static PyObject *ue_py_fquat_add(ue_PyFQuat *self, PyObject *value) {
+static PyObject *ue_py_fquat_add(ue_PyFQuat *self, PyObject *value)
+{
 	FQuat quat = self->quat;
 	ue_PyFQuat *py_quat = py_ue_is_fquat(value);
-	if (py_quat) {
+	if (py_quat)
+	{
 		quat += py_quat->quat;
 	}
 	return py_ue_new_fquat(quat);
 }
 
-static PyObject *ue_py_fquat_sub(ue_PyFQuat *self, PyObject *value) {
+static PyObject *ue_py_fquat_sub(ue_PyFQuat *self, PyObject *value)
+{
 	FQuat quat = self->quat;
 	ue_PyFQuat *py_quat = py_ue_is_fquat(value);
-	if (py_quat) {
+	if (py_quat)
+	{
 		quat -= py_quat->quat;
 	}
 	return py_ue_new_fquat(quat);
 }
 
-static PyObject *ue_py_fquat_mul(ue_PyFQuat *self, PyObject *value) {
-	if (ue_PyFVector *py_vec = py_ue_is_fvector(value)) {
+static PyObject *ue_py_fquat_mul(ue_PyFQuat *self, PyObject *value)
+{
+	if (ue_PyFVector *py_vec = py_ue_is_fvector(value))
+	{
 		FVector vec = self->quat * py_vec->vec;
 		return py_ue_new_fvector(vec);
 	}
-	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value)) {
+	if (ue_PyFQuat *py_quat = py_ue_is_fquat(value))
+	{
 		FQuat quat = self->quat * py_quat->quat;
 		return py_ue_new_fquat(quat);
 	}
-	else if (PyNumber_Check(value)) {
+	else if (PyNumber_Check(value))
+	{
 		FQuat quat = self->quat;
 		PyObject *f_value = PyNumber_Float(value);
 		float f = PyFloat_AsDouble(f_value);
@@ -207,10 +236,12 @@ static PyObject *ue_py_fquat_mul(ue_PyFQuat *self, PyObject *value) {
 	return PyErr_Format(PyExc_TypeError, "unsupported argument type");
 }
 
-static PyObject *ue_py_fquat_div(ue_PyFQuat *self, PyObject *value) {
+static PyObject *ue_py_fquat_div(ue_PyFQuat *self, PyObject *value)
+{
 	FQuat quat = self->quat;
 
-	if (PyNumber_Check(value)) {
+	if (PyNumber_Check(value))
+	{
 		PyObject *f_value = PyNumber_Float(value);
 		float f = PyFloat_AsDouble(f_value);
 		if (f == 0)
@@ -225,12 +256,15 @@ static PyObject *ue_py_fquat_div(ue_PyFQuat *self, PyObject *value) {
 
 PyNumberMethods ue_PyFQuat_number_methods;
 
-static Py_ssize_t ue_py_fquat_seq_length(ue_PyFQuat *self) {
+static Py_ssize_t ue_py_fquat_seq_length(ue_PyFQuat *self)
+{
 	return 4;
 }
 
-static PyObject *ue_py_fquat_seq_item(ue_PyFQuat *self, Py_ssize_t i) {
-	switch (i) {
+static PyObject *ue_py_fquat_seq_item(ue_PyFQuat *self, Py_ssize_t i)
+{
+	switch (i)
+	{
 	case 0:
 		return PyFloat_FromDouble(self->quat.X);
 	case 1:
@@ -245,7 +279,8 @@ static PyObject *ue_py_fquat_seq_item(ue_PyFQuat *self, Py_ssize_t i) {
 
 PySequenceMethods ue_PyFQuat_sequence_methods;
 
-static int ue_py_fquat_init(ue_PyFQuat *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_fquat_init(ue_PyFQuat *self, PyObject *args, PyObject *kwargs)
+{
 	float x = 0, y = 0, z = 0, w = 1;
 	if (!PyArg_ParseTuple(args, "|ffff", &x, &y, &z, &w))
 		return -1;
@@ -258,7 +293,8 @@ static int ue_py_fquat_init(ue_PyFQuat *self, PyObject *args, PyObject *kwargs) 
 	return 0;
 }
 
-void ue_python_init_fquat(PyObject *ue_module) {
+void ue_python_init_fquat(PyObject *ue_module)
+{
 	ue_PyFQuatType.tp_new = PyType_GenericNew;
 
 	ue_PyFQuatType.tp_init = (initproc)ue_py_fquat_init;
@@ -282,24 +318,29 @@ void ue_python_init_fquat(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FQuat", (PyObject *)&ue_PyFQuatType);
 }
 
-PyObject *py_ue_new_fquat(FQuat quat) {
+PyObject *py_ue_new_fquat(FQuat quat)
+{
 	ue_PyFQuat *ret = (ue_PyFQuat *)PyObject_New(ue_PyFQuat, &ue_PyFQuatType);
 	ret->quat = quat;
 	return (PyObject *)ret;
 }
 
-ue_PyFQuat *py_ue_is_fquat(PyObject *obj) {
+ue_PyFQuat *py_ue_is_fquat(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFQuatType))
 		return nullptr;
 	return (ue_PyFQuat *)obj;
 }
 
-bool py_ue_quat_arg(PyObject *args, FQuat &quat) {
+bool py_ue_quat_arg(PyObject *args, FQuat &quat)
+{
 
-	if (PyTuple_Size(args) == 1) {
+	if (PyTuple_Size(args) == 1)
+	{
 		PyObject *arg = PyTuple_GetItem(args, 0);
 		ue_PyFQuat *py_quat = py_ue_is_fquat(arg);
-		if (!py_quat) {
+		if (!py_quat)
+		{
 			PyErr_Format(PyExc_TypeError, "argument is not a FQuat");
 			return false;
 		}

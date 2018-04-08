@@ -1,11 +1,16 @@
 
+#include "UEPyMaterial.h"
 
-#include "UnrealEnginePythonPrivatePCH.h"
 #if WITH_EDITOR
 #include "Editor/UnrealEd/Classes/MaterialGraph/MaterialGraph.h"
 #include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
 #include "Editor/UnrealEd/Classes/MaterialGraph/MaterialGraphSchema.h"
 #endif
+
+#include "Materials/MaterialInstanceConstant.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Wrappers/UEPyFLinearColor.h"
+#include "Wrappers/UEPyFVector.h"
 
 PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * args)
 {

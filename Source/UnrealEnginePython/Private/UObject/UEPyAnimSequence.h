@@ -1,8 +1,11 @@
 #pragma once
 
+#include "UEPyModule.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/BlendSpaceBase.h"
+#include "Animation/AnimMontage.h"
+#include "Wrappers/UEPyFRawAnimSequenceTrack.h"
 
-
-#include "UnrealEnginePython.h"
 
 PyObject *py_ue_anim_get_skeleton(ue_PyUObject *, PyObject *);
 

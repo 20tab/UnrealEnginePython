@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySTreeView.h"
 
 static PyObject *py_ue_stree_view_request_tree_refresh(ue_PySTreeView *self, PyObject * args)

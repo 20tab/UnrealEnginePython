@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFPythonOutputDevice.h"
 
 
 static PyMethodDef ue_PyFPythonOutputDevice_methods[] = {
@@ -11,7 +11,8 @@ static PyObject *ue_PyFPythonOutputDevice_str(ue_PyFPythonOutputDevice *self)
 		self->device);
 }
 
-static void ue_PyFPythonOutputDevice_dealloc(ue_PyFPythonOutputDevice *self) {
+static void ue_PyFPythonOutputDevice_dealloc(ue_PyFPythonOutputDevice *self)
+{
 	delete(self->device);
 #if PY_MAJOR_VERSION < 3
 	self->ob_type->tp_free((PyObject*)self);
@@ -53,13 +54,16 @@ static PyTypeObject ue_PyFPythonOutputDeviceType = {
 	0,
 };
 
-static int ue_py_fpython_output_device_init(ue_PyFPythonOutputDevice *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_fpython_output_device_init(ue_PyFPythonOutputDevice *self, PyObject *args, PyObject *kwargs)
+{
 	PyObject *py_serialize;
-	if (!PyArg_ParseTuple(args, "O", &py_serialize)) {
+	if (!PyArg_ParseTuple(args, "O", &py_serialize))
+	{
 		return -1;
 	}
 
-	if (!PyCallable_Check(py_serialize)) {
+	if (!PyCallable_Check(py_serialize))
+	{
 		PyErr_SetString(PyExc_TypeError, "argument is not a callable");
 		return -1;
 	}
@@ -69,7 +73,8 @@ static int ue_py_fpython_output_device_init(ue_PyFPythonOutputDevice *self, PyOb
 	return 0;
 }
 
-void ue_python_init_fpython_output_device(PyObject *ue_module) {
+void ue_python_init_fpython_output_device(PyObject *ue_module)
+{
 	ue_PyFPythonOutputDeviceType.tp_new = PyType_GenericNew;
 
 	ue_PyFPythonOutputDeviceType.tp_init = (initproc)ue_py_fpython_output_device_init;

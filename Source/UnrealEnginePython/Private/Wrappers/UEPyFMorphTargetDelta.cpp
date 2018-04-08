@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFMorphTargetDelta.h"
 
 static PyObject *py_ue_fmorph_target_delta_get_position_delta(ue_PyFMorphTargetDelta *self, void *closure)
 {

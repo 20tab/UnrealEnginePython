@@ -1,8 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySGraphPanel.h"
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 15
-#include "UEPySGraphPanel.h"
+
 
 #define sw_graph_panel StaticCastSharedRef<SGraphPanel>(self->s_nodePanel.s_panel.s_widget)
 

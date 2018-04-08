@@ -1,7 +1,7 @@
-#if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySObjectPropertyEntryBox.h"
+
+#if WITH_EDITOR
+
 
 static PyMethodDef ue_PySObjectPropertyEntryBox_methods[] = {
 	{ NULL }  /* Sentinel */

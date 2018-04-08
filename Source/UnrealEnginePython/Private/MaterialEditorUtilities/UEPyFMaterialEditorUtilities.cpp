@@ -1,9 +1,8 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
+#include "UEPyFMaterialEditorUtilities.h"
 #if WITH_EDITOR
 
-#include "UEPyFMaterialEditorUtilities.h"
+
 
 
 

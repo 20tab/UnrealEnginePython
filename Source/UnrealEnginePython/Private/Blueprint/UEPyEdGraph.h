@@ -2,7 +2,10 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
+#include "UEPyCallable.h"
+
+#include "UEPyEdGraphPin.h"
 
 #if WITH_EDITOR
 PyObject *py_ue_graph_add_node_call_function(ue_PyUObject *, PyObject *);

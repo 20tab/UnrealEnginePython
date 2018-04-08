@@ -1,13 +1,13 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFKeyEvent.h"
 
-static PyObject *py_ue_fkey_event_get_key(ue_PyFKeyEvent *self, PyObject * args) {
+static PyObject *py_ue_fkey_event_get_key(ue_PyFKeyEvent *self, PyObject * args)
+{
 	FKey key = self->key_event.GetKey();
 	return py_ue_new_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
 }
 
-static PyObject *py_ue_fkey_event_get_key_name(ue_PyFKeyEvent *self, PyObject * args) {
+static PyObject *py_ue_fkey_event_get_key_name(ue_PyFKeyEvent *self, PyObject * args)
+{
 	FKey key = self->key_event.GetKey();
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*key.ToString()));
 }
@@ -78,7 +78,8 @@ static int ue_py_fkey_event_init(ue_PyFKeyEvent *self, PyObject *args, PyObject 
 }
 
 
-void ue_python_init_fkey_event(PyObject *ue_module) {
+void ue_python_init_fkey_event(PyObject *ue_module)
+{
 
 	ue_PyFKeyEventType.tp_base = &ue_PyFInputEventType;
 	ue_PyFKeyEventType.tp_init = (initproc)ue_py_fkey_event_init;
@@ -90,7 +91,8 @@ void ue_python_init_fkey_event(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FKeyEvent", (PyObject *)&ue_PyFKeyEventType);
 }
 
-PyObject *py_ue_new_fkey_event(FKeyEvent key_event) {
+PyObject *py_ue_new_fkey_event(FKeyEvent key_event)
+{
 	ue_PyFKeyEvent *ret = (ue_PyFKeyEvent *)PyObject_New(ue_PyFKeyEvent, &ue_PyFKeyEventType);
 	new(&ret->key_event) FKeyEvent(key_event);
 	new(&ret->f_input.input) FInputEvent(key_event);

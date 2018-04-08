@@ -1,9 +1,9 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySPythonTreeView.h"
 
 #include "Runtime/Slate/Public/Widgets/Views/STreeView.h"
 
-#include "UEPySPythonTreeView.h"
+
 
 static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView *self, PyObject * args)
 {

@@ -79,6 +79,7 @@ public class UnrealEnginePython : ModuleRules
 #endif
     {
 
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicIncludePaths.AddRange(
             new string[] {

@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 #include "PythonSmartDelegate.h"
 
 FPythonSmartDelegate::FPythonSmartDelegate()

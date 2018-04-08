@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyModule.h"
 
 #include "UEPyEngine.h"
 #include "UEPyTimer.h"
@@ -47,12 +47,61 @@
 #include "Editor/BlueprintGraph/Public/BlueprintActionDatabase.h"
 #endif
 
+#include "Wrappers/UEPyESlateEnums.h"
 
-#include "PythonDelegate.h"
+#include "Wrappers/UEPyFVector.h"
+#include "Wrappers/UEPyFHitResult.h"
+#include "Wrappers/UEPyFRotator.h"
+#include "Wrappers/UEPyFTransform.h"
+#include "Wrappers/UEPyFColor.h"
+#include "Wrappers/UEPyFLinearColor.h"
+#include "Wrappers/UEPyFSocket.h"
+#include "Wrappers/UEPyFQuat.h"
+
+#include "Wrappers/UEPyFRawAnimSequenceTrack.h"
+
+#include "Wrappers/UEPyFRandomStream.h"
+
+#include "Wrappers/UEPyFPythonOutputDevice.h"
+#if WITH_EDITOR
+#include "Wrappers/UEPyFSoftSkinVertex.h"
+#endif
+#include "Wrappers/UEPyFMorphTargetDelta.h"
+#include "Wrappers/UEPyFObjectThumbnail.h"
+
+#include "Wrappers/UEPyFViewportClient.h"
+#if WITH_EDITOR
+#include "Wrappers/UEPyFEditorViewportClient.h"
+#endif
+
+#include "UEPyCallable.h"
+#include "UEPyUClassesImporter.h"
+#include "UEPyEnumsImporter.h"
+#include "UEPyUStructsImporter.h"
+
+#include "UEPyUScriptStruct.h"
+
+#if WITH_EDITOR
+#include "Wrappers/UEPyFAssetData.h"
+#include "Wrappers/UEPyFARFilter.h"
+#include "Wrappers/UEPyFRawMesh.h"
+#include "Wrappers/UEPyFStringAssetReference.h"
+#include "UObject/UEPyAnimSequence.h"
+#include "Blueprint/UEPyEdGraphPin.h"
+#include "UEPyIPlugin.h"
+#include "CollectionManager/UEPyICollectionManager.h"
+#include "MaterialEditorUtilities/UEPyFMaterialEditorUtilities.h"
+#endif
+
+#include "Slate/UEPySlate.h"
+#include "Http/UEPyIHttp.h"
+#include "ConsoleManager/UEPyIConsoleManager.h"
+#include "SlateApplication/UEPyFSlateApplication.h"
+#include "Voice/UEPyIVoiceCapture.h"
+
 #include "PythonFunction.h"
 #include "PythonClass.h"
 
-#include "Slate/UEPySlate.h"
 
 #if ENGINE_MINOR_VERSION < 18
 #define USoftObjectProperty UAssetObjectProperty
@@ -1732,7 +1781,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-}
+	}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
@@ -3108,7 +3157,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 	return function;
-	}
+}
 
 FGuid *ue_py_check_fguid(PyObject *py_obj)
 {

@@ -1,5 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFToolBarBuilder.h"
 
 #include "Runtime/Slate/Public/Framework/Commands/UIAction.h"

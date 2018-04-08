@@ -1,15 +1,16 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyStaticMesh.h"
 
 #if WITH_EDITOR
 
-PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
 	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
-	
+
 #if ENGINE_MINOR_VERSION > 13
 	mesh->ImportVersion = EImportStaticMeshVersion::LastVersion;
 #endif
@@ -18,7 +19,8 @@ PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -31,7 +33,8 @@ PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * arg
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 

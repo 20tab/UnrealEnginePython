@@ -1,8 +1,8 @@
 #pragma once
 
-
-
 #include "UnrealEnginePython.h"
+#include "UEPyFVector.h"
+#include "UEPyFQuat.h"
 
 typedef struct {
 	PyObject_HEAD

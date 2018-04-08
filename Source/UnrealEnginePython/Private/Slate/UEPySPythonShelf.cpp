@@ -1,9 +1,9 @@
+#include "UEPySPythonShelf.h"
 #if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #if ENGINE_MINOR_VERSION > 14
 
-#include "UEPySPythonShelf.h"
+
 
 #include "Editor/ContentBrowser/Public/ContentBrowserModule.h"
 

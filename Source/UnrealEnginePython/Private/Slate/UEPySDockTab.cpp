@@ -1,7 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
-
 #include "UEPySDockTab.h"
 
 static PyObject *py_ue_sdock_tab_set_label(ue_PySDockTab *self, PyObject * args)

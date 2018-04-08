@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyEnumsImporter.h"
 
 static PyObject *ue_PyEnumsImporter_getattro(ue_PyEnumsImporter *self, PyObject *attr_name)
 {

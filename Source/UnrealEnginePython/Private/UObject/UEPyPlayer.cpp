@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyPlayer.h"
 
 PyObject *py_ue_get_player_controller(ue_PyUObject *self, PyObject * args)
 {

@@ -1,5 +1,5 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySlate.h"
 
 #if WITH_EDITOR
 #include "LevelEditor.h"
@@ -25,6 +25,10 @@
 
 #include "UEPySlate.h"
 #include "PyNativeWidgetHost.h"
+
+#include "Wrappers/UEPyFAssetData.h"
+
+#include "Sound/SoundBase.h"
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {

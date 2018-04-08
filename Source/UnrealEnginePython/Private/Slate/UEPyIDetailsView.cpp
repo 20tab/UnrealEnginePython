@@ -1,11 +1,11 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyIDetailsView.h"
 
 #if WITH_EDITOR
 
 #include "Editor/PropertyEditor/Public/IDetailsView.h"
 
-#include "UEPyIDetailsView.h"
+
 
 
 static PyObject *py_ue_idetails_view_set_object(ue_PyIDetailsView *self, PyObject * args, PyObject *kwargs)

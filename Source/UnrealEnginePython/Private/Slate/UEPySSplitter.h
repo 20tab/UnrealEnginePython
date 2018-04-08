@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #include "UEPySPanel.h"
 
@@ -8,7 +8,8 @@
 
 extern PyTypeObject ue_PySSplitterType;
 
-typedef struct {
+typedef struct
+{
 	ue_PySPanel s_panel;
 	/* Type-specific fields go here. */
 } ue_PySSplitter;

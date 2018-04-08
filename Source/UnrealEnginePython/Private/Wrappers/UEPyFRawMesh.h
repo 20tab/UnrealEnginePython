@@ -3,14 +3,17 @@
 
 #if WITH_EDITOR
 
+#include "Wrappers/UEPyFColor.h"
+
 #if ENGINE_MINOR_VERSION > 13
 
 #include "Developer/RawMesh/Public/RawMesh.h"
 
-struct ue_PyFRawMesh {
+struct ue_PyFRawMesh
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FRawMesh raw_mesh;
+		/* Type-specific fields go here. */
+		FRawMesh raw_mesh;
 };
 
 

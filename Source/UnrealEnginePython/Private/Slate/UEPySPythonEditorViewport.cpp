@@ -1,9 +1,9 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySPythonEditorViewport.h"
 
 #if WITH_EDITOR
 
-#include "UEPySPythonEditorViewport.h"
+#include "Components/DirectionalLightComponent.h"
 
 static PyObject *py_ue_spython_editor_viewport_get_world(ue_PySPythonEditorViewport *self, PyObject * args)
 {

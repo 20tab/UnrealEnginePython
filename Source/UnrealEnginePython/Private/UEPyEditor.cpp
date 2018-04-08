@@ -1,6 +1,7 @@
+#include "UEPyEditor.h"
+
 #if WITH_EDITOR
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #include "Editor/UnrealEd/Classes/Factories/Factory.h"
@@ -28,6 +29,12 @@
 #include "Developer/Settings/Public/ISettingsModule.h"
 #include "Engine/Blueprint.h"
 
+#include "Wrappers/UEPyFARFilter.h"
+#include "Wrappers/UEPyFVector.h"
+#include "Wrappers/UEPyFAssetData.h"
+#include "Wrappers/UEPyFEditorViewportClient.h"
+
+#include "UEPyIPlugin.h"
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
 {

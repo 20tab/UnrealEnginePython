@@ -1,5 +1,7 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyIHttpRequest.h"
+
+#include "UEPyIHttpResponse.h"
 
 #include "Runtime/Online/HTTP/Public/HttpManager.h"
 

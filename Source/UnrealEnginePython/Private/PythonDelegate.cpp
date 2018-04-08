@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 #include "PythonDelegate.h"
 
 UPythonDelegate::UPythonDelegate()

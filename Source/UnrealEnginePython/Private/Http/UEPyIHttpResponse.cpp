@@ -1,13 +1,15 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyIHttpResponse.h"
 
 
 
-static PyObject *py_ue_ihttp_response_get_response_code(ue_PyIHttpResponse *self, PyObject * args) {
+static PyObject *py_ue_ihttp_response_get_response_code(ue_PyIHttpResponse *self, PyObject * args)
+{
 	return PyLong_FromLong(self->http_response->GetResponseCode());
 }
 
-static PyObject *py_ue_ihttp_response_get_content_as_string(ue_PyIHttpResponse *self, PyObject * args) {
+static PyObject *py_ue_ihttp_response_get_content_as_string(ue_PyIHttpResponse *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->http_response->GetContentAsString()));
 }
 
@@ -57,7 +59,8 @@ static PyTypeObject ue_PyIHttpResponseType = {
 	0,
 };
 
-void ue_python_init_ihttp_response(PyObject *ue_module) {
+void ue_python_init_ihttp_response(PyObject *ue_module)
+{
 	ue_PyIHttpResponseType.tp_new = PyType_GenericNew;
 
 	ue_PyIHttpResponseType.tp_base = &ue_PyIHttpBaseType;
@@ -69,7 +72,8 @@ void ue_python_init_ihttp_response(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "IHttpResponse", (PyObject *)&ue_PyIHttpResponseType);
 }
 
-PyObject *py_ue_new_ihttp_response(IHttpResponse *response) {
+PyObject *py_ue_new_ihttp_response(IHttpResponse *response)
+{
 	ue_PyIHttpResponse *ret = (ue_PyIHttpResponse *)PyObject_New(ue_PyIHttpResponse, &ue_PyIHttpResponseType);
 	ret->http_response = response;
 	ret->base.http_base = response;

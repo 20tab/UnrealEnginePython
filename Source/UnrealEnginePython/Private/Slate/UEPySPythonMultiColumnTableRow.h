@@ -1,12 +1,10 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPySlate.h"
 
-#include "UEPySCompoundWidget.h"
+#include "UEPyUScriptStruct.h"
+
 #include "UEPyFGeometry.h"
-#include "UEPyFPaintContext.h"
-#include "UEPyFCharacterEvent.h"
-#include "UEPyFKeyEvent.h"
 #include "UEPyFPointerEvent.h"
 
 extern PyTypeObject ue_PySCompoundWidgetType;
