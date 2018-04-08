@@ -1,6 +1,5 @@
 #pragma once
 
-#include "UEPyModule.h"
 #include "UObject/Object.h"
 #include "PythonScript.generated.h"
 
