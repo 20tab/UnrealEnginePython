@@ -1,5 +1,7 @@
 #include "UEPySImage.h"
 
+#include "Engine/Texture2D.h"
+
 static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args)
 {
 	ue_py_slate_cast(SImage);

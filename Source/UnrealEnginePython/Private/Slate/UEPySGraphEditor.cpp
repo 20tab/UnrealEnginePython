@@ -3,9 +3,7 @@
 
 #if WITH_EDITOR
 
-
-
-
+#include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
 
 static PyMethodDef ue_PySGraphEditor_methods[] = {
 	{ NULL }  /* Sentinel */

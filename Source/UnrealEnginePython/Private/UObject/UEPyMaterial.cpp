@@ -11,6 +11,9 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Wrappers/UEPyFLinearColor.h"
 #include "Wrappers/UEPyFVector.h"
+#include "Engine/Texture.h"
+#include "Components/PrimitiveComponent.h"
+#include "Engine/StaticMesh.h"
 
 PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * args)
 {

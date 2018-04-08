@@ -25,6 +25,8 @@
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
 #include "Styling/SlateStyle.h"
+#include "UObject/ScriptMacros.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 // We need to make sure reference structs do not mistaken for callable
 #define PyCalllable_Check_Extended(value) PyCallable_Check(value) && py_ue_is_uscriptstruct(value) == nullptr

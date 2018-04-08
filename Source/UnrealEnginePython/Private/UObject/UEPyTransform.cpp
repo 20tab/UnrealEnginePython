@@ -1,6 +1,6 @@
 #include "UEPyTransform.h"
 
-#include "Wrappers/UEPyFVector.h"
+#include "GameFramework/Actor.h"
 #include "Wrappers/UEPyFHitResult.h"
 
 static bool check_vector_args(PyObject *args, FVector &vec, bool &sweep, bool &teleport_physics)

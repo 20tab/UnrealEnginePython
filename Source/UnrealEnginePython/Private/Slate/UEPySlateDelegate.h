@@ -8,6 +8,8 @@
 
 #include "UEPySlatePythonItem.h"
 
+#include "AssetData.h"
+
 
 class FPythonSlateDelegate : public FPythonSmartDelegate
 {

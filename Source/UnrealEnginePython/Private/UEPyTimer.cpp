@@ -1,6 +1,9 @@
 
 #include "UEPyTimer.h"
 
+#include "Engine/World.h"
+#include "Runtime/Engine/Public/TimerManager.h"
+
 static PyObject *py_ue_ftimerhandle_clear(ue_PyFTimerHandle *self, PyObject * args)
 {
 	if (!self->world.IsValid())

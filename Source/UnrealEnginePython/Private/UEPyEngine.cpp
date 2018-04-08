@@ -9,9 +9,11 @@
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 #if WITH_EDITOR
 #include "PackageTools.h"
+#include "Editor.h"
 #endif
 
 #include "UnrealEngine.h"
+#include "Runtime/Engine/Classes/Engine/GameViewportClient.h"
 
 #if ENGINE_MINOR_VERSION >= 18
 #include "HAL/PlatformApplicationMisc.h"
@@ -1257,7 +1259,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
 	Py_RETURN_NONE;
-	}
+}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {

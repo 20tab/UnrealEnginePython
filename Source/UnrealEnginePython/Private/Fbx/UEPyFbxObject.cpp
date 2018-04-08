@@ -6,6 +6,8 @@
 
 #include "UEPyFbx.h"
 
+#include "Runtime/Engine/Classes/Curves/RichCurve.h"
+
 static PyObject *py_ue_fbx_object_get_name(ue_PyFbxObject *self, PyObject *args)
 {
 	return PyUnicode_FromString(self->fbx_object->GetName());

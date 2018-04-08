@@ -2,6 +2,9 @@
 #include "UnrealEnginePython.h"
 #include "Wrappers/UEPyFViewportClient.h"
 
+
+#include "Editor/UnrealEd/Public/EditorViewportClient.h"
+
 struct ue_PyFEditorViewportClient
 {
 	ue_PyFViewportClient viewport_client;

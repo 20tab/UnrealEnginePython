@@ -28,6 +28,10 @@
 #include "Editor/MovieSceneTools/Public/MatineeImportTools.h"
 #endif
 
+#include "GameFramework/Actor.h"
+#include "Runtime/LevelSequence/Public/LevelSequence.h"
+#include "Engine/World.h"
+
 #if WITH_EDITOR
 PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args)
 {
@@ -1100,7 +1104,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 			section->GetTranslationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetLocation()[ChannelIndex]);
 			section->GetRotationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetRotation().Euler()[ChannelIndex]);
 			section->GetScaleCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetScale3D()[ChannelIndex]);
-		}
+	}
 #else
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2]);
 
@@ -1196,7 +1200,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 		ImportOptions->bConvertSceneUnit = bConverteScene;
 		ImportOptions->bForceFrontXAxis = bConverteScene;
 		Py_RETURN_NONE;
-	}
+}
 
 	FbxImporter->ReleaseScene();
 	ImportOptions->bConvertScene = bConverteScene;

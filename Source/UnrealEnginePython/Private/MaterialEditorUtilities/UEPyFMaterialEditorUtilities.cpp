@@ -2,10 +2,8 @@
 #include "UEPyFMaterialEditorUtilities.h"
 #if WITH_EDITOR
 
-
-
-
-
+#include "Materials/Material.h"
+#include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
 
 static PyObject *py_ue_paste_nodes_here(PyObject *cls, PyObject * args)
 {

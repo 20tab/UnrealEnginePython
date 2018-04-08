@@ -6,8 +6,7 @@
 
 #include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
 #include "UEPySWidget.h"
-
-//#define sw_idetails_view StaticCastSharedRef<IDetailsView>(self->s_compound_widget.s_widget.s_widget)
+#include "Editor/PropertyEditor/Public/IDetailsView.h"
 
 
 static PyObject *ue_PyIStructureDetailsView_str(ue_PyIStructureDetailsView *self)
@@ -61,7 +60,7 @@ static PyObject *py_ue_istructure_details_view_set_structure_data(ue_PyIStructur
 	if (py_force_refresh && PyObject_IsTrue(py_force_refresh))
 	{
 		self->istructure_details_view->GetDetailsView()->ForceRefresh();
-	}
+}
 #endif
 
 	Py_RETURN_NONE;
