@@ -6,6 +6,8 @@
 #include "Editor/UnrealEd/Public/LevelEditorViewport.h"
 #endif
 
+#include "Slate/UEPySWidget.h"
+
 PyObject *py_unreal_engine_get_game_viewport_client(PyObject * self, PyObject * args)
 {
 

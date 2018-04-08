@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "UEPyModule.h"
 
 #include "SlateBasics.h"
@@ -16,85 +14,20 @@
 #endif
 
 
+
 #include "UEPySWidget.h"
-#include "UEPySCompoundWidget.h"
-#include "UEPySWindow.h"
-#include "UEPySBorder.h"
-#include "UEPySButton.h"
-#include "UEPySLeafWidget.h"
-#include "UEPySTextBlock.h"
-#include "UEPySEditableTextBox.h"
-#include "UEPySMultiLineEditableText.h"
-#include "UEPySPanel.h"
-#include "UEPySGridPanel.h"
-#include "UEPySBoxPanel.h"
-#include "UEPySHorizontalBox.h"
-#include "UEPySVerticalBox.h"
-#include "UEPySViewport.h"
-
-
-#include "UEPySImage.h"
-#include "UEPySDockTab.h"
-#include "UEPySTableViewBase.h"
-#include "UEPySListView.h"
-#include "UEPySPythonListView.h"
-#include "UEPySPythonMultiColumnTableRow.h"
-#include "UEPySTreeView.h"
-#include "UEPySPythonTreeView.h"
-#include "UEPySSplitter.h"
-#include "UEPySHeaderRow.h"
-#include "UEPySCheckBox.h"
-#include "UEPySNumericEntryBox.h"
-#include "UEPySCanvas.h"
-#include "UEPySSlider.h"
-#include "UEPySVectorInputBox.h"
-#include "UEPySRotatorInputBox.h"
-#include "UEPySPythonComboBox.h"
-#include "UEPySScrollBox.h"
-#include "UEPySColorBlock.h"
-#include "UEPySBox.h"
-#include "UEPySProgressBar.h"
-#include "UEPySSpacer.h"
-#include "UEPySPythonWidget.h"
-#include "UEPySOverlay.h"
-
-#include "UEPyFTabManager.h"
-#include "UEPyFTabSpawnerEntry.h"
-#include "UEPyFMenuBuilder.h"
-#include "UEPyFToolBarBuilder.h"
-#include "UEPyFSlateIcon.h"
-#include "UEPyFSlateStyleSet.h"
-
-#include "UEPyFGeometry.h"
-#include "UEPyFPaintContext.h"
-
-#include "UEPyFInputEvent.h"
-#include "UEPyFPointerEvent.h"
-#include "UEPyFKeyEvent.h"
-#include "UEPyFCharacterEvent.h"
-#include "UEPyFModifierKeysState.h"
-#include "Wrappers/UEPyESlateEnums.h"
-
-#if WITH_EDITOR
-#include "UEPySEditorViewport.h"
-#include "UEPySLevelViewport.h"
-#include "UEPySPythonEditorViewport.h"
-#include "UEPySGraphEditor.h"
-#include "UEPySPythonShelf.h"
-#include "UEPySFilePathPicker.h"
-#include "UEPySDropTarget.h"
-#include "UEPySAssetDropTarget.h"
-#include "UEPySObjectPropertyEntryBox.h"
-#include "UEPyIDetailsView.h"
-#include "UEPyIStructureDetailsView.h"
-#include "UEPySNodePanel.h"
-#include "UEPySGraphPanel.h"
-#endif
-
-#include "Runtime/Core/Public/Misc/Attribute.h"
-#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
-
 #include "UEPySlateDelegate.h"
+#include "UEPySlatePythonItem.h"
+
+typedef struct ue_PySWidget ue_PySWidget;
+
+struct ue_PySWidget
+{
+	PyObject_HEAD
+		/* Type-specific fields go here. */
+		TSharedRef<SWidget> Widget;
+	PyObject      *weakreflist;
+};
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 
@@ -481,14 +414,6 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 void ue_python_init_slate(PyObject *);
 
-struct FPythonItem
-{
-	PyObject *py_object = nullptr;
 
-	FPythonItem(PyObject *item)
-	{
-		py_object = item;
-	}
-};
 
 

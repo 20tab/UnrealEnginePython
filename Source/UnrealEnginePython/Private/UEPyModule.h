@@ -6,6 +6,14 @@
 #include "UEPyUScriptStruct.h"
 #include "PythonHouseKeeper.h"
 
+// common wrappers
+#include "Wrappers/UEPyFVector.h"
+#include "Wrappers/UEPyFRotator.h"
+#include "Wrappers/UEPyFQuat.h"
+#include "Wrappers/UEPyFTransform.h"
+#include "Wrappers/UEPyFColor.h"
+#include "Wrappers/UEPyFLinearColor.h"
+
 
 void unreal_engine_py_log_error();
 ue_PyUObject *ue_get_python_uobject(UObject *);

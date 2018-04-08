@@ -1,6 +1,7 @@
 // Copyright 20Tab S.r.l.
 
 #include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "PythonBlueprintFunctionLibrary.h"
 #include "HAL/IConsoleManager.h"
 #include "HAL/PlatformFilemanager.h"

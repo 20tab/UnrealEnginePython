@@ -11,6 +11,8 @@
 #include "PackageTools.h"
 #endif
 
+#include "UnrealEngine.h"
+
 #if ENGINE_MINOR_VERSION >= 18
 #include "HAL/PlatformApplicationMisc.h"
 #endif
@@ -1255,7 +1257,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {

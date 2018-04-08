@@ -1,15 +1,16 @@
 #pragma once
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
 
 #include "AssetRegistryModule.h"
 #include "Runtime/AssetRegistry/Public/ARFilter.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FARFilter filter;
+		/* Type-specific fields go here. */
+		FARFilter filter;
 	PyObject *class_names;
 	PyObject *object_paths;
 	PyObject *package_names;

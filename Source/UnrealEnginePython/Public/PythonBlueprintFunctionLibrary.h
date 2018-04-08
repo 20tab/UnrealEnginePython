@@ -2,6 +2,7 @@
 
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "UEPyModule.h"
 #include "PythonBlueprintFunctionLibrary.generated.h"
 
 
@@ -12,9 +13,9 @@ class UNREALENGINEPYTHON_API UPythonBlueprintFunctionLibrary : public UBlueprint
 
 public:
 	UFUNCTION(BlueprintCallable, Exec, Category = "Python")
-	static void ExecutePythonScript(FString script);
+		static void ExecutePythonScript(FString script);
 
-    UFUNCTION(BlueprintCallable, Exec, Category = "Python")
-    static void ExecutePythonString(const FString& PythonCmd);
+	UFUNCTION(BlueprintCallable, Exec, Category = "Python")
+		static void ExecutePythonString(const FString& PythonCmd);
 };
 

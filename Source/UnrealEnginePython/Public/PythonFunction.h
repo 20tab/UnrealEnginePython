@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "UEPyModule.h"
 #include "PythonFunction.generated.h"
 
 UCLASS()

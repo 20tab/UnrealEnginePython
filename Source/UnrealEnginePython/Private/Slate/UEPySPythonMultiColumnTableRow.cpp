@@ -2,6 +2,8 @@
 
 #include "UEPySPythonMultiColumnTableRow.h"
 
+#include "UEPySTableViewBase.h"
+
 static PyMethodDef ue_PySPythonMultiColumnTableRow_methods[] = {
 	{ NULL }  /* Sentinel */
 };

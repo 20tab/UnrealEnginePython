@@ -1,6 +1,7 @@
 
 #include "UEPyFSlateApplication.h"
 
+#include "Slate/UEPySWidget.h"
 
 static PyObject *py_ue_get_average_delta_time(PyObject *cls, PyObject * args)
 {

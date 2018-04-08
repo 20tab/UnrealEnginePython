@@ -18,6 +18,9 @@ for a queue of UMovieSceneCapture objects
 #include "AutomatedLevelSequenceCapture.h"
 
 #include "Slate/UEPySPythonEditorViewport.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameMode.h"
+
 
 struct FInEditorMultiCapture : TSharedFromThis<FInEditorMultiCapture>
 {

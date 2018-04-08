@@ -2,6 +2,18 @@
 #include "PythonClass.h"
 #include "UObject/UEPyObject.h"
 
+// hack for avoiding loops in class constructors (thanks to the Unreal.js project for the idea)
+UClass *ue_py_class_constructor_placeholder = nullptr;
+static void UEPyClassConstructor(UClass *u_class, const FObjectInitializer &ObjectInitializer)
+{
+	if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class))
+	{
+		ue_py_class_constructor_placeholder = u_class;
+	}
+	u_class->ClassConstructor(ObjectInitializer);
+	ue_py_class_constructor_placeholder = nullptr;
+}
+
 int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 {
 

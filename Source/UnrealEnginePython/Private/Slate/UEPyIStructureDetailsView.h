@@ -1,13 +1,16 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
+
+#include "IStructureDetailsView.h"
 
 #if WITH_EDITOR
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-    TSharedPtr<IStructureDetailsView> istructure_details_view;
-    ue_PyUScriptStruct *ue_py_struct;
+		/* Type-specific fields go here. */
+		TSharedRef<IStructureDetailsView> istructure_details_view;
+	ue_PyUScriptStruct *ue_py_struct;
 } ue_PyIStructureDetailsView;
 
 void ue_python_init_istructure_details_view(PyObject *);

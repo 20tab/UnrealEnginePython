@@ -1,6 +1,8 @@
 
 #include "PythonSmartDelegate.h"
 
+#include "UEPyModule.h"
+
 FPythonSmartDelegate::FPythonSmartDelegate()
 {
 	py_callable = nullptr;

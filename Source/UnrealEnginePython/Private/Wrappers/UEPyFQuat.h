@@ -1,13 +1,14 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #include "Runtime/Core/Public/Math/Quat.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FQuat quat;
+		/* Type-specific fields go here. */
+		FQuat quat;
 } ue_PyFQuat;
 
 PyObject *py_ue_new_fquat(FQuat);

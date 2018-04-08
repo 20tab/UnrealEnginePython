@@ -1,14 +1,12 @@
 #pragma once
 
-#include "UEPySlate.h"
+#include "UEPySEditorViewport.h"
 
 #include "Editor/UnrealEd/Public/SEditorViewport.h"
 #include "Editor/UnrealEd/Public/EditorViewportClient.h"
 #include "Runtime/Engine/Public/PreviewScene.h"
 #include "Editor/UnrealEd/Public/SCommonEditorViewportToolbarBase.h"
 #include "Editor/UnrealEd/Public/STransformViewportToolbar.h"
-
-#include "Wrappers/UEPyFRotator.h"
 
 #include "EngineUtils.h"
 

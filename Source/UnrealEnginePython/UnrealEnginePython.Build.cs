@@ -80,6 +80,7 @@ public class UnrealEnginePython : ModuleRules
     {
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        bFasterWithoutUnity = true;
 
         PublicIncludePaths.AddRange(
             new string[] {

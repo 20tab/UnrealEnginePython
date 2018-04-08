@@ -1,5 +1,6 @@
 
 #include "PythonDelegate.h"
+#include "UEPyModule.h"
 
 UPythonDelegate::UPythonDelegate()
 {

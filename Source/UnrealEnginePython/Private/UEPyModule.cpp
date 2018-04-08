@@ -102,6 +102,10 @@
 #include "PythonFunction.h"
 #include "PythonClass.h"
 
+#if ENGINE_MINOR_VERSION >= 15
+#include "Engine/UserDefinedEnum.h"
+#endif
+
 
 #if ENGINE_MINOR_VERSION < 18
 #define USoftObjectProperty UAssetObjectProperty
@@ -1122,9 +1126,9 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 #else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
-						}
 					}
 				}
+			}
 #endif
 				if (self->ue_object->IsA<UEnum>())
 				{
@@ -1136,7 +1140,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
 				}
-			}
+		}
 
 			if (function)
 			{
@@ -1144,8 +1148,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
-		}
 	}
+}
 	return ret;
 }
 
@@ -1431,17 +1435,7 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent)
 	return new_object;
 }
 
-// hack for avoiding loops in class constructors (thanks to the Unreal.js project for the idea)
-UClass *ue_py_class_constructor_placeholder = nullptr;
-static void UEPyClassConstructor(UClass *u_class, const FObjectInitializer &ObjectInitializer)
-{
-	if (UPythonClass *u_py_class_casted = Cast<UPythonClass>(u_class))
-	{
-		ue_py_class_constructor_placeholder = u_class;
-	}
-	u_class->ClassConstructor(ObjectInitializer);
-	ue_py_class_constructor_placeholder = nullptr;
-}
+
 
 int unreal_engine_py_init(ue_PyUObject *, PyObject *, PyObject *);
 
@@ -1726,7 +1720,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-	}
+}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2675,10 +2669,10 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 				prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-			}
-#endif
 		}
+#endif
 	}
+}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);

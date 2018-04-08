@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "UEPySlate.h"
+#include "UEPySCompoundWidget.h"
 
 #include "Runtime/Slate/Public/SlateFwd.h"
 

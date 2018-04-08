@@ -3,6 +3,7 @@
 
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
 #include "PyUserWidget.h"
+#include "Slate/UEPySWidget.h"
 
 
 PyObject *py_ue_set_slate_widget(ue_PyUObject * self, PyObject * args)

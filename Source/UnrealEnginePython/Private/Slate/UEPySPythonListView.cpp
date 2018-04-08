@@ -1,7 +1,7 @@
 
-
-
 #include "UEPySPythonListView.h"
+
+#include "UEPySHeaderRow.h"
 
 
 void SPythonListView::SetHeaderRow(TSharedPtr<SHeaderRow> InHeaderRowWidget)

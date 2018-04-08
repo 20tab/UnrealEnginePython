@@ -3,9 +3,6 @@
 #include "UEPySNumericEntryBox.h"
 
 
-#define sw_float_numeric_entry_box StaticCastSharedRef<SNumericEntryBox<float>>(self->s_compound_widget.s_widget.s_widget)
-
-
 static PyMethodDef ue_PySNumericEntryBox_methods[] = {
 	{ NULL }  /* Sentinel */
 };

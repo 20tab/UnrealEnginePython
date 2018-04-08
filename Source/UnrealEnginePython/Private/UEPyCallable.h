@@ -2,12 +2,13 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	UFunction *u_function;
+		/* Type-specific fields go here. */
+		UFunction *u_function;
 	UObject *u_target;
 } ue_PyCallable;
 

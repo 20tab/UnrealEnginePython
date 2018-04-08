@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UEPySlate.h"
+#include "UEPySEditorViewport.h"
 
 #include "Editor/LevelEditor/Public/SLevelViewport.h"
 #include "Editor/LevelEditor/Private/SLevelEditor.h"

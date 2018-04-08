@@ -1,11 +1,6 @@
 #pragma once
 
-#include "UEPySlate.h"
-
-#include "UEPyUScriptStruct.h"
-
-#include "UEPyFGeometry.h"
-#include "UEPyFPointerEvent.h"
+#include "UEPySCompoundWidget.h"
 
 extern PyTypeObject ue_PySCompoundWidgetType;
 extern PyTypeObject ue_PySTableViewBaseType;

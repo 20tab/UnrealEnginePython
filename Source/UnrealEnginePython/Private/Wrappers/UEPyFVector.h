@@ -2,12 +2,13 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FVector vec;
+		/* Type-specific fields go here. */
+		FVector vec;
 } ue_PyFVector;
 
 PyObject *py_ue_new_fvector(FVector);

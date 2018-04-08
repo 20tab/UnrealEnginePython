@@ -4,7 +4,7 @@
 
 #if WITH_EDITOR
 
-
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_pose_get_count(ue_PyFbxPose *self, PyObject *args)
 {
