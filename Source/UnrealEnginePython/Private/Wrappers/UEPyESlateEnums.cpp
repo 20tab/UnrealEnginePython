@@ -2,6 +2,7 @@
 #if WITH_EDITOR
 #include "ISequencer.h"
 #endif
+#include <ObjectMacros.h>
 
 static PyGetSetDef ue_PyESlateEnums_getseters[] = {
     { NULL }  /* Sentinel */
@@ -163,6 +164,17 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'RefreshAllImmediately',
                     'Unknown',
                 ]),
+
+		EnumDef(name='ELoadConfigPropagationFlags',
+				cppNameScope='ELoadConfigPropagationFlags',
+				values=[
+					'LCPF_None',
+					'LCPF_ReadParentSections',
+					'LCPF_PropagateToChildDefaultObjects',
+					'LCPF_PropagateToInstances',
+					'LCPF_ReloadingConfigData',
+					'LCPF_PersistentFlags',
+				]),
     ]
 
     def output_cpp_enums(in_enum_list):
@@ -318,6 +330,24 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "RefreshAllImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::RefreshAllImmediately));
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
     }
+
+	// Enum Wrapper: ELoadConfigPropagationFlags
+	{
+		PyObject* native_ELoadConfigPropagationFlags = PyDict_GetItemString(unreal_engine_dict, "ELoadConfigPropagationFlags");
+		if (native_ELoadConfigPropagationFlags == nullptr)
+		{
+			native_ELoadConfigPropagationFlags = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+			PyDict_SetItemString(unreal_engine_dict, "ELoadConfigPropagationFlags", (PyObject*)native_ELoadConfigPropagationFlags);
+		}
+
+		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_None", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_None));
+		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_ReadParentSections", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_ReadParentSections));
+		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PropagateToChildDefaultObjects", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PropagateToChildDefaultObjects));
+		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PropagateToInstances", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PropagateToInstances));
+		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_ReloadingConfigData", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_ReloadingConfigData));
+		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PersistentFlags", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PersistentFlags));
+	}
+
 
     #endif
     //[[[end]]]

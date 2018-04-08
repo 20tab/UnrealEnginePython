@@ -2,6 +2,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySWidget.h"
+#include <WidgetPath.h>
 
 static PyObject *ue_PySWidget_str(ue_PySWidget *self)
 {
@@ -248,6 +249,21 @@ static PyObject *py_ue_swidget_get_visibility(ue_PySWidget *self, PyObject * arg
 	}
 }
 
+static PyObject *py_ue_swidget_to_string(ue_PySWidget *self, PyObject * args)
+{
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->s_widget->ToString())));
+}
+
+static PyObject *py_ue_swidget_get_widget_path(ue_PySWidget *self, PyObject * args)
+{
+	FString ret;
+	FWidgetPath OutWidgetPath;
+	FSlateApplication::Get().GeneratePathToWidgetUnchecked(self->s_widget, OutWidgetPath);
+	ret = OutWidgetPath.ToString();
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*ret));
+}
+
 static PyObject *py_ue_swidget_get_cached_geometry(ue_PySWidget *self, PyObject * args)
 {
 	return py_ue_new_fgeometry(self->s_widget->GetCachedGeometry());
@@ -347,6 +363,8 @@ static PyMethodDef ue_PySWidget_methods[] = {
 	{ "get_cached_geometry", (PyCFunction)py_ue_swidget_get_cached_geometry, METH_VARARGS, "" },
 	{ "get_children", (PyCFunction)py_ue_swidget_get_children, METH_VARARGS, "" },
 	{ "get_visibility", (PyCFunction)py_ue_swidget_get_visibility, METH_VARARGS, "" },
+	{ "to_string", (PyCFunction)py_ue_swidget_to_string, METH_VARARGS, "" },
+	{ "get_widget_path", (PyCFunction)py_ue_swidget_get_widget_path, METH_VARARGS, "" },
 	{ "is_valid", (PyCFunction)py_ue_swidget_is_valid, METH_VARARGS, "" },
 	{ "get_type", (PyCFunction)py_ue_swidget_get_type, METH_VARARGS, "" },
 	{ "set_tooltip_text", (PyCFunction)py_ue_swidget_set_tooltip_text, METH_VARARGS, "" },

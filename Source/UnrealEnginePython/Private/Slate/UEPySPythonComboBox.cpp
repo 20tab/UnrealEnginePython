@@ -164,7 +164,7 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
         self->options_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
     }
     arguments.OptionsSource(&self->options_source_list);
-    //TODO: ikrimae: #PyUE: #BUG: We are on purpose not doing Py_DECREF(values) because we're stealing the reference from _GetIter
+    //TODO: ikrimae: #ThirdParty-Python: #BUG: We are on purpose not doing Py_DECREF(values) because we're stealing the reference from _GetIter
     //             But we never decref values in the dealloc function. We should store a py_ref to the python list
     //             Ask roberto for the new refactored way for this
 

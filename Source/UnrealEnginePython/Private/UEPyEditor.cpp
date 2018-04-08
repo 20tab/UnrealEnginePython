@@ -2406,6 +2406,23 @@ PyObject *py_unreal_engine_unregister_settings(PyObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_unreal_engine_gconfig_set_string(PyObject * self, PyObject * args)
+{
+	char *section_name;
+	char *key_name;
+	char *key_value;
+	char *file_name;
+
+	if (!PyArg_ParseTuple(args, "ssss:gconfig_set_string", &section_name, &key_name, &key_value, &file_name))
+	{
+		return NULL;
+	}
+
+	GConfig->SetString(UTF8_TO_TCHAR(section_name), UTF8_TO_TCHAR(key_name), UTF8_TO_TCHAR(key_value), FString(UTF8_TO_TCHAR(file_name)));
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_all_viewport_clients(PyObject * self, PyObject * args)
 {
 	TArray<FEditorViewportClient *> clients = GEditor->AllViewportClients;

@@ -1423,19 +1423,29 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
 {
 
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:invoke_tab", &name))
+	char *name = nullptr;
+    char *tabmanager = (char *)"LevelEditorTabManager";
+	if (!PyArg_ParseTuple(args, "s|s:invoke_tab", &name, &tabmanager))
 	{
 		return NULL;
 	}
-	FLevelEditorModule& level_editor_module = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
-	TSharedPtr<FTabManager> level_editor_tab_manager = level_editor_module.GetLevelEditorTabManager();
-	level_editor_tab_manager->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
-	// FIX for nomad tabs not docking properly with editor docking areas is to use the editor tab manager to invoke thems
-	//FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
-
-	Py_INCREF(Py_None);
-	return Py_None;
+#if WITH_EDITOR
+	// To persist nomad tabs docking, make sure to specify LevelEditorTabManager
+    if (_stricmp(tabmanager, (char *)"GlobalTabManager") == 0)
+    {
+        //NOTE: This will not persist the tab docking location after being closed
+        FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+    }
+	else if (FLevelEditorModule* level_editor_module = FModuleManager::GetModulePtr<FLevelEditorModule>("LevelEditor"))
+	{
+		TSharedPtr<FTabManager> level_editor_tab_manager = level_editor_module->GetLevelEditorTabManager();
+		level_editor_tab_manager->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+	}
+#else
+	//NOTE: This will not persist the tab docking location after being closed
+	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+#endif
+    Py_RETURN_NONE;
 }
 
 

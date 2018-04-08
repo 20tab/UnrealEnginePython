@@ -32,7 +32,10 @@ PyObject *py_ue_add_to_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_from_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_auto_root(ue_PyUObject *, PyObject *);
 
-PyObject *py_ue_save_config(ue_PyUObject *, PyObject *);
+PyObject *py_ue_save_config(ue_PyUObject *, PyObject *, PyObject *);
+PyObject *py_ue_save_config_to_section(ue_PyUObject *, PyObject *, PyObject *);
+PyObject *py_ue_load_config(ue_PyUObject *, PyObject *, PyObject *);
+PyObject *py_ue_load_config_from_section(ue_PyUObject *, PyObject *, PyObject *);
 
 PyObject *py_ue_get_cdo(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_archetype(ue_PyUObject *, PyObject *);

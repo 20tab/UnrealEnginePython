@@ -31,6 +31,7 @@ PyObject *py_unreal_engine_get_content_dir(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_game_saved_dir(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_game_user_developer_dir(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_find_actor_by_label_in_world(PyObject *, PyObject *);
 PyObject *py_unreal_engine_find_object(PyObject *, PyObject *);
 PyObject *py_unreal_engine_find_class(PyObject *, PyObject *);
 PyObject *py_unreal_engine_find_struct(PyObject *, PyObject *);

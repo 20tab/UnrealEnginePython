@@ -320,6 +320,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "editor_play", py_unreal_engine_editor_play, METH_VARARGS, "" },
 
+	{ "find_actor_by_label_in_world", py_unreal_engine_find_actor_by_label_in_world, METH_VARARGS, "" },
 	{ "add_level_to_world", py_unreal_engine_add_level_to_world, METH_VARARGS, "" },
 	{ "move_selected_actors_to_level", py_unreal_engine_move_selected_actors_to_level, METH_VARARGS, "" },
 	{ "move_actor_to_level", py_unreal_engine_move_actor_to_level, METH_VARARGS, "" },
@@ -409,7 +410,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "register_settings", py_unreal_engine_register_settings, METH_VARARGS, "" },
 	{ "show_viewer", py_unreal_engine_show_viewer, METH_VARARGS, "" },
 	{ "unregister_settings", py_unreal_engine_unregister_settings, METH_VARARGS, "" },
-
+	{ "gconfig_set_string", py_unreal_engine_gconfig_set_string, METH_VARARGS, "" },
+		
 	{ "in_editor_capture", py_unreal_engine_in_editor_capture, METH_VARARGS, "" },
 #endif
 
@@ -535,7 +537,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #endif
 
 #if WITH_EDITOR
-	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
+	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS | METH_KEYWORDS, "" },
+#pragma warning(suppress: 4191)
+	{ "save_config_to_section", (PyCFunction)py_ue_save_config_to_section, METH_VARARGS | METH_KEYWORDS, "" },
+#pragma warning(suppress: 4191)
+	{ "load_config", (PyCFunction)py_ue_load_config, METH_VARARGS | METH_KEYWORDS, "" },
+#pragma warning(suppress: 4191)
+	{ "load_config_from_section", (PyCFunction)py_ue_load_config_from_section, METH_VARARGS | METH_KEYWORDS, "" },
+
     { "set_folder_path", (PyCFunction)py_ue_actor_set_folder_path, METH_VARARGS, "" },
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
@@ -1568,6 +1578,7 @@ void unreal_engine_init_py_module()
 	// Classes
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_CONFIG", PyLong_FromUnsignedLongLong((uint64)CLASS_Config));
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_DEFAULT_CONFIG", PyLong_FromUnsignedLongLong((uint64)CLASS_DefaultConfig));
+	PyDict_SetItemString(unreal_engine_dict, "CLASS_PER_OBJECT_CONFIG", PyLong_FromUnsignedLongLong((uint64)CLASS_PerObjectConfig));
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_ABSTRACT", PyLong_FromUnsignedLongLong((uint64)CLASS_Abstract));
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_INTERFACE", PyLong_FromUnsignedLongLong((uint64)CLASS_Interface));
 
@@ -2454,7 +2465,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
             new(multiscript_delegate) FMulticastScriptDelegate();
 
 		    FScriptDelegate script_delegate;
-            //TODO: ikrimae: #PyUE: Not sure if this will auto cleanup when the function parameters are destroyed or if the GWorld owner will force it to keep alive
+            //TODO: ikrimae: #ThirdParty-Python: Not sure if this will auto cleanup when the function parameters are destroyed or if the GWorld owner will force it to keep alive
 		    UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(GWorld, py_obj, casted_multicastdelegate_prop->SignatureFunction);
 		    // fake UFUNCTION for bypassing checks
 		    script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
@@ -2472,7 +2483,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer)
             FScriptDelegate* script_delegate = casted_delegate_prop->GetPropertyValuePtr_InContainer(buffer);
             new(script_delegate) FScriptDelegate();
 
-            //TODO: ikrimae: #PyUE: Not sure if this will auto cleanup when the function parameters are destroyed or if the GWorld owner will force it to keep alive
+            //TODO: ikrimae: #ThirdParty-Python: Not sure if this will auto cleanup when the function parameters are destroyed or if the GWorld owner will force it to keep alive
             UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(GWorld, py_obj, casted_delegate_prop->SignatureFunction);
             // fake UFUNCTION for bypassing checks
             script_delegate->BindUFunction(py_delegate, FName("PyFakeCallable"));
