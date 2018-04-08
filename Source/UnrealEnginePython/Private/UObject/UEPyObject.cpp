@@ -910,23 +910,25 @@ PyObject *py_ue_load_config(ue_PyUObject *self, PyObject * args, PyObject *kwarg
 
 /** Checks if a section specified as a long package name can be found as short name in ini. - Used below */
 #if !UE_BUILD_SHIPPING
-void CheckMissingSection(const FString& SectionName, const FString& IniFilename)
-{
-	static TSet<FString> MissingSections;
-	FConfigSection* Sec = GConfig->GetSectionPrivate(*SectionName, false, true, *IniFilename);
-	if (!Sec && MissingSections.Contains(SectionName) == false)
-	{
-		FString ShortSectionName = FPackageName::GetShortName(SectionName);
-		if (ShortSectionName != SectionName)
-		{
-			Sec = GConfig->GetSectionPrivate(*ShortSectionName, false, true, *IniFilename);
-			if (Sec != NULL)
-			{
-				UE_LOG(LogConfig, Fatal, TEXT("Short class section names (%s) are not supported, please use long name: %s"), *ShortSectionName, *SectionName);
-			}
-		}
-		MissingSections.Add(SectionName);
-	}
+namespace {
+    void CheckMissingSection(const FString& SectionName, const FString& IniFilename)
+    {
+	    static TSet<FString> MissingSections;
+	    FConfigSection* Sec = GConfig->GetSectionPrivate(*SectionName, false, true, *IniFilename);
+	    if (!Sec && MissingSections.Contains(SectionName) == false)
+	    {
+		    FString ShortSectionName = FPackageName::GetShortName(SectionName);
+		    if (ShortSectionName != SectionName)
+		    {
+			    Sec = GConfig->GetSectionPrivate(*ShortSectionName, false, true, *IniFilename);
+			    if (Sec != NULL)
+			    {
+				    UE_LOG(LogConfig, Fatal, TEXT("Short class section names (%s) are not supported, please use long name: %s"), *ShortSectionName, *SectionName);
+			    }
+		    }
+		    MissingSections.Add(SectionName);
+	    }
+    }
 }
 #endif
 

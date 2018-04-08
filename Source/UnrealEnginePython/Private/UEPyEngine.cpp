@@ -342,6 +342,41 @@ PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
 }
 
 #if WITH_EDITOR
+PyObject *py_unreal_engine_find_actor_by_label_in_world(PyObject * self, PyObject * args)
+{
+	PyObject* py_world;
+	char* actor_label;
+	if (!PyArg_ParseTuple(args, "Os:find_actor_by_label_in_world", &py_world, &actor_label))
+	{
+		return NULL;
+	}
+
+	UWorld *u_world = ue_py_check_type<UWorld>(py_world);
+	if (!u_world)
+	{
+		return PyErr_Format(PyExc_Exception, "Argument is not a UWorld");
+	}
+
+	UObject *u_object = nullptr;
+
+	for (TActorIterator<AActor> Itr(u_world); Itr; ++Itr)
+	{
+		AActor *u_obj = *Itr;
+		if (u_obj->GetActorLabel().Equals(UTF8_TO_TCHAR(actor_label)))
+		{
+			u_object = u_obj;
+			break;
+		}
+	}
+
+	if (u_object)
+	{
+		Py_RETURN_UOBJECT(u_object);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 {
 	PyObject *obj;
@@ -548,42 +583,6 @@ PyObject *py_unreal_engine_get_delta_time(PyObject * self, PyObject * args)
 {
 	return PyFloat_FromDouble(FApp::GetDeltaTime());
 }
-
-PyObject *py_unreal_engine_find_actor_by_label_in_world(PyObject * self, PyObject * args)
-{
-	PyObject* py_world;
-	char* actor_label;
-	if (!PyArg_ParseTuple(args, "Os:find_actor_by_label_in_world", &py_world, &actor_label))
-	{
-		return NULL;
-	}
-
-	UWorld *u_world = ue_py_check_type<UWorld>(py_world);
-	if (!u_world)
-	{
-		return PyErr_Format(PyExc_Exception, "Argument is not a UWorld");
-	}
-
-	UObject *u_object = nullptr;
-
-	for (TActorIterator<AActor> Itr(u_world); Itr; ++Itr)
-	{
-		AActor *u_obj = *Itr;
-		if (u_obj->GetActorLabel().Equals(UTF8_TO_TCHAR(actor_label)))
-		{
-			u_object = u_obj;
-			break;
-		}
-	}
-
-	if (u_object)
-	{
-		Py_RETURN_UOBJECT(u_object);
-	}
-
-	Py_RETURN_NONE;
-}
-
 
 PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args)
 {
