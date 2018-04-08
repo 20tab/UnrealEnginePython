@@ -115,6 +115,7 @@ PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self
 #endif
 
 PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);
+PyObject *py_unreal_engine_insert_new_document_tab(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_swidget_from_wrapper(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_wrapper_from_pyswidget(PyObject *, PyObject *);
 
@@ -582,6 +583,10 @@ public:
 #endif
 
 	void OnWindowClosed(const TSharedRef<SWindow> &Window);
+    void OnTabClosed(TSharedRef<SDockTab> Tab);
+    void OnTabActivated(TSharedRef<SDockTab> Tab, ETabActivationCause TabActivationCause);
+    bool OnCanCloseTab();
+    void OnPersistVisualState();
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);

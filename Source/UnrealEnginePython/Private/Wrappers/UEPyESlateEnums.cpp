@@ -18,35 +18,35 @@ static void ue_PyESlateEnums_dealloc(ue_PyESlateEnums *self)
 }
 
 static PyTypeObject ue_PyESlateEnumsType = {
-	PyVarObject_HEAD_INIT(NULL, 0)
-	"unreal_engine.ESlateEnums", /* tp_name */
-	sizeof(ue_PyESlateEnums), /* tp_basicsize */
-	0,                         /* tp_itemsize */
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "unreal_engine.ESlateEnums", /* tp_name */
+    sizeof(ue_PyESlateEnums), /* tp_basicsize */
+    0,                         /* tp_itemsize */
     (destructor)ue_PyESlateEnums_dealloc,       /* tp_dealloc */
-	0,                         /* tp_print */
-	0,                         /* tp_getattr */
-	0,                         /* tp_setattr */
-	0,                         /* tp_reserved */
-	0,                         /* tp_repr */
-	0,                         /* tp_as_number */
-	0,                         /* tp_as_sequence */
-	0,                         /* tp_as_mapping */
-	0,                         /* tp_hash  */
-	0,                         /* tp_call */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_reserved */
+    0,                         /* tp_repr */
+    0,                         /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    0,                         /* tp_as_mapping */
+    0,                         /* tp_hash  */
+    0,                         /* tp_call */
     0,                         /* tp_str */
-	0,                         /* tp_getattro */
-	0,                         /* tp_setattro */
-	0,                         /* tp_as_buffer */
+    0,                         /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,        /* tp_flags */
-	"Unreal Engine ESlateEnums",           /* tp_doc */
-	0,                         /* tp_traverse */
-	0,                         /* tp_clear */
-	0,                         /* tp_richcompare */
-	0,                         /* tp_weaklistoffset */
-	0,                         /* tp_iter */
-	0,                         /* tp_iternext */
-	0,                         /* tp_methods */
-	0,
+    "Unreal Engine ESlateEnums",           /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
+    0,                         /* tp_methods */
+    0,
     ue_PyESlateEnums_getseters,
 };
 
@@ -141,6 +141,31 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'DocumentTab',
                     'NumRoles'
                 ]),
+
+        EnumDef(name='ELoadConfigPropagationFlags',
+                cppNameScope='UE4::ELoadConfigPropagationFlags',
+                values=[
+                    'LCPF_None',
+                    'LCPF_ReadParentSections',
+                    'LCPF_PropagateToChildDefaultObjects',
+                    'LCPF_PropagateToInstances',
+                    'LCPF_ReloadingConfigData',
+                    'LCPF_PersistentFlags',
+                ]),
+
+        EnumDef(name='ESearchPreference',
+                cppNameScope='FTabManager::ESearchPreference::ESearchPreference',
+                values=[
+                    'PreferLiveTab',
+                    'RequireClosedTab',
+                ]),
+
+        EnumDef(name='ETabActivationCause',
+                cppNameScope='ETabActivationCause',
+                values=[
+                    'UserClickedOnTab',
+                    'SetDirectly',
+                ]),
     ]    
 
     editor_native_enums_list = [
@@ -164,17 +189,6 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'RefreshAllImmediately',
                     'Unknown',
                 ]),
-
-		EnumDef(name='ELoadConfigPropagationFlags',
-				cppNameScope='ELoadConfigPropagationFlags',
-				values=[
-					'LCPF_None',
-					'LCPF_ReadParentSections',
-					'LCPF_PropagateToChildDefaultObjects',
-					'LCPF_PropagateToInstances',
-					'LCPF_ReloadingConfigData',
-					'LCPF_PersistentFlags',
-				]),
     ]
 
     def output_cpp_enums(in_enum_list):
@@ -297,6 +311,49 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_ETabRole, "NumRoles"       , PyLong_FromLong((int)ETabRole::NumRoles));
     }
 
+    // Enum Wrapper: ELoadConfigPropagationFlags
+    {
+        PyObject* native_ELoadConfigPropagationFlags = PyDict_GetItemString(unreal_engine_dict, "ELoadConfigPropagationFlags");
+        if (native_ELoadConfigPropagationFlags == nullptr)
+        {
+            native_ELoadConfigPropagationFlags = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ELoadConfigPropagationFlags", (PyObject*)native_ELoadConfigPropagationFlags);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_None"      , PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_None));
+        PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_ReadParentSections", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_ReadParentSections));
+        PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PropagateToChildDefaultObjects", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PropagateToChildDefaultObjects));
+        PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PropagateToInstances", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PropagateToInstances));
+        PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_ReloadingConfigData", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_ReloadingConfigData));
+        PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PersistentFlags", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PersistentFlags));
+    }
+
+    // Enum Wrapper: ESearchPreference
+    {
+        PyObject* native_ESearchPreference = PyDict_GetItemString(unreal_engine_dict, "ESearchPreference");
+        if (native_ESearchPreference == nullptr)
+        {
+            native_ESearchPreference = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ESearchPreference", (PyObject*)native_ESearchPreference);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ESearchPreference, "PreferLiveTab"  , PyLong_FromLong((int)FTabManager::ESearchPreference::ESearchPreference::PreferLiveTab));
+        PyObject_SetAttrString((PyObject*)native_ESearchPreference, "RequireClosedTab", PyLong_FromLong((int)FTabManager::ESearchPreference::ESearchPreference::RequireClosedTab));
+    }
+
+    // Enum Wrapper: ETabActivationCause
+    {
+        PyObject* native_ETabActivationCause = PyDict_GetItemString(unreal_engine_dict, "ETabActivationCause");
+        if (native_ETabActivationCause == nullptr)
+        {
+            native_ETabActivationCause = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ETabActivationCause", (PyObject*)native_ETabActivationCause);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ETabActivationCause, "UserClickedOnTab", PyLong_FromLong((int)ETabActivationCause::UserClickedOnTab));
+        PyObject_SetAttrString((PyObject*)native_ETabActivationCause, "SetDirectly"    , PyLong_FromLong((int)ETabActivationCause::SetDirectly));
+    }
+
     #if WITH_EDITOR
     // Enum Wrapper: EEditDefaultsOnlyNodeVisibility
     {
@@ -330,24 +387,6 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "RefreshAllImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::RefreshAllImmediately));
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
     }
-
-	// Enum Wrapper: ELoadConfigPropagationFlags
-	{
-		PyObject* native_ELoadConfigPropagationFlags = PyDict_GetItemString(unreal_engine_dict, "ELoadConfigPropagationFlags");
-		if (native_ELoadConfigPropagationFlags == nullptr)
-		{
-			native_ELoadConfigPropagationFlags = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-			PyDict_SetItemString(unreal_engine_dict, "ELoadConfigPropagationFlags", (PyObject*)native_ELoadConfigPropagationFlags);
-		}
-
-		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_None", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_None));
-		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_ReadParentSections", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_ReadParentSections));
-		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PropagateToChildDefaultObjects", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PropagateToChildDefaultObjects));
-		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PropagateToInstances", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PropagateToInstances));
-		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_ReloadingConfigData", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_ReloadingConfigData));
-		PyObject_SetAttrString((PyObject*)native_ELoadConfigPropagationFlags, "LCPF_PersistentFlags", PyLong_FromLong((int)UE4::ELoadConfigPropagationFlags::LCPF_PersistentFlags));
-	}
-
 
     #endif
     //[[[end]]]

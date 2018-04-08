@@ -2,6 +2,7 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySDockTab.h"
+#include "SDockTab.h"
 #include "Private/Framework/Docking/SDockingArea.h"
 #include "SlateWindowHelper.h"
 #include "WidgetPath.h"
@@ -119,12 +120,20 @@ PyTypeObject ue_PySDockTabType = {
 static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *kwargs) {
 	ue_py_slate_setup_farguments(SDockTab);
 
-	ue_py_slate_farguments_struct("content_padding", ContentPadding, FMargin);
-	ue_py_slate_farguments_optional_struct_ptr("icon", Icon, FSlateBrush);
-	ue_py_slate_farguments_text("label", Label);
-	ue_py_slate_farguments_optional_bool("should_autosize", ShouldAutosize);
-	ue_py_slate_farguments_optional_enum("tab_role", TabRole, ETabRole);
-
+    ue_py_slate_farguments_default_slot           ("content",                     Content);                   
+    ue_py_slate_farguments_named_slot             ("tab_well_content_left",       TabWellContentLeft);
+    ue_py_slate_farguments_named_slot             ("tab_well_content_right",      TabWellContentRight);
+    ue_py_slate_farguments_named_slot             ("tab_well_content_background", TabWellContentBackground);
+    ue_py_slate_farguments_attribute_struct       ("content_padding",             ContentPadding, FMargin);
+    ue_py_slate_farguments_argument_enum          ("tab_role",                    TabRole, ETabRole);
+    ue_py_slate_farguments_attribute_text         ("label",                       Label);
+    ue_py_slate_farguments_argument_struct_ptr    ("icon",                        Icon, FSlateBrush);
+    ue_py_slate_farguments_attribute_event        ("on_tab_closed",               OnTabClosed, SDockTab::FOnTabClosedCallback, OnTabClosed);
+    ue_py_slate_farguments_attribute_event        ("on_tab_activated",            OnTabActivated, SDockTab::FOnTabActivatedCallback, OnTabActivated);
+    ue_py_slate_farguments_argument_bool          ("should_autosize",             ShouldAutosize);
+    ue_py_slate_farguments_attribute_event        ("on_can_close_tab",            OnCanCloseTab, SDockTab::FCanCloseTab, OnCanCloseTab);
+    ue_py_slate_farguments_attribute_event        ("on_persist_visual_state",     OnPersistVisualState, SDockTab::FOnPersistVisualState, OnPersistVisualState);
+    ue_py_slate_farguments_attribute_flinear_color("tab_color_scale",             TabColorScale);
 
 	ue_py_snew(SDockTab, s_border.s_compound_widget.s_widget);
 	return 0;

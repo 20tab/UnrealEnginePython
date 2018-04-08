@@ -185,13 +185,69 @@ void FPythonSlateDelegate::OnWindowClosed(const TSharedRef<SWindow> &Window)
 {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_swidget<ue_PySWindow>(StaticCastSharedRef<SWidget>(Window), &ue_PySWindowType));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", (PyObject *)ue_py_get_swidget(Window));
 	if (!ret)
 	{
 		unreal_engine_py_log_error();
 		return;
 	}
 	Py_DECREF(ret);
+}
+
+void FPythonSlateDelegate::OnTabClosed(TSharedRef<SDockTab> Tab)
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", (PyObject *)ue_py_get_swidget(Tab));
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+}
+
+void FPythonSlateDelegate::OnTabActivated(TSharedRef<SDockTab> Tab, ETabActivationCause TabActivationCause)
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", (PyObject *)ue_py_get_swidget(Tab), (int)TabActivationCause);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+}
+
+bool FPythonSlateDelegate::OnCanCloseTab()
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
+    if (!ret || !PyBool_Check(ret))
+    {
+        unreal_engine_py_log_error();
+        Py_XDECREF(ret);
+        return true;
+    }
+
+    const bool bCanClose = ret == Py_True;
+    Py_DECREF(ret);
+    return bCanClose;
+}
+
+void FPythonSlateDelegate::OnPersistVisualState()
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+    }
+
+    Py_DECREF(ret);
 }
 
 void FPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commit_type)
@@ -1448,6 +1504,54 @@ PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
     Py_RETURN_NONE;
 }
 
+PyObject *py_unreal_engine_insert_new_document_tab(PyObject * self, PyObject * args)
+{
+    char*     name             = nullptr;
+    int       searchPreference = 0;
+    PyObject* py_docktab      = nullptr;
+    char*     tabmanager       = (char *)"LevelEditorTabManager";
+
+    if (!PyArg_ParseTuple(args, "siO|s:insert_new_document_tab", &name, &searchPreference, &py_docktab, &tabmanager))
+    {
+        return NULL;
+    }
+
+    ue_PySDockTab* ue_docktab = py_ue_is_sdock_tab(py_docktab);
+    if (!ue_docktab)
+    {
+        return PyErr_Format(PyExc_Exception, "Widget is not a dock tab!");
+    }
+
+    FTabManager* tabManager = nullptr;
+    {
+#if WITH_EDITOR
+        // To persist nomad tabs docking, make sure to specify LevelEditorTabManager
+        if (_stricmp(tabmanager, (char *)"GlobalTabManager") == 0)
+        {
+            //NOTE: This will not persist the tab docking location after being closed
+            tabManager = &FGlobalTabmanager::Get().Get();
+        }
+        else if (FLevelEditorModule* level_editor_module = FModuleManager::GetModulePtr<FLevelEditorModule>("LevelEditor"))
+        {
+            tabManager = level_editor_module->GetLevelEditorTabManager().Get();
+        }
+#else
+        tabManager = &FGlobalTabmanager::Get().Get();
+#endif
+    }
+
+    if (!tabManager)
+    {
+        return PyErr_Format(PyExc_Exception, "Could not retrieve tab manager!");
+    }
+
+    tabManager->InsertNewDocumentTab(
+        UTF8_TO_TCHAR(name), 
+        (FTabManager::ESearchPreference::Type)searchPreference, 
+        StaticCastSharedRef<SDockTab>(ue_docktab->s_border.s_compound_widget.s_widget.s_widget));
+
+    Py_RETURN_NONE;
+}
 
 PyObject * py_unreal_engine_get_swidget_from_wrapper(PyObject *self, PyObject *args)
 {

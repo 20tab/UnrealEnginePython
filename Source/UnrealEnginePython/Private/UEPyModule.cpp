@@ -222,6 +222,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "register_nomad_tab_spawner", py_unreal_engine_register_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "unregister_nomad_tab_spawner", py_unreal_engine_unregister_nomad_tab_spawner, METH_VARARGS, "" },
 	{ "invoke_tab", py_unreal_engine_invoke_tab, METH_VARARGS, "" },
+    { "insert_new_document_tab", py_unreal_engine_insert_new_document_tab, METH_VARARGS, "" },
 	{ "get_swidget_from_wrapper", py_unreal_engine_get_swidget_from_wrapper, METH_VARARGS, "" },
 	{ "create_wrapper_from_pyswidget", py_unreal_engine_create_wrapper_from_pyswidget, METH_VARARGS, "" },
 #if WITH_EDITOR
