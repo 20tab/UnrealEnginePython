@@ -10,6 +10,9 @@
 
 #include "AssetData.h"
 
+void unreal_engine_py_log_error();
+template <typename T> T *ue_py_check_struct(PyObject *);
+
 
 class FPythonSlateDelegate : public FPythonSmartDelegate
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UEPySlate.h"
+#include "UEPySWidget.h"
 
 #include "Runtime/Slate/Public/Widgets/Text/SMultiLineEditableText.h"
 

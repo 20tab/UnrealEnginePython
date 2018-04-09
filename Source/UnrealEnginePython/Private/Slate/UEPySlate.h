@@ -15,9 +15,12 @@
 
 
 
-#include "UEPySWidget.h"
 #include "UEPySlateDelegate.h"
 #include "UEPySlatePythonItem.h"
+
+void ue_python_init_swidget(PyObject *);
+
+extern PyTypeObject ue_PySWidgetType;
 
 typedef struct ue_PySWidget ue_PySWidget;
 
@@ -28,6 +31,19 @@ struct ue_PySWidget
 		TSharedRef<SWidget> Widget;
 	PyObject      *weakreflist;
 };
+
+template<typename T>
+TSharedPtr<T> py_ue_is_swidget(PyObject *py_obj)
+{
+	if (!PyObject_IsInstance(py_obj, (PyObject *)&ue_PySWidgetType))
+	{
+		PyErr_SetString(PyExc_Exception, "object is not an SWidget");
+		return nullptr;
+	}
+	return StaticCastSharedRef<T>(((ue_PySWidget *)py_obj)->Widget);
+}
+
+
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 
