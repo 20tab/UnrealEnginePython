@@ -1,8 +1,7 @@
 // Copyright 20Tab S.r.l.
 
 #include "PyActor.h"
-
-#include "PythonDelegate.h"
+#include "UEPyModule.h"
 
 APyActor::APyActor()
 {

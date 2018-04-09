@@ -1,7 +1,7 @@
 // Copyright 20Tab S.r.l.
 
 #include "PyCharacter.h"
-
+#include "UEPyModule.h"
 #include "Components/InputComponent.h"
 
 APyCharacter::APyCharacter()

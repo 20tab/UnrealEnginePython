@@ -1,7 +1,9 @@
 #pragma once
 
-#include "UEPyModule.h"
+#include "UnrealEnginePython.h"
 #include "PythonClass.generated.h"
+
+void unreal_engine_py_log_error();
 
 UCLASS()
 class UPythonClass : public UClass

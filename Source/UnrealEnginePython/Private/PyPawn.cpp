@@ -1,6 +1,6 @@
 
 #include "PyPawn.h"
-
+#include "UEPyModule.h"
 
 APyPawn::APyPawn()
 {

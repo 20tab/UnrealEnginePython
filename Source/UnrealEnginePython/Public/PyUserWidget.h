@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
-#include "UEPyModule.h"
+#include "UnrealEnginePython.h"
 #include "PyUserWidget.generated.h"
 
 

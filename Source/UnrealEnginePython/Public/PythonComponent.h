@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "UEPyModule.h"
+#include "UnrealEnginePython.h"
 #include "PythonComponent.generated.h"
 
 
