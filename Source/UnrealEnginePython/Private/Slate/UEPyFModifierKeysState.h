@@ -1,7 +1,10 @@
 #pragma once
 
 #include "UnrealEnginePython.h"
+
+#if ENGINE_MINOR_VERSION <= 15
 #include "Runtime/Core/Public/GenericPlatform/GenericApplication.h"
+#endif
 
 typedef struct
 {
