@@ -387,6 +387,43 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	}\
 }
 
+#define ue_py_slate_farguments_call(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value && PyObject_IsTrue(value)) {\
+		arguments.attribute();\
+	}\
+}
+
+#define ue_py_slate_farguments_padding(param, attribute) { PyObject *padding = ue_py_dict_get_item(kwargs, param);\
+	if (padding)\
+	{\
+		if (PyTuple_Check(padding))\
+		{\
+			FMargin margin;\
+			if (!PyArg_ParseTuple(padding, "f|fff", &margin.Left, &margin.Top, &margin.Right, &margin.Bottom))\
+			{\
+				PyErr_SetString(PyExc_TypeError, "invalid padding value");\
+				return -1;\
+			}\
+			arguments.attribute(margin);\
+		}\
+		else if (PyNumber_Check(padding))\
+		{\
+			PyObject *py_float = PyNumber_Float(padding); \
+			arguments.attribute(PyFloat_AsDouble(py_float)); \
+			Py_DECREF(py_float); \
+		}\
+		else if (FMargin *u_struct = ue_py_check_struct<FMargin>(padding))\
+		{\
+			arguments.attribute(*u_struct); \
+		}\
+		else\
+		{\
+			PyErr_SetString(PyExc_TypeError, "invalid padding value"); \
+			return -1; \
+		}\
+	}\
+}
+
 
 #define ue_py_slate_farguments_optional_bool(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\

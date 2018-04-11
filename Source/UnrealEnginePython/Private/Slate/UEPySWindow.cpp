@@ -60,7 +60,6 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args)
 		return nullptr;
 	}
 
-
 	py_SWindow->SetContent(Content.ToSharedRef());
 
 	Py_RETURN_SLATE_SELF;
@@ -151,36 +150,8 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-PyTypeObject ue_PySWindowType = {
-	PyVarObject_HEAD_INIT(NULL, 0)
-	"unreal_engine.SWindow", /* tp_name */
-	sizeof(ue_PySWindow), /* tp_basicsize */
-	0,                         /* tp_itemsize */
-	0,       /* tp_dealloc */
-	0,                         /* tp_print */
-	0,                         /* tp_getattr */
-	0,                         /* tp_setattr */
-	0,                         /* tp_reserved */
-	0,                         /* tp_repr */
-	0,                         /* tp_as_number */
-	0,                         /* tp_as_sequence */
-	0,                         /* tp_as_mapping */
-	0,                         /* tp_hash  */
-	0,                         /* tp_call */
-	0,                         /* tp_str */
-	0,                         /* tp_getattro */
-	0,                         /* tp_setattro */
-	0,                         /* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /* tp_flags */
-	"Unreal Engine SWindow",           /* tp_doc */
-	0,                         /* tp_traverse */
-	0,                         /* tp_clear */
-	0,                         /* tp_richcompare */
-	0,                         /* tp_weaklistoffset */
-	0,                         /* tp_iter */
-	0,                         /* tp_iternext */
-	ue_PySWindow_methods,             /* tp_methods */
-};
+
+DECLARE_UE_PY_SLATE_WIDGET(SWindow);
 
 static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwargs)
 {
@@ -261,11 +232,33 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	return 0;
 }
 
+PyNumberMethods ue_PySWindow_number_methods;
+
+static PyObject *ue_py_swindow_lshift(ue_PySWindow *self, PyObject *value)
+{
+	ue_py_slate_cast(SWindow);
+
+	TSharedPtr<SWidget> Content = py_ue_is_swidget<SWidget>(value);
+	if (!Content.IsValid())
+	{
+		return nullptr;
+	}
+
+	py_SWindow->SetContent(Content.ToSharedRef());
+
+	Py_RETURN_SLATE_SELF;
+}
+
+
 void ue_python_init_swindow(PyObject *ue_module)
 {
 
 	ue_PySWindowType.tp_init = (initproc)ue_py_swindow_init;
 	ue_PySWindowType.tp_call = (ternaryfunc)py_ue_swindow_set_content;
+
+	memset(&ue_PySWindow_number_methods, 0, sizeof(PyNumberMethods));
+	ue_PySWindowType.tp_as_number = &ue_PySWindow_number_methods;
+	ue_PySWindow_number_methods.nb_lshift = (binaryfunc)ue_py_swindow_lshift;
 
 	ue_PySWindowType.tp_base = &ue_PySCompoundWidgetType;
 
