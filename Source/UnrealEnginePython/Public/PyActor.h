@@ -2,10 +2,10 @@
 
 
 #include "GameFramework/Actor.h"
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "PyActor.generated.h"
 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(F_VS_PythonCalls, FString, VSString);
 
 UCLASS(BlueprintType, Blueprintable)
 class UNREALENGINEPYTHON_API APyActor : public AActor

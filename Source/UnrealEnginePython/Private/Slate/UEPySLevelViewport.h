@@ -2,6 +2,8 @@
 
 #include "UEPySEditorViewport.h"
 
+#if WITH_EDITOR
+
 #include "Editor/LevelEditor/Public/SLevelViewport.h"
 #include "Editor/LevelEditor/Private/SLevelEditor.h"
 #include "Editor/UnrealEd/Public/EditorViewportClient.h"
@@ -16,3 +18,4 @@ typedef struct
 } ue_PySLevelViewport;
 
 void ue_python_init_slevel_viewport(PyObject *);
+#endif

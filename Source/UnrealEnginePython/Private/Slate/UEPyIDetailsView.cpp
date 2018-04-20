@@ -5,9 +5,6 @@
 
 #include "Editor/PropertyEditor/Public/IDetailsView.h"
 
-
-
-
 static PyObject *py_ue_idetails_view_set_object(ue_PyIDetailsView *self, PyObject * args, PyObject *kwargs)
 {
 	ue_py_slate_cast(IDetailsView);

@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "UEPyModule.h"
 
 #if WITH_EDITOR

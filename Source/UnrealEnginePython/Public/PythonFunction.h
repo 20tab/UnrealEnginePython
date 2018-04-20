@@ -1,6 +1,7 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+//#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "PythonFunction.generated.h"
 
 UCLASS()

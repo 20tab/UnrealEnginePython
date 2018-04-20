@@ -1,6 +1,7 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyMainHeader.h"
+
 #include "PythonDelegate.generated.h"
 
 UCLASS()

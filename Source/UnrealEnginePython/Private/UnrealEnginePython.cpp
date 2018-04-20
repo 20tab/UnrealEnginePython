@@ -10,7 +10,9 @@
 #endif
 
 #include "Styling/SlateStyleRegistry.h"
+#if WITH_EDITOR
 #include "Interfaces/IPluginManager.h"
+#endif
 
 #if ENGINE_MINOR_VERSION >= 18
 #define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()

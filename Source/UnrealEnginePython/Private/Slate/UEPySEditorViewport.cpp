@@ -2,10 +2,6 @@
 #include "UEPySEditorViewport.h"
 
 #if WITH_EDITOR
-
-
-
-
 static PyObject *py_ue_seditor_viewport_enable_stereo_rendering(ue_PySEditorViewport *self, PyObject * args)
 {
 	ue_py_slate_cast(SEditorViewport);

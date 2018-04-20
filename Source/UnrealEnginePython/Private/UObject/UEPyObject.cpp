@@ -12,6 +12,11 @@
 #include "Wrappers/UEPyFObjectThumbnail.h"
 #endif
 
+#include "Components/ActorComponent.h"
+#include "Engine/UserDefinedEnum.h"
+#include "Class.h"
+#include "UnrealType.h"
+
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
 {
 

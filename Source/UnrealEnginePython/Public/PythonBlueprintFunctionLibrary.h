@@ -2,7 +2,7 @@
 
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "PythonBlueprintFunctionLibrary.generated.h"
 
 

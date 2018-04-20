@@ -1,8 +1,8 @@
 #pragma once
 
 
-
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
+//#include "UnrealEnginePython.h"
 
 typedef struct {
     PyObject_HEAD

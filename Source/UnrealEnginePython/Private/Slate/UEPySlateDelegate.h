@@ -119,5 +119,3 @@ public:
 		return u_struct_copy;
 	}
 };
-
-

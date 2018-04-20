@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "UObject/UObjectGlobals.h"
 #include "UObject/WeakObjectPtr.h"
 #include "Widgets/SWidget.h"
@@ -261,4 +261,4 @@ private:
 
 	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
 	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
-	};
+};
