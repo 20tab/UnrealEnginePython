@@ -1,7 +1,7 @@
 #pragma once
 
+#if WITH_EDITOR
 #include "UnrealEnginePython.h"
-
 
 #include "UEPySCompoundWidget.h"
 
@@ -15,3 +15,4 @@ typedef struct {
 } ue_PySObjectPropertyEntryBox;
 
 void ue_python_init_sobject_property_entry_box(PyObject *);
+#endif

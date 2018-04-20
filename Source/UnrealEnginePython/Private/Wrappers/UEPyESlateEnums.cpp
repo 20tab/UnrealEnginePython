@@ -1,4 +1,7 @@
 #include "UEPyESlateEnums.h"
+#include "Platform.h"
+#include "Class.h"
+#include "UICommandInfo.h"
 
 static PyObject *py_ue_eslate_enums_get(ue_PyESlateEnums *self, void *closure)
 {

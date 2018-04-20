@@ -1,6 +1,10 @@
 #pragma once
 
+#if WITH_EDITOR
+
 #include "UEPySCompoundWidget.h"
+#include "Build.h"
+
 
 #include "Editor/UnrealEd/Public/SEditorViewport.h"
 
@@ -13,3 +17,4 @@ typedef struct
 } ue_PySEditorViewport;
 
 void ue_python_init_seditor_viewport(PyObject *);
+#endif

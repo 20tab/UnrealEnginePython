@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "PyCharacter.generated.h"
 
 

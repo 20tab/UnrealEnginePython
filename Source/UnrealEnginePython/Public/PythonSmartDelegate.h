@@ -1,7 +1,10 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyMainHeader.h"
+
+#if WITH_EDITOR
 #include "Factories/Factory.h"
+#endif
 
 class FPythonSmartDelegate : public TSharedFromThis<FPythonSmartDelegate>
 {
@@ -11,8 +14,6 @@ public:
 	~FPythonSmartDelegate();
 
 	void SetPyCallable(PyObject *callable);
-
-
 
 	bool Tick(float DeltaTime);
 	void Void();

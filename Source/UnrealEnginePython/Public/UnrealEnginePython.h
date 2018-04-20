@@ -10,23 +10,7 @@
 //#define UEPY_MEMORY_DEBUG	1
 //#define UEPY_THREADING 1
 
-#if defined(UNREAL_ENGINE_PYTHON_ON_MAC)
-#include <Headers/Python.h>
-#include <Headers/structmember.h>
-#elif defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
-#include <Python.h>
-#include <structmember.h>
-#else
-#include <include/Python.h>
-#include <include/structmember.h>
-#endif
-
-
-#include "CoreMinimal.h"
-#include "ModuleManager.h"
-#include "Styling/SlateStyle.h"
-#include "UObject/ScriptMacros.h"
-#include "Runtime/Launch/Resources/Version.h"
+#include "UEPyMainHeader.h"
 
 // We need to make sure reference structs do not mistaken for callable
 #define PyCalllable_Check_Extended(value) PyCallable_Check(value) && py_ue_is_uscriptstruct(value) == nullptr

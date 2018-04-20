@@ -3,7 +3,7 @@
 #pragma once
 
 #include "UObject/Class.h"
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "Components/NativeWidgetHost.h"
 #include "PyNativeWidgetHost.generated.h"
 

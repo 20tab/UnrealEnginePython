@@ -1,5 +1,6 @@
 #pragma once
 
+#if WITH_EDITOR
 #include "UnrealEnginePython.h"
 
 
@@ -15,3 +16,4 @@ typedef struct {
 } ue_PySAssetDropTarget;
 
 void ue_python_init_sasset_drop_target(PyObject *);
+#endif

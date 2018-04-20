@@ -1,5 +1,6 @@
 #pragma once
 
+#if WITH_EDITOR
 #include "UEPySEditorViewport.h"
 
 #include "Editor/UnrealEd/Public/SEditorViewport.h"
@@ -65,3 +66,4 @@ protected:
 
 	bool bSimulate;
 };
+#endif
