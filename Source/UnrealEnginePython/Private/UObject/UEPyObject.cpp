@@ -2,6 +2,8 @@
 
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
+#include "Components/ActorComponent.h"
+#include "Engine/UserDefinedEnum.h"
 
 #if WITH_EDITOR
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"

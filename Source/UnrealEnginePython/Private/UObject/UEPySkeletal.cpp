@@ -1057,7 +1057,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	Py_RETURN_NONE;
 }
-#endif
+
 
 PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject * args)
 {
@@ -1083,21 +1083,17 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject
 		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
 #endif
 
-#if WITH_EDITOR
 	mesh->PreEditChange(nullptr);
-#endif
 
 	mesh->RegisterMorphTarget(morph);
 
-#if WITH_EDITOR
 	mesh->PostEditChange();
-#endif
+
 	mesh->MarkPackageDirty();
 
 	Py_RETURN_NONE;
 }
 
-#if WITH_EDITOR
 PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);

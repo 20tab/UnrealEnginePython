@@ -7,6 +7,8 @@
 #endif
 
 #include "Slate/UEPySWidget.h"
+// required for GEngine access
+#include "Engine/Engine.h"
 
 PyObject *py_unreal_engine_get_game_viewport_client(PyObject * self, PyObject * args)
 {

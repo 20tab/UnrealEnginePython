@@ -1,5 +1,7 @@
 #include "UEPyESlateEnums.h"
 
+#include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
+
 static PyObject *py_ue_eslate_enums_get(ue_PyESlateEnums *self, void *closure)
 {
 	return PyLong_FromLong(self->val);

@@ -2,9 +2,11 @@
 
 #include "UEPyModule.h"
 
-#include "IStructureDetailsView.h"
 
 #if WITH_EDITOR
+
+#include "IStructureDetailsView.h"
+
 typedef struct
 {
 	PyObject_HEAD

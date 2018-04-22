@@ -2,6 +2,8 @@
 
 #include "UEPySEditorViewport.h"
 
+#if WITH_EDITOR
+
 #include "Editor/UnrealEd/Public/SEditorViewport.h"
 #include "Editor/UnrealEd/Public/EditorViewportClient.h"
 #include "Runtime/Engine/Public/PreviewScene.h"
@@ -65,3 +67,5 @@ protected:
 
 	bool bSimulate;
 };
+
+#endif

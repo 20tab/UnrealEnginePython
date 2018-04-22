@@ -930,9 +930,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #pragma warning(suppress: 4191)
 	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS | METH_KEYWORDS, "" },
 #endif
+#if WITH_EDITOR
 	{ "skeletal_mesh_register_morph_target", (PyCFunction)py_ue_skeletal_mesh_register_morph_target, METH_VARARGS, "" },
 
-#if WITH_EDITOR
+
 	{ "skeletal_mesh_to_import_vertex_map", (PyCFunction)py_ue_skeletal_mesh_to_import_vertex_map, METH_VARARGS, "" },
 
 	{ "morph_target_populate_deltas", (PyCFunction)py_ue_morph_target_populate_deltas, METH_VARARGS, "" },
