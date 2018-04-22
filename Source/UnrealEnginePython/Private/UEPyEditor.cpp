@@ -412,7 +412,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
 	if (py_sync && PyObject_IsTrue(py_sync))
 	{
 		sync_to_browser = true;
-}
+	}
 
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, sync_to_browser);
@@ -722,7 +722,7 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-	}
+}
 
 PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args)
 {
@@ -1411,7 +1411,7 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility))
 	{
 		return NULL;
-}
+	}
 
 	if (!ue_is_pyuobject(py_blueprint))
 	{
@@ -1750,23 +1750,32 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:factory_create_new", &name))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<UFactory>())
+	UFactory *factory = ue_py_check_type<UFactory>(self);
+	if (!factory)
 		return PyErr_Format(PyExc_Exception, "uobject is not a Factory");
 
 	UPackage *outer = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 	if (!outer)
 		return PyErr_Format(PyExc_Exception, "unable to create package");
 
-	UFactory *factory = (UFactory *)self->ue_object;
 	UClass *u_class = factory->GetSupportedClass();
 
 	char *obj_name = strrchr(name, '/') + 1;
 	if (strlen(obj_name) < 1)
 	{
 		return PyErr_Format(PyExc_Exception, "invalid object name");
+	}
+
+	// avoid duplicates
+	if (u_class->IsChildOf<UBlueprint>())
+	{
+		if (FindObject<UBlueprint>(outer, UTF8_TO_TCHAR(obj_name)))
+		{
+			return PyErr_Format(PyExc_Exception, "a blueprint with this name already exists in the package");
+		}
 	}
 
 	UObject *u_object = factory->FactoryCreateNew(u_class, outer, FName(UTF8_TO_TCHAR(obj_name)), RF_Public | RF_Standalone, nullptr, GWarn);
@@ -1863,7 +1872,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 	if (!PyArg_ParseTuple(args, "O:move_selected_actors_to_level", &py_level))
 	{
 		return NULL;
-}
+	}
 
 	ULevel *level = ue_py_check_type<ULevel>(py_level);
 	if (!level)
@@ -1876,7 +1885,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 #endif
 
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
 {
