@@ -94,7 +94,7 @@ obviously we still have not added data to our StaticMesh, so in our Content Brow
 
 ![Empty mesh](https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/WritingAColladaFactoryWithPython_Assets/empty_mesh.png)
 
-## Bulding the new mesh
+## Building the new mesh
 
 The following part is a bit complex and requires heavy understanding of the UE4 internals.
 
