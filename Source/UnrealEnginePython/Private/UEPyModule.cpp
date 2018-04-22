@@ -583,6 +583,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
 	{ "node_create_pin", (PyCFunction)py_ue_node_create_pin, METH_VARARGS, "" },
 
+	{ "node_function_entry_set_pure", (PyCFunction)py_ue_node_function_entry_set_pure, METH_VARARGS, "" },
+
 	{ "node_allocate_default_pins", (PyCFunction)py_ue_node_allocate_default_pins, METH_VARARGS, "" },
 	{ "node_reconstruct", (PyCFunction)py_ue_node_reconstruct, METH_VARARGS, "" },
 

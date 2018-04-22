@@ -1410,18 +1410,12 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 	PyObject *visibility;
 	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
-	if (!py_obj->ue_object->IsA<UBlueprint>())
-		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Blueprint");
 
 	bool visible = false;
 	if (PyObject_IsTrue(visibility))
@@ -1431,8 +1425,7 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 
 	FBlueprintEditorUtils::SetBlueprintOnlyEditableFlag(bp, FName(UTF8_TO_TCHAR(name)), !visible);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args)
@@ -1885,7 +1878,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 #endif
 
 	Py_RETURN_NONE;
-	}
+}
 
 PyObject *py_unreal_engine_move_actor_to_level(PyObject *self, PyObject * args)
 {
