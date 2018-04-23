@@ -2423,6 +2423,11 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
 				return true;
 			}
+			else if (auto casted_prop_weak_object = Cast<UWeakObjectProperty>(prop))
+			{
+				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
+				return true;
+			}
 
 			return false;
 		}
