@@ -1,7 +1,7 @@
 import unreal_engine as ue
 
-from unreal_engine.classes import Material, BlueprintFactory, Blueprint, Actor, Texture2D
-from unreal_engine.structs import EdGraphPinType, Vector, Rotator
+from unreal_engine.classes import Material, BlueprintFactory, Blueprint, Actor, Texture2D, SkeletalMesh
+from unreal_engine.structs import EdGraphPinType, Vector, Rotator, EdGraphTerminalType
 from unreal_engine.enums import EPinContainerType
 
 import time
@@ -19,5 +19,8 @@ ue.blueprint_add_member_variable(bp, 'TestVector', pin)
 
 pin = EdGraphPinType(PinCategory='struct',PinSubCategoryObject=Rotator,ContainerType=EPinContainerType.Array)
 ue.blueprint_add_member_variable(bp, 'TestRotator', pin)
+
+pin = EdGraphPinType(PinCategory='string',ContainerType=EPinContainerType.Map,PinValueType=EdGraphTerminalType(TerminalCategory='object',TerminalSubCategoryObject=SkeletalMesh))
+ue.blueprint_add_member_variable(bp, 'TestMap', pin)
 
 ue.open_editor_for_asset(bp)
