@@ -1362,7 +1362,8 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 	char *name;
 	PyObject *py_type;
 	PyObject *py_is_array = nullptr;
-	if (!PyArg_ParseTuple(args, "OsO|O:blueprint_add_member_variable", &py_blueprint, &name, &py_type, &py_is_array))
+	char *default_value = nullptr;
+	if (!PyArg_ParseTuple(args, "OsO|Os:blueprint_add_member_variable", &py_blueprint, &name, &py_type, &py_is_array, &default_value))
 	{
 		return nullptr;
 	}
@@ -1400,7 +1401,12 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 		pin = *pinptr;
 	}
 
-	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin))
+	FString DefaultValue = FString("");
+
+	if (default_value)
+		DefaultValue = FString(default_value);
+
+	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin, DefaultValue))
 	{
 		Py_RETURN_TRUE;
 	}
