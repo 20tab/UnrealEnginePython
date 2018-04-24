@@ -69,6 +69,26 @@ static PyObject *py_ue_swindow_set_content(ue_PySWindow *self, PyObject * args)
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_swindow_set_on_window_closed(ue_PySWindow *self, PyObject * args)
+{
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:set_on_window_closed", &py_callable))
+	{
+		return NULL;
+	}
+
+	if (!PyCalllable_Check_Extended(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+	FOnWindowClosed onWindowClosed;
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	onWindowClosed.BindSP(py_delegate, &FPythonSlateDelegate::OnWindowClosed);
+
+	sw_window->SetOnWindowClosed(onWindowClosed);
+	Py_RETURN_NONE;
+}
+
+
 static PyObject *py_ue_swindow_set_sizing_rule(ue_PySWindow *self, PyObject * args)
 {
 	int rule;
@@ -142,6 +162,7 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
+	{ "set_on_window_closed", (PyCFunction)py_ue_swindow_set_on_window_closed, METH_VARARGS, "" },
 	{ "get_handle", (PyCFunction)py_ue_swindow_get_handle, METH_VARARGS, "" },
 	{ "request_destroy", (PyCFunction)py_ue_swindow_request_destroy, METH_VARARGS, "" },
 #if WITH_EDITOR

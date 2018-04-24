@@ -301,6 +301,56 @@ PyObject *py_unreal_engine_editor_is_alt_down(PyObject * self, PyObject * args)
 
 }
 
+PyObject *py_unreal_engine_editor_is_space_bar_down(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FViewport * activeViewport = GEditor->GetActiveViewport();
+
+	if (activeViewport->KeyState(EKeys::SpaceBar))
+		Py_RETURN_TRUE;
+	else
+		Py_RETURN_FALSE;
+
+}
+
+PyObject *py_unreal_engine_editor_get_widget_mode(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FViewport * activeViewport = GEditor->GetActiveViewport();
+
+	FEditorViewportClient * activeViewportClient = static_cast<FEditorViewportClient *>(activeViewport->GetClient());
+
+	if (activeViewportClient)
+	{
+		FWidget::EWidgetMode currentWidgetMode = activeViewportClient->GetWidgetMode();
+		return PyLong_FromUnsignedLong(uint64(currentWidgetMode));
+	}
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_editor_get_widget_coord_system_space(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FViewport * activeViewport = GEditor->GetActiveViewport();
+
+	FEditorViewportClient * activeViewportClient = static_cast<FEditorViewportClient *>(activeViewport->GetClient());
+
+	if (activeViewportClient)
+	{
+		ECoordSystem currentWidgetCoordSystemSpace = activeViewportClient->GetWidgetCoordSystemSpace();
+		return PyLong_FromUnsignedLong(uint64(currentWidgetCoordSystemSpace));
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 {
 

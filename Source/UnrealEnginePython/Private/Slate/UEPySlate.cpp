@@ -197,27 +197,31 @@ void FPythonSlateDelegate::OnWindowClosed(const TSharedRef<SWindow> &Window)
 void FPythonSlateDelegate::OnTabClosed(TSharedRef<SDockTab> Tab)
 {
     FScopePythonGIL gil;
-
-    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", (PyObject *)ue_py_get_swidget(Tab));
+	ue_PySWidget * py_dock_tab = ue_py_get_swidget(Tab);
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", (PyObject *)py_dock_tab);
     if (!ret)
     {
         unreal_engine_py_log_error();
         return;
     }
-    Py_DECREF(ret);
+	
+	Py_DECREF(ret);
+	Py_DECREF((PyObject*)py_dock_tab);
+
 }
 
 void FPythonSlateDelegate::OnTabActivated(TSharedRef<SDockTab> Tab, ETabActivationCause TabActivationCause)
 {
     FScopePythonGIL gil;
-
-    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", (PyObject *)ue_py_get_swidget(Tab), (int)TabActivationCause);
+	ue_PySWidget * py_dock_tab = ue_py_get_swidget(Tab);
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", (PyObject *)py_dock_tab, (int)TabActivationCause);
     if (!ret)
     {
         unreal_engine_py_log_error();
         return;
     }
     Py_DECREF(ret);
+	Py_DECREF((PyObject*)py_dock_tab);
 }
 
 bool FPythonSlateDelegate::OnCanCloseTab()

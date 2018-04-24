@@ -43,14 +43,18 @@ static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView
 static PyObject *py_ue_spython_tree_view_is_item_expanded(ue_PySPythonTreeView *self, PyObject * args)
 {
 	PyObject *py_item;
-	if (!PyArg_ParseTuple(args, "OO:is_item_expanded", &py_item))
+	if (!PyArg_ParseTuple(args, "O:is_item_expanded", &py_item))
 	{
 		return nullptr;
 	}
 
     if (TSharedPtr<struct FPythonItem> const* foundItem = sw_python_tree_view->Find(py_item))
     {
-        sw_python_tree_view->IsItemExpanded(*foundItem);
+		bool bItemExpanded = sw_python_tree_view->IsItemExpanded(*foundItem);
+		if (bItemExpanded)
+			Py_RETURN_TRUE;
+		else
+			Py_RETURN_FALSE;
     }
 
 	Py_RETURN_NONE;

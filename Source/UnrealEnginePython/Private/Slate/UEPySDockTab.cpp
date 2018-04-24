@@ -24,6 +24,25 @@ static PyObject *py_ue_sdock_tab_set_label(ue_PySButton *self, PyObject * args) 
 	return (PyObject *)self;
 }
 
+static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySButton *self, PyObject * args) 
+{
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:set_on_tab_closed", &py_callable))
+	{
+		return NULL;
+	}
+
+	if (!PyCalllable_Check_Extended(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+	SDockTab::FOnTabClosedCallback onTabClosed;
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	onTabClosed.BindSP(py_delegate, &FPythonSlateDelegate::OnTabClosed);
+
+	sw_dock_tab->SetOnTabClosed(onTabClosed);
+	Py_RETURN_NONE;
+}
+
 static PyObject *py_ue_sdock_tab_request_close_tab(ue_PySButton *self, PyObject * args) {
 
 	sw_dock_tab->RequestCloseTab();
@@ -78,6 +97,7 @@ static PyObject *py_ue_sdock_get_docking_area(ue_PySButton *self, PyObject * arg
 
 static PyMethodDef ue_PySDockTab_methods[] = {
 	{ "set_label", (PyCFunction)py_ue_sdock_tab_set_label, METH_VARARGS, "" },
+	{ "set_on_tab_closed", (PyCFunction)py_ue_sdock_tab_set_on_tab_closed, METH_VARARGS, "" },
 	{ "request_close_tab", (PyCFunction)py_ue_sdock_tab_request_close_tab, METH_VARARGS, "" },
 	{ "bring_to_front", (PyCFunction)py_ue_sdock_tab_bring_to_front, METH_VARARGS, "" },
 	{ "new_tab_manager", (PyCFunction)py_ue_sdock_tab_new_tab_manager, METH_VARARGS, "" },

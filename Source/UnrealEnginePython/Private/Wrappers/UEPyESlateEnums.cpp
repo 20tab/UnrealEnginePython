@@ -189,6 +189,27 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'RefreshAllImmediately',
                     'Unknown',
                 ]),
+
+		EnumDef(name='EWidgetMode',
+				cppNameScope='FWidget::EWidgetMode',
+				values=[
+				'WM_None',
+				'WM_Translate',
+				'WM_TranslateRotateZ',
+				'WM_2D',
+				'WM_Rotate',
+				'WM_Scale',
+				'WM_Max',
+				]),
+
+		EnumDef(name='ECoordSystem',
+				cppNameScope='ECoordSystem',
+				values=[
+				'COORD_None',
+				'COORD_World',
+				'COORD_Local',
+				'COORD_Max',
+				]),
     ]
 
     def output_cpp_enums(in_enum_list):
@@ -388,6 +409,33 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
     }
 
+	// Enum Wrapper: EWidgetMode
+	{
+		PyObject* native_EWidgetMode = PyDict_GetItemString(unreal_engine_dict, "EWidgetMode");
+		if (native_EWidgetMode == nullptr)
+		{
+			native_EWidgetMode = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+			PyDict_SetItemString(unreal_engine_dict, "EWidgetMode", (PyObject*)native_EWidgetMode);
+		}
+
+		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "None", PyLong_FromLong((int)FWidget::EWidgetMode::WM_None));
+		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "Translate", PyLong_FromLong((int)FWidget::EWidgetMode::WM_Translate));
+		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "Rotate", PyLong_FromLong((int)FWidget::EWidgetMode::WM_Rotate));
+		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "Scale", PyLong_FromLong((int)FWidget::EWidgetMode::WM_Scale));
+	}
+
+	// Enum Wrapper: ECoordSystem
+	{
+		PyObject* native_ECoordSystem = PyDict_GetItemString(unreal_engine_dict, "ECoordSystem");
+		if (native_ECoordSystem == nullptr)
+		{
+			native_ECoordSystem = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+			PyDict_SetItemString(unreal_engine_dict, "ECoordSystem", (PyObject*)native_ECoordSystem);
+		}
+
+		PyObject_SetAttrString((PyObject*)native_ECoordSystem, "World", PyLong_FromLong((int)ECoordSystem::COORD_World));
+		PyObject_SetAttrString((PyObject*)native_ECoordSystem, "Local", PyLong_FromLong((int)ECoordSystem::COORD_Local));
+	}
     #endif
     //[[[end]]]
 }

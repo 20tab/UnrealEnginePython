@@ -188,6 +188,50 @@ static PyObject *py_ue_push_menu(PyObject *cls, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_add_window(PyObject *cls, PyObject * args)
+{
+    PyObject *py_window_obj;
+    PyObject *py_show_immediately;
+
+    if (!PyArg_ParseTuple(args, "O|O", &py_window_obj, &py_show_immediately))
+    {
+        return nullptr;
+    }
+
+    ue_PySWindow *py_window = py_ue_is_swindow(py_window_obj);
+    if (!py_window)
+    {
+        PyErr_Format(PyExc_Exception, "window_to_destroy is not an SWindow");
+    }
+
+    const bool showImmediately = (py_show_immediately) ? (PyObject_IsTrue(py_show_immediately)) : true;
+
+    FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.s_widget)->AsShared()), showImmediately);
+
+    return py_window_obj;
+}
+
+static PyObject *py_ue_destroy_window_immediately(PyObject *cls, PyObject * args)
+{
+    PyObject *py_window_obj;
+
+    if (!PyArg_ParseTuple(args, "O:window_to_destroy", &py_window_obj))
+    {
+        return nullptr;
+    }
+
+    ue_PySWindow *py_window = py_ue_is_swindow(py_window_obj);
+
+    if (!py_window)
+    {
+        PyErr_Format(PyExc_Exception, "window_to_destroy is not an SWindow");
+    }
+ 
+    FSlateApplication::Get().DestroyWindowImmediately(StaticCastSharedRef<SWindow>(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.s_widget)->AsShared()));
+    
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PyFSlateApplication_methods[] = {
 	{ "get_average_delta_time", (PyCFunction)py_ue_get_average_delta_time, METH_VARARGS | METH_CLASS, "" },
 	{ "get_cursor_radius", (PyCFunction)py_ue_get_cursor_radius, METH_VARARGS | METH_CLASS, "" },
@@ -202,6 +246,8 @@ static PyMethodDef ue_PyFSlateApplication_methods[] = {
 	{ "set_all_user_focus", (PyCFunction)py_ue_set_all_user_focus, METH_VARARGS | METH_CLASS, "" },
 	{ "set_cursor_pos", (PyCFunction)py_ue_set_cursor_pos, METH_VARARGS | METH_CLASS, "" },
 	{ "push_menu", (PyCFunction)py_ue_push_menu, METH_VARARGS | METH_CLASS, "" },
+    { "add_window", (PyCFunction)py_ue_add_window, METH_VARARGS | METH_CLASS, "" },
+    { "destroy_window_immediately", (PyCFunction)py_ue_destroy_window_immediately, METH_VARARGS | METH_CLASS, "" },
 	{ NULL }  /* Sentinel */
 };
 

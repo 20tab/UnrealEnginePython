@@ -18,6 +18,14 @@ static PyObject *py_ue_fbx_property_get_string(ue_PyFbxProperty *self, PyObject 
     return PyUnicode_FromString(self->fbx_property.Get<FbxString>());
 }
 
+static PyObject *py_ue_fbx_property_get_bool(ue_PyFbxProperty *self, PyObject *args) {
+    return self->fbx_property.Get<FbxBool>() ? Py_True : Py_False;
+}
+
+static PyObject *py_ue_fbx_property_get_int(ue_PyFbxProperty *self, PyObject *args) {
+    return PyLong_FromLong(self->fbx_property.Get<FbxInt>());
+}
+
 static PyObject *py_ue_fbx_property_is_valid(ue_PyFbxProperty *self, PyObject *args) {
 	if (self->fbx_property.IsValid()) {
 		Py_RETURN_TRUE;
@@ -49,6 +57,8 @@ static PyMethodDef ue_PyFbxProperty_methods[] = {
 	{ "get_name", (PyCFunction)py_ue_fbx_property_get_name, METH_VARARGS, "" },
 	{ "get_double3", (PyCFunction)py_ue_fbx_property_get_double3, METH_VARARGS, "" },
     { "get_string", (PyCFunction)py_ue_fbx_property_get_string, METH_VARARGS, "" },
+    { "get_bool", (PyCFunction)py_ue_fbx_property_get_bool, METH_VARARGS, "" },
+    { "get_int", (PyCFunction)py_ue_fbx_property_get_int, METH_VARARGS, "" },
 	{ "is_valid", (PyCFunction)py_ue_fbx_property_is_valid, METH_VARARGS, "" },
 	{ "get_curve_node", (PyCFunction)py_ue_fbx_property_get_curve_node, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
