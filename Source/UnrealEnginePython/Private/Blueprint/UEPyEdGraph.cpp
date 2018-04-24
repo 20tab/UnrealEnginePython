@@ -290,56 +290,56 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	PyObject *py_node_class;
 	int x = 0;
 	int y = 0;
-	PyObject *py_data = nullptr;
+
 	char *metadata = nullptr;
+	PyObject *py_data = nullptr;
+
 	if (!PyArg_ParseTuple(args, "O|iisO:graph_add_node", &py_node_class, &x, &y, &metadata, &py_data))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>())
-	{
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(self);
+	if (!graph)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
-	}
 
-	UEdGraph *graph = (UEdGraph *)self->ue_object;
-
-	if (!ue_is_pyuobject(py_node_class))
-	{
+	UObject *u_obj = ue_py_check_type<UObject>(py_node_class);
+	if (!u_obj)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
 
 	UEdGraphNode *node = nullptr;
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_node_class;
-	if (py_obj->ue_object->IsA<UClass>())
+	if (UClass *u_class = Cast<UClass>(u_obj))
 	{
-		UClass *u_class = (UClass *)py_obj->ue_object;
 		if (!u_class->IsChildOf<UEdGraphNode>())
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
 		}
-		node = (UEdGraphNode *)NewObject<UObject>(graph, u_class);
+		node = NewObject<UEdGraphNode>(graph, u_class);
 		node->PostLoad();
 	}
-	else if (py_obj->ue_object->IsA<UEdGraphNode>())
+	else
 	{
-		node = (UEdGraphNode *)py_obj->ue_object;
-		if (node->GetOuter() != graph)
+		node = Cast<UEdGraphNode>(u_obj);
+		if (node)
 		{
-			node->Rename(*node->GetName(), graph);
+			if (node->GetOuter() != graph)
+
+				node->Rename(*node->GetName(), graph);
 		}
 	}
 
 	if (!node)
-	{
 		return PyErr_Format(PyExc_Exception, "argument is not a supported type");
-	}
+
 
 	node->CreateNewGuid();
 	node->PostPlacedNewNode();
 	node->SetFlags(RF_Transactional);
-	node->AllocateDefaultPins();
+	if (node->Pins.Num() == 0)
+	{
+		node->AllocateDefaultPins();
+	}
 	node->NodePosX = x;
 	node->NodePosY = y;
 
