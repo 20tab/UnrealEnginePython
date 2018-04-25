@@ -2,7 +2,7 @@
 
 #include "UnrealEnginePython.h"
 
-#if ENGINE_MINOR_VERSION <= 16
+#if ENGINE_MINOR_VERSION <= 17
 #include "Runtime/Core/Public/GenericPlatform/GenericApplication.h"
 #else
 #include "Runtime/ApplicationCore/Public/GenericPlatform/GenericApplication.h"
