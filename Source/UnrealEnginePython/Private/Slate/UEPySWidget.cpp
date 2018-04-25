@@ -9,7 +9,7 @@ static PyObject *ue_PySWidget_str(ue_PySWidget *self)
 		TCHAR_TO_UTF8(*self->Widget->GetTypeAsString()), &self->Widget.Get(), self->Widget.GetSharedReferenceCount(), self->ob_base.ob_refcnt);
 #else
 	return PyUnicode_FromFormat("<unreal_engine.%s '%p' (slate ref count: %d)>",
-		TCHAR_TO_UTF8(*self->Widget->GetTypeAsString()), &self->s_widget.Get(), self->Widget.GetSharedReferenceCount());
+		TCHAR_TO_UTF8(*self->Widget->GetTypeAsString()), &self->Widget.Get(), self->Widget.GetSharedReferenceCount());
 #endif
 }
 
