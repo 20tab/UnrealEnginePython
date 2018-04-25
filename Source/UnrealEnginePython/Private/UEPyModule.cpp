@@ -2826,16 +2826,16 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		// re-assign multicast delegate
 		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
 	}
-	else if (auto casted_prop = Cast<UDelegateProperty>(u_property))
+	else if (auto casted_prop_delegate = Cast<UDelegateProperty>(u_property))
 	{
 
-		FScriptDelegate script_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
-		UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
+		FScriptDelegate script_delegate = casted_prop_delegate->GetPropertyValue_InContainer(u_obj->ue_object);
+		UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop_delegate->SignatureFunction);
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
 		// re-assign multicast delegate
-		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, script_delegate);
+		casted_prop_delegate->SetPropertyValue_InContainer(u_obj->ue_object, script_delegate);
 	}
 	else
 	{
