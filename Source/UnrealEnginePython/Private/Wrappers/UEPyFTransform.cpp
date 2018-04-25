@@ -39,11 +39,26 @@ static PyObject *py_ue_ftransform_get_matrix(ue_PyFTransform *self, PyObject * a
 	return py_ue_new_uscriptstruct(u_struct, (uint8 *)&matrix);
 }
 
+static PyObject *py_ue_ftransform_transform_position(ue_PyFTransform *self, PyObject *args)
+{
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O", &py_obj))
+	{
+		return nullptr;
+	}
+
+	ue_PyFVector *py_vec = py_ue_is_fvector(py_obj);
+
+	FVector v = self->transform.TransformPosition(py_vec->vec);
+	return py_ue_new_fvector(v);
+}
+
 static PyMethodDef ue_PyFTransform_methods[] = {
 	{ "inverse", (PyCFunction)py_ue_ftransform_inverse, METH_VARARGS, "" },
 	{ "get_relative_transform", (PyCFunction)py_ue_ftransform_get_relative_transform, METH_VARARGS, "" },
 	{ "normalize_rotation", (PyCFunction)py_ue_ftransform_normalize_rotation, METH_VARARGS, "" },
 	{ "get_matrix", (PyCFunction)py_ue_ftransform_get_matrix, METH_VARARGS, "" },
+	{ "transform_position", (PyCFunction)py_ue_ftransform_transform_position, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
