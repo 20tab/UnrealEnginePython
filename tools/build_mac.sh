@@ -1,0 +1,1 @@
+UEP_ENABLE_UNITY_BUILD=1 mono "/Users/Shared/Epic Games/UE_4.19/Engine/Binaries/DotNET/UnrealBuildTool.exe" PyTest418 Development Mac -project="/Users/roberto/Documents/Unreal Projects/PyTest418/PyTest418.uproject" -editorrecompile
