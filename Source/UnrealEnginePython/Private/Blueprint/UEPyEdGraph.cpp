@@ -582,4 +582,57 @@ PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args)
 	Py_INCREF(ret);
 	return ret;
 }
+
+
+PyObject *py_ue_node_pin_type_changed(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_pin;
+	if (!PyArg_ParseTuple(args, "O:node_pin_type_changed", &py_pin))
+	{
+		return nullptr;
+	}
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	ue_PyEdGraphPin *pin = py_ue_is_edgraphpin(py_pin);
+	if (!pin)
+		return PyErr_Format(PyExc_Exception, "argument is not a EdGraphPin");
+
+	node->PinTypeChanged(pin->pin);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_node_pin_default_value_changed(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_pin;
+	if (!PyArg_ParseTuple(args, "O:node_pin_default_value_changed", &py_pin))
+	{
+		return nullptr;
+	}
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	ue_PyEdGraphPin *pin = py_ue_is_edgraphpin(py_pin);
+	if (!pin)
+		return PyErr_Format(PyExc_Exception, "argument is not a EdGraphPin");
+
+	node->PinDefaultValueChanged(pin->pin);
+
+	Py_RETURN_NONE;
+}
+
+
+
+
 #endif
