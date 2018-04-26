@@ -134,6 +134,25 @@ static int py_ue_edgraphpin_set_default_value(ue_PyEdGraphPin *self, PyObject *v
 	return -1;
 }
 
+static PyObject *py_ue_edgraphpin_get_default_text_value(ue_PyEdGraphPin *self, void *closure)
+{
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->DefaultTextValue)));
+}
+
+static int py_ue_edgraphpin_set_default_text_value(ue_PyEdGraphPin *self, PyObject *value, void *closure)
+{
+	if (value && PyUnicode_Check(value))
+	{
+		char *str = PyUnicode_AsUTF8(value);
+		self->pin->DefaultTextValue = UTF8_TO_TCHAR(str);
+		return 0;
+	}
+	PyErr_SetString(PyExc_TypeError, "value is not a string");
+	return -1;
+}
+
+
+
 static PyObject *py_ue_edgraphpin_get_default_object(ue_PyEdGraphPin *self, void *closure)
 {
 	UObject *u_object = self->pin->DefaultObject;
@@ -161,6 +180,7 @@ static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 	{ (char*)"category", (getter)py_ue_edgraphpin_get_category, NULL, (char *)"", NULL },
 	{ (char*)"sub_category", (getter)py_ue_edgraphpin_get_sub_category, NULL, (char *)"", NULL },
 	{ (char*)"default_value", (getter)py_ue_edgraphpin_get_default_value, (setter)py_ue_edgraphpin_set_default_value, (char *)"", NULL },
+	{ (char*)"default_text_value", (getter)py_ue_edgraphpin_get_default_text_value, (setter)py_ue_edgraphpin_set_default_text_value, (char *)"", NULL },
 	{ (char*)"default_object", (getter)py_ue_edgraphpin_get_default_object, (setter)py_ue_edgraphpin_set_default_object, (char *)"", NULL },
 	{ NULL }  /* Sentinel */
 };
