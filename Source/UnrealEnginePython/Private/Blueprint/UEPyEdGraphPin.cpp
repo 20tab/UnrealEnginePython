@@ -136,7 +136,7 @@ static int py_ue_edgraphpin_set_default_value(ue_PyEdGraphPin *self, PyObject *v
 
 static PyObject *py_ue_edgraphpin_get_default_text_value(ue_PyEdGraphPin *self, void *closure)
 {
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->DefaultTextValue)));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->DefaultTextValue.ToString())));
 }
 
 static int py_ue_edgraphpin_set_default_text_value(ue_PyEdGraphPin *self, PyObject *value, void *closure)
@@ -144,7 +144,7 @@ static int py_ue_edgraphpin_set_default_text_value(ue_PyEdGraphPin *self, PyObje
 	if (value && PyUnicode_Check(value))
 	{
 		char *str = PyUnicode_AsUTF8(value);
-		self->pin->DefaultTextValue = UTF8_TO_TCHAR(str);
+		self->pin->DefaultTextValue = FText::FromString(UTF8_TO_TCHAR(str));
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a string");
