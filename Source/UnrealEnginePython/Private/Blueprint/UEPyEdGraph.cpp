@@ -4,6 +4,7 @@
 
 #include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_CallFunction.h"
+#include "Editor/BlueprintGraph/Classes/K2Node_DynamicCast.h"
 #include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_CustomEvent.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_VariableGet.h"
@@ -373,6 +374,60 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	graph->AddNode(node);
 
 	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	Py_RETURN_UOBJECT(node);
+}
+
+PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_node_class;
+	int x = 0;
+	int y = 0;
+
+	char *metadata = nullptr;
+	PyObject *py_data = nullptr;
+
+	if(!PyArg_ParseTuple(args, "O|iis:graph_add_node_dynamic_cast", &py_node_class, &x, &y, &metadata))
+	{
+		return nullptr;
+	}
+
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(self);
+	if(!graph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
+
+	UClass *u_class = ue_py_check_type<UClass>(py_node_class);
+	if(!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+
+	UK2Node_DynamicCast *node = NewObject<UK2Node_DynamicCast>(graph);
+	node->TargetType = u_class;
+	node->SetPurity(false);
+	node->AllocateDefaultPins();
+
+	node->CreateNewGuid();
+	node->PostPlacedNewNode();
+	node->SetFlags(RF_Transactional);
+	node->NodePosX = x;
+	node->NodePosY = y;
+	
+	if(metadata == nullptr || strlen(metadata) == 0)
+	{
+		UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
+	}
+	else
+	{
+		UEdGraphSchema_K2::SetNodeMetaData(node, FName(UTF8_TO_TCHAR(metadata)));
+	}
+	graph->AddNode(node);
+
+	if(UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
 	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
