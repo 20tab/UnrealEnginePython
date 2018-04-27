@@ -576,6 +576,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "graph_add_node_variable_set", (PyCFunction)py_ue_graph_add_node_variable_set, METH_VARARGS, "" },
 
 	{ "graph_add_node", (PyCFunction)py_ue_graph_add_node, METH_VARARGS, "" },
+	{ "graph_add_node_dynamic_cast", (PyCFunction)py_ue_graph_add_node_dynamic_cast, METH_VARARGS, "" },
 	{ "graph_add_node_event", (PyCFunction)py_ue_graph_add_node_event, METH_VARARGS, "" },
 	{ "graph_get_good_place_for_new_node", (PyCFunction)py_ue_graph_get_good_place_for_new_node, METH_VARARGS, "" },
 
