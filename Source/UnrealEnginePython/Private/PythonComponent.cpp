@@ -13,8 +13,11 @@ UPythonComponent::UPythonComponent()
 
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
+	PythonTickEnableGenerator = false;
 
 	bWantsInitializeComponent = true;
+
+	py_generator = nullptr;
 }
 
 void UPythonComponent::InitializePythonComponent()
@@ -163,6 +166,23 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	FScopePythonGIL gil;
 
+	if (PythonTickEnableGenerator && py_generator)
+	{
+		PyObject *ret = PyIter_Next(py_generator);
+		if (!ret)
+		{
+			if (PyErr_Occurred())
+			{
+				unreal_engine_py_log_error();
+			}
+			Py_DECREF(py_generator);
+			py_generator = nullptr;
+			return;
+		}
+		Py_DECREF(ret);
+		return;
+	}
+
 	// no need to check for method availability, we did it in component initialization
 
 	PyObject *ret = PyObject_CallMethod(py_component_instance, (char *)"tick", (char *)"f", DeltaTime);
@@ -170,6 +190,15 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		unreal_engine_py_log_error();
 		return;
+	}
+
+	if (PythonTickEnableGenerator)
+	{
+		py_generator = PyObject_GetIter(ret);
+		if (!py_generator)
+		{
+			UE_LOG(LogPython, Error, TEXT("tick is not a python generator"));
+		}
 	}
 	Py_DECREF(ret);
 

@@ -37,6 +37,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
 		bool PythonDisableAutoBinding;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
+		bool PythonTickEnableGenerator;
+
 	UFUNCTION(BlueprintCallable, Category = "Python")
 		void InitializePythonComponent();
 
@@ -89,5 +92,7 @@ private:
 	PyObject * py_component_instance;
 	// mapped uobject, required for debug and advanced reflection
 	ue_PyUObject *py_uobject;
+
+	PyObject *py_generator;
 };
 
