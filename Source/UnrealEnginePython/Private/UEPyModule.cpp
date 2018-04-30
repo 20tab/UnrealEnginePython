@@ -2437,6 +2437,14 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
 				return true;
 			}
+			else if (auto casted_prop = Cast<UObjectPropertyBase>(prop))
+			{
+				// ensure the object type is correct, otherwise crash could happen (soon or later)
+				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+					return false;
+				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
+				return true;
+			}
 
 			return false;
 		}
