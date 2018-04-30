@@ -28,7 +28,7 @@ The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15, 4.16,
 
 We support official python.org releases as well as IntelPython and Anaconda distributions.
 
-Note: this plugin has nothing to do with the experimental 'PythonScriptPlugin' included in Unreal Engine >= 4.19. This plugin aims at full integration with engine and editor (included the Slate api), as well as support for the vast majority of python features like asyncio, coroutines, generators, threads and third party modules.
+Note: this plugin has nothing to do with the experimental 'PythonScriptPlugin' included in Unreal Engine >= 4.19. We aim at full integration with engine and editor (included the Slate api), as well as support for the vast majority of python features like asyncio, coroutines, generators, threads and third party modules.
 
 # Binary installation on Windows (64 bit)
 
