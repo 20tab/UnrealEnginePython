@@ -1549,21 +1549,10 @@ void unreal_engine_init_py_module()
 
 	ue_python_init_ivoice_capture(new_unreal_engine_module);
 
-	PyObject *py_sys = PyImport_ImportModule("sys");
-	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
+	ue_py_register_magic_module("unreal_engine.classes", py_ue_new_uclassesimporter);
+	ue_py_register_magic_module("unreal_engine.enums", py_ue_new_enumsimporter);
+	ue_py_register_magic_module("unreal_engine.structs", py_ue_new_ustructsimporter);
 
-	PyObject *py_sys_modules = PyDict_GetItemString(py_sys_dict, "modules");
-	PyObject *u_classes_importer = py_ue_new_uclassesimporter();
-	Py_INCREF(u_classes_importer);
-	PyDict_SetItemString(py_sys_modules, "unreal_engine.classes", u_classes_importer);
-
-	PyObject *u_enums_importer = py_ue_new_enumsimporter();
-	Py_INCREF(u_enums_importer);
-	PyDict_SetItemString(py_sys_modules, "unreal_engine.enums", u_enums_importer);
-
-	PyObject *u_structs_importer = py_ue_new_ustructsimporter();
-	Py_INCREF(u_structs_importer);
-	PyDict_SetItemString(py_sys_modules, "unreal_engine.structs", u_structs_importer);
 
 	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MAJOR_VERSION", PyLong_FromLong(ENGINE_MAJOR_VERSION));
 	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MINOR_VERSION", PyLong_FromLong(ENGINE_MINOR_VERSION));
@@ -3187,7 +3176,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 	return function;
-}
+	}
 
 FGuid *ue_py_check_fguid(PyObject *py_obj)
 {

@@ -622,6 +622,22 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 	PyThreadState_Swap(_main);
 }
 
+void ue_py_register_magic_module(char *name, PyObject *(*func)())
+{
+	PyObject *py_sys = PyImport_ImportModule("sys");
+	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
+
+	PyObject *py_sys_modules = PyDict_GetItemString(py_sys_dict, "modules");
+	PyObject *u_module = func();
+	Py_INCREF(u_module);
+	PyDict_SetItemString(py_sys_modules, name, u_module);
+}
+
+PyObject *ue_py_register_module(char *name)
+{
+	return PyImport_AddModule(name);
+}
+
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FUnrealEnginePythonModule, UnrealEnginePython)

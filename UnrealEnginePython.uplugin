@@ -14,22 +14,27 @@
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"Installed": false,
-	"Modules": [
+  "Modules": [
     {
       "Name": "UnrealEnginePython",
       "Type": "Runtime",
       "LoadingPhase": "Default"
     },
-		{
-			"Name": "PythonConsole",
-			"Type": "Editor",
-			"LoadingPhase": "PostDefault"
-		},
-		{
-			"Name" : "PythonEditor",
-			"Type" : "Editor",
-			"LoadingPhase": "PostDefault"
-		}
+    {
+      "Name": "PythonAutomation",
+      "Type": "Editor",
+      "LoadingPhase": "PostDefault"
+    },
+    {
+      "Name": "PythonConsole",
+      "Type": "Editor",
+      "LoadingPhase": "PostDefault"
+    },
+    {
+      "Name": "PythonEditor",
+      "Type": "Editor",
+      "LoadingPhase": "PostDefault"
+    }
   ],
   "Plugins": [
     {
