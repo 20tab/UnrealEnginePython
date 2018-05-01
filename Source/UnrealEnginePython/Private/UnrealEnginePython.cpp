@@ -112,9 +112,18 @@ void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
 	PyList_Insert(py_path, 0, py_zip_path);
 
-	char *scripts_path = TCHAR_TO_UTF8(*ScriptsPath);
-	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
-	PyList_Insert(py_path, 0, py_scripts_path);
+
+	int i = 0;
+	for (FString ScriptsPath : ScriptsPaths)
+	{
+		char *scripts_path = TCHAR_TO_UTF8(*ScriptsPath);
+		PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
+		PyList_Insert(py_path, i++, py_scripts_path);
+		if (verbose)
+		{
+			UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
+		}
+	}
 
 	char *additional_modules_path = TCHAR_TO_UTF8(*AdditionalModulesPath);
 	PyObject *py_additional_modules_path = PyUnicode_FromString(additional_modules_path);
@@ -123,7 +132,6 @@ void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 	if (verbose)
 	{
 		UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
-		UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
 	}
 }
 
@@ -258,12 +266,12 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni))
 	{
-		ScriptsPath = IniValue;
+		ScriptsPaths.Add(IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni))
 	{
-		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+		ScriptsPaths.Add(FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue));
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni))
@@ -286,20 +294,24 @@ void FUnrealEnginePythonModule::StartupModule()
 		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
 	}
 
-	if (ScriptsPath.IsEmpty())
+	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
+	if (FPaths::DirectoryExists(ProjectScriptsPath))
 	{
-		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
+		ScriptsPaths.Add(ProjectScriptsPath);
+	}
+
+	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
+	{
+		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
+		if (FPaths::DirectoryExists(PluginScriptsPath))
+		{
+			ScriptsPaths.Add(PluginScriptsPath);
+		}
 	}
 
 	if (ZipPath.IsEmpty())
 	{
 		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("ue_python.zip"));
-	}
-
-	if (!FPaths::DirectoryExists(ScriptsPath))
-	{
-		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-		PlatformFile.CreateDirectory(*ScriptsPath);
 	}
 
 	// To ensure there are no path conflicts, if we have a valid python home at this point,
@@ -496,10 +508,26 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 {
 	FScopePythonGIL gil;
 	FString full_path = UTF8_TO_TCHAR(filename);
+	bool foundFile = false;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = FPaths::Combine(*ScriptsPath, full_path);
+		for (FString ScriptsPath : ScriptsPaths)
+		{
+			full_path = FPaths::Combine(*ScriptsPath, full_path);
+			if (FPaths::FileExists(full_path))
+			{
+				foundFile = true;
+				break;
+			}
+		}
 	}
+
+	if (!foundFile)
+	{
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), filename);
+		return;
+	}
+
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
 
@@ -544,9 +572,24 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 {
 	FScopePythonGIL gil;
 	FString full_path = filename;
+	bool foundFile = false;
 	if (!FPaths::FileExists(filename))
 	{
-		full_path = FPaths::Combine(*ScriptsPath, full_path);
+		for (FString ScriptsPath : ScriptsPaths)
+		{
+			full_path = FPaths::Combine(*ScriptsPath, full_path);
+			if (FPaths::FileExists(full_path))
+			{
+				foundFile = true;
+				break;
+			}
+		}
+	}
+
+	if (!foundFile)
+	{
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), filename);
+		return;
 	}
 
 	PyThreadState *_main = PyThreadState_Get();

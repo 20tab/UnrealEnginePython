@@ -112,7 +112,7 @@ public:
 
 	void UESetupPythonInterpreter(bool);
 
-	FString ScriptsPath;
+	TArray<FString> ScriptsPaths;
 	FString ZipPath;
 	FString AdditionalModulesPath;
 
