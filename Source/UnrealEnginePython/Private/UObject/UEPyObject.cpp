@@ -2010,6 +2010,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 
 	UClass *u_prop_class = nullptr;
 	UScriptStruct *u_script_struct = nullptr;
+	UEnum * u_enum_class = nullptr;
+
 	UClass *u_prop_class2 = nullptr;
 	UScriptStruct *u_script_struct2 = nullptr;
 	bool is_array = false;
@@ -2030,9 +2032,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		{
 			u_script_struct = (UScriptStruct *)py_prop_class->ue_object;
 		}
+		else if (py_prop_class->ue_object->IsA<UEnum>())
+		{
+			u_enum_class = (UEnum *)py_prop_class->ue_object;
+		}
 		else
 		{
-			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
+			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct or a UEnum");
 		}
 	}
 
@@ -2062,16 +2068,25 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 	if (ue_is_pyuobject(obj))
 	{
 		ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-		if (!py_obj->ue_object->IsA<UClass>())
+	
+		if (py_obj->ue_object->IsA<UEnum>())
 		{
-			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+			scope = self->ue_object;
+			u_class = UEnumProperty::StaticClass();
 		}
-		u_class = (UClass *)py_obj->ue_object;
-		if (!u_class->IsChildOf<UProperty>())
-			return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
-		if (u_class == UArrayProperty::StaticClass())
-			return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
-		scope = self->ue_object;
+		else
+		{
+			if (!py_obj->ue_object->IsA<UClass>())
+			{
+				return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+			}
+			u_class = (UClass *)py_obj->ue_object;
+			if (!u_class->IsChildOf<UProperty>())
+				return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
+			if (u_class == UArrayProperty::StaticClass())
+				return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
+			scope = self->ue_object;
+		}
 	}
 	else if (PyList_Check(obj))
 	{
@@ -2293,6 +2308,22 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 			if (u_script_struct)
 			{
 				obj_prop->Struct = u_script_struct;
+			}
+		}
+	}
+
+	else if (u_class == UEnumProperty::StaticClass())
+	{
+		// ensure it is not an arry as we have already managed it !
+		if (!is_array && !is_map)
+		{
+			UEnumProperty *enum_prop = (UEnumProperty *)u_property;
+			if(enum_prop)
+			{
+				//UEnum* EnumType = CastChecked<UEnum>(u_enum_class);
+				enum_prop->SetEnum(u_enum_class);
+				enum_prop->AddCppProperty(NewObject<UByteProperty>(enum_prop, TEXT("UnderlyingType")));
+
 			}
 		}
 	}

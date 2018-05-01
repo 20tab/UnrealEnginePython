@@ -111,6 +111,15 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 					}
 					prop_added = true;
 				}
+				else if (py_obj->ue_object->IsA<UEnum>())
+				{
+					if (!py_ue_add_property(self, Py_BuildValue("(OsO)", value, class_key, py_obj)))
+					{
+						unreal_engine_py_log_error();
+						return -1;
+					}
+					prop_added = true;
+				}
 			}
 
 			// add array property
