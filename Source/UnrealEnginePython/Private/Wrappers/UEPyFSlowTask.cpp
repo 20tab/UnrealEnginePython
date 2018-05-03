@@ -21,11 +21,23 @@ static PyObject *py_ue_fslowtask_destroy(ue_PyFSlowTask *self, PyObject * args)
 static PyObject *py_ue_fslowtask_make_dialog_delayed(ue_PyFSlowTask *self, PyObject * args)
 {
 	float threshold;
-	int show_cancel_button = 0;
-	int allow_in_pie = 0;
-	if(!PyArg_ParseTuple(args, "f|ii:make_dialog_delayed", &threshold, &show_cancel_button, &allow_in_pie))
+	PyObject *py_show_cancel_button = nullptr;
+	PyObject *py_allow_in_pie = nullptr;
+	if(!PyArg_ParseTuple(args, "f|OO:make_dialog_delayed", &threshold, &py_show_cancel_button, &py_allow_in_pie))
 	{
 		return nullptr;
+	}
+
+	bool show_cancel_button = false;
+	if (nullptr != py_show_cancel_button && PyObject_IsTrue(py_show_cancel_button))
+	{
+		show_cancel_button = true;
+	}
+
+	bool allow_in_pie = false;
+	if (nullptr != py_allow_in_pie && PyObject_IsTrue(py_allow_in_pie))
+	{
+		allow_in_pie = true;
 	}
 
 	self->slowtask.MakeDialogDelayed(threshold, show_cancel_button, allow_in_pie);
@@ -35,11 +47,23 @@ static PyObject *py_ue_fslowtask_make_dialog_delayed(ue_PyFSlowTask *self, PyObj
 
 static PyObject *py_ue_fslowtask_make_dialog(ue_PyFSlowTask *self, PyObject * args)
 {
-	int show_cancel_button = 0;
-	int allow_in_pie = 0;
-	if(!PyArg_ParseTuple(args, "|ii:make_dialog", &show_cancel_button, &allow_in_pie))
+	PyObject *py_show_cancel_button = nullptr;
+	PyObject *py_allow_in_pie = nullptr;
+	if(!PyArg_ParseTuple(args, "|OO:make_dialog", &py_show_cancel_button, &py_allow_in_pie))
 	{
 		return nullptr;
+	}
+
+	bool show_cancel_button = false;
+	if (nullptr != py_show_cancel_button && PyObject_IsTrue(py_show_cancel_button))
+	{
+		show_cancel_button = true;
+	}
+
+	bool allow_in_pie = false;
+	if (nullptr != py_allow_in_pie && PyObject_IsTrue(py_allow_in_pie))
+	{
+		allow_in_pie = true;
 	}
 
 	self->slowtask.MakeDialog(show_cancel_button, allow_in_pie);
@@ -130,10 +154,16 @@ static int py_ue_fslowtask_init(ue_PyFSlowTask *self, PyObject * args)
 {
 	float amount_of_work;
 	char *default_message = "";
-	int enabled = 1;
-	if(!PyArg_ParseTuple(args, "f|si:__init__", &amount_of_work, &default_message, &enabled))
+	PyObject *py_enabled = nullptr;
+	if(!PyArg_ParseTuple(args, "f|sO:__init__", &amount_of_work, &default_message, &py_enabled))
 	{
 		return -1;
+	}
+
+	bool enabled = true;
+	if (nullptr != py_enabled && !PyObject_IsTrue(py_enabled))
+	{
+		enabled = false;
 	}
 
 	new(&self->slowtask) FSlowTask(amount_of_work, FText::FromString(UTF8_TO_TCHAR(default_message)), enabled);
