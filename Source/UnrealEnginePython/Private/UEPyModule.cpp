@@ -82,6 +82,7 @@
 #include "UEPyUScriptStruct.h"
 
 #if WITH_EDITOR
+#include "Wrappers/UEPyFSlowTask.h"
 #include "Wrappers/UEPyFAssetData.h"
 #include "Wrappers/UEPyFARFilter.h"
 #include "Wrappers/UEPyFRawMesh.h"
@@ -438,6 +439,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "clipboard_copy", py_unreal_engine_clipboard_copy, METH_VARARGS, "" },
 	{ "clipboard_paste", py_unreal_engine_clipboard_paste, METH_VARARGS, "" },
+
 
 #pragma warning(suppress: 4191)
 	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
@@ -1517,6 +1519,7 @@ void unreal_engine_init_py_module()
 
 
 #if WITH_EDITOR
+	ue_python_init_fslowtask(new_unreal_engine_module);
 	ue_python_init_swidget(new_unreal_engine_module);
 	ue_python_init_farfilter(new_unreal_engine_module);
 	ue_python_init_fassetdata(new_unreal_engine_module);
