@@ -1005,6 +1005,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "static_mesh_set_collision_for_lod", (PyCFunction)py_ue_static_mesh_set_collision_for_lod, METH_VARARGS, "" },
 	{ "static_mesh_set_shadow_for_lod", (PyCFunction)py_ue_static_mesh_set_shadow_for_lod, METH_VARARGS, "" },
 	{ "get_raw_mesh", (PyCFunction)py_ue_static_mesh_get_raw_mesh, METH_VARARGS, "" },
+	{ "get_component_bounding_box", (PyCFunction)py_ue_static_mesh_get_component_bounding_box, METH_VARARGS, "" },
 #endif
 
 	// Viewport
