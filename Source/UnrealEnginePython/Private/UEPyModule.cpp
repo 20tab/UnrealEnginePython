@@ -1552,9 +1552,9 @@ void unreal_engine_init_py_module()
 
 	ue_python_init_ivoice_capture(new_unreal_engine_module);
 
-	ue_py_register_magic_module("unreal_engine.classes", py_ue_new_uclassesimporter);
-	ue_py_register_magic_module("unreal_engine.enums", py_ue_new_enumsimporter);
-	ue_py_register_magic_module("unreal_engine.structs", py_ue_new_ustructsimporter);
+	ue_py_register_magic_module((char *)"unreal_engine.classes", py_ue_new_uclassesimporter);
+	ue_py_register_magic_module((char *)"unreal_engine.enums", py_ue_new_enumsimporter);
+	ue_py_register_magic_module((char *)"unreal_engine.structs", py_ue_new_ustructsimporter);
 
 
 	PyDict_SetItemString(unreal_engine_dict, "ENGINE_MAJOR_VERSION", PyLong_FromLong(ENGINE_MAJOR_VERSION));
