@@ -7,16 +7,42 @@
 #define sw_python_multicolumn_table_row StaticCastSharedRef<SPythonMultiColumnTableRow>(self->s_compound_widget.s_widget.s_widget)
 
 
+static PyObject *py_ue_spython_multicolumn_table_row_set_first_column_name(ue_PySPythonMultiColumnTableRow *self, PyObject * args)
+{
+    char* column_name = nullptr;
+    if (!PyArg_ParseTuple(args, "s:set_first_column_name", &column_name))
+    {
+        return nullptr;
+    }
+
+    sw_python_multicolumn_table_row->SetFirstColumnName(FName(column_name));
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef ue_PySPythonMultiColumnTableRow_methods[] = {
+    { "set_first_column_name", (PyCFunction)py_ue_spython_multicolumn_table_row_set_first_column_name, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
+
+
+static void ue_PySPythonMultiColumnTableRow_dealloc(ue_PySPythonMultiColumnTableRow *self)
+{
+#if defined(UEPY_MEMORY_DEBUG)
+    UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySPythonMultiColumnTableRow %p"), self);
+#endif
+
+    Py_XDECREF(self->owner_table);
+    Py_TYPE(self)->tp_free((PyObject *)self);
+}
+
 
 PyTypeObject ue_PySPythonMultiColumnTableRowType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.SPythonMultiColumnTableRow", /* tp_name */
 	sizeof(ue_PySPythonMultiColumnTableRow), /* tp_basicsize */
 	0,                         /* tp_itemsize */
-	0,       /* tp_dealloc */
+    (destructor)ue_PySPythonMultiColumnTableRow_dealloc,       /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */
@@ -57,6 +83,8 @@ static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTable
     }
 
     Py_INCREF(py_owner_table_view_base);
+    self->owner_table = py_owner_table_view_base;
+
     ue_py_snew_simple_with_req_args(
         SPythonMultiColumnTableRow, s_compound_widget.s_widget, 
         StaticCastSharedRef<STableViewBase>(py_owner_table_view_base->s_compound_widget.s_widget.s_widget),

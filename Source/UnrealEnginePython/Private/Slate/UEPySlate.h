@@ -42,6 +42,7 @@
 #include "UEPySListView.h"
 #include "UEPySPythonListView.h"
 #include "UEPySPythonMultiColumnTableRow.h"
+#include "UEPySExpanderArrow.h"
 #include "UEPySTreeView.h"
 #include "UEPySPythonTreeView.h"
 #include "UEPySSplitter.h"
@@ -154,7 +155,7 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 
 #define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
 
-#define ue_py_snew_with_args(T, field, args) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(args), arguments)
+#define ue_py_snew_with_args(T, field, ...) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), arguments)
 
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);

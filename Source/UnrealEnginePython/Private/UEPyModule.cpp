@@ -1625,6 +1625,8 @@ void unreal_engine_init_py_module()
 	PyDict_SetItemString(unreal_engine_dict, "CPF_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_Config));
 	PyDict_SetItemString(unreal_engine_dict, "CPF_GLOBAL_CONFIG", PyLong_FromUnsignedLongLong((uint64)CPF_GlobalConfig));
 	PyDict_SetItemString(unreal_engine_dict, "CPF_EXPOSE_ON_SPAWN", PyLong_FromUnsignedLongLong((uint64)CPF_ExposeOnSpawn));
+	PyDict_SetItemString(unreal_engine_dict, "CPF_ADVANCED_DISPLAY", PyLong_FromUnsignedLongLong((uint64)CPF_AdvancedDisplay));
+	PyDict_SetItemString(unreal_engine_dict, "CPF_EDIT_CONST", PyLong_FromUnsignedLongLong((uint64)CPF_EditConst));
 	PyDict_SetItemString(unreal_engine_dict, "CPF_NET", PyLong_FromUnsignedLongLong((uint64)CPF_Net));
 	PyDict_SetItemString(unreal_engine_dict, "CPF_REP_NOTIFY", PyLong_FromUnsignedLongLong((uint64)CPF_RepNotify));
 

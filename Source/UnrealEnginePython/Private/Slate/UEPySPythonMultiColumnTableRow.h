@@ -19,10 +19,10 @@ public:
     void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView, PyObject *in_py_self)
     {
         SetPyObject(in_py_self);
-        SMultiColumnTableRow<TSharedPtr<struct FPythonItem> >::Construct(FSuperRowType::FArguments(), InOwnerTableView);
+        FSuperRowType::Construct(FSuperRowType::FArguments(), InOwnerTableView);
     }
 
-    TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName)
+    virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override
     {
         FScopePythonGIL gil;
 
@@ -51,9 +51,31 @@ public:
             return SNullWidget::NullWidget;
         }
 
-        TSharedRef<SWidget> value = s_widget->s_widget;
-        Py_DECREF(ret);
-        return value;
+        if (ColumnName == firstColumnName && OwnerTablePtr.Pin()->GetTableViewMode() == ETableViewMode::Tree)
+        {
+            // Rows in a tree need to show an SExpanderArrow (it also indents!) to give the appearance of being a tree.
+            TSharedRef<SWidget> value = SNew(SHorizontalBox)
+                +SHorizontalBox::Slot()
+                .AutoWidth()
+                .VAlign(VAlign_Top)
+                [
+                    SNew(SExpanderArrow, SharedThis(this))
+                ]
+                +SHorizontalBox::Slot()
+                .AutoWidth()
+                [
+                    s_widget->s_widget
+                ];
+            Py_DECREF(ret);
+            return value;
+        }
+        else
+        {
+            // Lists do not need an expander arrow
+            TSharedRef<SWidget> value = s_widget->s_widget;
+            Py_DECREF(ret);
+            return value;
+        }
     }
 
 
@@ -87,7 +109,7 @@ public:
         }
         else
         {
-            return SPythonMultiColumnTableRow::OnMouseButtonDoubleClick(InMyGeometry, InMouseEvent);
+            return FSuperRowType::OnMouseButtonDoubleClick(InMyGeometry, InMouseEvent);
         }
     }
 
@@ -95,15 +117,23 @@ public:
     {
         self = py_obj;
     }
+
+    void SetFirstColumnName(FName InFirstColName)
+    {
+        firstColumnName = InFirstColName;
+    }
 private:
     PyObject *self = nullptr;
 
     TSharedPtr<struct FPythonItem> RowPythonObject;
+
+    FName firstColumnName = FName("friendlyName");
 };
 
 typedef struct {
     ue_PySCompoundWidget s_compound_widget;
 	/* Type-specific fields go here. */
+    ue_PySTableViewBase* owner_table;
 } ue_PySPythonMultiColumnTableRow;
 
 void ue_python_init_spython_multicolumn_table_row(PyObject *);

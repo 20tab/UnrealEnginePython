@@ -896,6 +896,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_slist_view(module);
 	ue_python_init_spython_list_view(module);
     ue_python_init_spython_multicolumn_table_row(module);
+    ue_python_init_sexpander_arrow(module);
 	ue_python_init_stree_view(module);
 	ue_python_init_spython_tree_view(module);
 	ue_python_init_ssplitter(module);
