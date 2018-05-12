@@ -63,12 +63,12 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] macKnownPaths =
     {
-        "/Library/Frameworks/Python.framework/Versions/3.6",
+       	"/Library/Frameworks/Python.framework/Versions/2.7", 
+	"/Library/Frameworks/Python.framework/Versions/3.6",
         "/Library/Frameworks/Python.framework/Versions/3.5",
-        "/Library/Frameworks/Python.framework/Versions/2.7",
+        "/System/Library/Frameworks/Python.framework/Versions/2.7",
         "/System/Library/Frameworks/Python.framework/Versions/3.6",
         "/System/Library/Frameworks/Python.framework/Versions/3.5",
-        "/System/Library/Frameworks/Python.framework/Versions/2.7",
     };
 
 #if WITH_FORWARDED_MODULE_RULES_CTOR
