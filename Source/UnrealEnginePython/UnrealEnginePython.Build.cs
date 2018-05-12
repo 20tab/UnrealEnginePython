@@ -25,21 +25,25 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownIncludesPaths =
     {
-        "/usr/local/include/python3.6",
+        "/usr/local/include/python2.7",
+        "/usr/include/python2.7",	
+	"/usr/local/include/python3.6",
         "/usr/local/include/python3.6m",
         "/usr/local/include/python3.5",
         "/usr/local/include/python3.5m",
-        "/usr/local/include/python2.7",
         "/usr/include/python3.6",
         "/usr/include/python3.6m",
         "/usr/include/python3.5",
         "/usr/include/python3.5m",
-        "/usr/include/python2.7",
+
     };
 
     private string[] linuxKnownLibsPaths =
     {
-        "/usr/local/lib/libpython3.6.so",
+        "/usr/lib/libpython2.7.so",
+        "/usr/lib/x86_64-linux-gnu/libpython2.7.so",    
+        "/usr/local/lib/x86_64-linux-gnu/libpython2.7.so",
+	"/usr/local/lib/libpython3.6.so",
         "/usr/local/lib/libpython3.6m.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.6.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.6m.so",
@@ -48,7 +52,6 @@ public class UnrealEnginePython : ModuleRules
         "/usr/local/lib/x86_64-linux-gnu/libpython3.5.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.5m.so",
         "/usr/local/lib/libpython2.7.so",
-        "/usr/local/lib/x86_64-linux-gnu/libpython2.7.so",
         "/usr/lib/libpython3.6.so",
         "/usr/lib/libpython3.6m.so",
         "/usr/lib/x86_64-linux-gnu/libpython3.6.so",
@@ -57,8 +60,6 @@ public class UnrealEnginePython : ModuleRules
         "/usr/lib/libpython3.5m.so",
         "/usr/lib/x86_64-linux-gnu/libpython3.5.so",
         "/usr/lib/x86_64-linux-gnu/libpython3.5m.so",
-        "/usr/lib/libpython2.7.so",
-        "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
     };
 
     private string[] macKnownPaths =
@@ -213,7 +214,7 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetMacPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicDelayLoadDLLs.Add(libPath);
-            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
+            PublicDefinitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -238,13 +239,13 @@ public class UnrealEnginePython : ModuleRules
                 PublicIncludePaths.Add(items[0]);
                 PublicAdditionalLibraries.Add(items[1]);
             }
-            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
+            PublicDefinitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
         }
 
         string enableThreads = System.Environment.GetEnvironmentVariable("UEP_ENABLE_THREADS");
         if (!string.IsNullOrEmpty(enableThreads))
         {
-            Definitions.Add("UEPY_THREADING");
+            PublicDefinitions.Add("UEPY_THREADING");
             System.Console.WriteLine("*** Enabled Python Threads support ***");
         }
 
