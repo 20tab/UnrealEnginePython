@@ -1,5 +1,6 @@
 #include "UnrealEnginePythonPrivatePCH.h"
 #include <limits>
+#include "Runtime/Engine/Classes/PhysicsEngine/BodySetup.h"
 
 #if WITH_EDITOR
 
@@ -79,12 +80,6 @@ PyObject *py_ue_static_mesh_get_component_bounding_box(ue_PyUObject *self, PyObj
 	if(!StaticMesh)
 		return PyErr_Format(PyExc_Exception, "empty static mesh");
 
-	if (lod_index < 0 || lod_index >= StaticMesh->SourceModels.Num())
-		return PyErr_Format(PyExc_Exception, "invalid LOD index");
-
-	FRawMesh raw_mesh;
-	StaticMesh->SourceModels[lod_index].RawMeshBulkData->LoadRawMesh(raw_mesh);
-
 	USceneComponent *component = ((USceneComponent *)self->ue_object);
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
@@ -97,18 +92,19 @@ PyObject *py_ue_static_mesh_get_component_bounding_box(ue_PyUObject *self, PyObj
 	float max_x = std::numeric_limits<float>::min();
 	float max_y = std::numeric_limits<float>::min();
 
-	for (auto vertex : raw_mesh.VertexPositions)
-	{
-		FVector wp = wt.TransformPosition(vertex);
-		FVector2D sp;
-		if (!controller->ProjectWorldLocationToScreen(wp, sp, false))
-			return PyErr_Format(PyExc_Exception, "unable to project coordinates");
+	for (auto convex_elem : StaticMesh->BodySetup->AggGeom.ConvexElems)
+		for (auto vertex : convex_elem.VertexData)
+		{
+			FVector wp = wt.TransformPosition(vertex);
+			FVector2D sp;
+			if (!controller->ProjectWorldLocationToScreen(wp, sp, false))
+				return PyErr_Format(PyExc_Exception, "unable to project coordinates");
 
-		if(min_x > sp.X) min_x = sp.X;
-		if(max_x < sp.X) max_x = sp.X;
-		if(min_y > sp.Y) min_y = sp.Y;
-		if(max_y < sp.Y) max_y = sp.Y;
-	}
+			if(min_x > sp.X) min_x = sp.X;
+			if(max_x < sp.X) max_x = sp.X;
+			if(min_y > sp.Y) min_y = sp.Y;
+			if(max_y < sp.Y) max_y = sp.Y;
+		}
 
 	// Create a min and max vector
 	auto min_vector = py_ue_new_fvector(FVector(min_x, min_y, 0));
