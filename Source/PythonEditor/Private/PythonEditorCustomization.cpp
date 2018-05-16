@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "PythonEditorCustomization.h"
+#include "PythonEditorPrivatePCH.h"
 
 UPythonEditorCustomization::UPythonEditorCustomization(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

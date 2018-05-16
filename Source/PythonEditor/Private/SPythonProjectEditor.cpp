@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "SPythonProjectEditor.h"
+#include "PythonEditorPrivatePCH.h"
 #include "SProjectViewItem.h"
 #include "DirectoryScanner.h"
 #include "SThrobber.h"

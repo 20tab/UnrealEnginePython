@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "SPythonEditor.h"
+#include "PythonEditorPrivatePCH.h"
 #include "SMultiLineEditableText.h"
 #include "PYRichTextSyntaxHighlighterTextLayoutMarshaller.h"
 #include "SPythonEditableText.h"
