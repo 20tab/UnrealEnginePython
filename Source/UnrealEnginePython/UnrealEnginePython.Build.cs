@@ -11,7 +11,7 @@ public class UnrealEnginePython : ModuleRules
     private string pythonHome = "";
     // otherwise specify the path of your python installation
     //private string pythonHome = "C:/Program Files/Python36";
-    // this is an example for Homebrew on Mac 
+    // this is an example for Homebrew on Mac
     //private string pythonHome = "/usr/local/Cellar/python3/3.6.0/Frameworks/Python.framework/Versions/3.6/";
     // on Linux an include;libs syntax is expected:
     //private string pythonHome = "/usr/local/include/python3.6;/usr/local/lib/libpython3.6.so"
@@ -257,8 +257,8 @@ public class UnrealEnginePython : ModuleRules
     private bool IsPathRelative(string Path)
     {
         bool IsRooted = Path.StartsWith("\\", System.StringComparison.Ordinal) || // Root of the current directory on Windows. Also covers "\\" for UNC or "network" paths.
-                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes. 
-                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".	
+                        Path.StartsWith("/", System.StringComparison.Ordinal) ||  // Root of the current directory on Windows, root on UNIX-likes.
+                                                                                  // Also covers "\\", considering normalization replaces "\\" with "//".
                         (Path.Length >= 2 && char.IsLetter(Path[0]) && Path[1] == ':'); // Starts with "<DriveLetter>:"
         return !IsRooted;
     }
