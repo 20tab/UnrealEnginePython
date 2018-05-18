@@ -295,10 +295,11 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
-	if (FPaths::DirectoryExists(ProjectScriptsPath))
+	if (!FPaths::DirectoryExists(ProjectScriptsPath))
 	{
-		ScriptsPaths.Add(ProjectScriptsPath);
+		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
 	}
+	ScriptsPaths.Add(ProjectScriptsPath);
 
   #if WITH_EDITOR
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
