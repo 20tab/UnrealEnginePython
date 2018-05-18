@@ -406,6 +406,33 @@ PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_set_metadata_on_property(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *metadata_key;
+	char *metadata_value;
+	char *property_name;
+
+	if (!PyArg_ParseTuple(args, "sss:set_metadata_on_property", &property_name, &metadata_key, &metadata_value))
+	{
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<UClass>())
+	{
+		UClass *u_class = (UClass *)self->ue_object;
+		UProperty * u_property = u_class->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+		u_property->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
+	}
+	else
+	{
+		return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args)
 {
 

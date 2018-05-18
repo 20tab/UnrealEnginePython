@@ -738,6 +738,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	{ "get_metadata", (PyCFunction)py_ue_get_metadata, METH_VARARGS, "" },
 	{ "set_metadata", (PyCFunction)py_ue_set_metadata, METH_VARARGS, "" },
+	{ "set_metadata_on_property", (PyCFunction)py_ue_set_metadata_on_property, METH_VARARGS, "" },
 	{ "has_metadata", (PyCFunction)py_ue_has_metadata, METH_VARARGS, "" },
 #endif
 
