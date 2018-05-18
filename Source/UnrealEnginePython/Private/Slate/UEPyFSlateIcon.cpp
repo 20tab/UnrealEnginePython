@@ -62,6 +62,44 @@ static int ue_py_fslate_icon_init(ue_PyFSlateIcon *self, PyObject *args, PyObjec
 			PyErr_SetString(PyExc_ValueError, "you have not specified as style name");
 			return -1;
 		}
+
+		ISlateStyle const* const foundStyleSet = FSlateStyleRegistry::FindSlateStyle(FName(style_set));
+
+		const FSlateBrush * iconBrush = foundStyleSet->GetBrush(style);
+		FString Path = iconBrush->GetResourceName().ToString();
+
+		// Hack to load in the texture resource object of the icon brush in case it hasn't been already loaded
+		if (!Path.IsEmpty() && iconBrush->GetResourceObject() == nullptr)
+		{
+            if (Path.StartsWith(FSlateBrush::UTextureIdentifier()))
+            {
+				Path = Path.RightChop(FSlateBrush::UTextureIdentifier().Len());
+            }
+
+			UObject* TextureObject = LoadObject<UTexture2D>(NULL, *Path, NULL, LOAD_None, NULL);
+			FSlateBrush* Brush = const_cast<FSlateBrush*>(iconBrush);
+
+			// Set the texture object to a default texture to prevent constant loading of missing textures
+			if (!TextureObject)
+			{
+				UE_LOG(LogSlate, Warning, TEXT("Error loading loading UTexture from path: %s not found"), *Path);
+                if (GEngine)
+                {
+					TextureObject = GEngine->DefaultTexture;
+                }
+			}
+			else
+			{
+				// We do this here because this deprecated system of loading textures will not report references and we dont want the Slate RHI resource manager to manage references
+				TextureObject->AddToRoot();
+			}
+
+            if (TextureObject)
+            {
+				Brush->SetResourceObject(TextureObject);
+            }
+		}
+
 		new(&self->icon) FSlateIcon(FName(style_set), FName(style));
 	}
 	else {
