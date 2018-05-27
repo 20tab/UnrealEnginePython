@@ -707,6 +707,30 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 
 }
 
+PyObject *py_ue_skeletal_mesh_get_num_triangles(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_num_triangles", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	#if ENGINE_MINOR_VERSION < 19
+		FSkeletalMeshResource *resource = mesh->GetImportedResource();
+	#else
+		FSkeletalMeshModel *resource = mesh->GetImportedModel();
+	#endif
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	return PyLong_FromLong(resource->LODModels[lod_index].NumVertices / 3);
+}
+
 PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);

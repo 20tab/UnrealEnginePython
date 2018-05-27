@@ -274,6 +274,28 @@ PyObject *py_ue_get_levels(ue_PyUObject * self, PyObject * args)
 	return ret;
 }
 
+PyObject *py_ue_get_actors(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevel *level = ue_py_check_type<ULevel>(self);
+	if (!level)
+		return PyErr_Format(PyExc_Exception, "This uobject is not a ULevel");
+
+	PyObject *ret = PyList_New(0);
+
+	for (AActor * actor : level->Actors)
+	{
+		ue_PyUObject *py_obj = ue_get_python_uobject(actor);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+
+	return ret;
+}
+
 PyObject *py_ue_get_current_level(ue_PyUObject *self, PyObject * args)
 {
 

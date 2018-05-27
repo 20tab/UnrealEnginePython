@@ -67,6 +67,27 @@ PyObject *py_ue_class_set_flags(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_class_has_any_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "K:class_has_any_flags", &flags))
+	{
+		return nullptr;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	if (u_class->HasAnyClassFlags((EClassFlags)flags))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
 PyObject *py_ue_get_obj_flags(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);
@@ -156,6 +177,37 @@ PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 	if (!prop)
 		return PyErr_Format(PyExc_Exception, "object is not a StructProperty");
 	return py_ue_new_uscriptstruct(prop->Struct, prop->ContainerPtrToValuePtr<uint8>(self->ue_object));
+}
+
+PyObject *py_ue_output_referencers(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	FStringOutputDevice outputDevice;
+
+	// Get referencer information
+	FReferencerInformationList outputList;
+	self->ue_object->OutputReferencers((FOutputDevice &)outputDevice);
+
+	// Get actual list of objects referencing this actor
+	TArray<FReferencerInformation> outInternalRefs, outExternalRefs;
+	self->ue_object->RetrieveReferencers(&outInternalRefs, &outExternalRefs);
+
+	PyObject *retList = PyList_New(0);
+
+	// Pack objects into list
+	for (FReferencerInformation & info : outExternalRefs)
+	{
+		ue_PyUObject *py_obj = ue_get_python_uobject(info.Referencer);
+		if (!py_obj)
+			continue;
+		Py_INCREF(py_obj);
+		PyList_Append(retList, (PyObject *)py_obj);
+	}
+	// Pack into tuple of type(String, List[UObject]) and return
+	PyObject * retTuple = PyTuple_New(2);
+	PyTuple_SetItem(retTuple, 0, PyUnicode_FromString(TCHAR_TO_UTF8(*outputDevice)));
+	PyTuple_SetItem(retTuple, 1, retList);
+	return retTuple;
 }
 
 PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args)

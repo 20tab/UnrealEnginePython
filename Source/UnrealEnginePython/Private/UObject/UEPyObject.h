@@ -32,6 +32,7 @@ PyObject *py_ue_is_selected(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_to_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_from_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_auto_root(ue_PyUObject *, PyObject *);
+PyObject *py_ue_output_referencers(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_save_config(ue_PyUObject *, PyObject *, PyObject *);
 PyObject *py_ue_save_config_to_section(ue_PyUObject *, PyObject *, PyObject *);
@@ -77,6 +78,7 @@ PyObject *py_ue_class_generated_by(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_class_get_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_class_set_flags(ue_PyUObject *, PyObject *);
+PyObject *py_ue_class_has_any_flags(ue_PyUObject * self, PyObject * args);
 PyObject *py_ue_get_obj_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_obj_flags(ue_PyUObject *, PyObject *);
 

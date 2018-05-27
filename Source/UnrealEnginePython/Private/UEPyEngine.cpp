@@ -217,6 +217,30 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args)
 	return py_ue_new_fvector(vec);
 }
 
+PyObject *py_unreal_engine_get_section(PyObject *self, PyObject * args)
+{
+	char * section_name = nullptr;
+	char *file_name = nullptr;
+
+	if (!PyArg_ParseTuple(args, "ss:get_section", &section_name, &file_name))
+	{
+		return NULL;
+	}
+
+	TArray<FString> outSection;
+	GConfig->GetSection(*FString(section_name), outSection, FString(file_name));
+
+	PyObject *ret = PyList_New(0);
+	for (FString & outString : outSection)
+	{
+		PyObject *py_string = PyUnicode_FromString(TCHAR_TO_UTF8(*outString));
+		PyList_Append(ret, py_string);
+		Py_DECREF(py_string);
+	}
+
+	return ret;
+}
+
 PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 {
 #if ENGINE_MINOR_VERSION >= 18

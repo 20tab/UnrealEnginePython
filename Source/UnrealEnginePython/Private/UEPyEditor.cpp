@@ -674,6 +674,43 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args)
 	Py_RETURN_UOBJECT(asset.GetAsset());
 }
 
+PyObject *py_unreal_engine_get_all_assets(PyObject * self, PyObject * args)
+{
+	IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+
+	TArray<FAssetData> OutAssetData;
+
+	AssetRegistry.GetAllAssets(OutAssetData);
+
+	PyObject *ret = PyList_New(0);
+
+	for (FAssetData & assetData : OutAssetData)
+	{
+		PyObject *py_obj = py_ue_new_fassetdata(assetData);
+		if (!py_obj)
+			continue;
+		PyList_Append(ret, (PyObject *)py_obj);
+	}
+
+	return ret;
+}
+
+PyObject * py_unreal_engine_get_asset_by_object_path(PyObject * self, PyObject * args)
+{
+	char * object_path = nullptr;
+	if (!PyArg_ParseTuple(args, "s:get_asset_by_object_path", &object_path))
+	{
+		return NULL;
+	}
+
+	if (!object_path)
+		return PyErr_Format(PyExc_Exception, "Argument is not a valid string");
+
+	IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+
+	return py_ue_new_fassetdata(AssetRegistry.GetAssetByObjectPath(FName(object_path)));
+}
+
 PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args)
 {
 	char *path;

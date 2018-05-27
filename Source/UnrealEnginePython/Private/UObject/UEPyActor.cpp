@@ -127,6 +127,24 @@ PyObject *py_ue_actor_destroy_component(ue_PyUObject * self, PyObject * args)
 	return Py_None;
 }
 
+PyObject *py_ue_actor_component_set_can_ever_affect_navigation(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	UActorComponent *actor_component = ue_py_check_type<UActorComponent>(self);
+	if (!actor_component)
+		return PyErr_Format(PyExc_Exception, "Self is not a UActorComponent");
+
+	PyObject *py_bool;
+	if (!PyArg_ParseTuple(args, "O:actor_component_set_can_ever_affect_navigation", &py_bool))
+	{
+		return NULL;
+	}
+	actor_component->SetCanEverAffectNavigation(PyObject_IsTrue(py_bool) ? true : false);
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args)
 {
 
@@ -923,6 +941,32 @@ PyObject *py_ue_actor_set_level_sequence(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_actor_get_level_sequence(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (!PyArg_ParseTuple(args, ":actor_get_level_sequence"))
+	{
+		return NULL;
+	}
+
+	ALevelSequenceActor *actor = ue_py_check_type<ALevelSequenceActor>(self);
+	if (!actor)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequenceActor");
+	}
+
+	ULevelSequence * retSequence = nullptr;
+	retSequence = actor->GetSequence(true, false);
+
+	if (retSequence == nullptr)
+		Py_RETURN_NONE;
+
+	Py_RETURN_UOBJECT(retSequence);
+
+}
+
 
 #if WITH_EDITOR
 PyObject *py_ue_get_editor_world_counterpart_actor(ue_PyUObject * self, PyObject * args)
@@ -939,5 +983,16 @@ PyObject *py_ue_get_editor_world_counterpart_actor(ue_PyUObject * self, PyObject
 		return PyErr_Format(PyExc_Exception, "unable to retrieve editor counterpart actor");
 
 	Py_RETURN_UOBJECT(editor_actor);
+}
+
+PyObject *py_ue_get_num_uncached_static_lighting_interactions(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	UPrimitiveComponent *component = ue_py_check_type<UPrimitiveComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not a primitive component");
+
+	return PyLong_FromLong(component->GetNumUncachedStaticLightingInteractions());
 }
 #endif

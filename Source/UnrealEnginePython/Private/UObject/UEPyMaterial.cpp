@@ -6,6 +6,79 @@
 #include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
 #include "Editor/UnrealEd/Classes/MaterialGraph/MaterialGraphSchema.h"
 #endif
+#include <Materials/MaterialInterface.h>
+#include <Shader.h>
+#include <MaterialShared.h>
+
+PyObject *py_ue_get_material_instruction_count(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	uint64 feature_level = ERHIFeatureLevel::SM5, material_quality = EMaterialQualityLevel::High, shader_platform = EShaderPlatform::SP_PCD3D_SM5;
+	if (!PyArg_ParseTuple(args, "KKK:get_material_instruction_count", &feature_level, &material_quality, &shader_platform))
+	{
+		return nullptr;
+	}
+
+	if (!self->ue_object->GetClass()->IsChildOf<UMaterialInterface>())
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	}
+
+	UMaterialInterface *material = (UMaterialInterface *)self->ue_object;
+	UMaterialInterface *old_material =	nullptr;
+	FMaterialResource * material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	int instruction_count = 0;
+	if (material_resource == nullptr)
+	{
+		// If this is an instance, will get the resource from parent material
+		material = material->GetMaterial();
+	}
+
+	material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	FMaterialShaderMapId OutId;
+	TArray<FString> Descriptions;
+	TArray<int32> InstructionCounts;
+	
+	material_resource->GetRepresentativeInstructionCounts(Descriptions, InstructionCounts);
+
+	// [0] = Base pass shader count, [Last] = Vertex shader, discarding the other two as they are permutations of 0 for surface/volumetric lightmap cases
+	instruction_count = InstructionCounts.Last() + InstructionCounts[0];
+
+	return PyLong_FromLong(instruction_count);
+}
+
+PyObject *py_ue_get_material_sampler_count(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	uint64 feature_level = ERHIFeatureLevel::SM5, material_quality = EMaterialQualityLevel::High, shader_platform = EShaderPlatform::SP_PCD3D_SM5;
+	if (!PyArg_ParseTuple(args, "KKK:get_material_sampler_count", &feature_level, &material_quality, &shader_platform))
+	{
+		return nullptr;
+	}
+
+	if (!self->ue_object->GetClass()->IsChildOf<UMaterialInterface>())
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	}
+
+	UMaterialInterface *material = (UMaterialInterface *)self->ue_object;
+	UMaterialInterface *old_material = nullptr;
+	FMaterialResource * material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	if (material_resource == nullptr)
+	{
+		// If this is an instance, will get the resource from parent material
+		material = material->GetMaterial();
+	}
+
+	material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	FMaterialShaderMapId OutId;
+	material_resource->GetShaderMapId((EShaderPlatform)shader_platform, OutId);
+
+	int sampler_count = 0;
+	sampler_count += material_resource->GetSamplerUsage();
+
+	return PyLong_FromLong(sampler_count);
+}
 
 PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * args)
 {

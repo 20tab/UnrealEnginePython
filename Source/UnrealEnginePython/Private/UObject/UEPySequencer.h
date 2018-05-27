@@ -46,6 +46,7 @@ PyObject *py_ue_sequencer_possessables_guid(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_all_spawnables(ue_PyUObject *self, PyObject * args);
 
 PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *, PyObject *);
 

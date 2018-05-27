@@ -190,26 +190,81 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'Unknown',
                 ]),
 
-		EnumDef(name='EWidgetMode',
-				cppNameScope='FWidget::EWidgetMode',
-				values=[
-				'WM_None',
-				'WM_Translate',
-				'WM_TranslateRotateZ',
-				'WM_2D',
-				'WM_Rotate',
-				'WM_Scale',
-				'WM_Max',
-				]),
+        EnumDef(name='EWidgetMode',
+                cppNameScope='FWidget::EWidgetMode',
+                values=[
+                'WM_None',
+                'WM_Translate',
+                'WM_TranslateRotateZ',
+                'WM_2D',
+                'WM_Rotate',
+                'WM_Scale',
+                'WM_Max',
+                ]),
 
-		EnumDef(name='ECoordSystem',
-				cppNameScope='ECoordSystem',
-				values=[
-				'COORD_None',
-				'COORD_World',
-				'COORD_Local',
-				'COORD_Max',
-				]),
+        EnumDef(name='ECoordSystem',
+                cppNameScope='ECoordSystem',
+                values=[
+                'COORD_None',
+                'COORD_World',
+                'COORD_Local',
+                'COORD_Max',
+                ]),
+
+        EnumDef(name='EMaterialQualityLevel',
+                cppNameScope='EMaterialQualityLevel',
+                values=[
+                'High',
+                'Medium',
+                'Low',
+                'Num',
+                ]),
+
+        EnumDef(name='ERHIFeatureLevel',
+                cppNameScope='ERHIFeatureLevel',
+                values=[
+                'ES2',
+                'ES3_1',
+                'SM4',
+                'SM5',
+                'Num',
+                ]),
+
+        EnumDef(name='EShaderPlatform',
+                cppNameScope='EShaderPlatform',
+                values=[
+                'SP_PCD3D_SM5',
+                'SP_OPENGL_SM4',
+                'SP_PS4',
+                'SP_OPENGL_PCES2',
+                'SP_XBOXONE_D3D12',
+                'SP_PCD3D_SM4',
+                'SP_OPENGL_SM5',
+                'SP_PCD3D_ES2',
+                'SP_OPENGL_ES2_ANDROID',
+                'SP_OPENGL_ES2_WEBGL',
+                'SP_OPENGL_ES2_IOS',
+                'SP_METAL',
+                'SP_METAL_MRT',
+                'SP_OPENGL_ES31_EXT',
+                'SP_PCD3D_ES3_1',
+                'SP_OPENGL_PCES3_1',
+                'SP_METAL_SM5',
+                'SP_VULKAN_PCES3_1',
+                'SP_METAL_SM5_NOTESS',
+                'SP_VULKAN_SM4',
+                'SP_VULKAN_SM5',
+                'SP_VULKAN_ES3_1_ANDROID',
+                'SP_METAL_MACES3_1',
+                'SP_METAL_MACES2',
+                'SP_OPENGL_ES3_1_ANDROID',
+                'SP_SWITCH',
+                'SP_SWITCH_FORWARD',
+                'SP_METAL_MRT_MAC',
+                'SP_NumPlatforms',
+                'SP_NumBits',
+                ]),
+                
     ]
 
     def output_cpp_enums(in_enum_list):
@@ -409,33 +464,111 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
     }
 
-	// Enum Wrapper: EWidgetMode
-	{
-		PyObject* native_EWidgetMode = PyDict_GetItemString(unreal_engine_dict, "EWidgetMode");
-		if (native_EWidgetMode == nullptr)
-		{
-			native_EWidgetMode = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-			PyDict_SetItemString(unreal_engine_dict, "EWidgetMode", (PyObject*)native_EWidgetMode);
-		}
+    // Enum Wrapper: EWidgetMode
+    {
+        PyObject* native_EWidgetMode = PyDict_GetItemString(unreal_engine_dict, "EWidgetMode");
+        if (native_EWidgetMode == nullptr)
+        {
+            native_EWidgetMode = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EWidgetMode", (PyObject*)native_EWidgetMode);
+        }
 
-		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "None", PyLong_FromLong((int)FWidget::EWidgetMode::WM_None));
-		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "Translate", PyLong_FromLong((int)FWidget::EWidgetMode::WM_Translate));
-		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "Rotate", PyLong_FromLong((int)FWidget::EWidgetMode::WM_Rotate));
-		PyObject_SetAttrString((PyObject*)native_EWidgetMode, "Scale", PyLong_FromLong((int)FWidget::EWidgetMode::WM_Scale));
-	}
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_None"        , PyLong_FromLong((int)FWidget::EWidgetMode::WM_None));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Translate"   , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Translate));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_TranslateRotateZ", PyLong_FromLong((int)FWidget::EWidgetMode::WM_TranslateRotateZ));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_2D"          , PyLong_FromLong((int)FWidget::EWidgetMode::WM_2D));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Rotate"      , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Rotate));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Scale"       , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Scale));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Max"         , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Max));
+    }
 
-	// Enum Wrapper: ECoordSystem
-	{
-		PyObject* native_ECoordSystem = PyDict_GetItemString(unreal_engine_dict, "ECoordSystem");
-		if (native_ECoordSystem == nullptr)
-		{
-			native_ECoordSystem = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-			PyDict_SetItemString(unreal_engine_dict, "ECoordSystem", (PyObject*)native_ECoordSystem);
-		}
+    // Enum Wrapper: ECoordSystem
+    {
+        PyObject* native_ECoordSystem = PyDict_GetItemString(unreal_engine_dict, "ECoordSystem");
+        if (native_ECoordSystem == nullptr)
+        {
+            native_ECoordSystem = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ECoordSystem", (PyObject*)native_ECoordSystem);
+        }
 
-		PyObject_SetAttrString((PyObject*)native_ECoordSystem, "World", PyLong_FromLong((int)ECoordSystem::COORD_World));
-		PyObject_SetAttrString((PyObject*)native_ECoordSystem, "Local", PyLong_FromLong((int)ECoordSystem::COORD_Local));
-	}
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_None"     , PyLong_FromLong((int)ECoordSystem::COORD_None));
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_World"    , PyLong_FromLong((int)ECoordSystem::COORD_World));
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_Local"    , PyLong_FromLong((int)ECoordSystem::COORD_Local));
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_Max"      , PyLong_FromLong((int)ECoordSystem::COORD_Max));
+    }
+
+    // Enum Wrapper: EMaterialQualityLevel
+    {
+        PyObject* native_EMaterialQualityLevel = PyDict_GetItemString(unreal_engine_dict, "EMaterialQualityLevel");
+        if (native_EMaterialQualityLevel == nullptr)
+        {
+            native_EMaterialQualityLevel = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EMaterialQualityLevel", (PyObject*)native_EMaterialQualityLevel);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EMaterialQualityLevel, "High"           , PyLong_FromLong((int)EMaterialQualityLevel::High));
+        PyObject_SetAttrString((PyObject*)native_EMaterialQualityLevel, "Medium"         , PyLong_FromLong((int)EMaterialQualityLevel::Medium));
+        PyObject_SetAttrString((PyObject*)native_EMaterialQualityLevel, "Low"            , PyLong_FromLong((int)EMaterialQualityLevel::Low));
+        PyObject_SetAttrString((PyObject*)native_EMaterialQualityLevel, "Num"            , PyLong_FromLong((int)EMaterialQualityLevel::Num));
+    }
+
+    // Enum Wrapper: ERHIFeatureLevel
+    {
+        PyObject* native_ERHIFeatureLevel = PyDict_GetItemString(unreal_engine_dict, "ERHIFeatureLevel");
+        if (native_ERHIFeatureLevel == nullptr)
+        {
+            native_ERHIFeatureLevel = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ERHIFeatureLevel", (PyObject*)native_ERHIFeatureLevel);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ERHIFeatureLevel, "ES2"            , PyLong_FromLong((int)ERHIFeatureLevel::ES2));
+        PyObject_SetAttrString((PyObject*)native_ERHIFeatureLevel, "ES3_1"          , PyLong_FromLong((int)ERHIFeatureLevel::ES3_1));
+        PyObject_SetAttrString((PyObject*)native_ERHIFeatureLevel, "SM4"            , PyLong_FromLong((int)ERHIFeatureLevel::SM4));
+        PyObject_SetAttrString((PyObject*)native_ERHIFeatureLevel, "SM5"            , PyLong_FromLong((int)ERHIFeatureLevel::SM5));
+        PyObject_SetAttrString((PyObject*)native_ERHIFeatureLevel, "Num"            , PyLong_FromLong((int)ERHIFeatureLevel::Num));
+    }
+
+    // Enum Wrapper: EShaderPlatform
+    {
+        PyObject* native_EShaderPlatform = PyDict_GetItemString(unreal_engine_dict, "EShaderPlatform");
+        if (native_EShaderPlatform == nullptr)
+        {
+            native_EShaderPlatform = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EShaderPlatform", (PyObject*)native_EShaderPlatform);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_PCD3D_SM5"   , PyLong_FromLong((int)EShaderPlatform::SP_PCD3D_SM5));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_SM4"  , PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_SM4));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_PS4"         , PyLong_FromLong((int)EShaderPlatform::SP_PS4));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_PCES2", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_PCES2));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_XBOXONE_D3D12", PyLong_FromLong((int)EShaderPlatform::SP_XBOXONE_D3D12));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_PCD3D_SM4"   , PyLong_FromLong((int)EShaderPlatform::SP_PCD3D_SM4));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_SM5"  , PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_SM5));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_PCD3D_ES2"   , PyLong_FromLong((int)EShaderPlatform::SP_PCD3D_ES2));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_ES2_ANDROID", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_ES2_ANDROID));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_ES2_WEBGL", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_ES2_WEBGL));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_ES2_IOS", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_ES2_IOS));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL"       , PyLong_FromLong((int)EShaderPlatform::SP_METAL));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_MRT"   , PyLong_FromLong((int)EShaderPlatform::SP_METAL_MRT));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_ES31_EXT", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_ES31_EXT));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_PCD3D_ES3_1" , PyLong_FromLong((int)EShaderPlatform::SP_PCD3D_ES3_1));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_PCES3_1", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_PCES3_1));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_SM5"   , PyLong_FromLong((int)EShaderPlatform::SP_METAL_SM5));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_VULKAN_PCES3_1", PyLong_FromLong((int)EShaderPlatform::SP_VULKAN_PCES3_1));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_SM5_NOTESS", PyLong_FromLong((int)EShaderPlatform::SP_METAL_SM5_NOTESS));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_VULKAN_SM4"  , PyLong_FromLong((int)EShaderPlatform::SP_VULKAN_SM4));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_VULKAN_SM5"  , PyLong_FromLong((int)EShaderPlatform::SP_VULKAN_SM5));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_VULKAN_ES3_1_ANDROID", PyLong_FromLong((int)EShaderPlatform::SP_VULKAN_ES3_1_ANDROID));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_MACES3_1", PyLong_FromLong((int)EShaderPlatform::SP_METAL_MACES3_1));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_MACES2", PyLong_FromLong((int)EShaderPlatform::SP_METAL_MACES2));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_OPENGL_ES3_1_ANDROID", PyLong_FromLong((int)EShaderPlatform::SP_OPENGL_ES3_1_ANDROID));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_SWITCH"      , PyLong_FromLong((int)EShaderPlatform::SP_SWITCH));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_SWITCH_FORWARD", PyLong_FromLong((int)EShaderPlatform::SP_SWITCH_FORWARD));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_MRT_MAC", PyLong_FromLong((int)EShaderPlatform::SP_METAL_MRT_MAC));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_NumPlatforms", PyLong_FromLong((int)EShaderPlatform::SP_NumPlatforms));
+        PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_NumBits"     , PyLong_FromLong((int)EShaderPlatform::SP_NumBits));
+    }
+
     #endif
     //[[[end]]]
 }

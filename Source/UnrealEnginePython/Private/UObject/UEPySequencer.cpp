@@ -211,6 +211,40 @@ PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *self, PyObject * args)
 	return ret;
 }
 
+PyObject *py_ue_sequencer_get_all_spawnables(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (!PyArg_ParseTuple(args, ":get_all_spawnables"))
+	{
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	PyObject *py_spawnables = PyList_New(0);
+
+	for (int i = 0; i < scene->GetSpawnableCount(); ++i)
+	{
+		FMovieSceneSpawnable & spawnable = scene->GetSpawnable(i);
+		PyObject *ret = py_ue_new_uscriptstruct(spawnable.StaticStruct(), (uint8 *)&spawnable);
+		if (!ret)
+		{
+			Py_DECREF(py_spawnables);
+			return PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
+		}
+		PyList_Append(py_spawnables, (PyObject *)ret);
+	}
+
+	return py_spawnables;
+}
+
 #if WITH_EDITOR
 PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *self, PyObject * args)
 {

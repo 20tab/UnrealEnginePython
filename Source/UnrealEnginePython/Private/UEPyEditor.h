@@ -7,6 +7,8 @@
 #if WITH_EDITOR
 
 PyObject *py_unreal_engine_get_editor_world(PyObject *, PyObject * args);
+PyObject *py_unreal_engine_get_all_assets(PyObject * self, PyObject * args);
+PyObject *py_unreal_engine_get_asset_by_object_path(PyObject * self, PyObject * args);
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject *, PyObject * args);
 PyObject *py_unreal_engine_editor_get_selected_actors(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_get_actors_in_folder(PyObject *, PyObject *);
