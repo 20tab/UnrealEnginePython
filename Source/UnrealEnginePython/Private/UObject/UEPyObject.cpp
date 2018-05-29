@@ -113,6 +113,38 @@ PyObject *py_ue_set_obj_flags(ue_PyUObject * self, PyObject * args)
 
 
 #if WITH_EDITOR
+
+#if ENGINE_MINOR_VERSION >= 19
+PyObject *py_ue_is_data_valid(ue_PyUObject * self, PyObject * args)
+{
+    ue_py_check(self);
+
+    PyObject* py_validErrors = nullptr;
+    if (!PyArg_ParseTuple(args, "O:is_data_valid", &py_validErrors))
+    {
+        return NULL;
+    }
+
+    UObject* uobj = ue_py_check_type<UObject>(self);
+    if (!uobj)
+    { return PyErr_Format(PyExc_Exception, "object is not a valid UObject"); }
+
+    if (!PyList_Check(py_validErrors))
+    {
+        return PyErr_Format(PyExc_Exception, "validation errors must be an array ");
+    }
+
+    TArray<FText> newValidErrors;
+    EDataValidationResult validationResult = uobj->IsDataValid(newValidErrors);
+    for (const FText& validError : newValidErrors)
+    {
+        PyList_Append(py_validErrors, PyUnicode_FromString(TCHAR_TO_UTF8(*validError.ToString())));
+    }
+
+    return PyLong_FromLong((uint8)validationResult);
+}
+#endif
+
 PyObject *py_ue_class_set_config_name(ue_PyUObject * self, PyObject * args)
 {
 

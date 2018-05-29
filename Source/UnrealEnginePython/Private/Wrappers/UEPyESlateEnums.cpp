@@ -265,6 +265,13 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                 'SP_NumBits',
                 ]),
                 
+        EnumDef(name='EDataValidationResult',
+                cppNameScope='EDataValidationResult',
+                values=[
+                'Invalid',
+                'Valid',
+                'NotValidated'
+                ]),
     ]
 
     def output_cpp_enums(in_enum_list):
@@ -567,6 +574,20 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_METAL_MRT_MAC", PyLong_FromLong((int)EShaderPlatform::SP_METAL_MRT_MAC));
         PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_NumPlatforms", PyLong_FromLong((int)EShaderPlatform::SP_NumPlatforms));
         PyObject_SetAttrString((PyObject*)native_EShaderPlatform, "SP_NumBits"     , PyLong_FromLong((int)EShaderPlatform::SP_NumBits));
+    }
+
+    // Enum Wrapper: EDataValidationResult
+    {
+        PyObject* native_EDataValidationResult = PyDict_GetItemString(unreal_engine_dict, "EDataValidationResult");
+        if (native_EDataValidationResult == nullptr)
+        {
+            native_EDataValidationResult = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EDataValidationResult", (PyObject*)native_EDataValidationResult);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EDataValidationResult, "Invalid"        , PyLong_FromLong((int)EDataValidationResult::Invalid));
+        PyObject_SetAttrString((PyObject*)native_EDataValidationResult, "Valid"          , PyLong_FromLong((int)EDataValidationResult::Valid));
+        PyObject_SetAttrString((PyObject*)native_EDataValidationResult, "NotValidated"   , PyLong_FromLong((int)EDataValidationResult::NotValidated));
     }
 
     #endif

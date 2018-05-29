@@ -84,6 +84,9 @@ PyObject *py_ue_set_obj_flags(ue_PyUObject *, PyObject *);
 
 
 #if WITH_EDITOR
+#if ENGINE_MINOR_VERSION >= 19
+PyObject *py_ue_is_data_valid(ue_PyUObject *, PyObject *);
+#endif
 PyObject *py_ue_class_get_config_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_class_set_config_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_save_package(ue_PyUObject *, PyObject *);
