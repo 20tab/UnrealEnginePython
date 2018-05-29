@@ -613,9 +613,8 @@ PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * arg
 PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 {
 	char *path;
-	char *package_name;
 	char *object_name;
-	if (!PyArg_ParseTuple(args, "sss:rename_asset", &path, &package_name, &object_name))
+	if (!PyArg_ParseTuple(args, "ss:rename_asset", &path, &object_name))
 	{
 		return NULL;
 	}
@@ -628,21 +627,20 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 	if (!asset.IsValid())
 		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
 
-	UObject *u_object = asset.GetAsset();
-	ObjectTools::FPackageGroupName pgn;
-	pgn.ObjectName = UTF8_TO_TCHAR(object_name);
-	pgn.GroupName = FString("");
-	pgn.PackageName = UTF8_TO_TCHAR(package_name);
+	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-	TSet<UPackage *> refused_packages;
-	FText error_text;
-	if (!ObjectTools::RenameSingleObject(u_object, pgn, refused_packages, error_text, nullptr, false))
+	UObject *u_object = asset.GetAsset();
+	TArray<FAssetRenameData> AssetsAndNames;
+	const FString PackagePath = FPackageName::GetLongPackagePath(u_object->GetOutermost()->GetName());
+	const FString newname(UTF8_TO_TCHAR(object_name));
+	new(AssetsAndNames) FAssetRenameData(u_object, PackagePath, newname);
+	if (!AssetToolsModule.Get().RenameAssets(AssetsAndNames))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to rename asset %s", path);
 	}
 
 	Py_INCREF(Py_None);
-	return Py_None;
+	return Py_None; 
 }
 
 PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args)
