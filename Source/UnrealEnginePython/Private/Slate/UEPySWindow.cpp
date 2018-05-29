@@ -80,7 +80,7 @@ static PyObject *py_ue_swindow_set_on_window_closed(ue_PySWindow *self, PyObject
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
 	FOnWindowClosed onWindowClosed;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(py_SWindow, py_callable);
 	onWindowClosed.BindSP(py_delegate, &FPythonSlateDelegate::OnWindowClosed);
 
     py_SWindow->SetOnWindowClosed(onWindowClosed);

@@ -12,6 +12,7 @@ struct ue_PySWidget
 	/* Type-specific fields go here. */
 	TSharedRef<SWidget> Widget;
 	PyObject      *weakreflist;
+    PyObject *py_dict;
 };
 
 void ue_python_init_swidget(PyObject *);

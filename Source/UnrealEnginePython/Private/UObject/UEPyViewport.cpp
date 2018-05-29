@@ -157,7 +157,7 @@ PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *self, PyObject * args)
 		return nullptr;
 	}
 
-	viewport->AddViewportWidgetContent(content.ToSharedRef());
+	viewport->AddViewportWidgetContent(content.ToSharedRef(), z_order);
 
 	Py_RETURN_NONE;
 }

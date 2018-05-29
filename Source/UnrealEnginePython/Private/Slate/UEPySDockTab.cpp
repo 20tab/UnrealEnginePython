@@ -23,7 +23,7 @@ static PyObject *py_ue_sdock_tab_set_label(ue_PySDockTab *self, PyObject * args)
 	Py_RETURN_SLATE_SELF;
 }
 
-static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySButton *self, PyObject * args) 
+static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySDockTab *self, PyObject * args)
 {
     ue_py_slate_cast(SDockTab);
 
@@ -37,7 +37,7 @@ static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySButton *self, PyObject 
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
 	SDockTab::FOnTabClosedCallback onTabClosed;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(py_SDockTab, py_callable);
 	onTabClosed.BindSP(py_delegate, &FPythonSlateDelegate::OnTabClosed);
 
 	py_SDockTab->SetOnTabClosed(onTabClosed);

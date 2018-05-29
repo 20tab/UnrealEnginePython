@@ -396,6 +396,7 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self)
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySWidget %p mapped to %s %p (slate refcount: %d)"), self, *self->Widget->GetTypeAsString(), &self->Widget.Get(), self->Widget.GetSharedReferenceCount());
 #endif
+    Py_DECREF(self->py_dict);
 
 	if (self->weakreflist != nullptr)
 		PyObject_ClearWeakRefs((PyObject *)self);
@@ -455,6 +456,7 @@ ue_PySWidget_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	{
 		new(&self->Widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
 		self->weakreflist = nullptr;
+        self->py_dict = self->py_dict = PyDict_New();
 	}
 
 	return (PyObject *)self;
@@ -463,7 +465,10 @@ ue_PySWidget_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 void ue_python_init_swidget(PyObject *ue_module)
 {
 	ue_PySWidgetType.tp_new = ue_PySWidget_new;
-	// support for weak references, useful for tests
+    ue_PySWidgetType.tp_getattro = PyObject_GenericGetAttr;
+    ue_PySWidgetType.tp_setattro = PyObject_GenericSetAttr;
+    ue_PySWidgetType.tp_dictoffset = offsetof(ue_PySWidget, py_dict);
+    // support for weak references, useful for tests
 	ue_PySWidgetType.tp_weaklistoffset = offsetof(ue_PySWidget, weakreflist);
 
 	if (PyType_Ready(&ue_PySWidgetType) < 0)
