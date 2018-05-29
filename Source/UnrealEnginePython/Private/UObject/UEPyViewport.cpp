@@ -151,16 +151,13 @@ PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "cannot retrieve GameViewportClient from UWorld");
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
-	if (!py_swidget)
+	TSharedPtr<SWidget> content = py_ue_is_swidget<SWidget>(py_widget);
+	if (!content.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
-	// Do not increment reference count as it is assumed this function is used in a PyComponent/PyActor/ that can holds reference to
-	// it in various ways
-	// Py_INCREF(py_swidget);
 
-	viewport->AddViewportWidgetContent(py_swidget->s_widget, z_order);
+	viewport->AddViewportWidgetContent(content.ToSharedRef());
 
 	Py_RETURN_NONE;
 }
@@ -181,14 +178,13 @@ PyObject *py_ue_remove_viewport_widget_content(ue_PyUObject *self, PyObject * ar
 	if (!viewport)
 		return PyErr_Format(PyExc_Exception, "object is not a GameViewportClient");
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
-	if (!py_swidget)
+	TSharedPtr<SWidget> content = py_ue_is_swidget<SWidget>(py_widget);
+	if (!content.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
-	Py_DECREF(py_swidget);
 
-	viewport->RemoveViewportWidgetContent(py_swidget->s_widget);
+	viewport->RemoveViewportWidgetContent(content.ToSharedRef());
 
 	Py_RETURN_NONE;
 }

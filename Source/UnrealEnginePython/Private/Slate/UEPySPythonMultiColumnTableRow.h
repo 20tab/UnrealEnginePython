@@ -11,7 +11,8 @@
 
 extern PyTypeObject ue_PySCompoundWidgetType;
 extern PyTypeObject ue_PySTableViewBaseType;
-class SPythonMultiColumnTableRow : public SMultiColumnTableRow<TSharedPtr<struct FPythonItem>> {
+class SPythonMultiColumnTableRow : public SMultiColumnTableRow<TSharedPtr<struct FPythonItem>>
+{
 public:
     SLATE_BEGIN_ARGS(SPythonMultiColumnTableRow) { }
     SLATE_END_ARGS();
@@ -43,8 +44,8 @@ public:
             return SNullWidget::NullWidget;
         }
 
-        ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-        if (!s_widget)
+		TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+		if (!Widget.IsValid())
         {
             Py_DECREF(ret);
             UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
@@ -64,7 +65,7 @@ public:
                 +SHorizontalBox::Slot()
                 .AutoWidth()
                 [
-                    s_widget->s_widget
+                    Widget.ToSharedRef()
                 ];
             Py_DECREF(ret);
             return value;
@@ -72,9 +73,8 @@ public:
         else
         {
             // Lists do not need an expander arrow
-            TSharedRef<SWidget> value = s_widget->s_widget;
             Py_DECREF(ret);
-            return value;
+		    return Widget.ToSharedRef();
         }
     }
 
@@ -130,7 +130,8 @@ private:
     FName firstColumnName = FName("friendlyName");
 };
 
-typedef struct {
+typedef struct
+{
     ue_PySCompoundWidget s_compound_widget;
 	/* Type-specific fields go here. */
     ue_PySTableViewBase* owner_table;

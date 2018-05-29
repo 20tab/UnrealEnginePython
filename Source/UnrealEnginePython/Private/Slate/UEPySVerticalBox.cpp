@@ -4,9 +4,9 @@
 #include "UEPySVerticalBox.h"
 
 
-#define sw_vertical_box StaticCastSharedRef<SVerticalBox>(self->s_box_panel.s_panel.s_widget.s_widget)
-
-static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject * args, PyObject *kwargs) {
+static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject * args, PyObject *kwargs)
+{
+	ue_py_slate_cast(SVerticalBox);
 	PyObject *py_content;
 	int h_align = 0;
 	float max_height = 0;
@@ -31,19 +31,19 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 		&padding,
 		&v_align,
 		&fill_height,
-		&py_auto_height)) {
-		return NULL;
+		&py_auto_height))
+	{
+		return nullptr;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget) {
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+	TSharedPtr<SWidget> Child = py_ue_is_swidget<SWidget>(py_content);
+	if (!Child.IsValid())
+	{
+		return nullptr;
 	}
-	
-	Py_INCREF(py_swidget);
 
-	SVerticalBox::FSlot &fslot = sw_vertical_box->AddSlot();
-	fslot.AttachWidget(py_swidget->s_widget->AsShared());
+	SVerticalBox::FSlot &fslot = py_SVerticalBox->AddSlot();
+	fslot.AttachWidget(Child.ToSharedRef());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (max_height != 0)
 		fslot.MaxHeight(max_height);
@@ -75,12 +75,13 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 	if (py_auto_height && PyObject_IsTrue(py_auto_height))
 		fslot.AutoHeight();
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
-static PyObject *py_ue_svertical_box_num_slots(ue_PySHorizontalBox *self, PyObject * args) {
-	return PyLong_FromLong(sw_vertical_box->NumSlots());
+static PyObject *py_ue_svertical_box_num_slots(ue_PySVerticalBox *self, PyObject * args)
+{
+	ue_py_slate_cast(SVerticalBox);
+	return PyLong_FromLong(py_SVerticalBox->NumSlots());
 }
 
 static PyMethodDef ue_PySVerticalBox_methods[] = {
@@ -121,16 +122,18 @@ PyTypeObject ue_PySVerticalBoxType = {
 	ue_PySVerticalBox_methods,             /* tp_methods */
 };
 
-static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs) {
-	
+static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs)
+{
+
 	ue_py_slate_setup_farguments(SVerticalBox);
 
-	ue_py_snew(SVerticalBox, s_box_panel.s_panel.s_widget);
+	ue_py_snew(SVerticalBox);
 	return 0;
 }
 
 
-void ue_python_init_svertical_box(PyObject *ue_module) {
+void ue_python_init_svertical_box(PyObject *ue_module)
+{
 
 	ue_PySVerticalBoxType.tp_init = (initproc)ue_py_svertical_box_init;
 	ue_PySVerticalBoxType.tp_call = (ternaryfunc)py_ue_svertical_box_add_slot;

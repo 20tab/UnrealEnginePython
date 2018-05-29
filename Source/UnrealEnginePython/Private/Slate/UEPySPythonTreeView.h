@@ -14,8 +14,6 @@ public:
 		delete(ItemsSource);
 	}
 
-	void SetPythonItemExpansion(PyObject *item, bool InShouldExpandItem);
-
     TSharedPtr<struct FPythonItem> const* Find(PyObject *item);
 };
 

@@ -128,34 +128,32 @@ PyObject *py_unreal_engine_destroy_color_picker(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_play_sound(PyObject *, PyObject *);
 
-void ue_py_register_swidget(SWidget *, ue_PySWidget *);
-void ue_py_unregister_swidget(SWidget *);
-
-void ue_py_setup_swidget(ue_PySWidget *);
-
 PyObject *ue_py_dict_get_item(PyObject *, const char *);
 
 template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widget, PyTypeObject *py_type)
 {
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(T, py_type);
 
-	ue_py_setup_swidget(ret);
+	new(&ret->Widget) TSharedRef<SWidget>(s_widget);
 
-	ret->s_widget = s_widget;
-
-	ue_py_register_swidget(&s_widget.Get(), ret);
 	return ret;
 }
 
-#define ue_py_snew_base(T, field, required, arguments) self->field.s_widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments); ue_py_register_swidget((SWidget *)&self->field.s_widget.Get(), (ue_PySWidget *)self)
+#define ue_py_snew_base(T, required, arguments) ((ue_PySWidget *)self)->Widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments);\
+				for(TSharedRef<FPythonSlateDelegate> Delegate : DeferredSlateDelegates)\
+				{\
+					FUnrealEnginePythonHouseKeeper::Get()->TrackDeferredSlateDelegate(Delegate, ((ue_PySWidget *)self)->Widget);\
+				}
 
-#define ue_py_snew_simple(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), T::FArguments())
+#define ue_py_snew_simple(T) TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
+	ue_py_snew_base(T, RequiredArgs::MakeRequiredArgs(), T::FArguments())
 
-#define ue_py_snew_simple_with_req_args(T, field, ... ) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), T::FArguments())
+#define ue_py_snew_simple_with_req_args(T, ... ) TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
+	ue_py_snew_base(T, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), T::FArguments())
 
-#define ue_py_snew(T, field) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(), arguments)
+#define ue_py_snew(T) ue_py_snew_base(T, RequiredArgs::MakeRequiredArgs(), arguments)
 
-#define ue_py_snew_with_args(T, field, ...) ue_py_snew_base(T, field, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), arguments)
+#define ue_py_snew_with_args(T, ...) ue_py_snew_base(T, RequiredArgs::MakeRequiredArgs(__VA_ARGS__), arguments)
 
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
@@ -171,9 +169,9 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	if (value) {\
 		if (PyCalllable_Check_Extended(value)) {\
 			_base handler;\
-			ue_PySWidget *py_swidget = (ue_PySWidget *)self;\
-			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(py_swidget->s_widget, value);\
+			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDeferredSlateDelegate(value);\
 			handler.Bind(py_delegate, &FPythonSlateDelegate::_func);\
+			DeferredSlateDelegates.Add(py_delegate);\
 			arguments._attribute(handler);\
 		}
 
@@ -183,9 +181,9 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 	if (value) {\
 		if (PyCalllable_Check_Extended(value)) {\
 			_base handler;\
-			ue_PySWidget *py_swidget = (ue_PySWidget *)self;\
-			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(py_swidget->s_widget, value);\
+			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDeferredSlateDelegate(value);\
 			handler.BindSP(py_delegate, &FPythonSlateDelegate::_func);\
+			DeferredSlateDelegates.Add(py_delegate);\
 			arguments._attribute(handler);\
 		}
 
@@ -498,11 +496,11 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_farguments_optional_named_slot(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
-		if (ue_PySWidget *py_swidget = py_ue_is_swidget(value)) {\
-            Py_INCREF(py_swidget);\
+		TSharedPtr<SWidget> Child = py_ue_is_swidget<SWidget>(value);\
+		if (Child.IsValid()) {\
             arguments.attribute()\
             [\
-                py_swidget->s_widget\
+                Child.ToSharedRef()\
             ];\
 		}\
 		else {\
@@ -514,24 +512,25 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 
 #define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
+	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
 	ue_py_slate_farguments_bool("is_enabled", IsEnabled);\
 	ue_py_slate_farguments_text("tool_tip_text", ToolTipText);\
     ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
 
 #define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
     value = value ? value : PyTuple_GetItem(args, 0);\
-	if (ue_PySWidget *py_swidget = value ? py_ue_is_swidget(value) : nullptr) {\
-        Py_INCREF(py_swidget);\
-        ue_PySWidget *self_py_swidget = py_ue_is_swidget((PyObject*)self);\
-        arguments.AttachWidget(py_swidget->s_widget->AsShared());\
-	}\
-	else {\
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(value);\
+	if (Widget.IsValid())\
+		arguments.AttachWidget(Widget.ToSharedRef());\
+	else\
+	{\
 		PyErr_SetString(PyExc_TypeError, "unsupported type for required slot " param); \
 		return -1;\
 	}\
 }
 
 #define ue_py_slate_setup_hack_slot_args(_type, _swidget_ref) _type::FSlot &arguments = _swidget_ref->AddSlot();\
+	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
     ue_py_slate_farguments_required_slot("widget");
 
 void ue_python_init_slate(PyObject *);

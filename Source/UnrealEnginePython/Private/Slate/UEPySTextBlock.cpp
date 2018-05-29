@@ -4,54 +4,60 @@
 #include "UEPySTextBlock.h"
 
 
-#define sw_text_block StaticCastSharedRef<STextBlock>(self->s_leaf_widget.s_widget.s_widget)
-
-static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * args) {
+static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * args)
+{
+	ue_py_slate_cast(STextBlock);
 	char *text;
-	if (!PyArg_ParseTuple(args, "s:set_text", &text)) {
-		return NULL;
+	if (!PyArg_ParseTuple(args, "s:set_text", &text))
+	{
+		return nullptr;
 	}
 
-	sw_text_block->SetText(FString(UTF8_TO_TCHAR(text)));
+	py_STextBlock->SetText(FString(UTF8_TO_TCHAR(text)));
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyObject *py_ue_stext_block_set_highlight_text(ue_PySTextBlock *self, PyObject * args) {
+    ue_py_slate_cast(STextBlock);
+
 	char *text;
 	if (!PyArg_ParseTuple(args, "s:set_text", &text)) {
 		return NULL;
 	}
 
-	sw_text_block->SetHighlightText(FText::FromString(FString(UTF8_TO_TCHAR(text))));
+	py_STextBlock->SetHighlightText(FText::FromString(FString(UTF8_TO_TCHAR(text))));
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
-static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, PyObject * args) {
+static PyObject *py_ue_stext_block_set_color_and_opacity(ue_PySTextBlock *self, PyObject * args)
+{
+
+	ue_py_slate_cast(STextBlock);
 
 	PyObject *py_color;
 
-	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color)) {
-		return NULL;
+	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color))
+	{
+		return nullptr;
 	}
 
 	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_color);
-	if (!py_linear_color) {
+	if (!py_linear_color)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
 	}
 
-	sw_text_block->SetColorAndOpacity(py_linear_color->color);
+	py_STextBlock->SetColorAndOpacity(py_linear_color->color);
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
-static PyObject *py_ue_stext_block_get_text(ue_PySTextBlock *self, PyObject * args) {
-
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*sw_text_block->GetText().ToString()));
+static PyObject *py_ue_stext_block_get_text(ue_PySTextBlock *self, PyObject * args)
+{
+	ue_py_slate_cast(STextBlock);
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*py_STextBlock->GetText().ToString()));
 
 }
 
@@ -94,7 +100,8 @@ PyTypeObject ue_PySTextBlockType = {
 	ue_PySTextBlock_methods,             /* tp_methods */
 };
 
-static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObject *kwargs)
+{
 	
 	ue_py_slate_setup_farguments(STextBlock);
 
@@ -118,11 +125,12 @@ static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObjec
 	ue_py_slate_farguments_enum("wrapping_policy", WrappingPolicy, ETextWrappingPolicy);
 	ue_py_slate_farguments_float("wrap_text_at", WrapTextAt);
 
-	ue_py_snew(STextBlock, s_leaf_widget.s_widget);
+	ue_py_snew(STextBlock);
 	return 0;
 }
 
-void ue_python_init_stext_block(PyObject *ue_module) {
+void ue_python_init_stext_block(PyObject *ue_module)
+{
 	ue_PySTextBlockType.tp_init = (initproc)ue_py_stext_block_init;
 
 	ue_PySTextBlockType.tp_base = &ue_PySLeafWidgetType;

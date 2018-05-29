@@ -4,18 +4,17 @@
 #include "UEPySPythonMultiColumnTableRow.h"
 
 
-#define sw_python_multicolumn_table_row StaticCastSharedRef<SPythonMultiColumnTableRow>(self->s_compound_widget.s_widget.s_widget)
-
-
 static PyObject *py_ue_spython_multicolumn_table_row_set_first_column_name(ue_PySPythonMultiColumnTableRow *self, PyObject * args)
 {
+    ue_py_slate_cast(SPythonMultiColumnTableRow);
+
     char* column_name = nullptr;
     if (!PyArg_ParseTuple(args, "s:set_first_column_name", &column_name))
     {
         return nullptr;
     }
 
-    sw_python_multicolumn_table_row->SetFirstColumnName(FName(column_name));
+    py_SPythonMultiColumnTableRow->SetFirstColumnName(FName(column_name));
 
     Py_RETURN_NONE;
 }
@@ -68,7 +67,8 @@ PyTypeObject ue_PySPythonMultiColumnTableRowType = {
 	ue_PySPythonMultiColumnTableRow_methods,             /* tp_methods */
 };
 
-static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTableRow *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTableRow *self, PyObject *args, PyObject *kwargs)
+{
 
     PyObject *py_object = nullptr;
     if (!PyArg_ParseTuple(args, "O", &py_object))
@@ -77,7 +77,8 @@ static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTable
     }
 
     ue_PySTableViewBase* py_owner_table_view_base = py_ue_is_stable_view_base(py_object);
-    if (!py_owner_table_view_base) {
+	if (!py_owner_table_view_base)
+	{
         PyErr_SetString(PyExc_Exception, "Argument is not a STableViewBase");
         return -1;
     }
@@ -86,8 +87,8 @@ static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTable
     self->owner_table = py_owner_table_view_base;
 
     ue_py_snew_simple_with_req_args(
-        SPythonMultiColumnTableRow, s_compound_widget.s_widget, 
-        StaticCastSharedRef<STableViewBase>(py_owner_table_view_base->s_compound_widget.s_widget.s_widget),
+		SPythonMultiColumnTableRow,
+		StaticCastSharedRef<STableViewBase>(py_owner_table_view_base->s_compound_widget.s_widget.Widget),
         (PyObject *)self);
 	return 0;
 }

@@ -9,23 +9,24 @@
 #include "IMenu.h"
 #include "SlateApplication.h"
 
-#define sw_dock_tab StaticCastSharedRef<SDockTab>(self->s_border.s_compound_widget.s_widget.s_widget)
-
-
-static PyObject *py_ue_sdock_tab_set_label(ue_PySButton *self, PyObject * args) {
+static PyObject *py_ue_sdock_tab_set_label(ue_PySDockTab *self, PyObject * args)
+{
+	ue_py_slate_cast(SDockTab);
 	char *label;
-	if (!PyArg_ParseTuple(args, "s:set_label", &label)) {
-		return NULL;
+	if (!PyArg_ParseTuple(args, "s:set_label", &label))
+	{
+		return nullptr;
 	}
 
-	sw_dock_tab->SetLabel(FText::FromString(UTF8_TO_TCHAR(label)));
+	py_SDockTab->SetLabel(FText::FromString(UTF8_TO_TCHAR(label)));
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySButton *self, PyObject * args) 
 {
+    ue_py_slate_cast(SDockTab);
+
 	PyObject *py_callable;
 	if (!PyArg_ParseTuple(args, "O:set_on_tab_closed", &py_callable))
 	{
@@ -39,28 +40,31 @@ static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySButton *self, PyObject 
 	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
 	onTabClosed.BindSP(py_delegate, &FPythonSlateDelegate::OnTabClosed);
 
-	sw_dock_tab->SetOnTabClosed(onTabClosed);
+	py_SDockTab->SetOnTabClosed(onTabClosed);
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_sdock_tab_request_close_tab(ue_PySButton *self, PyObject * args) {
-
-	sw_dock_tab->RequestCloseTab();
+static PyObject *py_ue_sdock_tab_request_close_tab(ue_PySDockTab *self, PyObject * args)
+{
+	ue_py_slate_cast(SDockTab);
+	py_SDockTab->RequestCloseTab();
 
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_sdock_tab_new_tab_manager(ue_PySButton *self, PyObject * args) {
-
-	TSharedRef<FTabManager> tab_manager = FGlobalTabmanager::Get()->NewTabManager(sw_dock_tab);
+static PyObject *py_ue_sdock_tab_new_tab_manager(ue_PySDockTab *self, PyObject * args)
+{
+	ue_py_slate_cast(SDockTab);
+	TSharedRef<FTabManager> tab_manager = FGlobalTabmanager::Get()->NewTabManager(py_SDockTab);
 
 	return py_ue_new_ftab_manager(tab_manager);
 }
 
 
-static PyObject *py_ue_sdock_tab_bring_to_front(ue_PySButton *self, PyObject * args) {
-
-	TSharedPtr<SWindow> parentWindow = sw_dock_tab->GetParentWindow();
+static PyObject *py_ue_sdock_tab_bring_to_front(ue_PySDockTab *self, PyObject * args)
+{
+    ue_py_slate_cast(SDockTab);
+	TSharedPtr<SWindow> parentWindow = py_SDockTab->GetParentWindow();
 	if (parentWindow.Get() != nullptr)
 	{
 		parentWindow->HACK_ForceToFront();
@@ -68,22 +72,23 @@ static PyObject *py_ue_sdock_tab_bring_to_front(ue_PySButton *self, PyObject * a
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_sdock_get_parent_window(ue_PySButton *self, PyObject * args) {
-
-	TSharedPtr<SWindow> ParentWindow = sw_dock_tab->GetParentWindow();
+static PyObject *py_ue_sdock_get_parent_window(ue_PySDockTab *self, PyObject * args)
+{
+    ue_py_slate_cast(SDockTab);
+	TSharedPtr<SWindow> ParentWindow = py_SDockTab->GetParentWindow();
 	if (ParentWindow.IsValid())
 	{
 		// Check to see if the widget exists already
 		ue_PySWidget *ret = ue_py_get_swidget(StaticCastSharedRef<SWidget>(ParentWindow.ToSharedRef()));
 		return (PyObject *)ret;
 	}
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_sdock_get_docking_area(ue_PySButton *self, PyObject * args) {
-
-	TSharedPtr<SDockingArea> DockingArea = sw_dock_tab->GetDockArea();
+static PyObject *py_ue_sdock_get_docking_area(ue_PySDockTab *self, PyObject * args)
+{
+    ue_py_slate_cast(SDockTab);
+    TSharedPtr<SDockingArea> DockingArea = py_SDockTab->GetDockArea();
 	if (DockingArea.IsValid())
 	{
 		ue_PySWidget *ret = nullptr;
@@ -91,8 +96,7 @@ static PyObject *py_ue_sdock_get_docking_area(ue_PySButton *self, PyObject * arg
 		ret = ue_py_get_swidget(StaticCastSharedRef<SWidget>(DockingArea.ToSharedRef()));
 		return (PyObject *)ret;
 	}
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PySDockTab_methods[] = {
@@ -137,7 +141,8 @@ PyTypeObject ue_PySDockTabType = {
 	ue_PySDockTab_methods,             /* tp_methods */
 };
 
-static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SDockTab);
 
     ue_py_slate_farguments_default_slot           ("content",                     Content);                   
@@ -155,11 +160,12 @@ static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *k
     ue_py_slate_farguments_attribute_event        ("on_persist_visual_state",     OnPersistVisualState, SDockTab::FOnPersistVisualState, OnPersistVisualState);
     ue_py_slate_farguments_attribute_flinear_color("tab_color_scale",             TabColorScale);
 
-	ue_py_snew(SDockTab, s_border.s_compound_widget.s_widget);
+	ue_py_snew(SDockTab);
 	return 0;
 }
 
-void ue_python_init_sdock_tab(PyObject *ue_module) {
+void ue_python_init_sdock_tab(PyObject *ue_module)
+{
 
 	ue_PySDockTabType.tp_base = &ue_PySBorderType;
 	ue_PySDockTabType.tp_init = (initproc)ue_py_sdock_tab_init;

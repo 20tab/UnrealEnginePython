@@ -4,26 +4,26 @@
 #include "UEPySExpandableArea.h"
 
 
-#define sw_expandable_area StaticCastSharedRef<SExpandableArea>(self->s_compound_widget.s_widget.s_widget)
-
-
-static PyObject *py_ue_sexpandable_area_is_expanded(ue_PySCheckBox *self, PyObject * args) {
-
-	if (sw_expandable_area->IsExpanded()) {
+static PyObject *py_ue_sexpandable_area_is_expanded(ue_PySCheckBox *self, PyObject * args) 
+{
+    ue_py_slate_cast(SExpandableArea);
+	if (py_SExpandableArea->IsExpanded()) {
 		Py_RETURN_TRUE;
 	}
 	
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_sexpandable_area_set_expanded(ue_PySCheckBox *self, PyObject * args) {
+static PyObject *py_ue_sexpandable_area_set_expanded(ue_PySCheckBox *self, PyObject * args) 
+{
+    ue_py_slate_cast(SExpandableArea);
 	PyObject *py_bool;
 	if (!PyArg_ParseTuple(args, "O:set_expanded", &py_bool))
 	{
 		return NULL;
 	}
 
-    sw_expandable_area->SetExpanded(PyObject_IsTrue(py_bool) ? true : false);
+    py_SExpandableArea->SetExpanded(PyObject_IsTrue(py_bool) ? true : false);
 
 	Py_RETURN_NONE;
 }
@@ -85,7 +85,7 @@ static int ue_py_sexpandable_area_init(ue_PySExpandableArea *self, PyObject *arg
     ue_py_slate_farguments_event              ("on_area_expansion_changed", OnAreaExpansionChanged, FOnBooleanValueChanged, OnBoolChanged);
     ue_py_slate_farguments_struct             ("area_title_font", AreaTitleFont, FSlateFontInfo);
 
-	ue_py_snew(SExpandableArea, s_compound_widget.s_widget);
+	ue_py_snew(SExpandableArea);
 	return 0;
 }
 

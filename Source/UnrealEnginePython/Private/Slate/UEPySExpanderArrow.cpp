@@ -4,8 +4,6 @@
 #include "UEPySExpanderArrow.h"
 
 
-#define sw_expander_arrow StaticCastSharedRef<SExpanderArrow>(self->s_compound_widget.s_widget.s_widget)
-
 static PyMethodDef ue_PySExpanderArrow_methods[] = {
 	{ NULL }  /* Sentinel */
 };
@@ -68,7 +66,7 @@ static int ue_py_sexpander_arrow_init(ue_PySExpanderArrow *self, PyObject *args,
 	ue_py_slate_setup_farguments(SExpanderArrow);
     ue_py_slate_farguments_attribute_float("indent_amount", IndentAmount);
     ue_py_slate_farguments_attribute_int("base_indent_level", BaseIndentLevel);    
-    ue_py_snew_with_args(SExpanderArrow, s_compound_widget.s_widget, StaticCastSharedRef<SPythonMultiColumnTableRow>(py_owner_table_row->s_compound_widget.s_widget.s_widget));
+    ue_py_snew_with_args(SExpanderArrow, py_ue_is_swidget<SPythonMultiColumnTableRow>((PyObject*)py_owner_table_row).ToSharedRef());
     
     self->owner_row_py = py_owner_table_row;
     Py_INCREF(py_owner_table_row);    

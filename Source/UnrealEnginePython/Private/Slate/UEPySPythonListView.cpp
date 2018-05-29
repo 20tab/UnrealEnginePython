@@ -4,16 +4,16 @@
 
 #include "UEPySPythonListView.h"
 
-
-#define sw_python_list_view StaticCastSharedRef<SPythonListView>(self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
-
-static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args) {
+static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args) 
+{
+    ue_py_slate_cast(SPythonListView);
 
 	PyObject *py_list = PyList_New(0);
 
-	TArray<TSharedPtr<FPythonItem>> items = sw_python_list_view->GetSelectedItems();
+	TArray<TSharedPtr<FPythonItem>> items = py_SPythonListView->GetSelectedItems();
 
-	for (auto item : items) {
+	for (auto item : items)
+	{
 		PyList_Append(py_list, item->py_object);
 	}
 
@@ -22,17 +22,21 @@ static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView
 
 static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *self, PyObject * args) 
 {
-	sw_python_list_view->ClearSelection();
+	ue_py_slate_cast(SPythonListView);
+	py_SPythonListView->ClearSelection();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonListView *self, PyObject * args) {
-	return PyLong_FromLong(sw_python_list_view->GetNumItemsSelected());
+static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonListView *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonListView);
+	return PyLong_FromLong(py_SPythonListView->GetNumItemsSelected());
 }
 
-static PyObject *py_ue_spython_list_view_update_item_source_list(ue_PySPythonListView *self, PyObject * args)
+
+
+static PyObject *py_spython_list_view_update_item_source_list(ue_PySPythonListView *self, PyObject * args)
 {
     PyObject *values;
     if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
@@ -41,7 +45,8 @@ static PyObject *py_ue_spython_list_view_update_item_source_list(ue_PySPythonLis
     }
 
     values = PyObject_GetIter(values);
-    if (!values) {
+	if (!values)
+	{
         return PyErr_Format(PyExc_Exception, "argument is not an iterable");
     }
 
@@ -49,7 +54,8 @@ static PyObject *py_ue_spython_list_view_update_item_source_list(ue_PySPythonLis
     //we're passing in e.g. if you pass the same item source array into update_items(). 
     //Might not be necessary but I'm not too familiar with python's GC
     TArray<TSharedPtr<FPythonItem>> tempNewArray;
-    while (PyObject *item = PyIter_Next(values)) {
+	while (PyObject *item = PyIter_Next(values))
+	{
         Py_INCREF(item);
         tempNewArray.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
     }
@@ -68,7 +74,7 @@ static PyMethodDef ue_PySPythonListView_methods[] = {
 	{ "get_selected_items", (PyCFunction)py_ue_spython_list_view_get_selected_items, METH_VARARGS, "" },
 	{ "get_num_items_selected", (PyCFunction)py_ue_spython_list_view_get_num_items_selected, METH_VARARGS, "" },
 	{ "clear_selection", (PyCFunction)py_ue_spython_list_view_clear_selection, METH_VARARGS, "" },
-    { "update_item_source_list", (PyCFunction)py_ue_spython_list_view_update_item_source_list, METH_VARARGS, "" },
+	{ "update_item_source_list", (PyCFunction)py_spython_list_view_update_item_source_list, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -119,29 +125,30 @@ PyTypeObject ue_PySPythonListViewType = {
 	ue_PySPythonListView_methods,             /* tp_methods */
 };
 
-static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *args, PyObject *kwargs) 
+static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *args, PyObject *kwargs)
 {
+
 	ue_py_slate_setup_farguments(SPythonListView);
 
     // first of all check for values
     PyObject *values = ue_py_dict_get_item(kwargs, "list_items_source");
-    if (!values) 
-    {
+	if (!values)
+	{
         PyErr_SetString(PyExc_Exception, "you must specify list items");
         return -1;
     }
 
     values = PyObject_GetIter(values);
-    if (!values) 
-    {
+	if (!values)
+	{
         PyErr_SetString(PyExc_Exception, "list_items_source field is not an iterable");
         Py_DECREF(values);
         return -1;
     }
 
     new(&self->item_source_list) TArray<TSharedPtr<FPythonItem>>();
-    while (PyObject *item = PyIter_Next(values)) 
-    {
+	while (PyObject *item = PyIter_Next(values))
+	{
         Py_INCREF(item);
         self->item_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
     }
@@ -152,13 +159,14 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 
     {
         PyObject *value = ue_py_dict_get_item(kwargs, "header_row");
-        if (value) {
-            if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value)) {
-
-                Py_INCREF(_py_swidget);
-                arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->s_widget));
+		if (value)
+		{
+			if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value))
+			{
+				arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->Widget));
             }
-            else {
+			else
+			{
                 PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " "header_row");
                 return -1;
             }
@@ -180,11 +188,12 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
 #endif
 
-	ue_py_snew(SPythonListView, s_list_view.s_table_view_base.s_compound_widget.s_widget);
+	ue_py_snew(SPythonListView);
 	return 0;
 }
 
-void ue_python_init_spython_list_view(PyObject *ue_module) {
+void ue_python_init_spython_list_view(PyObject *ue_module)
+{
 
 	ue_PySPythonListViewType.tp_init = (initproc)ue_py_spython_list_view_init;
 

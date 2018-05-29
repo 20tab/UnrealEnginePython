@@ -6,9 +6,6 @@
 #include "UEPySPythonTreeView.h"
 
 
-#define sw_python_tree_view StaticCastSharedRef<SPythonTreeView>(self->s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
-
-
 TSharedPtr<struct FPythonItem> const* SPythonTreeView::Find(PyObject *item)
 {
     for (const TSharedPtr<FPythonItem>& PythonItem : *ItemsSource)
@@ -24,6 +21,7 @@ TSharedPtr<struct FPythonItem> const* SPythonTreeView::Find(PyObject *item)
 
 static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView *self, PyObject * args)
 {
+	ue_py_slate_cast(SPythonTreeView);
 	PyObject *py_item;
 	PyObject *py_bool;
 	if (!PyArg_ParseTuple(args, "OO:set_item_expansion", &py_item, &py_bool))
@@ -31,26 +29,27 @@ static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView
 		return nullptr;
 	}
 
-    if (TSharedPtr<struct FPythonItem> const* foundItem = sw_python_tree_view->Find(py_item))
+    if (TSharedPtr<struct FPythonItem> const* foundItem = py_SPythonTreeView->Find(py_item))
     {
-        sw_python_tree_view->SetItemExpansion(*foundItem, PyObject_IsTrue(py_bool) ? true : false);
+        py_SPythonTreeView->SetItemExpansion(*foundItem, PyObject_IsTrue(py_bool) ? true : false);
     }
 
 	Py_RETURN_NONE;
 }
 
-
 static PyObject *py_ue_spython_tree_view_is_item_expanded(ue_PySPythonTreeView *self, PyObject * args)
 {
+    ue_py_slate_cast(SPythonTreeView);
+
 	PyObject *py_item;
 	if (!PyArg_ParseTuple(args, "O:is_item_expanded", &py_item))
 	{
 		return nullptr;
 	}
 
-    if (TSharedPtr<struct FPythonItem> const* foundItem = sw_python_tree_view->Find(py_item))
+    if (TSharedPtr<struct FPythonItem> const* foundItem = py_SPythonTreeView->Find(py_item))
     {
-		bool bItemExpanded = sw_python_tree_view->IsItemExpanded(*foundItem);
+		bool bItemExpanded = py_SPythonTreeView->IsItemExpanded(*foundItem);
 		if (bItemExpanded)
 			Py_RETURN_TRUE;
 		else
@@ -60,11 +59,13 @@ static PyObject *py_ue_spython_tree_view_is_item_expanded(ue_PySPythonTreeView *
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_spython_tree_view_get_selected_items(ue_PySPythonTreeView *self, PyObject * args) {
+static PyObject *py_ue_spython_tree_view_get_selected_items(ue_PySPythonTreeView *self, PyObject * args) 
+{
+    ue_py_slate_cast(SPythonTreeView);
 
 	PyObject *py_list = PyList_New(0);
 
-	TArray<TSharedPtr<FPythonItem>> items = sw_python_tree_view->GetSelectedItems();
+	TArray<TSharedPtr<FPythonItem>> items = py_SPythonTreeView->GetSelectedItems();
 
 	for (TSharedPtr<FPythonItem>& item : items) {
 		PyList_Append(py_list, item->py_object);
@@ -73,12 +74,14 @@ static PyObject *py_ue_spython_tree_view_get_selected_items(ue_PySPythonTreeView
 	return py_list;
 }
 
-static PyObject *py_ue_spython_tree_view_get_expanded_items(ue_PySPythonTreeView *self, PyObject * args) {
+static PyObject *py_ue_spython_tree_view_get_expanded_items(ue_PySPythonTreeView *self, PyObject * args) 
+{
+    ue_py_slate_cast(SPythonTreeView);
 
 	PyObject *py_list = PyList_New(0);
 
 	TSet <TSharedPtr<FPythonItem>> ExpandedItems;
-	sw_python_tree_view->GetExpandedItems(ExpandedItems);
+    py_SPythonTreeView->GetExpandedItems(ExpandedItems);
 
 	for (TSharedPtr<FPythonItem>& item : ExpandedItems) {
 		PyList_Append(py_list, item->py_object);
@@ -89,18 +92,23 @@ static PyObject *py_ue_spython_tree_view_get_expanded_items(ue_PySPythonTreeView
 
 static PyObject *py_ue_spython_tree_view_clear_selection(ue_PySPythonTreeView *self, PyObject * args)
 {
-    sw_python_tree_view->ClearSelection();
+    ue_py_slate_cast(SPythonTreeView);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    py_SPythonTreeView->ClearSelection();
+
+    Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_spython_tree_view_get_num_items_selected(ue_PySPythonTreeView *self, PyObject * args) {
-	return PyLong_FromLong(sw_python_tree_view->GetNumItemsSelected());
+static PyObject *py_ue_spython_tree_view_get_num_items_selected(ue_PySPythonTreeView *self, PyObject * args) 
+{
+    ue_py_slate_cast(SPythonTreeView);
+	return PyLong_FromLong(py_SPythonTreeView->GetNumItemsSelected());
 }
 
 static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTreeView *self, PyObject * args)
-	{
+{
+    ue_py_slate_cast(SPythonTreeView);
+
     PyObject *values;
     if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
 		{
@@ -114,7 +122,7 @@ static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTre
     }
 
 	TSet<TSharedPtr<FPythonItem>> expanded_items;
-	sw_python_tree_view->GetExpandedItems(expanded_items);
+    py_SPythonTreeView->GetExpandedItems(expanded_items);
 
     //NOTE: ikrimae: Increment first so we don't decrement and destroy python objects that 
     //we're passing in e.g. if you pass the same item source array into update_items(). 
@@ -126,7 +134,7 @@ static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTre
 	}
 
     for (TSharedPtr<FPythonItem>& item : self->item_source_list)
-    {
+{
         Py_XDECREF(item->py_object);
     }
     self->item_source_list.Empty();
@@ -135,14 +143,14 @@ static PyObject *py_ue_spython_tree_view_update_item_source_list(ue_PySPythonTre
     
 	for (TSharedPtr<FPythonItem>& old_item : expanded_items)
 	{
-		for (TSharedPtr<FPythonItem>& new_item : self->item_source_list)
-		{
-			if (old_item->py_object == new_item->py_object)
-			{
-				sw_python_tree_view->SetItemExpansion(new_item, true);
-			}
-		}
-	}
+        for (TSharedPtr<FPythonItem>& new_item : self->item_source_list)
+        {
+            if (old_item->py_object == new_item->py_object)
+            {
+                py_SPythonTreeView->SetItemExpansion(new_item, true);
+            }
+        }
+    }
 
 	Py_RETURN_NONE;
 }
@@ -240,7 +248,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
             if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value)) {
 
                 Py_INCREF(_py_swidget);
-                arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->s_widget));
+                arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->Widget));
             }
             else {
                 PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " "header_row");
@@ -265,7 +273,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 #endif
 	ue_py_slate_farguments_event("on_get_children", OnGetChildren, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGetChildren, GetChildren);
 
-	ue_py_snew(SPythonTreeView, s_tree_view.s_list_view.s_table_view_base.s_compound_widget.s_widget);
+	ue_py_snew(SPythonTreeView);
 	return 0;
 }
 

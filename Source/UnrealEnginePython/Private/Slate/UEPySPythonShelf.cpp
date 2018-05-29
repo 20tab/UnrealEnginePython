@@ -110,7 +110,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		return -1;
 	}
 
-	FContentBrowserModule& module = FModuleManager::Get().LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
+	FContentBrowserModule& Module = FModuleManager::Get().LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
 
 	FAssetPickerConfig asset_picker_config;
 	asset_picker_config.InitialAssetViewType = EAssetViewType::Tile;
@@ -174,8 +174,8 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		asset_picker_config.OnAssetSelected = handler;
 	}
 
-	new(&self->s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(module.Get().CreateAssetPicker(asset_picker_config));
-	ue_py_register_swidget((SWidget *)&self->s_compound_widget.s_widget.s_widget.Get(), (ue_PySWidget *)self);
+	new(&self->s_compound_widget.s_widget.Widget) TSharedRef<SWidget>(Module.Get().CreateAssetPicker(asset_picker_config));
+
 	return 0;
 }
 

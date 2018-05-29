@@ -6,7 +6,6 @@
 #include "IStructureDetailsView.h"
 
 
-//#define sw_idetails_view StaticCastSharedRef<IDetailsView>(self->s_compound_widget.s_widget.s_widget)
 
 
 static PyObject *ue_PyIStructureDetailsView_str(ue_PyIStructureDetailsView *self)

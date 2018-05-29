@@ -31,17 +31,6 @@ class FUnrealEnginePythonHouseKeeper
 		}
 	};
 
-	struct FPythonSWidgetTracker
-	{
-		TWeakPtr<SWidget> Owner;
-		ue_PySWidget *PySWidget;
-
-		FPythonSWidgetTracker(TSharedRef<SWidget> InOwner, ue_PySWidget *InPySWidget)
-		{
-			Owner = InOwner;
-			PySWidget = InPySWidget;
-		}
-	};
 
 	struct FPythonSWidgetDelegateTracker
 	{
@@ -181,7 +170,7 @@ public:
 	{
 		int32 Garbaged = 0;
 #if defined(UEPY_MEMORY_DEBUG)
-		UE_LOG(LogPython, Display, TEXT("Garbage collecting %d delegates"), PyDelegatesTracker.Num());
+		UE_LOG(LogPython, Display, TEXT("Garbage collecting %d UObject delegates"), PyDelegatesTracker.Num());
 #endif
 		for (int32 i = PyDelegatesTracker.Num() - 1; i >= 0; --i)
 		{
@@ -190,6 +179,21 @@ public:
 			{
 				Tracker.Delegate->RemoveFromRoot();
 				PyDelegatesTracker.RemoveAt(i);
+				Garbaged++;
+			}
+
+		}
+
+#if defined(UEPY_MEMORY_DEBUG)
+		UE_LOG(LogPython, Display, TEXT("Garbage collecting %d Slate delegates"), PySlateDelegatesTracker.Num());
+#endif
+
+		for (int32 i = PySlateDelegatesTracker.Num() - 1; i >= 0; --i)
+		{
+			FPythonSWidgetDelegateTracker &Tracker = PySlateDelegatesTracker[i];
+			if (!Tracker.Owner.IsValid())
+			{
+				PySlateDelegatesTracker.RemoveAt(i);
 				Garbaged++;
 			}
 
@@ -222,6 +226,20 @@ public:
 		return Delegate;
 	}
 
+	TSharedRef<FPythonSlateDelegate> NewDeferredSlateDelegate(PyObject *PyCallable)
+	{
+		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
+		Delegate->SetPyCallable(PyCallable);
+
+		return Delegate;
+	}
+
+	void TrackDeferredSlateDelegate(TSharedRef<FPythonSlateDelegate> Delegate, TSharedRef<SWidget> Owner)
+	{
+		FPythonSWidgetDelegateTracker Tracker(Delegate, Owner);
+		PySlateDelegatesTracker.Add(Tracker);
+	}
+
 	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable)
 	{
 		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
@@ -236,8 +254,6 @@ private:
 	TMap<UObject *, FPythonUOjectTracker> UObjectPyMapping;
 	TArray<FPythonDelegateTracker> PyDelegatesTracker;
 
-
-	TArray<FPythonSWidgetTracker> PySlateTracker;
 	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
 	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
 };

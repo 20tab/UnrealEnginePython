@@ -4,33 +4,36 @@
 #include "UEPySPythonComboBox.h"
 
 
-#define sw_python_combo_box StaticCastSharedRef<SPythonComboBox>(self->s_panel.s_widget.s_widget)
-
-static PyObject *py_ue_spython_combo_box_clear_selection(ue_PySPythonComboBox *self, PyObject * args) {
-	sw_python_combo_box->ClearSelection();
-	Py_INCREF(self);
-	return (PyObject *)self;
+static PyObject *py_ue_spython_combo_box_clear_selection(ue_PySPythonComboBox *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonComboBox);
+	py_SPythonComboBox->ClearSelection();
+	Py_RETURN_SLATE_SELF;
 }
 
-static PyObject *py_ue_spython_combo_box_get_selected_item(ue_PySPythonComboBox *self, PyObject * args) {
-
-	TSharedPtr<FPythonItem> ptr_item = sw_python_combo_box->GetSelectedItem();
+static PyObject *py_ue_spython_combo_box_get_selected_item(ue_PySPythonComboBox *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonComboBox);
+	TSharedPtr<FPythonItem> ptr_item = py_SPythonComboBox->GetSelectedItem();
 	if (!ptr_item.IsValid())
 		return PyErr_Format(PyExc_Exception, "invalid shared pointer to python item");
 
-	Py_INCREF(ptr_item.Get()->py_object);
-	return ptr_item.Get()->py_object;
+	Py_INCREF(ptr_item->py_object);
+	return ptr_item->py_object;
 }
 
-static PyObject *py_ue_spython_combo_box_set_selected_item(ue_PySPythonComboBox *self, PyObject * args) {
+static PyObject *py_ue_spython_combo_box_set_selected_item(ue_PySPythonComboBox *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonComboBox);
+
 	PyObject *py_item;
-	if (!PyArg_ParseTuple(args, "O", &py_item)) 
-    {
+	if (!PyArg_ParseTuple(args, "O", &py_item))
+	{
 		return nullptr;
 	}
 
-	for (TSharedPtr<FPythonItem>& item : self->options_source_list) 
-    {
+    for (TSharedPtr<FPythonItem>& item : self->options_source_list)
+	{
 		// just for being safe
         if (!item.IsValid())
         {
@@ -39,17 +42,18 @@ static PyObject *py_ue_spython_combo_box_set_selected_item(ue_PySPythonComboBox 
 
 		if (py_item == item.Get()->py_object) 
         {
-			sw_python_combo_box->SetSelectedItem(item);
+            py_SPythonComboBox->SetSelectedItem(item);
 			break;
 		}
 	}
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyObject *py_ue_spython_combo_box_update_options_source_list(ue_PySPythonComboBox *self, PyObject * args)
 {
+    ue_py_slate_cast(SPythonComboBox);
+
     PyObject *values;
     if (!PyArg_ParseTuple(args, "O:update_options_source_list", &values))
     {
@@ -77,7 +81,7 @@ static PyObject *py_ue_spython_combo_box_update_options_source_list(ue_PySPython
     self->options_source_list.Empty();
 
     Move<TArray<TSharedPtr<FPythonItem>>>(self->options_source_list, tempNewArray);
-    sw_python_combo_box->RefreshOptions();
+    py_SPythonComboBox->RefreshOptions();
 
     Py_RETURN_NONE;
 }
@@ -137,32 +141,34 @@ PyTypeObject ue_PySPythonComboBoxType = {
 	ue_PySPythonComboBox_methods,             /* tp_methods */
 };
 
-static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *args, PyObject *kwargs) 
+static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *args, PyObject *kwargs)
 {
 	ue_py_slate_setup_farguments(SPythonComboBox);
 
 	// first of all check for values
 	PyObject *values = ue_py_dict_get_item(kwargs, "options_source");
-	if (!values) 
-    {
+	if (!values)
+	{
 		PyErr_SetString(PyExc_Exception, "you must specify the combo box items");
 		return -1;
 	}
 
 	values = PyObject_GetIter(values);
-	if (!values) 
-    {
+	if (!values)
+	{
 		PyErr_SetString(PyExc_Exception, "values field is not an iterable");
         Py_DECREF(values);
 		return -1;
 	}
 
     new(&self->options_source_list) TArray<TSharedPtr<FPythonItem>>();
-    while (PyObject *item = PyIter_Next(values)) 
-    {
-        Py_INCREF(item);
+	while (PyObject *item = PyIter_Next(values))
+	{
+		Py_INCREF(item);
         self->options_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
-    }
+	}
+	Py_DECREF(values);
+
     arguments.OptionsSource(&self->options_source_list);
     //TODO: ikrimae: #ThirdParty-Python: #BUG: We are on purpose not doing Py_DECREF(values) because we're stealing the reference from _GetIter
     //             But we never decref values in the dealloc function. We should store a py_ref to the python list
@@ -189,12 +195,15 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
 
 
-	ue_py_snew(SPythonComboBox, s_panel.s_widget);
+	ue_py_snew(SPythonComboBox);
+
+	ue_py_slate_cast(SPythonComboBox);
 
 	return 0;
 }
 
-void ue_python_init_spython_combo_box(PyObject *ue_module) {
+void ue_python_init_spython_combo_box(PyObject *ue_module)
+{
 
 	ue_PySPythonComboBoxType.tp_base = &ue_PySPanelType;
 	ue_PySPythonComboBoxType.tp_init = (initproc)ue_py_spython_combo_box_init;

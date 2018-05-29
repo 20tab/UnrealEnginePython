@@ -67,15 +67,13 @@ static PyObject *py_ue_set_all_user_focus(PyObject *cls, PyObject * args)
 		return nullptr;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
-	if (!py_swidget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(py_widget);
+	if (!Widget.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
 
-	TSharedPtr<SWidget> widget_ptr(py_swidget->s_widget);
-
-	FSlateApplication::Get().SetAllUserFocus(widget_ptr, (EFocusCause)focus_cause);
+	FSlateApplication::Get().SetAllUserFocus(Widget, (EFocusCause)focus_cause);
 
 	Py_RETURN_NONE;
 }
@@ -170,21 +168,17 @@ static PyObject *py_ue_push_menu(PyObject *cls, PyObject * args)
 		return nullptr;
 	}
 	// Parse cursor position as a blueprint struct
-	ue_PySWidget *parent_widget = py_ue_is_swidget(py_parent_widget);
-	if (!parent_widget)
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a Widget");
-	}
+    TSharedPtr<SWidget> parentWidget = py_ue_is_swidget<SWidget>(py_parent_widget);
+    if (!parentWidget.IsValid())
+        return nullptr;
 
-	ue_PySWidget *menu_widget = py_ue_is_swidget(py_menu_widget);
-	if (!menu_widget)
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a Widget");
-	}
+    TSharedPtr<SWidget> menuWidget = py_ue_is_swidget<SWidget>(py_menu_widget);
+    if (!menuWidget.IsValid())
+        return nullptr;
 
 	FVector2D CursorPos = FVector2D(x, y);
 	
-	FSlateApplication::Get().PushMenu(parent_widget->s_widget, FWidgetPath(), menu_widget->s_widget, CursorPos, FPopupTransitionEffect((FPopupTransitionEffect::ESlideDirection)menuSlideDirection));
+	FSlateApplication::Get().PushMenu(parentWidget.ToSharedRef(), FWidgetPath(), menuWidget.ToSharedRef(), CursorPos, FPopupTransitionEffect((FPopupTransitionEffect::ESlideDirection)menuSlideDirection));
 	Py_RETURN_NONE;
 }
 
@@ -201,12 +195,12 @@ static PyObject *py_ue_add_window(PyObject *cls, PyObject * args)
     ue_PySWindow *py_window = py_ue_is_swindow(py_window_obj);
     if (!py_window)
     {
-        PyErr_Format(PyExc_Exception, "window_to_destroy is not an SWindow");
+        return PyErr_Format(PyExc_Exception, "window to add is not an SWindow");
     }
 
     const bool showImmediately = (py_show_immediately) ? (PyObject_IsTrue(py_show_immediately)) : true;
 
-    FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.s_widget)->AsShared()), showImmediately);
+    FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.Widget), showImmediately);
 
     return py_window_obj;
 }
@@ -224,10 +218,10 @@ static PyObject *py_ue_destroy_window_immediately(PyObject *cls, PyObject * args
 
     if (!py_window)
     {
-        PyErr_Format(PyExc_Exception, "window_to_destroy is not an SWindow");
+        return PyErr_Format(PyExc_Exception, "window_to_destroy is not an SWindow");
     }
  
-    FSlateApplication::Get().DestroyWindowImmediately(StaticCastSharedRef<SWindow>(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.s_widget)->AsShared()));
+    FSlateApplication::Get().DestroyWindowImmediately(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.Widget));
     
     Py_RETURN_NONE;
 }

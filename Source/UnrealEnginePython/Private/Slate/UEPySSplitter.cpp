@@ -3,12 +3,12 @@
 
 #include "UEPySSplitter.h"
 
-#define sw_splitter StaticCastSharedRef<SSplitter>(self->s_panel.s_widget.s_widget)
-
 static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args, PyObject *kwargs)
 {
+    ue_py_slate_cast(SSplitter);
+
     int32 retCode = [&]() {
-        ue_py_slate_setup_hack_slot_args(SSplitter, sw_splitter);
+        ue_py_slate_setup_hack_slot_args(SSplitter, py_SSplitter);
         ue_py_slate_farguments_float("value", Value);
         ue_py_slate_farguments_enum("size_rule", SizeRule, SSplitter::ESizeRule);
         ue_py_slate_farguments_event("on_slot_resized", OnSlotResized, SSplitter::FOnSlotResized, OnFloatChanged);
@@ -17,11 +17,11 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
     }();
 
     if (retCode != 0)
-    {
+	{
         return PyErr_Format(PyExc_Exception, "could not add horizontal slot");
-    }
-	Py_INCREF(self);
-	return (PyObject *)self;
+	}
+
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySSplitter_methods[] = {
@@ -72,7 +72,7 @@ static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *
 	ue_py_slate_farguments_optional_enum("resize_mode", ResizeMode, ESplitterResizeMode::Type);
 	ue_py_slate_farguments_optional_struct_ptr("style", Style, FSplitterStyle);
 
-	ue_py_snew(SSplitter, s_panel.s_widget);
+	ue_py_snew(SSplitter);
 	return 0;
 }
 

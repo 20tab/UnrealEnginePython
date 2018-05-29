@@ -4,61 +4,62 @@
 #include "UEPySHorizontalBox.h"
 
 
-#define sw_horizontal_box StaticCastSharedRef<SHorizontalBox>(self->s_box_panel.s_panel.s_widget.s_widget)
-
-
 static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObject * args, PyObject *kwargs)
 {
-    int32 retCode = [&]() {
-        ue_py_slate_setup_hack_slot_args(SHorizontalBox, sw_horizontal_box);
-        ue_py_slate_farguments_float("fill_width", FillWidth);
-        ue_py_slate_farguments_float("max_width", MaxWidth);
-        ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
-        ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
+	ue_py_slate_cast(SHorizontalBox);
 
-        //NOTE: Padding slot in slate is weird and manually supports different parameter constructions
-	    if (PyObject *padding = ue_py_dict_get_item(kwargs, "padding"))
-	    {
-		    if (PyTuple_Check(padding))
-		    {
-			    FMargin margin;
-			    if (!PyArg_ParseTuple(padding, "f|fff", &margin.Left, &margin.Top, &margin.Right, &margin.Bottom))
-			    {
-                    PyErr_SetString(PyExc_TypeError, "invalid padding value");
-                    return -1;
-			    }
-			    arguments.Padding(margin);
-		    }
-		    else if (PyNumber_Check(padding))
-		    {
-			    PyObject *py_float = PyNumber_Float(padding);
-			    arguments.Padding(PyFloat_AsDouble(py_float));
-			    Py_DECREF(py_float);
-		    }
-		    else
-		    {
-                ue_py_slate_farguments_struct("padding", Padding, FMargin);
-		    }
-	    }
-        PyObject *py_auto_width = ue_py_dict_get_item(kwargs, "auto_width");
-	    if (py_auto_width && PyObject_IsTrue(py_auto_width))
-        { arguments.AutoWidth(); }
+	int32 retCode = [&]() {
+		ue_py_slate_setup_hack_slot_args(SHorizontalBox, py_SHorizontalBox);
+		ue_py_slate_farguments_float("fill_width", FillWidth);
+		ue_py_slate_farguments_float("max_width", MaxWidth);
+		ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
+		ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
 
-        return 0;
-    }();
+		//NOTE: Padding slot in slate is weird and manually supports different parameter constructions
+		if (PyObject *padding = ue_py_dict_get_item(kwargs, "padding"))
+		{
+			if (PyTuple_Check(padding))
+			{
+				FMargin margin;
+				if (!PyArg_ParseTuple(padding, "f|fff", &margin.Left, &margin.Top, &margin.Right, &margin.Bottom))
+				{
+					PyErr_SetString(PyExc_TypeError, "invalid padding value");
+					return -1;
+				}
+				arguments.Padding(margin);
+			}
+			else if (PyNumber_Check(padding))
+			{
+				PyObject *py_float = PyNumber_Float(padding);
+				arguments.Padding(PyFloat_AsDouble(py_float));
+				Py_DECREF(py_float);
+			}
+			else
+			{
+				ue_py_slate_farguments_struct("padding", Padding, FMargin);
+			}
+		}
+		PyObject *py_auto_width = ue_py_dict_get_item(kwargs, "auto_width");
+		if (py_auto_width && PyObject_IsTrue(py_auto_width))
+		{
+			arguments.AutoWidth();
+		}
 
-    if (retCode != 0)
-    {
-        return PyErr_Format(PyExc_Exception, "could not add horizontal slot");
-    }
+		return 0;
+	}();
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	if (retCode != 0)
+	{
+		return PyErr_Format(PyExc_Exception, "could not add horizontal slot");
+	}
+
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyObject *py_ue_shorizontal_box_num_slots(ue_PySHorizontalBox *self, PyObject * args)
 {
-	return PyLong_FromLong(sw_horizontal_box->NumSlots());
+	ue_py_slate_cast(SHorizontalBox);
+	return PyLong_FromLong(py_SHorizontalBox->NumSlots());
 }
 
 static PyMethodDef ue_PySHorizontalBox_methods[] = {
@@ -101,7 +102,7 @@ PyTypeObject ue_PySHorizontalBoxType = {
 
 static int ue_py_shorizontal_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs)
 {
-	ue_py_snew_simple(SHorizontalBox, s_box_panel.s_panel.s_widget);
+	ue_py_snew_simple(SHorizontalBox);
 	return 0;
 }
 
