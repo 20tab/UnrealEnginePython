@@ -550,8 +550,14 @@ struct FPythonItem
 
 class FPythonSlateDelegate : public FPythonSmartDelegate
 {
-
 public:
+    enum Type {
+        None,
+        TabSpawner
+    }; 
+    Type StaticDelegateType;
+    FName LifeTimeCtx;
+
 	FReply OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event);
 	FReply OnClicked();
 

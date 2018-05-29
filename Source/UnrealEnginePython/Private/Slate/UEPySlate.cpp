@@ -1423,14 +1423,18 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 	if (!PyCalllable_Check_Extended(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
+    const FName tabName = FName(UTF8_TO_TCHAR(name));
+    if (FGlobalTabmanager::Get()->CanSpawnTab(tabName))
+    { return PyErr_Format(PyExc_Exception, "tab spawner already registered!"); }
+
 	FOnSpawnTab spawn_tab;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable, FPythonSlateDelegate::TabSpawner, tabName);
     bool bshould_auto_size = py_bool && PyObject_IsTrue(py_bool) ? true : false;
 	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab, bshould_auto_size);
 
-	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
-		// TODO: more generic way to set the group
+	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(tabName, spawn_tab)
 #if WITH_EDITOR
+		// TODO: more generic way to set the group
 		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory())
 #endif
 		;
@@ -1449,7 +1453,9 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 		return NULL;
 	}
 
-	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(UTF8_TO_TCHAR(name));
+    FName tabSpawnerName = FName(UTF8_TO_TCHAR(name));
+    FUnrealEnginePythonHouseKeeper::Get()->UntrackStaticSlateDelegate(FPythonSlateDelegate::TabSpawner, tabSpawnerName);
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(tabSpawnerName);
 
 	Py_INCREF(Py_None);
 	return Py_None;

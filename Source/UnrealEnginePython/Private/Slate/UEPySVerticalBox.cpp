@@ -122,7 +122,7 @@ PyTypeObject ue_PySVerticalBoxType = {
 	ue_PySVerticalBox_methods,             /* tp_methods */
 };
 
-static int ue_py_svertical_box_init(ue_PySHorizontalBox *self, PyObject *args, PyObject *kwargs)
+static int ue_py_svertical_box_init(ue_PySVerticalBox *self, PyObject *args, PyObject *kwargs)
 {
 
 	ue_py_slate_setup_farguments(SVerticalBox);

@@ -240,15 +240,26 @@ public:
 		PySlateDelegatesTracker.Add(Tracker);
 	}
 
-	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable)
+	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable, FPythonSlateDelegate::Type InStatDelType = FPythonSlateDelegate::None, FName InContext = NAME_None)
 	{
 		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
 		Delegate->SetPyCallable(PyCallable);
-
+        Delegate->StaticDelegateType = InStatDelType;
+        Delegate->LifeTimeCtx        = InContext;
 		PyStaticSlateDelegatesTracker.Add(Delegate);
 
 		return Delegate;
 	}
+
+    void UntrackStaticSlateDelegate(FPythonSlateDelegate::Type InStaticDelType, FName InContext)
+    {
+        if (InStaticDelType == FPythonSlateDelegate::None)
+        { return; }
+
+        PyStaticSlateDelegatesTracker.RemoveAll([InContext, InStaticDelType](const TSharedRef<FPythonSlateDelegate>& trackedStaticDel) {
+            return trackedStaticDel->StaticDelegateType == InStaticDelType && trackedStaticDel->LifeTimeCtx == InContext;
+        });
+    }
 
 private:
 	TMap<UObject *, FPythonUOjectTracker> UObjectPyMapping;
