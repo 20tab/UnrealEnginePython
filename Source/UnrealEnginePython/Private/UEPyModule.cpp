@@ -646,6 +646,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
 	{ "node_create_pin", (PyCFunction)py_ue_node_create_pin, METH_VARARGS, "" },
 
+	{ "node_function_entry_set_pure", (PyCFunction)py_ue_node_function_entry_set_pure, METH_VARARGS, "" },
+
 	{ "node_allocate_default_pins", (PyCFunction)py_ue_node_allocate_default_pins, METH_VARARGS, "" },
 	{ "node_reconstruct", (PyCFunction)py_ue_node_reconstruct, METH_VARARGS, "" },
 
@@ -1206,9 +1208,9 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 #else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
-						}
 					}
 				}
+			}
 #endif
 				if (self->ue_object->IsA<UEnum>())
 				{
@@ -1220,7 +1222,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
 				}
-			}
+		}
 
 			if (function)
 			{
@@ -1228,8 +1230,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
-		}
 	}
+}
 	return ret;
 }
 
@@ -1804,7 +1806,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-	}
+}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -2809,10 +2811,10 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 				prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-			}
-#endif
 		}
+#endif
 	}
+}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);

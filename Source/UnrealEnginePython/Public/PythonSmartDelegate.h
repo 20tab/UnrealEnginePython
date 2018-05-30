@@ -1,7 +1,9 @@
 #pragma once
 
 #include "UnrealEnginePython.h"
+#if WITH_EDITOR
 #include "Factories/Factory.h"
+#endif
 
 class FPythonSmartDelegate : public TSharedFromThis<FPythonSmartDelegate>
 {

@@ -1,4 +1,7 @@
 #include "UEPyESlateEnums.h"
+
+#include "Runtime/Slate/Public/Framework/Commands/UICommandInfo.h"
+
 #if WITH_EDITOR
 #include "ISequencer.h"
 #include "IDetailsView.h"
@@ -6,7 +9,7 @@
 #include <ObjectMacros.h>
 
 static PyGetSetDef ue_PyESlateEnums_getseters[] = {
-    { NULL }  /* Sentinel */
+	{ NULL }  /* Sentinel */
 };
 
 static void ue_PyESlateEnums_dealloc(ue_PyESlateEnums *self)
@@ -38,7 +41,7 @@ static PyTypeObject ue_PyESlateEnumsType = {
 	0,                         /* tp_getattro */
 	0,                         /* tp_setattro */
 	0,                         /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,        /* tp_flags */
+	Py_TPFLAGS_DEFAULT,        /* tp_flags */
 	"Unreal Engine ESlateEnums",           /* tp_doc */
 	0,                         /* tp_traverse */
 	0,                         /* tp_clear */
@@ -48,7 +51,7 @@ static PyTypeObject ue_PyESlateEnumsType = {
 	0,                         /* tp_iternext */
 	0,                         /* tp_methods */
 	0,
-    ue_PyESlateEnums_getseters,
+	ue_PyESlateEnums_getseters,
 };
 
 static PyObject* ue_PyESlateEnums_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -73,11 +76,11 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
     ue_PyESlateEnumsType.tp_setattro = PyObject_GenericSetAttr;
     ue_PyESlateEnumsType.tp_dictoffset = offsetof(ue_PyESlateEnums, py_dict);
 
-    if (PyType_Ready(&ue_PyESlateEnumsType) < 0)
-        return;
+	if (PyType_Ready(&ue_PyESlateEnumsType) < 0)
+		return;
 
-    Py_INCREF(&ue_PyESlateEnumsType);
-    PyModule_AddObject(ue_module, "ESlateEnums", (PyObject *)&ue_PyESlateEnumsType);
+	Py_INCREF(&ue_PyESlateEnumsType);
+	PyModule_AddObject(ue_module, "ESlateEnums", (PyObject *)&ue_PyESlateEnumsType);
 
 
 
@@ -305,7 +308,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
 
     ]]]*/
     // Enum Wrapper: ESizeRule
-    {
+	{
         PyObject* native_ESizeRule = PyDict_GetItemString(unreal_engine_dict, "ESizeRule");
         if (native_ESizeRule == nullptr)
         {
@@ -597,8 +600,8 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
 
 ue_PyESlateEnums *py_ue_is_eslate_enums(PyObject *obj)
 {
-    if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyESlateEnumsType))
-        return nullptr;
-    return (ue_PyESlateEnums *)obj;
+	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyESlateEnumsType))
+		return nullptr;
+	return (ue_PyESlateEnums *)obj;
 
 }

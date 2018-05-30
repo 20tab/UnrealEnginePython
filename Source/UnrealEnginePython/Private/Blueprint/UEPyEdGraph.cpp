@@ -12,6 +12,7 @@
 #include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2_Actions.h"
 #include "Editor/AIGraph/Classes/AIGraph.h"
 #include "Editor/AIGraph/Classes/AIGraphNode.h"
+#include "Editor/BlueprintGraph/Classes/K2Node_FunctionEntry.h"
 
 PyObject *py_ue_graph_add_node_call_function(ue_PyUObject * self, PyObject * args)
 {
@@ -477,6 +478,61 @@ PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args)
 	PyObject *ret = py_ue_new_edgraphpin(pin);
 	Py_INCREF(ret);
 	return ret;
+}
+
+PyObject *py_ue_node_function_entry_set_pure(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "O:node_function_entry_set_pure", &py_bool))
+	{
+		return nullptr;
+	}
+
+	UK2Node_FunctionEntry *node = ue_py_check_type<UK2Node_FunctionEntry>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a K2Node_FunctionEntry");
+
+	UEdGraph *graph = node->GetGraph();
+
+	if (!graph)
+		return PyErr_Format(PyExc_Exception, "unable to get graph from node");
+
+	UBlueprint *blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(graph);
+	if (!blueprint)
+		return PyErr_Format(PyExc_Exception, "unable to get blueprint from node");
+
+	UClass *Class = blueprint->SkeletonGeneratedClass;
+	UFunction *function = nullptr;
+	for (TFieldIterator<UFunction> FunctionIt(Class, EFieldIteratorFlags::IncludeSuper); FunctionIt; ++FunctionIt)
+	{
+		if (*FunctionIt->GetName() == graph->GetName())
+		{
+			function = *FunctionIt;
+			break;
+		}
+	}
+
+	if (!function)
+		return PyErr_Format(PyExc_Exception, "unable to get function from node");
+
+	node->Modify();
+	function->Modify();
+
+	if (PyObject_IsTrue(py_bool))
+	{
+		function->FunctionFlags |= FUNC_BlueprintPure;
+		node->AddExtraFlags(FUNC_BlueprintPure);
+	}
+	else
+	{
+		function->FunctionFlags &= ~FUNC_BlueprintPure;
+		node->ClearExtraFlags(FUNC_BlueprintPure);
+	}
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args)
