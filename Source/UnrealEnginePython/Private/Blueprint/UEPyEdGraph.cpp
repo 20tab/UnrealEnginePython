@@ -4,6 +4,7 @@
 
 #include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_CallFunction.h"
+#include "Editor/BlueprintGraph/Classes/K2Node_DynamicCast.h"
 #include "Editor/BlueprintGraph/Classes/EdGraphSchema_K2.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_CustomEvent.h"
 #include "Editor/BlueprintGraph/Classes/K2Node_VariableGet.h"
@@ -290,56 +291,56 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	PyObject *py_node_class;
 	int x = 0;
 	int y = 0;
-	PyObject *py_data = nullptr;
+
 	char *metadata = nullptr;
+	PyObject *py_data = nullptr;
+
 	if (!PyArg_ParseTuple(args, "O|iisO:graph_add_node", &py_node_class, &x, &y, &metadata, &py_data))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<UEdGraph>())
-	{
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(self);
+	if (!graph)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
-	}
 
-	UEdGraph *graph = (UEdGraph *)self->ue_object;
-
-	if (!ue_is_pyuobject(py_node_class))
-	{
+	UObject *u_obj = ue_py_check_type<UObject>(py_node_class);
+	if (!u_obj)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
 
 	UEdGraphNode *node = nullptr;
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_node_class;
-	if (py_obj->ue_object->IsA<UClass>())
+	if (UClass *u_class = Cast<UClass>(u_obj))
 	{
-		UClass *u_class = (UClass *)py_obj->ue_object;
 		if (!u_class->IsChildOf<UEdGraphNode>())
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
 		}
-		node = (UEdGraphNode *)NewObject<UObject>(graph, u_class);
+		node = NewObject<UEdGraphNode>(graph, u_class);
 		node->PostLoad();
 	}
-	else if (py_obj->ue_object->IsA<UEdGraphNode>())
+	else
 	{
-		node = (UEdGraphNode *)py_obj->ue_object;
-		if (node->GetOuter() != graph)
+		node = Cast<UEdGraphNode>(u_obj);
+		if (node)
 		{
-			node->Rename(*node->GetName(), graph);
+			if (node->GetOuter() != graph)
+
+				node->Rename(*node->GetName(), graph);
 		}
 	}
 
 	if (!node)
-	{
 		return PyErr_Format(PyExc_Exception, "argument is not a supported type");
-	}
+
 
 	node->CreateNewGuid();
 	node->PostPlacedNewNode();
 	node->SetFlags(RF_Transactional);
-	node->AllocateDefaultPins();
+	if (node->Pins.Num() == 0)
+	{
+		node->AllocateDefaultPins();
+	}
 	node->NodePosX = x;
 	node->NodePosY = y;
 
@@ -373,6 +374,60 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	graph->AddNode(node);
 
 	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	Py_RETURN_UOBJECT(node);
+}
+
+PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_node_class;
+	int x = 0;
+	int y = 0;
+
+	char *metadata = nullptr;
+	PyObject *py_data = nullptr;
+
+	if(!PyArg_ParseTuple(args, "O|iis:graph_add_node_dynamic_cast", &py_node_class, &x, &y, &metadata))
+	{
+		return nullptr;
+	}
+
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(self);
+	if(!graph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
+
+	UClass *u_class = ue_py_check_type<UClass>(py_node_class);
+	if(!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+
+	UK2Node_DynamicCast *node = NewObject<UK2Node_DynamicCast>(graph);
+	node->TargetType = u_class;
+	node->SetPurity(false);
+	node->AllocateDefaultPins();
+
+	node->CreateNewGuid();
+	node->PostPlacedNewNode();
+	node->SetFlags(RF_Transactional);
+	node->NodePosX = x;
+	node->NodePosY = y;
+	
+	if(metadata == nullptr || strlen(metadata) == 0)
+	{
+		UEdGraphSchema_K2::SetNodeMetaData(node, FNodeMetadata::DefaultGraphNode);
+	}
+	else
+	{
+		UEdGraphSchema_K2::SetNodeMetaData(node, FName(UTF8_TO_TCHAR(metadata)));
+	}
+	graph->AddNode(node);
+
+	if(UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
 	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
@@ -582,4 +637,57 @@ PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args)
 	Py_INCREF(ret);
 	return ret;
 }
+
+
+PyObject *py_ue_node_pin_type_changed(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_pin;
+	if (!PyArg_ParseTuple(args, "O:node_pin_type_changed", &py_pin))
+	{
+		return nullptr;
+	}
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	ue_PyEdGraphPin *pin = py_ue_is_edgraphpin(py_pin);
+	if (!pin)
+		return PyErr_Format(PyExc_Exception, "argument is not a EdGraphPin");
+
+	node->PinTypeChanged(pin->pin);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_node_pin_default_value_changed(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_pin;
+	if (!PyArg_ParseTuple(args, "O:node_pin_default_value_changed", &py_pin))
+	{
+		return nullptr;
+	}
+
+	UEdGraphNode *node = ue_py_check_type<UEdGraphNode>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraphNode");
+
+	ue_PyEdGraphPin *pin = py_ue_is_edgraphpin(py_pin);
+	if (!pin)
+		return PyErr_Format(PyExc_Exception, "argument is not a EdGraphPin");
+
+	node->PinDefaultValueChanged(pin->pin);
+
+	Py_RETURN_NONE;
+}
+
+
+
+
 #endif

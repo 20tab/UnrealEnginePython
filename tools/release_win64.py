@@ -19,6 +19,7 @@ def zipdir(path, zh, base):
 def msbuild(project, python_version, variant):
     base_environ = os.environ
     base_environ.update({'PYTHONHOME': python_version})
+    base_environ.update({'UEP_ENABLE_UNITY_BUILD': '1'})
     if variant == 'threaded_':
         base_environ.update({'UEP_ENABLE_THREADS': '1'})
     #vs = '"C:/Program Files (x86)/MSBuild/14.0/Bin/MSBuild.exe"'

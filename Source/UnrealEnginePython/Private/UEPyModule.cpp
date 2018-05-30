@@ -639,6 +639,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "graph_add_node_variable_set", (PyCFunction)py_ue_graph_add_node_variable_set, METH_VARARGS, "" },
 
 	{ "graph_add_node", (PyCFunction)py_ue_graph_add_node, METH_VARARGS, "" },
+	{ "graph_add_node_dynamic_cast", (PyCFunction)py_ue_graph_add_node_dynamic_cast, METH_VARARGS, "" },
 	{ "graph_add_node_event", (PyCFunction)py_ue_graph_add_node_event, METH_VARARGS, "" },
 	{ "graph_get_good_place_for_new_node", (PyCFunction)py_ue_graph_get_good_place_for_new_node, METH_VARARGS, "" },
 
@@ -646,6 +647,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "node_get_title", (PyCFunction)py_ue_node_get_title, METH_VARARGS, "" },
 	{ "node_find_pin", (PyCFunction)py_ue_node_find_pin, METH_VARARGS, "" },
 	{ "node_create_pin", (PyCFunction)py_ue_node_create_pin, METH_VARARGS, "" },
+	{ "node_pin_type_changed", (PyCFunction)py_ue_node_pin_type_changed, METH_VARARGS, "" },
+	{ "node_pin_default_value_changed", (PyCFunction)py_ue_node_pin_default_value_changed, METH_VARARGS, "" },
 
 	{ "node_function_entry_set_pure", (PyCFunction)py_ue_node_function_entry_set_pure, METH_VARARGS, "" },
 
@@ -2531,6 +2534,14 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
 				return true;
 			}
+			else if (auto casted_prop = Cast<UObjectPropertyBase>(prop))
+			{
+				// ensure the object type is correct, otherwise crash could happen (soon or later)
+				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+					return false;
+				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
+				return true;
+			}
 
 			return false;
 		}
@@ -2967,16 +2978,16 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 		//// re-assign multicast delegate
 		//casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
 	}
-	else if (auto casted_prop = Cast<UDelegateProperty>(u_property))
+	else if (auto casted_prop_delegate = Cast<UDelegateProperty>(u_property))
 	{
 
-		FScriptDelegate script_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
-		UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
+		FScriptDelegate script_delegate = casted_prop_delegate->GetPropertyValue_InContainer(u_obj->ue_object);
+		UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop_delegate->SignatureFunction);
 		// fake UFUNCTION for bypassing checks
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
 		// re-assign multicast delegate
-		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, script_delegate);
+		casted_prop_delegate->SetPropertyValue_InContainer(u_obj->ue_object, script_delegate);
 	}
 	else
 	{

@@ -144,7 +144,7 @@ FText SPythonEditor::GetLineAndColumn() const
 	int32 Column;
 	PythonEditableText->GetLineAndColumn(Line, Column);
 	
-	FString LineAndColumn = FString::Printf(TEXT("Line: %d Column: %d"), Line, Column);
+	FString LineAndColumn = FString::Printf(TEXT("Line: %d Column: %d"), Line + 1, Column);
 	
 	return FText::FromString(LineAndColumn);
 }

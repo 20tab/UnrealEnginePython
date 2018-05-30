@@ -85,7 +85,8 @@ public class UnrealEnginePython : ModuleRules
 
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-        bFasterWithoutUnity = true;
+        string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
+        bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
 
         PublicIncludePaths.AddRange(
             new string[] {
