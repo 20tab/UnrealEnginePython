@@ -2,6 +2,8 @@
 
 #include "PyCommandlet.h"
 
+#include "UEPyModule.h"
+
 #include "Regex.h"
 
 UPyCommandlet::UPyCommandlet(const FObjectInitializer& ObjectInitializer)
@@ -92,7 +94,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 		strcpy_s(argv[i], PyArgv[i].Len() + 1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
 #endif
 #endif
-	}
+}
 
 	PySys_SetArgv(PyArgv.Num(), argv);
 

@@ -3,8 +3,6 @@
 #include "UEPySNumericEntryBox.h"
 
 
-
-
 static PyMethodDef ue_PySNumericEntryBox_methods[] = {
 	{ NULL }  /* Sentinel */
 };

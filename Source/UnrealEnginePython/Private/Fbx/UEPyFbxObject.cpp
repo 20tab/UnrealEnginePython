@@ -1,7 +1,7 @@
 #if ENGINE_MINOR_VERSION > 12
 #if WITH_EDITOR
-
-
+#include "UEPyFbxObject.h"
+#include "UEPyFbx.h"
 
 static PyObject *py_ue_fbx_object_get_name(ue_PyFbxObject *self, PyObject *args)
 {

@@ -2,6 +2,7 @@
 #include "UEPySPythonTreeView.h"
 
 #include "Runtime/Slate/Public/Widgets/Views/STreeView.h"
+#include "UEPySHeaderRow.h"
 
 
 

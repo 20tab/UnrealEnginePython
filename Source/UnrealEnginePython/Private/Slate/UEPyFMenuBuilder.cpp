@@ -1,6 +1,6 @@
 #include "UEPyFMenuBuilder.h"
 
-
+#include "Wrappers/UEPyESlateEnums.h"
 
 static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args)
 {
@@ -11,16 +11,14 @@ static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyOb
 
 	self->menu_builder.BeginSection(name, FText::FromString(UTF8_TO_TCHAR(text)));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_fmenu_builder_end_section(ue_PyFMenuBuilder *self, PyObject * args)
 {
 	self->menu_builder.EndSection();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_fmenu_builder_make_widget(ue_PyFMenuBuilder *self, PyObject * args)
@@ -78,8 +76,7 @@ static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self,
 
 	self->menu_builder.AddMenuSeparator(f_name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 #if WITH_EDITOR

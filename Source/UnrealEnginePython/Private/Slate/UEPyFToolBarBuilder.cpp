@@ -1,5 +1,6 @@
 #include "UEPyFToolBarBuilder.h"
 
+#include "UEPyFSlateIcon.h"
 #include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
 
 static PyObject *py_ue_ftool_bar_builder_begin_section(ue_PyFToolBarBuilder *self, PyObject * args)
@@ -10,16 +11,14 @@ static PyObject *py_ue_ftool_bar_builder_begin_section(ue_PyFToolBarBuilder *sel
 
 	self->tool_bar_builder.BeginSection(FName(name));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftool_bar_builder_end_section(ue_PyFToolBarBuilder *self, PyObject * args)
 {
 	self->tool_bar_builder.EndSection();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilder *self, PyObject * args)
@@ -59,8 +58,7 @@ static PyObject *py_ue_ftool_bar_builder_add_tool_bar_button(ue_PyFToolBarBuilde
 
 	self->tool_bar_builder.AddToolBarButton(FUIAction(handler), FName(hook), FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), py_slate_icon->icon);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftool_bar_builder_add_separator(ue_PyFToolBarBuilder *self, PyObject * args)
@@ -77,8 +75,7 @@ static PyObject *py_ue_ftool_bar_builder_add_separator(ue_PyFToolBarBuilder *sel
 
 	self->tool_bar_builder.AddSeparator(f_name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 
@@ -86,16 +83,14 @@ static PyObject *py_ue_ftool_bar_builder_begin_block_group(ue_PyFToolBarBuilder 
 {
 	self->tool_bar_builder.BeginBlockGroup();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftool_bar_builder_end_block_group(ue_PyFToolBarBuilder *self, PyObject * args)
 {
 	self->tool_bar_builder.EndBlockGroup();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ftool_bar_builder_make_widget(ue_PyFToolBarBuilder *self, PyObject * args)

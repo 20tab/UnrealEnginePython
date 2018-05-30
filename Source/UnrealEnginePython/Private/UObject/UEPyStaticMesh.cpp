@@ -1,6 +1,10 @@
 #include "UEPyStaticMesh.h"
 
+
 #if WITH_EDITOR
+
+#include "Engine/StaticMesh.h"
+#include "Wrappers/UEPyFRawMesh.h"
 
 PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args)
 {

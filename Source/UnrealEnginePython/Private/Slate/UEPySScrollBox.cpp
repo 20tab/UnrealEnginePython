@@ -74,7 +74,7 @@ static PyMethodDef ue_PySScrollBox_methods[] = {
 PyTypeObject ue_PySScrollBoxType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.SScrollBox", /* tp_name */
-	sizeof(ue_PySNumericEntryBox), /* tp_basicsize */
+	sizeof(ue_PySScrollBox), /* tp_basicsize */
 	0,                         /* tp_itemsize */
 	0,       /* tp_dealloc */
 	0,                         /* tp_print */

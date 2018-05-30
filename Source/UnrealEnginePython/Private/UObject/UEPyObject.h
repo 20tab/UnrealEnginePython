@@ -2,7 +2,7 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 PyObject *py_ue_get_class(ue_PyUObject *, PyObject *);
 PyObject *py_ue_is_a(ue_PyUObject *, PyObject *);

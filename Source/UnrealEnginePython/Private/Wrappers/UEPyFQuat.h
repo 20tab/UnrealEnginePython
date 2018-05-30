@@ -1,7 +1,6 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
-
+#include "UEPyUScriptStruct.h"
 #include "Runtime/Core/Public/Math/Quat.h"
 
 extern PyTypeObject ue_PyUScriptStructType;

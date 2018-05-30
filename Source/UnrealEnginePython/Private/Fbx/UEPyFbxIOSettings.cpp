@@ -4,7 +4,7 @@
 
 #if WITH_EDITOR
 
-
+#include "UEPyFbx.h"
 
 static PyMethodDef ue_PyFbxIOSettings_methods[] = {
 	{ NULL }  /* Sentinel */

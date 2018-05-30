@@ -1,4 +1,7 @@
 #include "UEPyFTransform.h"
+#include "UEPyFVector.h"
+#include "UEPyFRotator.h"
+#include "UEPyFQuat.h"
 
 static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args)
 {

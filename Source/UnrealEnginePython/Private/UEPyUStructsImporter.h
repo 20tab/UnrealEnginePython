@@ -2,11 +2,12 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
+		/* Type-specific fields go here. */
 } ue_PyUStructsImporter;
 
 PyObject *py_ue_new_ustructsimporter();

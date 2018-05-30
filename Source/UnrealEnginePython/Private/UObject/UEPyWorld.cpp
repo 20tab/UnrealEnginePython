@@ -2,7 +2,11 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 
-
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "Runtime/Foliage/Public/FoliageType.h"
+#include "Runtime/Foliage/Public/InstancedFoliageActor.h"
+#include "EngineUtils.h"
+#include "Kismet/GameplayStatics.h"
 
 PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args)
 {

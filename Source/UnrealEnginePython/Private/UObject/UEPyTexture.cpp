@@ -2,6 +2,8 @@
 
 #include "Runtime/Engine/Public/ImageUtils.h"
 #include "Runtime/Engine/Classes/Engine/Texture.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "Engine/Texture2D.h"
 
 PyObject *py_ue_texture_update_resource(ue_PyUObject *self, PyObject * args)
 {

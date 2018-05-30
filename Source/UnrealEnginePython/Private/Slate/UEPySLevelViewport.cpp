@@ -56,7 +56,7 @@ static PyObject *py_ue_slevel_viewport_set_view_mode(ue_PySLevelViewport *self, 
 	Py_RETURN_SLATE_SELF;
 }
 
-static PyObject *py_ue_slevel_viewport_set_exposure_settings(ue_PySPythonEditorViewport *self, PyObject * args)
+static PyObject *py_ue_slevel_viewport_set_exposure_settings(ue_PySLevelViewport *self, PyObject * args)
 {
 	ue_py_slate_cast(SLevelViewport);
 	PyObject *py_settings;
@@ -77,7 +77,7 @@ static PyObject *py_ue_slevel_viewport_set_exposure_settings(ue_PySPythonEditorV
 }
 
 /*
-PyObject *py_ue_spython_editor_viewport_simulate(ue_PySPythonEditorViewport *self, PyObject * args) {
+PyObject *py_ue_spython_editor_viewport_simulate(ue_PySLevelViewport *self, PyObject * args) {
 
 	py_SLevelViewport->GetViewportClient()->SetIsSimulateInEditorViewport(true);
 

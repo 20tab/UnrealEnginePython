@@ -1,5 +1,6 @@
 
 #include "UEPySExpandableArea.h"
+#include "UEPySCheckBox.h"
 
 
 static PyObject *py_ue_sexpandable_area_is_expanded(ue_PySCheckBox *self, PyObject * args) 

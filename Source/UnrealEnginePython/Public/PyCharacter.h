@@ -1,10 +1,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-
 #include "UEPyModule.h"
-#include "Wrappers/UEPyFRotator.h"
-
 #include "PyCharacter.generated.h"
 
 

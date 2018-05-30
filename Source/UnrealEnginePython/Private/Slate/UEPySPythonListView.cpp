@@ -1,11 +1,11 @@
 
-
-
 #include "UEPySPythonListView.h"
 
-static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args) 
+#include "UEPySHeaderRow.h"
+
+static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView *self, PyObject * args)
 {
-    ue_py_slate_cast(SPythonListView);
+	ue_py_slate_cast(SPythonListView);
 
 	PyObject *py_list = PyList_New(0);
 
@@ -19,7 +19,7 @@ static PyObject *py_ue_spython_list_view_get_selected_items(ue_PySPythonListView
 	return py_list;
 }
 
-static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *self, PyObject * args) 
+static PyObject *py_ue_spython_list_view_clear_selection(ue_PySPythonListView *self, PyObject * args)
 {
 	ue_py_slate_cast(SPythonListView);
 	py_SPythonListView->ClearSelection();
@@ -37,36 +37,36 @@ static PyObject *py_ue_spython_list_view_get_num_items_selected(ue_PySPythonList
 
 static PyObject *py_spython_list_view_update_item_source_list(ue_PySPythonListView *self, PyObject * args)
 {
-    PyObject *values;
-    if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
-    {
-        return NULL;
-    }
+	PyObject *values;
+	if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
+	{
+		return NULL;
+	}
 
-    values = PyObject_GetIter(values);
+	values = PyObject_GetIter(values);
 	if (!values)
 	{
-        return PyErr_Format(PyExc_Exception, "argument is not an iterable");
-    }
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable");
+	}
 
-    //NOTE: ikrimae: Increment first so we don't decrement and destroy python objects that 
-    //we're passing in e.g. if you pass the same item source array into update_items(). 
-    //Might not be necessary but I'm not too familiar with python's GC
-    TArray<TSharedPtr<FPythonItem>> tempNewArray;
+	//NOTE: ikrimae: Increment first so we don't decrement and destroy python objects that 
+	//we're passing in e.g. if you pass the same item source array into update_items(). 
+	//Might not be necessary but I'm not too familiar with python's GC
+	TArray<TSharedPtr<FPythonItem>> tempNewArray;
 	while (PyObject *item = PyIter_Next(values))
 	{
-        Py_INCREF(item);
-        tempNewArray.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
-    }
+		Py_INCREF(item);
+		tempNewArray.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
+	}
 
-    for (TSharedPtr<struct FPythonItem>& item : self->item_source_list)
-    {
-        Py_XDECREF(item->py_object);
-    }
-    self->item_source_list.Empty();
+	for (TSharedPtr<struct FPythonItem>& item : self->item_source_list)
+	{
+		Py_XDECREF(item->py_object);
+	}
+	self->item_source_list.Empty();
 
-    Move<TArray<TSharedPtr<FPythonItem>>>(self->item_source_list, tempNewArray);
-    Py_RETURN_NONE;
+	Move<TArray<TSharedPtr<FPythonItem>>>(self->item_source_list, tempNewArray);
+	Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PySPythonListView_methods[] = {
@@ -80,17 +80,17 @@ static PyMethodDef ue_PySPythonListView_methods[] = {
 static void ue_PySPythonListView_dealloc(ue_PySPythonListView *self)
 {
 #if defined(UEPY_MEMORY_DEBUG)
-    UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySPythonListView %p"), self);
+	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PySPythonListView %p"), self);
 #endif
 
-    for (TSharedPtr<struct FPythonItem>& item : self->item_source_list)
-    {
-        Py_XDECREF(item->py_object);
-    }
-    self->item_source_list.Empty();
+	for (TSharedPtr<struct FPythonItem>& item : self->item_source_list)
+	{
+		Py_XDECREF(item->py_object);
+	}
+	self->item_source_list.Empty();
     self->item_source_list.~TArray();
 
-    Py_TYPE(self)->tp_free((PyObject *)self);
+	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 PyTypeObject ue_PySPythonListViewType = {
@@ -98,7 +98,7 @@ PyTypeObject ue_PySPythonListViewType = {
 	"unreal_engine.SPythonListView", /* tp_name */
 	sizeof(ue_PySPythonListView), /* tp_basicsize */
 	0,                         /* tp_itemsize */
-    (destructor)ue_PySPythonListView_dealloc,       /* tp_dealloc */
+	(destructor)ue_PySPythonListView_dealloc,       /* tp_dealloc */
 	0,                         /* tp_print */
 	0,                         /* tp_getattr */
 	0,                         /* tp_setattr */
@@ -129,48 +129,48 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 
 	ue_py_slate_setup_farguments(SPythonListView);
 
-    // first of all check for values
-    PyObject *values = ue_py_dict_get_item(kwargs, "list_items_source");
+	// first of all check for values
+	PyObject *values = ue_py_dict_get_item(kwargs, "list_items_source");
 	if (!values)
 	{
-        PyErr_SetString(PyExc_Exception, "you must specify list items");
-        return -1;
-    }
+		PyErr_SetString(PyExc_Exception, "you must specify list items");
+		return -1;
+	}
 
-    values = PyObject_GetIter(values);
+	values = PyObject_GetIter(values);
 	if (!values)
 	{
         PyErr_SetString(PyExc_Exception, "list_items_source field is not an iterable");
-        Py_DECREF(values);
-        return -1;
-    }
+		Py_DECREF(values);
+		return -1;
+	}
 
-    new(&self->item_source_list) TArray<TSharedPtr<FPythonItem>>();
+	new(&self->item_source_list) TArray<TSharedPtr<FPythonItem>>();
 	while (PyObject *item = PyIter_Next(values))
 	{
-        Py_INCREF(item);
-        self->item_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
-    }
-    arguments.ListItemsSource(&self->item_source_list);
+		Py_INCREF(item);
+		self->item_source_list.Add(TSharedPtr<FPythonItem>(new FPythonItem(item)));
+	}
+	arguments.ListItemsSource(&self->item_source_list);
     //TODO: ikrimae: #ThirdParty-Python: #BUG: We are on purpose not doing Py_DECREF(values) because we're stealing the reference from _GetIter
     //             But we never decref values in the dealloc function. We should store a py_ref to the python list
     //             Ask roberto for the new refactored way for this
 
-    {
-        PyObject *value = ue_py_dict_get_item(kwargs, "header_row");
+	{
+		PyObject *value = ue_py_dict_get_item(kwargs, "header_row");
 		if (value)
 		{
 			if (ue_PySHeaderRow *_py_swidget = py_ue_is_sheader_row(value))
 			{
 				arguments.HeaderRow(StaticCastSharedRef<SHeaderRow>(((ue_PySWidget *)_py_swidget)->Widget));
-            }
+			}
 			else
 			{
-                PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " "header_row");
-                return -1;
-            }
-        }
-    }
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " "header_row");
+				return -1;
+			}
+		}
+	}
 
 	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
 	ue_py_slate_farguments_optional_bool("clear_selection_on_click", ClearSelectionOnClick);

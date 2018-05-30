@@ -1,12 +1,14 @@
 #pragma once
 
-#include "UEPyModule.h"
+#include "UnrealEnginePython.h"
+
+class UScriptStruct;
 
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UScriptStruct *u_struct;
+	/* Type-specific fields go here. */
+	UScriptStruct *u_struct;
 	uint8 *data;
 	// if 1, data points to un-owned memory
 	int is_ptr;

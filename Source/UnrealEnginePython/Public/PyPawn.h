@@ -2,7 +2,7 @@
 
 
 #include "GameFramework/Pawn.h"
-
+#include "UEPyModule.h"
 #include "PyPawn.generated.h"
 
 

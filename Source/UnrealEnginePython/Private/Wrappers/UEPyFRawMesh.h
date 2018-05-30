@@ -1,9 +1,7 @@
 #pragma once
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
-
-#include "Wrappers/UEPyFColor.h"
 
 #if ENGINE_MINOR_VERSION > 13
 

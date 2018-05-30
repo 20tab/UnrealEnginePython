@@ -7,6 +7,8 @@
 #include "IMenu.h"
 #include "SlateApplication.h"
 
+#include "UEPyFTabManager.h"
+
 static PyObject *py_ue_sdock_tab_set_label(ue_PySDockTab *self, PyObject * args)
 {
 	ue_py_slate_cast(SDockTab);

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "UEPyModule.h"
-
 #include "UEPySPanel.h"
 
 #include "Runtime/Slate/Public/Widgets/Layout/SSplitter.h"

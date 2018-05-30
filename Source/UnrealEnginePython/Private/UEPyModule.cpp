@@ -104,6 +104,10 @@
 #include "PythonFunction.h"
 #include "PythonClass.h"
 
+#if ENGINE_MINOR_VERSION >= 15
+#include "Engine/UserDefinedEnum.h"
+#endif
+
 
 #if ENGINE_MINOR_VERSION < 18
 #define USoftObjectProperty UAssetObjectProperty
@@ -877,7 +881,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "has_world", (PyCFunction)py_ue_has_world, METH_VARARGS, "" },
 
 	{ "get_game_viewport", (PyCFunction)py_ue_get_game_viewport, METH_VARARGS, "" },
-		
+
 	{ "game_viewport_client_set_rendering_flag", (PyCFunction)py_ue_game_viewport_client_set_rendering_flag, METH_VARARGS, "" },
 
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
@@ -1051,7 +1055,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_remove_track", (PyCFunction)py_ue_sequencer_remove_track, METH_VARARGS, "" },
     { "sequencer_get_selected_sections", (PyCFunction)py_ue_sequencer_get_selected_sections, METH_VARARGS, "" },
 	{ "sequencer_import_fbx_transform", (PyCFunction)py_ue_sequencer_import_fbx_transform, METH_VARARGS, "" },
-		
+
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },
@@ -1513,7 +1517,9 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent)
 	return new_object;
 }
 
-extern int unreal_engine_py_init(ue_PyUObject *, PyObject *, PyObject *);
+
+
+int unreal_engine_py_init(ue_PyUObject *, PyObject *, PyObject *);
 
 void unreal_engine_init_py_module()
 {
@@ -1665,7 +1671,7 @@ void unreal_engine_init_py_module()
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_ABSTRACT", PyLong_FromUnsignedLongLong((uint64)CLASS_Abstract));
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_INTERFACE", PyLong_FromUnsignedLongLong((uint64)CLASS_Interface));
 	PyDict_SetItemString(unreal_engine_dict, "CLASS_NEWER_VERSION_EXISTS", PyLong_FromUnsignedLongLong((uint64)CLASS_NewerVersionExists));
-	
+
 	// Objects
 	PyDict_SetItemString(unreal_engine_dict, "RF_NOFLAGS", PyLong_FromUnsignedLongLong((uint64)RF_NoFlags));
 	PyDict_SetItemString(unreal_engine_dict, "RF_PUBLIC", PyLong_FromUnsignedLongLong((uint64)RF_Public));
@@ -3336,7 +3342,7 @@ bool do_ue_py_check_childstruct(PyObject *py_obj, UScriptStruct* parent_u_struct
 #if PY_MAJOR_VERSION >= 3
 static PyObject *init_unreal_engine()
 {
-	
+
 	PyObject *new_unreal_engine_module = PyModule_Create(&unreal_engine_module);
 	if (!new_unreal_engine_module)
 		return nullptr;

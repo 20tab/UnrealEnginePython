@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPySlate.h"
 
 #include "UEPyFGeometry.h"
 #include "UEPyFPaintContext.h"
@@ -13,16 +13,6 @@
 
 extern PyTypeObject ue_PySWidgetType;
 
-typedef struct ue_PySWidget ue_PySWidget;
-
-struct ue_PySWidget
-{
-	PyObject_HEAD
-	/* Type-specific fields go here. */
-	TSharedRef<SWidget> Widget;
-    PyObject *py_dict;
-	PyObject *weakreflist;
-};
 
 void ue_python_init_swidget(PyObject *);
 

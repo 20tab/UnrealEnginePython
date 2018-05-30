@@ -1,7 +1,5 @@
 #pragma once
 #include "UEPyModule.h"
-#include "Wrappers/UEPyFVector.h"
-#include "Wrappers/UEPyFTransform.h"
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12

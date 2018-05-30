@@ -6,7 +6,7 @@
 
 #include "PythonSmartDelegate.h"
 
-struct FPythonItem;
+#include "UEPySlatePythonItem.h"
 
 class FPythonSlateDelegate : public FPythonSmartDelegate
 {

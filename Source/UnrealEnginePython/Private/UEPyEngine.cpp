@@ -13,9 +13,12 @@
 #endif
 #include "HAL/PlatformApplicationMisc.h"
 
+#include "UnrealEngine.h"
+
 #if ENGINE_MINOR_VERSION >= 18
 #include "HAL/PlatformApplicationMisc.h"
 #endif
+#include "EngineUtils.h"
 
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
@@ -1391,7 +1394,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {

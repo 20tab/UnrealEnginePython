@@ -4,6 +4,8 @@
 #include "Layout/WidgetPath.h"
 #include "Slate/UEPySWidget.h"
 
+#include "Slate/UEPySWidget.h"
+#include "Slate/UEPySWindow.h"
 
 static PyObject *py_ue_get_average_delta_time(PyObject *cls, PyObject * args)
 {

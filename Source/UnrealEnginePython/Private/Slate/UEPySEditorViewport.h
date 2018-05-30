@@ -1,15 +1,13 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
-
-
 #include "UEPySCompoundWidget.h"
 
 #include "Editor/UnrealEd/Public/SEditorViewport.h"
 
 extern PyTypeObject ue_PySEditorViewportType;
 
-typedef struct {
+typedef struct
+{
 	ue_PySCompoundWidget s_compound_widget;
 	/* Type-specific fields go here. */
 } ue_PySEditorViewport;

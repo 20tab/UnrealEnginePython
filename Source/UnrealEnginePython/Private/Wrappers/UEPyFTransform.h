@@ -2,7 +2,7 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyUScriptStruct.h"
 
 extern PyTypeObject ue_PyUScriptStructType;
 

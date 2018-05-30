@@ -1,5 +1,7 @@
 #include "UEPyFPointerEvent.h"
 
+#include "UEPyFModifierKeysState.h"
+
 static PyObject *py_ue_fpointer_event_get_effecting_button(ue_PyFPointerEvent *self, PyObject * args)
 {
 	FKey key = self->pointer.GetEffectingButton();

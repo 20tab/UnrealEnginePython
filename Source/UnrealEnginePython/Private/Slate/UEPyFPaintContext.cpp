@@ -1,5 +1,7 @@
 #include "UEPyFPaintContext.h"
 
+#include "UEPyFGeometry.h"
+
 static FSlateBrush global_simple_brush;
 
 static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObject * args)

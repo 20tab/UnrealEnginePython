@@ -1,8 +1,6 @@
 #pragma once
 
-#include "UEPySWidget.h"
-
-#include "Widgets/SCompoundWidget.h"
+#include "UEPySCompoundWidget.h"
 
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 

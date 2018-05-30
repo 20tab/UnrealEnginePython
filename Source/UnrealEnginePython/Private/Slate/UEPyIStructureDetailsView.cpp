@@ -3,8 +3,9 @@
 
 #if WITH_EDITOR
 
-#include "IStructureDetailsView.h"
 
+#include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
+#include "UEPySWidget.h"
 
 
 
@@ -71,10 +72,6 @@ static PyObject *py_ue_istructure_details_view_set_structure_data(ue_PyIStructur
 
 static PyObject *py_ue_istructure_details_view_get_widget(ue_PyIStructureDetailsView *self, PyObject * args)
 {
-	if (!self->istructure_details_view.IsValid())
-	{
-		return PyErr_Format(PyExc_Exception, "IStructureDetailsView is not valid");
-	}
 
 	TSharedPtr<SWidget> ret_widget = self->istructure_details_view->GetWidget();
 	if (!ret_widget.IsValid())
@@ -197,7 +194,7 @@ static int ue_py_istructure_details_view_init(ue_PyIStructureDetailsView *self, 
 	Py_INCREF(self->ue_py_struct);
 	TSharedPtr<FStructOnScope> struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, py_ue_uscriptstruct_get_data(ue_py_struct));
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	self->istructure_details_view = PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope);
+	new(&self->istructure_details_view) TSharedRef<IStructureDetailsView>(PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope));
 
 	return 0;
 }

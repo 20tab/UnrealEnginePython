@@ -1,14 +1,11 @@
 #pragma once
 
-
-#include "UnrealEnginePython.h"
-
-
 #include "UEPySWidget.h"
 
 extern PyTypeObject ue_PySCompoundWidgetType;
 
-typedef struct {
+typedef struct
+{
 	ue_PySWidget s_widget;
 	/* Type-specific fields go here. */
 } ue_PySCompoundWidget;
