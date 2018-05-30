@@ -11,22 +11,6 @@
 #include "UEPyFCharacterEvent.h"
 #include "UEPyFModifierKeysState.h"
 
-extern PyTypeObject ue_PySWidgetType;
-
-
-void ue_python_init_swidget(PyObject *);
-
-template<typename T>
-TSharedPtr<T> py_ue_is_swidget(PyObject *py_obj)
-{
-	if (!PyObject_IsInstance(py_obj, (PyObject *)&ue_PySWidgetType))
-	{
-		PyErr_SetString(PyExc_Exception, "object is not an SWidget");
-		return nullptr;
-	}
-	return StaticCastSharedRef<T>(((ue_PySWidget *)py_obj)->Widget);
-}
-
 #define ue_py_slate_cast(T) ue_PySWidget *py_self_swidget = (ue_PySWidget *)self;\
 	TSharedRef<T> py_ ## T = StaticCastSharedRef<T>(py_self_swidget->Widget)
 

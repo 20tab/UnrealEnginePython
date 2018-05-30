@@ -1,6 +1,6 @@
 
 #include "PyHUD.h"
-
+#include "UEPyModule.h"
 #include "PythonDelegate.h"
 
 APyHUD::APyHUD()

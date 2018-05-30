@@ -208,62 +208,42 @@ PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args
 
 PyObject *py_unreal_engine_editor_command_save_current_level(PyObject * self, PyObject * args)
 {
-
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
 	FLevelEditorActionCallbacks::Save();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject * self, PyObject * args)
 {
 
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
 	FLevelEditorActionCallbacks::SaveAllLevels();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_save_all(PyObject * self, PyObject * args)
 {
 
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
 	FEditorFileUtils::SaveDirtyPackages(false, true, true, false, false, false);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_command_build_lighting(PyObject * self, PyObject * args)
 {
 
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
 	FLevelEditorActionCallbacks::BuildLightingOnly_Execute();
-	Py_INCREF(Py_None);
-	return Py_None;
+
+	Py_RETURN_NONE;
 }
 
 
 PyObject *py_unreal_engine_editor_deselect_actors(PyObject * self, PyObject * args)
 {
 
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
-
 	GEditor->SelectNone(true, true, false);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_editor_is_ctrl_down(PyObject * self, PyObject * args)
@@ -566,7 +546,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
 	if (py_sync && PyObject_IsTrue(py_sync))
 	{
 		sync_to_browser = true;
-	}
+}
 
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 	TArray<UObject *> objects = AssetToolsModule.Get().ImportAssets(files, UTF8_TO_TCHAR(destination), factory, sync_to_browser);
@@ -913,7 +893,7 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args)
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
+	}
 
 PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args)
 {
@@ -1602,7 +1582,7 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 	if (!PyArg_ParseTuple(args, "OsO:blueprint_set_variable_visibility", &py_blueprint, &name, &visibility))
 	{
 		return NULL;
-	}
+}
 
 	if (!ue_is_pyuobject(py_blueprint))
 	{
@@ -2054,7 +2034,7 @@ PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObjec
 	if (!PyArg_ParseTuple(args, "O:move_selected_actors_to_level", &py_level))
 	{
 		return NULL;
-	}
+}
 
 	ULevel *level = ue_py_check_type<ULevel>(py_level);
 	if (!level)
