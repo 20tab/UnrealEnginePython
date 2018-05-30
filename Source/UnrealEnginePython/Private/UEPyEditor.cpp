@@ -1531,46 +1531,58 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 
 	PyObject *py_blueprint;
 	char *name;
-	char *in_type;
+	PyObject *py_type;
 	PyObject *py_is_array = nullptr;
-	if (!PyArg_ParseTuple(args, "Oss|O:blueprint_add_member_variable", &py_blueprint, &name, &in_type, &py_is_array))
+	char *default_value = nullptr;
+	if (!PyArg_ParseTuple(args, "OsO|Os:blueprint_add_member_variable", &py_blueprint, &name, &py_type, &py_is_array, &default_value))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Blueprint");
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
-	if (!py_obj->ue_object->IsA<UBlueprint>())
-		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
-
-	bool is_array = false;
-	if (py_is_array && PyObject_IsTrue(py_is_array))
-		is_array = true;
-#if ENGINE_MINOR_VERSION > 14
 	FEdGraphPinType pin;
-	pin.PinCategory = UTF8_TO_TCHAR(in_type);
-#if ENGINE_MINOR_VERSION >= 17
-	pin.ContainerType = is_array ? EPinContainerType::Array : EPinContainerType::None;
-#else
-	pin.bIsArray = is_array;
-#endif
-#else
-	FEdGraphPinType pin(UTF8_TO_TCHAR(in_type), FString(""), nullptr, is_array, false);
-#endif
 
-	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin))
+	if (PyUnicode_Check(py_type))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		char *in_type = PyUnicode_AsUTF8(py_type);
+
+		bool is_array = false;
+		if (py_is_array && PyObject_IsTrue(py_is_array))
+			is_array = true;
+#if ENGINE_MINOR_VERSION > 14
+		pin.PinCategory = UTF8_TO_TCHAR(in_type);
+#if ENGINE_MINOR_VERSION >= 17
+		pin.ContainerType = is_array ? EPinContainerType::Array : EPinContainerType::None;
+#else
+		pin.bIsArray = is_array;
+#endif
+#else
+		FEdGraphPinType pin2(UTF8_TO_TCHAR(in_type), FString(""), nullptr, is_array, false);
+		pin = pin2;
+#endif
+	}
+	else
+	{
+		FEdGraphPinType *pinptr = ue_py_check_struct<FEdGraphPinType>(py_type);
+		if (!pinptr)
+			return PyErr_Format(PyExc_Exception, "argument is not a EdGraphPinType");
+		pin = *pinptr;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	FString DefaultValue = FString("");
+
+	if (default_value)
+		DefaultValue = FString(default_value);
+
+	if (FBlueprintEditorUtils::AddMemberVariable(bp, UTF8_TO_TCHAR(name), pin, DefaultValue))
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, PyObject * args)
