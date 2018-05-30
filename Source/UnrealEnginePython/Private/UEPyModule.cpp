@@ -593,6 +593,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "clear_event", (PyCFunction)py_ue_clear_event, METH_VARARGS, "" },
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
+	{ "delegate_bind_ufunction", (PyCFunction)py_ue_delegate_bind_ufunction, METH_VARARGS, "" },
 
 	{ "get_py_proxy", (PyCFunction)py_ue_get_py_proxy, METH_VARARGS, "" },
 
@@ -1208,9 +1209,9 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 #else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
 #endif
+						}
 					}
 				}
-			}
 #endif
 				if (self->ue_object->IsA<UEnum>())
 				{
@@ -1222,7 +1223,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
 #endif
 				}
-		}
+			}
 
 			if (function)
 			{
@@ -1230,8 +1231,8 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 				PyErr_Clear();
 				return py_ue_new_callable(function, self->ue_object);
 			}
+		}
 	}
-}
 	return ret;
 }
 
@@ -1806,7 +1807,7 @@ void unreal_engine_py_log_error()
 	if (zero)
 	{
 		msg = PyBytes_AsString(zero);
-}
+	}
 #else
 	msg = PyString_AsString(PyObject_Str(value));
 #endif
@@ -1861,7 +1862,7 @@ void unreal_engine_py_log_error()
 	}
 
 	PyErr_Clear();
-	}
+}
 
 // retrieve a UWorld from a generic UObject (if possible)
 UWorld *ue_get_uworld(ue_PyUObject *py_obj)
@@ -2054,6 +2055,11 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer, int32 index)
 	}
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(prop))
+	{
+		Py_RETURN_UOBJECT(casted_prop);
+	}
+
+	if (auto casted_prop = Cast<UDelegateProperty>(prop))
 	{
 		Py_RETURN_UOBJECT(casted_prop);
 	}
@@ -2816,10 +2822,10 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #else
 				prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
 #endif
-		}
+			}
 #endif
+		}
 	}
-}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
@@ -2960,6 +2966,17 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
         // Should not be needed anymore
 		//// re-assign multicast delegate
 		//casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
+	}
+	else if (auto casted_prop = Cast<UDelegateProperty>(u_property))
+	{
+
+		FScriptDelegate script_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
+		UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
+		// fake UFUNCTION for bypassing checks
+		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
+
+		// re-assign multicast delegate
+		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, script_delegate);
 	}
 	else
 	{

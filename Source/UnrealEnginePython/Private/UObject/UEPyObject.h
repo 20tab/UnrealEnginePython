@@ -81,6 +81,7 @@ PyObject *py_ue_class_set_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_class_has_any_flags(ue_PyUObject * self, PyObject * args);
 PyObject *py_ue_get_obj_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_obj_flags(ue_PyUObject *, PyObject *);
+PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject *, PyObject *);
 
 
 #if WITH_EDITOR

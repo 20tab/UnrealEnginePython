@@ -2064,6 +2064,38 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args)
 	return ue_bind_pyevent(self, FString(event_name), py_callable, true);
 }
 
+PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *delegate_name;
+	PyObject *py_obj;
+	char *fname;
+
+	if (!PyArg_ParseTuple(args, "sOs:delegate_bind_ufunction", &delegate_name, &py_obj, &fname))
+		return nullptr;
+
+	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(delegate_name));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", delegate_name);
+
+	UDelegateProperty *Prop = Cast<UDelegateProperty>(u_property);
+	if (!Prop)
+		return PyErr_Format(PyExc_Exception, "property is not a UDelegateProperty");
+
+	UObject *Object = ue_py_check_type<UObject>(py_obj);
+	if (!Object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	FScriptDelegate script_delegate;
+	script_delegate.BindUFunction(Object, FName(fname));
+
+	// re-assign multicast delegate
+	Prop->SetPropertyValue_InContainer(self->ue_object, script_delegate);
+
+	Py_RETURN_NONE;
+}
+
 #if PY_MAJOR_VERSION >= 3
 PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args)
 {
