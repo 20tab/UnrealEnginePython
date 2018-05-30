@@ -866,7 +866,7 @@ By the way, if you want to play with experimental threading support, just uncomm
 //#define UEPY_THREADING 1
 ```
 
-on top of UnrealEnginePythonPrivatePCH.h and rebuild the plugin.
+on top of UnrealEnginePython.h and rebuild the plugin.
 
 As with native threads, do not modify (included deletion) UObjects from non-main threads.
 

@@ -48,6 +48,9 @@ typedef struct
 	int auto_rooted;
 } ue_PyUObject;
 
+UNREALENGINEPYTHON_API void ue_py_register_magic_module(char *name, PyObject *(*)());
+UNREALENGINEPYTHON_API PyObject *ue_py_register_module(char *);
+
 #if ENGINE_MINOR_VERSION >= 18
 #define FStringAssetReference FSoftObjectPath
 #endif
@@ -66,6 +69,10 @@ char *PyUnicode_AsUTF8(PyObject *py_str);
 int PyGILState_Check();
 #endif
 bool PyUnicodeOrString_Check(PyObject *py_obj);
+
+UNREALENGINEPYTHON_API void unreal_engine_py_log_error();
+UNREALENGINEPYTHON_API ue_PyUObject *ue_get_python_uobject(UObject *);
+UNREALENGINEPYTHON_API ue_PyUObject *ue_get_python_uobject_inc(UObject *);
 
 #define Py_RETURN_UOBJECT(py_uobj) ue_PyUObject *ret = ue_get_python_uobject_inc(py_uobj);\
 	if (!ret)\
@@ -105,7 +112,7 @@ public:
 
 	void UESetupPythonInterpreter(bool);
 
-	FString ScriptsPath;
+	TArray<FString> ScriptsPaths;
 	FString ZipPath;
 	FString AdditionalModulesPath;
 

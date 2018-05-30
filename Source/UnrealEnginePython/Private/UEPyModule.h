@@ -6,7 +6,7 @@
 #include "UEPyUScriptStruct.h"
 #include "PythonHouseKeeper.h"
 
-// common wrappers
+// common wrappersno
 #include "Wrappers/UEPyFVector.h"
 #include "Wrappers/UEPyFRotator.h"
 #include "Wrappers/UEPyFQuat.h"
@@ -15,9 +15,7 @@
 #include "Wrappers/UEPyFLinearColor.h"
 
 
-void unreal_engine_py_log_error();
-ue_PyUObject *ue_get_python_uobject(UObject *);
-ue_PyUObject *ue_get_python_uobject_inc(UObject *);
+
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
 PyObject *ue_py_convert_property(UProperty *, uint8 *, int32);
