@@ -511,8 +511,8 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 {
 	FScopePythonGIL gil;
 	FString full_path = UTF8_TO_TCHAR(filename);
-	bool foundFile = false;
-	if (!FPaths::FileExists(filename))
+	bool foundFile = FPaths::FileExists(filename);
+	if (!foundFile)
 	{
 		for (FString ScriptsPath : ScriptsPaths)
 		{
@@ -527,7 +527,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 
 	if (!foundFile)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), filename);
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), *full_path);
 		return;
 	}
 
@@ -575,8 +575,8 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 {
 	FScopePythonGIL gil;
 	FString full_path = filename;
-	bool foundFile = false;
-	if (!FPaths::FileExists(filename))
+	bool foundFile = FPaths::FileExists(filename);
+	if (!foundFile)
 	{
 		for (FString ScriptsPath : ScriptsPaths)
 		{
@@ -591,7 +591,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 
 	if (!foundFile)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), filename);
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), *full_path);
 		return;
 	}
 
