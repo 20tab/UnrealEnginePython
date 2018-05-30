@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFSlateApplication.h"
 #include "Framework/Application/MenuStack.h"
 #include "Layout/WidgetPath.h"

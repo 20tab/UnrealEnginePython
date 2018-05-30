@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFTransform.h"
 
 static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args)
 {

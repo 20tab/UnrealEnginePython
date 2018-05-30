@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFViewportClient.h"
 
 static PyObject *py_ue_fviewport_client_get_world(ue_PyFViewportClient *self, PyObject * args)
 {

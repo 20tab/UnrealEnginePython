@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyCapture.h"
 
 #include "Runtime/MovieSceneCapture/Public/MovieSceneCapture.h"
 
@@ -16,6 +16,8 @@ for a queue of UMovieSceneCapture objects
 #include "Editor/EditorEngine.h"
 #include "Slate/SceneViewport.h"
 #include "AutomatedLevelSequenceCapture.h"
+
+#include "Slate/UEPySPythonEditorViewport.h"
 
 struct FInEditorMultiCapture : TSharedFromThis<FInEditorMultiCapture>
 {

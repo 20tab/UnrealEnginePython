@@ -1,5 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFPaintContext.h"
 
 static FSlateBrush global_simple_brush;

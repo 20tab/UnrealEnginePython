@@ -1,5 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFGeometry.h"
 
 static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject * args)

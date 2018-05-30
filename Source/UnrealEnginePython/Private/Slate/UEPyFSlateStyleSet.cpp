@@ -1,4 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPyFSlateStyleSet.h"
 #include "SlateTypes.h"
@@ -143,7 +142,8 @@ static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject 
 	return PyErr_Format(PyExc_ValueError, "unsupported value type");
 }
 
-namespace {
+namespace
+{
     template <typename WidgetStyleType> 
     PyObject* pyGetWidgetStyle(FSlateStyleSet& InStyle, FName PropertyName)
     {

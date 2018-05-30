@@ -1,6 +1,7 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyTraceAndSweep.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Wrappers/UEPyFHitResult.h"
 
 PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * args)
 {

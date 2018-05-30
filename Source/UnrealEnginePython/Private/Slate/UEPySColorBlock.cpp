@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySColorBlock.h"
 
 static PyMethodDef ue_PySColorBlock_methods[] = {

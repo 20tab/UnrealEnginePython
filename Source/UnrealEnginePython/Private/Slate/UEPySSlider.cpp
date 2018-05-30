@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySSlider.h"
 
 static PyObject *py_ue_sslider_set_value(ue_PySSlider *self, PyObject * args)

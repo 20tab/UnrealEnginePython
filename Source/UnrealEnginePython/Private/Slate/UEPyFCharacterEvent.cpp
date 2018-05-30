@@ -1,6 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 
 #include "UEPyFCharacterEvent.h"
+
+#include "UEPyFModifierKeysState.h"
 
 static PyObject *py_ue_fcharacter_event_get_character(ue_PyFCharacterEvent *self, PyObject * args)
 {

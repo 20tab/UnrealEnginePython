@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySDockTab.h"
 #include "SDockTab.h"
 #include "Private/Framework/Docking/SDockingArea.h"

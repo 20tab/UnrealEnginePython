@@ -4,26 +4,7 @@
 #include "PythonDelegate.h"
 #include "PythonSmartDelegate.h"
 #include "UEPyUScriptStruct.h"
-
-
-
-//#include "UEPyModule.generated.h"
-
-typedef struct
-{
-	PyObject_HEAD
-	/* Type-specific fields go here. */
-	UObject *ue_object;
-	// reference to proxy class (can be null)
-	PyObject *py_proxy;
-	// the __dict__
-	PyObject *py_dict;
-	// if true RemoveFromRoot will be called at object destruction time
-	int auto_rooted;
-} ue_PyUObject;
-
-
-
+#include "PythonHouseKeeper.h"
 
 
 void unreal_engine_py_log_error();

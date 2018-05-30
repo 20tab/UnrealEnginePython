@@ -1,7 +1,9 @@
-#if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySLevelViewport.h"
+
+#if WITH_EDITOR
+
+
+
 
 #include "LevelEditor.h"
 #include "Editor/LevelEditor/Public/ILevelEditor.h"

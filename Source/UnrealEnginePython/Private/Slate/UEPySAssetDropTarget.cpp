@@ -1,7 +1,6 @@
-#if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySAssetDropTarget.h"
+
+#if WITH_EDITOR
 
 
 static PyMethodDef ue_PySAssetDropTarget_methods[] = {

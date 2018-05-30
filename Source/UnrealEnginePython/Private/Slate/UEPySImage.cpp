@@ -1,6 +1,3 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySImage.h"
 
 static PyObject *py_ue_simage_set_brush(ue_PySImage *self, PyObject * args)

@@ -1,7 +1,6 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
-#include "UEPySEditableTextBox.h"
+#include "UEPySMultiLineEditableText.h"
 
 
 static PyObject *py_ue_smulti_line_editable_text_select_all_text(ue_PySMultiLineEditableText *self, PyObject * args)

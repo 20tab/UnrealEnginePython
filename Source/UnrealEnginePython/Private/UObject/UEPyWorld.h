@@ -1,8 +1,10 @@
 #pragma once
 
+#include "UEPyModule.h"
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "Runtime/Foliage/Public/FoliageType.h"
+#include "Runtime/Foliage/Public/InstancedFoliageActor.h"
 
-
-#include "UnrealEnginePython.h"
 
 PyObject *py_ue_quit_game(ue_PyUObject *, PyObject *);
 PyObject *py_ue_play(ue_PyUObject *, PyObject *);

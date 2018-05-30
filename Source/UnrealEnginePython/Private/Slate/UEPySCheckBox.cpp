@@ -1,6 +1,3 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySCheckBox.h"
 // Needed for PROPERTY_BINDING macro
 #include "Widget.h"

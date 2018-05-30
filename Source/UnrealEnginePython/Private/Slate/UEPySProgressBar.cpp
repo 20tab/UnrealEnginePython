@@ -1,6 +1,3 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySProgressBar.h"
 
 static PyObject *py_ue_sprogress_bar_set_percent(ue_PySProgressBar *self, PyObject *args)

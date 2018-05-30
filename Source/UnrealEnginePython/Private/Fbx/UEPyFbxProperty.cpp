@@ -1,9 +1,9 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFbxProperty.h"
 
 #if ENGINE_MINOR_VERSION > 12
 #if WITH_EDITOR
 
-#include "UEPyFbx.h"
+
 
 static PyObject *py_ue_fbx_property_get_name(ue_PyFbxProperty *self, PyObject *args) {
 	return PyUnicode_FromString(self->fbx_property.GetName());

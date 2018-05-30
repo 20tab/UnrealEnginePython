@@ -1,9 +1,9 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySGraphEditor.h"
 
 #if WITH_EDITOR
 
-#include "UEPySGraphEditor.h"
+
 
 
 

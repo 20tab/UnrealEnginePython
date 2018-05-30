@@ -1,8 +1,9 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFAssetData.h"
 
 #if WITH_EDITOR
 
 #include "ObjectTools.h"
+#include "UEPyFObjectThumbnail.h"
 
 static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * args)
 {

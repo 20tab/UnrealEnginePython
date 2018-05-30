@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UePyFRandomStream.h"
 
 static PyObject *py_ue_frandomstream_frand(ue_PyFRandomStream *self, PyObject * args) {
 	return PyFloat_FromDouble(self->rstream.FRand());

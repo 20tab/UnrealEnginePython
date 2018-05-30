@@ -1,5 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySListView.h"
 
@@ -39,7 +38,8 @@ PyTypeObject ue_PySListViewType = {
 };
 
 
-void ue_python_init_slist_view(PyObject *ue_module) {
+void ue_python_init_slist_view(PyObject *ue_module)
+{
 
 	ue_PySListViewType.tp_base = &ue_PySTableViewBaseType;
 

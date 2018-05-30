@@ -1,9 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 
 #include "UEPyFTabSpawnerEntry.h"
 
-static PyObject *py_ue_ftab_spawner_entry_set_display_name(ue_PyFTabSpawnerEntry *self, PyObject * args) {
+static PyObject *py_ue_ftab_spawner_entry_set_display_name(ue_PyFTabSpawnerEntry *self, PyObject * args)
+{
 	char *name;
 	if (!PyArg_ParseTuple(args, "s:set_display_name", &name))
 		return NULL;
@@ -14,7 +13,8 @@ static PyObject *py_ue_ftab_spawner_entry_set_display_name(ue_PyFTabSpawnerEntry
 	return (PyObject *)self;
 }
 
-static PyObject *py_ue_ftab_spawner_entry_set_tooltip_text(ue_PyFTabSpawnerEntry *self, PyObject * args) {
+static PyObject *py_ue_ftab_spawner_entry_set_tooltip_text(ue_PyFTabSpawnerEntry *self, PyObject * args)
+{
 	char *tooltip;
 	if (!PyArg_ParseTuple(args, "s:set_tooltip_text", &tooltip))
 		return NULL;
@@ -72,7 +72,8 @@ static PyTypeObject ue_PyFTabSpawnerEntryType = {
 };
 
 
-void ue_python_init_ftab_spawner_entry(PyObject *ue_module) {
+void ue_python_init_ftab_spawner_entry(PyObject *ue_module)
+{
 	ue_PyFTabSpawnerEntryType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyFTabSpawnerEntryType) < 0)
@@ -82,7 +83,8 @@ void ue_python_init_ftab_spawner_entry(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FTabSpawnerEntry", (PyObject *)&ue_PyFTabSpawnerEntryType);
 }
 
-PyObject *py_ue_new_ftab_spawner_entry(FTabSpawnerEntry *spawner_entry) {
+PyObject *py_ue_new_ftab_spawner_entry(FTabSpawnerEntry *spawner_entry)
+{
 	ue_PyFTabSpawnerEntry *ret = (ue_PyFTabSpawnerEntry *)PyObject_New(ue_PyFTabSpawnerEntry, &ue_PyFTabSpawnerEntryType);
 	ret->spawner_entry = spawner_entry;
 	return (PyObject *)ret;

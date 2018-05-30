@@ -2,7 +2,7 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #include "SlateBasics.h"
 #include "SlateExtras.h"
@@ -14,8 +14,6 @@
 #include "Editor/EditorStyle/Public/EditorStyleSet.h"
 #include "UnrealEdMisc.h"
 #endif
-
-#include <map>
 
 
 #include "UEPySWidget.h"
@@ -77,6 +75,7 @@
 #include "UEPyFKeyEvent.h"
 #include "UEPyFCharacterEvent.h"
 #include "UEPyFModifierKeysState.h"
+#include "Wrappers/UEPyESlateEnums.h"
 
 #if WITH_EDITOR
 #include "UEPySEditorViewport.h"
@@ -97,7 +96,7 @@
 #include "Runtime/Core/Public/Misc/Attribute.h"
 #include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
-#include "PythonDelegate.h"
+#include "UEPySlateDelegate.h"
 
 PyObject *py_unreal_engine_get_editor_window(PyObject *, PyObject *);
 
@@ -142,10 +141,10 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 }
 
 #define ue_py_slate_track_delegates(_swidget_ref) \
-    for(TSharedRef<FPythonSlateDelegate> Delegate : DeferredSlateDelegates)\
-	{\
+				for(TSharedRef<FPythonSlateDelegate> Delegate : DeferredSlateDelegates)\
+				{\
 		FUnrealEnginePythonHouseKeeper::Get()->TrackDeferredSlateDelegate(Delegate, _swidget_ref);\
-	}
+				}
 
 #define ue_py_snew_base(T, required, arguments) ((ue_PySWidget *)self)->Widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments);\
 	ue_py_slate_track_delegates(((ue_PySWidget *)self)->Widget)
@@ -518,18 +517,18 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_setup_farguments(_type) _type::FArguments arguments;\
 	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
-	ue_py_slate_farguments_bool("is_enabled", IsEnabled);\
-	ue_py_slate_farguments_text("tool_tip_text", ToolTipText);\
-    ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
+	ue_py_slate_farguments_bool("is_enabled", IsEnabled); \
+	ue_py_slate_farguments_text("tool_tip_text", ToolTipText); \
+	ue_py_slate_farguments_fvector2d("render_transform_pivot", RenderTransformPivot)
 
 #define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
     value = value ? value : PyTuple_GetItem(args, 0);\
 	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(value);\
-	if (Widget.IsValid()) \
+	if (Widget.IsValid())\
     { arguments.AttachWidget(Widget.ToSharedRef()); } \
 	else\
 	{\
-		PyErr_SetString(PyExc_TypeError, "unsupported type for required slot " param); \
+		PyErr_SetString(PyExc_TypeError, "unsupported type for required slot " param);\
 		return -1;\
 	}\
 }

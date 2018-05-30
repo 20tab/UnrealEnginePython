@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 #include "PythonScript.h"
 
 static void callback(void *arg) {

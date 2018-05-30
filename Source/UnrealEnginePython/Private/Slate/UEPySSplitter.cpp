@@ -1,6 +1,3 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySSplitter.h"
 
 static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args, PyObject *kwargs)

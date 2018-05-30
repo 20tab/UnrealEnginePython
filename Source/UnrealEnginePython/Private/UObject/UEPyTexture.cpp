@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyTexture.h"
 
 #include "Runtime/Engine/Public/ImageUtils.h"
 #include "Runtime/Engine/Classes/Engine/Texture.h"

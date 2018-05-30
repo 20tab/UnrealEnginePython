@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySBoxPanel.h"
 
 

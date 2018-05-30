@@ -1,5 +1,5 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-#include "UEPyFbx.h"
+
+#include "UEPyFbxMesh.h"
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12

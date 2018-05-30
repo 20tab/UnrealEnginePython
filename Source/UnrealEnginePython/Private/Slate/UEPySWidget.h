@@ -2,6 +2,15 @@
 
 #include "UnrealEnginePython.h"
 
+#include "UEPyFGeometry.h"
+#include "UEPyFPaintContext.h"
+
+#include "UEPyFInputEvent.h"
+#include "UEPyFPointerEvent.h"
+#include "UEPyFKeyEvent.h"
+#include "UEPyFCharacterEvent.h"
+#include "UEPyFModifierKeysState.h"
+
 extern PyTypeObject ue_PySWidgetType;
 
 typedef struct ue_PySWidget ue_PySWidget;

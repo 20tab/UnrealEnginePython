@@ -1,8 +1,8 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyIStructureDetailsView.h"
 
 #if WITH_EDITOR
-#include "UEPyIStructureDetailsView.h"
+
 #include "IStructureDetailsView.h"
 
 

@@ -1,11 +1,15 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UnrealEnginePython.h"
 #include "PythonBlueprintFunctionLibrary.h"
 #include "HAL/IConsoleManager.h"
+#include "HAL/PlatformFilemanager.h"
 #if ENGINE_MINOR_VERSION < 13
 #include "ClassIconFinder.h"
 #endif
+
+#include "Styling/SlateStyleRegistry.h"
+#include "Interfaces/IPluginManager.h"
 
 #if ENGINE_MINOR_VERSION >= 18
 #define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()
@@ -82,7 +86,7 @@ bool FUnrealEnginePythonModule::PythonGILAcquire()
 	return false;
 #endif
 	return true;
-	}
+}
 
 void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 {
@@ -209,7 +213,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
 		Py_SetPythonHome(home);
-}
+	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), PythonHome, GEngineIni))
 	{
@@ -223,7 +227,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 
 		Py_SetPythonHome(home);
-}
+	}
 
 	FString IniValue;
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni))
@@ -332,7 +336,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		PathVars.Append(OurPythonPaths);
 		FString ModifiedPath = FString::Join(PathVars, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
-		}
+	}
 
 #if PY_MAJOR_VERSION >= 3
 	init_unreal_engine_builtin();
@@ -373,7 +377,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	// release the GIL
 	PythonGILRelease();
 
-	}
+}
 
 void FUnrealEnginePythonModule::ShutdownModule()
 {
@@ -469,7 +473,7 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 		Py_EndInterpreter(py_new_state);
 		PyThreadState_Swap(_main);
 		return;
-}
+	}
 	PyObject *global_dict = PyModule_GetDict(m);
 
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, global_dict, global_dict);

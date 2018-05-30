@@ -1,9 +1,11 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFSocket.h"
 
 
-static PyObject *py_ue_fsocket_start_receiver(ue_PyFSocket *self, PyObject * args) {
+static PyObject *py_ue_fsocket_start_receiver(ue_PyFSocket *self, PyObject * args)
+{
 
-	if (self->udp_receiver) {
+	if (self->udp_receiver)
+	{
 		return PyErr_Format(PyExc_Exception, "receiver already started");
 	}
 
@@ -15,24 +17,30 @@ static PyObject *py_ue_fsocket_start_receiver(ue_PyFSocket *self, PyObject * arg
 	return Py_None;
 }
 
-static void sock_close(ue_PyFSocket *self) {
-	if (self->sock) {
+static void sock_close(ue_PyFSocket *self)
+{
+	if (self->sock)
+	{
 		self->sock->Close();
 		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(self->sock);
 		self->sock = nullptr;
 	}
 }
 
-static void sock_stop_receiver(ue_PyFSocket *self) {
-	if (self->udp_receiver) {
+static void sock_stop_receiver(ue_PyFSocket *self)
+{
+	if (self->udp_receiver)
+	{
 		self->udp_receiver->Stop();
 		delete(self->udp_receiver);
 		self->udp_receiver = nullptr;
 	}
 }
 
-static PyObject *py_ue_fsocket_stop_receiver(ue_PyFSocket *self, PyObject * args) {
-	if (!self->udp_receiver) {
+static PyObject *py_ue_fsocket_stop_receiver(ue_PyFSocket *self, PyObject * args)
+{
+	if (!self->udp_receiver)
+	{
 		return PyErr_Format(PyExc_Exception, "receiver not started");
 	}
 
@@ -42,9 +50,11 @@ static PyObject *py_ue_fsocket_stop_receiver(ue_PyFSocket *self, PyObject * args
 	return Py_None;
 }
 
-static PyObject *py_ue_fsocket_close(ue_PyFSocket *self, PyObject * args) {
+static PyObject *py_ue_fsocket_close(ue_PyFSocket *self, PyObject * args)
+{
 
-	if (self->udp_receiver) {
+	if (self->udp_receiver)
+	{
 		return PyErr_Format(PyExc_Exception, "you have to stop its receiver before closing a socket");
 	}
 
@@ -71,11 +81,12 @@ static PyObject *ue_PyFSocket_str(ue_PyFSocket *self)
 		TCHAR_TO_UTF8(*self->sock->GetDescription()));
 }
 
-static void ue_py_fsocket_dealloc(ue_PyFSocket *self) {
-	
+static void ue_py_fsocket_dealloc(ue_PyFSocket *self)
+{
+
 	sock_stop_receiver(self);
 	sock_close(self);
-	
+
 }
 
 static PyTypeObject ue_PyFSocketType = {
@@ -111,7 +122,8 @@ static PyTypeObject ue_PyFSocketType = {
 	0,
 };
 
-static int ue_py_fsocket_init(ue_PyFSocket *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_fsocket_init(ue_PyFSocket *self, PyObject *args, PyObject *kwargs)
+{
 	char *socket_desc;
 	char *socket_addr;
 	int port_number;
@@ -128,7 +140,8 @@ static int ue_py_fsocket_init(ue_PyFSocket *self, PyObject *args, PyObject *kwar
 	return 0;
 }
 
-void ue_python_init_fsocket(PyObject *ue_module) {
+void ue_python_init_fsocket(PyObject *ue_module)
+{
 	ue_PyFSocketType.tp_new = PyType_GenericNew;
 
 	ue_PyFSocketType.tp_init = (initproc)ue_py_fsocket_init;

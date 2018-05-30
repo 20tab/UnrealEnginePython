@@ -1,6 +1,7 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyESlateEnums.h"
 #if WITH_EDITOR
 #include "ISequencer.h"
+#include "IDetailsView.h"
 #endif
 #include <ObjectMacros.h>
 
@@ -18,35 +19,35 @@ static void ue_PyESlateEnums_dealloc(ue_PyESlateEnums *self)
 }
 
 static PyTypeObject ue_PyESlateEnumsType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "unreal_engine.ESlateEnums", /* tp_name */
-    sizeof(ue_PyESlateEnums), /* tp_basicsize */
-    0,                         /* tp_itemsize */
+	PyVarObject_HEAD_INIT(NULL, 0)
+	"unreal_engine.ESlateEnums", /* tp_name */
+	sizeof(ue_PyESlateEnums), /* tp_basicsize */
+	0,                         /* tp_itemsize */
     (destructor)ue_PyESlateEnums_dealloc,       /* tp_dealloc */
-    0,                         /* tp_print */
-    0,                         /* tp_getattr */
-    0,                         /* tp_setattr */
-    0,                         /* tp_reserved */
-    0,                         /* tp_repr */
-    0,                         /* tp_as_number */
-    0,                         /* tp_as_sequence */
-    0,                         /* tp_as_mapping */
-    0,                         /* tp_hash  */
-    0,                         /* tp_call */
+	0,                         /* tp_print */
+	0,                         /* tp_getattr */
+	0,                         /* tp_setattr */
+	0,                         /* tp_reserved */
+	0,                         /* tp_repr */
+	0,                         /* tp_as_number */
+	0,                         /* tp_as_sequence */
+	0,                         /* tp_as_mapping */
+	0,                         /* tp_hash  */
+	0,                         /* tp_call */
     0,                         /* tp_str */
-    0,                         /* tp_getattro */
-    0,                         /* tp_setattro */
-    0,                         /* tp_as_buffer */
+	0,                         /* tp_getattro */
+	0,                         /* tp_setattro */
+	0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,        /* tp_flags */
-    "Unreal Engine ESlateEnums",           /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    0,                         /* tp_methods */
-    0,
+	"Unreal Engine ESlateEnums",           /* tp_doc */
+	0,                         /* tp_traverse */
+	0,                         /* tp_clear */
+	0,                         /* tp_richcompare */
+	0,                         /* tp_weaklistoffset */
+	0,                         /* tp_iter */
+	0,                         /* tp_iternext */
+	0,                         /* tp_methods */
+	0,
     ue_PyESlateEnums_getseters,
 };
 
@@ -590,7 +591,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EDataValidationResult, "NotValidated"   , PyLong_FromLong((int)EDataValidationResult::NotValidated));
     }
 
-    #endif
+#endif
     //[[[end]]]
 }
 

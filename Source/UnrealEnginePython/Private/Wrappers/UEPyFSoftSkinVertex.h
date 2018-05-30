@@ -11,6 +11,8 @@
 
 #endif
 
+#include "Wrappers/UEPyFColor.h"
+
 struct ue_PyFSoftSkinVertex {
 	PyObject_HEAD
 	/* Type-specific fields go here. */

@@ -1,8 +1,9 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyStaticMesh.h"
 
 #if WITH_EDITOR
 
-PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -18,7 +19,8 @@ PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject * py_ue_static_mesh_get_num_triangles(ue_PyUObject *self, PyObject * args) {
+PyObject * py_ue_static_mesh_get_num_triangles(ue_PyUObject *self, PyObject * args) 
+{
 
 	ue_py_check(self);
 
@@ -36,7 +38,8 @@ PyObject * py_ue_static_mesh_get_num_triangles(ue_PyUObject *self, PyObject * ar
 	return PyLong_FromLong(mesh->RenderData ? mesh->RenderData->LODResources[lod_index].GetNumTriangles() : 0);
 }
 
-PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * args) 
+{
 
 	ue_py_check(self);
 
@@ -49,7 +52,8 @@ PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * arg
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_static_mesh_can_lods_share_static_lighting(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_can_lods_share_static_lighting(ue_PyUObject *self, PyObject * args) 
+{
 
 	ue_py_check(self);
 
@@ -63,7 +67,8 @@ PyObject *py_ue_static_mesh_can_lods_share_static_lighting(ue_PyUObject *self, P
 	Py_RETURN_FALSE;
 }
 
-PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args) 
+{
 
 	ue_py_check(self);
 

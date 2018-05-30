@@ -1,6 +1,7 @@
 #pragma once
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UnrealEnginePython.h"
+#include "Factories/Factory.h"
 
 class FPythonSmartDelegate : public TSharedFromThis<FPythonSmartDelegate>
 {
@@ -22,7 +23,7 @@ public:
 
 protected:
 
-	PyObject *py_callable;
+	PyObject * py_callable;
 
 };
 

@@ -2,7 +2,7 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject *, PyObject *);
 PyObject *py_ue_line_trace_multi_by_channel(ue_PyUObject *, PyObject *);

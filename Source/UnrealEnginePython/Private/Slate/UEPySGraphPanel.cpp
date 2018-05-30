@@ -1,8 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySGraphPanel.h"
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 15
-#include "UEPySGraphPanel.h"
+
 
 /*
 static PyObject *py_ue_sgraph_panel_add_slot(ue_PySGraphPanel* self, PyObject *args, PyObject *kwargs)

@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyObject.h"
 
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
@@ -8,6 +8,8 @@
 #include "ObjectTools.h"
 #include "UnrealEd.h"
 #include "Runtime/Core/Public/HAL/FeedbackContextAnsi.h"
+
+#include "Wrappers/UEPyFObjectThumbnail.h"
 #endif
 #include <ObjectMacros.h>
 

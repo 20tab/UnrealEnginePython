@@ -1,6 +1,11 @@
 #pragma once
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UnrealEnginePython.h"
+#include "UObject/UObjectGlobals.h"
+#include "UObject/WeakObjectPtr.h"
+#include "Widgets/SWidget.h"
+#include "Slate/UEPySlateDelegate.h"
+#include "PythonDelegate.h"
 
 class FUnrealEnginePythonHouseKeeper
 {
@@ -152,7 +157,7 @@ public:
 				UE_LOG(LogPython, Error, TEXT("UObject at %p %s is in use"), Object, *Object->GetName());
 #endif
 			}
-		}
+			}
 
 		for (UObject *Object : BrokenList)
 		{
@@ -163,7 +168,7 @@ public:
 
 		return Garbaged;
 
-	}
+		}
 
 
 	int32 DelegatesGC()
@@ -269,4 +274,4 @@ private:
 
     //TODO: ikrimae: #ThirdParty-Python: #BUG: This implementation memory leaks. These delegates never get cleaned up
 	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
-};
+	};

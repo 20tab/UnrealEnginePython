@@ -1,6 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySPythonWidget.h"
 
 static PyObject *py_ue_spython_widget_set_active(ue_PySPythonWidget *self, PyObject *args)

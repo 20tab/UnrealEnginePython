@@ -1,5 +1,4 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySWidget.h"
 #include <WidgetPath.h>

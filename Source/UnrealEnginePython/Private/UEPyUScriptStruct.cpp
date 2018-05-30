@@ -1,6 +1,6 @@
 // Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyUScriptStruct.h"
 
 
 static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObject * args)

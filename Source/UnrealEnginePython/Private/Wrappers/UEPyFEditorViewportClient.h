@@ -1,7 +1,9 @@
 #pragma once
 #include "UnrealEnginePython.h"
+#include "Wrappers/UEPyFViewportClient.h"
 
-struct ue_PyFEditorViewportClient {
+struct ue_PyFEditorViewportClient
+{
 	ue_PyFViewportClient viewport_client;
 	/* Type-specific fields go here. */
 	TSharedRef<FEditorViewportClient> editor_viewport_client;;

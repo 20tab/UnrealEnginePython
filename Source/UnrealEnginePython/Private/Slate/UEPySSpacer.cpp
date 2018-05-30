@@ -1,6 +1,3 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySSpacer.h"
 
 static PyMethodDef ue_PySSpacer_methods[] = {

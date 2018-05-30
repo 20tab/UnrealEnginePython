@@ -1,4 +1,5 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFEditorViewportClient.h"
+#include "UEPyFVector.h"
 
 #if WITH_EDITOR
 

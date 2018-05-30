@@ -1,4 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
 #include "UEPySFilePathPicker.h"
 
 #if WITH_EDITOR

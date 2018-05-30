@@ -1,9 +1,9 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySEditorViewport.h"
 
 #if WITH_EDITOR
 
-#include "UEPySViewport.h"
+
 
 
 static PyObject *py_ue_seditor_viewport_enable_stereo_rendering(ue_PySEditorViewport *self, PyObject * args)

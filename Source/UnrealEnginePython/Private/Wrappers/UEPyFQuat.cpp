@@ -1,4 +1,5 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFQuat.h"
+#include "UEPyFRotator.h"
 
 #if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args) {

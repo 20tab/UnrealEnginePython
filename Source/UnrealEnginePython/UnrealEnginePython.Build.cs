@@ -84,6 +84,7 @@ public class UnrealEnginePython : ModuleRules
         // @third party code - END Bebylon
 
 
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         PublicIncludePaths.AddRange(
             new string[] {

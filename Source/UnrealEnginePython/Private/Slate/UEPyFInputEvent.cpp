@@ -1,28 +1,31 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFInputEvent.h"
 
-static PyObject *py_ue_finput_event_to_text(ue_PyFInputEvent *self, PyObject * args) {
+static PyObject *py_ue_finput_event_to_text(ue_PyFInputEvent *self, PyObject * args)
+{
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->input.ToText().ToString()));
 }
 
-static PyObject *py_ue_finput_event_get_user_index(ue_PyFInputEvent *self, PyObject * args) {
+static PyObject *py_ue_finput_event_get_user_index(ue_PyFInputEvent *self, PyObject * args)
+{
 	return PyLong_FromUnsignedLong(self->input.GetUserIndex());
 }
 
-static PyObject *py_ue_finput_event_is_alt_down(ue_PyFInputEvent *self, PyObject * args) {
+static PyObject *py_ue_finput_event_is_alt_down(ue_PyFInputEvent *self, PyObject * args)
+{
 	if (self->input.IsAltDown())
 		Py_RETURN_TRUE;
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_finput_event_is_command_down(ue_PyFInputEvent *self, PyObject * args) {
+static PyObject *py_ue_finput_event_is_command_down(ue_PyFInputEvent *self, PyObject * args)
+{
 	if (self->input.IsCommandDown())
 		Py_RETURN_TRUE;
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_finput_event_is_control_down(ue_PyFInputEvent *self, PyObject * args) {
+static PyObject *py_ue_finput_event_is_control_down(ue_PyFInputEvent *self, PyObject * args)
+{
 	if (self->input.IsControlDown())
 		Py_RETURN_TRUE;
 	Py_RETURN_FALSE;
@@ -74,7 +77,8 @@ PyTypeObject ue_PyFInputEventType = {
 	ue_PyFInputEvent_methods,             /* tp_methods */
 };
 
-void ue_python_init_finput_event(PyObject *ue_module) {
+void ue_python_init_finput_event(PyObject *ue_module)
+{
 	ue_PyFInputEventType.tp_new = PyType_GenericNew;
 
 	if (PyType_Ready(&ue_PyFInputEventType) < 0)
@@ -84,7 +88,8 @@ void ue_python_init_finput_event(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FInputEvent", (PyObject *)&ue_PyFInputEventType);
 }
 
-PyObject *py_ue_new_finput_event(FInputEvent input) {
+PyObject *py_ue_new_finput_event(FInputEvent input)
+{
 	ue_PyFInputEvent *ret = (ue_PyFInputEvent *)PyObject_New(ue_PyFInputEvent, &ue_PyFInputEventType);
 	new(&ret->input) FInputEvent(input);
 	return (PyObject *)ret;
