@@ -295,11 +295,13 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
-	if (FPaths::DirectoryExists(ProjectScriptsPath))
+	if (!FPaths::DirectoryExists(ProjectScriptsPath))
 	{
-		ScriptsPaths.Add(ProjectScriptsPath);
+		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
 	}
+	ScriptsPaths.Add(ProjectScriptsPath);
 
+  #if WITH_EDITOR
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
 	{
 		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
@@ -308,6 +310,7 @@ void FUnrealEnginePythonModule::StartupModule()
 			ScriptsPaths.Add(PluginScriptsPath);
 		}
 	}
+  #endif
 
 	if (ZipPath.IsEmpty())
 	{
@@ -461,7 +464,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 	return NewCode;
 }
 
-// run a python string in a new sub interpreter 
+// run a python string in a new sub interpreter
 void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 {
 	FScopePythonGIL gil;
@@ -684,4 +687,3 @@ PyObject *ue_py_register_module(char *name)
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FUnrealEnginePythonModule, UnrealEnginePython)
-

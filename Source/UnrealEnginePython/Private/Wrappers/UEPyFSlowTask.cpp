@@ -74,7 +74,7 @@ static PyObject *py_ue_fslowtask_make_dialog(ue_PyFSlowTask *self, PyObject * ar
 static PyObject *py_ue_fslowtask_enter_progress_frame(ue_PyFSlowTask *self, PyObject * args)
 {
 	float expected_work_this_frame = 1.0;
-	char *text = "";
+	char *text = (char *)"";
 	if(!PyArg_ParseTuple(args, "|fs:enter_progress_frame", &expected_work_this_frame, &text))
 	{
 		return nullptr;
@@ -153,7 +153,7 @@ static PyTypeObject ue_PyFSlowTaskType = {
 static int py_ue_fslowtask_init(ue_PyFSlowTask *self, PyObject * args)
 {
 	float amount_of_work;
-	char *default_message = "";
+	char *default_message = (char *)"";
 	PyObject *py_enabled = nullptr;
 	if(!PyArg_ParseTuple(args, "f|sO:__init__", &amount_of_work, &default_message, &py_enabled))
 	{
