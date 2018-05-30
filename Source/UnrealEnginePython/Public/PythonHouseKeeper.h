@@ -266,5 +266,7 @@ private:
 	TArray<FPythonDelegateTracker> PyDelegatesTracker;
 
 	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
+
+    //TODO: ikrimae: #ThirdParty-Python: #BUG: This implementation memory leaks. These delegates never get cleaned up
 	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
 };

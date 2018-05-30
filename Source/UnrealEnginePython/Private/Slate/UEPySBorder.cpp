@@ -24,7 +24,7 @@ static PyObject *py_ue_sborder_set_content(ue_PySBorder *self, PyObject * args)
 
 	TSharedPtr<SWidget> child = py_ue_is_swidget<SWidget>(py_content);
 	if (!child.IsValid())
-		return nullptr;
+    { return nullptr; }
 
 	py_SBorder->SetContent(child.ToSharedRef());
 

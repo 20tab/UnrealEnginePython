@@ -764,7 +764,7 @@ TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 		return SNew(SDockTab);
 	}
 
-	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(py_dock->s_border.s_compound_widget.s_widget.Widget);
+	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(((ue_PySWidget*)py_dock)->Widget);
 
 	Py_DECREF(py_dock);
 	
@@ -784,7 +784,7 @@ TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> 
 
 	if (ue_PySPythonMultiColumnTableRow *spython_multicolumn_table_row = py_ue_is_spython_multicolumn_table_row(ret))
 	{
-		return StaticCastSharedRef<SPythonMultiColumnTableRow>(spython_multicolumn_table_row->s_compound_widget.s_widget.Widget->AsShared());
+		return StaticCastSharedRef<SPythonMultiColumnTableRow>(((ue_PySWidget*)spython_multicolumn_table_row)->Widget);
 	}
 
 	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);

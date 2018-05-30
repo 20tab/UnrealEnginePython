@@ -45,6 +45,7 @@ static PyObject *py_ue_shorizontal_box_add_slot(ue_PySHorizontalBox *self, PyObj
 			arguments.AutoWidth();
 		}
 
+        ue_py_slate_track_delegates(py_SHorizontalBox);
 		return 0;
 	}();
 

@@ -14,7 +14,7 @@ static PyObject *py_ue_sbox_set_content(ue_PySBox *self, PyObject * args)
 
 	TSharedPtr<SWidget> child = py_ue_is_swidget<SWidget>(py_content);
 	if (!child.IsValid())
-		return nullptr;
+	{ return nullptr; }
 
 	py_SBox->SetContent(child.ToSharedRef());
 

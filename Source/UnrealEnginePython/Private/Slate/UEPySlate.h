@@ -141,11 +141,14 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 	return ret;
 }
 
+#define ue_py_slate_track_delegates(_swidget_ref) \
+    for(TSharedRef<FPythonSlateDelegate> Delegate : DeferredSlateDelegates)\
+	{\
+		FUnrealEnginePythonHouseKeeper::Get()->TrackDeferredSlateDelegate(Delegate, _swidget_ref);\
+	}
+
 #define ue_py_snew_base(T, required, arguments) ((ue_PySWidget *)self)->Widget = TSharedRef<T>(MakeTDecl<T>(#T, __FILE__, __LINE__, required) <<= arguments);\
-				for(TSharedRef<FPythonSlateDelegate> Delegate : DeferredSlateDelegates)\
-				{\
-					FUnrealEnginePythonHouseKeeper::Get()->TrackDeferredSlateDelegate(Delegate, ((ue_PySWidget *)self)->Widget);\
-				}
+	ue_py_slate_track_delegates(((ue_PySWidget *)self)->Widget)
 
 #define ue_py_snew_simple(T) TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
 	ue_py_snew_base(T, RequiredArgs::MakeRequiredArgs(), T::FArguments())
@@ -522,8 +525,8 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 #define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
     value = value ? value : PyTuple_GetItem(args, 0);\
 	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(value);\
-	if (Widget.IsValid())\
-		arguments.AttachWidget(Widget.ToSharedRef());\
+	if (Widget.IsValid()) \
+    { arguments.AttachWidget(Widget.ToSharedRef()); } \
 	else\
 	{\
 		PyErr_SetString(PyExc_TypeError, "unsupported type for required slot " param); \

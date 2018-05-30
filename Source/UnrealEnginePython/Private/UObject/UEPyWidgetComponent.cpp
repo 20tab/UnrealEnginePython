@@ -24,10 +24,10 @@ PyObject *py_ue_set_slate_widget(ue_PyUObject * self, PyObject * args)
 
 	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(py_widget);
 	if (!Widget.IsValid())
-		return nullptr;
+    { return nullptr; }
 
-	if (widget_component) { widget_component->SetSlateWidget(Widget); }
-	else { py_user_widget->SetSlateWidget(Widget.ToSharedRef()); }
+	     if (widget_component) { widget_component->SetSlateWidget(Widget); }
+	else                       { py_user_widget->SetSlateWidget(Widget.ToSharedRef()); }
 
 	Py_RETURN_NONE;
 }

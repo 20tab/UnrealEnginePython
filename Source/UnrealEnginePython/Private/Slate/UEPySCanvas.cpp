@@ -41,7 +41,7 @@ static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyO
 
 	TSharedPtr<SWidget> child = py_ue_is_swidget<SWidget>(py_content);
 	if (!child.IsValid())
-		return nullptr;
+	{ return nullptr; }
 
 	SCanvas::FSlot &fslot = py_SCanvas->AddSlot();
 	fslot.AttachWidget(child.ToSharedRef());

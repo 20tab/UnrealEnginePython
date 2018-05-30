@@ -38,9 +38,7 @@ static PyObject *py_ue_svertical_box_add_slot(ue_PySVerticalBox *self, PyObject 
 
 	TSharedPtr<SWidget> Child = py_ue_is_swidget<SWidget>(py_content);
 	if (!Child.IsValid())
-	{
-		return nullptr;
-	}
+    { return nullptr; }
 
 	SVerticalBox::FSlot &fslot = py_SVerticalBox->AddSlot();
 	fslot.AttachWidget(Child.ToSharedRef());

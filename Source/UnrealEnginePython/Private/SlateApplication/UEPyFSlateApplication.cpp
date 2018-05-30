@@ -170,11 +170,11 @@ static PyObject *py_ue_push_menu(PyObject *cls, PyObject * args)
 	// Parse cursor position as a blueprint struct
     TSharedPtr<SWidget> parentWidget = py_ue_is_swidget<SWidget>(py_parent_widget);
     if (!parentWidget.IsValid())
-        return nullptr;
+    { return nullptr; }
 
     TSharedPtr<SWidget> menuWidget = py_ue_is_swidget<SWidget>(py_menu_widget);
     if (!menuWidget.IsValid())
-        return nullptr;
+    { return nullptr; }
 
 	FVector2D CursorPos = FVector2D(x, y);
 	
@@ -200,7 +200,7 @@ static PyObject *py_ue_add_window(PyObject *cls, PyObject * args)
 
     const bool showImmediately = (py_show_immediately) ? (PyObject_IsTrue(py_show_immediately)) : true;
 
-    FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(py_window->s_compound_widget.s_widget.Widget), showImmediately);
+    FSlateApplication::Get().AddWindow(StaticCastSharedRef<SWindow>(((ue_PySWidget*)py_window)->Widget), showImmediately);
 
     return py_window_obj;
 }

@@ -12,7 +12,7 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
         ue_py_slate_farguments_float("value", Value);
         ue_py_slate_farguments_enum("size_rule", SizeRule, SSplitter::ESizeRule);
         ue_py_slate_farguments_event("on_slot_resized", OnSlotResized, SSplitter::FOnSlotResized, OnFloatChanged);
-
+        ue_py_slate_track_delegates(py_SSplitter);
         return 0;
     }();
 

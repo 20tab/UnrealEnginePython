@@ -32,7 +32,7 @@ static PyObject *py_ue_soverlay_add_slot(ue_PySOverlay *self, PyObject * args, P
 
 	TSharedPtr<SWidget> Child = py_ue_is_swidget<SWidget>(py_content);
 	if (!Child.IsValid())
-		return nullptr;
+    { return nullptr; }
 
 	SOverlay::FOverlaySlot &fslot = py_SOverlay->AddSlot(z_order);
 	fslot.AttachWidget(Child.ToSharedRef());

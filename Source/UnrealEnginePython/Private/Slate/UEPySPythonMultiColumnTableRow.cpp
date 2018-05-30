@@ -88,7 +88,7 @@ static int ue_py_spython_multicolumn_table_row_init(ue_PySPythonMultiColumnTable
 
     ue_py_snew_simple_with_req_args(
 		SPythonMultiColumnTableRow,
-		StaticCastSharedRef<STableViewBase>(py_owner_table_view_base->s_compound_widget.s_widget.Widget),
+        StaticCastSharedRef<STableViewBase>(((ue_PySWidget*)py_owner_table_view_base)->Widget),
         (PyObject *)self);
 	return 0;
 }

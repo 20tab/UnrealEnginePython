@@ -16,7 +16,7 @@ static PyObject *py_ue_scheck_box_set_content(ue_PySCheckBox *self, PyObject * a
 
 	TSharedPtr<SWidget> child = py_ue_is_swidget<SWidget>(py_content);
     if (!child.IsValid())
-        return nullptr;
+    { return nullptr; }
 
 
 

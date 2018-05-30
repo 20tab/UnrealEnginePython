@@ -50,7 +50,7 @@ static PyObject * py_ue_sscroll_box_remove_slot(ue_PySScrollBox *self, PyObject 
 
     TSharedPtr<SWidget> child = py_ue_is_swidget<SWidget>(py_content);
     if (!child.IsValid())
-        return nullptr;
+    { return nullptr; }
 
     py_SScrollBox->RemoveSlot(child.ToSharedRef());
 	

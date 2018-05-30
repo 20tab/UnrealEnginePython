@@ -399,7 +399,7 @@ static void ue_PySWidgett_dealloc(ue_PySWidget *self)
     Py_DECREF(self->py_dict);
 
 	if (self->weakreflist != nullptr)
-		PyObject_ClearWeakRefs((PyObject *)self);
+	{ PyObject_ClearWeakRefs((PyObject *)self); }
 
 	// decrement widget reference count
 	// but only if python vm is still fully active (hack to avoid crashes on editor shutdown)
@@ -454,6 +454,8 @@ ue_PySWidget_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self = (ue_PySWidget *)type->tp_alloc(type, 0);
 	if (self != NULL)
 	{
+        //NOTE: This initialization code block needs to match py_ue_new_swidget() because that gets used in other places
+        //      Not sure why PyObject_New() inside of py_ue_new_swidget() does not call this function
 		new(&self->Widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
 		self->weakreflist = nullptr;
         self->py_dict = self->py_dict = PyDict_New();

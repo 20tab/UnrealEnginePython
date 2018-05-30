@@ -46,6 +46,8 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *a
 		ue_py_slate_farguments_bool("should_generate_widget", ShouldGenerateWidget);
 
 		py_SHeaderRow->AddColumn(arguments);
+
+        ue_py_slate_track_delegates(py_SHeaderRow);
 		return 0;
 	}();
 
