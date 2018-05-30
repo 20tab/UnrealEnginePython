@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UObject/Object.h"
+#include "UObject/ScriptMacros.h"
 #include "PythonScript.generated.h"
 
 UCLASS(MinimalAPI)

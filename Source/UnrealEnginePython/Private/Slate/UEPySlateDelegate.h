@@ -8,6 +8,9 @@
 
 #include "UEPySlatePythonItem.h"
 
+#include "AssetData.h"
+
+
 class FPythonSlateDelegate : public FPythonSmartDelegate
 {
 public:
@@ -24,12 +27,12 @@ public:
 	FReply OnKeyDown(const FGeometry &geometry, const FKeyEvent &key_event);
 	void OnTextChanged(const FText &text);
 	void OnTextCommitted(const FText &text, ETextCommit::Type commit_type);
-    void OnInt32Changed(int32 value);
-    void OnInt32Committed(int32 value, ETextCommit::Type commit_type);
+	void OnInt32Changed(int32 value);
+	void OnInt32Committed(int32 value, ETextCommit::Type commit_type);
 	void OnFloatChanged(float value);
 	void OnFloatCommitted(float value, ETextCommit::Type commit_type);
     void OnBoolChanged(bool value);
-    void OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode);
+	void OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode);
 
 	void OnLinearColorChanged(FLinearColor color);
 
@@ -58,7 +61,7 @@ public:
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
-    TSharedRef<SWidget> OnGetMenuContent();
+	TSharedRef<SWidget> OnGetMenuContent();
 	void OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type);
 
 	void SimpleExecuteAction();

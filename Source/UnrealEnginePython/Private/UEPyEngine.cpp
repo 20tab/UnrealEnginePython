@@ -10,10 +10,12 @@
 #if WITH_EDITOR
 #include "PackageTools.h"
 #include "PackageHelperFunctions.h"
+#include "Editor.h"
 #endif
 #include "HAL/PlatformApplicationMisc.h"
 
 #include "UnrealEngine.h"
+#include "Runtime/Engine/Classes/Engine/GameViewportClient.h"
 
 #if ENGINE_MINOR_VERSION >= 18
 #include "HAL/PlatformApplicationMisc.h"
@@ -1406,7 +1408,6 @@ PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 #endif
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
 }
-
 PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)
 {
 

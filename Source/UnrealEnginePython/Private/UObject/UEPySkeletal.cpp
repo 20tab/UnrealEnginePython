@@ -10,6 +10,8 @@
 #endif
 #endif
 
+#include "Animation/AnimInstance.h"
+
 
 PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args)
 {

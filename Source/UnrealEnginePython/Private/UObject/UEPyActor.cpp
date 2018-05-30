@@ -1,5 +1,9 @@
 #include "UEPyActor.h"
 
+#if WITH_EDITOR
+#include "Editor.h"
+#endif
+
 PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args)
 {
 

@@ -3,6 +3,7 @@
 
 #if WITH_EDITOR
 
+
 static PyObject *py_ue_feditor_viewport_client_take_high_res_screen_shot(ue_PyFEditorViewportClient *self, PyObject * args)
 {
 	self->editor_viewport_client->TakeHighResScreenShot();

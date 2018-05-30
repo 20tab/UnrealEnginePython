@@ -6,7 +6,7 @@
 
 #include "Editor/PropertyEditor/Public/PropertyEditorModule.h"
 #include "UEPySWidget.h"
-
+#include "Editor/PropertyEditor/Public/IDetailsView.h"
 
 
 static PyObject *ue_PyIStructureDetailsView_str(ue_PyIStructureDetailsView *self)

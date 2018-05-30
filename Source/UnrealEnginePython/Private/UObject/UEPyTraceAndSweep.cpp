@@ -3,6 +3,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Wrappers/UEPyFHitResult.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
 
 PyObject *py_ue_line_trace_single_by_channel(ue_PyUObject * self, PyObject * args)
 {

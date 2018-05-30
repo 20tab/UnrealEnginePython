@@ -1,6 +1,7 @@
 #include "UEPyFHitResult.h"
 #include "UEPyFVector.h"
 
+#include "GameFramework/Actor.h"
 
 static PyObject *py_ue_fhitresult_get_reversed_hit(ue_PyFHitResult *self, PyObject * args)
 {
