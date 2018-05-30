@@ -102,6 +102,7 @@
 #include "UEPySGraphEditor.h"
 #include "UEPySPythonShelf.h"
 #include "UEPySFilePathPicker.h"
+#include "UEPySDirectoryPicker.h"
 #include "UEPySDropTarget.h"
 #include "UEPySAssetDropTarget.h"
 #include "UEPySObjectPropertyEntryBox.h"
@@ -991,6 +992,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_spython_shelf(module);
 #if ENGINE_MINOR_VERSION > 13
 	ue_python_init_sfile_path_picker(module);
+	ue_python_init_sdirectory_picker(module);
 #endif
 #endif
 	ue_python_init_sdrop_target(module);
