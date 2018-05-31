@@ -634,10 +634,14 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 	const FString PackagePath = FPackageName::GetLongPackagePath(u_object->GetOutermost()->GetName());
 	const FString newname(UTF8_TO_TCHAR(object_name));
 	new(AssetsAndNames) FAssetRenameData(u_object, PackagePath, newname);
+#if ENGINE_MINOR_VERSION < 19
+	AssetToolsModule.Get().RenameAssets(AssetsAndNames);
+#else
 	if (!AssetToolsModule.Get().RenameAssets(AssetsAndNames))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to rename asset %s", path);
 	}
+#endif
 
 	Py_INCREF(Py_None);
 	return Py_None; 
