@@ -26,7 +26,7 @@ public class UnrealEnginePython : ModuleRules
     private string[] linuxKnownIncludesPaths =
     {
         "/usr/local/include/python2.7",
-        "/usr/include/python2.7",	
+        "/usr/include/python2.7",
 	"/usr/local/include/python3.6",
         "/usr/local/include/python3.6m",
         "/usr/local/include/python3.5",
@@ -41,9 +41,9 @@ public class UnrealEnginePython : ModuleRules
     private string[] linuxKnownLibsPaths =
     {
         "/usr/lib/libpython2.7.so",
-        "/usr/lib/x86_64-linux-gnu/libpython2.7.so",    
+        "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython2.7.so",
-	"/usr/local/lib/libpython3.6.so",
+	    "/usr/local/lib/libpython3.6.so",
         "/usr/local/lib/libpython3.6m.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.6.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.6m.so",
@@ -64,7 +64,7 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] macKnownPaths =
     {
-       	"/Library/Frameworks/Python.framework/Versions/2.7", 
+       	"/Library/Frameworks/Python.framework/Versions/2.7",
 	"/Library/Frameworks/Python.framework/Versions/3.6",
         "/Library/Frameworks/Python.framework/Versions/3.5",
         "/System/Library/Frameworks/Python.framework/Versions/2.7",
@@ -101,7 +101,7 @@ public class UnrealEnginePython : ModuleRules
             {
                 "Core",
                 "Sockets",
-                "Networking"
+                "Networking",
 				// ... add other public dependencies that you statically link with here ...
 			}
             );
@@ -126,6 +126,8 @@ public class UnrealEnginePython : ModuleRules
                 "MovieSceneCapture",
                 "Landscape",
                 "Foliage",
+                "PakFile",
+                "UE4Orchestrator",
 				// ... add private dependencies that you statically link with here ...
 			}
             );
@@ -179,7 +181,8 @@ public class UnrealEnginePython : ModuleRules
                 "Persona",
                 "PropertyEditor",
                 "LandscapeEditor",
-                "MaterialEditor"
+                "MaterialEditor",
+                "UE4Orchestrator",
             });
         }
 
