@@ -527,7 +527,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 
 	if (!foundFile)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), filename);
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), UTF8_TO_TCHAR(filename));
 		return;
 	}
 
@@ -591,7 +591,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 
 	if (!foundFile)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), filename);
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), UTF8_TO_TCHAR(filename));
 		return;
 	}
 
