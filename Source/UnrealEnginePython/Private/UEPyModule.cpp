@@ -48,7 +48,6 @@
 #endif
 
 
-
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
 #include "PythonClass.h"
@@ -196,7 +195,6 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "find_object", py_unreal_engine_find_object, METH_VARARGS, "" },
 	{ "load_object", py_unreal_engine_load_object, METH_VARARGS, "" },
-	{ "load_object_with_pak", py_unreal_engine_load_object_with_pak, METH_VARARGS, "" },
 
 	{ "load_package", py_unreal_engine_load_package, METH_VARARGS, "" },
 #if WITH_EDITOR

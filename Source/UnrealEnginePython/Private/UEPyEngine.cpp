@@ -5,16 +5,11 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
-
-#include "Runtime/PakFile/Public/IPlatformFilePak.h"
 #include "Developer/DesktopPlatform/Public/IDesktopPlatform.h"
 #include "Developer/DesktopPlatform/Public/DesktopPlatformModule.h"
 #if WITH_EDITOR
 #include "PackageTools.h"
 #endif
-
-#include "UE4Orchestrator.h"
-#include "Private/UE4OrchestratorPrivate.h"
 
 #if ENGINE_MINOR_VERSION >= 18
 #include "HAL/PlatformApplicationMisc.h"
@@ -435,27 +430,6 @@ PyObject *py_unreal_engine_load_object(PyObject * self, PyObject * args)
 
 	Py_RETURN_UOBJECT(u_object);
 
-}
-
-PyObject *py_unreal_engine_load_object_with_pak(PyObject * self, PyObject * args)
-{
-	PyObject *ret;
-
-	PyObject *obj;
-	char *str;
-
-	if (!PyArg_ParseTuple(args, "s:path_to_asset", &str))
-	{
-		return NULL;
-	}
-
-	FString Path(str);
-
-	auto ue4orch = FModuleManager::GetModuleChecked< FUE4OrchestratorPlugin>("UE4Orchestrator");
-	ue4orch.LoadObject(Path);
-
-
-	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)

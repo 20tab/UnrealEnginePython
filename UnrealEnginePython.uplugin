@@ -1,44 +1,40 @@
 {
-"FileVersion": 3,
-    "Version": 1,
-    "VersionName": "1.0",
-    "FriendlyName": "UnrealEnginePython",
-    "Description": "Embed a Python VM in your project",
-    "Category": "Scripting Languages",
-    "CreatedBy": "Roberto De Ioris",
-    "CreatedByURL": "",
-    "DocsURL": "",
-    "MarketplaceURL": "",
-    "SupportURL": "",
-    "EnabledByDefault": true,
-    "CanContainContent": true,
-    "IsBetaVersion": true,
-    "Installed": false,
-    "Modules": [
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UnrealEnginePython",
+	"Description": "Embed a Python VM in your project",
+	"Category": "Scripting Languages",
+	"CreatedBy": "Roberto De Ioris",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EnabledByDefault": true,
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Modules": [
+    {
+      "Name": "UnrealEnginePython",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
 		{
-		  "Name": "UnrealEnginePython",
-		    "Type": "Runtime",
-		    "LoadingPhase": "Default"
-		    },
+			"Name": "PythonConsole",
+			"Type": "Editor",
+			"LoadingPhase": "PostDefault"
+		},
 		{
-		  "Name": "PythonConsole",
-		    "Type": "Editor",
-		    "LoadingPhase": "PostDefault"
-		    },
-		{
-		  "Name" : "PythonEditor",
-		    "Type" : "Editor",
-		    "LoadingPhase": "PostDefault"
-		    }
-		],
-    "Plugins": [
-		{
-		  "Name": "LevelSequenceEditor",
-		    "Enabled": true
-		    },
-		{
-		  "Name": "UE4Orchestrator",
-		    "Enabled": true
-		    }
-		]
+			"Name" : "PythonEditor",
+			"Type" : "Editor",
+			"LoadingPhase": "PostDefault"
+		}
+  ],
+  "Plugins": [
+    {
+      "Name": "LevelSequenceEditor",
+      "Enabled": true
     }
+  ]
+}
