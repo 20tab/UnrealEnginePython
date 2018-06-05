@@ -16,8 +16,7 @@ static PyObject *py_ue_ihttp_request_set_verb(ue_PyIHttpRequest *self, PyObject 
 
 	self->http_request->SetVerb(UTF8_TO_TCHAR(verb));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_set_url(ue_PyIHttpRequest *self, PyObject * args)
@@ -31,8 +30,7 @@ static PyObject *py_ue_ihttp_request_set_url(ue_PyIHttpRequest *self, PyObject *
 
 	self->http_request->SetURL(UTF8_TO_TCHAR(url));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_set_header(ue_PyIHttpRequest *self, PyObject * args)
@@ -47,8 +45,7 @@ static PyObject *py_ue_ihttp_request_set_header(ue_PyIHttpRequest *self, PyObjec
 
 	self->http_request->SetHeader(UTF8_TO_TCHAR(key), UTF8_TO_TCHAR(value));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_append_to_header(ue_PyIHttpRequest *self, PyObject * args)
@@ -63,8 +60,7 @@ static PyObject *py_ue_ihttp_request_append_to_header(ue_PyIHttpRequest *self, P
 
 	self->http_request->AppendToHeader(UTF8_TO_TCHAR(key), UTF8_TO_TCHAR(value));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_set_content(ue_PyIHttpRequest *self, PyObject * args)
@@ -90,8 +86,7 @@ static PyObject *py_ue_ihttp_request_set_content(ue_PyIHttpRequest *self, PyObje
 		self->http_request->SetContent(data);
 	}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_tick(ue_PyIHttpRequest *self, PyObject * args)
@@ -107,24 +102,21 @@ static PyObject *py_ue_ihttp_request_tick(ue_PyIHttpRequest *self, PyObject * ar
 
 	self->http_request->Tick(delta_seconds);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_process_request(ue_PyIHttpRequest *self, PyObject * args)
 {
 	self->http_request->ProcessRequest();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_cancel_request(ue_PyIHttpRequest *self, PyObject * args)
 {
 	self->http_request->CancelRequest();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_ihttp_request_get_status(ue_PyIHttpRequest *self, PyObject * args)
@@ -210,6 +202,8 @@ static PyObject *py_ue_ihttp_request_bind_on_process_request_complete(ue_PyIHttp
 	py_delegate->SetPyHttpRequest(self);
 	self->http_request->OnProcessRequestComplete().BindSP(py_delegate, &FPythonSmartHttpDelegate::OnRequestComplete);
 
+	self->on_process_request_complete = py_delegate;
+
 	Py_RETURN_NONE;
 }
 
@@ -266,6 +260,8 @@ static void ue_PyIHttpRequest_dealloc(ue_PyIHttpRequest *self)
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyIHttpRequest %p mapped to IHttpRequest %p"), self, &self->http_request.Get());
 #endif
+	self->on_process_request_complete = nullptr;
+	self->on_request_progress = nullptr;
 	Py_DECREF(self->py_dict);
 	Py_TYPE(self)->tp_free((PyObject *)self);
 }
@@ -312,6 +308,8 @@ static int ue_py_ihttp_request_init(ue_PyIHttpRequest *self, PyObject *args, PyO
 		return -1;
 	}
 	new(&self->http_request) TSharedRef<IHttpRequest>(FHttpModule::Get().CreateRequest());
+	new(&self->on_process_request_complete) TSharedPtr<FPythonSmartHttpDelegate>(nullptr);
+	new(&self->on_request_progress) TSharedPtr<FPythonSmartHttpDelegate>(nullptr);
 	self->py_dict = PyDict_New();
 	if (verb)
 	{
