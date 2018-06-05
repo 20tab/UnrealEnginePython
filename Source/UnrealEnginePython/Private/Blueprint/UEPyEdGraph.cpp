@@ -408,7 +408,9 @@ PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args
 
 	UK2Node_DynamicCast *node = NewObject<UK2Node_DynamicCast>(graph);
 	node->TargetType = u_class;
+#if ENGINE_MINOR_VERSION > 15
 	node->SetPurity(false);
+#endif
 	node->AllocateDefaultPins();
 
 	node->CreateNewGuid();

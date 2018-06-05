@@ -1,14 +1,15 @@
 #pragma once
 #include "UnrealEnginePython.h"
+#include "Misc/SlowTask.h"
 
 #if WITH_EDITOR
 
-struct ue_PyFSlowTask {
+typedef struct  {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 
 	FSlowTask slowtask;
-};
+} ue_PyFSlowTask;
 
 void ue_python_init_fslowtask(PyObject *);
 
