@@ -192,7 +192,7 @@ PyObject *py_ue_get_game_viewport(ue_PyUObject *self, PyObject * args)
 	if (!viewport_client)
 		return PyErr_Format(PyExc_Exception, "world has no GameViewportClient");
 
-	Py_RETURN_UOBJECT(viewport_client);
+	Py_RETURN_UOBJECT((UObject *)viewport_client);
 }
 
 
