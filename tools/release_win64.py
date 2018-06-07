@@ -64,7 +64,7 @@ for ue_version in UE_VERSIONS:
             msbuild(sln, python_version, variant)
             commandlet(ue_version, project)
             end = time.time()
-            for item in ('UE4Editor.modules', 'UE4Editor-UnrealEnginePython.dll', 'UE4Editor-PythonConsole.dll', 'UE4Editor-PythonEditor.dll'):
+            for item in ('UE4Editor.modules', 'UE4Editor-UnrealEnginePython.dll', 'UE4Editor-PythonConsole.dll', 'UE4Editor-PythonEditor.dll', 'UE4Editor-PythonAutomation.dll'):
                 shutil.copyfile('D:/{0}/Plugins/UnrealEnginePython/Binaries/Win64/{1}'.format(project, item), '{0}/UnrealEnginePython/Binaries/Win64/{1}'.format(RELEASE_DIR, item))
                 if python_sanitized == 'python36':
                     shutil.copyfile('D:/{0}/Plugins/UnrealEnginePython/Binaries/Win64/{1}'.format(project, item), '{0}/Embedded/UnrealEnginePython/Binaries/Win64/{1}'.format(RELEASE_DIR, item))
