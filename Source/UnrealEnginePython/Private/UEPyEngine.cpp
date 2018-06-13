@@ -530,20 +530,12 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	uint64 flags = (uint64)(RF_Public);
 	if (!PyArg_ParseTuple(args, "O|OsK:new_object", &obj, &py_outer, &name, &flags))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(obj))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<UClass>())
+	UClass *obj_class = ue_py_check_type<UClass>(obj);
+	if (!obj_class)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
-
-	UClass *obj_class = (UClass *)py_obj->ue_object;
 
 	FName f_name = NAME_None;
 
@@ -556,21 +548,20 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 
 	if (py_outer && py_outer != Py_None)
 	{
-		if (!ue_is_pyuobject(py_outer))
-		{
+		outer = ue_py_check_type<UObject>(py_outer);
+		if (!outer)
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-		}
-
-		ue_PyUObject *py_outer_obj = (ue_PyUObject *)py_outer;
-
-		outer = py_outer_obj->ue_object;
 	}
 
-	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, (EObjectFlags)flags);
+	UObject *new_object = nullptr;
+	Py_BEGIN_ALLOW_THREADS;
+	new_object = NewObject<UObject>(outer, obj_class, f_name, (EObjectFlags)flags);
+	if (new_object)
+		new_object->PostLoad();
+	Py_END_ALLOW_THREADS;
+
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
-
-	new_object->PostLoad();
 
 	Py_RETURN_UOBJECT(new_object);
 }
@@ -579,7 +570,7 @@ PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
 {
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj))
+	if (!PyArg_ParseTuple(args, "O|Os:get_mutable_default", &obj))
 	{
 		return NULL;
 	}

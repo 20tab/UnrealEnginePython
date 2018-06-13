@@ -116,14 +116,15 @@ PyObject *py_ue_actor_destroy_component(ue_PyUObject * self, PyObject * args)
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "argument is not a UActorComponent");
 
+	Py_BEGIN_ALLOW_THREADS
 #if ENGINE_MINOR_VERSION >= 17
-	component->DestroyComponent();
+		component->DestroyComponent();
 #else
-	actor->K2_DestroyComponent(component);
+		actor->K2_DestroyComponent(component);
 #endif
+	Py_END_ALLOW_THREADS
 
-	Py_INCREF(Py_None);
-	return Py_None;
+		Py_RETURN_NONE;
 }
 
 PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args)
@@ -137,9 +138,11 @@ PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 	}
 
-	actor->Destroy();
+	Py_BEGIN_ALLOW_THREADS
+		actor->Destroy();
+	Py_END_ALLOW_THREADS
 
-	Py_RETURN_NONE;
+		Py_RETURN_NONE;
 
 }
 
@@ -401,29 +404,16 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 	PyObject *py_parent = nullptr;
 	if (!PyArg_ParseTuple(args, "Os|O:add_actor_component", &obj, &name, &py_parent))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<AActor>())
-	{
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
 
-	AActor *actor = (AActor *)self->ue_object;
-
-	if (!ue_is_pyuobject(obj))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<UClass>())
-	{
+	UClass *u_class = ue_py_check_type<UClass>(obj);
+	if (!u_class)
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
-	}
-
-	UClass *u_class = (UClass *)py_obj->ue_object;
 
 	if (!u_class->IsChildOf<UActorComponent>())
 	{
@@ -440,24 +430,31 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "argument is not a USceneComponent");
 		}
 	}
+	UActorComponent *component = nullptr;
+	Py_BEGIN_ALLOW_THREADS;
+	component = NewObject<UActorComponent>(actor, u_class, FName(UTF8_TO_TCHAR(name)), RF_Public);
+	if (component)
+	{
 
-	UActorComponent *component = NewObject<UActorComponent>(actor, u_class, FName(UTF8_TO_TCHAR(name)), RF_Public);
+		if (py_parent && component->IsA<USceneComponent>())
+		{
+			USceneComponent *scene_component = (USceneComponent *)component;
+			scene_component->SetupAttachment(parent_component);
+		}
+
+		if (actor->GetWorld() && !component->IsRegistered())
+		{
+			component->RegisterComponent();
+		}
+
+		if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
+			component->InitializeComponent();
+	}
+
+	Py_END_ALLOW_THREADS;
+
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
-
-	if (py_parent && component->IsA<USceneComponent>())
-	{
-		USceneComponent *scene_component = (USceneComponent *)component;
-		scene_component->SetupAttachment(parent_component);
-	}
-
-	if (actor->GetWorld() && !component->IsRegistered())
-	{
-		component->RegisterComponent();
-	}
-
-	if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
-		component->InitializeComponent();
 
 	Py_RETURN_UOBJECT(component);
 }
@@ -472,7 +469,7 @@ PyObject *py_ue_add_python_component(ue_PyUObject * self, PyObject * args)
 	char *class_name;
 	if (!PyArg_ParseTuple(args, "sss:add_python_component", &name, &module_name, &class_name))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	AActor *actor = ue_py_check_type<AActor >(self);
@@ -481,20 +478,27 @@ PyObject *py_ue_add_python_component(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 	}
 
-	UPythonComponent *component = NewObject<UPythonComponent>(actor, FName(UTF8_TO_TCHAR(name)), RF_Public);
+	UPythonComponent *component = nullptr;
+	Py_BEGIN_ALLOW_THREADS;
+	component = NewObject<UPythonComponent>(actor, FName(UTF8_TO_TCHAR(name)), RF_Public);
+
+	if (component)
+	{
+		component->PythonModule = FString(UTF8_TO_TCHAR(module_name));
+		component->PythonClass = FString(UTF8_TO_TCHAR(class_name));
+
+		if (actor->GetWorld() && !component->IsRegistered())
+		{
+			component->RegisterComponent();
+		}
+
+		if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
+			component->InitializeComponent();
+	}
+	Py_END_ALLOW_THREADS;
+
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
-
-	component->PythonModule = FString(UTF8_TO_TCHAR(module_name));
-	component->PythonClass = FString(UTF8_TO_TCHAR(class_name));
-
-	if (actor->GetWorld() && !component->IsRegistered())
-	{
-		component->RegisterComponent();
-	}
-
-	if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
-		component->InitializeComponent();
 
 	Py_RETURN_UOBJECT(component);
 }
@@ -782,14 +786,18 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 		rotation = py_rotation->rot;
 	}
 
+	AActor *actor = nullptr;
+
 	if (kwargs && PyDict_Size(kwargs) > 0)
 	{
 		FTransform transform;
 		transform.SetTranslation(location);
 		transform.SetRotation(rotation.Quaternion());
-		AActor *actor = world->SpawnActorDeferred<AActor>(u_class, transform);
-		if (!actor)
-			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
+		Py_BEGIN_ALLOW_THREADS
+			actor = world->SpawnActorDeferred<AActor>(u_class, transform);
+		Py_END_ALLOW_THREADS
+			if (!actor)
+				return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
 		ue_PyUObject *py_actor = ue_get_python_uobject_inc(actor);
 		if (!py_actor)
 			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -806,13 +814,17 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 			}
 		}
 		Py_DECREF(py_iter);
-		UGameplayStatics::FinishSpawningActor(actor, transform);
-		return (PyObject *)py_actor;
+		Py_BEGIN_ALLOW_THREADS
+			UGameplayStatics::FinishSpawningActor(actor, transform);
+		Py_END_ALLOW_THREADS
+			return (PyObject *)py_actor;
 	}
 
-	AActor *actor = world->SpawnActor(u_class, &location, &rotation);
-	if (!actor)
-		return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
+	Py_BEGIN_ALLOW_THREADS
+		actor = world->SpawnActor(u_class, &location, &rotation);
+	Py_END_ALLOW_THREADS
+		if (!actor)
+			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
 	Py_RETURN_UOBJECT(actor);
 
 }
