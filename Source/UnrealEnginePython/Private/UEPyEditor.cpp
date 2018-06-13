@@ -144,8 +144,7 @@ PyObject *py_unreal_engine_allow_actor_script_execution_in_editor(PyObject * sel
 
 	GAllowActorScriptExecutionInEditor = enable;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 
@@ -644,7 +643,7 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 #endif
 
 	Py_INCREF(Py_None);
-	return Py_None; 
+	return Py_None;
 }
 
 PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args)
@@ -1064,21 +1063,17 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args)
 	char *name;
 	if (!PyArg_ParseTuple(args, "Os:create_blueprint", &py_parent, &name))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	UClass *parent = UObject::StaticClass();
 
 	if (py_parent != Py_None)
 	{
-		if (!ue_is_pyuobject(py_parent))
-		{
-			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-		}
-		ue_PyUObject *py_obj = (ue_PyUObject *)py_parent;
-		if (!py_obj->ue_object->IsA<UClass>())
+		UClass *new_parent = ue_py_check_type<UClass>(py_parent);
+		if (!new_parent)
 			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
-		parent = (UClass *)py_obj->ue_object;
+		parent = new_parent;
 	}
 
 	if (name[0] != '/')
@@ -1145,7 +1140,7 @@ PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args)
 	PyObject *py_blueprint;
 	if (!PyArg_ParseTuple(args, "O:reload_blueprint", &py_blueprint))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!ue_is_pyuobject(py_blueprint))
@@ -1153,12 +1148,15 @@ PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
-	if (!py_obj->ue_object->IsA<UBlueprint>())
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
-	UBlueprint *reloaded_bp = FKismetEditorUtilities::ReloadBlueprint(bp);
+	UBlueprint *reloaded_bp = nullptr;
+
+	Py_BEGIN_ALLOW_THREADS
+	reloaded_bp = FKismetEditorUtilities::ReloadBlueprint(bp);
+	Py_END_ALLOW_THREADS
 
 	Py_RETURN_UOBJECT(reloaded_bp);
 }
@@ -1169,24 +1167,18 @@ PyObject *py_unreal_engine_compile_blueprint(PyObject * self, PyObject * args)
 	PyObject *py_blueprint;
 	if (!PyArg_ParseTuple(args, "O:compile_blueprint", &py_blueprint))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(py_blueprint))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
-	if (!py_obj->ue_object->IsA<UBlueprint>())
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
-	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
+	Py_BEGIN_ALLOW_THREADS
 	FKismetEditorUtilities::CompileBlueprint(bp);
+	Py_END_ALLOW_THREADS
 
-	Py_INCREF(Py_None);
-	return Py_None;
-
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_replace_blueprint(PyObject * self, PyObject * args)
@@ -1401,7 +1393,7 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 		if (!pinptr)
 			return PyErr_Format(PyExc_Exception, "argument is not a EdGraphPinType");
 		pin = *pinptr;
-	}
+}
 
 	FString DefaultValue = FString("");
 
@@ -1480,7 +1472,7 @@ PyObject *py_unreal_engine_blueprint_add_function(PyObject * self, PyObject * ar
 	{
 		return nullptr;
 	}
-		
+
 	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
 	if (!bp)
 		return PyErr_Format(PyExc_Exception, "argument is not a UBlueprint");
@@ -1864,7 +1856,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 #endif
 
 	Py_RETURN_UOBJECT(level_streaming);
-}
+	}
 
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args)
 {

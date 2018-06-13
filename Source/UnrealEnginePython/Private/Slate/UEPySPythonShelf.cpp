@@ -91,19 +91,19 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		}
 	}
 
-	if (py_callable_double_clicked && !PyCalllable_Check_Extended(py_callable_double_clicked))
+	if (py_callable_double_clicked && !PyCallable_Check(py_callable_double_clicked))
 	{
 		PyErr_SetString(PyExc_Exception, "argument is not callable");
 		return -1;
 	}
 
-	if (py_callable_get_context_menu && !PyCalllable_Check_Extended(py_callable_get_context_menu))
+	if (py_callable_get_context_menu && !PyCallable_Check(py_callable_get_context_menu))
 	{
 		PyErr_SetString(PyExc_Exception, "argument is not callable");
 		return -1;
 	}
 
-	if (py_callable_asset_selected && !PyCalllable_Check_Extended(py_callable_asset_selected))
+	if (py_callable_asset_selected && !PyCallable_Check(py_callable_asset_selected))
 	{
 		PyErr_SetString(PyExc_Exception, "argument is not callable");
 		return -1;

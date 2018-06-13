@@ -268,11 +268,6 @@ void FPythonProjectEditor::BindCommands()
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
 		);
 
-	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().ExecuteInSandbox,
-		FExecuteAction::CreateSP(this, &FPythonProjectEditor::ExecuteInSandbox_Internal),
-		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
-		);
-
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().PEP8ize,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::PEP8ize_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
@@ -503,29 +498,12 @@ void FPythonProjectEditor::PEP8ize_Internal()
 	PEP8ize();
 }
 
-void FPythonProjectEditor::ExecuteInSandbox_Internal()
-{
-	Execute();
-}
-
-
 bool FPythonProjectEditor::Execute()
 {
 	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
 	{
 		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
 		PythonEditorRef->Execute();
-	}
-
-	return true;
-}
-
-bool FPythonProjectEditor::ExecuteInSandbox()
-{
-	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
-	{
-		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
-		PythonEditorRef->ExecuteInSandbox();
 	}
 
 	return true;

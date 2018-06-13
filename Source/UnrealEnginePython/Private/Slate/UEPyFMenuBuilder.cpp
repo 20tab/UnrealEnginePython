@@ -38,7 +38,7 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	if (!PyArg_ParseTuple(args, "ssO|OO:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &py_uiaction_obj))
 		return nullptr;
 
-	if (!PyCalllable_Check_Extended(py_callable))
+	if (!PyCallable_Check(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}

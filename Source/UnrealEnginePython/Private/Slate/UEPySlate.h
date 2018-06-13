@@ -107,7 +107,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 {\
 	PyObject *value = ue_py_dict_get_item(kwargs, _param);\
 	if (value) {\
-		if (PyCalllable_Check_Extended(value)) {\
+		if (PyCallable_Check(value)) {\
 			_base handler;\
 			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDeferredSlateDelegate(value);\
 			handler.Bind(py_delegate, &FPythonSlateDelegate::_func);\
@@ -119,7 +119,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 {\
 	PyObject *value = ue_py_dict_get_item(kwargs, _param);\
 	if (value) {\
-		if (PyCalllable_Check_Extended(value)) {\
+		if (PyCallable_Check(value)) {\
 			_base handler;\
 			TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDeferredSlateDelegate(value);\
 			handler.BindSP(py_delegate, &FPythonSlateDelegate::_func);\

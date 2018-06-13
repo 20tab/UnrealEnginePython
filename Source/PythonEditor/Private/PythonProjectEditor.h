@@ -61,8 +61,6 @@ public:
 
 	bool Execute();
 
-	bool ExecuteInSandbox();
-
 	bool PEP8ize();
 
 	FString GetSafeName(bool IsDirectory);
@@ -81,8 +79,6 @@ private:
 	void SaveAll_Internal();
 
 	void Execute_Internal();
-
-	void ExecuteInSandbox_Internal();
 
 	void PEP8ize_Internal();
 
@@ -105,4 +101,7 @@ protected:
 	TSharedPtr<class FPythonProjectEditorToolbar> ToolbarBuilder;
 
 	static TWeakPtr<FPythonProjectEditor> PythonEditor;
+
+	virtual bool CanSaveAsset() const override { return false; }
+	virtual bool CanFindInContentBrowser() const override { return false; }
 };

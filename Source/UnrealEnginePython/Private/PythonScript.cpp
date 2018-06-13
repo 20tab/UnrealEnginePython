@@ -20,12 +20,6 @@ void UPythonScript::Run()
 	}
 }
 
-void UPythonScript::RunSandboxed()
-{
-	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFileSandboxed(TCHAR_TO_UTF8(*ScriptPath), callback, this);
-}
-
 void UPythonScript::CallSpecificFunctionWithArgs()
 {
 	PyObject *function_to_call = PyDict_GetItemString(PyEval_GetGlobals(), TCHAR_TO_UTF8(*FunctionToCall));
