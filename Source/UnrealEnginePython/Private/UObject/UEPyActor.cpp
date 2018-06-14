@@ -12,24 +12,19 @@ PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args)
 	char *tag;
 	if (!PyArg_ParseTuple(args, "s:actor_has_tag", &tag))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<AActor>())
-	{
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
-
-	AActor *actor = (AActor *)self->ue_object;
 
 	if (actor->ActorHasTag(FName(UTF8_TO_TCHAR(tag))))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_actor_begin_play(ue_PyUObject * self, PyObject * args)
@@ -41,11 +36,15 @@ PyObject *py_ue_actor_begin_play(ue_PyUObject * self, PyObject * args)
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 
+	Py_BEGIN_ALLOW_THREADS;
+
 #if ENGINE_MINOR_VERSION > 14
 	actor->DispatchBeginPlay();
 #else
 	actor->BeginPlay();
 #endif
+	Py_END_ALLOW_THREADS;
+
 	Py_RETURN_NONE;
 }
 
@@ -54,13 +53,9 @@ PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
-
-	if (!self->ue_object->IsA<AActor>())
-	{
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
-
-	AActor *actor = (AActor *)self->ue_object;
 
 	FVector origin;
 	FVector extent;
@@ -68,7 +63,6 @@ PyObject *py_ue_get_actor_bounds(ue_PyUObject * self, PyObject * args)
 	actor->GetActorBounds(false, origin, extent);
 
 	return Py_BuildValue("OO", py_ue_new_fvector(origin), py_ue_new_fvector(extent));
-
 }
 
 PyObject *py_ue_get_actor_component(ue_PyUObject * self, PyObject * args)
@@ -138,11 +132,11 @@ PyObject *py_ue_actor_destroy(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 	}
 
-	Py_BEGIN_ALLOW_THREADS
-		actor->Destroy();
-	Py_END_ALLOW_THREADS
+	Py_BEGIN_ALLOW_THREADS;
+	actor->Destroy();
+	Py_END_ALLOW_THREADS;
 
-		Py_RETURN_NONE;
+	Py_RETURN_NONE;
 
 }
 
@@ -222,8 +216,7 @@ PyObject *py_ue_set_actor_label(ue_PyUObject *self, PyObject * args)
 
 	actor->SetActorLabel(UTF8_TO_TCHAR(label), true);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args)
@@ -288,11 +281,12 @@ PyObject *py_ue_register_component(ue_PyUObject *self, PyObject * args)
 
 	UActorComponent *component = (UActorComponent *)self->ue_object;
 
+	Py_BEGIN_ALLOW_THREADS;
 	if (!component->IsRegistered())
 		component->RegisterComponent();
+	Py_END_ALLOW_THREADS;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_component_is_registered(ue_PyUObject *self, PyObject * args)
@@ -300,21 +294,16 @@ PyObject *py_ue_component_is_registered(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UActorComponent>())
-	{
+	UActorComponent *component = ue_py_check_type<UActorComponent>(self);
+	if (!component)
 		return PyErr_Format(PyExc_Exception, "uobject is not a component");
-	}
-
-	UActorComponent *component = (UActorComponent *)self->ue_object;
 
 	if (component->IsRegistered())
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_setup_attachment(ue_PyUObject *self, PyObject * args)
@@ -323,16 +312,26 @@ PyObject *py_ue_setup_attachment(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	PyObject *py_component;
-	if (!PyArg_ParseTuple(args, "O:setup_attachment", &py_component))
+	char *socket_name = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|s:setup_attachment", &py_component))
 		return nullptr;
 
 	USceneComponent *child = ue_py_check_type<USceneComponent>(self);
 	if (!child)
-	{
 		return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
-	}
 
-	UActorComponent *parent = ue_py_check_type<UActorComponent>(py_component);
+	USceneComponent *parent = ue_py_check_type<USceneComponent>(py_component);
+	if (!parent)
+		return PyErr_Format(PyExc_Exception, "argument is not a USceneComponent");
+
+	FName SocketName = NAME_None;
+	if (socket_name)
+		SocketName = FName(UTF8_TO_TCHAR(socket_name));
+
+	Py_BEGIN_ALLOW_THREADS;
+	child->SetupAttachment(parent, SocketName);
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }
@@ -345,8 +344,10 @@ PyObject *py_ue_unregister_component(ue_PyUObject * self, PyObject * args)
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
 
+	Py_BEGIN_ALLOW_THREADS;
 	if (component->IsRegistered())
 		component->UnregisterComponent();
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }
@@ -359,7 +360,9 @@ PyObject *py_ue_destroy_component(ue_PyUObject * self, PyObject * args)
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
 
+	Py_BEGIN_ALLOW_THREADS;
 	component->DestroyComponent();
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }
@@ -388,7 +391,10 @@ PyObject *py_ue_add_instance_component(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UActorComponent");
 	}
 
+	Py_BEGIN_ALLOW_THREADS;
 	actor->AddInstanceComponent(component);
+	Py_END_ALLOW_THREADS;
+
 	Py_RETURN_NONE;
 
 }
@@ -512,7 +518,7 @@ PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * a
 	char *name;
 	if (!PyArg_ParseTuple(args, "Os:actor_create_default_subobject", &obj, &name))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	AActor *actor = ue_py_check_type<AActor>(self);
@@ -526,7 +532,12 @@ PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * a
 	if (!FUObjectThreadContext::Get().TopInitializer())
 		return PyErr_Format(PyExc_Exception, "CreateDefaultSubobject() can be called only in a constructor");
 
-	UObject *ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, false, true);
+	UObject *ret_obj = nullptr;
+
+	Py_BEGIN_ALLOW_THREADS;
+	ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, false, true);
+	Py_END_ALLOW_THREADS;
+
 	if (!ret_obj)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 
@@ -560,32 +571,23 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args)
 	char *name;
 	if (!PyArg_ParseTuple(args, "Os:add_actor_root_component", &obj, &name))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!self->ue_object->IsA<AActor>())
-	{
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
 
-	AActor *actor = (AActor *)self->ue_object;
 
-	if (!ue_is_pyuobject(obj))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
+	UClass *u_class = ue_py_check_type<UClass>(obj);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<UClass>())
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a class");
-	}
-
-	USceneComponent *component = NewObject<USceneComponent>(actor, (UClass *)py_obj->ue_object, FName(UTF8_TO_TCHAR(name)), RF_Public);
+	USceneComponent *component = NewObject<USceneComponent>(actor, u_class, FName(UTF8_TO_TCHAR(name)), RF_Public);
 	if (!component)
 		return PyErr_Format(PyExc_Exception, "unable to create component");
 
+	Py_BEGIN_ALLOW_THREADS;
 	actor->SetRootComponent(component);
 
 	if (actor->GetWorld() && !component->IsRegistered())
@@ -595,6 +597,8 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject * self, PyObject * args)
 
 	if (component->bWantsInitializeComponent && !component->HasBeenInitialized() && component->IsRegistered())
 		component->InitializeComponent();
+
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_UOBJECT(component);
 }
@@ -610,29 +614,20 @@ PyObject *py_ue_actor_has_component_of_type(ue_PyUObject * self, PyObject * args
 		return NULL;
 	}
 
-	if (!ue_is_pyuobject(obj))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!self->ue_object->IsA<AActor>())
-	{
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
-	}
 
-	AActor *actor = (AActor *)self->ue_object;
+	UClass *u_class = ue_py_check_type<UClass>(obj);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
-	if (actor->GetComponentByClass((UClass *)py_obj->ue_object))
+	if (actor->GetComponentByClass(u_class))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
-
+	Py_RETURN_TRUE;
 }
 
 PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject * args)
@@ -643,38 +638,19 @@ PyObject *py_ue_get_actor_component_by_type(ue_PyUObject * self, PyObject * args
 	PyObject *obj;
 	if (!PyArg_ParseTuple(args, "O:get_actor_component_by_type", &obj))
 	{
-		return NULL;
+		return nullptr;
 	}
-
-	ue_PyUObject *py_obj = nullptr;
-
-	if (ue_is_pyuobject(obj))
-	{
-		py_obj = (ue_PyUObject *)obj;
-	}
-	// shortcut for finding class by string
-	else if (PyUnicodeOrString_Check(obj))
-	{
-		char *class_name = PyUnicode_AsUTF8(obj);
-		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
-
-		if (u_class)
-		{
-			py_obj = ue_get_python_uobject(u_class);
-		}
-	}
-
-	if (!py_obj)
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 
-	if (!py_obj->ue_object->IsA<UClass>())
+	UClass *u_class = ue_py_check_type<UClass>(obj);
+	if (!u_class)
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
-	UActorComponent *component = actor->GetComponentByClass((UClass *)py_obj->ue_object);
+
+	UActorComponent *component = actor->GetComponentByClass(u_class);
 	if (component)
 	{
 		Py_RETURN_UOBJECT(component);
@@ -692,40 +668,20 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 	PyObject *obj;
 	if (!PyArg_ParseTuple(args, "O:get_actor_components_by_type", &obj))
 	{
-		return NULL;
+		return nullptr;
 	}
-
-	ue_PyUObject *py_obj = nullptr;
-
-	if (ue_is_pyuobject(obj))
-	{
-		py_obj = (ue_PyUObject *)obj;
-	}
-	// shortcut for finding class by string
-	else if (PyUnicodeOrString_Check(obj))
-	{
-		char *class_name = PyUnicode_AsUTF8(obj);
-		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
-
-		if (u_class)
-		{
-			py_obj = ue_get_python_uobject(u_class);
-		}
-	}
-
-	if (!py_obj)
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-
-	if (!py_obj->ue_object->IsA<UClass>())
-		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 
+	UClass *u_class = ue_py_check_type<UClass>(obj);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+
 	PyObject *components = PyList_New(0);
 
-	for (UActorComponent *component : actor->GetComponentsByClass((UClass *)py_obj->ue_object))
+	for (UActorComponent *component : actor->GetComponentsByClass(u_class))
 	{
 		ue_PyUObject *item = ue_get_python_uobject(component);
 		if (item)
@@ -793,11 +749,11 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 		FTransform transform;
 		transform.SetTranslation(location);
 		transform.SetRotation(rotation.Quaternion());
-		Py_BEGIN_ALLOW_THREADS
-			actor = world->SpawnActorDeferred<AActor>(u_class, transform);
-		Py_END_ALLOW_THREADS
-			if (!actor)
-				return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
+		Py_BEGIN_ALLOW_THREADS;
+		actor = world->SpawnActorDeferred<AActor>(u_class, transform);
+		Py_END_ALLOW_THREADS;
+		if (!actor)
+			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
 		ue_PyUObject *py_actor = ue_get_python_uobject_inc(actor);
 		if (!py_actor)
 			return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
@@ -814,17 +770,17 @@ PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwar
 			}
 		}
 		Py_DECREF(py_iter);
-		Py_BEGIN_ALLOW_THREADS
-			UGameplayStatics::FinishSpawningActor(actor, transform);
-		Py_END_ALLOW_THREADS
-			return (PyObject *)py_actor;
+		Py_BEGIN_ALLOW_THREADS;
+		UGameplayStatics::FinishSpawningActor(actor, transform);
+		Py_END_ALLOW_THREADS;
+		return (PyObject *)py_actor;
 	}
 
-	Py_BEGIN_ALLOW_THREADS
-		actor = world->SpawnActor(u_class, &location, &rotation);
-	Py_END_ALLOW_THREADS
-		if (!actor)
-			return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
+	Py_BEGIN_ALLOW_THREADS;
+	actor = world->SpawnActor(u_class, &location, &rotation);
+	Py_END_ALLOW_THREADS;
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "unable to spawn a new Actor");
 	Py_RETURN_UOBJECT(actor);
 
 }
@@ -834,15 +790,17 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
+	
+	PyObject *class_filter = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:get_overlapping_actors", &class_filter))
+	{
+		return nullptr;
+	}
+
 	AActor *actor = ue_get_actor(self);
 	if (!actor)
 		return PyErr_Format(PyExc_Exception, "cannot retrieve actor from UObject");
 
-	PyObject *class_filter = nullptr;
-	if (!PyArg_ParseTuple(args, "|O:get_overlapping_actors", &class_filter))
-	{
-		return NULL;
-	}
 
 	UClass *filtering = AActor::StaticClass();
 
@@ -899,7 +857,9 @@ PyObject *py_ue_actor_set_level_sequence(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a LevelSequence");
 	}
 
+	Py_BEGIN_ALLOW_THREADS;
 	actor->SetSequence(sequence);
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }

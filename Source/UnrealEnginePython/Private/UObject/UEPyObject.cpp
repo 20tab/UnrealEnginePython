@@ -665,7 +665,7 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 	int index = 0;
 	if (!PyArg_ParseTuple(args, "sO|i:set_property", &property_name, &property_value, &index))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	UStruct *u_struct = nullptr;
@@ -914,11 +914,15 @@ PyObject *py_ue_call(ue_PyUObject *self, PyObject * args)
 	char *call_args;
 	if (!PyArg_ParseTuple(args, "s:call", &call_args))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	FOutputDeviceNull od_null;
-	if (!self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true))
+	bool success = false;
+	Py_BEGIN_ALLOW_THREADS;
+	success = self->ue_object->CallFunctionByNameWithArguments(UTF8_TO_TCHAR(call_args), od_null, NULL, true);
+	Py_END_ALLOW_THREADS;
+	if (!success)
 	{
 		return PyErr_Format(PyExc_Exception, "error while calling \"%s\"", call_args);
 	}
@@ -934,7 +938,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 	char *property_name;
 	if (!PyArg_ParseTuple(args, "s:broadcast", &property_name))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
@@ -946,7 +950,9 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
 		uint8 *parms = (uint8 *)FMemory_Alloca(casted_prop->SignatureFunction->PropertiesSize);
 		FMemory::Memzero(parms, casted_prop->SignatureFunction->PropertiesSize);
+		Py_BEGIN_ALLOW_THREADS;
 		multiscript_delegate.ProcessMulticastDelegate<UObject>(parms);
+		Py_END_ALLOW_THREADS;
 	}
 	else
 	{
@@ -965,7 +971,7 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	int index = 0;
 	if (!PyArg_ParseTuple(args, "s|i:get_property", &property_name, &index))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	UStruct *u_struct = nullptr;

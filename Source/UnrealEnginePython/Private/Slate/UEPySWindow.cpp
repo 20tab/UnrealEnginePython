@@ -107,7 +107,9 @@ static PyObject *py_ue_swindow_add_modal(ue_PySWindow *self, PyObject * args)
 	{
 		parent_window = FModuleManager::LoadModuleChecked<IMainFrameModule>("MainFrame").GetParentWindow();
 	}
+	Py_BEGIN_ALLOW_THREADS;
 	FSlateApplication::Get().AddModalWindow(StaticCastSharedRef<SWindow>(py_SWindow->AsShared()), parent_window, false);
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 #endif
