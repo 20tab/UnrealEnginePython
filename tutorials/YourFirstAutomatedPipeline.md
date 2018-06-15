@@ -459,14 +459,15 @@ Its event graph manages the Speed variable for the blend space and the idle time
 ```python
 from unreal_engine.classes import AnimBlueprintFactory
 
-anim_bp_factory = AnimBlueprintFactory()
-anim_bp_factory.TargetSkeleton = slicer_mesh.Skeleton
 
 # ensure no blueprint with the same name exists
 # find_asset() returns None if the asset does not exist
 anim_bp = ue.find_asset('/Game/Kaiju/Slicer/slicer_AnimBP.slicer_AnimBP')
 if anim_bp:    
     ue.delete_asset(anim_bp.get_path_name())
+
+anim_bp_factory = AnimBlueprintFactory()
+anim_bp_factory.TargetSkeleton = slicer_mesh.Skeleton
 
 anim_bp = anim_bp_factory.factory_create_new('/Game/Kaiju/Slicer/slicer_AnimBP')
 ```
