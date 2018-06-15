@@ -3,6 +3,9 @@
 #include "PyCommandlet.h"
 
 #include "UEPyModule.h"
+#if WITH_EDITOR
+#include "Editor.h"
+#endif
 
 #include "Regex.h"
 
@@ -15,6 +18,11 @@ UPyCommandlet::UPyCommandlet(const FObjectInitializer& ObjectInitializer)
 int32 UPyCommandlet::Main(const FString& CommandLine)
 {
 	FScopePythonGIL gil;
+
+#if WITH_EDITOR
+	// this allows commandlet's to use factories
+	GEditor->Trans = GEditor->CreateTrans();
+#endif
 
 	TArray<FString> Tokens, Switches;
 	TMap<FString, FString> Params;
