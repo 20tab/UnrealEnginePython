@@ -265,19 +265,12 @@ PyObject *py_ue_set_material_texture_parameter(ue_PyUObject *self, PyObject * ar
 	PyObject *textureObject = nullptr;
 	if (!PyArg_ParseTuple(args, "sO:set_texture_parameter", &textureName, &textureObject))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(textureObject))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)textureObject;
-	if (!py_obj->ue_object->IsA<UTexture>())
+	UTexture *ue_texture = ue_py_check_type<UTexture>(textureObject);
+	if (!ue_texture)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UTexture");
-
-	UTexture *ue_texture = (UTexture *)py_obj->ue_object;
 
 	FName parameterName(UTF8_TO_TCHAR(textureName));
 

@@ -2052,15 +2052,11 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			return false;
 		if (PyObject_IsTrue(py_obj))
 		{
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, true, index);
-			Py_END_ALLOW_THREADS;
 		}
 		else
 		{
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, false, index);
-			Py_END_ALLOW_THREADS;
 		}
 		return true;
 	}
@@ -2070,54 +2066,42 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		if (auto casted_prop = Cast<UIntProperty>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_long), index);
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_long);
 			return true;
 		}
 		if (auto casted_prop = Cast<UUInt32Property>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLong(py_long), index);
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_long);
 			return true;
 		}
 		if (auto casted_prop = Cast<UInt64Property>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLongLong(py_long), index);
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_long);
 			return true;
 		}
 		if (auto casted_prop = Cast<UUInt64Property>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLongLong(py_long), index);
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_long);
 			return true;
 		}
 		if (auto casted_prop = Cast<UFloatProperty>(prop))
 		{
 			PyObject *py_float = PyNumber_Float(py_obj);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_float), index);
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_float);
 			return true;
 		}
 		if (auto casted_prop = Cast<UByteProperty>(prop))
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLong(py_long), index);
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_long);
 			return true;
 		}
@@ -2126,9 +2110,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			PyObject *py_long = PyNumber_Long(py_obj);
 			void *prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->GetUnderlyingProperty()->SetIntPropertyValue(prop_addr, (uint64)PyLong_AsUnsignedLong(py_long));
-			Py_END_ALLOW_THREADS;
 			Py_DECREF(py_long);
 			return true;
 		}
@@ -2142,23 +2124,17 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 	{
 		if (auto casted_prop = Cast<UStrProperty>(prop))
 		{
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)), index);
-			Py_END_ALLOW_THREADS;
 			return true;
 		}
 		if (auto casted_prop = Cast<UNameProperty>(prop))
 		{
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)), index);
-			Py_END_ALLOW_THREADS;
 			return true;
 		}
 		if (auto casted_prop = Cast<UTextProperty>(prop))
 		{
-			Py_BEGIN_ALLOW_THREADS;
 			casted_prop->SetPropertyValue_InContainer(buffer, FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj))), index);
-			Py_END_ALLOW_THREADS;
 			return true;
 		}
 		return false;
@@ -2176,7 +2152,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				Py_ssize_t pybytes_len = PyBytes_Size(py_obj);
 				uint8 *buf = (uint8 *)PyBytes_AsString(py_obj);
 
-				Py_BEGIN_ALLOW_THREADS;
+
 				// fix array helper size
 				if (helper.Num() < pybytes_len)
 				{
@@ -2189,7 +2165,6 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 
 
 				FMemory::Memcpy(helper.GetRawPtr(), buf, pybytes_len);
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2209,7 +2184,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				Py_ssize_t pybytes_len = PyByteArray_Size(py_obj);
 				uint8 *buf = (uint8 *)PyByteArray_AsString(py_obj);
 
-				Py_BEGIN_ALLOW_THREADS;
+
 				// fix array helper size
 				if (helper.Num() < pybytes_len)
 				{
@@ -2222,7 +2197,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 
 
 				FMemory::Memcpy(helper.GetRawPtr(), buf, pybytes_len);
-				Py_END_ALLOW_THREADS;
+
 				return true;
 			}
 		}
@@ -2341,9 +2316,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == TBaseStructure<FVector>::Get())
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				*casted_prop->ContainerPtrToValuePtr<FVector>(buffer, index) = py_vec->vec;
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2356,9 +2329,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == TBaseStructure<FRotator>::Get())
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				*casted_prop->ContainerPtrToValuePtr<FRotator>(buffer, index) = py_rot->rot;
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2371,9 +2342,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get())
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				*casted_prop->ContainerPtrToValuePtr<FTransform>(buffer, index) = py_transform->transform;
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2386,9 +2355,8 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == TBaseStructure<FColor>::Get())
 			{
-				Py_BEGIN_ALLOW_THREADS;
+
 				*casted_prop->ContainerPtrToValuePtr<FColor>(buffer, index) = py_color->color;
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2401,9 +2369,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == TBaseStructure<FLinearColor>::Get())
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				*casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer, index) = py_color->color;
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2416,9 +2382,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == FHitResult::StaticStruct())
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				*casted_prop->ContainerPtrToValuePtr<FHitResult>(buffer, index) = py_hit->hit;
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2433,10 +2397,8 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == py_u_struct->u_struct)
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				uint8 *dest = casted_prop->ContainerPtrToValuePtr<uint8>(buffer, index);
 				FMemory::Memcpy(dest, py_u_struct->data, py_u_struct->u_struct->GetStructureSize());
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 		}
@@ -2450,30 +2412,26 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (auto casted_prop = Cast<UClassProperty>(prop))
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				casted_prop->SetPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 			else if (auto casted_prop_soft_class = Cast<USoftClassProperty>(prop))
 			{
-				Py_BEGIN_ALLOW_THREADS;
 				casted_prop_soft_class->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
-				Py_END_ALLOW_THREADS;
 				return true;
 			}
 			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 			{
-				Py_BEGIN_ALLOW_THREADS;
+
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
-				Py_END_ALLOW_THREADS;
+
 				return true;
 			}
 			else if (auto casted_prop_weak_object = Cast<UWeakObjectProperty>(prop))
 			{
-				Py_BEGIN_ALLOW_THREADS;
+
 				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
-				Py_END_ALLOW_THREADS;
+	
 				return true;
 			}
 			else if (auto casted_prop_base = Cast<UObjectPropertyBase>(prop))
@@ -2481,9 +2439,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->IsA(casted_prop_base->PropertyClass))
 					return false;
-				Py_BEGIN_ALLOW_THREADS;
+			
 				casted_prop_base->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
-				Py_END_ALLOW_THREADS;
+			
 				return true;
 			}
 
@@ -2498,18 +2456,18 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
 					return false;
-				Py_BEGIN_ALLOW_THREADS;
+			
 				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
-				Py_END_ALLOW_THREADS;
+				
 				return true;
 			}
 			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 			{
 				if (!ue_obj->ue_object->IsA(casted_prop_soft_object->PropertyClass))
 					return false;
-				Py_BEGIN_ALLOW_THREADS;
+			
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
-				Py_END_ALLOW_THREADS;
+				
 				return true;
 			}
 			else if (auto casted_prop_interface = Cast<UInterfaceProperty>(prop))
@@ -2517,9 +2475,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->GetClass()->ImplementsInterface(casted_prop_interface->InterfaceClass))
 					return false;
-				Py_BEGIN_ALLOW_THREADS;
+			
 				casted_prop_interface->SetPropertyValue_InContainer(buffer, FScriptInterface(ue_obj->ue_object), index);
-				Py_END_ALLOW_THREADS;
+				
 				return true;
 			}
 		}
@@ -2531,17 +2489,17 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		auto casted_prop_class = Cast<UClassProperty>(prop);
 		if (casted_prop_class)
 		{
-			Py_BEGIN_ALLOW_THREADS;
+		
 			casted_prop_class->SetPropertyValue_InContainer(buffer, nullptr, index);
-			Py_END_ALLOW_THREADS;
+			
 			return true;
 		}
 		auto casted_prop = Cast<UObjectPropertyBase>(prop);
 		if (casted_prop)
 		{
-			Py_BEGIN_ALLOW_THREADS;
+		
 			casted_prop->SetObjectPropertyValue_InContainer(buffer, nullptr, index);
-			Py_END_ALLOW_THREADS;
+		
 			return true;
 		}
 		return false;

@@ -291,7 +291,9 @@ PyObject *py_ue_post_edit_change(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 #if WITH_EDITOR
+	Py_BEGIN_ALLOW_THREADS;
 	self->ue_object->PostEditChange();
+	Py_END_ALLOW_THREADS;
 #endif
 	Py_RETURN_NONE;
 }
@@ -325,8 +327,10 @@ PyObject *py_ue_post_edit_change_property(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", prop_name);
 
 #if WITH_EDITOR
+	Py_BEGIN_ALLOW_THREADS;
 	FPropertyChangedEvent changed(prop, change_type);
 	self->ue_object->PostEditChangeProperty(changed);
+	Py_END_ALLOW_THREADS;
 #endif
 	Py_RETURN_NONE;
 }
@@ -336,7 +340,9 @@ PyObject *py_ue_modify(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 #if WITH_EDITOR
+	Py_BEGIN_ALLOW_THREADS;
 	self->ue_object->Modify();
+	Py_END_ALLOW_THREADS;
 #endif
 	Py_RETURN_NONE;
 }
@@ -372,7 +378,9 @@ PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args)
 	}
 
 #if WITH_EDITOR
+	Py_BEGIN_ALLOW_THREADS;
 	self->ue_object->PreEditChange(prop);
+	Py_END_ALLOW_THREADS;
 #endif
 	Py_RETURN_NONE;
 }
@@ -558,8 +566,7 @@ PyObject *py_ue_set_name(ue_PyUObject *self, PyObject * args)
 
 	if (self->ue_object->Rename(UTF8_TO_TCHAR(name)))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
 	Py_RETURN_FALSE;
@@ -650,7 +657,9 @@ PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
+	Py_BEGIN_ALLOW_THREADS;
 	self->ue_object->SaveConfig();
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }
@@ -947,10 +956,10 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 	{
+		Py_BEGIN_ALLOW_THREADS;
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
 		uint8 *parms = (uint8 *)FMemory_Alloca(casted_prop->SignatureFunction->PropertiesSize);
 		FMemory::Memzero(parms, casted_prop->SignatureFunction->PropertiesSize);
-		Py_BEGIN_ALLOW_THREADS;
 		multiscript_delegate.ProcessMulticastDelegate<UObject>(parms);
 		Py_END_ALLOW_THREADS;
 	}
@@ -1176,12 +1185,10 @@ PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args)
 
 	if (self->ue_object->IsRooted())
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 
@@ -1192,8 +1199,7 @@ PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args)
 
 	self->ue_object->AddToRoot();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_auto_root(ue_PyUObject *self, PyObject * args)
@@ -1814,7 +1820,10 @@ PyObject *py_ue_import_custom_properties(ue_PyUObject * self, PyObject * args)
 	}
 
 	FFeedbackContextAnsi context;
+
+	Py_BEGIN_ALLOW_THREADS;
 	self->ue_object->ImportCustomProperties(UTF8_TO_TCHAR(t3d), &context);
+	Py_END_ALLOW_THREADS;
 
 	TArray<FString> errors;
 	context.GetErrors(errors);
@@ -1867,12 +1876,10 @@ PyObject *py_ue_asset_reimport(ue_PyUObject * self, PyObject * args)
 
 	if (FReimportManager::Instance()->Reimport(self->ue_object, ask_for_new_file, show_notification, f_filename))
 	{
-		Py_INCREF(Py_True);
-		return Py_True;
+		Py_RETURN_TRUE;
 	}
 
-	Py_INCREF(Py_False);
-	return Py_False;
+	Py_RETURN_FALSE;
 }
 
 PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
@@ -1894,11 +1901,15 @@ PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
 
 	TSet<UPackage *> refused;
 
+	UObject *new_asset = nullptr;
+
+	Py_BEGIN_ALLOW_THREADS;
 #if ENGINE_MINOR_VERSION < 14
-	UObject *new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused);
+	new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused);
 #else
-	UObject *new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused, (py_overwrite && PyObject_IsTrue(py_overwrite)));
+	new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused, (py_overwrite && PyObject_IsTrue(py_overwrite)));
 #endif
+	Py_END_ALLOW_THREADS;
 
 	if (!new_asset)
 		return PyErr_Format(PyExc_Exception, "unable to duplicate object");
