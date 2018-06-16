@@ -172,7 +172,6 @@ namespace
 			{
 				cmdString += argStr.TrimQuotes() + '\n';
 			}
-
 			UPythonBlueprintFunctionLibrary::ExecutePythonString(cmdString);
 		}
 	}

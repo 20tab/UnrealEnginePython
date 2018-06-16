@@ -22,6 +22,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 #if WITH_EDITOR
 	// this allows commandlet's to use factories
 	GEditor->Trans = GEditor->CreateTrans();
+
 #endif
 
 	TArray<FString> Tokens, Switches;

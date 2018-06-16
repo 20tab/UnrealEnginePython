@@ -19,6 +19,8 @@
 #include "HAL/PlatformApplicationMisc.h"
 #endif
 
+#include "Runtime/Launch/Public/LaunchEngineLoop.h"
+
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
 {
@@ -479,21 +481,38 @@ PyObject *py_unreal_engine_guid_to_string(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args)
 {
+	Py_BEGIN_ALLOW_THREADS;
 	FSlateApplication::Get().PumpMessages();
 	FSlateApplication::Get().Tick();
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args)
 {
 	float delta_seconds = FApp::GetDeltaTime();
-	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_bool))
+	PyObject *py_idle = nullptr;
+	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_idle))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	GEngine->Tick(delta_seconds, (py_bool && PyObject_IsTrue(py_bool)) ? true : false);
+	bool bIdle = false;
+	if (py_idle && PyObject_IsTrue(py_idle))
+		bIdle = true;
+
+	Py_BEGIN_ALLOW_THREADS;
+	GEngine->Tick(delta_seconds, bIdle);
+	Py_END_ALLOW_THREADS;
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_tick_rendering_tickables(PyObject * self, PyObject * args)
+{
+	Py_BEGIN_ALLOW_THREADS;
+	TickRenderingTickables();
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }
@@ -1250,7 +1269,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {

@@ -823,21 +823,26 @@ PyObject *py_unreal_engine_get_assets_by_filter(PyObject * self, PyObject * args
 
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:get_assets_by_filter", kw_names, &pyfilter, &py_return_asset_data))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	ue_PyFARFilter *filter = py_ue_is_farfilter(pyfilter);
-	if (!filter)
+	ue_PyFARFilter *py_filter = py_ue_is_farfilter(pyfilter);
+	if (!py_filter)
 		return PyErr_Format(PyExc_Exception, "Arg is not a FARFilter");
 
-	if (!GEditor)
-		return PyErr_Format(PyExc_Exception, "no GEditor found");
+	FARFilter& Filter = py_filter->filter;
 
-	py_ue_sync_farfilter((PyObject *)filter);
+	py_ue_sync_farfilter((PyObject *)py_filter);
+
 	TArray<FAssetData> assets;
+
+	Py_BEGIN_ALLOW_THREADS;
+
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	AssetRegistryModule.Get().SearchAllAssets(true);
-	AssetRegistryModule.Get().GetAssets(filter->filter, assets);
+	AssetRegistryModule.Get().GetAssets(Filter, assets);
+
+	Py_END_ALLOW_THREADS;
 
 	bool return_asset_data = false;
 	if (py_return_asset_data && PyObject_IsTrue(py_return_asset_data))
