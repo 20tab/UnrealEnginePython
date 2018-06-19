@@ -154,7 +154,7 @@ static PyObject *py_ue_process_key_char_event(PyObject *cls, PyObject * args)
 
 static PyObject *py_ue_create(PyObject *cls, PyObject * args)
 {
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MINOR_VERSION > 16
 	FSlateApplication::InitHighDPI();
 #endif
 	FSlateApplication::Create();
