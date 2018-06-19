@@ -7,7 +7,9 @@
 
 static PyObject *py_ue_fautomation_editor_common_utils_run_pie(PyObject *cls, PyObject * args)
 {
+	Py_BEGIN_ALLOW_THREADS;
 	FAutomationEditorCommonUtils::RunPIE();
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 
@@ -16,7 +18,9 @@ static PyObject *py_ue_fautomation_editor_common_utils_load_map(PyObject *cls, P
 	char *map_name;
 	if (!PyArg_ParseTuple(args, "s:load_map", &map_name))
 		return nullptr;
+	Py_BEGIN_ALLOW_THREADS;
 	FAutomationEditorCommonUtils::LoadMap(FString(UTF8_TO_TCHAR(map_name)));
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 

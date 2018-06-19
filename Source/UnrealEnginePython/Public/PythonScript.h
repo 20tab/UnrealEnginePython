@@ -23,9 +23,6 @@ public:
 	UFUNCTION()
 		void Run();
 
-	UFUNCTION()
-		void RunSandboxed();
-
 	void CallSpecificFunctionWithArgs();
 };
 

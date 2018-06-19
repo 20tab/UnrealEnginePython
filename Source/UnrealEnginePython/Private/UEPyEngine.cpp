@@ -19,6 +19,8 @@
 #include "HAL/PlatformApplicationMisc.h"
 #endif
 
+#include "Runtime/Launch/Public/LaunchEngineLoop.h"
+
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
 {
@@ -479,21 +481,38 @@ PyObject *py_unreal_engine_guid_to_string(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_slate_tick(PyObject * self, PyObject * args)
 {
+	Py_BEGIN_ALLOW_THREADS;
 	FSlateApplication::Get().PumpMessages();
 	FSlateApplication::Get().Tick();
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args)
 {
 	float delta_seconds = FApp::GetDeltaTime();
-	PyObject *py_bool = nullptr;
-	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_bool))
+	PyObject *py_idle = nullptr;
+	if (!PyArg_ParseTuple(args, "|fO:engine_tick", &delta_seconds, &py_idle))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	GEngine->Tick(delta_seconds, (py_bool && PyObject_IsTrue(py_bool)) ? true : false);
+	bool bIdle = false;
+	if (py_idle && PyObject_IsTrue(py_idle))
+		bIdle = true;
+
+	Py_BEGIN_ALLOW_THREADS;
+	GEngine->Tick(delta_seconds, bIdle);
+	Py_END_ALLOW_THREADS;
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_tick_rendering_tickables(PyObject * self, PyObject * args)
+{
+	Py_BEGIN_ALLOW_THREADS;
+	TickRenderingTickables();
+	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
 }
@@ -530,20 +549,12 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	uint64 flags = (uint64)(RF_Public);
 	if (!PyArg_ParseTuple(args, "O|OsK:new_object", &obj, &py_outer, &name, &flags))
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	if (!ue_is_pyuobject(obj))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-
-	if (!py_obj->ue_object->IsA<UClass>())
+	UClass *obj_class = ue_py_check_type<UClass>(obj);
+	if (!obj_class)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
-
-	UClass *obj_class = (UClass *)py_obj->ue_object;
 
 	FName f_name = NAME_None;
 
@@ -556,21 +567,20 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 
 	if (py_outer && py_outer != Py_None)
 	{
-		if (!ue_is_pyuobject(py_outer))
-		{
+		outer = ue_py_check_type<UObject>(py_outer);
+		if (!outer)
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-		}
-
-		ue_PyUObject *py_outer_obj = (ue_PyUObject *)py_outer;
-
-		outer = py_outer_obj->ue_object;
 	}
 
-	UObject *new_object = NewObject<UObject>(outer, obj_class, f_name, (EObjectFlags)flags);
+	UObject *new_object = nullptr;
+	Py_BEGIN_ALLOW_THREADS;
+	new_object = NewObject<UObject>(outer, obj_class, f_name, (EObjectFlags)flags);
+	if (new_object)
+		new_object->PostLoad();
+	Py_END_ALLOW_THREADS;
+
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
-
-	new_object->PostLoad();
 
 	Py_RETURN_UOBJECT(new_object);
 }
@@ -579,7 +589,7 @@ PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
 {
 
 	PyObject *obj;
-	if (!PyArg_ParseTuple(args, "O|Os:new_object", &obj))
+	if (!PyArg_ParseTuple(args, "O|Os:get_mutable_default", &obj))
 	{
 		return NULL;
 	}
@@ -1259,7 +1269,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {

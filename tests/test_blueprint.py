@@ -50,3 +50,6 @@ class TestBlueprint(unittest.TestCase):
         new_actor.TestEvent()
         self.assertEqual(new_actor.get_actor_location(), FVector(17, 30, 22))
 
+
+if __name__ == '__main__':
+    unittest.main(exit=False)

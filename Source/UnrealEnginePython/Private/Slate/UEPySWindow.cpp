@@ -107,7 +107,9 @@ static PyObject *py_ue_swindow_add_modal(ue_PySWindow *self, PyObject * args)
 	{
 		parent_window = FModuleManager::LoadModuleChecked<IMainFrameModule>("MainFrame").GetParentWindow();
 	}
+	Py_BEGIN_ALLOW_THREADS;
 	FSlateApplication::Get().AddModalWindow(StaticCastSharedRef<SWindow>(py_SWindow->AsShared()), parent_window, false);
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 #endif
@@ -213,7 +215,7 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 #endif
 
 	PyObject *on_closed = ue_py_dict_get_item(kwargs, "on_closed");
-	if (on_closed && PyCalllable_Check_Extended(on_closed))
+	if (on_closed && PyCallable_Check(on_closed))
 	{
 		FOnWindowClosed handler;
 		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_compound_widget.s_widget.Widget, on_closed);

@@ -157,20 +157,9 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	UEPyGlobalState = PyEval_SaveThread();
 	PythonModule.RunFile(filename);
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *py_unreal_engine_sandbox_exec(PyObject * self, PyObject * args)
-{
-	char *filename = nullptr;
-	if (!PyArg_ParseTuple(args, "s:sandbox_exec", &filename))
-	{
-		return NULL;
-	}
-	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	PythonModule.RunFileSandboxed(filename, nullptr, nullptr);
+	PyEval_RestoreThread(UEPyGlobalState);
 	Py_RETURN_NONE;
 }
 
@@ -372,6 +361,7 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "engine_tick", py_unreal_engine_engine_tick, METH_VARARGS, "" },
+	{ "tick_rendering_tickables", py_unreal_engine_tick_rendering_tickables, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "all_viewport_clients", py_unreal_engine_all_viewport_clients , METH_VARARGS, "" },
 #endif
@@ -401,8 +391,6 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
 #endif
 	{ "py_exec", py_unreal_engine_exec, METH_VARARGS, "" },
-
-	{ "sandbox_exec", py_unreal_engine_sandbox_exec, METH_VARARGS, "" },
 
 	{ "get_engine_defined_action_mappings", py_unreal_engine_get_engine_defined_action_mappings, METH_VARARGS, "" },
 
@@ -793,7 +781,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_instanced_foliage_actor_for_current_level", (PyCFunction)py_ue_get_instanced_foliage_actor_for_current_level, METH_VARARGS, "" },
 	{ "get_instanced_foliage_actor_for_level", (PyCFunction)py_ue_get_instanced_foliage_actor_for_level, METH_VARARGS, "" },
 	{ "get_foliage_types", (PyCFunction)py_ue_get_foliage_types, METH_VARARGS, "" },
-	
+
 
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "add_instance_component", (PyCFunction)py_ue_add_instance_component, METH_VARARGS, "" },
@@ -2163,6 +2151,8 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			{
 
 				Py_ssize_t pybytes_len = PyBytes_Size(py_obj);
+				uint8 *buf = (uint8 *)PyBytes_AsString(py_obj);
+
 
 				// fix array helper size
 				if (helper.Num() < pybytes_len)
@@ -2174,7 +2164,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 					helper.RemoveValues(pybytes_len, helper.Num() - pybytes_len);
 				}
 
-				uint8 *buf = (uint8 *)PyBytes_AsString(py_obj);
+
 				FMemory::Memcpy(helper.GetRawPtr(), buf, pybytes_len);
 				return true;
 			}
@@ -2193,6 +2183,8 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			{
 
 				Py_ssize_t pybytes_len = PyByteArray_Size(py_obj);
+				uint8 *buf = (uint8 *)PyByteArray_AsString(py_obj);
+
 
 				// fix array helper size
 				if (helper.Num() < pybytes_len)
@@ -2204,8 +2196,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 					helper.RemoveValues(pybytes_len, helper.Num() - pybytes_len);
 				}
 
-				uint8 *buf = (uint8 *)PyByteArray_AsString(py_obj);
+
 				FMemory::Memcpy(helper.GetRawPtr(), buf, pybytes_len);
+
 				return true;
 			}
 		}
@@ -2363,6 +2356,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (casted_prop->Struct == TBaseStructure<FColor>::Get())
 			{
+
 				*casted_prop->ContainerPtrToValuePtr<FColor>(buffer, index) = py_color->color;
 				return true;
 			}
@@ -2429,12 +2423,16 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			}
 			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 			{
+
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
+
 				return true;
 			}
 			else if (auto casted_prop_weak_object = Cast<UWeakObjectProperty>(prop))
 			{
+
 				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
+	
 				return true;
 			}
 			else if (auto casted_prop_base = Cast<UObjectPropertyBase>(prop))
@@ -2442,7 +2440,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->IsA(casted_prop_base->PropertyClass))
 					return false;
+			
 				casted_prop_base->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
+			
 				return true;
 			}
 
@@ -2457,14 +2457,18 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
 					return false;
+			
 				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
+				
 				return true;
 			}
 			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 			{
 				if (!ue_obj->ue_object->IsA(casted_prop_soft_object->PropertyClass))
 					return false;
+			
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
+				
 				return true;
 			}
 			else if (auto casted_prop_interface = Cast<UInterfaceProperty>(prop))
@@ -2472,7 +2476,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->GetClass()->ImplementsInterface(casted_prop_interface->InterfaceClass))
 					return false;
+			
 				casted_prop_interface->SetPropertyValue_InContainer(buffer, FScriptInterface(ue_obj->ue_object), index);
+				
 				return true;
 			}
 		}
@@ -2484,13 +2490,17 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		auto casted_prop_class = Cast<UClassProperty>(prop);
 		if (casted_prop_class)
 		{
+		
 			casted_prop_class->SetPropertyValue_InContainer(buffer, nullptr, index);
+			
 			return true;
 		}
 		auto casted_prop = Cast<UObjectPropertyBase>(prop);
 		if (casted_prop)
 		{
+		
 			casted_prop->SetObjectPropertyValue_InContainer(buffer, nullptr, index);
+		
 			return true;
 		}
 		return false;
@@ -2662,8 +2672,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 				return PyErr_Format(PyExc_Exception, "UFunction has no SuperFunction");
 			}
 			u_function = u_function->GetSuperFunction();
+			}
 		}
-	}
 
 	//NOTE: u_function->PropertiesSize maps to local variable uproperties + ufunction paramaters uproperties
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
@@ -2745,7 +2755,9 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 	FScopeCycleCounterUObject ObjectScope(u_obj);
 	FScopeCycleCounterUObject FunctionScope(u_function);
 
+	Py_BEGIN_ALLOW_THREADS;
 	u_obj->ProcessEvent(u_function, buffer);
+	Py_END_ALLOW_THREADS;
 
 	PyObject *ret = nullptr;
 
@@ -2809,7 +2821,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	Py_INCREF(Py_None);
 	return Py_None;
-}
+	}
 
 PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property)
 {
@@ -3127,9 +3139,9 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm))
 			{
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
-			}
 		}
 	}
+		}
 
 	if (parent_function)
 	{

@@ -16,8 +16,6 @@ public:
 
 	void Execute() const;
 
-	void ExecuteInSandbox() const;
-
 	void GotoLineAndColumn(int32 LineNumber, int32 ColumnNumber);
 
 	void PEP8ize() const;

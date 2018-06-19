@@ -3,6 +3,9 @@
 #include "PyCommandlet.h"
 
 #include "UEPyModule.h"
+#if WITH_EDITOR
+#include "Editor.h"
+#endif
 
 #include "Regex.h"
 
@@ -15,6 +18,12 @@ UPyCommandlet::UPyCommandlet(const FObjectInitializer& ObjectInitializer)
 int32 UPyCommandlet::Main(const FString& CommandLine)
 {
 	FScopePythonGIL gil;
+
+#if WITH_EDITOR
+	// this allows commandlet's to use factories
+	GEditor->Trans = GEditor->CreateTrans();
+
+#endif
 
 	TArray<FString> Tokens, Switches;
 	TMap<FString, FString> Params;
@@ -94,12 +103,16 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 		strcpy_s(argv[i], PyArgv[i].Len() + 1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
 #endif
 #endif
-}
+	}
 
 	PySys_SetArgv(PyArgv.Num(), argv);
+
+	Py_BEGIN_ALLOW_THREADS;
 
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
 	PythonModule.BrutalFinalize = true;
 	PythonModule.RunFile(TCHAR_TO_UTF8(*Filepath));
+
+	Py_END_ALLOW_THREADS;
 	return 0;
 }

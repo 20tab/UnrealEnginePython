@@ -343,7 +343,9 @@ PyObject *py_unreal_engine_in_editor_capture(PyObject * self, PyObject * args)
 		Captures.Add(capture);
 	}
 
+	Py_BEGIN_ALLOW_THREADS
 	FInEditorMultiCapture::CreateInEditorMultiCapture(Captures);
+	Py_END_ALLOW_THREADS
 
 	Py_RETURN_NONE;
 }

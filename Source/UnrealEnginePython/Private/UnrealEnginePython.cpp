@@ -67,29 +67,9 @@ bool PyUnicodeOrString_Check(PyObject *py_obj)
 
 #define LOCTEXT_NAMESPACE "FUnrealEnginePythonModule"
 
+UNREALENGINEPYTHON_API PyThreadState* UEPyGlobalState;
 
-void FUnrealEnginePythonModule::PythonGILRelease()
-{
-#if defined(UEPY_THREADING)
-	if (PyGILState_Check() == 1)
-	{
-		ue_python_gil = PyEval_SaveThread();
-	}
-#endif
-}
 
-bool FUnrealEnginePythonModule::PythonGILAcquire()
-{
-#if defined(UEPY_THREADING)
-	if (PyGILState_Check() == 0)
-	{
-		PyEval_RestoreThread((PyThreadState *)ue_python_gil);
-		return true;
-	}
-	return false;
-#endif
-	return true;
-}
 
 void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 {
@@ -192,7 +172,6 @@ namespace
 			{
 				cmdString += argStr.TrimQuotes() + '\n';
 			}
-
 			UPythonBlueprintFunctionLibrary::ExecutePythonString(cmdString);
 		}
 	}
@@ -301,7 +280,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 	ScriptsPaths.Add(ProjectScriptsPath);
 
-  #if WITH_EDITOR
+#if WITH_EDITOR
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
 	{
 		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
@@ -310,7 +289,7 @@ void FUnrealEnginePythonModule::StartupModule()
 			ScriptsPaths.Add(PluginScriptsPath);
 		}
 	}
-  #endif
+#endif
 
 	if (ZipPath.IsEmpty())
 	{
@@ -393,8 +372,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	// release the GIL
-	PythonGILRelease();
-
+	UEPyGlobalState = PyEval_SaveThread();
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()
@@ -405,7 +383,7 @@ void FUnrealEnginePythonModule::ShutdownModule()
 	UE_LOG(LogPython, Log, TEXT("Goodbye Python"));
 	if (!BrutalFinalize)
 	{
-		PythonGILAcquire();
+		PyGILState_Ensure();
 		Py_Finalize();
 	}
 }
@@ -413,6 +391,7 @@ void FUnrealEnginePythonModule::ShutdownModule()
 void FUnrealEnginePythonModule::RunString(char *str)
 {
 	FScopePythonGIL gil;
+
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret)
 	{
@@ -424,6 +403,8 @@ void FUnrealEnginePythonModule::RunString(char *str)
 
 FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 {
+	FScopePythonGIL gil;
+
 	PyObject *pep8izer_module = PyImport_ImportModule("autopep8");
 	if (!pep8izer_module)
 	{
@@ -464,48 +445,6 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 	return NewCode;
 }
 
-// run a python string in a new sub interpreter
-void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
-{
-	FScopePythonGIL gil;
-
-	PyThreadState *_main = PyThreadState_Get();
-
-	PyThreadState *py_new_state = Py_NewInterpreter();
-	if (!py_new_state)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to create new Python interpreter"));
-		return;
-	}
-	PyThreadState_Swap(nullptr);
-	PyThreadState_Swap(py_new_state);
-
-	UESetupPythonInterpreter(false);
-
-	setup_stdout_stderr();
-
-	PyObject *m = PyImport_AddModule("__main__");
-	if (m == NULL)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to create new global dict"));
-		Py_EndInterpreter(py_new_state);
-		PyThreadState_Swap(_main);
-		return;
-	}
-	PyObject *global_dict = PyModule_GetDict(m);
-
-	PyObject *eval_ret = PyRun_String(str, Py_file_input, global_dict, global_dict);
-	if (!eval_ret)
-	{
-		unreal_engine_py_log_error();
-		Py_EndInterpreter(py_new_state);
-		PyThreadState_Swap(_main);
-		return;
-	}
-
-	Py_EndInterpreter(py_new_state);
-	PyThreadState_Swap(_main);
-}
 
 void FUnrealEnginePythonModule::RunFile(char *filename)
 {
@@ -523,6 +462,10 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 				break;
 			}
 		}
+	}
+	else
+	{
+		foundFile = true;
 	}
 
 	if (!foundFile)
@@ -570,103 +513,6 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 
 }
 
-// run a python script in a new sub interpreter (useful for unit tests)
-void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)(void *arg), void *arg)
-{
-	FScopePythonGIL gil;
-	FString full_path = filename;
-	bool foundFile = false;
-	if (!FPaths::FileExists(filename))
-	{
-		for (FString ScriptsPath : ScriptsPaths)
-		{
-			full_path = FPaths::Combine(*ScriptsPath, full_path);
-			if (FPaths::FileExists(full_path))
-			{
-				foundFile = true;
-				break;
-			}
-		}
-	}
-
-	if (!foundFile)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), UTF8_TO_TCHAR(filename));
-		return;
-	}
-
-	PyThreadState *_main = PyThreadState_Get();
-
-	PyThreadState *py_new_state = Py_NewInterpreter();
-	if (!py_new_state)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to create new Python interpreter"));
-		return;
-	}
-	PyThreadState_Swap(nullptr);
-	PyThreadState_Swap(py_new_state);
-
-	UESetupPythonInterpreter(false);
-
-	setup_stdout_stderr();
-
-	PyObject *m = PyImport_AddModule("__main__");
-	if (m == NULL)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to create new global dict"));
-		Py_EndInterpreter(py_new_state);
-		PyThreadState_Swap(_main);
-		return;
-	}
-	PyObject *global_dict = PyModule_GetDict(m);
-
-#if PY_MAJOR_VERSION >= 3
-	FILE *fd = nullptr;
-
-#if PLATFORM_WINDOWS
-	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
-		return;
-	}
-#else
-	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");
-	if (!fd)
-	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
-		return;
-	}
-#endif
-
-	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, global_dict, global_dict);
-	fclose(fd);
-	if (!eval_ret)
-	{
-		unreal_engine_py_log_error();
-		Py_EndInterpreter(py_new_state);
-		PyThreadState_Swap(_main);
-		return;
-	}
-	Py_DECREF(eval_ret);
-#else
-	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
-	FString command = FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
-	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, global_dict, global_dict);
-	if (!eval_ret)
-	{
-		unreal_engine_py_log_error();
-		Py_EndInterpreter(py_new_state);
-		PyThreadState_Swap(_main);
-		return;
-	}
-#endif
-
-	if (callback)
-		callback(arg);
-
-	Py_EndInterpreter(py_new_state);
-	PyThreadState_Swap(_main);
-}
 
 void ue_py_register_magic_module(char *name, PyObject *(*func)())
 {

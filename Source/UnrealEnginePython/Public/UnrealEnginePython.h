@@ -8,7 +8,6 @@
 
 
 //#define UEPY_MEMORY_DEBUG	1
-//#define UEPY_THREADING 1
 
 #if defined(UNREAL_ENGINE_PYTHON_ON_MAC)
 #include <Headers/Python.h>
@@ -31,9 +30,6 @@
 #include "Styling/SlateStyle.h"
 #include "UObject/ScriptMacros.h"
 #include "Runtime/Launch/Resources/Version.h"
-
-// We need to make sure reference structs do not mistaken for callable
-#define PyCalllable_Check_Extended(value) PyCallable_Check(value) && py_ue_is_uscriptstruct(value) == nullptr
 
 typedef struct
 {
@@ -99,16 +95,11 @@ class UNREALENGINEPYTHON_API FUnrealEnginePythonModule : public IModuleInterface
 {
 public:
 
-	bool PythonGILAcquire();
-	void PythonGILRelease();
-
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
 	void RunString(char *);
-	void RunStringSandboxed(char *);
 	void RunFile(char *);
-	void RunFileSandboxed(char *, void(*callback)(void *arg), void *arg);
 
 	void UESetupPythonInterpreter(bool);
 
@@ -131,30 +122,20 @@ private:
 	TSharedPtr<FSlateStyleSet> StyleSet;
 };
 
-
+UNREALENGINEPYTHON_API extern PyThreadState* UEPyGlobalState;
 
 struct FScopePythonGIL
 {
+
 	FScopePythonGIL()
 	{
-#if defined(UEPY_THREADING)
-		UnrealEnginePythonModule = FModuleManager::LoadModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-		safeForRelease = UnrealEnginePythonModule.PythonGILAcquire();
-#endif
+		PyEval_RestoreThread(UEPyGlobalState);
 	}
 
 	~FScopePythonGIL()
 	{
-#if defined(UEPY_THREADING)
-		if (safeForRelease)
-		{
-			UnrealEnginePythonModule.PythonGILRelease();
-		}
-#endif
+		UEPyGlobalState = PyEval_SaveThread();
 	}
-
-	FUnrealEnginePythonModule UnrealEnginePythonModule;
-	bool safeForRelease;
 };
 
 

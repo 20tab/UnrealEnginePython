@@ -24,7 +24,7 @@ static PyObject *py_ue_sbutton_bind_on_clicked(ue_PySButton *self, PyObject * ar
 		return nullptr;
 	}
 
-	if (!PyCalllable_Check_Extended(py_callable))
+	if (!PyCallable_Check(py_callable))
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 	}
