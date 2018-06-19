@@ -4,6 +4,7 @@
 
 #include "WorkflowCentricApplication.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowTabManager.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 class FPythonProjectEditor : public FWorkflowCentricApplication, public FGCObject
 {
@@ -103,5 +104,7 @@ protected:
 	static TWeakPtr<FPythonProjectEditor> PythonEditor;
 
 	virtual bool CanSaveAsset() const override { return false; }
+#if ENGINE_MINOR_VERSION > 15
 	virtual bool CanFindInContentBrowser() const override { return false; }
+#endif
 };

@@ -154,7 +154,9 @@ static PyObject *py_ue_process_key_char_event(PyObject *cls, PyObject * args)
 
 static PyObject *py_ue_create(PyObject *cls, PyObject * args)
 {
+#if ENGINE_MINOR_VERSION > 15
 	FSlateApplication::InitHighDPI();
+#endif
 	FSlateApplication::Create();
 
 	TSharedRef<FSlateRenderer> SlateRenderer = FModuleManager::Get().LoadModuleChecked<ISlateRHIRendererModule>("SlateRHIRenderer").CreateSlateRHIRenderer();
