@@ -104,7 +104,7 @@ protected:
 	static TWeakPtr<FPythonProjectEditor> PythonEditor;
 
 	virtual bool CanSaveAsset() const override { return false; }
-#if ENGINE_MINOR_VERSION > 16
+#if ENGINE_MINOR_VERSION > 17
 	virtual bool CanFindInContentBrowser() const override { return false; }
 #endif
 };
