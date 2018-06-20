@@ -679,7 +679,7 @@ void ue_py_register_magic_module(char *name, PyObject *(*func)())
 	PyDict_SetItemString(py_sys_modules, name, u_module);
 }
 
-PyObject *ue_py_register_module(char *name)
+PyObject *ue_py_register_module(const char *name)
 {
 	return PyImport_AddModule(name);
 }

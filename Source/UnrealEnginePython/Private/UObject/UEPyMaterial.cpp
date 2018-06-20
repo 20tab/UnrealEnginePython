@@ -89,6 +89,56 @@ PyObject *py_ue_get_material_sampler_count(ue_PyUObject *self, PyObject * args)
 #include "Components/PrimitiveComponent.h"
 #include "Engine/StaticMesh.h"
 
+PyObject *py_ue_set_material_by_name(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *slot_name;
+	PyObject *py_mat;
+	if (!PyArg_ParseTuple(args, "sO:set_material_by_name", &slot_name, &py_mat))
+	{
+		return nullptr;
+	}
+
+	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
+	if (!primitive)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
+
+	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
+	if (!material)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
+
+	primitive->SetMaterialByName(FName(UTF8_TO_TCHAR(slot_name)), material);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int slot;
+	PyObject *py_mat;
+	if (!PyArg_ParseTuple(args, "iO:set_material", &slot, &py_mat))
+	{
+		return nullptr;
+	}
+
+	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
+	if (!primitive)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
+
+	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
+	if (!material)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
+
+	primitive->SetMaterial(slot, material);
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * args)
 {
 
@@ -382,44 +432,6 @@ PyObject *py_ue_create_material_instance_dynamic(ue_PyUObject *self, PyObject * 
 	Py_RETURN_UOBJECT(material_dynamic);
 }
 
-PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
-{
-
-	ue_py_check(self);
-
-	int index;
-	PyObject *py_material = nullptr;
-
-	if (!PyArg_ParseTuple(args, "iO:set_material", &index, &py_material))
-	{
-		return NULL;
-	}
-
-	if (!self->ue_object->IsA<UPrimitiveComponent>())
-	{
-		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
-	}
-
-	UPrimitiveComponent *component = (UPrimitiveComponent *)self->ue_object;
-
-	if (!ue_is_pyuobject(py_material))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
-
-	if (!py_obj->ue_object->IsA<UMaterialInterface>())
-	{
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
-	}
-
-	UMaterialInterface *material_interface = (UMaterialInterface *)py_obj->ue_object;
-
-	component->SetMaterial(index, material_interface);
-
-	Py_RETURN_NONE;
-}
 
 
 #if WITH_EDITOR

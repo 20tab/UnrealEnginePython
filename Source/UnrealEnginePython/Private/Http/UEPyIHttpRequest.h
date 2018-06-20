@@ -8,16 +8,17 @@
 
 extern PyTypeObject ue_PyIHttpBaseType;
 
+class FPythonSmartHttpDelegate;
+
 typedef struct
 {
 	ue_PyIHttpBase base;
 	/* Type-specific fields go here. */
 	TSharedRef<IHttpRequest> http_request;
+	TSharedPtr<FPythonSmartHttpDelegate> on_process_request_complete;
+	TSharedPtr<FPythonSmartHttpDelegate> on_request_progress;
 	PyObject *py_dict;
 } ue_PyIHttpRequest;
-
-
-void ue_python_init_ihttp_request(PyObject *);
 
 class FPythonSmartHttpDelegate : public FPythonSmartDelegate
 {
@@ -39,3 +40,7 @@ public:
 protected:
 	ue_PyIHttpRequest * py_http_request;
 };
+
+
+
+void ue_python_init_ihttp_request(PyObject *);

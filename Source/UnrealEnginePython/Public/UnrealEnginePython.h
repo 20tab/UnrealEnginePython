@@ -49,7 +49,7 @@ typedef struct
 } ue_PyUObject;
 
 UNREALENGINEPYTHON_API void ue_py_register_magic_module(char *name, PyObject *(*)());
-UNREALENGINEPYTHON_API PyObject *ue_py_register_module(char *);
+UNREALENGINEPYTHON_API PyObject *ue_py_register_module(const char *);
 
 #if ENGINE_MINOR_VERSION >= 18
 #define FStringAssetReference FSoftObjectPath

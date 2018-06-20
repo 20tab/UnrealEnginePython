@@ -38,6 +38,7 @@
 #include "UObject/UEPyUserDefinedStruct.h"
 #include "UObject/UEPyDataTable.h"
 #include "UObject/UEPyExporter.h"
+#include "UObject/UEPyFoliage.h"
 
 
 #include "UEPyAssetUserData.h"
@@ -75,6 +76,8 @@
 #if WITH_EDITOR
 #include "Wrappers/UEPyFEditorViewportClient.h"
 #endif
+
+#include "Wrappers/UEPyFFoliageInstance.h"
 
 #include "UEPyCallable.h"
 #include "UEPyUClassesImporter.h"
@@ -858,9 +861,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 #if WITH_EDITOR
 	{ "add_foliage_asset", (PyCFunction)py_ue_add_foliage_asset, METH_VARARGS, "" },
+	{ "get_foliage_instances", (PyCFunction)py_ue_get_foliage_instances, METH_VARARGS, "" },
 #endif
 	{ "get_instanced_foliage_actor_for_current_level", (PyCFunction)py_ue_get_instanced_foliage_actor_for_current_level, METH_VARARGS, "" },
-
+	{ "get_instanced_foliage_actor_for_level", (PyCFunction)py_ue_get_instanced_foliage_actor_for_level, METH_VARARGS, "" },
+	{ "get_foliage_types", (PyCFunction)py_ue_get_foliage_types, METH_VARARGS, "" },
+	
 
 	{ "add_actor_component", (PyCFunction)py_ue_add_actor_component, METH_VARARGS, "" },
 	{ "add_instance_component", (PyCFunction)py_ue_add_instance_component, METH_VARARGS, "" },
@@ -1080,6 +1086,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	// Material
 	{ "set_material", (PyCFunction)py_ue_set_material, METH_VARARGS, "" },
+	{ "set_material_by_name", (PyCFunction)py_ue_set_material_by_name, METH_VARARGS, "" },
 	{ "set_material_scalar_parameter", (PyCFunction)py_ue_set_material_scalar_parameter, METH_VARARGS, "" },
 	{ "set_material_vector_parameter", (PyCFunction)py_ue_set_material_vector_parameter, METH_VARARGS, "" },
 	{ "set_material_texture_parameter", (PyCFunction)py_ue_set_material_texture_parameter, METH_VARARGS, "" },
@@ -1596,6 +1603,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_enumsimporter(new_unreal_engine_module);
 	ue_python_init_ustructsimporter(new_unreal_engine_module);
 
+	ue_python_init_ffoliage_instance(new_unreal_engine_module);
 
 #if WITH_EDITOR
 	ue_python_init_fslowtask(new_unreal_engine_module);
@@ -2526,12 +2534,12 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
 				return true;
 			}
-			else if (auto casted_prop = Cast<UObjectPropertyBase>(prop))
+			else if (auto casted_prop_base = Cast<UObjectPropertyBase>(prop))
 			{
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
-				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+				if (!ue_obj->ue_object->IsA(casted_prop_base->PropertyClass))
 					return false;
-				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
+				casted_prop_base->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
 				return true;
 			}
 

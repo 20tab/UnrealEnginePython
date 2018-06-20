@@ -173,7 +173,7 @@ class Hero(Character):
     # this new static method will be available to blueprints
     def FunnyStaticMethod():
         ue.print_string('I am a static method')
-    FunnyNewMethod.static = True
+    FunnyStaticMethod.static = True
 ```
 
 Events can be easily exposed like this:

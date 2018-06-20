@@ -9,7 +9,8 @@ IMPLEMENT_MODULE(FPythonAutomationModule, PythonAutomation);
 
 void FPythonAutomationModule::StartupModule()
 {
-	PyObject *py_automation_module = ue_py_register_module((char *)"unreal_engine.automation");
+	FScopePythonGIL gil;
+	PyObject *py_automation_module = ue_py_register_module("unreal_engine.automation");
 	ue_python_init_fautomation_editor_common_utils(py_automation_module);
 }
 
