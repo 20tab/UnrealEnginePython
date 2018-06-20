@@ -209,10 +209,21 @@ PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	UStructProperty *prop = Cast<UStructProperty>(u_property);
-	if (!prop)
-		return PyErr_Format(PyExc_Exception, "object is not a StructProperty");
-	return py_ue_new_uscriptstruct(prop->Struct, prop->ContainerPtrToValuePtr<uint8>(self->ue_object));
+    UStruct* ret_prop_ustruct = nullptr;
+    if (UObjectPropertyBase* uobj_prop = Cast<UObjectPropertyBase>(u_property))
+    {
+        ret_prop_ustruct = uobj_prop->PropertyClass;
+    }
+    else if (UStructProperty* ustruct_prop = Cast<UStructProperty>(u_property))
+    {
+        ret_prop_ustruct = ustruct_prop->Struct;
+    }
+    else
+    {
+        ret_prop_ustruct = u_property->GetClass();
+    }
+
+    Py_RETURN_UOBJECT(ret_prop_ustruct);
 }
 
 PyObject *py_ue_output_referencers(ue_PyUObject *self, PyObject * args)
@@ -346,22 +357,22 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args)
 	{
 		return NULL;
 	}
+    
+	if (!self->ue_object->IsA<UStruct>())
+		return PyErr_Format(PyExc_Exception, "object is not a UStruct");
 
-	if (!self->ue_object->IsA<UClass>())
-		return PyErr_Format(PyExc_Exception, "object is not a UClass");
-
-	if (!ue_is_pyuobject(obj))
+	ue_PyUObject *py_obj = ue_is_pyuobject(obj);
+	if (!py_obj)
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
-	if (!py_obj->ue_object->IsA<UClass>())
-		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	if (!py_obj->ue_object->IsA<UStruct>())
+		return PyErr_Format(PyExc_Exception, "argument is not a UStruct");
 
-	UClass *parent = (UClass *)py_obj->ue_object;
-	UClass *child = (UClass *)self->ue_object;
+    UStruct *parent = (UStruct *)py_obj->ue_object;
+	UStruct *child = (UStruct *)self->ue_object;
 
 	if (child->IsChildOf(parent))
 	{
@@ -1645,6 +1656,14 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
+    EFieldIteratorFlags::SuperClassFlags         inSuperClassFlags      = EFieldIteratorFlags::IncludeSuper;
+    EFieldIteratorFlags::DeprecatedPropertyFlags inDeprecatedFieldFlags = EFieldIteratorFlags::IncludeDeprecated;
+    EFieldIteratorFlags::InterfaceClassFlags     inInterfaceFieldFlags  = EFieldIteratorFlags::ExcludeInterfaces;
+    if (!PyArg_ParseTuple(args, "|KKK:properties", &inSuperClassFlags, &inDeprecatedFieldFlags, &inInterfaceFieldFlags))
+    {
+        return NULL;
+    }
+
 	UStruct *u_struct = nullptr;
 
 	if (self->ue_object->IsA<UStruct>())
@@ -1657,8 +1676,7 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
 	}
 
 	PyObject *ret = PyList_New(0);
-
-	for (TFieldIterator<UProperty> PropIt(u_struct); PropIt; ++PropIt)
+	for (TFieldIterator<UProperty> PropIt(u_struct, inSuperClassFlags, inDeprecatedFieldFlags, inInterfaceFieldFlags); PropIt; ++PropIt)
 	{
 		UProperty* property = *PropIt;
 		PyObject *property_name = PyUnicode_FromString(TCHAR_TO_UTF8(*property->GetName()));
