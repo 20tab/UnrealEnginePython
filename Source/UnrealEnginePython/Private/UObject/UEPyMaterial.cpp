@@ -9,6 +9,7 @@
 #include <Materials/MaterialInterface.h>
 #include <Shader.h>
 #include <MaterialShared.h>
+#include "Materials/Material.h"
 
 PyObject *py_ue_get_material_instruction_count(ue_PyUObject *self, PyObject * args)
 {

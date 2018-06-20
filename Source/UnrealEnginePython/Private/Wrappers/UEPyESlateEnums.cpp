@@ -7,6 +7,12 @@
 #include "IDetailsView.h"
 #endif
 #include <ObjectMacros.h>
+#include "SSplitter.h"
+#include "MenuStack.h"
+#include "SlateFwd.h"
+#include "SDockTab.h"
+#include "RHIDefinitions.h"
+#include "SceneTypes.h"
 
 static PyGetSetDef ue_PyESlateEnums_getseters[] = {
 	{ NULL }  /* Sentinel */
@@ -91,10 +97,10 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
     EnumDef = collections.namedtuple('EnumDef', 'name cppNameScope values')
     
     native_enums_list = [
-        EnumDef(name='ESizeRule', 
+        EnumDef(name='ESizeRule',
                 cppNameScope='SSplitter::ESizeRule',
                 values=[
-                    'SizeToContent', 
+                    'SizeToContent',
                     'FractionOfParent',
                 ]),
 
@@ -170,50 +176,6 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                     'UserClickedOnTab',
                     'SetDirectly',
                 ]),
-    ]    
-
-    editor_native_enums_list = [
-        EnumDef(name='EEditDefaultsOnlyNodeVisibility', 
-                cppNameScope='EEditDefaultsOnlyNodeVisibility',
-                values=[
-                    'Show',
-                    'Hide',
-                    'Automatic',
-                ]),
-
-        EnumDef(name='EMovieSceneDataChangeType', 
-                cppNameScope='EMovieSceneDataChangeType',
-                values=[
-                    'TrackValueChanged',
-                    'TrackValueChangedRefreshImmediately',
-                    'MovieSceneStructureItemAdded',
-                    'MovieSceneStructureItemRemoved',
-                    'MovieSceneStructureItemsChanged',
-                    'ActiveMovieSceneChanged',
-                    'RefreshAllImmediately',
-                    'Unknown',
-                ]),
-
-        EnumDef(name='EWidgetMode',
-                cppNameScope='FWidget::EWidgetMode',
-                values=[
-                'WM_None',
-                'WM_Translate',
-                'WM_TranslateRotateZ',
-                'WM_2D',
-                'WM_Rotate',
-                'WM_Scale',
-                'WM_Max',
-                ]),
-
-        EnumDef(name='ECoordSystem',
-                cppNameScope='ECoordSystem',
-                values=[
-                'COORD_None',
-                'COORD_World',
-                'COORD_Local',
-                'COORD_Max',
-                ]),
 
         EnumDef(name='EMaterialQualityLevel',
                 cppNameScope='EMaterialQualityLevel',
@@ -276,6 +238,65 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
                 'Valid',
                 'NotValidated'
                 ]),
+
+        EnumDef(name='EFieldIteratorFlags',
+                cppNameScope='EFieldIteratorFlags',
+                values=[
+                'ExcludeSuper',
+                'IncludeSuper',
+                'ExcludeDeprecated',
+                'IncludeDeprecated',
+                'ExcludeInterfaces',
+                'IncludeInterfaces',
+                ]),
+    ]    
+
+    #############################################################################################
+    # Editor Only Native Enums                                                                  #
+    #############################################################################################
+
+    editor_native_enums_list = [
+        EnumDef(name='EEditDefaultsOnlyNodeVisibility', 
+                cppNameScope='EEditDefaultsOnlyNodeVisibility',
+                values=[
+                    'Show',
+                    'Hide',
+                    'Automatic',
+                ]),
+
+        EnumDef(name='EMovieSceneDataChangeType', 
+                cppNameScope='EMovieSceneDataChangeType',
+                values=[
+                    'TrackValueChanged',
+                    'TrackValueChangedRefreshImmediately',
+                    'MovieSceneStructureItemAdded',
+                    'MovieSceneStructureItemRemoved',
+                    'MovieSceneStructureItemsChanged',
+                    'ActiveMovieSceneChanged',
+                    'RefreshAllImmediately',
+                    'Unknown',
+                ]),
+
+        EnumDef(name='EWidgetMode',
+                cppNameScope='FWidget::EWidgetMode',
+                values=[
+                'WM_None',
+                'WM_Translate',
+                'WM_TranslateRotateZ',
+                'WM_2D',
+                'WM_Rotate',
+                'WM_Scale',
+                'WM_Max',
+                ]),
+
+        EnumDef(name='ECoordSystem',
+                cppNameScope='ECoordSystem',
+                values=[
+                'COORD_None',
+                'COORD_World',
+                'COORD_Local',
+                'COORD_Max',
+                ]),
     ]
 
     def output_cpp_enums(in_enum_list):
@@ -308,7 +329,7 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
 
     ]]]*/
     // Enum Wrapper: ESizeRule
-	{
+    {
         PyObject* native_ESizeRule = PyDict_GetItemString(unreal_engine_dict, "ESizeRule");
         if (native_ESizeRule == nullptr)
         {
@@ -441,73 +462,6 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_ETabActivationCause, "SetDirectly"    , PyLong_FromLong((int)ETabActivationCause::SetDirectly));
     }
 
-    #if WITH_EDITOR
-    // Enum Wrapper: EEditDefaultsOnlyNodeVisibility
-    {
-        PyObject* native_EEditDefaultsOnlyNodeVisibility = PyDict_GetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility");
-        if (native_EEditDefaultsOnlyNodeVisibility == nullptr)
-        {
-            native_EEditDefaultsOnlyNodeVisibility = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-            PyDict_SetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility", (PyObject*)native_EEditDefaultsOnlyNodeVisibility);
-        }
-
-        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Show"           , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Show));
-        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Hide"           , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Hide));
-        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Automatic"      , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Automatic));
-    }
-
-    // Enum Wrapper: EMovieSceneDataChangeType
-    {
-        PyObject* native_EMovieSceneDataChangeType = PyDict_GetItemString(unreal_engine_dict, "EMovieSceneDataChangeType");
-        if (native_EMovieSceneDataChangeType == nullptr)
-        {
-            native_EMovieSceneDataChangeType = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-            PyDict_SetItemString(unreal_engine_dict, "EMovieSceneDataChangeType", (PyObject*)native_EMovieSceneDataChangeType);
-        }
-
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "TrackValueChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::TrackValueChanged));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "TrackValueChangedRefreshImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::TrackValueChangedRefreshImmediately));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemAdded", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemAdded));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemRemoved", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemRemoved));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemsChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemsChanged));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "ActiveMovieSceneChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::ActiveMovieSceneChanged));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "RefreshAllImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::RefreshAllImmediately));
-        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
-    }
-
-    // Enum Wrapper: EWidgetMode
-    {
-        PyObject* native_EWidgetMode = PyDict_GetItemString(unreal_engine_dict, "EWidgetMode");
-        if (native_EWidgetMode == nullptr)
-        {
-            native_EWidgetMode = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-            PyDict_SetItemString(unreal_engine_dict, "EWidgetMode", (PyObject*)native_EWidgetMode);
-        }
-
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_None"        , PyLong_FromLong((int)FWidget::EWidgetMode::WM_None));
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Translate"   , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Translate));
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_TranslateRotateZ", PyLong_FromLong((int)FWidget::EWidgetMode::WM_TranslateRotateZ));
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_2D"          , PyLong_FromLong((int)FWidget::EWidgetMode::WM_2D));
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Rotate"      , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Rotate));
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Scale"       , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Scale));
-        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Max"         , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Max));
-    }
-
-    // Enum Wrapper: ECoordSystem
-    {
-        PyObject* native_ECoordSystem = PyDict_GetItemString(unreal_engine_dict, "ECoordSystem");
-        if (native_ECoordSystem == nullptr)
-        {
-            native_ECoordSystem = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
-            PyDict_SetItemString(unreal_engine_dict, "ECoordSystem", (PyObject*)native_ECoordSystem);
-        }
-
-        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_None"     , PyLong_FromLong((int)ECoordSystem::COORD_None));
-        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_World"    , PyLong_FromLong((int)ECoordSystem::COORD_World));
-        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_Local"    , PyLong_FromLong((int)ECoordSystem::COORD_Local));
-        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_Max"      , PyLong_FromLong((int)ECoordSystem::COORD_Max));
-    }
-
     // Enum Wrapper: EMaterialQualityLevel
     {
         PyObject* native_EMaterialQualityLevel = PyDict_GetItemString(unreal_engine_dict, "EMaterialQualityLevel");
@@ -594,7 +548,91 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
         PyObject_SetAttrString((PyObject*)native_EDataValidationResult, "NotValidated"   , PyLong_FromLong((int)EDataValidationResult::NotValidated));
     }
 
-#endif
+    // Enum Wrapper: EFieldIteratorFlags
+    {
+        PyObject* native_EFieldIteratorFlags = PyDict_GetItemString(unreal_engine_dict, "EFieldIteratorFlags");
+        if (native_EFieldIteratorFlags == nullptr)
+        {
+            native_EFieldIteratorFlags = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EFieldIteratorFlags", (PyObject*)native_EFieldIteratorFlags);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EFieldIteratorFlags, "ExcludeSuper"   , PyLong_FromLong((int)EFieldIteratorFlags::ExcludeSuper));
+        PyObject_SetAttrString((PyObject*)native_EFieldIteratorFlags, "IncludeSuper"   , PyLong_FromLong((int)EFieldIteratorFlags::IncludeSuper));
+        PyObject_SetAttrString((PyObject*)native_EFieldIteratorFlags, "ExcludeDeprecated", PyLong_FromLong((int)EFieldIteratorFlags::ExcludeDeprecated));
+        PyObject_SetAttrString((PyObject*)native_EFieldIteratorFlags, "IncludeDeprecated", PyLong_FromLong((int)EFieldIteratorFlags::IncludeDeprecated));
+        PyObject_SetAttrString((PyObject*)native_EFieldIteratorFlags, "ExcludeInterfaces", PyLong_FromLong((int)EFieldIteratorFlags::ExcludeInterfaces));
+        PyObject_SetAttrString((PyObject*)native_EFieldIteratorFlags, "IncludeInterfaces", PyLong_FromLong((int)EFieldIteratorFlags::IncludeInterfaces));
+    }
+
+    #if WITH_EDITOR
+    // Enum Wrapper: EEditDefaultsOnlyNodeVisibility
+    {
+        PyObject* native_EEditDefaultsOnlyNodeVisibility = PyDict_GetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility");
+        if (native_EEditDefaultsOnlyNodeVisibility == nullptr)
+        {
+            native_EEditDefaultsOnlyNodeVisibility = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EEditDefaultsOnlyNodeVisibility", (PyObject*)native_EEditDefaultsOnlyNodeVisibility);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Show"           , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Show));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Hide"           , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Hide));
+        PyObject_SetAttrString((PyObject*)native_EEditDefaultsOnlyNodeVisibility, "Automatic"      , PyLong_FromLong((int)EEditDefaultsOnlyNodeVisibility::Automatic));
+    }
+
+    // Enum Wrapper: EMovieSceneDataChangeType
+    {
+        PyObject* native_EMovieSceneDataChangeType = PyDict_GetItemString(unreal_engine_dict, "EMovieSceneDataChangeType");
+        if (native_EMovieSceneDataChangeType == nullptr)
+        {
+            native_EMovieSceneDataChangeType = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EMovieSceneDataChangeType", (PyObject*)native_EMovieSceneDataChangeType);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "TrackValueChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::TrackValueChanged));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "TrackValueChangedRefreshImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::TrackValueChangedRefreshImmediately));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemAdded", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemAdded));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemRemoved", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemRemoved));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "MovieSceneStructureItemsChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::MovieSceneStructureItemsChanged));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "ActiveMovieSceneChanged", PyLong_FromLong((int)EMovieSceneDataChangeType::ActiveMovieSceneChanged));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "RefreshAllImmediately", PyLong_FromLong((int)EMovieSceneDataChangeType::RefreshAllImmediately));
+        PyObject_SetAttrString((PyObject*)native_EMovieSceneDataChangeType, "Unknown"        , PyLong_FromLong((int)EMovieSceneDataChangeType::Unknown));
+    }
+
+    // Enum Wrapper: EWidgetMode
+    {
+        PyObject* native_EWidgetMode = PyDict_GetItemString(unreal_engine_dict, "EWidgetMode");
+        if (native_EWidgetMode == nullptr)
+        {
+            native_EWidgetMode = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "EWidgetMode", (PyObject*)native_EWidgetMode);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_None"        , PyLong_FromLong((int)FWidget::EWidgetMode::WM_None));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Translate"   , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Translate));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_TranslateRotateZ", PyLong_FromLong((int)FWidget::EWidgetMode::WM_TranslateRotateZ));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_2D"          , PyLong_FromLong((int)FWidget::EWidgetMode::WM_2D));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Rotate"      , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Rotate));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Scale"       , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Scale));
+        PyObject_SetAttrString((PyObject*)native_EWidgetMode, "WM_Max"         , PyLong_FromLong((int)FWidget::EWidgetMode::WM_Max));
+    }
+
+    // Enum Wrapper: ECoordSystem
+    {
+        PyObject* native_ECoordSystem = PyDict_GetItemString(unreal_engine_dict, "ECoordSystem");
+        if (native_ECoordSystem == nullptr)
+        {
+            native_ECoordSystem = ue_PyESlateEnums_new(&ue_PyESlateEnumsType, nullptr, nullptr);
+            PyDict_SetItemString(unreal_engine_dict, "ECoordSystem", (PyObject*)native_ECoordSystem);
+        }
+
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_None"     , PyLong_FromLong((int)ECoordSystem::COORD_None));
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_World"    , PyLong_FromLong((int)ECoordSystem::COORD_World));
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_Local"    , PyLong_FromLong((int)ECoordSystem::COORD_Local));
+        PyObject_SetAttrString((PyObject*)native_ECoordSystem, "COORD_Max"      , PyLong_FromLong((int)ECoordSystem::COORD_Max));
+    }
+
+    #endif
     //[[[end]]]
 }
 

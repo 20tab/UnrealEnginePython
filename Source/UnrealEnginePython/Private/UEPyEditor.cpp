@@ -1855,7 +1855,7 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 
-	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
+	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShared<FPythonSmartDelegate>();
 	py_delegate->SetPyCallable(py_callable);
 	FEditorDelegates::OnAssetPostImport.AddSP(py_delegate, &FPythonSmartDelegate::PyFOnAssetPostImport);
 	Py_RETURN_NONE;

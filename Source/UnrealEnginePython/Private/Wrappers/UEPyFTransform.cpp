@@ -2,6 +2,9 @@
 #include "UEPyFVector.h"
 #include "UEPyFRotator.h"
 #include "UEPyFQuat.h"
+#include "Class.h"
+#include "UObjectGlobals.h"
+#include "Package.h"
 
 static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args)
 {
