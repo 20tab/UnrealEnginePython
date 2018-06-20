@@ -766,21 +766,21 @@ FVector2D FPythonSlateDelegate::GetterFVector2D() const
 	if (!ret)
 	{
 		unreal_engine_py_log_error();
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	if (!PyTuple_Check(ret))
 	{
 		Py_DECREF(ret);
 		PyErr_SetString(PyExc_ValueError, "returned value is not a tuple");
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	if (PyTuple_Size(ret) != 2)
 	{
 		Py_DECREF(ret);
 		PyErr_SetString(PyExc_ValueError, "returned value is not a 2 items tuple");
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	PyObject *first_item = PyTuple_GetItem(ret, 0);
@@ -788,7 +788,7 @@ FVector2D FPythonSlateDelegate::GetterFVector2D() const
 	{
 		Py_DECREF(ret);
 		PyErr_SetString(PyExc_ValueError, "tuple does not contain numbers");
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	PyObject *py_x = PyNumber_Float(first_item);
