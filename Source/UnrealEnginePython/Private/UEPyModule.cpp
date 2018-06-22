@@ -342,6 +342,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "editor_command_build", py_unreal_engine_editor_command_build, METH_VARARGS, "" },
 	{ "editor_command_build_lighting", py_unreal_engine_editor_command_build_lighting, METH_VARARGS, "" },
+    { "editor_refresh_all_browsers", py_unreal_engine_editor_refresh_all_browsers, METH_VARARGS, "" },
 	{ "editor_command_save_current_level", py_unreal_engine_editor_command_save_current_level, METH_VARARGS, "" },
 	{ "editor_command_save_all_levels", py_unreal_engine_editor_command_save_all_levels, METH_VARARGS, "" },
 

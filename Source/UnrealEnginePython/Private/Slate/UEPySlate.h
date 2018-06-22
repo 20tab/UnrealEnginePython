@@ -409,8 +409,14 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 #define ue_py_slate_farguments_argument_string(param, attribute) ue_py_slate_farguments_optional_string(param, attribute)
 
 #define ue_py_slate_farguments_optional_string(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
-	if (PyUnicode_Check(value)) {\
-		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
+    if (value) {\
+	    if (PyUnicode_Check(value)) {\
+		    arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
+	    }\
+        else {\
+			    PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+			    return -1;\
+		}\
 	}\
 }
 

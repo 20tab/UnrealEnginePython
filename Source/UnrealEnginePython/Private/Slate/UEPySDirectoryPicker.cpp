@@ -35,10 +35,10 @@ static int ue_py_sdirectory_picker_init(ue_PySDirectoryPicker *self, PyObject *a
 {
 	ue_py_slate_setup_farguments(SDirectoryPicker);
 
-	ue_py_slate_farguments_optional_text("message", Message);
-	ue_py_slate_farguments_optional_string("directory", Directory);
-	ue_py_slate_farguments_optional_string("file", File);
-	ue_py_slate_farguments_bool("is_enabled", IsEnabled);
+    ue_py_slate_farguments_argument_text("message", Message);
+    ue_py_slate_farguments_argument_string("directory", Directory);
+    ue_py_slate_farguments_argument_string("file", File);
+    ue_py_slate_farguments_attribute_bool("is_enabled", IsEnabled);
 	ue_py_slate_farguments_event("on_directory_changed", OnDirectoryChanged, FOnDirectoryChanged, OnStringChanged);
 
 	ue_py_snew(SDirectoryPicker);

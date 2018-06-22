@@ -206,6 +206,13 @@ PyObject *py_unreal_engine_editor_command_build(PyObject * self, PyObject * args
 	return Py_None;
 }
 
+PyObject *py_unreal_engine_editor_refresh_all_browsers(PyObject * self, PyObject * args)
+{
+    FEditorDelegates::RefreshAllBrowsers.Broadcast();
+
+    Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_editor_command_save_current_level(PyObject * self, PyObject * args)
 {
 	FLevelEditorActionCallbacks::Save();

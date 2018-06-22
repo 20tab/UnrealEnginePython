@@ -66,6 +66,8 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build_lighting(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_editor_refresh_all_browsers(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_editor_command_save_current_level(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject *, PyObject *);
 
