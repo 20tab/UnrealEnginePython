@@ -1535,9 +1535,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		}
 		UMapProperty *u_map = (UMapProperty *)scope;
 
-
+#if ENGINE_MINOR_VERSION < 20
 		u_property->SetPropertyFlags(flags);
 		u_property2->SetPropertyFlags(flags);
+#else
+		u_property->SetPropertyFlags((EPropertyFlags)flags);
+		u_property2->SetPropertyFlags((EPropertyFlags)flags);
+#endif
 
 		if (u_property->GetClass() == UObjectProperty::StaticClass())
 		{

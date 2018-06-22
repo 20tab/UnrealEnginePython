@@ -902,7 +902,12 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 #else
 		resource->LODModels.Add(new FSkeletalMeshLODModel());
 #endif
+
+#if ENGINE_MINOR_VERSION < 20
 		mesh->LODInfo.AddZeroed();
+#else
+		mesh->AddLODInfo();
+#endif
 	}
 	else
 	{
@@ -920,10 +925,20 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	FSkeletalMeshLODModel& LODModel = resource->LODModels[lod_index];
 #endif
 
+#if ENGINE_MINOR_VERSION < 20
 	mesh->LODInfo[lod_index].LODHysteresis = 0.02;
+#else
+	mesh->GetLODInfo(lod_index)->LODHysteresis = 0.02;
+#endif
 
 	FSkeletalMeshOptimizationSettings settings;
+
+#if ENGINE_MINOR_VERSION < 20
 	mesh->LODInfo[lod_index].ReductionSettings = settings;
+#else
+	mesh->GetLODInfo(lod_index)->ReductionSettings = settings;
+#endif
+
 
 	LODModel.NumTexCoords = 1;
 

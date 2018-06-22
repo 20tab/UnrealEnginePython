@@ -72,10 +72,18 @@ void UPyUserWidget::NativeConstruct()
 	PyObject_SetAttrString(py_user_widget_instance, (char*)"uobject", (PyObject *)py_uobject);
 
 	if (PythonTickForceDisabled)
+#if ENGINE_MINOR_VERSION < 20
 		bCanEverTick = false;
+#else
+		bHasScriptImplementedTick = false;
+#endif
 
 	if (PythonPaintForceDisabled)
+#if ENGINE_MINOR_VERSION < 20
 		bCanEverPaint = false;
+#else
+		bHasScriptImplementedPaint = false;
+#endif
     
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"construct"))
 		return;
