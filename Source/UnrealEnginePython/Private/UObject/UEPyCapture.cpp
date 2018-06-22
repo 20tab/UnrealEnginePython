@@ -344,10 +344,10 @@ PyObject *py_unreal_engine_in_editor_capture(PyObject * self, PyObject * args)
 	}
 
 	Py_BEGIN_ALLOW_THREADS
-	FInEditorMultiCapture::CreateInEditorMultiCapture(Captures);
+		FInEditorMultiCapture::CreateInEditorMultiCapture(Captures);
 	Py_END_ALLOW_THREADS
 
-	Py_RETURN_NONE;
+		Py_RETURN_NONE;
 }
 
 PyObject *py_ue_set_level_sequence_asset(ue_PyUObject *self, PyObject *args)
@@ -371,8 +371,11 @@ PyObject *py_ue_set_level_sequence_asset(ue_PyUObject *self, PyObject *args)
 	if (!capture)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UAutomatedLevelSequenceCapture");
 
+#if ENGINE_MINOR_VERSION < 20
 	capture->SetLevelSequenceAsset(sequence->GetPathName());
-
+#else
+	capture->LevelSequenceAsset = FSoftObjectPath(sequence->GetPathName());
+#endif
 	Py_RETURN_NONE;
 }
 #endif

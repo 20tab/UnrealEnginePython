@@ -13,13 +13,16 @@
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
 #include "Private/LevelSequenceEditorToolkit.h"
 #include "Tracks/MovieSceneCameraCutTrack.h"
+#if ENGINE_MINOR_VERSION < 20
 #include "Sections/IKeyframeSection.h"
+#endif
 #include "Sections/MovieSceneFloatSection.h"
 #include "Sections/MovieSceneBoolSection.h"
 #include "Sections/MovieScene3DTransformSection.h"
 #include "Sections/MovieSceneVectorSection.h"
 #include "Runtime/MovieScene/Public/MovieSceneFolder.h"
 #include "Runtime/MovieScene/Public/MovieSceneSpawnable.h"
+#include "Runtime/MovieScene/Public/MovieScenePossessable.h"
 #if ENGINE_MINOR_VERSION < 18
 #include "Editor/UnrealEd/Private/FbxImporter.h"
 #else

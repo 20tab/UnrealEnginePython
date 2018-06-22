@@ -330,7 +330,11 @@ void py_ue_sync_farfilter(PyObject *pyobj)
 		for (int i = 0; i < (int)pyset_len; i++)
 		{
 			py_item = PyList_GetItem(pyset, i);
+#if ENGINE_MINOR_VERSION < 20
 			pyfilter->filter.TagsAndValues.AddUnique(ukey, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_item)));
+#else
+			pyfilter->filter.TagsAndValues.AddUnique(ukey, FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_item))));
+#endif
 		}
 	}
 }
