@@ -792,7 +792,7 @@ PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args, PyObject *kwarg
 	Py_RETURN_NONE;
 }
 
-//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition
+//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition; this looks bad- lots of copy/paste code from engine and overcomplicated reimplementation
 PyObject *py_ue_save_config_to_section(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
 {
 	ue_py_check(self);
@@ -961,7 +961,7 @@ PyObject *py_ue_save_config_to_section(ue_PyUObject *self, PyObject * args, PyOb
 	Py_RETURN_NONE;
 }
 
-//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition
+//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition; this looks bad- lots of copy/paste code from engine and overcomplicated reimplementation
 PyObject *py_ue_load_config(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
 {
 	ue_py_check(self);
@@ -1058,7 +1058,7 @@ namespace {
 }
 #endif
 
-//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition
+//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition; this looks bad- lots of copy/paste code from engine and overcomplicated reimplementation
 PyObject *py_ue_load_config_from_section(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
 {
 	ue_py_check(self);
