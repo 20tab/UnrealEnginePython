@@ -1,19 +1,17 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
-
 #include "UEPySListView.h"
 
 extern PyTypeObject ue_PySPythonListViewType;
 
-class SPythonListView : public SListView<TSharedPtr<struct FPythonItem>> {
+class SPythonListView : public SListView<TSharedPtr<struct FPythonItem>> 
+{
 public:
-	~SPythonListView() {
-		delete(ItemsSource);
-	}
+
 };
 
-typedef struct {
+typedef struct
+{
 	ue_PySListView s_list_view;
 	/* Type-specific fields go here. */
     TArray<TSharedPtr<struct FPythonItem>> item_source_list;

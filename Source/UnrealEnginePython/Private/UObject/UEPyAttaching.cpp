@@ -1,6 +1,7 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyAttaching.h"
 
-
+#include "Components/SceneComponent.h"
+#include "GameFramework/Actor.h"
 
 PyObject *py_ue_get_socket_location(ue_PyUObject *self, PyObject * args)
 {

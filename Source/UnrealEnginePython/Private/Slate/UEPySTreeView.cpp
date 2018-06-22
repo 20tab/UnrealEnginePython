@@ -1,19 +1,17 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySTreeView.h"
-
-#define sw_tree_view StaticCastSharedRef<STreeView<TSharedPtr<void>>>(self->s_list_view.s_table_view_base.s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_stree_view_request_tree_refresh(ue_PySTreeView *self, PyObject * args)
 {
-	sw_tree_view->RequestTreeRefresh();
+	ue_py_slate_cast_named(STreeView<TSharedPtr<void>>, py_STreeView);
+	py_STreeView->RequestTreeRefresh();
 	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_stree_view_clear_expanded_items(ue_PySTreeView *self, PyObject * args)
 {
-	sw_tree_view->ClearExpandedItems();
+	ue_py_slate_cast_named(STreeView<TSharedPtr<void>>, py_STreeView);
+	py_STreeView->ClearExpandedItems();
 	Py_RETURN_NONE;
 }
 

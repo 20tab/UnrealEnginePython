@@ -1,12 +1,16 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySkeletal.h"
 
 #include "Runtime/Engine/Public/ComponentReregisterContext.h"
 #if WITH_EDITOR
 #include "Developer/MeshUtilities/Public/MeshUtilities.h"
+#include "Wrappers/UEPyFMorphTargetDelta.h"
+#include "Wrappers/UEPyFSoftSkinVertex.h"
 #if ENGINE_MINOR_VERSION > 18
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshModel.h"
 #endif
 #endif
+
+#include "Animation/AnimInstance.h"
 
 
 PyObject *py_ue_get_anim_instance(ue_PyUObject *self, PyObject * args)
@@ -197,6 +201,8 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
+#if WITH_EDITOR
+
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * args)
 {
@@ -275,6 +281,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 
 }
 #endif
+
 
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * args)
@@ -391,6 +398,7 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 	return py_list;
 }
 
+
 PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * args)
 {
 
@@ -436,6 +444,7 @@ PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * arg
 	return py_list;
 }
 
+#endif
 
 PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 {
@@ -472,6 +481,7 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+#if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12
 PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 {
@@ -701,6 +711,30 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 
 }
 
+PyObject *py_ue_skeletal_mesh_get_num_triangles(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "|i:skeletal_mesh_get_num_triangles", &lod_index))
+		return nullptr;
+
+	USkeletalMesh *mesh = ue_py_check_type<USkeletalMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
+
+	#if ENGINE_MINOR_VERSION < 19
+		FSkeletalMeshResource *resource = mesh->GetImportedResource();
+	#else
+		FSkeletalMeshModel *resource = mesh->GetImportedModel();
+	#endif
+
+	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
+
+	return PyLong_FromLong(resource->LODModels[lod_index].NumVertices / 3);
+}
+
 PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -808,7 +842,9 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 
 	Py_RETURN_NONE;
 }
+#endif
 
+#if WITH_EDITOR
 PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -850,7 +886,6 @@ PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args)
 	return PyLong_FromLong(resource->LODModels[lod_index].Sections.Num());
 }
 
-#if WITH_EDITOR
 PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyObject * kwargs)
 {
 	ue_py_check(self);
@@ -1046,7 +1081,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	Py_RETURN_NONE;
 }
-#endif
+
 
 PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject * args)
 {
@@ -1072,15 +1107,12 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject
 		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
 #endif
 
-#if WITH_EDITOR
 	mesh->PreEditChange(nullptr);
-#endif
 
 	mesh->RegisterMorphTarget(morph);
 
-#if WITH_EDITOR
 	mesh->PostEditChange();
-#endif
+
 	mesh->MarkPackageDirty();
 
 	Py_RETURN_NONE;
@@ -1210,3 +1242,4 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 
 	return py_list;
 }
+#endif

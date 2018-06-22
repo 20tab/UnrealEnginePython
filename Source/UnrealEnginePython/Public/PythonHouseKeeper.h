@@ -1,6 +1,11 @@
 #pragma once
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UnrealEnginePython.h"
+#include "UObject/UObjectGlobals.h"
+#include "UObject/WeakObjectPtr.h"
+#include "Widgets/SWidget.h"
+#include "Slate/UEPySlateDelegate.h"
+#include "PythonDelegate.h"
 
 class FUnrealEnginePythonHouseKeeper
 {
@@ -31,17 +36,6 @@ class FUnrealEnginePythonHouseKeeper
 		}
 	};
 
-	struct FPythonSWidgetTracker
-	{
-		TWeakPtr<SWidget> Owner;
-		ue_PySWidget *PySWidget;
-
-		FPythonSWidgetTracker(TSharedRef<SWidget> InOwner, ue_PySWidget *InPySWidget)
-		{
-			Owner = InOwner;
-			PySWidget = InPySWidget;
-		}
-	};
 
 	struct FPythonSWidgetDelegateTracker
 	{
@@ -66,7 +60,11 @@ public:
 		{
 			Singleton = new FUnrealEnginePythonHouseKeeper();
 			// register a new delegate for the GC
-            FCoreUObjectDelegates::PostGarbageCollect.AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);
+#if ENGINE_MINOR_VERSION >= 18
+			FCoreUObjectDelegates::GetPostGarbageCollect().AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);
+#else
+			FCoreUObjectDelegates::PostGarbageCollect.AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);
+#endif
 		}
 		return Singleton;
 	}
@@ -159,7 +157,7 @@ public:
 				UE_LOG(LogPython, Error, TEXT("UObject at %p %s is in use"), Object, *Object->GetName());
 #endif
 			}
-		}
+			}
 
 		for (UObject *Object : BrokenList)
 		{
@@ -170,14 +168,14 @@ public:
 
 		return Garbaged;
 
-	}
+		}
 
 
 	int32 DelegatesGC()
 	{
 		int32 Garbaged = 0;
 #if defined(UEPY_MEMORY_DEBUG)
-		UE_LOG(LogPython, Error, TEXT("Checking %d delegates"), PyDelegatesTracker.Num());
+		UE_LOG(LogPython, Display, TEXT("Garbage collecting %d UObject delegates"), PyDelegatesTracker.Num());
 #endif
 		for (int32 i = PyDelegatesTracker.Num() - 1; i >= 0; --i)
 		{
@@ -186,6 +184,21 @@ public:
 			{
 				Tracker.Delegate->RemoveFromRoot();
 				PyDelegatesTracker.RemoveAt(i);
+				Garbaged++;
+			}
+
+		}
+
+#if defined(UEPY_MEMORY_DEBUG)
+		UE_LOG(LogPython, Display, TEXT("Garbage collecting %d Slate delegates"), PySlateDelegatesTracker.Num());
+#endif
+
+		for (int32 i = PySlateDelegatesTracker.Num() - 1; i >= 0; --i)
+		{
+			FPythonSWidgetDelegateTracker &Tracker = PySlateDelegatesTracker[i];
+			if (!Tracker.Owner.IsValid())
+			{
+				PySlateDelegatesTracker.RemoveAt(i);
 				Garbaged++;
 			}
 
@@ -218,22 +231,47 @@ public:
 		return Delegate;
 	}
 
-	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable)
+	TSharedRef<FPythonSlateDelegate> NewDeferredSlateDelegate(PyObject *PyCallable)
 	{
 		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
 		Delegate->SetPyCallable(PyCallable);
 
+		return Delegate;
+	}
+
+	void TrackDeferredSlateDelegate(TSharedRef<FPythonSlateDelegate> Delegate, TSharedRef<SWidget> Owner)
+	{
+		FPythonSWidgetDelegateTracker Tracker(Delegate, Owner);
+		PySlateDelegatesTracker.Add(Tracker);
+	}
+
+	TSharedRef<FPythonSlateDelegate> NewStaticSlateDelegate(PyObject *PyCallable, FPythonSlateDelegate::Type InStatDelType = FPythonSlateDelegate::None, FName InContext = NAME_None)
+	{
+		TSharedRef<FPythonSlateDelegate> Delegate = MakeShareable(new FPythonSlateDelegate());
+		Delegate->SetPyCallable(PyCallable);
+        Delegate->StaticDelegateType = InStatDelType;
+        Delegate->LifeTimeCtx        = InContext;
 		PyStaticSlateDelegatesTracker.Add(Delegate);
 
 		return Delegate;
 	}
 
+    void UntrackStaticSlateDelegate(FPythonSlateDelegate::Type InStaticDelType, FName InContext)
+    {
+        if (InStaticDelType == FPythonSlateDelegate::None)
+        { return; }
+
+        PyStaticSlateDelegatesTracker.RemoveAll([InContext, InStaticDelType](const TSharedRef<FPythonSlateDelegate>& trackedStaticDel) {
+            return trackedStaticDel->StaticDelegateType == InStaticDelType && trackedStaticDel->LifeTimeCtx == InContext;
+        });
+    }
+
 private:
 	TMap<UObject *, FPythonUOjectTracker> UObjectPyMapping;
 	TArray<FPythonDelegateTracker> PyDelegatesTracker;
 
-
-	TArray<FPythonSWidgetTracker> PySlateTracker;
 	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
+
+    //TODO: ikrimae: #ThirdParty-Python: #BUG: This implementation memory leaks. These delegates never get cleaned up
 	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
-};
+	};

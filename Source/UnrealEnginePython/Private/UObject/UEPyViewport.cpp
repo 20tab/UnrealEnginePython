@@ -1,10 +1,14 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyViewport.h"
 
 #if WITH_EDITOR
 #include "LevelEditor.h"
 #include "Editor/LevelEditor/Public/ILevelViewport.h"
 #include "Editor/UnrealEd/Public/LevelEditorViewport.h"
 #endif
+
+#include "Slate/UEPySWidget.h"
+// required for GEngine access
+#include "Engine/Engine.h"
 
 PyObject *py_unreal_engine_get_game_viewport_client(PyObject * self, PyObject * args)
 {
@@ -151,16 +155,13 @@ PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "cannot retrieve GameViewportClient from UWorld");
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
-	if (!py_swidget)
+	TSharedPtr<SWidget> content = py_ue_is_swidget<SWidget>(py_widget);
+	if (!content.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
-	// Do not increment reference count as it is assumed this function is used in a PyComponent/PyActor/ that can holds reference to
-	// it in various ways
-	// Py_INCREF(py_swidget);
 
-	viewport->AddViewportWidgetContent(py_swidget->s_widget, z_order);
+	viewport->AddViewportWidgetContent(content.ToSharedRef(), z_order);
 
 	Py_RETURN_NONE;
 }
@@ -181,14 +182,13 @@ PyObject *py_ue_remove_viewport_widget_content(ue_PyUObject *self, PyObject * ar
 	if (!viewport)
 		return PyErr_Format(PyExc_Exception, "object is not a GameViewportClient");
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_widget);
-	if (!py_swidget)
+	TSharedPtr<SWidget> content = py_ue_is_swidget<SWidget>(py_widget);
+	if (!content.IsValid())
 	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+		return nullptr;
 	}
-	Py_DECREF(py_swidget);
 
-	viewport->RemoveViewportWidgetContent(py_swidget->s_widget);
+	viewport->RemoveViewportWidgetContent(content.ToSharedRef());
 
 	Py_RETURN_NONE;
 }
@@ -204,6 +204,31 @@ PyObject *py_ue_remove_all_viewport_widgets(ue_PyUObject *self, PyObject * args)
 
 
 	viewport->RemoveAllViewportWidgets();
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_game_viewport_client_set_rendering_flag(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_bool;
+
+	if (!PyArg_ParseTuple(args, "O:game_viewport_client_set_rendering_flag", &py_bool))
+	{
+		return nullptr;
+	}
+
+	bool bEnabled = PyObject_IsTrue(py_bool) ? true : false;
+
+	UGameViewportClient *ViewportClient = ue_py_check_type<UGameViewportClient>(self);
+	if (!ViewportClient)
+	{
+		return PyErr_Format(PyExc_Exception, "object is not a UGameViewportClient");
+	}
+
+	ViewportClient->EngineShowFlags.Rendering = bEnabled;
 
 	Py_RETURN_NONE;
 }

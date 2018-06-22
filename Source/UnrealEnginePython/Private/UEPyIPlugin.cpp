@@ -1,8 +1,8 @@
+#include "UEPyIPlugin.h"
 
 #if WITH_EDITOR
 
 
-#include "UnrealEnginePythonPrivatePCH.h"
 #include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
 
 static PyObject *py_ue_iplugin_get_name(ue_PyIPlugin *self, PyObject * args)

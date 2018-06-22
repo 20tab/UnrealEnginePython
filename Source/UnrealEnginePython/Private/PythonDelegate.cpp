@@ -1,5 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 #include "PythonDelegate.h"
+#include "UEPyModule.h"
 
 UPythonDelegate::UPythonDelegate()
 {
@@ -39,7 +40,7 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 		for (; PArgs && argn < signature->NumParms && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs)
 		{
 			UProperty *prop = *PArgs;
-			PyObject *arg = ue_py_convert_property(prop, (uint8 *)Parms);
+			PyObject *arg = ue_py_convert_property(prop, (uint8 *)Parms, 0);
 			if (!arg)
 			{
 				unreal_engine_py_log_error();

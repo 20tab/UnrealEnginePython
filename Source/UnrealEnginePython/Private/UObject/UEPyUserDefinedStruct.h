@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 
 PyObject *py_ue_struct_add_variable(ue_PyUObject *, PyObject *);

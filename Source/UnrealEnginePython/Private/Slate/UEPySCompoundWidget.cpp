@@ -1,14 +1,11 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySCompoundWidget.h"
 
-#define sw_compound_widget StaticCastSharedRef<SCompoundWidget>(self->s_widget.s_widget)
 
 static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args)
 {
+	ue_py_slate_cast(SCompoundWidget);
 
-	FLinearColor color = sw_compound_widget->GetColorAndOpacity();
+	FLinearColor color = py_SCompoundWidget->GetColorAndOpacity();
 
 	return py_ue_new_flinearcolor(color);
 }
@@ -16,11 +13,13 @@ static PyObject *py_ue_scompound_widget_get_color_and_opacity(ue_PySCompoundWidg
 static PyObject *py_ue_scompound_widget_set_color_and_opacity(ue_PySCompoundWidget *self, PyObject * args)
 {
 
+	ue_py_slate_cast(SCompoundWidget);
+
 	PyObject *py_color;
 
 	if (!PyArg_ParseTuple(args, "O:set_color_and_opacity", &py_color))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	ue_PyFLinearColor *py_linear_color = py_ue_is_flinearcolor(py_color);
@@ -29,10 +28,9 @@ static PyObject *py_ue_scompound_widget_set_color_and_opacity(ue_PySCompoundWidg
 		return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor");
 	}
 
-	sw_compound_widget->SetColorAndOpacity(py_linear_color->color);
+	py_SCompoundWidget->SetColorAndOpacity(py_linear_color->color);
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySCompoundWidget_methods[] = {

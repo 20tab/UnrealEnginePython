@@ -1,8 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 
 #include "UEPySRotatorInputBox.h"
-
-#define sw_rotator_input_box StaticCastSharedRef<SRotatorInputBox>(self->s_compound_widget.s_widget.s_widget)
 
 
 static PyMethodDef ue_PySRotatorInputBox_methods[] = {
@@ -40,7 +38,8 @@ PyTypeObject ue_PySRotatorInputBoxType = {
 	ue_PySRotatorInputBox_methods,             /* tp_methods */
 };
 
-static int ue_py_srotator_input_box_init(ue_PySRotatorInputBox *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_srotator_input_box_init(ue_PySRotatorInputBox *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SRotatorInputBox);
 
 	ue_py_slate_farguments_optional_bool("allow_responsive_layout", AllowResponsiveLayout);
@@ -57,11 +56,12 @@ static int ue_py_srotator_input_box_init(ue_PySRotatorInputBox *self, PyObject *
 	ue_py_slate_farguments_tfloat("pitch", Pitch);
 	ue_py_slate_farguments_tfloat("yaw", Yaw);
 
-	ue_py_snew(SRotatorInputBox, s_compound_widget.s_widget);
+	ue_py_snew(SRotatorInputBox);
 	return 0;
 }
 
-void ue_python_init_srotator_input_box(PyObject *ue_module) {
+void ue_python_init_srotator_input_box(PyObject *ue_module)
+{
 
 	ue_PySRotatorInputBoxType.tp_init = (initproc)ue_py_srotator_input_box_init;
 

@@ -1,6 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFPaintContext.h"
+
+#include "UEPyFGeometry.h"
 
 static FSlateBrush global_simple_brush;
 

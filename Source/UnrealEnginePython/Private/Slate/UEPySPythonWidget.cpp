@@ -1,12 +1,9 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySPythonWidget.h"
-
-#define sw_python_widget StaticCastSharedRef<SPythonWidget>(self->s_compound_widget.s_widget.s_widget)
 
 static PyObject *py_ue_spython_widget_set_active(ue_PySPythonWidget *self, PyObject *args)
 {
+	ue_py_slate_cast(SPythonWidget);
 	PyObject *py_bool = nullptr;
 	if (!PyArg_ParseTuple(args, "|O:set_active", &py_bool))
 	{
@@ -26,45 +23,42 @@ static PyObject *py_ue_spython_widget_set_active(ue_PySPythonWidget *self, PyObj
 		}
 	}
 
-	sw_python_widget->SetActive(bActive);
-	Py_INCREF(self);
-	return (PyObject *)self;
+	py_SPythonWidget->SetActive(bActive);
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyObject *py_ue_spython_widget_set_content(ue_PySPythonWidget *self, PyObject *args)
 {
-    PyObject *py_content;
-    if (!PyArg_ParseTuple(args, "O:set_content", &py_content))
-    {
-        return NULL;
-    }
+	ue_py_slate_cast(SPythonWidget);
+	PyObject *py_content;
+	if (!PyArg_ParseTuple(args, "O:set_content", &py_content))
+	{
+		return NULL;
+	}
 
-    ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-    if (!py_swidget)
-    {
-        return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
-    }
+	TSharedPtr<SWidget> Content = py_ue_is_swidget<SWidget>(py_content);
+	if (!Content.IsValid())
+	{
+		return nullptr;
+	}
 
-    Py_INCREF(py_swidget);
+	py_SPythonWidget->SetContent(Content.ToSharedRef());
 
-    sw_python_widget->SetContent(py_swidget->s_widget->AsShared());
-
-    Py_INCREF(self);
-    return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyObject *py_ue_spython_widget_clear_content(ue_PySPythonWidget *self, PyObject *args)
 {
-    sw_python_widget->ClearContent();
+	ue_py_slate_cast(SPythonWidget);
+	py_SPythonWidget->ClearContent();
 
-    Py_INCREF(Py_None);
-    return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyMethodDef ue_PySPythonWidget_methods[] = {
 	{ "set_active",    (PyCFunction)py_ue_spython_widget_set_active, METH_VARARGS | METH_KEYWORDS, "" },
-    { "set_content",   (PyCFunction)py_ue_spython_widget_set_content, METH_VARARGS, "" },
-    { "clear_content", (PyCFunction)py_ue_spython_widget_clear_content, METH_VARARGS, "" },
+	{ "set_content",   (PyCFunction)py_ue_spython_widget_set_content, METH_VARARGS, "" },
+	{ "clear_content", (PyCFunction)py_ue_spython_widget_clear_content, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -101,8 +95,9 @@ PyTypeObject ue_PySPythonWidgetType = {
 
 static int ue_py_spython_widget_init(ue_PySPythonWidget *self, PyObject *args, PyObject *kwargs)
 {
-	ue_py_snew_simple(SPythonWidget, s_compound_widget.s_widget);
-	sw_python_widget->SetPyObject((PyObject *)self);
+	ue_py_snew_simple(SPythonWidget);
+	ue_py_slate_cast(SPythonWidget);
+	py_SPythonWidget->SetPyObject((PyObject *)self);
 	return 0;
 }
 

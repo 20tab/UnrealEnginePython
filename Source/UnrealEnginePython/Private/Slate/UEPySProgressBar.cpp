@@ -1,19 +1,16 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySProgressBar.h"
 
-#define sw_progress_bar StaticCastSharedRef<SProgressBar>(self->s_leaf_widget.s_widget.s_widget)
-
-static PyObject *py_ue_sprogress_bar_set_percent(ue_PySProgressBar *self, PyObject *args) {
+static PyObject *py_ue_sprogress_bar_set_percent(ue_PySProgressBar *self, PyObject *args)
+{
+	ue_py_slate_cast(SProgressBar);
 	float percent;
-	if (!PyArg_ParseTuple(args, "f", &percent)) {
+	if (!PyArg_ParseTuple(args, "f", &percent))
+	{
 		return nullptr;
 	}
-	sw_progress_bar->SetPercent(percent);
+	py_SProgressBar->SetPercent(percent);
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySProgressBar_methods[] = {
@@ -52,7 +49,8 @@ PyTypeObject ue_PySProgressBarType = {
 	ue_PySProgressBar_methods,             /* tp_methods */
 };
 
-static int ue_py_sprogress_bar_init(ue_PySProgressBar *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sprogress_bar_init(ue_PySProgressBar *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SProgressBar);
 
 	ue_py_slate_farguments_optional_struct_ptr("background_image", BackgroundImage, FSlateBrush);
@@ -65,11 +63,12 @@ static int ue_py_sprogress_bar_init(ue_PySProgressBar *self, PyObject *args, PyO
 	ue_py_slate_farguments_optional_float("refresh_rate", RefreshRate);
 	ue_py_slate_farguments_optional_struct_ptr("style", Style, FProgressBarStyle);
 
-	ue_py_snew(SProgressBar, s_leaf_widget.s_widget);
+	ue_py_snew(SProgressBar);
 	return 0;
 }
 
-void ue_python_init_sprogress_bar(PyObject *ue_module) {
+void ue_python_init_sprogress_bar(PyObject *ue_module)
+{
 
 	ue_PySProgressBarType.tp_init = (initproc)ue_py_sprogress_bar_init;
 

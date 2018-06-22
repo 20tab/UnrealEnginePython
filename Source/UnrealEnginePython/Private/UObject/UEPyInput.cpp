@@ -1,4 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyInput.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerInput.h"
 
 
 PyObject *py_ue_is_input_key_down(ue_PyUObject *self, PyObject * args)

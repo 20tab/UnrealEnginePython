@@ -1,5 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-#include "Runtime/Engine/Classes/GameFramework/HUD.h"
+#include "UEPyHUD.h"
+#include "GameFramework/HUD.h"
+#include "Engine/Texture.h"
 
 PyObject *py_ue_hud_draw_2d_line(ue_PyUObject *self, PyObject * args)
 {

@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FDelegateHandle dhandle;
+		/* Type-specific fields go here. */
+		FDelegateHandle dhandle;
 	bool garbaged;
 	TSharedPtr<FPythonSmartDelegate> delegate_ptr;
 } ue_PyFDelegateHandle;

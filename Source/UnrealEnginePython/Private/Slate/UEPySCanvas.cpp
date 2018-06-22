@@ -1,20 +1,19 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySCanvas.h"
 
 
-#define sw_canvas StaticCastSharedRef<SCanvas>(self->s_panel.s_widget.s_widget)
-
 static PyObject *py_ue_scanvas_clear_children(ue_PySCanvas *self, PyObject * args)
 {
-	sw_canvas->ClearChildren();
+	ue_py_slate_cast(SCanvas);
+	py_SCanvas->ClearChildren();
 
 	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyObject *kwargs)
 {
+	ue_py_slate_cast(SCanvas);
 	PyObject *py_content;
 	int h_align = 0;
 	int v_align = 0;
@@ -39,16 +38,12 @@ static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyO
 		return NULL;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget)
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
-	}
+	TSharedPtr<SWidget> child = py_ue_is_swidget<SWidget>(py_content);
+	if (!child.IsValid())
+	{ return nullptr; }
 
-	Py_INCREF(py_swidget);
-
-	SCanvas::FSlot &fslot = sw_canvas->AddSlot();
-	fslot.AttachWidget(py_swidget->s_widget->AsShared());
+	SCanvas::FSlot &fslot = py_SCanvas->AddSlot();
+	fslot.AttachWidget(child.ToSharedRef());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	fslot.VAlign((EVerticalAlignment)v_align);
 
@@ -90,8 +85,7 @@ static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyO
 		}
 	}
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySCanvas_methods[] = {
@@ -134,7 +128,7 @@ PyTypeObject ue_PySCanvasType = {
 
 static int ue_py_scanvas_init(ue_PySCanvas *self, PyObject *args, PyObject *kwargs)
 {
-	ue_py_snew_simple(SCanvas, s_panel.s_widget);
+	ue_py_snew_simple(SCanvas);
 	return 0;
 }
 

@@ -1,14 +1,15 @@
 #pragma once
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12
 #include <fbxsdk.h>
 
-struct ue_PyFbxNode {
+struct ue_PyFbxNode
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FbxNode *fbx_node;
+		/* Type-specific fields go here. */
+		FbxNode *fbx_node;
 };
 
 

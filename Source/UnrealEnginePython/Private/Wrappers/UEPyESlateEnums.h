@@ -7,7 +7,7 @@
 typedef struct {
     PyObject_HEAD
         /* Type-specific fields go here. */
-        uint8 val;
+        PyObject *py_dict;
 } ue_PyESlateEnums;
 
 void ue_python_init_eslate_enums(PyObject *);

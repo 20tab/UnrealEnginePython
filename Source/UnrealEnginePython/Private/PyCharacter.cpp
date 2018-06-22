@@ -1,9 +1,8 @@
 // Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
 #include "PyCharacter.h"
-
-
+#include "UEPyModule.h"
+#include "Components/InputComponent.h"
 
 APyCharacter::APyCharacter()
 {
@@ -18,7 +17,7 @@ APyCharacter::APyCharacter()
 // Called when the game starts
 void APyCharacter::PreInitializeComponents()
 {
-	
+
 
 	Super::PreInitializeComponents();
 
@@ -30,13 +29,15 @@ void APyCharacter::PreInitializeComponents()
 	FScopePythonGIL gil;
 
 	py_uobject = ue_get_python_uobject(this);
-	if (!py_uobject) {
+	if (!py_uobject)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
 
 	PyObject *py_character_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
-	if (!py_character_module) {
+	if (!py_character_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -44,7 +45,8 @@ void APyCharacter::PreInitializeComponents()
 #if WITH_EDITOR
 	// todo implement autoreload with a dictionary of module timestamps
 	py_character_module = PyImport_ReloadModule(py_character_module);
-	if (!py_character_module) {
+	if (!py_character_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -56,13 +58,15 @@ void APyCharacter::PreInitializeComponents()
 	PyObject *py_character_module_dict = PyModule_GetDict(py_character_module);
 	PyObject *py_character_class = PyDict_GetItemString(py_character_module_dict, TCHAR_TO_UTF8(*PythonClass));
 
-	if (!py_character_class) {
+	if (!py_character_class)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to find class %s in module %s"), *PythonClass, *PythonModule);
 		return;
 	}
 
 	py_character_instance = PyObject_CallObject(py_character_class, NULL);
-	if (!py_character_instance) {
+	if (!py_character_instance)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -72,7 +76,8 @@ void APyCharacter::PreInitializeComponents()
 	PyObject_SetAttrString(py_character_instance, (char *)"uobject", (PyObject *)py_uobject);
 
 	// disable ticking if no tick method is exposed
-	if (!PyObject_HasAttrString(py_character_instance, (char *)"tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"tick") || PythonTickForceDisabled)
+	{
 		SetActorTickEnabled(false);
 	}
 
@@ -81,12 +86,14 @@ void APyCharacter::PreInitializeComponents()
 
 	ue_bind_events_for_py_class_by_attribute(this, py_character_instance);
 
-	if (!PyObject_HasAttrString(py_character_instance, (char *)"pre_initialize_components")) {
+	if (!PyObject_HasAttrString(py_character_instance, (char *)"pre_initialize_components"))
+	{
 		return;
 	}
 
 	PyObject *pic_ret = PyObject_CallMethod(py_character_instance, (char *)"pre_initialize_components", NULL);
-	if (!pic_ret) {
+	if (!pic_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -106,7 +113,8 @@ void APyCharacter::PostInitializeComponents()
 		return;
 
 	PyObject *pic_ret = PyObject_CallMethod(py_character_instance, (char *)"post_initialize_components", NULL);
-	if (!pic_ret) {
+	if (!pic_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -127,7 +135,8 @@ void APyCharacter::BeginPlay()
 		return;
 
 	PyObject *bp_ret = PyObject_CallMethod(py_character_instance, (char *)"begin_play", NULL);
-	if (!bp_ret) {
+	if (!bp_ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -138,7 +147,7 @@ void APyCharacter::BeginPlay()
 // Called every frame
 void APyCharacter::Tick(float DeltaTime)
 {
-	
+
 
 	Super::Tick(DeltaTime);
 
@@ -150,7 +159,8 @@ void APyCharacter::Tick(float DeltaTime)
 	// no need to check for method availability, we did it in begin_play
 
 	PyObject *ret = PyObject_CallMethod(py_character_instance, (char *)"tick", (char *)"f", DeltaTime);
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -160,7 +170,7 @@ void APyCharacter::Tick(float DeltaTime)
 
 void APyCharacter::CallPyCharacterMethod(FString method_name, FString args)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
@@ -168,14 +178,17 @@ void APyCharacter::CallPyCharacterMethod(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -184,7 +197,7 @@ void APyCharacter::CallPyCharacterMethod(FString method_name, FString args)
 
 void APyCharacter::SetPythonAttrObject(FString attr, UObject *object)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
@@ -192,109 +205,118 @@ void APyCharacter::SetPythonAttrObject(FString attr, UObject *object)
 	FScopePythonGIL gil;
 
 	ue_PyUObject *py_obj = ue_get_python_uobject(object);
-	if (!py_obj) {
+	if (!py_obj)
+	{
 		PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 		unreal_engine_py_log_error();
 		return;
 	}
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), (PyObject *)py_obj) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), (PyObject *)py_obj) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 void APyCharacter::SetPythonAttrString(FString attr, FString s)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyUnicode_FromString(TCHAR_TO_UTF8(*s))) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyUnicode_FromString(TCHAR_TO_UTF8(*s))) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 void APyCharacter::SetPythonAttrFloat(FString attr, float f)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyFloat_FromDouble(f)) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyFloat_FromDouble(f)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 void APyCharacter::SetPythonAttrInt(FString attr, int n)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyLong_FromLong(n)) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), PyLong_FromLong(n)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 void APyCharacter::SetPythonAttrVector(FString attr, FVector vec)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_ue_new_fvector(vec)) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_ue_new_fvector(vec)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 void APyCharacter::SetPythonAttrRotator(FString attr, FRotator rot)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_ue_new_frotator(rot)) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_ue_new_frotator(rot)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 void APyCharacter::SetPythonAttrBool(FString attr, bool b)
 {
-	
+
 
 	if (!py_character_instance)
 		return;
 
 	FScopePythonGIL gil;
-	
+
 	PyObject *py_bool = Py_False;
-	if (b) {
+	if (b)
+	{
 		py_bool = Py_True;
 	}
 
-	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_bool) < 0) {
+	if (PyObject_SetAttrString(py_character_instance, TCHAR_TO_UTF8(*attr), py_bool) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
 
 bool APyCharacter::CallPyCharacterMethodBool(FString method_name, FString args)
 {
-	
+
 
 	if (!py_character_instance)
 		return false;
@@ -302,20 +324,24 @@ bool APyCharacter::CallPyCharacterMethodBool(FString method_name, FString args)
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
-	
 
-	if (!ret) {
+
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return false;
 	}
 
-	if (PyObject_IsTrue(ret)) {
+	if (PyObject_IsTrue(ret))
+	{
 		Py_DECREF(ret);
 		return true;
 	}
@@ -326,7 +352,7 @@ bool APyCharacter::CallPyCharacterMethodBool(FString method_name, FString args)
 
 float APyCharacter::CallPyCharacterMethodFloat(FString method_name, FString args)
 {
-	
+
 
 	if (!py_character_instance)
 		return false;
@@ -334,22 +360,26 @@ float APyCharacter::CallPyCharacterMethodFloat(FString method_name, FString args
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return false;
 	}
 
 	float value = 0;
 
-	if (PyNumber_Check(ret)) {
+	if (PyNumber_Check(ret))
+	{
 		PyObject *py_value = PyNumber_Float(ret);
 		value = PyFloat_AsDouble(py_value);
 		Py_DECREF(py_value);
@@ -361,7 +391,7 @@ float APyCharacter::CallPyCharacterMethodFloat(FString method_name, FString args
 
 FString APyCharacter::CallPyCharacterMethodString(FString method_name, FString args)
 {
-	
+
 
 	if (!py_character_instance)
 		return FString();
@@ -369,20 +399,24 @@ FString APyCharacter::CallPyCharacterMethodString(FString method_name, FString a
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_character_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return FString();
 	}
 
 	PyObject *py_str = PyObject_Str(ret);
-	if (!py_str) {
+	if (!py_str)
+	{
 		Py_DECREF(ret);
 		return FString();
 	}
@@ -409,7 +443,8 @@ void APyCharacter::SetupPlayerInputComponent(class UInputComponent* input)
 	// no need to check for method availability, we did it in begin_play
 
 	PyObject *ret = PyObject_CallMethod(py_character_instance, (char *)"setup_player_input_component", (char *)"O", ue_get_python_uobject(input));
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -423,10 +458,12 @@ void APyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_HasAttrString(py_character_instance, (char *)"end_play")) {
+	if (PyObject_HasAttrString(py_character_instance, (char *)"end_play"))
+	{
 		PyObject *ep_ret = PyObject_CallMethod(py_character_instance, (char *)"end_play", (char*)"i", (int)EndPlayReason);
 
-		if (!ep_ret) {
+		if (!ep_ret)
+		{
 			unreal_engine_py_log_error();
 		}
 
@@ -445,7 +482,7 @@ APyCharacter::~APyCharacter()
 
 
 	Py_XDECREF(py_character_instance);
-	
+
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Python ACharacter (mapped to %p) wrapper XDECREF'ed"), py_uobject ? py_uobject->py_proxy : nullptr);
 #endif

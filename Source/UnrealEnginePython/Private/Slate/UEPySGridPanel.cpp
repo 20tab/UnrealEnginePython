@@ -1,40 +1,39 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySGridPanel.h"
 
 
-#define sw_grid_panel StaticCastSharedRef<SGridPanel>(self->s_panel.s_widget.s_widget)
+static PyObject *py_ue_sgrid_panel_clear_children(ue_PySGridPanel *self, PyObject * args)
+{
 
-static PyObject *py_ue_sgrid_panel_clear_children(ue_PySGridPanel *self, PyObject * args) {
+	ue_py_slate_cast(SGridPanel);
+	py_SGridPanel->ClearChildren();
 
-	sw_grid_panel->ClearChildren();
-
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * args) {
+static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * args)
+{
+	ue_py_slate_cast(SGridPanel);
 	PyObject *py_content;
 	int col;
 	int row;
 	int layer = 0;
-	if (!PyArg_ParseTuple(args, "Oii|i:add_slot", &py_content, &col, &row, &layer)) {
+	if (!PyArg_ParseTuple(args, "Oii|i:add_slot", &py_content, &col, &row, &layer))
+	{
 		return NULL;
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget) {
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
+	TSharedPtr<SWidget> Content = py_ue_is_swidget<SWidget>(py_content);
+	if (!Content.IsValid())
+	{
+		return nullptr;
 	}
-	// TODO: decrement reference when destroying parent
-	Py_INCREF(py_swidget);
 
-	SGridPanel::FSlot &fslot = sw_grid_panel->AddSlot(col, row, SGridPanel::Layer(layer));
-	fslot.AttachWidget(py_swidget->s_widget->AsShared());
 
-	Py_INCREF(self);
-	return (PyObject *)self;
+	SGridPanel::FSlot &fslot = py_SGridPanel->AddSlot(col, row, SGridPanel::Layer(layer));
+	fslot.AttachWidget(Content.ToSharedRef());
+
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySGridPanel_methods[] = {
@@ -74,12 +73,14 @@ PyTypeObject ue_PySGridPanelType = {
 	ue_PySGridPanel_methods,             /* tp_methods */
 };
 
-static int ue_py_sgrid_panel_init(ue_PySGridPanel *self, PyObject *args, PyObject *kwargs) {
-	ue_py_snew_simple(SGridPanel, s_panel.s_widget);
+static int ue_py_sgrid_panel_init(ue_PySGridPanel *self, PyObject *args, PyObject *kwargs)
+{
+	ue_py_snew_simple(SGridPanel);
 	return 0;
 }
 
-void ue_python_init_sgrid_panel(PyObject *ue_module) {
+void ue_python_init_sgrid_panel(PyObject *ue_module)
+{
 
 	ue_PySGridPanelType.tp_init = (initproc)ue_py_sgrid_panel_init;
 	ue_PySGridPanelType.tp_call = (ternaryfunc)py_ue_sgrid_panel_add_slot;

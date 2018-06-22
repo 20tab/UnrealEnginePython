@@ -1,18 +1,22 @@
+#include "UEPyFbxManager.h"
+
 #if ENGINE_MINOR_VERSION > 12
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
 
 #include "UEPyFbx.h"
 
-static PyObject *py_ue_fbx_manager_set_io_settings(ue_PyFbxManager *self, PyObject *args) {
+static PyObject *py_ue_fbx_manager_set_io_settings(ue_PyFbxManager *self, PyObject *args)
+{
 	PyObject *py_object;
-	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+	if (!PyArg_ParseTuple(args, "O", &py_object))
+	{
 		return nullptr;
 	}
 
 	ue_PyFbxIOSettings *py_fbx_io_settings = py_ue_is_fbx_io_settings(py_object);
-	if (!py_fbx_io_settings) {
+	if (!py_fbx_io_settings)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FbxIOSettings");
 	}
 
@@ -21,14 +25,17 @@ static PyObject *py_ue_fbx_manager_set_io_settings(ue_PyFbxManager *self, PyObje
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fbx_manager_create_missing_bind_poses(ue_PyFbxManager *self, PyObject *args) {
+static PyObject *py_ue_fbx_manager_create_missing_bind_poses(ue_PyFbxManager *self, PyObject *args)
+{
 	PyObject *py_object;
-	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+	if (!PyArg_ParseTuple(args, "O", &py_object))
+	{
 		return nullptr;
 	}
 
 	ue_PyFbxScene *py_fbx_scene = py_ue_is_fbx_scene(py_object);
-	if (!py_fbx_scene) {
+	if (!py_fbx_scene)
+	{
 		return PyErr_Format(PyExc_Exception, "argument is not a FbxScene");
 	}
 
@@ -44,7 +51,8 @@ static PyMethodDef ue_PyFbxManager_methods[] = {
 	{ NULL }  /* Sentinel */
 };
 
-static void ue_py_fbx_manager_dealloc(ue_PyFbxManager *self) {
+static void ue_py_fbx_manager_dealloc(ue_PyFbxManager *self)
+{
 	if (self->fbx_manager)
 		self->fbx_manager->Destroy();
 #if PY_MAJOR_VERSION < 3
@@ -87,12 +95,14 @@ static PyTypeObject ue_PyFbxManagerType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_manager_init(ue_PyFbxManager *self, PyObject * args) {
+static int py_ue_fbx_manager_init(ue_PyFbxManager *self, PyObject * args)
+{
 	self->fbx_manager = FbxManager::Create();
 	return 0;
 }
 
-void ue_python_init_fbx_manager(PyObject *ue_module) {
+void ue_python_init_fbx_manager(PyObject *ue_module)
+{
 	ue_PyFbxManagerType.tp_new = PyType_GenericNew;;
 	ue_PyFbxManagerType.tp_init = (initproc)py_ue_fbx_manager_init;
 	if (PyType_Ready(&ue_PyFbxManagerType) < 0)
@@ -103,13 +113,15 @@ void ue_python_init_fbx_manager(PyObject *ue_module) {
 }
 
 
-ue_PyFbxManager *py_ue_is_fbx_manager(PyObject *obj) {
+ue_PyFbxManager *py_ue_is_fbx_manager(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxManagerType))
 		return nullptr;
 	return (ue_PyFbxManager *)obj;
 }
 
-void ue_python_init_fbx(PyObject *module) {
+void ue_python_init_fbx(PyObject *module)
+{
 	ue_python_init_fbx_manager(module);
 	ue_python_init_fbx_io_settings(module);
 	ue_python_init_fbx_importer(module);

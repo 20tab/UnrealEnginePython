@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-
+#include "UnrealEnginePython.h"
 #include "PyCharacter.generated.h"
 
 
@@ -31,53 +31,53 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UPROPERTY(EditAnywhere , Category = "Python")
-	FString PythonModule;
+	UPROPERTY(EditAnywhere, Category = "Python")
+		FString PythonModule;
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	FString PythonClass;
+		FString PythonClass;
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	bool PythonTickForceDisabled;
+		bool PythonTickForceDisabled;
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	bool PythonDisableAutoBinding;
+		bool PythonDisableAutoBinding;
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void CallPyCharacterMethod(FString method_name, FString args);
+		void CallPyCharacterMethod(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	bool CallPyCharacterMethodBool(FString method_name, FString args);
+		bool CallPyCharacterMethodBool(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	FString CallPyCharacterMethodString(FString method_name, FString args);
+		FString CallPyCharacterMethodString(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	float CallPyCharacterMethodFloat(FString method_name, FString args);
+		float CallPyCharacterMethodFloat(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrInt(FString attr, int Integer);
+		void SetPythonAttrInt(FString attr, int Integer);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrFloat(FString attr, float Float);
+		void SetPythonAttrFloat(FString attr, float Float);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrString(FString attr, FString String);
+		void SetPythonAttrString(FString attr, FString String);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrBool(FString attr, bool Boolean);
+		void SetPythonAttrBool(FString attr, bool Boolean);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrVector(FString attr, FVector Vector);
+		void SetPythonAttrVector(FString attr, FVector Vector);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrRotator(FString attr, FRotator Rotator);
+		void SetPythonAttrRotator(FString attr, FRotator Rotator);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrObject(FString attr, UObject *Object);
+		void SetPythonAttrObject(FString attr, UObject *Object);
 
 private:
-	PyObject *py_character_instance;
+	PyObject * py_character_instance;
 	// mapped uobject, required for debug and advanced reflection
 	ue_PyUObject *py_uobject;
 };

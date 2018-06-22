@@ -1,4 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFVector.h"
+#include "UEPyFRotator.h"
+#include "UEPyFQuat.h"
 
 static PyObject *py_ue_fvector_length(ue_PyFVector *self, PyObject * args)
 {

@@ -1,49 +1,24 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySSplitter.h"
-
-#define sw_splitter StaticCastSharedRef<SSplitter>(self->s_panel.s_widget.s_widget)
 
 static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args, PyObject *kwargs)
 {
-	PyObject *py_content;
-	int index = -1;
-	float size_value = -1;
-	int sizing_rule = -1;
+    ue_py_slate_cast(SSplitter);
 
-	char *kwlist[] = { (char *)"widget",
-		(char *)"index",
-		(char *)"size_value",
-		(char *)"sizing_rule",
-		nullptr };
+    int32 retCode = [&]() {
+        ue_py_slate_setup_hack_slot_args(SSplitter, py_SSplitter);
+        ue_py_slate_farguments_float("value", Value);
+        ue_py_slate_farguments_enum("size_rule", SizeRule, SSplitter::ESizeRule);
+        ue_py_slate_farguments_event("on_slot_resized", OnSlotResized, SSplitter::FOnSlotResized, OnFloatChanged);
+        ue_py_slate_track_delegates(py_SSplitter);
+        return 0;
+    }();
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ifi:add_slot", kwlist, &py_content, &index, &size_value, &sizing_rule))
+    if (retCode != 0)
 	{
-		return nullptr;
+        return PyErr_Format(PyExc_Exception, "could not add horizontal slot");
 	}
 
-	ue_PySWidget *py_swidget = py_ue_is_swidget(py_content);
-	if (!py_swidget)
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
-	}
-
-	Py_INCREF(py_swidget);
-
-	SSplitter::FSlot &fslot = sw_splitter->AddSlot(index);
-	if (size_value > -1)
-	{
-		fslot.SizeValue = size_value;
-	}
-	if (sizing_rule > -1)
-	{
-		fslot.SizingRule = (SSplitter::ESizeRule)sizing_rule;
-	}
-	fslot.AttachWidget(py_swidget->s_widget->AsShared());
-
-	Py_INCREF(self);
-	return (PyObject *)self;
+	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySSplitter_methods[] = {
@@ -94,7 +69,7 @@ static int ue_py_ssplitter_init(ue_PySSplitter *self, PyObject *args, PyObject *
 	ue_py_slate_farguments_optional_enum("resize_mode", ResizeMode, ESplitterResizeMode::Type);
 	ue_py_slate_farguments_optional_struct_ptr("style", Style, FSplitterStyle);
 
-	ue_py_snew(SSplitter, s_panel.s_widget);
+	ue_py_snew(SSplitter);
 	return 0;
 }
 

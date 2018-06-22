@@ -1,8 +1,7 @@
 #pragma once
 
-
-
-#include "UnrealEnginePython.h"
+#include "UEPyUScriptStruct.h"
+#include "UEPyFVector.h"
 
 extern PyTypeObject ue_PyUScriptStructType;
 

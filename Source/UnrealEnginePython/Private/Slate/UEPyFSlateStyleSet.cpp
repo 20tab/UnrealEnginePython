@@ -1,4 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPyFSlateStyleSet.h"
 #include "SlateTypes.h"
@@ -80,6 +79,7 @@ static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject 
         static const WStylePair validWidgetStyleUStructList[] = {
             WStylePair{ FTextBlockStyle::StaticStruct()              , WStyleSetter([](FSlateStyleSet& InStyle, FName InName, void* InWidgetStyleDef) { pySetWidgetStyle<FTextBlockStyle>              (InStyle, InName,InWidgetStyleDef); }) },
             WStylePair{ FButtonStyle::StaticStruct()                 , WStyleSetter([](FSlateStyleSet& InStyle, FName InName, void* InWidgetStyleDef) { pySetWidgetStyle<FButtonStyle>                 (InStyle, InName,InWidgetStyleDef); }) },
+            WStylePair{ FCheckBoxStyle::StaticStruct()               , WStyleSetter([](FSlateStyleSet& InStyle, FName InName, void* InWidgetStyleDef) { pySetWidgetStyle<FCheckBoxStyle>               (InStyle, InName,InWidgetStyleDef); }) },
             WStylePair{ FComboButtonStyle::StaticStruct()            , WStyleSetter([](FSlateStyleSet& InStyle, FName InName, void* InWidgetStyleDef) { pySetWidgetStyle<FComboButtonStyle>            (InStyle, InName,InWidgetStyleDef); }) },
             WStylePair{ FComboBoxStyle::StaticStruct()               , WStyleSetter([](FSlateStyleSet& InStyle, FName InName, void* InWidgetStyleDef) { pySetWidgetStyle<FComboBoxStyle>               (InStyle, InName,InWidgetStyleDef); }) },
             WStylePair{ FHyperlinkStyle::StaticStruct()              , WStyleSetter([](FSlateStyleSet& InStyle, FName InName, void* InWidgetStyleDef) { pySetWidgetStyle<FHyperlinkStyle>              (InStyle, InName,InWidgetStyleDef); }) },
@@ -142,7 +142,8 @@ static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject 
 	return PyErr_Format(PyExc_ValueError, "unsupported value type");
 }
 
-namespace {
+namespace
+{
     template <typename WidgetStyleType> 
     PyObject* pyGetWidgetStyle(FSlateStyleSet& InStyle, FName PropertyName)
     {
@@ -195,6 +196,7 @@ static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject 
         static const WStylePair validWidgetStyleUStructList[] = {
             WStylePair{ FTextBlockStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTextBlockStyle>              (InStyle, InName); }) },
             WStylePair{ FButtonStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FButtonStyle>                 (InStyle, InName); }) },
+            WStylePair{ FCheckBoxStyle::StaticStruct()            , WStyleGetter([](FSlateStyleSet& InStyle, FName InName)    { return pyGetWidgetStyle<FCheckBoxStyle>               (InStyle, InName); }) },
             WStylePair{ FComboButtonStyle::StaticStruct()            , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FComboButtonStyle>            (InStyle, InName); }) },
             WStylePair{ FComboBoxStyle::StaticStruct()               , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FComboBoxStyle>               (InStyle, InName); }) },
             WStylePair{ FHyperlinkStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FHyperlinkStyle>              (InStyle, InName); }) },

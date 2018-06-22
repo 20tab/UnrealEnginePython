@@ -1,7 +1,8 @@
-#if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySDropTarget.h"
+
+#if WITH_EDITOR
+
+
 
 
 static PyMethodDef ue_PySDropTarget_methods[] = {
@@ -39,7 +40,8 @@ PyTypeObject ue_PySDropTargetType = {
 	ue_PySDropTarget_methods,             /* tp_methods */
 };
 
-void ue_python_init_sdrop_target(PyObject *ue_module) {
+void ue_python_init_sdrop_target(PyObject *ue_module)
+{
 
 	ue_PySDropTargetType.tp_base = &ue_PySCompoundWidgetType;
 

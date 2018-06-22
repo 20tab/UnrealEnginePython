@@ -1,9 +1,6 @@
-#if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySAssetDropTarget.h"
 
-#define sw_asset_drop_target StaticCastSharedRef<SAssetDropTarget>(self->s_drop_target.s_compound_widget.s_widget.s_widget)
+#if WITH_EDITOR
 
 
 static PyMethodDef ue_PySAssetDropTarget_methods[] = {
@@ -41,14 +38,16 @@ PyTypeObject ue_PySAssetDropTargetType = {
 	ue_PySAssetDropTarget_methods,             /* tp_methods */
 };
 
-static int ue_py_sasset_drop_target_init(ue_PySAssetDropTarget *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sasset_drop_target_init(ue_PySAssetDropTarget *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SAssetDropTarget);
 
-	ue_py_snew(SAssetDropTarget, s_drop_target.s_compound_widget.s_widget);
+	ue_py_snew(SAssetDropTarget);
 	return 0;
 }
 
-void ue_python_init_sasset_drop_target(PyObject *ue_module) {
+void ue_python_init_sasset_drop_target(PyObject *ue_module)
+{
 
 	ue_PySAssetDropTargetType.tp_init = (initproc)ue_py_sasset_drop_target_init;
 

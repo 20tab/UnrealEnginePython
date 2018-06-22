@@ -1,6 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFEditorViewportClient.h"
+#include "UEPyFVector.h"
 
 #if WITH_EDITOR
+
 
 static PyObject *py_ue_feditor_viewport_client_take_high_res_screen_shot(ue_PyFEditorViewportClient *self, PyObject * args)
 {
@@ -56,6 +58,13 @@ static PyObject *py_ue_feditor_viewport_client_is_visible(ue_PyFEditorViewportCl
 	Py_RETURN_FALSE;
 }
 
+static PyObject *py_ue_feditor_viewport_client_is_camera_locked(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	if (self->editor_viewport_client->IsCameraLocked())
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
 static PyObject *py_ue_feditor_viewport_client_get_scene_depth_at_location(ue_PyFEditorViewportClient *self, PyObject * args)
 {
 	int x;
@@ -95,6 +104,17 @@ static PyObject *py_ue_feditor_viewport_client_set_realtime(ue_PyFEditorViewport
     Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_feditor_viewport_client_set_game_mode(ue_PyFEditorViewportClient *self, PyObject * args)
+{
+	PyObject* bIsEnabled;
+	if (!PyArg_ParseTuple(args, "O", &bIsEnabled))
+		return nullptr;
+
+	self->editor_viewport_client->SetGameView(PyObject_IsTrue(bIsEnabled) ? true : false);
+	Py_RETURN_NONE;
+}
+
+
 static PyMethodDef ue_PyFEditorViewportClient_methods[] = {
 	{ "take_high_res_screen_shot", (PyCFunction)py_ue_feditor_viewport_client_take_high_res_screen_shot, METH_VARARGS, "" },
 	{ "tick", (PyCFunction)py_ue_feditor_viewport_client_tick, METH_VARARGS, "" },
@@ -102,11 +122,13 @@ static PyMethodDef ue_PyFEditorViewportClient_methods[] = {
 	{ "get_view_location", (PyCFunction)py_ue_feditor_viewport_client_get_view_location, METH_VARARGS, "" },
 	{ "get_camera_speed", (PyCFunction)py_ue_feditor_viewport_client_get_camera_speed, METH_VARARGS, "" },
 	{ "get_viewport_dimensions", (PyCFunction)py_ue_feditor_viewport_client_get_viewport_dimensions, METH_VARARGS, "" },
+	{ "is_camera_locked", (PyCFunction)py_ue_feditor_viewport_client_is_camera_locked, METH_VARARGS, "" },
 	{ "is_visible", (PyCFunction)py_ue_feditor_viewport_client_is_visible, METH_VARARGS, "" },
 	{ "get_scene_depth_at_location", (PyCFunction)py_ue_feditor_viewport_client_get_scene_depth_at_location, METH_VARARGS, "" },
 	{ "set_look_at_location", (PyCFunction)py_ue_feditor_viewport_client_set_look_at_location, METH_VARARGS, "" },
 	{ "set_view_location", (PyCFunction)py_ue_feditor_viewport_client_set_view_location, METH_VARARGS, "" },
     { "set_realtime", (PyCFunction)py_ue_feditor_viewport_client_set_realtime, METH_VARARGS, "" },
+	{ "set_game_mode", (PyCFunction)py_ue_feditor_viewport_client_set_game_mode, METH_VARARGS, "" },
 	{ nullptr }  /* Sentinel */
 };
 

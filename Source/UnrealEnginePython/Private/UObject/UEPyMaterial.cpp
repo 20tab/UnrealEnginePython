@@ -1,11 +1,143 @@
 
+#include "UEPyMaterial.h"
 
-#include "UnrealEnginePythonPrivatePCH.h"
 #if WITH_EDITOR
 #include "Editor/UnrealEd/Classes/MaterialGraph/MaterialGraph.h"
 #include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
 #include "Editor/UnrealEd/Classes/MaterialGraph/MaterialGraphSchema.h"
 #endif
+#include <Materials/MaterialInterface.h>
+#include <Shader.h>
+#include <MaterialShared.h>
+#include "Materials/Material.h"
+
+PyObject *py_ue_get_material_instruction_count(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	uint64 feature_level = ERHIFeatureLevel::SM5, material_quality = EMaterialQualityLevel::High, shader_platform = EShaderPlatform::SP_PCD3D_SM5;
+	if (!PyArg_ParseTuple(args, "KKK:get_material_instruction_count", &feature_level, &material_quality, &shader_platform))
+	{
+		return nullptr;
+	}
+
+	if (!self->ue_object->GetClass()->IsChildOf<UMaterialInterface>())
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	}
+
+	UMaterialInterface *material = (UMaterialInterface *)self->ue_object;
+	UMaterialInterface *old_material =	nullptr;
+	FMaterialResource * material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	int instruction_count = 0;
+	if (material_resource == nullptr)
+	{
+		// If this is an instance, will get the resource from parent material
+		material = material->GetMaterial();
+	}
+
+	material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	FMaterialShaderMapId OutId;
+	TArray<FString> Descriptions;
+	TArray<int32> InstructionCounts;
+	
+	material_resource->GetRepresentativeInstructionCounts(Descriptions, InstructionCounts);
+
+	// [0] = Base pass shader count, [Last] = Vertex shader, discarding the other two as they are permutations of 0 for surface/volumetric lightmap cases
+	instruction_count = InstructionCounts.Last() + InstructionCounts[0];
+
+	return PyLong_FromLong(instruction_count);
+}
+
+PyObject *py_ue_get_material_sampler_count(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	uint64 feature_level = ERHIFeatureLevel::SM5, material_quality = EMaterialQualityLevel::High, shader_platform = EShaderPlatform::SP_PCD3D_SM5;
+	if (!PyArg_ParseTuple(args, "KKK:get_material_sampler_count", &feature_level, &material_quality, &shader_platform))
+	{
+		return nullptr;
+	}
+
+	if (!self->ue_object->GetClass()->IsChildOf<UMaterialInterface>())
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
+	}
+
+	UMaterialInterface *material = (UMaterialInterface *)self->ue_object;
+	UMaterialInterface *old_material = nullptr;
+	FMaterialResource * material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	if (material_resource == nullptr)
+	{
+		// If this is an instance, will get the resource from parent material
+		material = material->GetMaterial();
+	}
+
+	material_resource = material->GetMaterialResource((ERHIFeatureLevel::Type)feature_level, (EMaterialQualityLevel::Type)material_quality);
+	FMaterialShaderMapId OutId;
+	material_resource->GetShaderMapId((EShaderPlatform)shader_platform, OutId);
+
+	int sampler_count = 0;
+	sampler_count += material_resource->GetSamplerUsage();
+
+	return PyLong_FromLong(sampler_count);
+}
+
+#include "Materials/MaterialInstanceConstant.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Wrappers/UEPyFLinearColor.h"
+#include "Wrappers/UEPyFVector.h"
+#include "Engine/Texture.h"
+#include "Components/PrimitiveComponent.h"
+#include "Engine/StaticMesh.h"
+
+PyObject *py_ue_set_material_by_name(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *slot_name;
+	PyObject *py_mat;
+	if (!PyArg_ParseTuple(args, "sO:set_material_by_name", &slot_name, &py_mat))
+	{
+		return nullptr;
+	}
+
+	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
+	if (!primitive)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
+
+	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
+	if (!material)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
+
+	primitive->SetMaterialByName(FName(UTF8_TO_TCHAR(slot_name)), material);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	int slot;
+	PyObject *py_mat;
+	if (!PyArg_ParseTuple(args, "iO:set_material", &slot, &py_mat))
+	{
+		return nullptr;
+	}
+
+	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
+	if (!primitive)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
+
+	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
+	if (!material)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
+
+	primitive->SetMaterial(slot, material);
+
+	Py_RETURN_NONE;
+}
 
 PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * args)
 {
@@ -300,44 +432,6 @@ PyObject *py_ue_create_material_instance_dynamic(ue_PyUObject *self, PyObject * 
 	Py_RETURN_UOBJECT(material_dynamic);
 }
 
-PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
-{
-
-	ue_py_check(self);
-
-	int index;
-	PyObject *py_material = nullptr;
-
-	if (!PyArg_ParseTuple(args, "iO:set_material", &index, &py_material))
-	{
-		return NULL;
-	}
-
-	if (!self->ue_object->IsA<UPrimitiveComponent>())
-	{
-		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
-	}
-
-	UPrimitiveComponent *component = (UPrimitiveComponent *)self->ue_object;
-
-	if (!ue_is_pyuobject(py_material))
-	{
-		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
-	}
-
-	ue_PyUObject *py_obj = (ue_PyUObject *)py_material;
-
-	if (!py_obj->ue_object->IsA<UMaterialInterface>())
-	{
-		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
-	}
-
-	UMaterialInterface *material_interface = (UMaterialInterface *)py_obj->ue_object;
-
-	component->SetMaterial(index, material_interface);
-
-	Py_RETURN_NONE;
-}
 
 
 #if WITH_EDITOR
@@ -455,16 +549,16 @@ PyObject *py_ue_get_material_graph(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UMaterial>())
-	{
+	UMaterial *material = ue_py_check_type<UMaterial>(self);
+	if (!material)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UMaterialInterface");
-	}
-
-	UMaterial *material = (UMaterial *)self->ue_object;
 
 	UMaterialGraph *graph = material->MaterialGraph;
 	if (!graph)
-		material->MaterialGraph = (UMaterialGraph *)FBlueprintEditorUtils::CreateNewGraph(material, NAME_None, UMaterialGraph::StaticClass(), UMaterialGraphSchema::StaticClass());
+	{
+		graph = (UMaterialGraph *)FBlueprintEditorUtils::CreateNewGraph(material, NAME_None, UMaterialGraph::StaticClass(), UMaterialGraphSchema::StaticClass());
+		material->MaterialGraph = graph;
+	}
 	if (!graph)
 		return PyErr_Format(PyExc_Exception, "Unable to retrieve/allocate MaterialGraph");
 

@@ -1,4 +1,5 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFQuat.h"
+#include "UEPyFRotator.h"
 
 #if ENGINE_MINOR_VERSION > 12
 static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args) {
@@ -13,6 +14,10 @@ static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args)
 
 static PyObject *py_ue_fquat_euler(ue_PyFQuat *self, PyObject * args) {
 	return py_ue_new_fvector(py_ue_fquat_get(self).Euler());
+}
+
+static PyObject *py_ue_fquat_rotator(ue_PyFQuat *self, PyObject * args) {
+	return py_ue_new_frotator(py_ue_fquat_get(self).Rotator());
 }
 
 static PyObject *py_ue_fquat_get_axis_x(ue_PyFQuat *self, PyObject * args) {
@@ -44,7 +49,7 @@ static PyMethodDef ue_PyFQuat_methods[] = {
 	{ "angular_distance", (PyCFunction)py_ue_fquat_angular_distance, METH_VARARGS, "" },
 #endif
 	{ "euler", (PyCFunction)py_ue_fquat_euler, METH_VARARGS, "" },
-	{ "rotator", (PyCFunction)py_ue_fquat_euler, METH_VARARGS, "" },
+	{ "rotator", (PyCFunction)py_ue_fquat_rotator, METH_VARARGS, "" },
 	{ "get_axis_x", (PyCFunction)py_ue_fquat_get_axis_x, METH_VARARGS, "" },
 	{ "get_axis_y", (PyCFunction)py_ue_fquat_get_axis_y, METH_VARARGS, "" },
 	{ "get_axis_z", (PyCFunction)py_ue_fquat_get_axis_z, METH_VARARGS, "" },

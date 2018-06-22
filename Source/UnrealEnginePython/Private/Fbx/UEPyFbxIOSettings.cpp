@@ -1,5 +1,6 @@
+#include "UEPyFbxIOSettings.h"
+
 #if ENGINE_MINOR_VERSION > 12
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
 
@@ -42,15 +43,18 @@ static PyTypeObject ue_PyFbxIOSettingsType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_io_settings_init(ue_PyFbxIOSettings *self, PyObject * args) {
+static int py_ue_fbx_io_settings_init(ue_PyFbxIOSettings *self, PyObject * args)
+{
 	PyObject *py_object;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os", &py_object, &name)) {
+	if (!PyArg_ParseTuple(args, "Os", &py_object, &name))
+	{
 		return -1;
 	}
 
 	ue_PyFbxManager *py_fbx_manager = py_ue_is_fbx_manager(py_object);
-	if (!py_fbx_manager) {
+	if (!py_fbx_manager)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a FbxManager");
 		return -1;
 	}
@@ -59,7 +63,8 @@ static int py_ue_fbx_io_settings_init(ue_PyFbxIOSettings *self, PyObject * args)
 	return 0;
 }
 
-void ue_python_init_fbx_io_settings(PyObject *ue_module) {
+void ue_python_init_fbx_io_settings(PyObject *ue_module)
+{
 	ue_PyFbxIOSettingsType.tp_new = PyType_GenericNew;;
 	ue_PyFbxIOSettingsType.tp_init = (initproc)py_ue_fbx_io_settings_init;
 	if (PyType_Ready(&ue_PyFbxIOSettingsType) < 0)
@@ -69,7 +74,8 @@ void ue_python_init_fbx_io_settings(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxIOSettings", (PyObject *)&ue_PyFbxIOSettingsType);
 }
 
-ue_PyFbxIOSettings *py_ue_is_fbx_io_settings(PyObject *obj) {
+ue_PyFbxIOSettings *py_ue_is_fbx_io_settings(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxIOSettingsType))
 		return nullptr;
 	return (ue_PyFbxIOSettings *)obj;

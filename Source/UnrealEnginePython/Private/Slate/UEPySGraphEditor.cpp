@@ -1,12 +1,9 @@
-#if WITH_EDITOR
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySGraphEditor.h"
 
+#if WITH_EDITOR
 
-
-#define sw_graph_editor StaticCastSharedRef<SGraphEditor>(self->s_compound_widget.s_widget.s_widget)
-
+#include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
 
 static PyMethodDef ue_PySGraphEditor_methods[] = {
 	{ NULL }  /* Sentinel */
@@ -43,22 +40,29 @@ PyTypeObject ue_PySGraphEditorType = {
 	ue_PySGraphEditor_methods,             /* tp_methods */
 };
 
-static int ue_py_sgraph_editor_init(ue_PySGraphEditor *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_sgraph_editor_init(ue_PySGraphEditor *self, PyObject *args, PyObject *kwargs)
+{
 	PyObject *py_graph;
-	if (!PyArg_ParseTuple(args, "O", &py_graph)) {
+	if (!PyArg_ParseTuple(args, "O", &py_graph))
+	{
 		return -1;
 	}
 
 	UEdGraph *graph = ue_py_check_type<UEdGraph>(py_graph);
-	if (!graph) {
+	if (!graph)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a EdGraph");
 		return -1;
 	}
-	new (&self->s_compound_widget.s_widget.s_widget) TSharedRef<SWidget>(SNew(SGraphEditor).GraphToEdit(graph));
+	ue_py_slate_setup_farguments(SGraphEditor);
+	arguments.GraphToEdit(graph);
+	ue_py_snew(SGraphEditor);
+
 	return 0;
 }
 
-void ue_python_init_sgraph_editor(PyObject *ue_module) {
+void ue_python_init_sgraph_editor(PyObject *ue_module)
+{
 
 	ue_PySGraphEditorType.tp_init = (initproc)ue_py_sgraph_editor_init;
 

@@ -1,10 +1,17 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 #include "PythonBlueprintFunctionLibrary.h"
 #include "HAL/IConsoleManager.h"
+#include "HAL/PlatformFilemanager.h"
 #if ENGINE_MINOR_VERSION < 13
 #include "ClassIconFinder.h"
+#endif
+
+#include "Styling/SlateStyleRegistry.h"
+#if WITH_EDITOR
+#include "Interfaces/IPluginManager.h"
 #endif
 
 #if ENGINE_MINOR_VERSION >= 18
@@ -82,7 +89,7 @@ bool FUnrealEnginePythonModule::PythonGILAcquire()
 	return false;
 #endif
 	return true;
-	}
+}
 
 void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 {
@@ -105,9 +112,18 @@ void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 	PyObject *py_zip_path = PyUnicode_FromString(zip_path);
 	PyList_Insert(py_path, 0, py_zip_path);
 
-	char *scripts_path = TCHAR_TO_UTF8(*ScriptsPath);
-	PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
-	PyList_Insert(py_path, 0, py_scripts_path);
+
+	int i = 0;
+	for (FString ScriptsPath : ScriptsPaths)
+	{
+		char *scripts_path = TCHAR_TO_UTF8(*ScriptsPath);
+		PyObject *py_scripts_path = PyUnicode_FromString(scripts_path);
+		PyList_Insert(py_path, i++, py_scripts_path);
+		if (verbose)
+		{
+			UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
+		}
+	}
 
 	char *additional_modules_path = TCHAR_TO_UTF8(*AdditionalModulesPath);
 	PyObject *py_additional_modules_path = PyUnicode_FromString(additional_modules_path);
@@ -116,7 +132,6 @@ void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 	if (verbose)
 	{
 		UE_LOG(LogPython, Log, TEXT("Python VM initialized: %s"), UTF8_TO_TCHAR(Py_GetVersion()));
-		UE_LOG(LogPython, Log, TEXT("Python Scripts search path: %s"), UTF8_TO_TCHAR(scripts_path));
 	}
 }
 
@@ -209,7 +224,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 		FPlatformMisc::SetEnvironmentVar(TEXT("PYTHONHOME"), *PythonHome);
 		Py_SetPythonHome(home);
-}
+	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), PythonHome, GEngineIni))
 	{
@@ -223,7 +238,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 
 		Py_SetPythonHome(home);
-}
+	}
 
 	FString IniValue;
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni))
@@ -251,12 +266,12 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ScriptsPath"), IniValue, GEngineIni))
 	{
-		ScriptsPath = IniValue;
+		ScriptsPaths.Add(IniValue);
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeScriptsPath"), IniValue, GEngineIni))
 	{
-		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+		ScriptsPaths.Add(FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue));
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("AdditionalModulesPath"), IniValue, GEngineIni))
@@ -279,20 +294,27 @@ void FUnrealEnginePythonModule::StartupModule()
 		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
 	}
 
-	if (ScriptsPath.IsEmpty())
+	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
+	if (!FPaths::DirectoryExists(ProjectScriptsPath))
 	{
-		ScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
+		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
 	}
+	ScriptsPaths.Add(ProjectScriptsPath);
+
+  #if WITH_EDITOR
+	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
+	{
+		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
+		if (FPaths::DirectoryExists(PluginScriptsPath))
+		{
+			ScriptsPaths.Add(PluginScriptsPath);
+		}
+	}
+  #endif
 
 	if (ZipPath.IsEmpty())
 	{
 		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("ue_python.zip"));
-	}
-
-	if (!FPaths::DirectoryExists(ScriptsPath))
-	{
-		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-		PlatformFile.CreateDirectory(*ScriptsPath);
 	}
 
 	// To ensure there are no path conflicts, if we have a valid python home at this point,
@@ -332,9 +354,11 @@ void FUnrealEnginePythonModule::StartupModule()
 		PathVars.Append(OurPythonPaths);
 		FString ModifiedPath = FString::Join(PathVars, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
-		}
+	}
 
+#if PY_MAJOR_VERSION >= 3
 	init_unreal_engine_builtin();
+#endif
 
 	Py_Initialize();
 
@@ -371,7 +395,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	// release the GIL
 	PythonGILRelease();
 
-	}
+}
 
 void FUnrealEnginePythonModule::ShutdownModule()
 {
@@ -440,7 +464,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 	return NewCode;
 }
 
-// run a python string in a new sub interpreter 
+// run a python string in a new sub interpreter
 void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 {
 	FScopePythonGIL gil;
@@ -467,7 +491,7 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 		Py_EndInterpreter(py_new_state);
 		PyThreadState_Swap(_main);
 		return;
-}
+	}
 	PyObject *global_dict = PyModule_GetDict(m);
 
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, global_dict, global_dict);
@@ -486,30 +510,46 @@ void FUnrealEnginePythonModule::RunStringSandboxed(char *str)
 void FUnrealEnginePythonModule::RunFile(char *filename)
 {
 	FScopePythonGIL gil;
-	char *full_path = filename;
-	if (!FPaths::FileExists(filename))
+	FString full_path = UTF8_TO_TCHAR(filename);
+	bool foundFile = FPaths::FileExists(filename);
+	if (!foundFile)
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
+		for (FString ScriptsPath : ScriptsPaths)
+		{
+			full_path = FPaths::Combine(*ScriptsPath, full_path);
+			if (FPaths::FileExists(full_path))
+			{
+				foundFile = true;
+				break;
+			}
+		}
 	}
+
+	if (!foundFile)
+	{
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), *full_path);
+		return;
+	}
+
 #if PY_MAJOR_VERSION >= 3
 	FILE *fd = nullptr;
 
 #if PLATFORM_WINDOWS
-	if (fopen_s(&fd, full_path, "r") != 0)
+	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #else
-	fd = fopen(full_path, "r");
+	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");
 	if (!fd)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #endif
 
-	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	fclose(fd);
 	if (!eval_ret)
 	{
@@ -519,7 +559,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	Py_DECREF(eval_ret);
 #else
 	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
-	FString command = FString::Printf(TEXT("execfile(\"%s\")"), UTF8_TO_TCHAR(full_path));
+	FString command = FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
 	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret)
 	{
@@ -534,10 +574,25 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)(void *arg), void *arg)
 {
 	FScopePythonGIL gil;
-	char *full_path = filename;
-	if (!FPaths::FileExists(filename))
+	FString full_path = filename;
+	bool foundFile = FPaths::FileExists(filename);
+	if (!foundFile)
 	{
-		full_path = TCHAR_TO_UTF8(*FPaths::Combine(*ScriptsPath, UTF8_TO_TCHAR(filename)));
+		for (FString ScriptsPath : ScriptsPaths)
+		{
+			full_path = FPaths::Combine(*ScriptsPath, full_path);
+			if (FPaths::FileExists(full_path))
+			{
+				foundFile = true;
+				break;
+			}
+		}
+	}
+
+	if (!foundFile)
+	{
+		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), *full_path);
+		return;
 	}
 
 	PyThreadState *_main = PyThreadState_Get();
@@ -569,21 +624,21 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 	FILE *fd = nullptr;
 
 #if PLATFORM_WINDOWS
-	if (fopen_s(&fd, full_path, "r") != 0)
+	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #else
-	fd = fopen(full_path, "r");
+	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");
 	if (!fd)
 	{
-		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), UTF8_TO_TCHAR(full_path));
+		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
 		return;
 	}
 #endif
 
-	PyObject *eval_ret = PyRun_File(fd, full_path, Py_file_input, global_dict, global_dict);
+	PyObject *eval_ret = PyRun_File(fd, TCHAR_TO_UTF8(*full_path), Py_file_input, global_dict, global_dict);
 	fclose(fd);
 	if (!eval_ret)
 	{
@@ -595,7 +650,7 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 	Py_DECREF(eval_ret);
 #else
 	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
-	FString command = FString::Printf(TEXT("execfile(\"%s\")"), UTF8_TO_TCHAR(full_path));
+	FString command = FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
 	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, global_dict, global_dict);
 	if (!eval_ret)
 	{
@@ -613,7 +668,22 @@ void FUnrealEnginePythonModule::RunFileSandboxed(char *filename, void(*callback)
 	PyThreadState_Swap(_main);
 }
 
+void ue_py_register_magic_module(char *name, PyObject *(*func)())
+{
+	PyObject *py_sys = PyImport_ImportModule("sys");
+	PyObject *py_sys_dict = PyModule_GetDict(py_sys);
+
+	PyObject *py_sys_modules = PyDict_GetItemString(py_sys_dict, "modules");
+	PyObject *u_module = func();
+	Py_INCREF(u_module);
+	PyDict_SetItemString(py_sys_modules, name, u_module);
+}
+
+PyObject *ue_py_register_module(const char *name)
+{
+	return PyImport_AddModule(name);
+}
+
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FUnrealEnginePythonModule, UnrealEnginePython)
-

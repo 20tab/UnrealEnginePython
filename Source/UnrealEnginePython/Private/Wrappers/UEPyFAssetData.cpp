@@ -1,8 +1,9 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFAssetData.h"
 
 #if WITH_EDITOR
 
 #include "ObjectTools.h"
+#include "Wrappers/UEPyFObjectThumbnail.h"
 
 static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * args)
 {
@@ -12,7 +13,16 @@ static PyObject *py_ue_fassetdata_get_asset(ue_PyFAssetData *self, PyObject * ar
 static PyObject *py_ue_fassetdata_is_asset_loaded(ue_PyFAssetData *self, PyObject * args)
 {
 	if (self->asset_data.IsAssetLoaded())
-		Py_RETURN_TRUE;
+	{ Py_RETURN_TRUE; }
+
+	Py_RETURN_FALSE;
+}
+
+static PyObject *py_ue_fassetdata_is_valid(ue_PyFAssetData *self, PyObject * args)
+{
+	if (self->asset_data.IsValid())
+	{ Py_RETURN_TRUE; }
+
 	Py_RETURN_FALSE;
 }
 
@@ -69,6 +79,7 @@ static PyObject *py_ue_fassetdata_has_cached_thumbnail(ue_PyFAssetData *self, Py
 static PyMethodDef ue_PyFAssetData_methods[] = {
 	{ "get_asset", (PyCFunction)py_ue_fassetdata_get_asset, METH_VARARGS, "" },
 	{ "is_asset_loaded", (PyCFunction)py_ue_fassetdata_is_asset_loaded, METH_VARARGS, "" },
+	{ "is_valid", (PyCFunction)py_ue_fassetdata_is_valid, METH_VARARGS, "" },
 	{ "get_thumbnail", (PyCFunction)py_ue_fassetdata_get_thumbnail, METH_VARARGS, "" },
 
 #if ENGINE_MINOR_VERSION >= 18

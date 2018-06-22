@@ -1,6 +1,6 @@
 // Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyEngine.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -10,7 +10,17 @@
 #if WITH_EDITOR
 #include "PackageTools.h"
 #include "PackageHelperFunctions.h"
+#include "Editor.h"
 #endif
+#include "HAL/PlatformApplicationMisc.h"
+
+#include "UnrealEngine.h"
+#include "Runtime/Engine/Classes/Engine/GameViewportClient.h"
+
+#if ENGINE_MINOR_VERSION >= 18
+#include "HAL/PlatformApplicationMisc.h"
+#endif
+#include "EngineUtils.h"
 
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
@@ -212,14 +222,46 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args)
 	return py_ue_new_fvector(vec);
 }
 
+PyObject *py_unreal_engine_get_section(PyObject *self, PyObject * args)
+{
+	char * section_name = nullptr;
+	char *file_name = nullptr;
+
+	if (!PyArg_ParseTuple(args, "ss:get_section", &section_name, &file_name))
+	{
+		return NULL;
+	}
+
+	TArray<FString> outSection;
+	GConfig->GetSection(*FString(section_name), outSection, FString(file_name));
+
+	PyObject *ret = PyList_New(0);
+	for (FString & outString : outSection)
+	{
+		PyObject *py_string = PyUnicode_FromString(TCHAR_TO_UTF8(*outString));
+		PyList_Append(ret, py_string);
+		Py_DECREF(py_string);
+	}
+
+	return ret;
+}
+
 PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 {
+#if ENGINE_MINOR_VERSION >= 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectContentDir()));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
+#endif
 }
 
 PyObject *py_unreal_engine_get_game_saved_dir(PyObject * self, PyObject * args)
 {
+#if ENGINE_MINOR_VERSION >= 18
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectSavedDir()));
+#else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameSavedDir()));
+#endif
 }
 
 PyObject * py_unreal_engine_get_game_user_developer_dir(PyObject *, PyObject *)
@@ -329,6 +371,41 @@ PyObject *py_unreal_engine_load_package(PyObject * self, PyObject * args)
 }
 
 #if WITH_EDITOR
+PyObject *py_unreal_engine_find_actor_by_label_in_world(PyObject * self, PyObject * args)
+{
+	PyObject* py_world;
+	char* actor_label;
+	if (!PyArg_ParseTuple(args, "Os:find_actor_by_label_in_world", &py_world, &actor_label))
+	{
+		return NULL;
+	}
+
+	UWorld *u_world = ue_py_check_type<UWorld>(py_world);
+	if (!u_world)
+	{
+		return PyErr_Format(PyExc_Exception, "Argument is not a UWorld");
+	}
+
+	UObject *u_object = nullptr;
+
+	for (TActorIterator<AActor> Itr(u_world); Itr; ++Itr)
+	{
+		AActor *u_obj = *Itr;
+		if (u_obj->GetActorLabel().Equals(UTF8_TO_TCHAR(actor_label)))
+		{
+			u_object = u_obj;
+			break;
+		}
+	}
+
+	if (u_object)
+	{
+		Py_RETURN_UOBJECT(u_object);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 {
 	PyObject *obj;
@@ -535,7 +612,6 @@ PyObject *py_unreal_engine_get_delta_time(PyObject * self, PyObject * args)
 {
 	return PyFloat_FromDouble(FApp::GetDeltaTime());
 }
-
 
 PyObject *py_unreal_engine_find_object(PyObject * self, PyObject * args)
 {
@@ -1314,14 +1390,22 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 		return nullptr;
 	}
 
+#if ENGINE_MINOR_VERSION >= 18
+	FPlatformApplicationMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
+#else
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
+#endif
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {
 	FString clipboard;
+#if ENGINE_MINOR_VERSION >= 18
+	FPlatformApplicationMisc::ClipboardPaste(clipboard);
+#else
 	FGenericPlatformMisc::ClipboardPaste(clipboard);
+#endif
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*clipboard));
 }
 PyObject *py_unreal_engine_console_exec(PyObject * self, PyObject * args)

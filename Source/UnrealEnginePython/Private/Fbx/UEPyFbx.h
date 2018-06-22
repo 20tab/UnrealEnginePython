@@ -1,6 +1,6 @@
 #pragma once
 #if ENGINE_MINOR_VERSION > 12
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
 

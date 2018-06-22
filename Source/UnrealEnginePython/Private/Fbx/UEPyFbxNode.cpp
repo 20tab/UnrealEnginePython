@@ -1,88 +1,111 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-#include "UEPyFbx.h"
+#include "UEPyFbxNode.h"
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12
-static PyObject *py_ue_fbx_node_get_child_count(ue_PyFbxNode *self, PyObject *args) {
+
+#include "UEPyFbx.h"
+
+
+static PyObject *py_ue_fbx_node_get_child_count(ue_PyFbxNode *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_node->GetChildCount());
 }
 
-static PyObject *py_ue_fbx_node_get_name(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_name(ue_PyFbxNode *self, PyObject *args)
+{
 	return PyUnicode_FromString(self->fbx_node->GetName());
 }
 
-static PyObject *py_ue_fbx_node_get_local_translation(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_local_translation(ue_PyFbxNode *self, PyObject *args)
+{
 	FbxDouble3 fbx_vec = self->fbx_node->LclTranslation.Get();
 	return py_ue_new_fvector(FVector(fbx_vec[0], fbx_vec[1], fbx_vec[2]));
 }
 
-static PyObject *py_ue_fbx_node_get_local_rotation(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_local_rotation(ue_PyFbxNode *self, PyObject *args)
+{
 	FbxDouble3 fbx_vec = self->fbx_node->LclRotation.Get();
 	return py_ue_new_fvector(FVector(fbx_vec[0], fbx_vec[1], fbx_vec[2]));
 }
 
-static PyObject *py_ue_fbx_node_get_local_scaling(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_local_scaling(ue_PyFbxNode *self, PyObject *args)
+{
 	FbxDouble3 fbx_vec = self->fbx_node->LclScaling.Get();
 	return py_ue_new_fvector(FVector(fbx_vec[0], fbx_vec[1], fbx_vec[2]));
 }
 
-static PyObject *py_ue_fbx_node_get_child(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_child(ue_PyFbxNode *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
 	FbxNode *fbx_node = self->fbx_node->GetChild(index);
-	if (!fbx_node) {
+	if (!fbx_node)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNode at index %d", index);
 	}
 	return py_ue_new_fbx_node(fbx_node);
 }
 
-static PyObject *py_ue_fbx_node_get_parent(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_parent(ue_PyFbxNode *self, PyObject *args)
+{
 	FbxNode *fbx_node = self->fbx_node->GetParent();
-	if (!fbx_node) {
+	if (!fbx_node)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNode parent");
 	}
 	return py_ue_new_fbx_node(fbx_node);
 }
 
-static PyObject *py_ue_fbx_node_get_node_attribute(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_node_attribute(ue_PyFbxNode *self, PyObject *args)
+{
 
 	FbxNodeAttribute *fbx_node_attribute = self->fbx_node->GetNodeAttribute();
-	if (!fbx_node_attribute) {
+	if (!fbx_node_attribute)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNodeAttribute");
 	}
 	return py_ue_new_fbx_object(fbx_node_attribute);
 }
 
-static PyObject *py_ue_fbx_node_get_node_attribute_count(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_node_attribute_count(ue_PyFbxNode *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_node->GetNodeAttributeCount());
 }
 
-static PyObject *py_ue_fbx_node_get_node_attribute_by_index(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_node_attribute_by_index(ue_PyFbxNode *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
 	FbxNodeAttribute *fbx_node_attribute = self->fbx_node->GetNodeAttributeByIndex(index);
-	if (!fbx_node_attribute) {
+	if (!fbx_node_attribute)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNodeAttribute at index %d", index);
 	}
 	return py_ue_new_fbx_object(fbx_node_attribute);
 }
 
-static PyObject *py_ue_fbx_node_get_mesh(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_get_mesh(ue_PyFbxNode *self, PyObject *args)
+{
 
 	FbxMesh *fbx_mesh = self->fbx_node->GetMesh();
-	if (!fbx_mesh) {
+	if (!fbx_mesh)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxMesh from FbxNode");
 	}
 	return py_ue_new_fbx_mesh(fbx_mesh);
 }
 
-static PyObject *py_ue_fbx_node_evaluate_local_transform(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_evaluate_local_transform(ue_PyFbxNode *self, PyObject *args)
+{
 	float t;
-	if (!PyArg_ParseTuple(args, "f", &t)) {
+	if (!PyArg_ParseTuple(args, "f", &t))
+	{
 		return nullptr;
 	}
 	FbxTime time;
@@ -98,9 +121,11 @@ static PyObject *py_ue_fbx_node_evaluate_local_transform(ue_PyFbxNode *self, PyO
 	return py_ue_new_ftransform(transform);
 }
 
-static PyObject *py_ue_fbx_node_evaluate_global_transform(ue_PyFbxNode *self, PyObject *args) {
+static PyObject *py_ue_fbx_node_evaluate_global_transform(ue_PyFbxNode *self, PyObject *args)
+{
 	float t;
-	if (!PyArg_ParseTuple(args, "f", &t)) {
+	if (!PyArg_ParseTuple(args, "f", &t))
+	{
 		return nullptr;
 	}
 	FbxTime time;
@@ -166,15 +191,18 @@ static PyTypeObject ue_PyFbxNodeType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_node_init(ue_PyFbxNode *self, PyObject * args) {
+static int py_ue_fbx_node_init(ue_PyFbxNode *self, PyObject * args)
+{
 	PyObject *py_object;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os", &py_object, &name)) {
+	if (!PyArg_ParseTuple(args, "Os", &py_object, &name))
+	{
 		return -1;
 	}
 
 	ue_PyFbxManager *py_fbx_manager = py_ue_is_fbx_manager(py_object);
-	if (!py_fbx_manager) {
+	if (!py_fbx_manager)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a FbxManager");
 		return -1;
 	}
@@ -183,7 +211,8 @@ static int py_ue_fbx_node_init(ue_PyFbxNode *self, PyObject * args) {
 	return 0;
 }
 
-void ue_python_init_fbx_node(PyObject *ue_module) {
+void ue_python_init_fbx_node(PyObject *ue_module)
+{
 	ue_PyFbxNodeType.tp_new = PyType_GenericNew;;
 	ue_PyFbxNodeType.tp_init = (initproc)py_ue_fbx_node_init;
 	if (PyType_Ready(&ue_PyFbxNodeType) < 0)
@@ -193,13 +222,15 @@ void ue_python_init_fbx_node(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxNode", (PyObject *)&ue_PyFbxNodeType);
 }
 
-PyObject *py_ue_new_fbx_node(FbxNode *fbx_node) {
+PyObject *py_ue_new_fbx_node(FbxNode *fbx_node)
+{
 	ue_PyFbxNode *ret = (ue_PyFbxNode *)PyObject_New(ue_PyFbxNode, &ue_PyFbxNodeType);
 	ret->fbx_node = fbx_node;
 	return (PyObject *)ret;
 }
 
-ue_PyFbxNode *py_ue_is_fbx_node(PyObject *obj) {
+ue_PyFbxNode *py_ue_is_fbx_node(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxNodeType))
 		return nullptr;
 	return (ue_PyFbxNode *)obj;

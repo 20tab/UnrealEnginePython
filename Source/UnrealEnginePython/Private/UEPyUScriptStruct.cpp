@@ -1,12 +1,14 @@
 // Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyUScriptStruct.h"
+#include "UEPyModule.h"
 
 
 static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObject * args)
 {
 	char *name;
-	if (!PyArg_ParseTuple(args, "s:get_field", &name))
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "s|i:get_field", &name, &index))
 	{
 		return nullptr;
 	}
@@ -15,14 +17,30 @@ static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObjec
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
 
-	return ue_py_convert_property(u_property, py_ue_uscriptstruct_get_data(self));
+	return ue_py_convert_property(u_property, py_ue_uscriptstruct_get_data(self), index);
+}
+
+static PyObject *py_ue_uscriptstruct_get_field_array_dim(ue_PyUScriptStruct *self, PyObject * args)
+{
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:get_field_array_dim", &name))
+	{
+		return nullptr;
+	}
+
+	UProperty *u_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
+
+	return PyLong_FromLongLong(u_property->ArrayDim);
 }
 
 static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObject * args)
 {
 	char *name;
 	PyObject *value;
-	if (!PyArg_ParseTuple(args, "sO:set_field", &name, &value))
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "sO|i:set_field", &name, &value, &index))
 	{
 		return nullptr;
 	}
@@ -32,7 +50,7 @@ static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObjec
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
 
 
-	if (!ue_py_convert_pyobject(value, u_property, py_ue_uscriptstruct_get_data(self)))
+	if (!ue_py_convert_pyobject(value, u_property, py_ue_uscriptstruct_get_data(self), index))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", name);
 	}
@@ -81,7 +99,7 @@ PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args
 	TFieldIterator<UProperty> SArgs(self->u_struct);
 	for (; SArgs; ++SArgs)
 	{
-		PyObject *struct_value = ue_py_convert_property(*SArgs, py_ue_uscriptstruct_get_data(self));
+		PyObject *struct_value = ue_py_convert_property(*SArgs, py_ue_uscriptstruct_get_data(self), 0);
 		if (!struct_value)
 		{
 			Py_DECREF(py_struct_dict);
@@ -113,6 +131,7 @@ static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *, PyObject *);
 static PyMethodDef ue_PyUScriptStruct_methods[] = {
 	{ "get_field", (PyCFunction)py_ue_uscriptstruct_get_field, METH_VARARGS, "" },
 	{ "set_field", (PyCFunction)py_ue_uscriptstruct_set_field, METH_VARARGS, "" },
+	{ "get_field_array_dim", (PyCFunction)py_ue_uscriptstruct_get_field_array_dim, METH_VARARGS, "" },
 	{ "fields", (PyCFunction)py_ue_uscriptstruct_fields, METH_VARARGS, "" },
 	{ "get_struct", (PyCFunction)py_ue_uscriptstruct_get_struct, METH_VARARGS, "" },
 	{ "clone", (PyCFunction)py_ue_uscriptstruct_clone, METH_VARARGS, "" },
@@ -175,7 +194,7 @@ static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject 
 			{
 				// swallow previous exception
 				PyErr_Clear();
-				return ue_py_convert_property(u_property, py_ue_uscriptstruct_get_data(self));
+				return ue_py_convert_property(u_property, py_ue_uscriptstruct_get_data(self), 0);
 			}
 		}
 	}
@@ -192,10 +211,10 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 		UProperty *u_property = get_field_from_name(self->u_struct, attr);
 		if (u_property)
 		{
-			if (ue_py_convert_pyobject(value, u_property, py_ue_uscriptstruct_get_data(self)))
+			if (ue_py_convert_pyobject(value, u_property, py_ue_uscriptstruct_get_data(self), 0))
 			{
                 if (self->is_ptr)
-			{
+			    {
                     // NOTE: We just wrote out to original pointer block; now we need to update our local shadow copy
                     // This might be unnecessary
                     FMemory::Memcpy(self->data, self->original_data, self->u_struct->GetStructureSize());
@@ -307,7 +326,7 @@ static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *self, PyObject * ar
 	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
 	ret->u_struct = self->u_struct;
 	ret->data = self->original_data;
-	ret->original_data = ret->data;
+	ret->original_data      = self->original_data;
 	ret->is_ptr = 1;
 	return (PyObject *)ret;
 }

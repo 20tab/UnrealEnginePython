@@ -81,6 +81,9 @@ public class UnrealEnginePython : ModuleRules
     {
 
 
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
+        bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -127,10 +130,22 @@ public class UnrealEnginePython : ModuleRules
                 "RenderCore",
                 "MovieSceneCapture",
                 "Landscape",
-                "Foliage"
+                "Foliage",
 				// ... add private dependencies that you statically link with here ...
 			}
             );
+
+
+#if WITH_FORWARDED_MODULE_RULES_CTOR
+        BuildVersion Version;
+        if (BuildVersion.TryRead(BuildVersion.GetDefaultFileName(), out Version))
+        {
+            if (Version.MinorVersion >= 18)
+            {
+                PrivateDependencyModuleNames.Add("ApplicationCore");
+            }
+        }
+#endif
 
 
         DynamicallyLoadedModuleNames.AddRange(
@@ -168,7 +183,8 @@ public class UnrealEnginePython : ModuleRules
                 "FBX",
                 "Persona",
                 "PropertyEditor",
-                "LandscapeEditor"
+                "LandscapeEditor",
+                "MaterialEditor"
             });
         }
 
@@ -203,7 +219,7 @@ public class UnrealEnginePython : ModuleRules
             string libPath = GetMacPythonLibFile(pythonHome);
             PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicDelayLoadDLLs.Add(libPath);
-            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
+            PublicDefinitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_MAC"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -228,13 +244,13 @@ public class UnrealEnginePython : ModuleRules
                 PublicIncludePaths.Add(items[0]);
                 PublicAdditionalLibraries.Add(items[1]);
             }
-            Definitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
+            PublicDefinitions.Add(string.Format("UNREAL_ENGINE_PYTHON_ON_LINUX"));
         }
 
         string enableThreads = System.Environment.GetEnvironmentVariable("UEP_ENABLE_THREADS");
         if (!string.IsNullOrEmpty(enableThreads))
         {
-            Definitions.Add("UEPY_THREADING");
+            PublicDefinitions.Add("UEPY_THREADING");
             System.Console.WriteLine("*** Enabled Python Threads support ***");
         }
 

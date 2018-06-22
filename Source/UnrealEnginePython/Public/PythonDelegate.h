@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "UnrealEnginePython.h"
 #include "PythonDelegate.generated.h"
 
 UCLASS()
@@ -19,11 +19,11 @@ public:
 	void PyInputAxisHandler(float value);
 
 protected:
-	UFunction *signature;
+	UFunction * signature;
 	bool signature_set;
 
 	UFUNCTION()
-	void PyFakeCallable();
+		void PyFakeCallable();
 
 	PyObject *py_callable;
 

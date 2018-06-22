@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
 #include "UObject/Object.h"
+#include "UObject/ScriptMacros.h"
 #include "PythonScript.generated.h"
 
 UCLASS(MinimalAPI)
@@ -12,19 +12,19 @@ class UPythonScript : public UObject
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	FString ScriptPath;
+		FString ScriptPath;
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	FString FunctionToCall;
+		FString FunctionToCall;
 
 	UPROPERTY(EditAnywhere, Category = "Python")
-	TArray<FString> FunctionArgs;
+		TArray<FString> FunctionArgs;
 
 	UFUNCTION()
-	void Run();
+		void Run();
 
 	UFUNCTION()
-	void RunSandboxed();
+		void RunSandboxed();
 
 	void CallSpecificFunctionWithArgs();
 };

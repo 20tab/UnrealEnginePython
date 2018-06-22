@@ -1,12 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFMenuBuilder.h"
 
-#include "Runtime/Slate/Public/Framework/Commands/UIAction.h"
-#if WITH_EDITOR
-#include "Developer/AssetTools/Public/AssetToolsModule.h"
-#include "Developer/AssetTools/Public/IAssetTools.h"
-#endif
+#include "Wrappers/UEPyESlateEnums.h"
 
 static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyObject * args)
 {
@@ -17,22 +11,19 @@ static PyObject *py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder *self, PyOb
 
 	self->menu_builder.BeginSection(name, FText::FromString(UTF8_TO_TCHAR(text)));
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_fmenu_builder_end_section(ue_PyFMenuBuilder *self, PyObject * args)
 {
 	self->menu_builder.EndSection();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_fmenu_builder_make_widget(ue_PyFMenuBuilder *self, PyObject * args)
 {
-	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(ue_PySWidget, &ue_PySWidgetType);
-	new (&ret->s_widget) TSharedRef<SWidget>(self->menu_builder.MakeWidget());
+    ue_PySWidget *ret = py_ue_new_swidget<ue_PySWidget>(self->menu_builder.MakeWidget(), &ue_PySWidgetType);
 	return (PyObject *)ret;
 }
 
@@ -42,8 +33,8 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	char *tooltip;
 	PyObject *py_callable;
 	PyObject *py_obj = nullptr;
-	PyObject *py_uiaction_obj = nullptr;
-	if (!PyArg_ParseTuple(args, "ssO|OO:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &py_uiaction_obj))
+	int ui_action_type = EUserInterfaceActionType::Button;
+	if (!PyArg_ParseTuple(args, "ssO|Oi:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &ui_action_type))
 		return nullptr;
 
 	if (!PyCalllable_Check_Extended(py_callable))
@@ -65,9 +56,8 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::SimpleExecuteAction);
 	}
 
-	ue_PyESlateEnums *py_uiaction_enum = py_uiaction_obj ? py_ue_is_eslate_enums(py_uiaction_obj) : nullptr;
 	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler), NAME_None,
-		py_uiaction_enum ? (EUserInterfaceActionType::Type)(py_uiaction_enum->val) : EUserInterfaceActionType::Button);
+		(EUserInterfaceActionType::Type)ui_action_type);
 
 	Py_RETURN_NONE;
 }
@@ -86,8 +76,7 @@ static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self,
 
 	self->menu_builder.AddMenuSeparator(f_name);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 #if WITH_EDITOR

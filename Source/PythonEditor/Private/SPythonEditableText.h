@@ -39,8 +39,11 @@ class SPythonEditableText : public SMultiLineEditableText
 private:
 	virtual FReply OnKeyChar(const FGeometry& MyGeometry,const FCharacterEvent& InCharacterEvent) override;
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
+	virtual FReply OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent) override;
 
 	FOnExecuted OnExecuted;
+
+	float CurrentScale;
 
 	int32 CurrentLine;
 	int32 CurrentColumn;

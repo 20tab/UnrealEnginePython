@@ -1,4 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFRotator.h"
+#include "Quat.h"
+#include "UEPyFQuat.h"
 
 static PyObject *py_ue_frotator_get_vector(ue_PyFRotator *self, PyObject * args) {
 	FVector vec = py_ue_frotator_get(self).Vector();

@@ -2,15 +2,25 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
 
 PyObject *py_unreal_engine_get_editor_world(PyObject *, PyObject * args);
+PyObject *py_unreal_engine_get_all_assets(PyObject * self, PyObject * args);
+PyObject *py_unreal_engine_get_asset_by_object_path(PyObject * self, PyObject * args);
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject *, PyObject * args);
 PyObject *py_unreal_engine_editor_get_selected_actors(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_get_actors_in_folder(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_deselect_actors(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_is_ctrl_down(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_is_shift_down(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_is_alt_down(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_is_space_bar_down(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_get_widget_mode(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_get_widget_coord_system_space(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_select_actor(PyObject *, PyObject *);
+PyObject *py_unreal_engine_editor_select_component(PyObject * self, PyObject * args);
 PyObject *py_unreal_engine_import_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_find_asset(PyObject *, PyObject *);
@@ -56,6 +66,8 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build_lighting(PyObject *, PyObject *);
 
+PyObject *py_unreal_engine_editor_refresh_all_browsers(PyObject *, PyObject *);
+
 PyObject *py_unreal_engine_editor_command_save_current_level(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_save_all_levels(PyObject *, PyObject *);
 
@@ -64,6 +76,8 @@ PyObject *py_unreal_engine_editor_save_all(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_level_to_world(PyObject *, PyObject *);
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *, PyObject *);
 PyObject *py_unreal_engine_move_actor_to_level(PyObject *, PyObject *);
+PyObject *py_unreal_engine_move_viewport_cameras_to_actor(PyObject *, PyObject *);
+
 
 PyObject *py_ue_factory_create_new(ue_PyUObject *, PyObject *);
 PyObject *py_ue_factory_import_object(ue_PyUObject *, PyObject *);
@@ -116,4 +130,8 @@ PyObject *py_unreal_engine_play_preview_sound(PyObject *, PyObject *);
 PyObject *py_unreal_engine_register_settings(PyObject *, PyObject *);
 PyObject *py_unreal_engine_show_viewer(PyObject *, PyObject *);
 PyObject *py_unreal_engine_unregister_settings(PyObject *, PyObject *);
+PyObject *py_unreal_engine_gconfig_set_string(PyObject *, PyObject *);
+
+PyObject *py_unreal_engine_request_play_session(PyObject *, PyObject *);
+PyObject *py_unreal_engine_export_assets(PyObject *, PyObject *);
 #endif

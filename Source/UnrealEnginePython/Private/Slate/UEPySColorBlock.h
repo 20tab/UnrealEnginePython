@@ -1,8 +1,5 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
-
-
 #include "UEPySLeafWidget.h"
 
 #include "Runtime/Slate/Public/Widgets/Colors/SColorBlock.h"

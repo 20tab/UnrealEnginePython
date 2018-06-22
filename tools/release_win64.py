@@ -5,7 +5,7 @@ import time
 import shutil
 import zipfile
 
-UE_VERSIONS = ['4.15', '4.16', '4.17', '4.18']
+UE_VERSIONS = ['4.15', '4.16', '4.17', '4.18', '4.19']
 PYTHON_VERSIONS = ["C:/Program Files/Python36", "C:/Program Files/Python35", "C:/Python27"]
 
 RELEASE_DIR = sys.argv[1].rstrip('/')
@@ -19,6 +19,7 @@ def zipdir(path, zh, base):
 def msbuild(project, python_version, variant):
     base_environ = os.environ
     base_environ.update({'PYTHONHOME': python_version})
+    base_environ.update({'UEP_ENABLE_UNITY_BUILD': '1'})
     if variant == 'threaded_':
         base_environ.update({'UEP_ENABLE_THREADS': '1'})
     #vs = '"C:/Program Files (x86)/MSBuild/14.0/Bin/MSBuild.exe"'
@@ -63,7 +64,7 @@ for ue_version in UE_VERSIONS:
             msbuild(sln, python_version, variant)
             commandlet(ue_version, project)
             end = time.time()
-            for item in ('UE4Editor.modules', 'UE4Editor-UnrealEnginePython.dll', 'UE4Editor-PythonConsole.dll', 'UE4Editor-PythonEditor.dll'):
+            for item in ('UE4Editor.modules', 'UE4Editor-UnrealEnginePython.dll', 'UE4Editor-PythonConsole.dll', 'UE4Editor-PythonEditor.dll', 'UE4Editor-PythonAutomation.dll'):
                 shutil.copyfile('D:/{0}/Plugins/UnrealEnginePython/Binaries/Win64/{1}'.format(project, item), '{0}/UnrealEnginePython/Binaries/Win64/{1}'.format(RELEASE_DIR, item))
                 if python_sanitized == 'python36':
                     shutil.copyfile('D:/{0}/Plugins/UnrealEnginePython/Binaries/Win64/{1}'.format(project, item), '{0}/Embedded/UnrealEnginePython/Binaries/Win64/{1}'.format(RELEASE_DIR, item))

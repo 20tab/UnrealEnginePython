@@ -1,5 +1,3 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyFGeometry.h"
 
 static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject * args)
@@ -10,7 +8,11 @@ static PyObject *py_ue_fgeometry_get_local_size(ue_PyFGeometry *self, PyObject *
 
 static PyObject *py_ue_fgeometry_get_absolute_position(ue_PyFGeometry *self, PyObject * args)
 {
+#if ENGINE_MINOR_VERSION < 17
+	FVector2D size = self->geometry.AbsolutePosition;
+#else
 	FVector2D size = self->geometry.GetAbsolutePosition();
+#endif
 	return Py_BuildValue("(ff)", size.X, size.Y);
 }
 

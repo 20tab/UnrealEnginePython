@@ -38,3 +38,24 @@ You can get a reference to the AInstancedFoliageActor of a world using:
 ```python
 foliage_actor = world.get_instanced_foliage_actor_for_current_level()
 ```
+
+## Iterating instances
+
+You can get a FFoliageInstance struct for each instance (grouped by UFoliageType):
+
+```python
+import unreal_engine as ue
+
+foliage_actor = ue.get_editor_world().get_instanced_foliage_actor_for_current_level()
+
+for foliage_type in foliage_actor.get_foliage_types():
+   print('Foliage Type: {0}'.format(foliage_type.get_name()))
+   for foliage_instance in foliage_actor.get_foliage_instances(foliage_type):
+       print(foliage_instance.location)
+       print(foliage_instance.draw_scale3d)
+       print(foliage_instance.pre_align_rotation)
+       print(foliage_instance.rotation)
+       print(foliage_instance.flags)
+       print(foliage_instance.zoffset)
+       print('*' * 20)
+```

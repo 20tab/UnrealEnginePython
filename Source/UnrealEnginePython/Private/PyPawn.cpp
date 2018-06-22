@@ -1,6 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-#include "PyPawn.h"
 
+#include "PyPawn.h"
+#include "UEPyModule.h"
 
 APyPawn::APyPawn()
 {

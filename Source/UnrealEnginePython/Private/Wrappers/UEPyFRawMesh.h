@@ -1,5 +1,5 @@
 #pragma once
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
 
@@ -7,10 +7,11 @@
 
 #include "Developer/RawMesh/Public/RawMesh.h"
 
-struct ue_PyFRawMesh {
+struct ue_PyFRawMesh
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FRawMesh raw_mesh;
+		/* Type-specific fields go here. */
+		FRawMesh raw_mesh;
 };
 
 

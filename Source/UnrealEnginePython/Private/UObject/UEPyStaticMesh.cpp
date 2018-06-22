@@ -1,8 +1,13 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyStaticMesh.h"
+
 
 #if WITH_EDITOR
 
-PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
+#include "Engine/StaticMesh.h"
+#include "Wrappers/UEPyFRawMesh.h"
+
+PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args)
+{
 
 	ue_py_check(self);
 
@@ -18,7 +23,27 @@ PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args) {
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * args) {
+PyObject * py_ue_static_mesh_get_num_triangles(ue_PyUObject *self, PyObject * args) 
+{
+
+	ue_py_check(self);
+
+	int lod_index = 0;
+	if (!PyArg_ParseTuple(args, "|i:get_num_tris", &lod_index))
+		return nullptr;
+
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+
+	if (lod_index < 0 || lod_index >= mesh->GetNumLODs())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", mesh->GetNumLODs() - 1);
+
+	return PyLong_FromLong(mesh->RenderData ? mesh->RenderData->LODResources[lod_index].GetNumTriangles() : 0);
+}
+
+PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * args) 
+{
 
 	ue_py_check(self);
 
@@ -31,7 +56,23 @@ PyObject *py_ue_static_mesh_create_body_setup(ue_PyUObject *self, PyObject * arg
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args) {
+PyObject *py_ue_static_mesh_can_lods_share_static_lighting(ue_PyUObject *self, PyObject * args) 
+{
+
+	ue_py_check(self);
+
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+
+	//if (mesh->CanLODsShareStaticLighting())
+	//	Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args) 
+{
 
 	ue_py_check(self);
 

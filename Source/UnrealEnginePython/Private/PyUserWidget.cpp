@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 #include "PyUserWidget.h"
 #include "PyNativeWidgetHost.h"
 
@@ -10,6 +10,8 @@
 #include "Widgets/Layout/SBox.h"
 #include "UMGStyle.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetTree.h"
+#include "Slate/UEPyFKeyEvent.h"
+#include "Slate/UEPyFPointerEvent.h"
 
 void UPyUserWidget::NativeConstruct()
 {

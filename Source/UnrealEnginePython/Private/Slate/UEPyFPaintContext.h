@@ -1,13 +1,14 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 
-typedef struct {
+typedef struct
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FPaintContext paint_context;
+		/* Type-specific fields go here. */
+		FPaintContext paint_context;
 } ue_PyFPaintContext;
 
 void ue_python_init_fpaint_context(PyObject *);

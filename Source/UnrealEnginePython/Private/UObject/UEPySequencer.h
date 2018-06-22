@@ -2,7 +2,7 @@
 
 
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_possessable_tracks(ue_PyUObject *, PyObject *);
@@ -13,6 +13,8 @@ PyObject *py_ue_sequencer_folders(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_create_folder(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_display_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_get_display_name(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_track_display_name(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_track_unique_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_changed(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *, PyObject *);
 
@@ -30,15 +32,25 @@ PyObject *py_ue_sequencer_remove_spawnable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_camera_cut_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_master_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_remove_track(ue_PyUObject *, PyObject *);
+// @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - GetSelectedSections() is not exported in vanilla 4.17 
+#if WITH_KNL_PYEXT
+PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args);
+#endif
+// @third party code - END Bebylon
+PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *, PyObject *);
 #endif
 PyObject *py_ue_sequencer_sections(ue_PyUObject *, PyObject *);
+
 PyObject *py_ue_sequencer_possessables(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_possessables_guid(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_all_spawnables(ue_PyUObject *self, PyObject * args);
 
 PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *, PyObject *);
+
+
 
 
 

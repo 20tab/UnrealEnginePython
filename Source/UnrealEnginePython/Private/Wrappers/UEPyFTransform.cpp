@@ -1,4 +1,10 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFTransform.h"
+#include "UEPyFVector.h"
+#include "UEPyFRotator.h"
+#include "UEPyFQuat.h"
+#include "Class.h"
+#include "UObjectGlobals.h"
+#include "Package.h"
 
 static PyObject *py_ue_ftransform_inverse(ue_PyFTransform *self, PyObject * args)
 {
@@ -27,10 +33,24 @@ static PyObject *py_ue_ftransform_get_relative_transform(ue_PyFTransform *self, 
 	return py_ue_new_ftransform(py_ue_ftransform_get(self).GetRelativeTransform(py_ue_ftransform_get(py_transform)));
 }
 
+static PyObject *py_ue_ftransform_get_matrix(ue_PyFTransform *self, PyObject * args)
+{
+	FTransform transform = py_ue_ftransform_get(self);
+	transform.NormalizeRotation();
+	FMatrix matrix = transform.ToMatrixWithScale();
+	UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR("Matrix"));
+	if (!u_struct)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to get Matrix struct");
+	}
+	return py_ue_new_uscriptstruct(u_struct, (uint8 *)&matrix);
+}
+
 static PyMethodDef ue_PyFTransform_methods[] = {
 	{ "inverse", (PyCFunction)py_ue_ftransform_inverse, METH_VARARGS, "" },
 	{ "get_relative_transform", (PyCFunction)py_ue_ftransform_get_relative_transform, METH_VARARGS, "" },
 	{ "normalize_rotation", (PyCFunction)py_ue_ftransform_normalize_rotation, METH_VARARGS, "" },
+	{ "get_matrix", (PyCFunction)py_ue_ftransform_get_matrix, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
@@ -318,11 +338,11 @@ PyObject *py_ue_new_ftransform(const FTransform& transform)
 
 PyObject* py_ue_new_ftransform_ptr(FTransform* transform_ptr)
 {
-    ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
+	ue_PyFTransform *ret = (ue_PyFTransform *)PyObject_New(ue_PyFTransform, &ue_PyFTransformType);
 
     ue_py_uscriptstruct_alloc(&ret->py_base, TBaseStructure<FTransform>::Get(), (uint8*)transform_ptr, true);
 
-    return (PyObject *)ret;
+	return (PyObject *)ret;
 }
 
 ue_PyFTransform *py_ue_is_ftransform(PyObject *obj)

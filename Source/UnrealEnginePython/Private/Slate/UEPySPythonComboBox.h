@@ -8,19 +8,15 @@
 
 extern PyTypeObject ue_PySPythonComboBoxType;
 
-class SPythonComboBox : public SComboBox<TSharedPtr<FPythonItem>> {
-public:
-	~SPythonComboBox() {
-		if (PythonOptionsSource)
-			delete(PythonOptionsSource);
-	}
+class SPythonComboBox : public SComboBox<TSharedPtr<FPythonItem>> 
+{
 
-	const TArray<TSharedPtr<FPythonItem>> *PythonOptionsSource;
 };
 
 typedef struct {
 	ue_PySPanel s_panel;
 	/* Type-specific fields go here. */
+    TArray<TSharedPtr<struct FPythonItem>> options_source_list;
 } ue_PySPythonComboBox;
 
 void ue_python_init_spython_combo_box(PyObject *);

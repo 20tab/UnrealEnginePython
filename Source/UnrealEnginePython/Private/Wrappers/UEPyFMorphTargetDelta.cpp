@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyFMorphTargetDelta.h"
 
 static PyObject *py_ue_fmorph_target_delta_get_position_delta(ue_PyFMorphTargetDelta *self, void *closure)
 {
@@ -73,7 +73,7 @@ static PyObject *ue_PyFMorphTargetDelta_str(ue_PyFMorphTargetDelta *self)
 static PyTypeObject ue_PyFMorphTargetDeltaType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FMorphTargetDelta", /* tp_name */
-	sizeof(ue_PyFSoftSkinVertex), /* tp_basicsize */
+	sizeof(ue_PyFMorphTargetDelta), /* tp_basicsize */
 	0,                         /* tp_itemsize */
 	0,       /* tp_dealloc */
 	0,                         /* tp_print */

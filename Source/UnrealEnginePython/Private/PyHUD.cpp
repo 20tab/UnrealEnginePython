@@ -1,6 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
-#include "PyHUD.h"
 
+#include "PyHUD.h"
+#include "UEPyModule.h"
 #include "PythonDelegate.h"
 
 APyHUD::APyHUD()

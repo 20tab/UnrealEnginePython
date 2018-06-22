@@ -1,7 +1,8 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyWidget.h"
 
 
 #include "Runtime/UMG/Public/Components/Widget.h"
+#include "Slate/UEPySWidget.h"
 
 
 PyObject *py_ue_take_widget(ue_PyUObject * self, PyObject * args)

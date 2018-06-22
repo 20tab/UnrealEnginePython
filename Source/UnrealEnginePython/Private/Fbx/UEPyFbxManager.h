@@ -1,14 +1,15 @@
 #pragma once
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #if WITH_EDITOR
 
 #include <fbxsdk.h>
 
-struct ue_PyFbxManager {
+struct ue_PyFbxManager
+{
 	PyObject_HEAD
-	/* Type-specific fields go here. */
-	FbxManager *fbx_manager;
+		/* Type-specific fields go here. */
+		FbxManager *fbx_manager;
 };
 
 

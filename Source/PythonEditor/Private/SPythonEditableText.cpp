@@ -20,6 +20,7 @@ void SPythonEditableText::Construct(const FArguments& InArgs)
 		.OnCursorMoved(this, &SPythonEditableText::OnCursorMoved)
 	);
 	OnExecuted = InArgs._OnExecuted;
+	CurrentScale = 1;
 }
 
 FReply SPythonEditableText::OnKeyChar(const FGeometry& MyGeometry, const FCharacterEvent& InCharacterEvent)
@@ -71,17 +72,41 @@ FReply SPythonEditableText::OnKeyChar(const FGeometry& MyGeometry, const FCharac
 	return Reply;
 }
 
+FReply SPythonEditableText::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& InPointerEvent)
+{
+	if (FSlateApplication::Get().GetModifierKeys().IsControlDown())
+	{
+		if (InPointerEvent.GetWheelDelta() > 0)
+		{
+			CurrentScale += 0.1;
+		}
+		else if (InPointerEvent.GetWheelDelta() < 0)
+		{
+			CurrentScale -= 0.1;
+		}
+
+		if (CurrentScale < 1)
+			CurrentScale = 1;
+		SetRenderTransform(FSlateRenderTransform(CurrentScale));
+		return FReply::Handled();
+	}
+	return SMultiLineEditableText::OnMouseWheel(MyGeometry, InPointerEvent);
+}
+
 FReply SPythonEditableText::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
 	FReply Reply = FReply::Unhandled();
-	if (InKeyEvent.GetKeyCode() == 9) {
+	if (InKeyEvent.GetKeyCode() == 9)
+	{
 		Reply = FReply::Handled();
 	}
-	else if (InKeyEvent.IsControlDown() && InKeyEvent.GetKeyCode() == 13) {
+	else if (InKeyEvent.IsControlDown() && InKeyEvent.GetKeyCode() == 13)
+	{
 		Reply = FReply::Handled();
 		OnExecuted.Execute();
 	}
-	else {
+	else
+	{
 		Reply = SMultiLineEditableText::OnKeyDown(MyGeometry, InKeyEvent);
 	}
 

@@ -54,9 +54,9 @@ You have two ways to create a instanced material:
 (new_material is a reference to a previously created/loaded material)
 
 ```python
-from unreal_engine.classes import MaterialInstancedConstant
+from unreal_engine.classes import MaterialInstanceConstant
 
-material_instance = MaterialInstancedConstant()
+material_instance = MaterialInstanceConstant()
 material_instance.set_name('New Funny Material Instance')
 material_instance.set_material_parent(new_material)
 material_instance.save_package('/Game/Materials/instanced')

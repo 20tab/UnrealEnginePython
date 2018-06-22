@@ -2,6 +2,8 @@
 
 #include "UnrealEnginePython.h"
 
+class UScriptStruct;
+
 typedef struct
 {
 	PyObject_HEAD

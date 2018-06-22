@@ -1,10 +1,6 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySNumericEntryBox.h"
-
-
-#define sw_float_numeric_entry_box StaticCastSharedRef<SNumericEntryBox<float>>(self->s_compound_widget.s_widget.s_widget)
 
 
 static PyMethodDef ue_PySNumericEntryBox_methods[] = {
@@ -42,70 +38,72 @@ PyTypeObject ue_PySNumericEntryBoxType = {
 	ue_PySNumericEntryBox_methods,             /* tp_methods */
 };
 
-static int ue_py_snumeric_entry_box_init(ue_PySNumericEntryBox *self, PyObject *args, PyObject *kwargs) {
-	
-    PyObject *py_numeric_type = ue_py_dict_get_item(kwargs, "numeric_type");
-    if (py_numeric_type && PyLong_Check(py_numeric_type))
-    {        
-        ue_py_slate_setup_farguments(SNumericEntryBox<int32>);
+static int ue_py_snumeric_entry_box_init(ue_PySNumericEntryBox *self, PyObject *args, PyObject *kwargs)
+{
 
-        ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
-        ue_py_slate_farguments_optional_struct("border_background_color", BorderBackgroundColor, FSlateColor);
-        ue_py_slate_farguments_optional_struct("border_foreground_color", BorderForegroundColor, FSlateColor);
-        ue_py_slate_farguments_int("delta", Delta);
-        ue_py_slate_farguments_optional_struct_ptr("editable_text_box_style", EditableTextBoxStyle, FEditableTextBoxStyle);
-        ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
-        ue_py_slate_farguments_optional_struct("label_padding", LabelPadding, FMargin);
-        ue_py_slate_farguments_optional_enum("label_v_align", LabelVAlign, EVerticalAlignment);
-        ue_py_slate_farguments_tint("max_slider_value", MaxSliderValue);
-        ue_py_slate_farguments_tint("max_value", MaxValue);
-        ue_py_slate_farguments_float("min_desired_value_width", MinDesiredValueWidth);
-        ue_py_slate_farguments_tint("min_slider_value", MinSliderValue);
-        ue_py_slate_farguments_tint("min_value", MinValue);
-        ue_py_slate_farguments_struct("override_text_margin", OverrideTextMargin, FMargin);
-        ue_py_slate_farguments_float("slider_exponent", SliderExponent);
-        ue_py_slate_farguments_optional_text("undetermined_string", UndeterminedString);
-        ue_py_slate_farguments_tint("value", Value);
-        ue_py_slate_farguments_event("on_begin_slider_movement", OnBeginSliderMovement, FSimpleDelegate, SimpleExecuteAction);
-        ue_py_slate_farguments_event("on_end_slider_movement", OnEndSliderMovement, FOnInt32ValueChanged, OnInt32Changed);
-        ue_py_slate_farguments_event("on_value_changed", OnValueChanged, FOnInt32ValueChanged, OnInt32Changed);
-        ue_py_slate_farguments_event("on_value_committed", OnValueCommitted, FOnInt32ValueCommitted, OnInt32Committed);
+	PyObject *py_numeric_type = ue_py_dict_get_item(kwargs, "numeric_type");
+	if (py_numeric_type && PyLong_Check(py_numeric_type))
+	{
+		ue_py_slate_setup_farguments(SNumericEntryBox<int32>);
 
-        ue_py_snew(SNumericEntryBox<int32>, s_compound_widget.s_widget);
-    }
-    else
-    {
-	    ue_py_slate_setup_farguments(SNumericEntryBox<float>);
+		ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
+		ue_py_slate_farguments_optional_struct("border_background_color", BorderBackgroundColor, FSlateColor);
+		ue_py_slate_farguments_optional_struct("border_foreground_color", BorderForegroundColor, FSlateColor);
+		ue_py_slate_farguments_int("delta", Delta);
+		ue_py_slate_farguments_optional_struct_ptr("editable_text_box_style", EditableTextBoxStyle, FEditableTextBoxStyle);
+		ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
+		ue_py_slate_farguments_optional_struct("label_padding", LabelPadding, FMargin);
+		ue_py_slate_farguments_optional_enum("label_v_align", LabelVAlign, EVerticalAlignment);
+		ue_py_slate_farguments_tint("max_slider_value", MaxSliderValue);
+		ue_py_slate_farguments_tint("max_value", MaxValue);
+		ue_py_slate_farguments_float("min_desired_value_width", MinDesiredValueWidth);
+		ue_py_slate_farguments_tint("min_slider_value", MinSliderValue);
+		ue_py_slate_farguments_tint("min_value", MinValue);
+		ue_py_slate_farguments_struct("override_text_margin", OverrideTextMargin, FMargin);
+		ue_py_slate_farguments_float("slider_exponent", SliderExponent);
+		ue_py_slate_farguments_optional_text("undetermined_string", UndeterminedString);
+		ue_py_slate_farguments_tint("value", Value);
+		ue_py_slate_farguments_event("on_begin_slider_movement", OnBeginSliderMovement, FSimpleDelegate, SimpleExecuteAction);
+		ue_py_slate_farguments_event("on_end_slider_movement", OnEndSliderMovement, FOnInt32ValueChanged, OnInt32Changed);
+		ue_py_slate_farguments_event("on_value_changed", OnValueChanged, FOnInt32ValueChanged, OnInt32Changed);
+		ue_py_slate_farguments_event("on_value_committed", OnValueCommitted, FOnInt32ValueCommitted, OnInt32Committed);
 
-	    ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
-	    ue_py_slate_farguments_optional_struct("border_background_color", BorderBackgroundColor, FSlateColor);
-	    ue_py_slate_farguments_optional_struct("border_foreground_color", BorderForegroundColor, FSlateColor);
-	    ue_py_slate_farguments_float("delta", Delta);
-	    ue_py_slate_farguments_optional_struct_ptr("editable_text_box_style", EditableTextBoxStyle, FEditableTextBoxStyle);
-	    ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
-	    ue_py_slate_farguments_optional_struct("label_padding", LabelPadding, FMargin);
-	    ue_py_slate_farguments_optional_enum("label_v_align", LabelVAlign, EVerticalAlignment);
-	    ue_py_slate_farguments_tfloat("max_slider_value", MaxSliderValue);
-	    ue_py_slate_farguments_tfloat("max_value", MaxValue);
-	    ue_py_slate_farguments_float("min_desired_value_width", MinDesiredValueWidth);
-	    ue_py_slate_farguments_tfloat("min_slider_value", MinSliderValue);
-	    ue_py_slate_farguments_tfloat("min_value", MinValue);
-	    ue_py_slate_farguments_struct("override_text_margin", OverrideTextMargin, FMargin);
-	    ue_py_slate_farguments_float("slider_exponent", SliderExponent);
-	    ue_py_slate_farguments_optional_text("undetermined_string", UndeterminedString);
-	    ue_py_slate_farguments_tfloat("value", Value);
-	    ue_py_slate_farguments_event("on_begin_slider_movement", OnBeginSliderMovement, FSimpleDelegate, SimpleExecuteAction);
-	    ue_py_slate_farguments_event("on_end_slider_movement", OnEndSliderMovement, FOnFloatValueChanged, OnFloatChanged);
-	    ue_py_slate_farguments_event("on_value_changed", OnValueChanged, FOnFloatValueChanged, OnFloatChanged);
-	    ue_py_slate_farguments_event("on_value_committed", OnValueCommitted, FOnFloatValueCommitted, OnFloatCommitted);
-	
-	    ue_py_snew(SNumericEntryBox<float>, s_compound_widget.s_widget);
-    }
+		ue_py_snew(SNumericEntryBox<int32>);
+	}
+	else
+	{
+		ue_py_slate_setup_farguments(SNumericEntryBox<float>);
+
+		ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
+		ue_py_slate_farguments_optional_struct("border_background_color", BorderBackgroundColor, FSlateColor);
+		ue_py_slate_farguments_optional_struct("border_foreground_color", BorderForegroundColor, FSlateColor);
+		ue_py_slate_farguments_float("delta", Delta);
+		ue_py_slate_farguments_optional_struct_ptr("editable_text_box_style", EditableTextBoxStyle, FEditableTextBoxStyle);
+		ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
+		ue_py_slate_farguments_optional_struct("label_padding", LabelPadding, FMargin);
+		ue_py_slate_farguments_optional_enum("label_v_align", LabelVAlign, EVerticalAlignment);
+		ue_py_slate_farguments_tfloat("max_slider_value", MaxSliderValue);
+		ue_py_slate_farguments_tfloat("max_value", MaxValue);
+		ue_py_slate_farguments_float("min_desired_value_width", MinDesiredValueWidth);
+		ue_py_slate_farguments_tfloat("min_slider_value", MinSliderValue);
+		ue_py_slate_farguments_tfloat("min_value", MinValue);
+		ue_py_slate_farguments_struct("override_text_margin", OverrideTextMargin, FMargin);
+		ue_py_slate_farguments_float("slider_exponent", SliderExponent);
+		ue_py_slate_farguments_optional_text("undetermined_string", UndeterminedString);
+		ue_py_slate_farguments_tfloat("value", Value);
+		ue_py_slate_farguments_event("on_begin_slider_movement", OnBeginSliderMovement, FSimpleDelegate, SimpleExecuteAction);
+		ue_py_slate_farguments_event("on_end_slider_movement", OnEndSliderMovement, FOnFloatValueChanged, OnFloatChanged);
+		ue_py_slate_farguments_event("on_value_changed", OnValueChanged, FOnFloatValueChanged, OnFloatChanged);
+		ue_py_slate_farguments_event("on_value_committed", OnValueCommitted, FOnFloatValueCommitted, OnFloatCommitted);
+
+		ue_py_snew(SNumericEntryBox<float>);
+	}
 
 	return 0;
 }
 
-void ue_python_init_snumeric_entry_box(PyObject *ue_module) {
+void ue_python_init_snumeric_entry_box(PyObject *ue_module)
+{
 
 	ue_PySNumericEntryBoxType.tp_init = (initproc)ue_py_snumeric_entry_box_init;
 

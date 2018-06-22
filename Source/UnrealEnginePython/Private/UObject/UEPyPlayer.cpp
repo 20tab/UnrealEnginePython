@@ -1,4 +1,11 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyPlayer.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/HUD.h"
+#include "GameFramework/GameMode.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/GameModeBase.h"
 
 PyObject *py_ue_get_player_controller(ue_PyUObject *self, PyObject * args)
 {

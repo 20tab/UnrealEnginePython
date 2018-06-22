@@ -1,4 +1,4 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyAssetUserData.h"
 
 #if WITH_EDITOR
 

@@ -1,14 +1,19 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPyObject.h"
 
 #include "PythonDelegate.h"
 #include "PythonFunction.h"
+#include "Components/ActorComponent.h"
+#include "Engine/UserDefinedEnum.h"
 
 #if WITH_EDITOR
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 #include "ObjectTools.h"
 #include "UnrealEd.h"
 #include "Runtime/Core/Public/HAL/FeedbackContextAnsi.h"
+
+#include "Wrappers/UEPyFObjectThumbnail.h"
 #endif
+#include <ObjectMacros.h>
 
 PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
 {
@@ -66,6 +71,27 @@ PyObject *py_ue_class_set_flags(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_class_has_any_flags(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	uint64 flags;
+	if (!PyArg_ParseTuple(args, "K:class_has_any_flags", &flags))
+	{
+		return nullptr;
+	}
+
+	UClass *u_class = ue_py_check_type<UClass>(self);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "uobject is a not a UClass");
+
+	if (u_class->HasAnyClassFlags((EClassFlags)flags))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
 PyObject *py_ue_get_obj_flags(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);
@@ -91,6 +117,38 @@ PyObject *py_ue_set_obj_flags(ue_PyUObject * self, PyObject * args)
 
 
 #if WITH_EDITOR
+
+#if ENGINE_MINOR_VERSION >= 19
+PyObject *py_ue_is_data_valid(ue_PyUObject * self, PyObject * args)
+{
+    ue_py_check(self);
+
+    PyObject* py_validErrors = nullptr;
+    if (!PyArg_ParseTuple(args, "O:is_data_valid", &py_validErrors))
+    {
+        return NULL;
+    }
+
+    UObject* uobj = ue_py_check_type<UObject>(self);
+    if (!uobj)
+    { return PyErr_Format(PyExc_Exception, "object is not a valid UObject"); }
+
+    if (!PyList_Check(py_validErrors))
+    {
+        return PyErr_Format(PyExc_Exception, "validation errors must be an array ");
+    }
+
+    TArray<FText> newValidErrors;
+    EDataValidationResult validationResult = uobj->IsDataValid(newValidErrors);
+    for (const FText& validError : newValidErrors)
+    {
+        PyList_Append(py_validErrors, PyUnicode_FromString(TCHAR_TO_UTF8(*validError.ToString())));
+    }
+
+    return PyLong_FromLong((uint8)validationResult);
+}
+#endif
+
 PyObject *py_ue_class_set_config_name(ue_PyUObject * self, PyObject * args)
 {
 
@@ -151,10 +209,52 @@ PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	UStructProperty *prop = Cast<UStructProperty>(u_property);
-	if (!prop)
-		return PyErr_Format(PyExc_Exception, "object is not a StructProperty");
-	return py_ue_new_uscriptstruct(prop->Struct, prop->ContainerPtrToValuePtr<uint8>(self->ue_object));
+    UStruct* ret_prop_ustruct = nullptr;
+    if (UObjectPropertyBase* uobj_prop = Cast<UObjectPropertyBase>(u_property))
+    {
+        ret_prop_ustruct = uobj_prop->PropertyClass;
+    }
+    else if (UStructProperty* ustruct_prop = Cast<UStructProperty>(u_property))
+    {
+        ret_prop_ustruct = ustruct_prop->Struct;
+    }
+    else
+    {
+        ret_prop_ustruct = u_property->GetClass();
+    }
+
+    Py_RETURN_UOBJECT(ret_prop_ustruct);
+}
+
+PyObject *py_ue_output_referencers(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	FStringOutputDevice outputDevice;
+
+	// Get referencer information
+	FReferencerInformationList outputList;
+	self->ue_object->OutputReferencers((FOutputDevice &)outputDevice);
+
+	// Get actual list of objects referencing this actor
+	TArray<FReferencerInformation> outInternalRefs, outExternalRefs;
+	self->ue_object->RetrieveReferencers(&outInternalRefs, &outExternalRefs);
+
+	PyObject *retList = PyList_New(0);
+
+	// Pack objects into list
+	for (FReferencerInformation & info : outExternalRefs)
+	{
+		ue_PyUObject *py_obj = ue_get_python_uobject(info.Referencer);
+		if (!py_obj)
+			continue;
+		Py_INCREF(py_obj);
+		PyList_Append(retList, (PyObject *)py_obj);
+	}
+	// Pack into tuple of type(String, List[UObject]) and return
+	PyObject * retTuple = PyTuple_New(2);
+	PyTuple_SetItem(retTuple, 0, PyUnicode_FromString(TCHAR_TO_UTF8(*outputDevice)));
+	PyTuple_SetItem(retTuple, 1, retList);
+	return retTuple;
 }
 
 PyObject *py_ue_get_super_class(ue_PyUObject * self, PyObject * args)
@@ -257,22 +357,22 @@ PyObject *py_ue_is_child_of(ue_PyUObject * self, PyObject * args)
 	{
 		return NULL;
 	}
+    
+	if (!self->ue_object->IsA<UStruct>())
+		return PyErr_Format(PyExc_Exception, "object is not a UStruct");
 
-	if (!self->ue_object->IsA<UClass>())
-		return PyErr_Format(PyExc_Exception, "object is not a UClass");
-
-	if (!ue_is_pyuobject(obj))
+	ue_PyUObject *py_obj = ue_is_pyuobject(obj);
+	if (!py_obj)
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
 	}
 
-	ue_PyUObject *py_obj = (ue_PyUObject *)obj;
 
-	if (!py_obj->ue_object->IsA<UClass>())
-		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+	if (!py_obj->ue_object->IsA<UStruct>())
+		return PyErr_Format(PyExc_Exception, "argument is not a UStruct");
 
-	UClass *parent = (UClass *)py_obj->ue_object;
-	UClass *child = (UClass *)self->ue_object;
+    UStruct *parent = (UStruct *)py_obj->ue_object;
+	UStruct *child = (UStruct *)self->ue_object;
 
 	if (child->IsChildOf(parent))
 	{
@@ -396,6 +496,33 @@ PyObject *py_ue_set_metadata(ue_PyUObject * self, PyObject * args)
 	{
 		UField *u_field = (UField *)self->ue_object;
 		u_field->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
+	}
+	else
+	{
+		return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
+	}
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_set_metadata_on_property(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *metadata_key;
+	char *metadata_value;
+	char *property_name;
+
+	if (!PyArg_ParseTuple(args, "sss:set_metadata_on_property", &property_name, &metadata_key, &metadata_value))
+	{
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<UClass>())
+	{
+		UClass *u_class = (UClass *)self->ue_object;
+		UProperty * u_property = u_class->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+		u_property->SetMetaData(FName(UTF8_TO_TCHAR(metadata_key)), UTF8_TO_TCHAR(metadata_value));
 	}
 	else
 	{
@@ -641,12 +768,693 @@ PyObject *py_ue_get_path_name(ue_PyUObject *self, PyObject * args)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->ue_object->GetPathName())));
 }
 
-PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args)
+PyObject *py_ue_save_config(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
 {
-
 	ue_py_check(self);
 
-	self->ue_object->SaveConfig();
+	uint64 flags = CPF_Config;
+	char *file_name = nullptr;
+
+	char *kwlist[] = {
+		(char *)"flags",
+		(char *)"filename",
+		nullptr
+	};
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|Ks:save_config", (char**)kwlist, &flags, &file_name))
+	{
+		PyErr_Format(PyExc_Exception, "\nPossible causes of error:\n1. Arguments provided in wrong order\n2. Arguments provided with wrong keywords");
+		Py_RETURN_NONE;
+	}
+
+	self->ue_object->SaveConfig(flags, UTF8_TO_TCHAR(file_name));
+
+	Py_RETURN_NONE;
+}
+
+//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition
+PyObject *py_ue_save_config_to_section(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
+{
+	ue_py_check(self);
+
+	uint64 flags = CPF_Config;
+	char *file_name = nullptr;
+	char *section_name = nullptr;
+
+	char *kwlist[] = {
+		(char *)"section_name",
+		(char *)"flags",
+		(char *)"filename",
+		nullptr
+	};
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|Ks:save_config_to_section", (char**)kwlist, &section_name, &flags, &file_name))
+	{
+		PyErr_Format(PyExc_Exception, "\nPossible causes of error:\n1. Arguments provided in wrong order\n2. Arguments provided with wrong keywords");
+		Py_RETURN_NONE;
+	}
+
+
+	if (!self->ue_object->GetClass()->HasAnyClassFlags(CLASS_Config))
+	{
+		Py_RETURN_NONE;
+	}
+
+	TCHAR * InFileName = UTF8_TO_TCHAR(file_name);
+	uint32 PropagationFlags = UE4::LCPF_None;
+
+	const FString Filename
+		// if a filename was specified, always load from that file
+		= InFileName
+		? InFileName
+		: GetConfigFilename(self->ue_object);
+
+	// Determine whether the file we are writing is a default file config.
+	const bool bIsADefaultIniWrite = Filename == self->ue_object->GetDefaultConfigFilename() || Filename == self->ue_object->GetGlobalUserConfigFilename();
+
+	const bool bPerObject = UsesPerObjectConfig(self->ue_object);
+
+	FString Section = UTF8_TO_TCHAR(section_name);
+
+	UObject* CDO = self->ue_object->GetClass()->GetDefaultObject();
+
+	// only copy the values to the CDO if this is GConfig and we're not saving the CDO
+	const bool bCopyValues = (self->ue_object != CDO);
+
+	for (UProperty* Property = self->ue_object->GetClass()->PropertyLink; Property; Property = Property->PropertyLinkNext)
+	{
+		if (!Property->HasAnyPropertyFlags(CPF_Config))
+		{
+			continue;
+		}
+
+		if ((Property->PropertyFlags & flags) == flags)
+		{
+			UClass* BaseClass = self->ue_object->GetClass();
+
+			if (Property->PropertyFlags & CPF_GlobalConfig)
+			{
+				// call LoadConfig() on child classes if any of the properties were global config
+				PropagationFlags |= UE4::LCPF_PropagateToChildDefaultObjects;
+				BaseClass = Property->GetOwnerClass();
+				if (BaseClass != self->ue_object->GetClass())
+				{
+					// call LoadConfig() on parent classes only if the global config property was declared in a parent class
+					PropagationFlags |= UE4::LCPF_ReadParentSections;
+				}
+			}
+
+			FString Key = Property->GetName();
+			int32 PortFlags = 0;
+
+#if WITH_EDITOR
+			static FName ConsoleVariableFName(TEXT("ConsoleVariable"));
+			const FString& CVarName = Property->GetMetaData(ConsoleVariableFName);
+			if (!CVarName.IsEmpty())
+			{
+				Key = CVarName;
+				PortFlags |= PPF_ConsoleVariable;
+			}
+#endif // #if WITH_EDITOR
+
+			// globalconfig properties should always use the owning class's config file
+			// specifying a value for InFilename will override this behavior (as it does with normal properties)
+			const FString& PropFileName = ((Property->PropertyFlags & CPF_GlobalConfig) && InFileName == NULL) ? Property->GetOwnerClass()->GetConfigName() : Filename;
+
+			// Properties that are the same as the parent class' defaults should not be saved to ini
+			// Before modifying any key in the section, first check to see if it is different from the parent.
+			const bool bIsPropertyInherited = Property->GetOwnerClass() != self->ue_object->GetClass();
+			const bool bShouldCheckIfIdenticalBeforeAdding = !self->ue_object->GetClass()->HasAnyClassFlags(CLASS_ConfigDoNotCheckDefaults) && !bPerObject && bIsPropertyInherited;
+			UObject* SuperClassDefaultObject = self->ue_object->GetClass()->GetSuperClass()->GetDefaultObject();
+
+			UArrayProperty* Array = dynamic_cast<UArrayProperty*>(Property);
+			if (Array)
+			{
+				if (!bShouldCheckIfIdenticalBeforeAdding || !Property->Identical_InContainer(self->ue_object, SuperClassDefaultObject))
+				{
+					FConfigSection* Sec = GConfig->GetSectionPrivate(*Section, 1, 0, *PropFileName);
+					check(Sec);
+					Sec->Remove(*Key);
+
+					// Default ini's require the array syntax to be applied to the property name
+					FString CompleteKey = FString::Printf(TEXT("%s%s"), bIsADefaultIniWrite ? TEXT("+") : TEXT(""), *Key);
+
+					FScriptArrayHelper_InContainer ArrayHelper(Array, self->ue_object);
+					for (int32 i = 0; i < ArrayHelper.Num(); i++)
+					{
+						FString	Buffer;
+						Array->Inner->ExportTextItem(Buffer, ArrayHelper.GetRawPtr(i), ArrayHelper.GetRawPtr(i), self->ue_object, PortFlags);
+						Sec->Add(*CompleteKey, *Buffer);
+					}
+				}
+				else if (Property->Identical_InContainer(self->ue_object, SuperClassDefaultObject))
+				{
+					// If we are not writing it to config above, we should make sure that this property isn't stagnant in the cache.
+					FConfigSection* Sec = GConfig->GetSectionPrivate(*Section, 1, 0, *PropFileName);
+					if (Sec)
+					{
+						Sec->Remove(*Key);
+					}
+
+				}
+			}
+			else
+			{
+				TCHAR TempKey[MAX_SPRINTF] = TEXT("");
+				for (int32 Index = 0; Index < Property->ArrayDim; Index++)
+				{
+					if (Property->ArrayDim != 1)
+					{
+						FCString::Sprintf(TempKey, TEXT("%s[%i]"), *Property->GetName(), Index);
+						Key = TempKey;
+					}
+
+					if (!bShouldCheckIfIdenticalBeforeAdding || !Property->Identical_InContainer(self->ue_object, SuperClassDefaultObject, Index))
+					{
+						FString	Value;
+						Property->ExportText_InContainer(Index, Value, self->ue_object, self->ue_object, self->ue_object, PortFlags);
+						GConfig->SetString(*Section, *Key, *Value, *PropFileName);
+					}
+					else if (Property->Identical_InContainer(self->ue_object, SuperClassDefaultObject, Index))
+					{
+						// If we are not writing it to config above, we should make sure that this property isn't stagnant in the cache.
+						FConfigSection* Sec = GConfig->GetSectionPrivate(*Section, 1, 0, *PropFileName);
+						if (Sec)
+						{
+							Sec->Remove(*Key);
+						}
+					}
+				}
+			}
+
+			if (bCopyValues)
+			{
+				void* ThisPropertyAddress = Property->ContainerPtrToValuePtr<void>(self->ue_object);
+				void* CDOPropertyAddr = Property->ContainerPtrToValuePtr<void>(CDO);
+
+				Property->CopyCompleteValue(CDOPropertyAddr, ThisPropertyAddress);
+			}
+		}
+	}
+
+	GConfig->Flush(0);
+	Py_RETURN_NONE;
+}
+
+//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition
+PyObject *py_ue_load_config(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
+{
+	ue_py_check(self);
+
+	PyObject * py_uclass = nullptr;
+	PyObject * py_uproperty = nullptr;
+	char *file_name = nullptr;
+	int propagation_flags = UE4::ELoadConfigPropagationFlags::LCPF_None;
+
+	char *kwlist[] = {
+		(char *)"config_class",
+		(char *)"filename",
+		(char *)"propagation_flags",
+		(char *)"property_to_load",
+		nullptr
+	};
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OsiO:load_config", (char**)kwlist, &py_uclass, &file_name, &propagation_flags, &py_uproperty))
+	{
+		PyErr_Format(PyExc_Exception, "\nPossible causes of error:\n1. Arguments provided in wrong order\n2. Arguments provided with wrong keywords");
+		Py_RETURN_NONE;
+	}
+
+	// Validate UClass argument
+	ue_PyUObject *py_uclass_obj = nullptr;
+	UClass * config_uclass = nullptr;
+	if (py_uclass != nullptr)
+	{
+		if (!ue_is_pyuobject(py_uclass))
+		{
+			return PyErr_Format(PyExc_Exception, "ConfigClass argument is not a UObject");
+		}
+		py_uclass_obj = (ue_PyUObject *)py_uclass;
+
+		if (py_uclass_obj->ue_object->IsA<UClass>())
+		{
+			config_uclass = (UClass *)py_uclass_obj->ue_object;
+		}
+		else
+		{
+			PyErr_Format(PyExc_Exception, "ConfigClass Argument is not a UClass");
+			Py_RETURN_NONE;
+		}
+	}
+
+	// Validate UProperty argument
+	ue_PyUObject *py_uproperty_obj = nullptr;
+	UProperty * uproperty_to_load = nullptr;
+	if (py_uproperty != nullptr)
+	{
+		if (!ue_is_pyuobject(py_uproperty))
+		{
+			return PyErr_Format(PyExc_Exception, "PropertyToLoad argument is not a UObject");
+		}
+		py_uproperty_obj = (ue_PyUObject *)py_uproperty;
+
+		if (py_uproperty_obj->ue_object->IsA<UProperty>())
+		{
+			uproperty_to_load = (UProperty *)py_uproperty_obj->ue_object;
+		}
+		else
+		{
+			PyErr_Format(PyExc_Exception, "PropertyToLoad argument is not a UProperty");
+			Py_RETURN_NONE;
+		}
+	}
+	
+	self->ue_object->LoadConfig(config_uclass, UTF8_TO_TCHAR(file_name), propagation_flags, uproperty_to_load);
+
+	Py_RETURN_NONE;
+}
+
+/** Checks if a section specified as a long package name can be found as short name in ini. - Used below */
+#if !UE_BUILD_SHIPPING
+namespace {
+    void CheckMissingSection(const FString& SectionName, const FString& IniFilename)
+    {
+	    static TSet<FString> MissingSections;
+	    FConfigSection* Sec = GConfig->GetSectionPrivate(*SectionName, false, true, *IniFilename);
+	    if (!Sec && MissingSections.Contains(SectionName) == false)
+	    {
+		    FString ShortSectionName = FPackageName::GetShortName(SectionName);
+		    if (ShortSectionName != SectionName)
+		    {
+			    Sec = GConfig->GetSectionPrivate(*ShortSectionName, false, true, *IniFilename);
+			    if (Sec != NULL)
+			    {
+				    UE_LOG(LogConfig, Fatal, TEXT("Short class section names (%s) are not supported, please use long name: %s"), *ShortSectionName, *SectionName);
+			    }
+		    }
+		    MissingSections.Add(SectionName);
+	    }
+    }
+}
+#endif
+
+//TODO: ikrimae: #ThirdParty-Python: Codereview's sai addition
+PyObject *py_ue_load_config_from_section(ue_PyUObject *self, PyObject * args, PyObject *kwargs)
+{
+	ue_py_check(self);
+
+	char *section_name = nullptr;
+	PyObject * py_uclass = nullptr;
+	PyObject * py_uproperty = nullptr;
+	char *file_name = nullptr;
+	int propagation_flags = UE4::ELoadConfigPropagationFlags::LCPF_None;
+
+	char *kwlist[] = {
+		(char *)"section_name",
+		(char *)"config_class",
+		(char *)"filename",
+		(char *)"propagation_flags",
+		(char *)"property_to_load",
+		nullptr
+	};
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|OsiO:load_config_from_section", (char**)kwlist, &section_name, &py_uclass, &file_name, &propagation_flags, &py_uproperty))
+	{
+		PyErr_Format(PyExc_Exception, "\nPossible causes of error:\n1. Arguments provided in wrong order\n2. Arguments provided with wrong keywords");
+		Py_RETURN_NONE;
+	}
+
+	// Validate UClass argument
+	ue_PyUObject *py_uclass_obj = nullptr;
+	UClass * config_uclass = nullptr;
+	if (py_uclass != nullptr)
+	{
+		if (!ue_is_pyuobject(py_uclass))
+		{
+			return PyErr_Format(PyExc_Exception, "ConfigClass argument is not a UObject");
+		}
+		py_uclass_obj = (ue_PyUObject *)py_uclass;
+
+		if (py_uclass_obj->ue_object->IsA<UClass>())
+		{
+			config_uclass = (UClass *)py_uclass_obj->ue_object;
+		}
+		else
+		{
+			PyErr_Format(PyExc_Exception, "ConfigClass Argument is not a UClass");
+			Py_RETURN_NONE;
+		}
+	}
+
+	// Validate UProperty argument
+	ue_PyUObject *py_uproperty_obj = nullptr;
+	UProperty * uproperty_to_load = nullptr;
+	if (py_uproperty != nullptr)
+	{
+		if (!ue_is_pyuobject(py_uproperty))
+		{
+			return PyErr_Format(PyExc_Exception, "PropertyToLoad argument is not a UObject");
+		}
+		py_uproperty_obj = (ue_PyUObject *)py_uproperty;
+
+		if (py_uproperty_obj->ue_object->IsA<UProperty>())
+		{
+			uproperty_to_load = (UProperty *)py_uproperty_obj->ue_object;
+		}
+		else
+		{
+			PyErr_Format(PyExc_Exception, "PropertyToLoad argument is not a UProperty");
+			Py_RETURN_NONE;
+		}
+	}
+
+	// OriginalClass is the class that LoadConfig() was originally called on
+	static UClass* OriginalClass = NULL;
+
+	if (!config_uclass)
+	{
+		// if no class was specified in the call, this is the OriginalClass
+		config_uclass = self->ue_object->GetClass();
+		OriginalClass = config_uclass;
+	}
+
+	if (!config_uclass->HasAnyClassFlags(CLASS_Config))
+	{
+		Py_RETURN_NONE;
+	}
+
+	UClass* ParentClass = config_uclass->GetSuperClass();
+	if (ParentClass != NULL)
+	{
+		if (ParentClass->HasAnyClassFlags(CLASS_Config))
+		{
+			if ((propagation_flags&UE4::LCPF_ReadParentSections) != 0)
+			{
+				// call LoadConfig on the parent class
+				self->ue_object->LoadConfig(ParentClass, NULL, propagation_flags, uproperty_to_load);
+
+				// if we are also notifying child classes or instances, stop here as this object's properties will be imported as a result of notifying the others
+				if ((propagation_flags & (UE4::LCPF_PropagateToChildDefaultObjects | UE4::LCPF_PropagateToInstances)) != 0)
+				{
+					Py_RETURN_NONE;
+				}
+			}
+			else if ((propagation_flags&UE4::LCPF_PropagateToChildDefaultObjects) != 0)
+			{
+				// not propagating the call upwards, but we are propagating the call to all child classes
+				for (TObjectIterator<UClass> It; It; ++It)
+				{
+					if (It->IsChildOf(config_uclass))
+					{
+						// mask out the PropgateToParent and PropagateToChildren values
+						It->GetDefaultObject()->LoadConfig(*It, NULL, (propagation_flags&(UE4::LCPF_PersistentFlags | UE4::LCPF_PropagateToInstances)), uproperty_to_load);
+					}
+				}
+
+				// LoadConfig() was called on this object during iteration, so stop here 
+				Py_RETURN_NONE;
+			}
+			else if ((propagation_flags&UE4::LCPF_PropagateToInstances) != 0)
+			{
+				// call LoadConfig() on all instances of this class (except the CDO)
+				// Do not propagate this call to parents, and do not propagate to children or instances (would be redundant) 
+				for (TObjectIterator<UObject> It; It; ++It)
+				{
+					if (It->IsA(config_uclass))
+					{
+						if (!GIsEditor)
+						{
+							// make sure to pass in the class so that OriginalClass isn't reset
+							It->LoadConfig(It->GetClass(), NULL, (propagation_flags&UE4::LCPF_PersistentFlags), uproperty_to_load);
+						}
+#if WITH_EDITOR
+						else
+						{
+							It->PreEditChange(NULL);
+
+							// make sure to pass in the class so that OriginalClass isn't reset
+							It->LoadConfig(It->GetClass(), NULL, (propagation_flags&UE4::LCPF_PersistentFlags), uproperty_to_load);
+
+							It->PostEditChange();
+						}
+#endif // WITH_EDITOR
+					}
+				}
+			}
+		}
+		else if ((propagation_flags&UE4::LCPF_PropagateToChildDefaultObjects) != 0)
+		{
+			// we're at the base-most config class
+			for (TObjectIterator<UClass> It; It; ++It)
+			{
+				if (It->IsChildOf(config_uclass))
+				{
+					if (!GIsEditor)
+					{
+						// make sure to pass in the class so that OriginalClass isn't reset
+						It->GetDefaultObject()->LoadConfig(*It, NULL, (propagation_flags&(UE4::LCPF_PersistentFlags | UE4::LCPF_PropagateToInstances)), uproperty_to_load);
+					}
+#if WITH_EDITOR
+					else
+					{
+						It->PreEditChange(NULL);
+
+						// make sure to pass in the class so that OriginalClass isn't reset
+						It->GetDefaultObject()->LoadConfig(*It, NULL, (propagation_flags&(UE4::LCPF_PersistentFlags | UE4::LCPF_PropagateToInstances)), uproperty_to_load);
+
+						It->PostEditChange();
+					}
+#endif // WITH_EDITOR
+				}
+			}
+
+			Py_RETURN_NONE;
+		}
+		else if ((propagation_flags&UE4::LCPF_PropagateToInstances) != 0)
+		{
+			for (TObjectIterator<UObject> It; It; ++It)
+			{
+				if (It->GetClass() == config_uclass)
+				{
+					if (!GIsEditor)
+					{
+						// make sure to pass in the class so that OriginalClass isn't reset
+						It->LoadConfig(It->GetClass(), NULL, (propagation_flags&UE4::LCPF_PersistentFlags), uproperty_to_load);
+					}
+#if WITH_EDITOR
+					else
+					{
+						It->PreEditChange(NULL);
+
+						// make sure to pass in the class so that OriginalClass isn't reset
+						It->LoadConfig(It->GetClass(), NULL, (propagation_flags&UE4::LCPF_PersistentFlags), uproperty_to_load);
+						It->PostEditChange();
+					}
+#endif // WITH_EDITOR
+				}
+			}
+		}
+	}
+
+	TCHAR *  InFilename = UTF8_TO_TCHAR(file_name);
+	const FString Filename
+		// if a filename was specified, always load from that file
+		= InFilename
+		? InFilename
+		: GetConfigFilename(self->ue_object);
+
+	const bool bPerObject = UsesPerObjectConfig(self->ue_object);
+
+	// does the class want to override the platform hierarchy (ignored if we passd in a specific ini file),
+	// and if the name isn't the current running platform (no need to load extra files if already in GConfig)
+	bool bUseConfigOverride = InFilename == nullptr && self->ue_object->GetConfigOverridePlatform() != nullptr &&
+		FCString::Stricmp(self->ue_object->GetConfigOverridePlatform(), ANSI_TO_TCHAR(FPlatformProperties::IniPlatformName())) != 0;
+	FConfigFile OverrideConfig;
+	if (bUseConfigOverride)
+	{
+		// load into a local ini file
+		FConfigCacheIni::LoadLocalIniFile(OverrideConfig, *self->ue_object->GetClass()->ClassConfigName.ToString(), true, self->ue_object->GetConfigOverridePlatform());
+	}
+
+
+	FString ClassSection;
+	ClassSection = UTF8_TO_TCHAR(section_name);
+
+	// If any of my properties are class variables, then LoadConfig() would also be called for each one of those classes.
+	// Since OrigClass is a static variable, if the value of a class variable is a class different from the current class, 
+	// we'll lose our nice reference to the original class - and cause any variables which were declared after this class variable to fail 
+	// the 'if (OriginalClass != Class)' check....better store it in a temporary place while we do the actual loading of our properties 
+	UClass* MyOrigClass = OriginalClass;
+
+	if (uproperty_to_load == NULL)
+	{
+		UE_LOG(LogConfig, Verbose, TEXT("(%s) '%s' loading configuration from %s"), *config_uclass->GetName(), *self->ue_object->GetName(), *Filename);
+	}
+	else
+	{
+		UE_LOG(LogConfig, Verbose, TEXT("(%s) '%s' loading configuration for property %s from %s"), *config_uclass->GetName(), *self->ue_object->GetName(), *uproperty_to_load->GetName(), *Filename);
+	}
+
+	for (UProperty* Property = config_uclass->PropertyLink; Property; Property = Property->PropertyLinkNext)
+	{
+		if (!Property->HasAnyPropertyFlags(CPF_Config))
+		{
+			continue;
+		}
+
+		// if we're only supposed to load the value for a specific property, skip all others
+		if (uproperty_to_load != NULL && uproperty_to_load != Property)
+		{
+			continue;
+		}
+
+		// Don't load config properties that are marked editoronly if not in the editor
+		if ((Property->PropertyFlags & CPF_EditorOnly) && !GIsEditor)
+		{
+			continue;
+		}
+
+		const bool bGlobalConfig = (Property->PropertyFlags&CPF_GlobalConfig) != 0;
+		UClass* OwnerClass = Property->GetOwnerClass();
+
+		UClass* BaseClass = bGlobalConfig ? OwnerClass : config_uclass;
+
+		// globalconfig properties should always use the owning class's config file
+		// specifying a value for InFilename will override this behavior (as it does with normal properties)
+		const FString& PropFileName = (bGlobalConfig && InFilename == NULL) ? OwnerClass->GetConfigName() : Filename;
+
+		FString Key = Property->GetName();
+		int32 PortFlags = 0;
+
+#if WITH_EDITOR
+		static FName ConsoleVariableFName(TEXT("ConsoleVariable"));
+		const FString& CVarName = Property->GetMetaData(ConsoleVariableFName);
+		if (!CVarName.IsEmpty())
+		{
+			Key = CVarName;
+			PortFlags |= PPF_ConsoleVariable;
+		}
+#endif // #if WITH_EDITOR
+
+		UE_LOG(LogConfig, Verbose, TEXT("   Loading value for %s from [%s]"), *Key, *ClassSection);
+		UArrayProperty* Array = dynamic_cast<UArrayProperty*>(Property);
+		if (Array == NULL)
+		{
+			for (int32 i = 0; i < Property->ArrayDim; i++)
+			{
+				if (Property->ArrayDim != 1)
+				{
+					Key = FString::Printf(TEXT("%s[%i]"), *Property->GetName(), i);
+				}
+
+				FString Value;
+				bool bFoundValue;
+				if (bUseConfigOverride)
+				{
+					bFoundValue = OverrideConfig.GetString(*ClassSection, *Key, Value);
+				}
+				else
+				{
+					bFoundValue = GConfig->GetString(*ClassSection, *Key, Value, *PropFileName);
+				}
+
+				if (bFoundValue)
+				{
+					if (Property->ImportText(*Value, Property->ContainerPtrToValuePtr<uint8>(self->ue_object, i), PortFlags, self->ue_object) == NULL)
+					{
+						// this should be an error as the properties from the .ini / .int file are not correctly being read in and probably are affecting things in subtle ways
+						UE_LOG(LogConfig, Error, TEXT("LoadConfig (%s): import failed for %s in: %s"), *self->ue_object->GetPathName(), *Property->GetName(), *Value);
+					}
+				}
+
+#if !UE_BUILD_SHIPPING
+				if (!bFoundValue && !FPlatformProperties::RequiresCookedData())
+				{
+					CheckMissingSection(ClassSection, PropFileName);
+				}
+#endif
+			}
+		}
+		else
+		{
+			FConfigSection* Sec;
+			if (bUseConfigOverride)
+			{
+				Sec = OverrideConfig.Find(*ClassSection);
+			}
+			else
+			{
+				Sec = GConfig->GetSectionPrivate(*ClassSection, false, true, *PropFileName);
+			}
+
+			FConfigSection* AltSec = NULL;
+			//@Package name transition
+			if (Sec)
+			{
+				TArray<FConfigValue> List;
+				const FName KeyName(*Key, FNAME_Find);
+				Sec->MultiFind(KeyName, List);
+
+				// If we didn't find anything in the first section, try the alternate
+				if ((List.Num() == 0) && AltSec)
+				{
+					AltSec->MultiFind(KeyName, List);
+				}
+
+				FScriptArrayHelper_InContainer ArrayHelper(Array, self->ue_object);
+				const int32 Size = Array->Inner->ElementSize;
+				// Only override default properties if there is something to override them with.
+				if (List.Num() > 0)
+				{
+					ArrayHelper.EmptyAndAddValues(List.Num());
+					for (int32 i = List.Num() - 1, c = 0; i >= 0; i--, c++)
+					{
+						Array->Inner->ImportText(*List[i].GetValue(), ArrayHelper.GetRawPtr(c), PortFlags, self->ue_object);
+					}
+				}
+				else
+				{
+					int32 Index = 0;
+					const FConfigValue* ElementValue = nullptr;
+					do
+					{
+						// Add array index number to end of key
+						FString IndexedKey = FString::Printf(TEXT("%s[%i]"), *Key, Index);
+
+						// Try to find value of key
+						const FName IndexedName(*IndexedKey, FNAME_Find);
+						if (IndexedName == NAME_None)
+						{
+							break;
+						}
+						ElementValue = Sec->Find(IndexedName);
+
+						// If found, import the element
+						if (ElementValue != nullptr)
+						{
+							// expand the array if necessary so that Index is a valid element
+							ArrayHelper.ExpandForIndex(Index);
+							Array->Inner->ImportText(*ElementValue->GetValue(), ArrayHelper.GetRawPtr(Index), PortFlags, self->ue_object);
+						}
+
+						Index++;
+					} while (ElementValue || Index < ArrayHelper.Num());
+				}
+			}
+#if !UE_BUILD_SHIPPING
+			else if (!FPlatformProperties::RequiresCookedData())
+			{
+				CheckMissingSection(ClassSection, PropFileName);
+			}
+#endif
+		}
+	}
+
+	// if we are reloading config data after the initial class load, fire the callback now
+	if ((propagation_flags&UE4::LCPF_ReloadingConfigData) != 0)
+	{
+		self->ue_object->PostReloadConfig(uproperty_to_load);
+	}
 
 	Py_RETURN_NONE;
 }
@@ -658,7 +1466,8 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 
 	char *property_name;
 	PyObject *property_value;
-	if (!PyArg_ParseTuple(args, "sO:set_property", &property_name, &property_value))
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "sO|i:set_property", &property_name, &property_value, &index))
 	{
 		return NULL;
 	}
@@ -679,7 +1488,7 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
 
-	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object))
+	if (!ue_py_convert_pyobject(property_value, u_property, (uint8 *)self->ue_object, index))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", property_name);
 	}
@@ -847,6 +1656,14 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
+    EFieldIteratorFlags::SuperClassFlags         inSuperClassFlags      = EFieldIteratorFlags::IncludeSuper;
+    EFieldIteratorFlags::DeprecatedPropertyFlags inDeprecatedFieldFlags = EFieldIteratorFlags::IncludeDeprecated;
+    EFieldIteratorFlags::InterfaceClassFlags     inInterfaceFieldFlags  = EFieldIteratorFlags::ExcludeInterfaces;
+    if (!PyArg_ParseTuple(args, "|KKK:properties", &inSuperClassFlags, &inDeprecatedFieldFlags, &inInterfaceFieldFlags))
+    {
+        return NULL;
+    }
+
 	UStruct *u_struct = nullptr;
 
 	if (self->ue_object->IsA<UStruct>())
@@ -859,8 +1676,7 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
 	}
 
 	PyObject *ret = PyList_New(0);
-
-	for (TFieldIterator<UProperty> PropIt(u_struct); PropIt; ++PropIt)
+	for (TFieldIterator<UProperty> PropIt(u_struct, inSuperClassFlags, inDeprecatedFieldFlags, inInterfaceFieldFlags); PropIt; ++PropIt)
 	{
 		UProperty* property = *PropIt;
 		PyObject *property_name = PyUnicode_FromString(TCHAR_TO_UTF8(*property->GetName()));
@@ -957,7 +1773,8 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_property", &property_name))
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "s|i:get_property", &property_name, &index))
 	{
 		return NULL;
 	}
@@ -977,7 +1794,36 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	return ue_py_convert_property(u_property, (uint8 *)self->ue_object);
+	return ue_py_convert_property(u_property, (uint8 *)self->ue_object, index);
+}
+
+PyObject *py_ue_get_property_array_dim(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *property_name;
+	if (!PyArg_ParseTuple(args, "s:get_property_array_dim", &property_name))
+	{
+		return NULL;
+	}
+
+	UStruct *u_struct = nullptr;
+
+	if (self->ue_object->IsA<UClass>())
+	{
+		u_struct = (UStruct *)self->ue_object;
+	}
+	else
+	{
+		u_struct = (UStruct *)self->ue_object->GetClass();
+	}
+
+	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
+
+	return PyLong_FromLongLong(u_property->ArrayDim);
 }
 
 #if WITH_EDITOR
@@ -1143,6 +1989,19 @@ PyObject *py_ue_is_rooted(ue_PyUObject *self, PyObject * args)
 	return Py_False;
 }
 
+PyObject *py_ue_is_selected(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	if (self->ue_object->IsSelected())
+	{
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+
+	Py_INCREF(Py_False);
+	return Py_False;
+}
 
 PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args)
 {
@@ -1223,6 +2082,38 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args)
 	return ue_bind_pyevent(self, FString(event_name), py_callable, true);
 }
 
+PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *delegate_name;
+	PyObject *py_obj;
+	char *fname;
+
+	if (!PyArg_ParseTuple(args, "sOs:delegate_bind_ufunction", &delegate_name, &py_obj, &fname))
+		return nullptr;
+
+	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(delegate_name));
+	if (!u_property)
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", delegate_name);
+
+	UDelegateProperty *Prop = Cast<UDelegateProperty>(u_property);
+	if (!Prop)
+		return PyErr_Format(PyExc_Exception, "property is not a UDelegateProperty");
+
+	UObject *Object = ue_py_check_type<UObject>(py_obj);
+	if (!Object)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	FScriptDelegate script_delegate;
+	script_delegate.BindUFunction(Object, FName(fname));
+
+	// re-assign multicast delegate
+	Prop->SetPropertyValue_InContainer(self->ue_object, script_delegate);
+
+	Py_RETURN_NONE;
+}
+
 #if PY_MAJOR_VERSION >= 3
 PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args)
 {
@@ -1284,6 +2175,8 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 
 	UClass *u_prop_class = nullptr;
 	UScriptStruct *u_script_struct = nullptr;
+	UEnum * u_enum_class = nullptr;
+
 	UClass *u_prop_class2 = nullptr;
 	UScriptStruct *u_script_struct2 = nullptr;
 	bool is_array = false;
@@ -1304,9 +2197,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		{
 			u_script_struct = (UScriptStruct *)py_prop_class->ue_object;
 		}
+		else if (py_prop_class->ue_object->IsA<UEnum>())
+		{
+			u_enum_class = (UEnum *)py_prop_class->ue_object;
+		}
 		else
 		{
-			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct");
+			return PyErr_Format(PyExc_Exception, "property class arg is not a UClass or a UScriptStruct or a UEnum");
 		}
 	}
 
@@ -1336,16 +2233,25 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 	if (ue_is_pyuobject(obj))
 	{
 		ue_PyUObject *py_obj = (ue_PyUObject *)obj;
-		if (!py_obj->ue_object->IsA<UClass>())
+	
+		if (py_obj->ue_object->IsA<UEnum>())
 		{
-			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+			scope = self->ue_object;
+			u_class = UEnumProperty::StaticClass();
 		}
-		u_class = (UClass *)py_obj->ue_object;
-		if (!u_class->IsChildOf<UProperty>())
-			return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
-		if (u_class == UArrayProperty::StaticClass())
-			return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
-		scope = self->ue_object;
+		else
+		{
+			if (!py_obj->ue_object->IsA<UClass>())
+			{
+				return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+			}
+			u_class = (UClass *)py_obj->ue_object;
+			if (!u_class->IsChildOf<UProperty>())
+				return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
+			if (u_class == UArrayProperty::StaticClass())
+				return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
+			scope = self->ue_object;
+		}
 	}
 	else if (PyList_Check(obj))
 	{
@@ -1571,6 +2477,22 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		}
 	}
 
+	else if (u_class == UEnumProperty::StaticClass())
+	{
+		// ensure it is not an arry as we have already managed it !
+		if (!is_array && !is_map)
+		{
+			UEnumProperty *enum_prop = (UEnumProperty *)u_property;
+			if(enum_prop)
+			{
+				//UEnum* EnumType = CastChecked<UEnum>(u_enum_class);
+				enum_prop->SetEnum(u_enum_class);
+				enum_prop->AddCppProperty(NewObject<UByteProperty>(enum_prop, TEXT("UnderlyingType")));
+
+			}
+		}
+	}
+
 	u_property->SetPropertyFlags(flags);
 	u_property->ArrayDim = 1;
 
@@ -1619,7 +2541,7 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args)
 	TFieldIterator<UProperty> SArgs(u_struct);
 	for (; SArgs; ++SArgs)
 	{
-		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object);
+		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object, 0);
 		if (!struct_value)
 		{
 			Py_DECREF(py_struct_dict);
@@ -1643,6 +2565,33 @@ PyObject *py_ue_get_cdo(ue_PyUObject * self, PyObject * args)
 	UClass *u_class = (UClass *)self->ue_object;
 
 	Py_RETURN_UOBJECT(u_class->GetDefaultObject());
+}
+
+PyObject *py_ue_get_archetype(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	Py_RETURN_UOBJECT(self->ue_object->GetArchetype());
+}
+
+PyObject *py_ue_get_archetype_instances(ue_PyUObject * self, PyObject * args)
+{
+    ue_py_check(self);
+
+    TArray<UObject*> ObjectArchetypeInstances;
+    self->ue_object->GetArchetypeInstances(ObjectArchetypeInstances);
+
+    PyObject *retArchInstances = PyList_New(0);
+    for (UObject* ObjectArchetype : ObjectArchetypeInstances)
+    {
+        ue_PyUObject *archInstance = ue_get_python_uobject(ObjectArchetype);
+        if (archInstance)
+        {
+            PyList_Append(retArchInstances, (PyObject *)archInstance);
+        }
+    }
+
+    return retArchInstances;
 }
 
 
@@ -1860,3 +2809,46 @@ PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
 }
 #endif
 
+
+PyObject *py_ue_to_bytes(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	TArray<uint8> Bytes;
+
+	FObjectWriter(self->ue_object, Bytes);
+
+	return PyBytes_FromStringAndSize((const char *)Bytes.GetData(), Bytes.Num());
+}
+
+PyObject *py_ue_to_bytearray(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	TArray<uint8> Bytes;
+
+	FObjectWriter(self->ue_object, Bytes);
+
+	return PyByteArray_FromStringAndSize((const char *)Bytes.GetData(), Bytes.Num());
+}
+
+PyObject *py_ue_from_bytes(ue_PyUObject * self, PyObject * args)
+{
+
+	Py_buffer py_buf;
+
+	if (!PyArg_ParseTuple(args, "z*:from_bytes", &py_buf))
+		return nullptr;
+
+	ue_py_check(self);
+
+	TArray<uint8> Bytes;
+	Bytes.AddUninitialized(py_buf.len);
+	FMemory::Memcpy(Bytes.GetData(), py_buf.buf, py_buf.len);
+
+	FObjectReader(self->ue_object, Bytes);
+
+	Py_RETURN_NONE;
+}

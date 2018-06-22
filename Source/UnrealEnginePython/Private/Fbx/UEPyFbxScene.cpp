@@ -1,30 +1,37 @@
+#include "UEPyFbxScene.h"
 #if ENGINE_MINOR_VERSION > 12
-#include "UnrealEnginePythonPrivatePCH.h"
+
 
 #if WITH_EDITOR
 
 #include "UEPyFbx.h"
 
-static PyObject *py_ue_fbx_scene_get_root_node(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_get_root_node(ue_PyFbxScene *self, PyObject *args)
+{
 	FbxNode *fbx_node = self->fbx_scene->GetRootNode();
-	if (!fbx_node) {
+	if (!fbx_node)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to get RootNode from FbxScene");
 	}
 
 	return py_ue_new_fbx_node(fbx_node);
 }
 
-static PyObject *py_ue_fbx_scene_get_src_object_count(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_get_src_object_count(ue_PyFbxScene *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_scene->GetSrcObjectCount());
 }
 
-static PyObject *py_ue_fbx_scene_get_pose_count(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_get_pose_count(ue_PyFbxScene *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_scene->GetPoseCount());
 }
 
-static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
 	FbxObject *fbx_object = self->fbx_scene->GetSrcObject(index);
@@ -34,9 +41,11 @@ static PyObject *py_ue_fbx_scene_get_src_object(ue_PyFbxScene *self, PyObject *a
 	return py_ue_new_fbx_object(fbx_object);
 }
 
-static PyObject *py_ue_fbx_scene_get_pose(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_get_pose(ue_PyFbxScene *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
 	FbxPose *fbx_pose = self->fbx_scene->GetPose(index);
@@ -46,7 +55,8 @@ static PyObject *py_ue_fbx_scene_get_pose(ue_PyFbxScene *self, PyObject *args) {
 	return py_ue_new_fbx_pose(fbx_pose);
 }
 
-static PyObject *py_ue_fbx_scene_convert(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_convert(ue_PyFbxScene *self, PyObject *args)
+{
 	FbxScene *scene = self->fbx_scene;
 
 	FbxAxisSystem::ECoordSystem coord_system = FbxAxisSystem::eRightHanded;
@@ -55,7 +65,8 @@ static PyObject *py_ue_fbx_scene_convert(ue_PyFbxScene *self, PyObject *args) {
 
 	FbxAxisSystem unreal(up_vector, front_vector, coord_system);
 
-	if (scene->GetGlobalSettings().GetAxisSystem() != unreal) {
+	if (scene->GetGlobalSettings().GetAxisSystem() != unreal)
+	{
 		FbxRootNodeUtility::RemoveAllFbxRoots(scene);
 		unreal.ConvertScene(scene);
 	}
@@ -65,12 +76,14 @@ static PyObject *py_ue_fbx_scene_convert(ue_PyFbxScene *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_fbx_scene_triangulate(ue_PyFbxScene *self, PyObject *args) {
+static PyObject *py_ue_fbx_scene_triangulate(ue_PyFbxScene *self, PyObject *args)
+{
 	FbxScene *scene = self->fbx_scene;
 
 	FbxGeometryConverter converter(scene->GetFbxManager());
 
-	if (converter.Triangulate(scene, true)) {
+	if (converter.Triangulate(scene, true))
+	{
 		Py_RETURN_TRUE;
 	}
 
@@ -121,15 +134,18 @@ static PyTypeObject ue_PyFbxSceneType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_scene_init(ue_PyFbxScene *self, PyObject * args) {
+static int py_ue_fbx_scene_init(ue_PyFbxScene *self, PyObject * args)
+{
 	PyObject *py_object;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os", &py_object, &name)) {
+	if (!PyArg_ParseTuple(args, "Os", &py_object, &name))
+	{
 		return -1;
 	}
 
 	ue_PyFbxManager *py_fbx_manager = py_ue_is_fbx_manager(py_object);
-	if (!py_fbx_manager) {
+	if (!py_fbx_manager)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a FbxManager");
 		return -1;
 	}
@@ -138,7 +154,8 @@ static int py_ue_fbx_scene_init(ue_PyFbxScene *self, PyObject * args) {
 	return 0;
 }
 
-void ue_python_init_fbx_scene(PyObject *ue_module) {
+void ue_python_init_fbx_scene(PyObject *ue_module)
+{
 	ue_PyFbxSceneType.tp_new = PyType_GenericNew;;
 	ue_PyFbxSceneType.tp_init = (initproc)py_ue_fbx_scene_init;
 	if (PyType_Ready(&ue_PyFbxSceneType) < 0)
@@ -148,7 +165,8 @@ void ue_python_init_fbx_scene(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxScene", (PyObject *)&ue_PyFbxSceneType);
 }
 
-ue_PyFbxScene *py_ue_is_fbx_scene(PyObject *obj) {
+ue_PyFbxScene *py_ue_is_fbx_scene(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxSceneType))
 		return nullptr;
 	return (ue_PyFbxScene *)obj;

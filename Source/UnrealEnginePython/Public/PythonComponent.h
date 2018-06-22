@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-
+#include "UnrealEnginePython.h"
 #include "PythonComponent.generated.h"
 
 
@@ -26,68 +26,73 @@ public:
 	virtual void InitializeComponent() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
-	FString PythonModule;
+		FString PythonModule;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
-	FString PythonClass;
+		FString PythonClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
-	bool PythonTickForceDisabled;
+		bool PythonTickForceDisabled;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
-	bool PythonDisableAutoBinding;
+		bool PythonDisableAutoBinding;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Python")
+		bool PythonTickEnableGenerator;
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void InitializePythonComponent();
+		void InitializePythonComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void CallPythonComponentMethod(FString method_name, FString args);
+		void CallPythonComponentMethod(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	bool CallPythonComponentMethodBool(FString method_name, FString args);
+		bool CallPythonComponentMethodBool(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	FString CallPythonComponentMethodString(FString method_name, FString args);
+		FString CallPythonComponentMethodString(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	TMap<FString, FString> CallPythonComponentMethodMap(FString method_name, FString args);
+		TMap<FString, FString> CallPythonComponentMethodMap(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings);
+		void CallPythonComponentMethodStringArray(FString method_name, FString args, TArray<FString> &output_strings);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	float CallPythonComponentMethodFloat(FString method_name, FString args);
+		float CallPythonComponentMethodFloat(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	int CallPythonComponentMethodInt(FString method_name, FString args);
+		int CallPythonComponentMethodInt(FString method_name, FString args);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	UObject *CallPythonComponentMethodObject(FString method_name, UObject *arg);
+		UObject *CallPythonComponentMethodObject(FString method_name, UObject *arg);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrInt(FString attr, int Integer);
+		void SetPythonAttrInt(FString attr, int Integer);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrFloat(FString attr, float Float);
+		void SetPythonAttrFloat(FString attr, float Float);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrString(FString attr, FString String);
+		void SetPythonAttrString(FString attr, FString String);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrBool(FString attr, bool Boolean);
+		void SetPythonAttrBool(FString attr, bool Boolean);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrVector(FString attr, FVector Vector);
+		void SetPythonAttrVector(FString attr, FVector Vector);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrRotator(FString attr, FRotator Rotator);
+		void SetPythonAttrRotator(FString attr, FRotator Rotator);
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	void SetPythonAttrObject(FString attr, UObject *Object);
+		void SetPythonAttrObject(FString attr, UObject *Object);
 
 private:
-	PyObject *py_component_instance;
+	PyObject * py_component_instance;
 	// mapped uobject, required for debug and advanced reflection
 	ue_PyUObject *py_uobject;
+
+	PyObject *py_generator;
 };
 

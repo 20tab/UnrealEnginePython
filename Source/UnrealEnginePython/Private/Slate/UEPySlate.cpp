@@ -1,5 +1,5 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
+#include "UEPySlate.h"
 
 #if WITH_EDITOR
 #include "LevelEditor.h"
@@ -25,6 +25,95 @@
 
 #include "UEPySlate.h"
 #include "PyNativeWidgetHost.h"
+#include <SDockTab.h>
+#include <SharedPointer.h>
+#include "UEPySWidget.h"
+#include <ModuleManager.h>
+
+#include "Wrappers/UEPyFAssetData.h"
+
+#include "Sound/SoundBase.h"
+
+#include "UEPySWidget.h"
+#include "UEPySCompoundWidget.h"
+#include "UEPySWindow.h"
+#include "UEPySBorder.h"
+#include "UEPySButton.h"
+#include "UEPySLeafWidget.h"
+#include "UEPySTextBlock.h"
+#include "UEPySEditableTextBox.h"
+#include "UEPySMultiLineEditableText.h"
+#include "UEPySPanel.h"
+#include "UEPySGridPanel.h"
+#include "UEPySBoxPanel.h"
+#include "UEPySHorizontalBox.h"
+#include "UEPySVerticalBox.h"
+#include "UEPySViewport.h"
+
+
+#include "UEPySImage.h"
+#include "UEPySDockTab.h"
+#include "UEPySTableViewBase.h"
+#include "UEPySListView.h"
+#include "UEPySPythonListView.h"
+#include "UEPySPythonMultiColumnTableRow.h"
+#include "UEPySTreeView.h"
+#include "UEPySPythonTreeView.h"
+#include "UEPySSplitter.h"
+#include "UEPySHeaderRow.h"
+#include "UEPySCheckBox.h"
+#include "UEPySNumericEntryBox.h"
+#include "UEPySCanvas.h"
+#include "UEPySSlider.h"
+#include "UEPySVectorInputBox.h"
+#include "UEPySRotatorInputBox.h"
+#include "UEPySPythonComboBox.h"
+#include "UEPySScrollBox.h"
+#include "UEPySColorBlock.h"
+#include "UEPySBox.h"
+#include "UEPySProgressBar.h"
+#include "UEPySSpacer.h"
+#include "UEPySPythonWidget.h"
+#include "UEPySOverlay.h"
+#include "UEPySExpanderArrow.h"
+#include "UEPySExpandableArea.h"
+
+#include "UEPyFTabManager.h"
+#include "UEPyFTabSpawnerEntry.h"
+#include "UEPyFMenuBuilder.h"
+#include "UEPyFToolBarBuilder.h"
+#include "UEPyFSlateIcon.h"
+#include "UEPyFSlateStyleSet.h"
+
+#include "UEPyFGeometry.h"
+#include "UEPyFPaintContext.h"
+
+#include "UEPyFInputEvent.h"
+#include "UEPyFPointerEvent.h"
+#include "UEPyFKeyEvent.h"
+#include "UEPyFCharacterEvent.h"
+#include "UEPyFModifierKeysState.h"
+#include "Wrappers/UEPyESlateEnums.h"
+
+#if WITH_EDITOR
+#include "UEPySEditorViewport.h"
+#include "UEPySLevelViewport.h"
+#include "UEPySPythonEditorViewport.h"
+#include "UEPySGraphEditor.h"
+#include "UEPySPythonShelf.h"
+#include "UEPySFilePathPicker.h"
+#include "UEPySDirectoryPicker.h"
+#include "UEPySDropTarget.h"
+#include "UEPySAssetDropTarget.h"
+#include "UEPySObjectPropertyEntryBox.h"
+#include "UEPyIDetailsView.h"
+#include "UEPyIStructureDetailsView.h"
+#include "UEPySNodePanel.h"
+#include "UEPySGraphPanel.h"
+#endif
+
+#include "Runtime/Core/Public/Misc/Attribute.h"
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
@@ -127,28 +216,28 @@ void FPythonSlateDelegate::OnTextCommitted(const FText& text, ETextCommit::Type 
 
 void FPythonSlateDelegate::OnInt32Changed(int32 value)
 {
-    FScopePythonGIL gil;
+	FScopePythonGIL gil;
 
-    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"i", value);
-    if (!ret)
-    {
-        unreal_engine_py_log_error();
-        return;
-    }
-    Py_DECREF(ret);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"i", value);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
 }
 
 void FPythonSlateDelegate::OnInt32Committed(int32 value, ETextCommit::Type commit_type)
 {
-    FScopePythonGIL gil;
+	FScopePythonGIL gil;
 
-    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"ii", value, (int)commit_type);
-    if (!ret)
-    {
-        unreal_engine_py_log_error();
-        return;
-    }
-    Py_DECREF(ret);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"ii", value, (int)commit_type);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
 }
 
 void FPythonSlateDelegate::OnFloatChanged(float value)
@@ -181,13 +270,73 @@ void FPythonSlateDelegate::OnWindowClosed(const TSharedRef<SWindow> &Window)
 {
 	FScopePythonGIL gil;
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_ue_new_swidget<ue_PySWindow>(StaticCastSharedRef<SWidget>(Window), &ue_PySWindowType));
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", (PyObject *)ue_py_get_swidget(Window));
 	if (!ret)
 	{
 		unreal_engine_py_log_error();
 		return;
 	}
 	Py_DECREF(ret);
+}
+
+void FPythonSlateDelegate::OnTabClosed(TSharedRef<SDockTab> Tab)
+{
+    FScopePythonGIL gil;
+	ue_PySWidget * py_dock_tab = ue_py_get_swidget(Tab);
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", (PyObject *)py_dock_tab);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+	
+	Py_DECREF(ret);
+	Py_DECREF((PyObject*)py_dock_tab);
+
+}
+
+void FPythonSlateDelegate::OnTabActivated(TSharedRef<SDockTab> Tab, ETabActivationCause TabActivationCause)
+{
+    FScopePythonGIL gil;
+	ue_PySWidget * py_dock_tab = ue_py_get_swidget(Tab);
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", (PyObject *)py_dock_tab, (int)TabActivationCause);
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+        return;
+    }
+    Py_DECREF(ret);
+	Py_DECREF((PyObject*)py_dock_tab);
+}
+
+bool FPythonSlateDelegate::OnCanCloseTab()
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
+    if (!ret || !PyBool_Check(ret))
+    {
+        unreal_engine_py_log_error();
+        Py_XDECREF(ret);
+        return true;
+    }
+
+    const bool bCanClose = ret == Py_True;
+    Py_DECREF(ret);
+    return bCanClose;
+}
+
+void FPythonSlateDelegate::OnPersistVisualState()
+{
+    FScopePythonGIL gil;
+
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
+    if (!ret)
+    {
+        unreal_engine_py_log_error();
+    }
+
+    Py_DECREF(ret);
 }
 
 void FPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commit_type)
@@ -203,17 +352,30 @@ void FPythonSlateDelegate::OnFloatCommitted(float value, ETextCommit::Type commi
 	Py_DECREF(ret);
 }
 
-void FPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode)
+void FPythonSlateDelegate::OnBoolChanged(bool value)
 {
     FScopePythonGIL gil;
 
-    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"isi", (int)SortPriority, TCHAR_TO_UTF8(*ColumnName.ToString()), (int)NewSortMode);
+    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", value ? Py_True : Py_False);
     if (!ret)
     {
         unreal_engine_py_log_error();
         return;
     }
     Py_DECREF(ret);
+}
+
+void FPythonSlateDelegate::OnSort(const EColumnSortPriority::Type SortPriority, const FName& ColumnName, const EColumnSortMode::Type NewSortMode)
+{
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"isi", (int)SortPriority, TCHAR_TO_UTF8(*ColumnName.ToString()), (int)NewSortMode);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
 }
 
 void FPythonSlateDelegate::CheckBoxChanged(ECheckBoxState state)
@@ -299,16 +461,17 @@ TSharedPtr<SWidget> FPythonSlateDelegate::OnGetAssetContextMenu(const TArray<FAs
 		return nullptr;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
+		PyErr_Clear();
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
 		return nullptr;
 	}
-	TSharedPtr<SWidget> value = s_widget->s_widget;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
 	Py_DECREF(ret);
-	return value;
+	return RefWidget;
 }
 
 void FPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets)
@@ -352,48 +515,49 @@ TSharedRef<SWidget> FPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonIte
 		return SNullWidget::NullWidget;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+		PyErr_Clear();
 		return SNullWidget::NullWidget;
 	}
-	TSharedRef<SWidget> value = s_widget->s_widget;
-
-	Py_INCREF(ret);
-	return value;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
+	Py_DECREF(ret);
+	return RefWidget;
 }
 
 TSharedRef<SWidget> FPythonSlateDelegate::OnGetMenuContent()
 {
-    FScopePythonGIL gil;
+	FScopePythonGIL gil;
 
-    PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
-    if (!ret)
-    {
-        unreal_engine_py_log_error();
-        return SNullWidget::NullWidget;
-    }
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"");
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return SNullWidget::NullWidget;
+	}
 
-    ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-    if (!s_widget)
-    {
-        Py_DECREF(ret);
-        UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
-        return SNullWidget::NullWidget;
-    }
-    TSharedRef<SWidget> value = s_widget->s_widget;
-    Py_DECREF(ret);
-    return value;
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
+	{
+		Py_DECREF(ret);
+		PyErr_Clear();
+		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
+		return SNullWidget::NullWidget;
+	}
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
+	Py_DECREF(ret);
+	return RefWidget;
 }
 
 void FPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type)
 {
-    if (!py_item.IsValid())
-    {
-        return;
-    }
+	if (!py_item.IsValid())
+	{
+		return;
+	}
 
 	FScopePythonGIL gil;
 
@@ -417,16 +581,17 @@ TSharedPtr<SWidget> FPythonSlateDelegate::OnContextMenuOpening()
 		return nullptr;
 	}
 
-	ue_PySWidget *s_widget = py_ue_is_swidget(ret);
-	if (!s_widget)
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	if (!Widget.IsValid())
 	{
 		Py_DECREF(ret);
+		PyErr_Clear();
 		UE_LOG(LogPython, Error, TEXT("returned value is not a SWidget"));
 		return nullptr;
 	}
-	TSharedPtr<SWidget> value = s_widget->s_widget;
+	TSharedRef<SWidget> RefWidget = Widget.ToSharedRef();
 	Py_DECREF(ret);
-	return value;
+	return RefWidget;
 }
 
 void FPythonSlateDelegate::SimpleExecuteAction()
@@ -601,21 +766,21 @@ FVector2D FPythonSlateDelegate::GetterFVector2D() const
 	if (!ret)
 	{
 		unreal_engine_py_log_error();
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	if (!PyTuple_Check(ret))
 	{
 		Py_DECREF(ret);
 		PyErr_SetString(PyExc_ValueError, "returned value is not a tuple");
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	if (PyTuple_Size(ret) != 2)
 	{
 		Py_DECREF(ret);
 		PyErr_SetString(PyExc_ValueError, "returned value is not a 2 items tuple");
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	PyObject *first_item = PyTuple_GetItem(ret, 0);
@@ -623,7 +788,7 @@ FVector2D FPythonSlateDelegate::GetterFVector2D() const
 	{
 		Py_DECREF(ret);
 		PyErr_SetString(PyExc_ValueError, "tuple does not contain numbers");
-		return FVector2D();
+		return FVector2D::ZeroVector;
 	}
 
 	PyObject *py_x = PyNumber_Float(first_item);
@@ -666,25 +831,34 @@ FLinearColor FPythonSlateDelegate::GetterFLinearColor() const
 	return color;
 }
 
-TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args)
+TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &args, bool bShouldAutosize)
 {
-	TSharedRef<SDockTab> dock_tab = SNew(SDockTab).TabRole(ETabRole::NomadTab);
-	PyObject *py_dock = (PyObject *)ue_py_get_swidget(dock_tab);
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", py_dock);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"O", bShouldAutosize ? Py_True : Py_False);
 	if (!ret)
 	{
+		PyErr_Format(PyExc_Exception, "Object returned by dock tab spawning in python is in invalid state");
 		unreal_engine_py_log_error();
+		return SNew(SDockTab);
 	}
-	else
+	ue_PySDockTab* py_dock = py_ue_is_sdock_tab(ret);
+	if (!py_dock)
 	{
 		Py_DECREF(ret);
+		PyErr_Format(PyExc_Exception, "Object returned by dock tab spawning in python is not a dock tab");
+		unreal_engine_py_log_error();
+		return SNew(SDockTab);
 	}
+
+	TSharedRef<SDockTab> dock_tab = StaticCastSharedRef<SDockTab>(((ue_PySWidget*)py_dock)->Widget);
+
+	Py_DECREF(py_dock);
+	
 	return dock_tab;
 }
 
 TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable)
 {
-    FScopePythonGIL gil;
+	FScopePythonGIL gil;
 
 	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
 	if (!ret)
@@ -692,21 +866,24 @@ TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> 
 		unreal_engine_py_log_error();
 		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
 	}
-	
-    if (ue_PySPythonMultiColumnTableRow *spython_multicolumn_table_row = py_ue_is_spython_multicolumn_table_row(ret))
-    {
-        Py_INCREF(spython_multicolumn_table_row);
-        TSharedRef<SPythonMultiColumnTableRow> value = StaticCastSharedRef<SPythonMultiColumnTableRow>(spython_multicolumn_table_row->s_compound_widget.s_widget.s_widget->AsShared());
-        return value;
-    }
-	else if (ue_PySWidget *s_widget = py_ue_is_swidget(ret))
+
+	if (ue_PySPythonMultiColumnTableRow *spython_multicolumn_table_row = py_ue_is_spython_multicolumn_table_row(ret))
 	{
-        return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[s_widget->s_widget];
+		return StaticCastSharedRef<SPythonMultiColumnTableRow>(((ue_PySWidget*)spython_multicolumn_table_row)->Widget);
 	}
 
-    UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
-    return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
-	
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	Py_DECREF(ret);
+	if (Widget.IsValid())
+	{
+		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[Widget.ToSharedRef()];
+	}
+
+	PyErr_Clear();
+
+	UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
+	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
+
 }
 
 void FPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren)
@@ -735,59 +912,27 @@ void FPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TS
 	Py_DECREF(ret);
 }
 
-static std::map<SWidget *, ue_PySWidget *> *py_slate_mapping;
-
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget)
 {
 	ue_PySWidget *ret = nullptr;
-	auto it = py_slate_mapping->find(&s_widget.Get());
-	// not found, it means it is an SWidget not generated from python
-	if (it == py_slate_mapping->end())
-	{
-		if (s_widget->GetType().Compare(FName("SWindow")) == 0)
-		{
-			return py_ue_new_swidget<ue_PySWindow>(s_widget, &ue_PySWindowType);
-		}
-		if (s_widget->GetType().Compare(FName("SDockTab")) == 0)
-		{
-			return py_ue_new_swidget<ue_PySDockTab>(s_widget, &ue_PySDockTabType);
-		}
-		else
-		{
-			return py_ue_new_swidget<ue_PySWidget>(s_widget, &ue_PySWidgetType);
-		}
-	}
-	else
-	{
-		ret = it->second;
-	}
-	Py_INCREF(ret);
-	return ret;
-}
 
-void ue_py_setup_swidget(ue_PySWidget *self)
-{
-#if defined(UEPY_MEMORY_DEBUG)
-	UE_LOG(LogPython, Warning, TEXT("Allocating new %s..."), UTF8_TO_TCHAR(self->ob_base.ob_type->tp_name));
-#endif
-	self->py_dict = PyDict_New();
-	new(&self->s_widget) TSharedRef<SWidget>(SNullWidget::NullWidget);
-}
+    if (s_widget->GetType().Compare(FName("SWindow")) == 0)
+    {
+        return py_ue_new_swidget<ue_PySWindow>(s_widget, &ue_PySWindowType);
+    }
+    if (s_widget->GetType().Compare(FName("SDockTab")) == 0)
+    {
+        return py_ue_new_swidget<ue_PySDockTab>(s_widget, &ue_PySDockTabType);
+    }
+    else
+    {
+        return py_ue_new_swidget<ue_PySWidget>(s_widget, &ue_PySWidgetType);
+    }
 
-void ue_py_register_swidget(SWidget *s_widget, ue_PySWidget *py_s_widget)
-{
-	(*py_slate_mapping)[s_widget] = py_s_widget;
-}
-
-void ue_py_unregister_swidget(SWidget *s_widget)
-{
-	(*py_slate_mapping).erase(s_widget);
 }
 
 void ue_python_init_slate(PyObject *module)
 {
-
-	py_slate_mapping = new std::map<SWidget *, ue_PySWidget *>();
 
 	ue_python_init_swidget(module);
 	ue_python_init_scompound_widget(module);
@@ -809,7 +954,8 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_stable_view_base(module);
 	ue_python_init_slist_view(module);
 	ue_python_init_spython_list_view(module);
-    ue_python_init_spython_multicolumn_table_row(module);
+	ue_python_init_spython_multicolumn_table_row(module);
+    ue_python_init_sexpander_arrow(module);
 	ue_python_init_stree_view(module);
 	ue_python_init_spython_tree_view(module);
 	ue_python_init_ssplitter(module);
@@ -828,15 +974,16 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_sspacer(module);
 	ue_python_init_spython_widget(module);
 	ue_python_init_soverlay(module);
+    ue_python_init_sexpandable_area(module);
 
 
 #if WITH_EDITOR
-    ue_python_init_snode_panel(module);
+	ue_python_init_snode_panel(module);
 #if ENGINE_MINOR_VERSION > 15
-    ue_python_init_sgraph_panel(module);
+	ue_python_init_sgraph_panel(module);
 #endif
-    ue_python_init_idetails_view(module);
-    ue_python_init_istructure_details_view(module);
+	ue_python_init_idetails_view(module);
+	ue_python_init_istructure_details_view(module);
 	ue_python_init_seditor_viewport(module);
 	ue_python_init_slevel_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
@@ -845,6 +992,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_spython_shelf(module);
 #if ENGINE_MINOR_VERSION > 13
 	ue_python_init_sfile_path_picker(module);
+	ue_python_init_sdirectory_picker(module);
 #endif
 #endif
 	ue_python_init_sdrop_target(module);
@@ -867,7 +1015,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_fkey_event(module);
 	ue_python_init_fcharacter_event(module);
 	ue_python_init_fmodifier_keys_state(module);
-    ue_python_init_eslate_enums(module);
+	ue_python_init_eslate_enums(module);
 }
 
 PyObject *ue_py_dict_get_item(PyObject *dict, const char *key)
@@ -890,35 +1038,35 @@ PyObject *py_unreal_engine_get_editor_window(PyObject *self, PyObject *args)
 
 PyObject *py_unreal_engine_find_slate_style(PyObject *self, PyObject *args)
 {
-    char *name = nullptr;
-    if (!PyArg_ParseTuple(args, "s:find_slate_style", &name))
-        return nullptr;
-    
-    ISlateStyle const* const foundStyleSet = FSlateStyleRegistry::FindSlateStyle(FName(name));
-    if (!foundStyleSet)
-    {
-        UE_LOG(LogPython, Warning, TEXT("Could not find SlateStyle"));
-        Py_RETURN_NONE;
-    }
+	char *name = nullptr;
+	if (!PyArg_ParseTuple(args, "s:find_slate_style", &name))
+		return nullptr;
 
-    ue_PyFSlateStyleSet *ret = py_ue_new_fslate_style_set(static_cast<FSlateStyleSet*>(const_cast<ISlateStyle*>(foundStyleSet)));
-    return (PyObject *)ret;
+	ISlateStyle const* const foundStyleSet = FSlateStyleRegistry::FindSlateStyle(FName(name));
+	if (!foundStyleSet)
+	{
+		UE_LOG(LogPython, Warning, TEXT("Could not find SlateStyle"));
+		Py_RETURN_NONE;
+	}
+
+	ue_PyFSlateStyleSet *ret = py_ue_new_fslate_style_set(static_cast<FSlateStyleSet*>(const_cast<ISlateStyle*>(foundStyleSet)));
+	return (PyObject *)ret;
 }
 
 PyObject *py_unreal_engine_find_icon_for_class(PyObject *self, PyObject *args)
 {
-    PyObject* py_class = nullptr;
-    char *name         = nullptr;
-    if (!PyArg_ParseTuple(args, "O|s:find_icon_for_class", &py_class, &name))
-        return nullptr;
+	PyObject* py_class = nullptr;
+	char *name = nullptr;
+	if (!PyArg_ParseTuple(args, "O|s:find_icon_for_class", &py_class, &name))
+		return nullptr;
 
-    UClass *u_class = ue_py_check_type<UClass>(py_class);
-    if (!u_class)
-        return PyErr_Format(PyExc_Exception, "argument is not a UClass object");
+	UClass *u_class = ue_py_check_type<UClass>(py_class);
+	if (!u_class)
+		return PyErr_Format(PyExc_Exception, "argument is not a UClass object");
 
-    FSlateIcon foundIcon = FSlateIconFinder::FindIconForClass(u_class, FName(UTF8_TO_TCHAR(name)));
-    ue_PyFSlateIcon *ret = py_ue_new_fslate_icon(foundIcon);
-    return (PyObject *)ret;
+	FSlateIcon foundIcon = FSlateIconFinder::FindIconForClass(u_class, FName(UTF8_TO_TCHAR(name)));
+	ue_PyFSlateIcon *ret = py_ue_new_fslate_icon(foundIcon);
+	return (PyObject *)ret;
 }
 
 
@@ -1015,25 +1163,28 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 	PyObject *py_object;
 	PyObject *py_allow_search = nullptr;
 
-    PyObject *py_update_from_selection    = nullptr;
-    PyObject *py_lockable                 = nullptr;
-    char     *py_name_area_settings       = nullptr;
-    PyObject *py_hide_selection_tip       = nullptr;
-    PyObject *py_search_initial_key_focus = nullptr;
+	PyObject *py_update_from_selection = nullptr;
+	PyObject *py_lockable = nullptr;
+	char     *py_name_area_settings = nullptr;
+	PyObject *py_hide_selection_tip = nullptr;
+	PyObject *py_search_initial_key_focus = nullptr;
+    int       defaults_show_visibility    = (int)EEditDefaultsOnlyNodeVisibility::Show;
 
 	char *kwlist[] = {
 		(char *)"uobject",
 		(char *)"allow_search",
 
-        (char *)"update_from_selection",
-        (char *)"lockable",
-        (char *)"name_area_settings",
-        (char *)"hide_selection_tip",
-        (char *)"search_initial_key_focus",
+		(char *)"update_from_selection",
+		(char *)"lockable",
+		(char *)"name_area_settings",
+		(char *)"hide_selection_tip",
+		(char *)"search_initial_key_focus",
+        (char *)"defaults_only_visibility",
 		nullptr };
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_detail_view", kwlist,
-		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOOi:create_detail_view", kwlist,
+		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus,
+        &defaults_show_visibility))
 	{
 		return nullptr;
 	}
@@ -1041,103 +1192,112 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	FDetailsViewArgs view_args;
-	view_args.bAllowSearch           = (py_allow_search            ) ? PyObject_IsTrue(py_allow_search)             : view_args.bAllowSearch;
-    view_args.bUpdatesFromSelection  = (py_update_from_selection   ) ? PyObject_IsTrue(py_update_from_selection)    : view_args.bUpdatesFromSelection;
-    view_args.bLockable              = (py_lockable                ) ? PyObject_IsTrue(py_lockable)                 : view_args.bLockable;
-    view_args.bHideSelectionTip      = (py_hide_selection_tip      ) ? PyObject_IsTrue(py_hide_selection_tip)       : view_args.bHideSelectionTip;
-    view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
-    FString name_area_string   = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();    
-    view_args.NameAreaSettings = [&name_area_string]() {
-             if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0)                   { return FDetailsViewArgs::ENameAreaSettings::HideNameArea;                   }
-        else if (FCString::Stricmp(*name_area_string, TEXT("ObjectsUseNameArea")) == 0)             { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea;             }
-        else if (FCString::Stricmp(*name_area_string, TEXT("ActorsUseNameArea")) == 0)              { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
-        else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
-        else                                                                                        { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
-    }();
+	view_args.bAllowSearch = (py_allow_search) ? PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
+	view_args.bUpdatesFromSelection = (py_update_from_selection) ? PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
+	view_args.bLockable = (py_lockable) ? PyObject_IsTrue(py_lockable) : view_args.bLockable;
+	view_args.bHideSelectionTip = (py_hide_selection_tip) ? PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
+	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+	FString name_area_string = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();
+	view_args.NameAreaSettings = [&name_area_string]() {
+		if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::HideNameArea; }
+		else if (FCString::Stricmp(*name_area_string, TEXT("ObjectsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea; }
+		else if (FCString::Stricmp(*name_area_string, TEXT("ActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea; }
+		else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
+		else { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea; }
+	}();
+    view_args.DefaultsOnlyVisibility = (EEditDefaultsOnlyNodeVisibility)defaults_show_visibility;
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
-    
-    if (UObject *u_object = ue_py_check_type<UObject>(py_object))
-    {
-	    view->SetObject(u_object);
-    }
 
-    extern PyTypeObject ue_PyIDetailsViewType;
+	if (UObject *u_object = ue_py_check_type<UObject>(py_object))
+	{
+		view->SetObject(u_object);
+	}
+
+	extern PyTypeObject ue_PyIDetailsViewType;
 	return (PyObject *)py_ue_new_swidget<ue_PyIDetailsView>(view->AsShared(), &ue_PyIDetailsViewType);
 }
 
 PyObject *py_unreal_engine_create_structure_detail_view(PyObject *self, PyObject * args, PyObject *kwargs)
 {
-    PyObject *py_object = nullptr;
+	PyObject *py_object = nullptr;
 
-    PyObject *py_allow_search = nullptr;
-    PyObject *py_update_from_selection    = nullptr;
-    PyObject *py_lockable                 = nullptr;
-    char     *py_name_area_settings       = nullptr;
-    PyObject *py_hide_selection_tip       = nullptr;
-    PyObject *py_search_initial_key_focus = nullptr;
+	PyObject *py_allow_search = nullptr;
+	PyObject *py_update_from_selection = nullptr;
+	PyObject *py_lockable = nullptr;
+	char     *py_name_area_settings = nullptr;
+	PyObject *py_hide_selection_tip = nullptr;
+	PyObject *py_search_initial_key_focus = nullptr;
 
-    char *kwlist[] = {
-        (char*)"struct_data",
-        (char *)"allow_search",
-        (char *)"update_from_selection",
-        (char *)"lockable",
-        (char *)"name_area_settings",
-        (char *)"hide_selection_tip",
-        (char *)"search_initial_key_focus",
-        nullptr };
+	char *kwlist[] = {
+		(char*)"struct_data",
+		(char *)"allow_search",
+		(char *)"update_from_selection",
+		(char *)"lockable",
+		(char *)"name_area_settings",
+		(char *)"hide_selection_tip",
+		(char *)"search_initial_key_focus",
+		nullptr };
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_structure_detail_view", kwlist,
-        &py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
-    {
-        return nullptr;
-    }
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_structure_detail_view", kwlist,
+		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
+	{
+		return nullptr;
+	}
 
-    if (py_object && !py_ue_is_uscriptstruct(py_object))
-    {
-        return PyErr_Format(PyExc_Exception, "argument is not a UScriptStruct");
-    }
+	if (py_object && !py_ue_is_uscriptstruct(py_object))
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a UScriptStruct");
+	}
 
-    FDetailsViewArgs view_args;
-	view_args.bAllowSearch           = (py_allow_search            ) ? PyObject_IsTrue(py_allow_search)             : view_args.bAllowSearch;
-    view_args.bUpdatesFromSelection  = (py_update_from_selection   ) ? PyObject_IsTrue(py_update_from_selection)    : view_args.bUpdatesFromSelection;
-    view_args.bLockable              = (py_lockable                ) ? PyObject_IsTrue(py_lockable)                 : view_args.bLockable;
-    view_args.bHideSelectionTip      = (py_hide_selection_tip      ) ? PyObject_IsTrue(py_hide_selection_tip)       : view_args.bHideSelectionTip;
-    view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
-    
-    FString name_area_string   = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();    
-    view_args.NameAreaSettings = [&name_area_string]() {
-             if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0)                   { return FDetailsViewArgs::ENameAreaSettings::HideNameArea;                   }
-        else if (FCString::Stricmp(*name_area_string, TEXT("ObjectsUseNameArea")) == 0)             { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea;             }
-        else if (FCString::Stricmp(*name_area_string, TEXT("ActorsUseNameArea")) == 0)              { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
-        else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
-        else                                                                                        { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea;              }
-    }();
-    FStructureDetailsViewArgs struct_view_args;
-    {
-        struct_view_args.bShowObjects = true;
-        struct_view_args.bShowAssets = true;
-        struct_view_args.bShowClasses = true;
-        struct_view_args.bShowInterfaces = true;
-    }
+	FDetailsViewArgs view_args;
+	view_args.bAllowSearch = (py_allow_search) ? PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
+	view_args.bUpdatesFromSelection = (py_update_from_selection) ? PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
+	view_args.bLockable = (py_lockable) ? PyObject_IsTrue(py_lockable) : view_args.bLockable;
+	view_args.bHideSelectionTip = (py_hide_selection_tip) ? PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
+	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
 
-    extern PyTypeObject ue_PyIStructureDetailsViewType;
-    ue_PyIStructureDetailsView *ret = (ue_PyIStructureDetailsView *)PyObject_New(ue_PyIStructureDetailsView, &ue_PyIStructureDetailsViewType);
-    new(&ret->istructure_details_view) TSharedPtr<IStructureDetailsView>(nullptr);
-    ret->ue_py_struct = nullptr;
-    TSharedPtr<FStructOnScope> struct_scope;
+	FString name_area_string = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();
+	view_args.NameAreaSettings = [&name_area_string]() {
+		if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::HideNameArea; }
+		else if (FCString::Stricmp(*name_area_string, TEXT("ObjectsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ObjectsUseNameArea; }
+		else if (FCString::Stricmp(*name_area_string, TEXT("ActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea; }
+		else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
+		else { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea; }
+	}();
+	FStructureDetailsViewArgs struct_view_args;
+	{
+		struct_view_args.bShowObjects = true;
+		struct_view_args.bShowAssets = true;
+		struct_view_args.bShowClasses = true;
+		struct_view_args.bShowInterfaces = true;
+	}
 
-    if (ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_object))
-    {
-        Py_INCREF(ue_py_struct);
-        ret->ue_py_struct = ue_py_struct;
+	extern PyTypeObject ue_PyIStructureDetailsViewType;
+	ue_PyIStructureDetailsView *ret = (ue_PyIStructureDetailsView *)PyObject_New(ue_PyIStructureDetailsView, &ue_PyIStructureDetailsViewType);
+	new(&ret->istructure_details_view) TSharedPtr<IStructureDetailsView>(nullptr);
+	ret->ue_py_struct = nullptr;
+	TSharedPtr<FStructOnScope> struct_scope;
+
+	if (ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_object))
+	{
+		Py_INCREF(ue_py_struct);
+		ret->ue_py_struct = ue_py_struct;
         struct_scope      = MakeShared<FStructOnScope>(ue_py_struct->u_struct, py_ue_uscriptstruct_get_data(ue_py_struct));
-    }
+	}
 
-    FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-    ret->istructure_details_view                = PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope);
+	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	ret->istructure_details_view = PropertyEditorModule.CreateStructureDetailView(view_args, struct_view_args, struct_scope);
+    //ret->istructure_details_view->GetOnFinishedChangingPropertiesDelegate().AddLambda([ret](const FPropertyChangedEvent& ChangeEvent) {
+    //    //NOTE: Kind of risque but YOLO
+    //    if (ret->istructure_details_view.IsValid() && ret->ue_py_struct != nullptr 
+    //        && ret->ue_py_struct->is_ptr && ret->ue_py_struct->original_data && ret->ue_py_struct->data)
+    //    {
+    //        FMemory::Memcpy(ret->ue_py_struct->original_data, ret->ue_py_struct->data, ret->ue_py_struct->u_struct->GetStructureSize());
+    //    }
+    //});
 
-    return (PyObject *)ret;
+	return (PyObject *)ret;
 }
 
 PyObject *py_unreal_engine_create_property_view(PyObject *self, PyObject * args, PyObject *kwargs)
@@ -1340,7 +1500,8 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 
 	char *name;
 	PyObject *py_callable;
-	if (!PyArg_ParseTuple(args, "sO:register_nomad_tab_spawner", &name, &py_callable))
+    PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "sO|O:register_nomad_tab_spawner", &name, &py_callable, &py_bool))
 	{
 		return NULL;
 	}
@@ -1348,13 +1509,18 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 	if (!PyCalllable_Check_Extended(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
 
-	FOnSpawnTab spawn_tab;
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
-	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab);
+    const FName tabName = FName(UTF8_TO_TCHAR(name));
+    if (FGlobalTabmanager::Get()->CanSpawnTab(tabName))
+    { return PyErr_Format(PyExc_Exception, "tab spawner already registered!"); }
 
-	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(UTF8_TO_TCHAR(name), spawn_tab)
-		// TODO: more generic way to set the group
+	FOnSpawnTab spawn_tab;
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable, FPythonSlateDelegate::TabSpawner, tabName);
+    bool bshould_auto_size = py_bool && PyObject_IsTrue(py_bool) ? true : false;
+	spawn_tab.BindSP(py_delegate, &FPythonSlateDelegate::SpawnPythonTab, bshould_auto_size);
+
+	FTabSpawnerEntry *spawner_entry = &FGlobalTabmanager::Get()->RegisterNomadTabSpawner(tabName, spawn_tab)
 #if WITH_EDITOR
+		// TODO: more generic way to set the group
 		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory())
 #endif
 		;
@@ -1373,7 +1539,9 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 		return NULL;
 	}
 
-	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(UTF8_TO_TCHAR(name));
+    FName tabSpawnerName = FName(UTF8_TO_TCHAR(name));
+    FUnrealEnginePythonHouseKeeper::Get()->UntrackStaticSlateDelegate(FPythonSlateDelegate::TabSpawner, tabSpawnerName);
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(tabSpawnerName);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1382,57 +1550,117 @@ PyObject *py_unreal_engine_unregister_nomad_tab_spawner(PyObject * self, PyObjec
 PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
 {
 
-	char *name;
-	if (!PyArg_ParseTuple(args, "s:invoke_tab", &name))
+	char *name = nullptr;
+    char *tabmanager = (char *)"LevelEditorTabManager";
+	if (!PyArg_ParseTuple(args, "s|s:invoke_tab", &name, &tabmanager))
+	{
+		return NULL;
+	}
+#if WITH_EDITOR
+	// To persist nomad tabs docking, make sure to specify LevelEditorTabManager
+    if (_stricmp(tabmanager, (char *)"GlobalTabManager") == 0)
+    {
+        //NOTE: This will not persist the tab docking location after being closed
+        FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+    }
+	else if (FLevelEditorModule* level_editor_module = FModuleManager::GetModulePtr<FLevelEditorModule>("LevelEditor"))
+	{
+		TSharedPtr<FTabManager> level_editor_tab_manager = level_editor_module->GetLevelEditorTabManager();
+		level_editor_tab_manager->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+	}
+#else
+	//NOTE: This will not persist the tab docking location after being closed
+	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+#endif
+    Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_insert_new_document_tab(PyObject * self, PyObject * args)
+{
+    char*     name             = nullptr;
+    int       searchPreference = 0;
+    PyObject* py_docktab      = nullptr;
+    char*     tabmanager       = (char *)"LevelEditorTabManager";
+
+    if (!PyArg_ParseTuple(args, "siO|s:insert_new_document_tab", &name, &searchPreference, &py_docktab, &tabmanager))
 	{
 		return NULL;
 	}
 
-	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+    ue_PySDockTab* ue_docktab = py_ue_is_sdock_tab(py_docktab);
+    if (!ue_docktab)
+    {
+        return PyErr_Format(PyExc_Exception, "Widget is not a dock tab!");
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    FTabManager* tabManager = nullptr;
+    {
+#if WITH_EDITOR
+        // To persist nomad tabs docking, make sure to specify LevelEditorTabManager
+        if (_stricmp(tabmanager, (char *)"GlobalTabManager") == 0)
+        {
+            //NOTE: This will not persist the tab docking location after being closed
+            tabManager = &FGlobalTabmanager::Get().Get();
+        }
+        else if (FLevelEditorModule* level_editor_module = FModuleManager::GetModulePtr<FLevelEditorModule>("LevelEditor"))
+        {
+            tabManager = level_editor_module->GetLevelEditorTabManager().Get();
+        }
+#else
+        tabManager = &FGlobalTabmanager::Get().Get();
+#endif
+    }
+
+    if (!tabManager)
+    {
+        return PyErr_Format(PyExc_Exception, "Could not retrieve tab manager!");
 }
 
+    tabManager->InsertNewDocumentTab(
+        UTF8_TO_TCHAR(name), 
+        (FTabManager::ESearchPreference::Type)searchPreference, 
+        StaticCastSharedRef<SDockTab>(ue_docktab->s_border.s_compound_widget.s_widget.Widget));
+
+    Py_RETURN_NONE;
+}
 
 PyObject * py_unreal_engine_get_swidget_from_wrapper(PyObject *self, PyObject *args)
 {
-    PyObject *py_object;
+	PyObject *py_object;
 
-    if (!PyArg_ParseTuple(args, "O:get_swidget_from_wrapper", &py_object))
-    {
-        return NULL;
-    }
+	if (!PyArg_ParseTuple(args, "O:get_swidget_from_wrapper", &py_object))
+	{
+		return NULL;
+	}
 
-    FPythonSWidgetWrapper *py_swidget_wrapper = ue_py_check_struct<FPythonSWidgetWrapper>(py_object);
-    if (!py_swidget_wrapper)
-        return PyErr_Format(PyExc_Exception, "argument is not a FPythonSWidgetWrapper");
+	FPythonSWidgetWrapper *py_swidget_wrapper = ue_py_check_struct<FPythonSWidgetWrapper>(py_object);
+	if (!py_swidget_wrapper)
+		return PyErr_Format(PyExc_Exception, "argument is not a FPythonSWidgetWrapper");
 
-    if (!py_swidget_wrapper->Widget.IsValid())
-        return PyErr_Format(PyExc_Exception, "wrapper contained invalid SWidget!");
+	if (!py_swidget_wrapper->Widget.IsValid())
+		return PyErr_Format(PyExc_Exception, "wrapper contained invalid SWidget!");
 
-    return (PyObject *)py_ue_new_swidget<ue_PySWidget>(py_swidget_wrapper->Widget->AsShared(), &ue_PySWidgetType);
+	return (PyObject *)py_ue_new_swidget<ue_PySWidget>(py_swidget_wrapper->Widget->AsShared(), &ue_PySWidgetType);
 }
 
 PyObject * py_unreal_engine_create_wrapper_from_pyswidget(PyObject *self, PyObject *args)
 {
-    PyObject *py_object;
+	PyObject *py_object;
 
-    if (!PyArg_ParseTuple(args, "O:create_wrapper_from_pyswidget", &py_object))
-    {
-        return NULL;
-    }
-
-    ue_PySWidget *py_swidget = py_ue_is_swidget(py_object);
-	if (!py_swidget)
+	if (!PyArg_ParseTuple(args, "O:create_wrapper_from_pyswidget", &py_object))
 	{
-        return PyErr_Format(PyExc_Exception, "argument is not a SWidget");
-    }
+		return NULL;
+	}
 
-    Py_INCREF(py_swidget);
-    FPythonSWidgetWrapper py_swidget_wrapper;
-    py_swidget_wrapper.Widget = py_swidget->s_widget;
-    return py_ue_new_uscriptstruct(FPythonSWidgetWrapper::StaticStruct(), (uint8 *)&py_swidget_wrapper);
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(py_object);
+	if (!Widget.IsValid())
+	{
+		return nullptr;
+	}
+
+	FPythonSWidgetWrapper py_swidget_wrapper;
+	py_swidget_wrapper.Widget = Widget;
+	return py_ue_new_uscriptstruct(FPythonSWidgetWrapper::StaticStruct(), (uint8 *)&py_swidget_wrapper);
 }
 
 PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs)

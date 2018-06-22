@@ -2,7 +2,7 @@
 
 
 #include "GameFramework/HUD.h"
-
+#include "UnrealEnginePython.h"
 #include "PyHUD.generated.h"
 
 

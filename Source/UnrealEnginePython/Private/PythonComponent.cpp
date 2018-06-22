@@ -1,7 +1,6 @@
-#include "UnrealEnginePythonPrivatePCH.h"
+
 #include "PythonComponent.h"
-
-
+#include "UEPyModule.h"
 
 UPythonComponent::UPythonComponent()
 {
@@ -14,24 +13,30 @@ UPythonComponent::UPythonComponent()
 
 	PythonTickForceDisabled = false;
 	PythonDisableAutoBinding = false;
+	PythonTickEnableGenerator = false;
 
 	bWantsInitializeComponent = true;
+
+	py_generator = nullptr;
 }
 
-void UPythonComponent::InitializePythonComponent() {
+void UPythonComponent::InitializePythonComponent()
+{
 	if (PythonModule.IsEmpty())
 		return;
 
 	FScopePythonGIL gil;
 
 	py_uobject = ue_get_python_uobject(this);
-	if (!py_uobject) {
+	if (!py_uobject)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
 
 	PyObject *py_component_module = PyImport_ImportModule(TCHAR_TO_UTF8(*PythonModule));
-	if (!py_component_module) {
+	if (!py_component_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -39,7 +44,8 @@ void UPythonComponent::InitializePythonComponent() {
 #if WITH_EDITOR
 	// todo implement autoreload with a dictionary of module timestamps
 	py_component_module = PyImport_ReloadModule(py_component_module);
-	if (!py_component_module) {
+	if (!py_component_module)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -51,13 +57,15 @@ void UPythonComponent::InitializePythonComponent() {
 	PyObject *py_component_module_dict = PyModule_GetDict(py_component_module);
 	PyObject *py_component_class = PyDict_GetItemString(py_component_module_dict, TCHAR_TO_UTF8(*PythonClass));
 
-	if (!py_component_class) {
+	if (!py_component_class)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to find class %s in module %s"), *PythonClass, *PythonModule);
 		return;
 	}
 
 	py_component_instance = PyObject_CallObject(py_component_class, NULL);
-	if (!py_component_instance) {
+	if (!py_component_instance)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -68,7 +76,8 @@ void UPythonComponent::InitializePythonComponent() {
 
 
 	// disable ticking if no tick method is exposed
-	if (!PyObject_HasAttrString(py_component_instance, (char *)"tick") || PythonTickForceDisabled) {
+	if (!PyObject_HasAttrString(py_component_instance, (char *)"tick") || PythonTickForceDisabled)
+	{
 		PrimaryComponentTick.bCanEverTick = false;
 		PrimaryComponentTick.SetTickFunctionEnable(false);
 	}
@@ -78,12 +87,14 @@ void UPythonComponent::InitializePythonComponent() {
 
 	ue_bind_events_for_py_class_by_attribute(this, py_component_instance);
 
-	if (!PyObject_HasAttrString(py_component_instance, (char *)"initialize_component")) {
+	if (!PyObject_HasAttrString(py_component_instance, (char *)"initialize_component"))
+	{
 		return;
 	}
 
 	PyObject *ic_ret = PyObject_CallMethod(py_component_instance, (char *)"initialize_component", NULL);
-	if (!ic_ret) {
+	if (!ic_ret)
+	{
 		unreal_engine_py_log_error();
 	}
 	Py_XDECREF(ic_ret);
@@ -107,12 +118,14 @@ void UPythonComponent::BeginPlay()
 
 	FScopePythonGIL gil;
 
-	if (!PyObject_HasAttrString(py_component_instance, (char *)"begin_play")) {
+	if (!PyObject_HasAttrString(py_component_instance, (char *)"begin_play"))
+	{
 		return;
 	}
 
 	PyObject *bp_ret = PyObject_CallMethod(py_component_instance, (char *)"begin_play", NULL);
-	if (!bp_ret) {
+	if (!bp_ret)
+	{
 		unreal_engine_py_log_error();
 	}
 	Py_XDECREF(bp_ret);
@@ -126,10 +139,12 @@ void UPythonComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_HasAttrString(py_component_instance, (char *)"end_play")) {
+	if (PyObject_HasAttrString(py_component_instance, (char *)"end_play"))
+	{
 		PyObject *ep_ret = PyObject_CallMethod(py_component_instance, (char *)"end_play", (char*)"i", (int)EndPlayReason);
 
-		if (!ep_ret) {
+		if (!ep_ret)
+		{
 			unreal_engine_py_log_error();
 		}
 
@@ -151,12 +166,39 @@ void UPythonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	FScopePythonGIL gil;
 
+	if (PythonTickEnableGenerator && py_generator)
+	{
+		PyObject *ret = PyIter_Next(py_generator);
+		if (!ret)
+		{
+			if (PyErr_Occurred())
+			{
+				unreal_engine_py_log_error();
+			}
+			Py_DECREF(py_generator);
+			py_generator = nullptr;
+			return;
+		}
+		Py_DECREF(ret);
+		return;
+	}
+
 	// no need to check for method availability, we did it in component initialization
 
 	PyObject *ret = PyObject_CallMethod(py_component_instance, (char *)"tick", (char *)"f", DeltaTime);
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
+	}
+
+	if (PythonTickEnableGenerator)
+	{
+		py_generator = PyObject_GetIter(ret);
+		if (!py_generator)
+		{
+			UE_LOG(LogPython, Error, TEXT("tick is not a python generator"));
+		}
 	}
 	Py_DECREF(ret);
 
@@ -170,14 +212,17 @@ void UPythonComponent::CallPythonComponentMethod(FString method_name, FString ar
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -192,13 +237,15 @@ void UPythonComponent::SetPythonAttrObject(FString attr, UObject *object)
 	FScopePythonGIL gil;
 
 	ue_PyUObject *py_obj = ue_get_python_uobject(object);
-	if (!py_obj) {
+	if (!py_obj)
+	{
 		PyErr_Format(PyExc_Exception, "PyUObject is in invalid state");
 		unreal_engine_py_log_error();
 		return;
 	}
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), (PyObject *)py_obj) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), (PyObject *)py_obj) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -210,7 +257,8 @@ void UPythonComponent::SetPythonAttrString(FString attr, FString s)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), PyUnicode_FromString(TCHAR_TO_UTF8(*s))) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), PyUnicode_FromString(TCHAR_TO_UTF8(*s))) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -222,7 +270,8 @@ void UPythonComponent::SetPythonAttrFloat(FString attr, float f)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), PyFloat_FromDouble(f)) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), PyFloat_FromDouble(f)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -236,7 +285,8 @@ void UPythonComponent::SetPythonAttrInt(FString attr, int n)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), PyLong_FromLong(n)) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), PyLong_FromLong(n)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -248,7 +298,8 @@ void UPythonComponent::SetPythonAttrVector(FString attr, FVector vec)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), py_ue_new_fvector(vec)) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), py_ue_new_fvector(vec)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -260,7 +311,8 @@ void UPythonComponent::SetPythonAttrRotator(FString attr, FRotator rot)
 
 	FScopePythonGIL gil;
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), py_ue_new_frotator(rot)) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), py_ue_new_frotator(rot)) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -273,11 +325,13 @@ void UPythonComponent::SetPythonAttrBool(FString attr, bool b)
 	FScopePythonGIL gil;
 
 	PyObject *py_bool = Py_False;
-	if (b) {
+	if (b)
+	{
 		py_bool = Py_True;
 	}
 
-	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), py_bool) < 0) {
+	if (PyObject_SetAttrString(py_component_instance, TCHAR_TO_UTF8(*attr), py_bool) < 0)
+	{
 		UE_LOG(LogPython, Error, TEXT("Unable to set attribute %s"), *attr);
 	}
 }
@@ -290,20 +344,24 @@ bool UPythonComponent::CallPythonComponentMethodBool(FString method_name, FStrin
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return false;
 	}
 
-	if (PyObject_IsTrue(ret)) {
+	if (PyObject_IsTrue(ret))
+	{
 		Py_DECREF(ret);
 		return true;
 	}
@@ -320,22 +378,26 @@ float UPythonComponent::CallPythonComponentMethodFloat(FString method_name, FStr
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return 0;
 	}
 
 	float value = 0;
 
-	if (PyNumber_Check(ret)) {
+	if (PyNumber_Check(ret))
+	{
 		PyObject *py_value = PyNumber_Float(ret);
 		value = PyFloat_AsDouble(py_value);
 		Py_DECREF(py_value);
@@ -353,22 +415,26 @@ int UPythonComponent::CallPythonComponentMethodInt(FString method_name, FString 
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return 0;
 	}
 
 	int value = 0;
 
-	if (PyNumber_Check(ret)) {
+	if (PyNumber_Check(ret))
+	{
 		PyObject *py_value = PyNumber_Long(ret);
 		value = PyLong_AsLong(py_value);
 		Py_DECREF(py_value);
@@ -386,20 +452,24 @@ FString UPythonComponent::CallPythonComponentMethodString(FString method_name, F
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return FString();
 	}
 
 	PyObject *py_str = PyObject_Str(ret);
-	if (!py_str) {
+	if (!py_str)
+	{
 		Py_DECREF(ret);
 		return FString();
 	}
@@ -421,24 +491,29 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (!arg) {
+	if (!arg)
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		PyObject *py_arg_uobject = (PyObject *)ue_get_python_uobject(arg);
-		if (!py_arg_uobject) {
+		if (!py_arg_uobject)
+		{
 			unreal_engine_py_log_error();
 			return nullptr;
 		}
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"O", py_arg_uobject);
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return nullptr;
 	}
 
-	if (ue_is_pyuobject(ret)) {
+	if (ue_is_pyuobject(ret))
+	{
 		ue_PyUObject *py_obj = (ue_PyUObject *)ret;
 		return py_obj->ue_object;
 	}
@@ -446,7 +521,8 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 }
 
 #if ENGINE_MINOR_VERSION >= 15
-TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString method_name, FString args){
+TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString method_name, FString args)
+{
 	TMap<FString, FString> output_map;
 
 	if (!py_component_instance)
@@ -455,32 +531,38 @@ TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString me
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return output_map;
 	}
 
-	if (!PyDict_Check(ret)) {
+	if (!PyDict_Check(ret))
+	{
 		UE_LOG(LogPython, Error, TEXT("return value is not a dict"));
 		return output_map;
 	}
 
-    PyObject *py_keys = PyDict_Keys(ret);
+	PyObject *py_keys = PyDict_Keys(ret);
 	Py_ssize_t len = PyList_Size(py_keys);
 
-	for (Py_ssize_t i = 0; i < len; i++) {
+	for (Py_ssize_t i = 0; i < len; i++)
+	{
 		PyObject *py_key = PyList_GetItem(py_keys, i);
 		PyObject *py_str_key = PyObject_Str(py_key);
 		PyObject *py_str_value = PyObject_Str(PyDict_GetItem(ret, py_key));
 
-		if (!py_str_key || !py_str_value) {
+		if (!py_str_key || !py_str_value)
+		{
 			Py_DECREF(ret);
 			return output_map;
 		}
@@ -513,28 +595,34 @@ void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name,
 	FScopePythonGIL gil;
 
 	PyObject *ret = nullptr;
-	if (args.IsEmpty()) {
+	if (args.IsEmpty())
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), NULL);
 	}
-	else {
+	else
+	{
 		ret = PyObject_CallMethod(py_component_instance, TCHAR_TO_UTF8(*method_name), (char *)"s", TCHAR_TO_UTF8(*args));
 	}
 
-	if (!ret) {
+	if (!ret)
+	{
 		unreal_engine_py_log_error();
 		return;
 	}
 
-	if (!PyList_Check(ret)) {
+	if (!PyList_Check(ret))
+	{
 		UE_LOG(LogPython, Error, TEXT("return value is not a list"));
 		return;
 	}
 
 	Py_ssize_t len = PyList_Size(ret);
 
-	for (Py_ssize_t i = 0; i < len; i++) {
+	for (Py_ssize_t i = 0; i < len; i++)
+	{
 		PyObject *py_str = PyObject_Str(PyList_GetItem(ret, i));
-		if (!py_str) {
+		if (!py_str)
+		{
 			Py_DECREF(ret);
 			return;
 		}
@@ -549,7 +637,7 @@ void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name,
 	}
 
 	Py_DECREF(ret);
-	}
+}
 
 
 UPythonComponent::~UPythonComponent()

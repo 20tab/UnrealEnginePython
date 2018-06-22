@@ -1,47 +1,59 @@
+#include "UEPyFbxPose.h"
+
 #if ENGINE_MINOR_VERSION > 12
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #if WITH_EDITOR
 
 #include "UEPyFbx.h"
 
-static PyObject *py_ue_fbx_pose_get_count(ue_PyFbxPose *self, PyObject *args) {
+static PyObject *py_ue_fbx_pose_get_count(ue_PyFbxPose *self, PyObject *args)
+{
 	return PyLong_FromLong(self->fbx_pose->GetCount());
 }
 
-static PyObject *py_ue_fbx_pose_get_name(ue_PyFbxPose *self, PyObject *args) {
+static PyObject *py_ue_fbx_pose_get_name(ue_PyFbxPose *self, PyObject *args)
+{
 	return PyUnicode_FromString(self->fbx_pose->GetName());
 }
 
-static PyObject *py_ue_fbx_pose_is_bind_pose(ue_PyFbxPose *self, PyObject *args) {
-	if (self->fbx_pose->IsBindPose()) {
+static PyObject *py_ue_fbx_pose_is_bind_pose(ue_PyFbxPose *self, PyObject *args)
+{
+	if (self->fbx_pose->IsBindPose())
+	{
 		Py_RETURN_TRUE;
 	}
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_fbx_pose_is_rest_pose(ue_PyFbxPose *self, PyObject *args) {
-	if (self->fbx_pose->IsRestPose()) {
+static PyObject *py_ue_fbx_pose_is_rest_pose(ue_PyFbxPose *self, PyObject *args)
+{
+	if (self->fbx_pose->IsRestPose())
+	{
 		Py_RETURN_TRUE;
 	}
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_fbx_pose_get_node(ue_PyFbxPose *self, PyObject *args) {
+static PyObject *py_ue_fbx_pose_get_node(ue_PyFbxPose *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
 	FbxNode *fbx_node = self->fbx_pose->GetNode(index);
-	if (!fbx_node) {
+	if (!fbx_node)
+	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve FbxNode at index %d", index);
 	}
 	return py_ue_new_fbx_node(fbx_node);
 }
 
-static PyObject *py_ue_fbx_pose_find(ue_PyFbxPose *self, PyObject *args) {
+static PyObject *py_ue_fbx_pose_find(ue_PyFbxPose *self, PyObject *args)
+{
 	PyObject *py_obj;
-	if (!PyArg_ParseTuple(args, "O", &py_obj)) {
+	if (!PyArg_ParseTuple(args, "O", &py_obj))
+	{
 		return nullptr;
 	}
 
@@ -56,12 +68,14 @@ static PyObject *py_ue_fbx_pose_find(ue_PyFbxPose *self, PyObject *args) {
 	return PyLong_FromLong(index);
 }
 
-static PyObject *py_ue_fbx_pose_get_transform(ue_PyFbxPose *self, PyObject *args) {
+static PyObject *py_ue_fbx_pose_get_transform(ue_PyFbxPose *self, PyObject *args)
+{
 	int index;
-	if (!PyArg_ParseTuple(args, "i", &index)) {
+	if (!PyArg_ParseTuple(args, "i", &index))
+	{
 		return nullptr;
 	}
-	
+
 	FbxMatrix fbx_matrix = self->fbx_pose->GetMatrix(index);
 	FbxAMatrix matrix = *(FbxAMatrix *)&fbx_matrix;
 	FTransform transform;
@@ -118,15 +132,18 @@ static PyTypeObject ue_PyFbxPoseType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_pose_init(ue_PyFbxPose *self, PyObject * args) {
+static int py_ue_fbx_pose_init(ue_PyFbxPose *self, PyObject * args)
+{
 	PyObject *py_object;
 	char *name;
-	if (!PyArg_ParseTuple(args, "Os", &py_object, &name)) {
+	if (!PyArg_ParseTuple(args, "Os", &py_object, &name))
+	{
 		return -1;
 	}
 
 	ue_PyFbxManager *py_fbx_manager = py_ue_is_fbx_manager(py_object);
-	if (!py_fbx_manager) {
+	if (!py_fbx_manager)
+	{
 		PyErr_SetString(PyExc_Exception, "argument is not a FbxManager");
 		return -1;
 	}
@@ -135,7 +152,8 @@ static int py_ue_fbx_pose_init(ue_PyFbxPose *self, PyObject * args) {
 	return 0;
 }
 
-void ue_python_init_fbx_pose(PyObject *ue_module) {
+void ue_python_init_fbx_pose(PyObject *ue_module)
+{
 	ue_PyFbxPoseType.tp_new = PyType_GenericNew;;
 	ue_PyFbxPoseType.tp_init = (initproc)py_ue_fbx_pose_init;
 	if (PyType_Ready(&ue_PyFbxPoseType) < 0)
@@ -145,7 +163,8 @@ void ue_python_init_fbx_pose(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxPose", (PyObject *)&ue_PyFbxPoseType);
 }
 
-PyObject *py_ue_new_fbx_pose(FbxPose *fbx_pose) {
+PyObject *py_ue_new_fbx_pose(FbxPose *fbx_pose)
+{
 	ue_PyFbxPose *ret = (ue_PyFbxPose *)PyObject_New(ue_PyFbxPose, &ue_PyFbxPoseType);
 	ret->fbx_pose = fbx_pose;
 	return (PyObject *)ret;

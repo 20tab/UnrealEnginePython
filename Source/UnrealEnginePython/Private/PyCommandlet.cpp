@@ -1,7 +1,8 @@
 // Copyright 20Tab S.r.l.
 
-#include "UnrealEnginePythonPrivatePCH.h"
 #include "PyCommandlet.h"
+
+#include "UEPyModule.h"
 
 #include "Regex.h"
 
@@ -30,7 +31,11 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 	const FRegexPattern myPattern(RegexString);
 	FRegexMatcher myMatcher(myPattern, *CommandLine);
 	myMatcher.FindNext();
+#if ENGINE_MINOR_VERSION >= 18
+	FString PyCommandLine = myMatcher.GetCaptureGroup(0).TrimStart().TrimEnd();
+#else
 	FString PyCommandLine = myMatcher.GetCaptureGroup(0).Trim().TrimTrailing();
+#endif
 
 	TArray<FString> PyArgv;
 	PyArgv.Add(FString());
@@ -89,7 +94,7 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 		strcpy_s(argv[i], PyArgv[i].Len() + 1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));
 #endif
 #endif
-	}
+}
 
 	PySys_SetArgv(PyArgv.Num(), argv);
 

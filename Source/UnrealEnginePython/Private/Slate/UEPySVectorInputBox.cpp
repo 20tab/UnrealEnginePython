@@ -1,8 +1,5 @@
-#include "UnrealEnginePythonPrivatePCH.h"
 
 #include "UEPySVectorInputBox.h"
-
-#define sw_vector_input_box StaticCastSharedRef<SVectorInputBox>(self->s_compound_widget.s_widget.s_widget)
 
 
 static PyMethodDef ue_PySVectorInputBox_methods[] = {
@@ -40,11 +37,12 @@ PyTypeObject ue_PySVectorInputBoxType = {
 	ue_PySVectorInputBox_methods,             /* tp_methods */
 };
 
-static int ue_py_svector_input_box_init(ue_PySVectorInputBox *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_svector_input_box_init(ue_PySVectorInputBox *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SVectorInputBox);
 
 #if ENGINE_MINOR_VERSION > 15
-    ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
+	ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
 #endif
 	ue_py_slate_farguments_optional_bool("allow_responsive_layout", AllowResponsiveLayout);
 	ue_py_slate_farguments_optional_bool("color_axis_labels", bColorAxisLabels);
@@ -59,11 +57,12 @@ static int ue_py_svector_input_box_init(ue_PySVectorInputBox *self, PyObject *ar
 	ue_py_slate_farguments_tfloat("y", Y);
 	ue_py_slate_farguments_tfloat("z", Z);
 
-	ue_py_snew(SVectorInputBox, s_compound_widget.s_widget);
+	ue_py_snew(SVectorInputBox);
 	return 0;
 }
 
-void ue_python_init_svector_input_box(PyObject *ue_module) {
+void ue_python_init_svector_input_box(PyObject *ue_module)
+{
 
 	ue_PySVectorInputBoxType.tp_init = (initproc)ue_py_svector_input_box_init;
 

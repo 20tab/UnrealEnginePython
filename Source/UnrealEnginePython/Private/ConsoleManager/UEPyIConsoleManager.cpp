@@ -1,6 +1,3 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPyIConsoleManager.h"
 
 static PyObject *py_ue_iconsole_manager_add_history_entry(PyObject *cls, PyObject * args)
@@ -563,7 +560,7 @@ static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject
 		return PyErr_Format(PyExc_Exception, "console object \"%s\" already exists", key);
 	}
 
-	TSharedRef<FPythonSmartConsoleDelegate> py_delegate = MakeShareable(new FPythonSmartConsoleDelegate);
+	TSharedRef<FPythonSmartConsoleDelegate> py_delegate = MakeShared<FPythonSmartConsoleDelegate>();
 	py_delegate->SetPyCallable(py_callable);
 	FConsoleCommandWithArgsDelegate console_delegate;
 	console_delegate.BindSP(py_delegate, &FPythonSmartConsoleDelegate::OnConsoleCommand);

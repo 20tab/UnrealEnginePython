@@ -1,9 +1,5 @@
 
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySColorBlock.h"
-
-#define sw_color_block StaticCastSharedRef<SColorBlock>(self->s_leaf_widget.s_widget.s_widget)
 
 static PyMethodDef ue_PySColorBlock_methods[] = {
 	{ NULL }  /* Sentinel */
@@ -40,7 +36,8 @@ PyTypeObject ue_PySColorBlockType = {
 	ue_PySColorBlock_methods,             /* tp_methods */
 };
 
-static int ue_py_scolor_block_init(ue_PySColorBlock *self, PyObject *args, PyObject *kwargs) {
+static int ue_py_scolor_block_init(ue_PySColorBlock *self, PyObject *args, PyObject *kwargs)
+{
 	ue_py_slate_setup_farguments(SColorBlock);
 
 	ue_py_slate_farguments_flinear_color("color", Color);
@@ -51,11 +48,12 @@ static int ue_py_scolor_block_init(ue_PySColorBlock *self, PyObject *args, PyObj
 	ue_py_slate_farguments_fvector2d("size", Size);
 	ue_py_slate_farguments_bool("use_srgb", UseSRGB);
 
-	ue_py_snew(SColorBlock, s_leaf_widget.s_widget);
+	ue_py_snew(SColorBlock);
 	return 0;
 }
 
-void ue_python_init_scolor_block(PyObject *ue_module) {
+void ue_python_init_scolor_block(PyObject *ue_module)
+{
 
 	ue_PySColorBlockType.tp_init = (initproc)ue_py_scolor_block_init;
 

@@ -1,13 +1,16 @@
 #pragma once
 
-#include "UnrealEnginePython.h"
+#include "UEPyModule.h"
 
 #include "Runtime/Online/HTTP/Public/Interfaces/IHttpResponse.h"
 #include "Runtime/Online/HTTP/Public/HttpModule.h"
 
+#include "UEPyIHttpBase.h"
+
 extern PyTypeObject ue_PyIHttpBaseType;
 
-typedef struct {
+typedef struct
+{
 	ue_PyIHttpBase base;
 	/* Type-specific fields go here. */
 	IHttpResponse *http_response;

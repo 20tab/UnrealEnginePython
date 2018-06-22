@@ -1,9 +1,4 @@
-
-#include "UnrealEnginePythonPrivatePCH.h"
-
 #include "UEPySSpacer.h"
-
-#define sw_spacer StaticCastSharedRef<SSpacer>(self->s_leaf_widget.s_widget.s_widget)
 
 static PyMethodDef ue_PySSpacer_methods[] = {
 	{ NULL }  /* Sentinel */
@@ -46,7 +41,7 @@ static int ue_py_sspacer_init(ue_PySSpacer *self, PyObject *args, PyObject *kwar
 
 	ue_py_slate_farguments_fvector2d("size", Size);
 
-	ue_py_snew(SSpacer, s_leaf_widget.s_widget);
+	ue_py_snew(SSpacer);
 	return 0;
 }
 
