@@ -989,8 +989,7 @@ PyObject *py_ue_sequencer_remove_track(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_FALSE;
 }
 
-// @third party code - BEGIN Bebylon - #ThirdParty-Python: WITH_KNL_PYEXT - GetSelectedSections() is not exported in vanilla 4.17 
-#if WITH_KNL_PYEXT
+#if ENGINE_MINOR_VERSION >= 18
 // Returns the selected sections
 PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * args)
 {
@@ -1027,7 +1026,6 @@ PyObject *py_ue_sequencer_get_selected_sections(ue_PyUObject *self, PyObject * a
     return py_sections;
 }
 #endif
-// @third party code - END Bebylon
 
 #endif
 
