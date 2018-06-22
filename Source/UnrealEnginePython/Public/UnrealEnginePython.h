@@ -122,19 +122,19 @@ private:
 	TSharedPtr<FSlateStyleSet> StyleSet;
 };
 
-UNREALENGINEPYTHON_API extern PyThreadState* UEPyGlobalState;
-
 struct FScopePythonGIL
 {
 
+	PyGILState_STATE state;
+
 	FScopePythonGIL()
 	{
-		PyEval_RestoreThread(UEPyGlobalState);
+		state = PyGILState_Ensure();
 	}
 
 	~FScopePythonGIL()
 	{
-		UEPyGlobalState = PyEval_SaveThread();
+		PyGILState_Release(state);
 	}
 };
 

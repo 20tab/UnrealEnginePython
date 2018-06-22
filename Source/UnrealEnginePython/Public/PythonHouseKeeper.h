@@ -71,9 +71,8 @@ public:
 
 	void RunGCDelegate()
 	{
-		PyGILState_STATE state = PyGILState_Ensure();
+		FScopePythonGIL gil;
 		RunGC();
-		PyGILState_Release(state);
 	}
 
 	int32 RunGC()

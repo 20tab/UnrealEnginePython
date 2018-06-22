@@ -372,7 +372,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 
 	// release the GIL
-	UEPyGlobalState = PyEval_SaveThread();
+	PyThreadState *UEPyGlobalState = PyEval_SaveThread();
 }
 
 void FUnrealEnginePythonModule::ShutdownModule()

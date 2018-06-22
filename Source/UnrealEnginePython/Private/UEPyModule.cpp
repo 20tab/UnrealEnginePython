@@ -157,9 +157,9 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args)
 		return NULL;
 	}
 	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-	UEPyGlobalState = PyEval_SaveThread();
+	Py_BEGIN_ALLOW_THREADS;
 	PythonModule.RunFile(filename);
-	PyEval_RestoreThread(UEPyGlobalState);
+	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 }
 
