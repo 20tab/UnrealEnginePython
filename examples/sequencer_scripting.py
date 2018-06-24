@@ -3,8 +3,9 @@ import unreal_engine as ue
 
 from unreal_engine.classes import MovieSceneAudioTrack, LevelSequenceFactoryNew, MovieSceneSkeletalAnimationTrack, Character, SkeletalMesh, MovieScene3DTransformTrack, CineCameraActor
 import time
-from unreal_engine.structs import FloatRange, FloatRangeBound
+from unreal_engine.structs import FloatRange, FloatRangeBound, MovieSceneObjectBindingID
 from unreal_engine import FTransform, FVector
+from unreal_engine.enums import EMovieSceneObjectBindingSpace
 
 
 # create a new level sequence asset
@@ -78,9 +79,9 @@ camera_guid = seq.sequencer_add_actor(cine_camera)
 cine_camera2 = world.actor_spawn(CineCameraActor)
 camera2_guid = seq.sequencer_add_actor(cine_camera2)
 
-# assign the two cameras to the camera cut sections (via guid)
-camera1.CameraGuid = ue.string_to_guid(camera_guid)
-camera2.CameraGuid = ue.string_to_guid(camera2_guid)
+# assign the two cameras to the camera cut sections (via binding id)
+camera1.CameraBindingID = MovieSceneObjectBindingID( Guid=ue.string_to_guid( camera_guid ), Space=EMovieSceneObjectBindingSpace.Local )
+camera2.CameraBindingID = MovieSceneObjectBindingID( Guid=ue.string_to_guid( camera2_guid ), Space=EMovieSceneObjectBindingSpace.Local )
 
 # set cameras time slots
 camera1.StartTime = 0
