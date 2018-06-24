@@ -5,6 +5,62 @@
 
 #include "Engine/StaticMesh.h"
 #include "Wrappers/UEPyFRawMesh.h"
+#include "Editor/UnrealEd/Private/GeomFitUtils.h"
+
+static PyObject *generate_kdop(ue_PyUObject *self, const FVector *directions, uint32 num_directions)
+{
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+
+	TArray<FVector> DirArray;
+	for (uint32 i = 0; i < num_directions; i++)
+	{
+		DirArray.Add(directions[i]);
+	}
+
+	if (GenerateKDopAsSimpleCollision(mesh, DirArray) == INDEX_NONE)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to generate KDop vectors");
+	}
+
+	PyObject *py_list = PyList_New(0);
+	for (FVector v : DirArray)
+	{
+		PyList_Append(py_list, py_ue_new_fvector(v));
+	}
+	return py_list;
+}
+
+PyObject *py_ue_static_mesh_generate_kdop10x(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	return generate_kdop(self, KDopDir10X, 10);
+}
+
+PyObject *py_ue_static_mesh_generate_kdop10y(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	return generate_kdop(self, KDopDir10Y, 10);
+}
+
+PyObject *py_ue_static_mesh_generate_kdop10z(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	return generate_kdop(self, KDopDir10Z, 10);
+}
+
+PyObject *py_ue_static_mesh_generate_kdop18(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	return generate_kdop(self, KDopDir18, 18);
+}
+
+PyObject *py_ue_static_mesh_generate_kdop26(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	return generate_kdop(self, KDopDir26, 26);
+}
 
 PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args)
 {
