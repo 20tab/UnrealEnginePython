@@ -780,54 +780,76 @@ It allows you to run, create, modify and delete scripts directly from the UE edi
 
 The first pull request for the editor has been issued by https://github.com/sun5471 so many thanks to him ;)
 
-Integration with PyQT
----------------------
+Integration with Qt4/Qt5/PySide2
+--------------------------------
 
-To correctly integrates PyQT with UnrealEngine the python plugin must correctly setup the GIL (and this is done) and exceptions must be managed ad-hoc (not doing it will result in a deadlock whenever a qt signal handler raises an exception)
+Thanks to solid GIL management, you can integrate Qt python apps in Unreal Engine 4.
 
-This is an example of having a QT window along the editor to trigger asset reimporting (pay attention to the sys.excepthook usage):
+Pay attention to not call app.exec_() as it will result in Qt taking control of the UE loop. Instead use a ticker to integrate the Qt loop in the editor loop:
 
-```py
-from PyQt5.QtWidgets import QApplication, QWidget, QListWidget
-import unreal_engine as ue
+```python
+
+# save is as ueqt.py
 import sys
-import traceback
+import unreal_engine as ue
+import PySide2
+from PySide2 import QtWidgets
 
-def ue_exception(_type, value, back):
-    ue.log_error(value)
-    tb_lines = traceback.format_exception(_type, value, back)
-    for line in tb_lines:
-        ue.log_error(line)
+app = QtWidgets.QApplication(sys.argv)
 
-sys.excepthook = ue_exception
+def ticker_loop(delta_time):
+    app.processEvents()
+    return True
 
-skeletal_mappings = {}
-
-def selected_skeletal_mesh(item):
-    uobject = skeletal_mappings[item.data()]
-    ue.log('Ready to reimport: ' + uobject.get_name())
-    uobject.asset_reimport()
-
-#check if an instance of the application is already running
-app = QApplication.instance()
-if app is None:
-	app = QApplication([])
-else:
-	print("App already running.")
-
-win = QWidget()
-win.setWindowTitle('Unreal Engine 4 skeletal meshes reimporter')
-
-wlist = QListWidget(win)
-for asset in ue.get_assets_by_class('SkeletalMesh'):
-    wlist.addItem(asset.get_name())
-    skeletal_mappings[asset.get_name()] = asset
-    
-wlist.clicked.connect(selected_skeletal_mesh)
-wlist.show()
-
-win.show()
+ticker = ue.add_ticker(ticker_loop)
 ```
+now you can start writing your gui (this is a simple example loading asset thumbnail):
+
+```python
+import ueqt
+from PySide2 import QtCore, QtWidgets, QtGui
+import unreal_engine as ue
+
+from unreal_engine import FARFilter
+
+_filter = FARFilter()
+_filter.class_names = ['SkeletalMesh', 'Material']
+
+class MyWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.vertical = QtWidgets.QVBoxLayout()
+        self.scroll = QtWidgets.QScrollArea()
+        self.content = QtWidgets.QWidget()
+        self.scroll.setWidget(self.content)
+        self.scroll.setWidgetResizable(True)
+        self.layout = QtWidgets.QVBoxLayout()
+	
+        for asset_data in ue.get_assets_by_filter(_filter, True):
+            try:
+                thumbnail = asset_data.get_thumbnail()
+            except:
+                continue
+
+            label = QtWidgets.QLabel()
+            data = thumbnail.get_uncompressed_image_data()
+            image = QtGui.QImage(data, 256, 256, QtGui.QImage.Format_RGB32)
+            label.setPixmap(QtGui.QPixmap.fromImage(image).scaled(256, 256))
+            self.layout.addWidget(label)
+
+        self.content.setLayout(self.layout)
+        self.vertical.addWidget(self.scroll)
+        self.setLayout(self.vertical)
+
+
+
+widget = MyWidget()
+widget.resize(800, 600)
+widget.show()
+
+```
+
+(no need to allocate a new Qt app, or start it, as the UE4 Editor, thanks to to ueqt module is now the Qt app itself)
 
 Memory management
 -----------------
@@ -848,25 +870,14 @@ To run the unit tests (ensure to run them on an empty/useless project to avoid m
 
 ```python
 import unreal_engine as ue
-ue.sandbox_exec(ue.find_plugin('UnrealEnginePython').get_base_dir() + '/run_tests.py')
+ue.py_exec(ue.find_plugin('UnrealEnginePython').get_base_dir() + '/run_tests.py')
 ```
 if you plan to add new features to the plugin, including a test suite in your pull request will be really appreciated ;)
 
-Threading (Experimental)
+Threading
 ------------------------
 
-By default the plugin is compiled without effective python threads support. This is for 2 main reasons:
-
-* we still do not have numbers about the performance impact of constantly acquiring and releasing the GIL
-* we need a better test suite
-
-By the way, if you want to play with experimental threading support, just uncomment
-
-```c
-//#define UEPY_THREADING 1
-```
-
-on top of UnrealEnginePython.h and rebuild the plugin.
+Since release 20180624 threading is fully supported.
 
 As with native threads, do not modify (included deletion) UObjects from non-main threads.
 
@@ -908,11 +919,11 @@ What is going on here in `BadGuy` is that self.uobject is a reference to the PyA
 Status and Known issues
 -----------------------
 
-The project could be considered in beta state.
-
 Exposing the full ue4 api is a huge amount of work, feel free to make pull requests for your specific needs.
 
 We still do not have a plugin icon ;)
+
+We try to do our best to "protect" the user, but you can effectively crash UE from python as you are effectively calling the C/C++ api
 
 Contacts and Commercial Support
 -------------------------------
