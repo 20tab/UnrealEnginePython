@@ -67,10 +67,6 @@ bool PyUnicodeOrString_Check(PyObject *py_obj)
 
 #define LOCTEXT_NAMESPACE "FUnrealEnginePythonModule"
 
-UNREALENGINEPYTHON_API PyThreadState* UEPyGlobalState;
-
-
-
 void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 {
 
