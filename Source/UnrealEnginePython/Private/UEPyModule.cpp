@@ -73,6 +73,7 @@
 #include "Wrappers/UEPyFViewportClient.h"
 #if WITH_EDITOR
 #include "Wrappers/UEPyFEditorViewportClient.h"
+#include "Wrappers/UEPyIAssetEditorInstance.h"
 #endif
 
 #include "Wrappers/UEPyFFoliageInstance.h"
@@ -262,6 +263,8 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "create_property_view",  (PyCFunction)py_unreal_engine_create_property_view, METH_VARARGS | METH_KEYWORDS, "" },
 
 	{ "open_editor_for_asset", py_unreal_engine_open_editor_for_asset, METH_VARARGS, "" },
+	{ "find_editor_for_asset", py_unreal_engine_find_editor_for_asset, METH_VARARGS, "" },
+	{ "get_all_edited_assets", py_unreal_engine_get_all_edited_assets, METH_VARARGS, "" },
 	{ "close_editor_for_asset", py_unreal_engine_close_editor_for_asset, METH_VARARGS, "" },
 	{ "close_all_asset_editors", py_unreal_engine_close_all_asset_editors, METH_VARARGS, "" },
 	{ "allow_actor_script_execution_in_editor", py_unreal_engine_allow_actor_script_execution_in_editor , METH_VARARGS, "" },
@@ -1505,6 +1508,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_fviewport_client(new_unreal_engine_module);
 #if WITH_EDITOR
 	ue_python_init_feditor_viewport_client(new_unreal_engine_module);
+	ue_python_init_iasset_editor_instance(new_unreal_engine_module);
 #endif
 
 	ue_python_init_fpython_output_device(new_unreal_engine_module);

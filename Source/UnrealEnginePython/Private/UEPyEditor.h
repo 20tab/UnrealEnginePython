@@ -91,6 +91,8 @@ PyObject *py_unreal_engine_get_asset_referencers(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_asset_dependencies(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_open_editor_for_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_find_editor_for_asset(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_all_edited_assets(PyObject *, PyObject *);
 PyObject *py_unreal_engine_close_editor_for_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_close_all_asset_editors(PyObject *, PyObject *);
 
