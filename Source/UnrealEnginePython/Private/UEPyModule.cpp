@@ -1440,7 +1440,11 @@ UClass *unreal_engine_new_uclass(char *name, UClass *outer_parent)
 	new_object->AssembleReferenceTokenStream();
 
 #if WITH_EDITOR
-	FBlueprintActionDatabase::Get().RefreshClassActions(new_object);
+	// this is required for avoiding startup crashes #405
+	if (GEditor)
+	{
+		FBlueprintActionDatabase::Get().RefreshClassActions(new_object);
+	}
 #endif
 
 	return new_object;
@@ -2439,7 +2443,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			{
 
 				casted_prop_weak_object->SetPropertyValue_InContainer(buffer, FWeakObjectPtr(ue_obj->ue_object), index);
-	
+
 				return true;
 			}
 			else if (auto casted_prop_base = Cast<UObjectPropertyBase>(prop))
@@ -2447,9 +2451,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->IsA(casted_prop_base->PropertyClass))
 					return false;
-			
+
 				casted_prop_base->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
-			
+
 				return true;
 			}
 
@@ -2464,18 +2468,18 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
 					return false;
-			
+
 				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
-				
+
 				return true;
 			}
 			else if (auto casted_prop_soft_object = Cast<USoftObjectProperty>(prop))
 			{
 				if (!ue_obj->ue_object->IsA(casted_prop_soft_object->PropertyClass))
 					return false;
-			
+
 				casted_prop_soft_object->SetPropertyValue_InContainer(buffer, FSoftObjectPtr(ue_obj->ue_object), index);
-				
+
 				return true;
 			}
 			else if (auto casted_prop_interface = Cast<UInterfaceProperty>(prop))
@@ -2483,9 +2487,9 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 				// ensure the object type is correct, otherwise crash could happen (soon or later)
 				if (!ue_obj->ue_object->GetClass()->ImplementsInterface(casted_prop_interface->InterfaceClass))
 					return false;
-			
+
 				casted_prop_interface->SetPropertyValue_InContainer(buffer, FScriptInterface(ue_obj->ue_object), index);
-				
+
 				return true;
 			}
 		}
@@ -2497,17 +2501,17 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		auto casted_prop_class = Cast<UClassProperty>(prop);
 		if (casted_prop_class)
 		{
-		
+
 			casted_prop_class->SetPropertyValue_InContainer(buffer, nullptr, index);
-			
+
 			return true;
 		}
 		auto casted_prop = Cast<UObjectPropertyBase>(prop);
 		if (casted_prop)
 		{
-		
+
 			casted_prop->SetObjectPropertyValue_InContainer(buffer, nullptr, index);
-		
+
 			return true;
 		}
 		return false;
@@ -2679,8 +2683,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 				return PyErr_Format(PyExc_Exception, "UFunction has no SuperFunction");
 			}
 			u_function = u_function->GetSuperFunction();
-			}
 		}
+	}
 
 	//NOTE: u_function->PropertiesSize maps to local variable uproperties + ufunction paramaters uproperties
 	uint8 *buffer = (uint8 *)FMemory_Alloca(u_function->ParmsSize);
@@ -2713,8 +2717,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #endif
 			}
 #endif
+			}
 		}
-	}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
@@ -3146,9 +3150,9 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm))
 			{
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
+			}
 		}
 	}
-		}
 
 	if (parent_function)
 	{
@@ -3202,11 +3206,15 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 #if WITH_EDITOR
-	FBlueprintActionDatabase::Get().RefreshClassActions(u_class);
+	// this is required for avoiding startup crashes #405
+	if (GEditor)
+	{
+		FBlueprintActionDatabase::Get().RefreshClassActions(u_class);
+	}
 #endif
 
 	return function;
-	}
+}
 
 FGuid *ue_py_check_fguid(PyObject *py_obj)
 {
