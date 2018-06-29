@@ -16,7 +16,7 @@ Once our mixamo assets are imported we need to do the following steps:
 
 * Modify the SkeletalMesh bone influences as indexes will be shifted after the adding of a new bone
 
-* Split the 'Hips' related animation curve in two other curves, one containing the root motion (translations, relative to local axis origin) that will be mapped to the 'root' track, and the other mapped to the 'Hips' track that will contain only rotations.
+* Split the 'Hips' related animation curve in two other curves, one containing the root motion (translations, relative to local axis origin) that will be mapped to the 'root' track, and the other mapped to the 'Hips' track that will contain only rotations. The 'root' track must be the first one.
 
 To avoid damages, we will generate a copy of each asset, so you will be able to always use the original ones.
 
@@ -326,16 +326,13 @@ class RootMotionFixer:
         new_anim.NumFrames = animation.NumFrames
         new_anim.SequenceLength = animation.SequenceLength
 
-        # iterate each track to copy/fix
+        # first step is generatin the 'root' track
+        # we need to do it before anything else, as the 'root' track must be the 0 one
         for index, name in enumerate(animation.AnimationTrackNames):
-            data = animation.get_raw_animation_track(index)
             if name == bone:
+                data = animation.get_raw_animation_track(index)
                 # extract root motion
-                root_motion = [position - data.pos_keys[0] for position in data.pos_keys]
-
-                # remove root motion from original track (but leave a single key for position, otherwise the track will break)
-                data.pos_keys = [data.pos_keys[0]]
-                new_anim.add_new_raw_track(name, data)
+                root_motion = [(position - data.pos_keys[0]) for position in data.pos_keys]
 
                 # create a new track (the root motion one)
                 root_data = FRawAnimSequenceTrack()
@@ -343,13 +340,35 @@ class RootMotionFixer:
                 # ensure empty rotations !
                 root_data.rot_keys = [FQuat()]
         
-                 # add  the track
+                # add  the track
                 new_anim.add_new_raw_track('root', root_data)
+                break
+        else:
+            raise DialogException('Unable to find bone {0}'.format(bone))
+           
+        # now append the original tracks, but removes the position keys
+        # from the original root bone
+        for index, name in enumerate(animation.AnimationTrackNames):
+            data = animation.get_raw_animation_track(index)
+            if name == bone:
+                # remove root motion from original track
+                data.pos_keys = [data.pos_keys[0]]
+                new_anim.add_new_raw_track(name, data)
             else:
                 new_anim.add_new_raw_track(name, data)
 
         new_anim.save_package()
 ```
+
+The two 'for loops' is where the fix happens. Take into account that some animation could require additional manipulation,
+as an example you may want to remove z and x transformations for a running loop:
+
+```python
+# extract root motion
+root_motion = [((position - data.pos_keys[0]) * FVector(0, 1, 0)) for position in data.pos_keys]
+```
+
+And always remember that modifying the z axis in root motion, requires your Character to be in 'Flying' movement mode.
 
 Now add support for AnimSequence in your final loop:
 
