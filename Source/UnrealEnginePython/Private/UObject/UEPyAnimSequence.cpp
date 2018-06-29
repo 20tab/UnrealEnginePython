@@ -21,6 +21,20 @@ PyObject *py_ue_anim_get_skeleton(ue_PyUObject * self, PyObject * args)
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 13
+PyObject *py_ue_anim_sequence_update_compressed_track_map_from_raw(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	UAnimSequence *anim_seq = ue_py_check_type<UAnimSequence>(self);
+	if (!anim_seq)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimSequence.");
+
+	anim_seq->UpdateCompressedTrackMapFromRaw();
+
+	Py_RETURN_NONE;
+}
+
+
 PyObject *py_ue_anim_sequence_get_raw_animation_data(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);
