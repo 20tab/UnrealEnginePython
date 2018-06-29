@@ -7,7 +7,7 @@ static PyObject *ue_PyEnumsImporter_getattro(ue_PyEnumsImporter *self, PyObject 
 	{
 		if (PyUnicodeOrString_Check(attr_name))
 		{
-			char *attr = PyUnicode_AsUTF8(attr_name);
+			const char *attr = UEPyUnicode_AsUTF8(attr_name);
 			if (attr[0] != '_')
 			{
 				UEnum *u_enum = FindObject<UEnum>(ANY_PACKAGE, UTF8_TO_TCHAR(attr));

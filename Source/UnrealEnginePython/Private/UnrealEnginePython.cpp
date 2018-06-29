@@ -27,9 +27,10 @@ void init_unreal_engine_builtin();
 const char *ue4_module_options = "linux_global_symbols";
 #endif
 
-#if PY_MAJOR_VERSION < 3
-char *PyUnicode_AsUTF8(PyObject *py_str)
+
+const char *UEPyUnicode_AsUTF8(PyObject *py_str)
 {
+#if PY_MAJOR_VERSION < 3
 	if (PyUnicode_Check(py_str))
 	{
 		PyObject *unicode = PyUnicode_AsUTF8String(py_str);
@@ -40,9 +41,15 @@ char *PyUnicode_AsUTF8(PyObject *py_str)
 		// just a hack to avoid crashes
 		return (char *)"<invalid_string>";
 	}
-	return PyString_AsString(py_str);
+	return (const char *)PyString_AsString(py_str);
+#elif PY_MINOR_VERSION < 7
+	return (const char *)PyUnicode_AsUTF8(py_str);
+#else
+	return PyUnicode_AsUTF8(py_str);
+#endif
 }
 
+#if PY_MAJOR_VERSION < 3
 int PyGILState_Check()
 {
 	PyThreadState * tstate = _PyThreadState_Current;
@@ -434,7 +441,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 		return Code;
 	}
 
-	char *pep8ized = PyUnicode_AsUTF8(ret);
+	const char *pep8ized = UEPyUnicode_AsUTF8(ret);
 	FString NewCode = FString(pep8ized);
 	Py_DECREF(ret);
 

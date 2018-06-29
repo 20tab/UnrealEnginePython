@@ -18,6 +18,7 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] windowsKnownPaths =
     {
+        "C:/Program Files/Python37",
         "C:/Program Files/Python36",
         "C:/Program Files/Python35",
         "C:/Python27",
@@ -26,9 +27,11 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] macKnownPaths =
     {
+        "/Library/Frameworks/Python.framework/Versions/3.7",
         "/Library/Frameworks/Python.framework/Versions/3.6",
         "/Library/Frameworks/Python.framework/Versions/3.5",
         "/Library/Frameworks/Python.framework/Versions/2.7",
+        "/System/Library/Frameworks/Python.framework/Versions/3.7",
         "/System/Library/Frameworks/Python.framework/Versions/3.6",
         "/System/Library/Frameworks/Python.framework/Versions/3.5",
         "/System/Library/Frameworks/Python.framework/Versions/2.7"
@@ -36,11 +39,15 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownIncludesPaths =
     {
+        "/usr/local/include/python3.7",
+        "/usr/local/include/python3.7m",
         "/usr/local/include/python3.6",
         "/usr/local/include/python3.6m",
         "/usr/local/include/python3.5",
         "/usr/local/include/python3.5m",
         "/usr/local/include/python2.7",
+        "/usr/include/python3.7",
+        "/usr/include/python3.7m",
         "/usr/include/python3.6",
         "/usr/include/python3.6m",
         "/usr/include/python3.5",
@@ -50,6 +57,10 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownLibsPaths =
     {
+        "/usr/local/lib/libpython3.7.so",
+        "/usr/local/lib/libpython3.7m.so",
+        "/usr/local/lib/x86_64-linux-gnu/libpython3.7.so",
+        "/usr/local/lib/x86_64-linux-gnu/libpython3.7m.so",
         "/usr/local/lib/libpython3.6.so",
         "/usr/local/lib/libpython3.6m.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.6.so",
@@ -60,6 +71,10 @@ public class UnrealEnginePython : ModuleRules
         "/usr/local/lib/x86_64-linux-gnu/libpython3.5m.so",
         "/usr/local/lib/libpython2.7.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython2.7.so",
+        "/usr/lib/libpython3.7.so",
+        "/usr/lib/libpython3.7m.so",
+        "/usr/lib/x86_64-linux-gnu/libpython3.7.so",
+        "/usr/lib/x86_64-linux-gnu/libpython3.7m.so",
         "/usr/lib/libpython3.6.so",
         "/usr/lib/libpython3.6m.so",
         "/usr/lib/x86_64-linux-gnu/libpython3.6.so",

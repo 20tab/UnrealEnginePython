@@ -474,7 +474,7 @@ FString UPythonComponent::CallPythonComponentMethodString(FString method_name, F
 		return FString();
 	}
 
-	char *str_ret = PyUnicode_AsUTF8(py_str);
+	const char *str_ret = UEPyUnicode_AsUTF8(py_str);
 
 	FString ret_fstring = FString(UTF8_TO_TCHAR(str_ret));
 
@@ -567,8 +567,8 @@ TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString me
 			return output_map;
 		}
 
-		char *str_key = PyUnicode_AsUTF8(py_str_key);
-		char *str_value = PyUnicode_AsUTF8(py_str_value);
+		const char *str_key = UEPyUnicode_AsUTF8(py_str_key);
+		const char *str_value = UEPyUnicode_AsUTF8(py_str_value);
 
 		FString ret_fstring_key = FString(UTF8_TO_TCHAR(str_key));
 		FString ret_fstring_value = FString(UTF8_TO_TCHAR(str_value));
@@ -627,7 +627,7 @@ void UPythonComponent::CallPythonComponentMethodStringArray(FString method_name,
 			return;
 		}
 
-		char *str_ret = PyUnicode_AsUTF8(py_str);
+		const char *str_ret = UEPyUnicode_AsUTF8(py_str);
 
 		FString ret_fstring = FString(UTF8_TO_TCHAR(str_ret));
 

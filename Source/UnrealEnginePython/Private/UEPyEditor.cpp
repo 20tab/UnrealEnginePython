@@ -342,7 +342,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
 	}
 	else if (PyUnicodeOrString_Check(obj))
 	{
-		char *class_name = PyUnicode_AsUTF8(obj);
+		const char *class_name = UEPyUnicode_AsUTF8(obj);
 		UClass *u_class = FindObject<UClass>(ANY_PACKAGE, UTF8_TO_TCHAR(class_name));
 		if (u_class)
 		{
@@ -1425,7 +1425,7 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 
 	if (PyUnicode_Check(py_type))
 	{
-		char *in_type = PyUnicode_AsUTF8(py_type);
+		const char *in_type = UEPyUnicode_AsUTF8(py_type);
 
 		bool is_array = false;
 		if (py_is_array && PyObject_IsTrue(py_is_array))

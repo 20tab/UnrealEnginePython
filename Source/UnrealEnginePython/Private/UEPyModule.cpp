@@ -1081,7 +1081,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 	{
 		if (PyUnicodeOrString_Check(attr_name))
 		{
-			char *attr = PyUnicode_AsUTF8(attr_name);
+			const char *attr = UEPyUnicode_AsUTF8(attr_name);
 			// first check for property
 			UStruct *u_struct = nullptr;
 			if (self->ue_object->IsA<UStruct>())
@@ -1180,7 +1180,7 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 	// first of all check for UProperty
 	if (PyUnicodeOrString_Check(attr_name))
 	{
-		char *attr = PyUnicode_AsUTF8(attr_name);
+		char *attr = (char *)PyUnicode_AsUTF8(attr_name);
 		// first check for property
 		UStruct *u_struct = nullptr;
 		if (self->ue_object->IsA<UStruct>())
@@ -1287,7 +1287,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 				}
 				if (!PyUnicodeOrString_Check(key))
 					continue;
-				char *struct_key = PyUnicode_AsUTF8(key);
+				const char *struct_key = UEPyUnicode_AsUTF8(key);
 
 				PyObject *value = PyDict_GetItem(kw, key);
 				if (!value)
@@ -1300,7 +1300,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 					break;
 				}
 
-				UProperty *u_property = ue_struct_get_field_from_name(u_script_struct, struct_key);
+				UProperty *u_property = ue_struct_get_field_from_name(u_script_struct, (char *)struct_key);
 				if (u_property)
 				{
 					if (!ue_py_convert_pyobject(value, u_property, data, 0))
@@ -2960,7 +2960,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		if (!PyUnicodeOrString_Check(key))
 			continue;
 
-		char *p_name = PyUnicode_AsUTF8(key);
+		const char *p_name = UEPyUnicode_AsUTF8(key);
 
 		PyObject *value = PyDict_GetItem(annotations, key);
 		if (!value)

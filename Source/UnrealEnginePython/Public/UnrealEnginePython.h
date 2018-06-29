@@ -60,8 +60,10 @@ UNREALENGINEPYTHON_API PyObject *ue_py_register_module(const char *);
 		return -1;\
 	}
 
+
+const char *UEPyUnicode_AsUTF8(PyObject *py_str);
+
 #if PY_MAJOR_VERSION < 3
-char *PyUnicode_AsUTF8(PyObject *py_str);
 int PyGILState_Check();
 #endif
 bool PyUnicodeOrString_Check(PyObject *py_obj);
