@@ -639,12 +639,17 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_blend_parameter", (PyCFunction)py_ue_get_blend_parameter, METH_VARARGS, "" },
 	{ "set_blend_parameter", (PyCFunction)py_ue_set_blend_parameter, METH_VARARGS, "" },
 
+	{ "get_bone_transform", (PyCFunction)py_ue_anim_get_bone_transform, METH_VARARGS, "" },
+	{ "extract_root_motion", (PyCFunction)py_ue_anim_extract_root_motion, METH_VARARGS, "" },
+
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 13
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
 	{ "update_compressed_track_map_from_raw", (PyCFunction)py_ue_anim_sequence_update_compressed_track_map_from_raw, METH_VARARGS, "" },
+	{ "update_raw_track", (PyCFunction)py_ue_anim_sequence_update_raw_track, METH_VARARGS, "" },
+	{ "apply_raw_anim_changes", (PyCFunction)py_ue_anim_sequence_apply_raw_anim_changes, METH_VARARGS, "" },
 #endif
 	{ "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
 #endif
