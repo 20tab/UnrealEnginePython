@@ -52,7 +52,7 @@ Pay attention, as once you tell the UE GC to not destroy a UObject, that UObject
 
 ## Strategy 1: Setting UObject flags to govern the GC
 
-When you create a UObject (from the C++ side, via the NewObject<T> api call) you can specify a bitmask of flags. By default the python api only use the RF_Public flag:
+When you create a UObject (from the C++ side, via the ```NewObject<T>``` api call) you can specify a bitmask of flags. By default the python api only use the RF_Public flag:
   
 https://api.unrealengine.com/INT/API/Runtime/CoreUObject/UObject/EObjectFlags/index.html
 
@@ -78,6 +78,8 @@ Eventually you can reset/set the flags:
 
 ```python
 import unreal_engine as ue
+
+from unreal_engine.classes import BlueprintFactory
 
 factory = BlueprintFactory()
 factory.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
@@ -106,6 +108,8 @@ The root set is a very specific part of the GC tree. If you want to hold control
 
 ```python
 import unreal_engine as ue
+
+from unreal_engine.classes import BlueprintFactory
 
 factory = BlueprintFactory()
 factory.add_to_root()
@@ -151,3 +155,34 @@ factory = tracker.track(BlueprintFactory())
 
 As an example when running a script multiple times, the 'tracker' id will be overwritten, triggering the destruction of the mapped python object (and its ```__del__``` method)
 
+## Low-level UObject creation api
+
+Til now you have seen how to create new UObject's in a very pythonic way:
+
+```python
+from unreal_engine.classes import BlueprintFactory, Material, MaterialFactoryNew
+
+bp_factory = BlueprintFactory()
+material = Material()
+# the first argument here (None) is the outer UObject
+material_with_a_name = Material(None, 'FooBar001')
+mat_factory = MaterialFactoryNew()
+```
+
+While the automagic python UObject creation api is really handy, sometime you want lower-level access to the ```NewObject<T>``` C++ api:
+  
+```python
+import unreal_engine as ue
+from unreal_engine.classes import Material
+
+material = ue.new_object(Material, None, 'DumbMaterial001', ue.RF_PUBLIC|ue.RF_STANDALONE)
+``
+
+or for more dynamic class specification:
+
+```python
+import unreal_engine as ue
+
+# you can reference to Unreal classes with a string
+material = ue.new_object(ue.find_class('Material'), None, 'DumbMaterial001', ue.RF_PUBLIC|ue.RF_STANDALONE)
+```
