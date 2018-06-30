@@ -149,5 +149,5 @@ Now you can create UObject from python and track them automatically. When the py
 factory = tracker.track(BlueprintFactory())
 ```
 
-As an example when running a script multiple times, the 'tracker' id will be overwritten, triggering the destruction of the mapped python object (and its __del__ method)
+As an example when running a script multiple times, the 'tracker' id will be overwritten, triggering the destruction of the mapped python object (and its ```__del__``` method)
 
