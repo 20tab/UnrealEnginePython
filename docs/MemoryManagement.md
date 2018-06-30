@@ -176,7 +176,7 @@ import unreal_engine as ue
 from unreal_engine.classes import Material
 
 material = ue.new_object(Material, None, 'DumbMaterial001', ue.RF_PUBLIC|ue.RF_STANDALONE)
-``
+```
 
 or for more dynamic class specification:
 
