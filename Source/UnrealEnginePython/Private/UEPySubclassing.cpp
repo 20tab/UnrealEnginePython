@@ -21,9 +21,9 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 	if (PyTuple_Size(args) == 3)
 	{
 		// TODO make it smarter on error checking
-		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)))));
-		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 1)))));
-		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 2)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 1)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 2)))));
 
 		PyObject *parents = PyTuple_GetItem(args, 1);
 		ue_PyUObject *parent = (ue_PyUObject *)PyTuple_GetItem(parents, 0);

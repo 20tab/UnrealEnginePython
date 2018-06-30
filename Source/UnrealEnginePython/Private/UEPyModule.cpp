@@ -1192,7 +1192,7 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 	// first of all check for UProperty
 	if (PyUnicodeOrString_Check(attr_name))
 	{
-		char *attr = (char *)PyUnicode_AsUTF8(attr_name);
+		const char *attr = UEPyUnicode_AsUTF8(attr_name);
 		// first check for property
 		UStruct *u_struct = nullptr;
 		if (self->ue_object->IsA<UStruct>())
@@ -1792,13 +1792,13 @@ void unreal_engine_py_log_error()
 				PyObject *item = PyList_GetItem(ret, i);
 				if (item)
 				{
-					UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(item))));
+					UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(item))));
 				}
 			}
 		}
 		else
 		{
-			UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(ret))));
+			UE_LOG(LogPython, Error, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(ret))));
 		}
 	}
 
@@ -2158,17 +2158,17 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 	{
 		if (auto casted_prop = Cast<UStrProperty>(prop))
 		{
-			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)), index);
+			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj)), index);
 			return true;
 		}
 		if (auto casted_prop = Cast<UNameProperty>(prop))
 		{
-			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)), index);
+			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj)), index);
 			return true;
 		}
 		if (auto casted_prop = Cast<UTextProperty>(prop))
 		{
-			casted_prop->SetPropertyValue_InContainer(buffer, FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj))), index);
+			casted_prop->SetPropertyValue_InContainer(buffer, FText::FromString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj))), index);
 			return true;
 		}
 		return false;
@@ -2574,7 +2574,7 @@ void ue_bind_events_for_py_class_by_attribute(UObject *u_obj, PyObject *py_class
 		PyObject *py_attr_name = PyList_GetItem(attrs, i);
 		if (!py_attr_name || !PyUnicodeOrString_Check(py_attr_name))
 			continue;
-		PyObject *item = PyObject_GetAttrString(py_class, PyUnicode_AsUTF8(py_attr_name));
+		PyObject *item = PyObject_GetAttrString(py_class, UEPyUnicode_AsUTF8(py_attr_name));
 		if (item && PyCallable_Check(item))
 		{
 			// check for ue_event signature
@@ -2583,7 +2583,7 @@ void ue_bind_events_for_py_class_by_attribute(UObject *u_obj, PyObject *py_class
 			{
 				if (PyUnicode_Check(event_signature))
 				{
-					FString event_name = FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(event_signature)));
+					FString event_name = FString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(event_signature)));
 					TArray<FString> parts;
 					int n = event_name.ParseIntoArray(parts, UTF8_TO_TCHAR("."));
 					if (n < 1 || n > 2)
@@ -2652,7 +2652,7 @@ void ue_autobind_events_for_pyclass(ue_PyUObject *u_obj, PyObject *py_class)
 		PyObject *py_attr_name = PyList_GetItem(attrs, i);
 		if (!py_attr_name || !PyUnicodeOrString_Check(py_attr_name))
 			continue;
-		FString attr_name = UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_attr_name));
+		FString attr_name = UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_attr_name));
 		if (!attr_name.StartsWith("on_", ESearchCase::CaseSensitive))
 			continue;
 		// check if the attr is a callable

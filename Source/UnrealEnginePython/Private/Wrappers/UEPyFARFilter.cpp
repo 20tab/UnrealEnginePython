@@ -297,7 +297,7 @@ void ue_sync_farfilter_name_array(PyObject *pylist, TArray<FName> &uelist)
 	for (int i = 0; i < (int)pylist_len; i++)
 	{
 		PyObject *py_item = PyList_GetItem(pylist, i);
-		uelist.Add(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_item))));
+		uelist.Add(FName(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_item))));
 	}
 }
 
@@ -316,7 +316,7 @@ void py_ue_sync_farfilter(PyObject *pyobj)
 	for (int i = 0; i < (int)pyset_len; i++)
 	{
 		py_item = PyList_GetItem(pyset, i);
-		pyfilter->filter.RecursiveClassesExclusionSet.Add(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_item))));
+		pyfilter->filter.RecursiveClassesExclusionSet.Add(FName(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_item))));
 	}
 
 	PyObject *pykey, *pyvalue;
@@ -325,13 +325,13 @@ void py_ue_sync_farfilter(PyObject *pyobj)
 	pyfilter->filter.TagsAndValues.Reset();
 	while (PyDict_Next(pyfilter->tags_and_values, &pypos, &pykey, &pyvalue))
 	{
-		ukey = UTF8_TO_TCHAR(PyUnicode_AsUTF8(pykey));
+		ukey = UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(pykey));
 		pyset_len = PySet_Size(pyvalue);
 		for (int i = 0; i < (int)pyset_len; i++)
 		{
 			py_item = PyList_GetItem(pyset, i);
 #if ENGINE_MINOR_VERSION < 20
-			pyfilter->filter.TagsAndValues.AddUnique(ukey, UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_item)));
+			pyfilter->filter.TagsAndValues.AddUnique(ukey, UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_item)));
 #else
 			pyfilter->filter.TagsAndValues.AddUnique(ukey, FString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_item))));
 #endif

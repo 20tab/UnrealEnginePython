@@ -533,7 +533,7 @@ PyObject *py_ue_call_function(ue_PyUObject * self, PyObject * args, PyObject *kw
 
 	if (PyUnicodeOrString_Check(func_id))
 	{
-		function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(func_id))));
+		function = self->ue_object->FindFunction(FName(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(func_id))));
 	}
 
 	if (!function)

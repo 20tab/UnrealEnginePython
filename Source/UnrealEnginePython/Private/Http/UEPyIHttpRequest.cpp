@@ -74,7 +74,7 @@ static PyObject *py_ue_ihttp_request_set_content(ue_PyIHttpRequest *self, PyObje
 
 	if (PyUnicode_Check(py_obj))
 	{
-		self->http_request->SetContentAsString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(py_obj)));
+		self->http_request->SetContentAsString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj)));
 	}
 	else if (PyBytes_Check(py_obj))
 	{

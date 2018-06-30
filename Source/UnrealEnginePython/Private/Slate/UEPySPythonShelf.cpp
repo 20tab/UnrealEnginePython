@@ -123,7 +123,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		{
 			if (PyUnicode_Check(item))
 			{
-				FName class_name = FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(item)));
+				FName class_name = FName(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(item)));
 				asset_picker_config.Filter.ClassNames.Add(class_name);
 			}
 		}
@@ -136,7 +136,7 @@ static int ue_py_spython_shelf_init(ue_PySPythonShelf *self, PyObject *args, PyO
 		{
 			if (PyUnicode_Check(item))
 			{
-				FName collection_name = FName(UTF8_TO_TCHAR(PyUnicode_AsUTF8(item)));
+				FName collection_name = FName(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(item)));
 				asset_picker_config.Collections.Add(FCollectionNameType(collection_name, ECollectionShareType::CST_Local));
 			}
 		}

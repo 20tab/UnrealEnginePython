@@ -370,6 +370,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 	else
 	{
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 6
 		if (PyErr_ExceptionMatches(PyExc_ModuleNotFoundError))
 		{
 			UE_LOG(LogPython, Log, TEXT("ue_site Python module not found"));
@@ -379,6 +380,9 @@ void FUnrealEnginePythonModule::StartupModule()
 		{
 			unreal_engine_py_log_error();
 		}
+#else
+		unreal_engine_py_log_error();
+#endif
 	}
 
 	// release the GIL
