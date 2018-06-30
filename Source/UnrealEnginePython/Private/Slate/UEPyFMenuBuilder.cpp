@@ -34,8 +34,8 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	char *tooltip;
 	PyObject *py_callable;
 	PyObject *py_obj = nullptr;
-	PyObject *py_uiaction_obj = nullptr;
-	if (!PyArg_ParseTuple(args, "ssO|OO:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &py_uiaction_obj))
+	int ui_action_type = EUserInterfaceActionType::Button;
+	if (!PyArg_ParseTuple(args, "ssO|Oi:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &ui_action_type))
 		return nullptr;
 
 	if (!PyCallable_Check(py_callable))
@@ -57,9 +57,8 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::SimpleExecuteAction);
 	}
 
-	ue_PyESlateEnums *py_uiaction_enum = py_uiaction_obj ? py_ue_is_eslate_enums(py_uiaction_obj) : nullptr;
 	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler), NAME_None,
-		py_uiaction_enum ? (EUserInterfaceActionType::Type)(py_uiaction_enum->val) : EUserInterfaceActionType::Button);
+		(EUserInterfaceActionType::Type)ui_action_type);
 
 	Py_RETURN_NONE;
 }

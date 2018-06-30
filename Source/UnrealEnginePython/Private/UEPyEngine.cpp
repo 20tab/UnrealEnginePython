@@ -504,6 +504,7 @@ PyObject *py_unreal_engine_engine_tick(PyObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+#if WITH_EDITOR
 PyObject *py_unreal_engine_tick_rendering_tickables(PyObject * self, PyObject * args)
 {
 	Py_BEGIN_ALLOW_THREADS;
@@ -512,6 +513,7 @@ PyObject *py_unreal_engine_tick_rendering_tickables(PyObject * self, PyObject * 
 
 	Py_RETURN_NONE;
 }
+#endif
 
 PyObject *py_unreal_engine_get_delta_time(PyObject * self, PyObject * args)
 {

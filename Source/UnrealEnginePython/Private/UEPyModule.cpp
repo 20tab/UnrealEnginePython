@@ -364,8 +364,9 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "engine_tick", py_unreal_engine_engine_tick, METH_VARARGS, "" },
-	{ "tick_rendering_tickables", py_unreal_engine_tick_rendering_tickables, METH_VARARGS, "" },
+	
 #if WITH_EDITOR
+	{ "tick_rendering_tickables", py_unreal_engine_tick_rendering_tickables, METH_VARARGS, "" },
 	{ "all_viewport_clients", py_unreal_engine_all_viewport_clients , METH_VARARGS, "" },
 #endif
 	{ "slate_tick", py_unreal_engine_slate_tick, METH_VARARGS, "" },
