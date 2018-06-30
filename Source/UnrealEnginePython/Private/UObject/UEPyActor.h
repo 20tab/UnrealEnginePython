@@ -16,6 +16,7 @@
 #include "UObject/UObjectThreadContext.h"
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_component_has_tag(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_begin_play(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_bounds(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_component(ue_PyUObject *, PyObject *);
@@ -37,6 +38,7 @@ PyObject *py_ue_add_actor_root_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_has_component_of_type(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_component_by_type(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_actor_components_by_type(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_actor_components_by_tag(ue_PyUObject *, PyObject *);
 PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject *, PyObject *);
 PyObject *py_ue_get_overlapping_actors(ue_PyUObject *, PyObject *);
 

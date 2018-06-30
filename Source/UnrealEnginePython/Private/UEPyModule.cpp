@@ -769,6 +769,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #pragma warning(suppress: 4191)
 	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "actor_has_tag", (PyCFunction)py_ue_actor_has_tag, METH_VARARGS, "" },
+	{ "component_has_tag", (PyCFunction)py_ue_component_has_tag, METH_VARARGS, "" },
 	{ "get_actor_bounds", (PyCFunction)py_ue_get_actor_bounds, METH_VARARGS, "" },
 
 	{ "line_trace_single_by_channel", (PyCFunction)py_ue_line_trace_single_by_channel, METH_VARARGS, "" },
@@ -799,11 +800,17 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_actor_root_component", (PyCFunction)py_ue_get_actor_root_component, METH_VARARGS, "" },
 	{ "add_actor_root_component", (PyCFunction)py_ue_add_actor_root_component, METH_VARARGS, "" },
 	{ "get_actor_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
+	{ "get_actor_component_by_class", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "get_component_by_type", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
+	{ "get_component_by_class", (PyCFunction)py_ue_get_actor_component_by_type, METH_VARARGS, "" },
 	{ "get_component", (PyCFunction)py_ue_get_actor_component, METH_VARARGS, "" },
 	{ "get_actor_component", (PyCFunction)py_ue_get_actor_component, METH_VARARGS, "" },
 	{ "get_actor_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
 	{ "get_components_by_type", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
+	{ "get_actor_components_by_class", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
+	{ "get_components_by_class", (PyCFunction)py_ue_get_actor_components_by_type, METH_VARARGS, "" },
+	{ "get_actor_components_by_tag", (PyCFunction)py_ue_get_actor_components_by_tag, METH_VARARGS, "" },
+	{ "get_components_by_tag", (PyCFunction)py_ue_get_actor_components_by_tag, METH_VARARGS, "" },
 
 	{ "add_python_component", (PyCFunction)py_ue_add_python_component, METH_VARARGS, "" },
 

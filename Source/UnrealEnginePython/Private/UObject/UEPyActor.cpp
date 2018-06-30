@@ -27,6 +27,29 @@ PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_FALSE;
 }
 
+PyObject *py_ue_component_has_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *tag;
+	if (!PyArg_ParseTuple(args, "s:component_has_tag", &tag))
+	{
+		return nullptr;
+	}
+
+	UActorComponent *component = ue_py_check_type<UActorComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
+
+	if (component->ComponentHasTag(FName(UTF8_TO_TCHAR(tag))))
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
 PyObject *py_ue_actor_begin_play(ue_PyUObject * self, PyObject * args)
 {
 
@@ -692,6 +715,51 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 }
 
+PyObject *py_ue_get_actor_components_by_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *tag;
+	PyObject *py_uclass = nullptr;
+	if (!PyArg_ParseTuple(args, "s|O:get_actor_components_by_tag", &tag, &py_uclass))
+	{
+		return nullptr;
+	}
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+
+	PyObject *components = PyList_New(0);
+
+	UClass *u_class = UActorComponent::StaticClass();
+
+	if (py_uclass)
+	{
+		u_class = ue_py_check_type<UClass>(py_uclass);
+		if (!u_class)
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+		}
+
+		if (!u_class->IsChildOf<UActorComponent>())
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a UClass inheriting from UActorComponent");
+		}
+	}
+
+	for (UActorComponent *component : actor->GetComponentsByTag(u_class, FName(UTF8_TO_TCHAR(tag))))
+	{
+		ue_PyUObject *item = ue_get_python_uobject(component);
+		if (item)
+			PyList_Append(components, (PyObject *)item);
+	}
+
+	return components;
+
+}
+
 
 PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwargs)
 {
@@ -790,7 +858,7 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
-	
+
 	PyObject *class_filter = nullptr;
 	if (!PyArg_ParseTuple(args, "|O:get_overlapping_actors", &class_filter))
 	{
