@@ -721,6 +721,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "class_set_flags", (PyCFunction)py_ue_class_set_flags, METH_VARARGS, "" },
 	{ "get_obj_flags", (PyCFunction)py_ue_get_obj_flags, METH_VARARGS, "" },
 	{ "set_obj_flags", (PyCFunction)py_ue_set_obj_flags, METH_VARARGS, "" },
+	{ "clear_obj_flags", (PyCFunction)py_ue_clear_obj_flags, METH_VARARGS, "" },
+	{ "reset_obj_flags", (PyCFunction)py_ue_reset_obj_flags, METH_VARARGS, "" },
 
 #if WITH_EDITOR
 	{ "class_get_config_name", (PyCFunction)py_ue_class_get_config_name, METH_VARARGS, "" },
