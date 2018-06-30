@@ -4,6 +4,12 @@ Embed Python in Unreal Engine 4
 
 Teaser (by Kite & Lightning): https://twitter.com/KNLstudio/status/932657812466843648
 
+Fixing Mixamo RootMotion tuturial: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython.md
+
+Funny snippets for working with StaticMesh and SkeletalMesh assets: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
+
+More tutorials: https://github.com/20tab/UnrealEnginePython/tree/master/tutorials
+
 # How and Why ?
 
 This is a plugin embedding a whole Python VM (versions 3.x [the default and suggested one] and 2.7) In Unreal Engine 4 (both the editor and runtime).
