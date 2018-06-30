@@ -513,6 +513,8 @@ ts.dumb = DumbStruct(Foo=17, Bar=22)
 ts.ref().dumb.foo().Foo = 22
 ```
 
+More details here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/MemoryManagement.md
+
 The ue_site.py file
 -------------------
 
@@ -860,6 +862,7 @@ Starting from release 20180226 a new memory management system has been added (FU
 
 The same system works for delegates, as well as Slate.
 
+More details here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/MemoryManagement.md
 
 Unit Testing
 ------------
