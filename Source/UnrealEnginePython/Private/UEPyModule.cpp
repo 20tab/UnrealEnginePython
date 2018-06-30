@@ -640,6 +640,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_blend_parameter", (PyCFunction)py_ue_set_blend_parameter, METH_VARARGS, "" },
 
 	{ "get_bone_transform", (PyCFunction)py_ue_anim_get_bone_transform, METH_VARARGS, "" },
+	{ "extract_bone_transform", (PyCFunction)py_ue_anim_extract_bone_transform, METH_VARARGS, "" },
 	{ "extract_root_motion", (PyCFunction)py_ue_anim_extract_root_motion, METH_VARARGS, "" },
 
 #if WITH_EDITOR
@@ -973,6 +974,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 #if WITH_EDITOR
 	{ "texture_get_source_data", (PyCFunction)py_ue_texture_get_source_data, METH_VARARGS, "" },
+	{ "texture_set_source_data", (PyCFunction)py_ue_texture_set_source_data, METH_VARARGS, "" },
 #endif
 
 	// Sequencer

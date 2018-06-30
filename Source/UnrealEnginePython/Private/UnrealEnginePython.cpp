@@ -370,8 +370,15 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 	else
 	{
-		// TODO gracefully manage the error
-		unreal_engine_py_log_error();
+		if (PyErr_ExceptionMatches(PyExc_ModuleNotFoundError))
+		{
+			UE_LOG(LogPython, Log, TEXT("ue_site Python module not found"));
+			PyErr_Clear();
+		}
+		else
+		{
+			unreal_engine_py_log_error();
+		}
 	}
 
 	// release the GIL
@@ -511,7 +518,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	{
 		unreal_engine_py_log_error();
 		return;
-	}
+}
 #endif
 
 }

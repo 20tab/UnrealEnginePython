@@ -23,7 +23,7 @@ PyObject *py_ue_anim_get_bone_transform(ue_PyUObject * self, PyObject * args)
 	ue_py_check(self);
 
 	int track_index;
-        float frame_time;
+	float frame_time;
 	PyObject *py_b_use_raw_data = nullptr;
 
 	if (!PyArg_ParseTuple(args, "if|O:get_bone_transform", &track_index, &frame_time, &py_b_use_raw_data))
@@ -43,6 +43,35 @@ PyObject *py_ue_anim_get_bone_transform(ue_PyUObject * self, PyObject * args)
 	anim->GetBoneTransform(OutAtom, track_index, frame_time, bUseRawData);
 
 	return py_ue_new_ftransform(OutAtom);
+}
+
+PyObject *py_ue_anim_extract_bone_transform(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_sources;
+	float frame_time;
+
+	if (!PyArg_ParseTuple(args, "Of:extract_bone_transform", &py_sources, &frame_time))
+	{
+		return nullptr;
+	}
+
+	UAnimSequence *anim = ue_py_check_type<UAnimSequence>(self);
+	if (!anim)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimSequence.");
+
+	ue_PyFRawAnimSequenceTrack *rast = py_ue_is_fraw_anim_sequence_track(py_sources);
+	if (rast)
+	{
+		FTransform OutAtom;
+		anim->ExtractBoneTransform(rast->raw_anim_sequence_track, OutAtom, frame_time);
+
+		return py_ue_new_ftransform(OutAtom);
+	}
+
+	return PyErr_Format(PyExc_Exception, "argument is not an FRawAnimSequenceTrack");
+
 }
 
 PyObject *py_ue_anim_extract_root_motion(ue_PyUObject * self, PyObject * args)
@@ -138,16 +167,16 @@ PyObject *py_ue_anim_sequence_apply_raw_anim_changes(ue_PyUObject * self, PyObje
 
 
 	if (anim_seq->DoesNeedRebake())
-        {
-        	anim_seq->Modify(true);
-                anim_seq->BakeTrackCurvesToRawAnimation();
-        }
+	{
+		anim_seq->Modify(true);
+		anim_seq->BakeTrackCurvesToRawAnimation();
+	}
 
-        if (anim_seq->DoesNeedRecompress())
-        {
-        	anim_seq->Modify(true);
-                anim_seq->RequestSyncAnimRecompression(false);
-        }
+	if (anim_seq->DoesNeedRecompress())
+	{
+		anim_seq->Modify(true);
+		anim_seq->RequestSyncAnimRecompression(false);
+	}
 
 	Py_RETURN_NONE;
 }
@@ -214,7 +243,7 @@ PyObject *py_ue_anim_sequence_update_raw_track(ue_PyUObject * self, PyObject * a
 	anim_seq->Modify();
 
 	FRawAnimSequenceTrack& RawRef = anim_seq->GetRawAnimationTrack(track_index);
-	
+
 	RawRef.PosKeys = py_f_rast->raw_anim_sequence_track.PosKeys;
 	RawRef.RotKeys = py_f_rast->raw_anim_sequence_track.RotKeys;
 	RawRef.ScaleKeys = py_f_rast->raw_anim_sequence_track.ScaleKeys;
