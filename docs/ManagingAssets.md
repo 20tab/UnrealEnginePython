@@ -154,6 +154,27 @@ if asset002.asset_can_reimport():
    asset002.asset_reimport()
 ```
 
+The signature of asset_reimport() is the following:
+
+```python
+success = asset_reimport(open_file_dialog, report_dialog, filename_to_import)
+```
+
+open_file_dialog will trigger an open file widget for selecting the file to import if the object has no file mapped to it.
+
+report_dialog will show the notify widget reporting the status of the operation
+
+filename_to_import allows you to specify which file to import for the asset
+
+The function returns a boolean value
+
+You can programmatically change the filename assigned to an asset in this way:
+
+```python
+mesh.asset_import_data_set_sources('D:/sword.fbx')
+```
+
+
 Creating Assets
 -
 
