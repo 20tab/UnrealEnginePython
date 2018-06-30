@@ -73,6 +73,81 @@ print(factory)
 ```
 
 The RF_Standalone flag (RF_STANDALONE in python api) will marks a UObject as 'standalone' so it will remain resident in memory forever.
+
+Eventually you can reset/set the flags:
+
+```python
+import unreal_engine as ue
+
+factory = BlueprintFactory()
+factory.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
+
+
+ue.console_exec('obj gc')
+
+print(factory)
+
+# the second True argument will reset the flags (otherwise set_obj_flags will work in append mode)
+# eventually you can call factory.reset_obj_flags()
+factory.set_obj_flags(ue.RF_PUBLIC, True)
+
+ue.console_exec('obj gc')
+
+print(factory)
+```
+
+The second print will raise the error.
+
 This is a pretty raw approach (unless you are sure that you need a resident object). For having more control the second strategy will be way more better...
 
 ## Strategy 2: The Root Set
+
+The root set is a very specific part of the GC tree. If you want to hold control of a UObject lifecycle in an efficient way, you can use the related python api:
+
+```python
+import unreal_engine as ue
+
+factory = BlueprintFactory()
+factory.add_to_root()
+
+ue.console_exec('obj gc')
+
+print(factory)
+
+factory.remove_from_root()
+
+ue.console_exec('obj gc')
+
+print(factory)
+```
+
+as before, the first GC run will not destroy the UObject (as it is in the root set), while the second one will remove if from the memory as it is no more in the root set.
+
+A funny approach to memory management of UObject from python is by using a Tracker object:
+
+```python
+class Tracker:
+
+    def __init__(self):
+        self.uobjects = []
+
+    def track(self, uobject):
+         uobject.add_to_root()
+         self.uobjects.append(uobject)
+         return uobject
+
+    def __del__(self):
+         for uobject in self.uobjects:
+             uobject.remove_from_root()
+
+tracker = Tracker()
+```
+
+Now you can create UObject from python and track them automatically. When the python GC destroys the tracker object, all of the UObject's tracked by it will be destroyed too:
+
+```python
+factory = tracker.track(BlueprintFactory())
+```
+
+As an example when running a script multiple times, the 'tracker' id will be overwritten, triggering the destruction of the mapped python object (and its __del__ method)
+
