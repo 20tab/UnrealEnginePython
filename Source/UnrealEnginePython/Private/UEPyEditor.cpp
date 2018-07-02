@@ -626,10 +626,11 @@ PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * arg
 PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 {
 	char *path;
-	char *object_name;
-	if (!PyArg_ParseTuple(args, "ss:rename_asset", &path, &object_name))
+	char *destination;
+	PyObject *py_only_soft = nullptr;
+	if (!PyArg_ParseTuple(args, "ss|O:rename_asset", &path, &destination, &py_only_soft))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!GEditor)
@@ -642,11 +643,29 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-	UObject *u_object = asset.GetAsset();
 	TArray<FAssetRenameData> AssetsAndNames;
-	const FString PackagePath = FPackageName::GetLongPackagePath(u_object->GetOutermost()->GetName());
-	const FString newname(UTF8_TO_TCHAR(object_name));
-	new(AssetsAndNames) FAssetRenameData(u_object, PackagePath, newname);
+	FAssetRenameData RenameData;
+	RenameData.Asset = asset.GetAsset();
+
+	FString Destination = FString(UTF8_TO_TCHAR(destination));
+
+	if (Destination.StartsWith("/"))
+	{
+		RenameData.NewPackagePath = FPackageName::GetLongPackagePath(Destination);
+		RenameData.NewName = FPackageName::GetShortName(Destination);
+	}
+	else
+	{
+		RenameData.NewPackagePath = FPackageName::GetLongPackagePath(UTF8_TO_TCHAR(path));
+		RenameData.NewName = Destination;
+	}
+
+	if (py_only_soft && PyObject_IsTrue(py_only_soft))
+	{
+		RenameData.bOnlyFixSoftReferences = true;
+	}
+
+	AssetsAndNames.Add(RenameData);
 #if ENGINE_MINOR_VERSION < 19
 	AssetToolsModule.Get().RenameAssets(AssetsAndNames);
 #else
@@ -695,6 +714,7 @@ PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to duplicate asset %s", path);
 	}
 
+	FAssetRegistryModule::AssetCreated(new_asset);
 	Py_RETURN_UOBJECT(new_asset);
 }
 
@@ -1909,7 +1929,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 	if (py_bool && PyObject_IsTrue(py_bool))
 	{
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
-	}
+}
 
 #if ENGINE_MINOR_VERSION >= 17
 	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
