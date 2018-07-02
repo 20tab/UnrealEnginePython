@@ -157,6 +157,29 @@ PyObject *py_ue_anim_sequence_get_raw_animation_track(ue_PyUObject * self, PyObj
 	return py_ue_new_fraw_anim_sequence_track(anim_seq->GetRawAnimationTrack(index));
 }
 
+PyObject *py_ue_anim_add_key_to_sequence(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	float frame_time;
+	char *track_name;
+	PyObject *py_transform;
+	if (!PyArg_ParseTuple(args, "fsO:add_key_to_sequence", &frame_time, &track_name, &py_transform))
+		return nullptr;
+
+	UAnimSequence *anim_seq = ue_py_check_type<UAnimSequence>(self);
+	if (!anim_seq)
+		return PyErr_Format(PyExc_Exception, "UObject is not a UAnimSequence.");
+
+	ue_PyFTransform *ue_py_transform = py_ue_is_ftransform(py_transform);
+	if (!ue_py_transform)
+		return PyErr_Format(PyExc_Exception, "argument is not a FTransform.");
+
+	anim_seq->AddKeyToSequence(frame_time, FName(UTF8_TO_TCHAR(track_name)), ue_py_transform->transform);
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_anim_sequence_apply_raw_anim_changes(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);

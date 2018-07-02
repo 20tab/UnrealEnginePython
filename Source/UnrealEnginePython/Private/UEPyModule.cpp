@@ -652,6 +652,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "update_compressed_track_map_from_raw", (PyCFunction)py_ue_anim_sequence_update_compressed_track_map_from_raw, METH_VARARGS, "" },
 	{ "update_raw_track", (PyCFunction)py_ue_anim_sequence_update_raw_track, METH_VARARGS, "" },
 	{ "apply_raw_anim_changes", (PyCFunction)py_ue_anim_sequence_apply_raw_anim_changes, METH_VARARGS, "" },
+	{ "add_key_to_sequence", (PyCFunction)py_ue_anim_add_key_to_sequence, METH_VARARGS, "" },
 #endif
 	{ "add_anim_composite_section", (PyCFunction)py_ue_add_anim_composite_section, METH_VARARGS, "" },
 #endif

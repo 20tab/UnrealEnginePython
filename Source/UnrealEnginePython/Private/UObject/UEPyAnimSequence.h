@@ -17,6 +17,7 @@ PyObject *py_ue_anim_sequence_update_raw_track(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_anim_composite_section(ue_PyUObject *, PyObject *);
 PyObject *py_ue_anim_sequence_update_compressed_track_map_from_raw(ue_PyUObject *, PyObject *);
 PyObject *py_ue_anim_sequence_apply_raw_anim_changes(ue_PyUObject *, PyObject *);
+PyObject *py_ue_anim_add_key_to_sequence(ue_PyUObject *, PyObject *);
 #endif
 PyObject *py_ue_anim_set_skeleton(ue_PyUObject *, PyObject *);
 PyObject *py_ue_anim_get_bone_transform(ue_PyUObject *, PyObject *);
