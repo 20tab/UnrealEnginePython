@@ -22,7 +22,7 @@ void FPythonProjectEditorCommands::RegisterCommands()
 	UI_COMMAND(SaveAll, "Save All", "Save all open documents.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control | EModifierKey::Shift, EKeys::S));
 	UI_COMMAND(Execute, "Execute", "Execute Current Python File.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::Enter));
 #if PLATFORM_MAC
-	UI_COMMAND(ExecuteInMainThread, "Execute In Main Thread", "Execute Current Python File in the Main Thread.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control, EKeys::Enter));
+	UI_COMMAND(ExecuteInMainThread, "Execute In Main Thread", "Execute Current Python File in the Main Thread.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control | EModifierKey::Shift, EKeys::Enter));
 #endif
 	UI_COMMAND(PEP8ize, "PEP8-ize", "Enforce PEP8 to the current code.", EUserInterfaceActionType::Button, FInputGesture(EModifierKey::Control | EModifierKey::Shift, EKeys::P));
 
