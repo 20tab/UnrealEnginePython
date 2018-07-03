@@ -23,7 +23,7 @@
 void unreal_engine_init_py_module();
 void init_unreal_engine_builtin();
 
-#if defined(UNREAL_ENGINE_PYTHON_ON_LINUX)
+#if PLATFORM_LINUX
 const char *ue4_module_options = "linux_global_symbols";
 #endif
 

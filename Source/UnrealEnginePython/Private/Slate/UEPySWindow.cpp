@@ -5,6 +5,10 @@
 #include "Editor/MainFrame/Public/Interfaces/IMainFrameModule.h"
 #endif
 
+#if PLATFORM_WINDOWS
+#include "Windows/AllowWindowsPlatformTypes.h"
+#endif
+
 
 
 static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args)
@@ -90,6 +94,21 @@ static PyObject *py_ue_swindow_get_handle(ue_PySWindow *self, PyObject * args)
 	return PyLong_FromLongLong((long long)py_SWindow->GetNativeWindow()->GetOSWindowHandle());
 }
 
+static PyObject *py_ue_swindow_set_as_owner(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+	long long window_ptr;
+	if (!PyArg_ParseTuple(args, "L:set_as_owner", &window_ptr))
+	{
+		return nullptr;
+	}
+	void *whnd = py_SWindow->GetNativeWindow()->GetOSWindowHandle();
+#if PLATFORM_WINDOWS
+	SetWindowLongPtr((HWND)window_ptr, GWLP_HWNDPARENT, (LONG_PTR)whnd);
+#endif
+	Py_RETURN_NONE;
+}
+
 static PyObject *py_ue_swindow_request_destroy(ue_PySWindow *self, PyObject * args)
 {
 	ue_py_slate_cast(SWindow);
@@ -144,6 +163,7 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "set_client_size", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
 	{ "set_content", (PyCFunction)py_ue_swindow_set_content, METH_VARARGS, "" },
 	{ "get_handle", (PyCFunction)py_ue_swindow_get_handle, METH_VARARGS, "" },
+	{ "set_as_owner", (PyCFunction)py_ue_swindow_set_as_owner, METH_VARARGS, "" },
 	{ "request_destroy", (PyCFunction)py_ue_swindow_request_destroy, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "add_modal", (PyCFunction)py_ue_swindow_add_modal, METH_VARARGS, "" },
