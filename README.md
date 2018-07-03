@@ -797,7 +797,7 @@ Pay attention to not call app.exec_() as it will result in Qt taking control of 
 
 ```python
 
-# save is as ueqt.py
+# save it as ueqt.py
 import sys
 import unreal_engine as ue
 import PySide2
