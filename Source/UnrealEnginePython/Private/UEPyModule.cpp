@@ -164,6 +164,23 @@ static PyObject *py_unreal_engine_exec(PyObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+
+#if PLATFORM_MAC
+static PyObject *py_unreal_engine_exec_in_main_thread(PyObject * self, PyObject * args)
+{
+	char *filename = nullptr;
+	if (!PyArg_ParseTuple(args, "s:exec_in_main_thread", &filename))
+	{
+		return NULL;
+	}
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	Py_BEGIN_ALLOW_THREADS;
+	PythonModule.RunFileInMainThread(filename);
+	Py_END_ALLOW_THREADS;
+	Py_RETURN_NONE;
+}
+#endif
+
 static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args)
 {
 
@@ -398,6 +415,10 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "exec", py_unreal_engine_exec, METH_VARARGS, "" },
 #endif
 	{ "py_exec", py_unreal_engine_exec, METH_VARARGS, "" },
+#if PLATFORM_MAC
+	{ "exec_in_main_thread", py_unreal_engine_exec_in_main_thread, METH_VARARGS, "" },
+	{ "py_exec_in_main_thread", py_unreal_engine_exec_in_main_thread, METH_VARARGS, "" },
+#endif
 
 	{ "get_engine_defined_action_mappings", py_unreal_engine_get_engine_defined_action_mappings, METH_VARARGS, "" },
 
