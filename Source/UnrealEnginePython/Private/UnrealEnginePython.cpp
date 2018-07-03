@@ -408,7 +408,6 @@ void FUnrealEnginePythonModule::ShutdownModule()
 
 void FUnrealEnginePythonModule::RunString(char *str)
 {
-        MainThreadCall(^{
 	FScopePythonGIL gil;
 
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
@@ -418,7 +417,6 @@ void FUnrealEnginePythonModule::RunString(char *str)
 		return;
 	}
 	Py_DECREF(eval_ret);
-	});
 }
 
 #if PLATFORM_MAC
