@@ -80,7 +80,7 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(T, py_type);
 
 	new(&ret->Widget) TSharedRef<SWidget>(s_widget);
-
+	ret->weakreflist = nullptr;
 	return ret;
 }
 
