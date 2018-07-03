@@ -95,4 +95,6 @@ PyObject *py_unreal_engine_editor_get_pie_viewport_size(PyObject *, PyObject *);
 #endif
 
 
-
+#if PLATFORM_MAC
+PyObject *py_unreal_engine_main_thread_call(PyObject *, PyObject *);
+#endif

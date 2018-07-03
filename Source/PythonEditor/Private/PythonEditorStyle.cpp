@@ -58,6 +58,8 @@ void FPythonEditorStyle::Initialize()
 		StyleSet->Set("PythonEditor.SaveAll.Small", new IMAGE_BRUSH("UI/SaveAll_40x", Icon16x16));
 		StyleSet->Set("PythonEditor.Execute", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
 		StyleSet->Set("PythonEditor.Execute.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
+		StyleSet->Set("PythonEditor.ExecuteInMainThread", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
+		StyleSet->Set("PythonEditor.ExecuteInMainThread.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 		StyleSet->Set("PythonEditor.PEP8ize", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
 		StyleSet->Set("PythonEditor.PEP8ize.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 	}

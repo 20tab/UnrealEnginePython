@@ -20,6 +20,10 @@
 #define PROJECT_CONTENT_DIR FPaths::GameContentDir()
 #endif
 
+#if PLATFORM_MAC
+#include "Runtime/Core/Public/Mac/CocoaThread.h"
+#endif
+
 void unreal_engine_init_py_module();
 void init_unreal_engine_builtin();
 
@@ -404,6 +408,7 @@ void FUnrealEnginePythonModule::ShutdownModule()
 
 void FUnrealEnginePythonModule::RunString(char *str)
 {
+        MainThreadCall(^{
 	FScopePythonGIL gil;
 
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
@@ -413,7 +418,24 @@ void FUnrealEnginePythonModule::RunString(char *str)
 		return;
 	}
 	Py_DECREF(eval_ret);
+	});
 }
+
+#if PLATFORM_MAC
+void FUnrealEnginePythonModule::RunStringInMainThread(char *str)
+{
+        MainThreadCall(^{
+		RunString(str);
+	});
+}
+
+void FUnrealEnginePythonModule::RunFileInMainThread(char *filename)
+{
+        MainThreadCall(^{
+		RunFile(filename);
+	});
+}
+#endif
 
 FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 {

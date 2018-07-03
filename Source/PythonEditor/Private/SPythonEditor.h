@@ -16,6 +16,10 @@ public:
 
 	void Execute() const;
 
+#if PLATFORM_MAC
+	void ExecuteInMainThread() const;
+#endif
+
 	void GotoLineAndColumn(int32 LineNumber, int32 ColumnNumber);
 
 	void PEP8ize() const;

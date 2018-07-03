@@ -62,6 +62,10 @@ public:
 
 	bool Execute();
 
+#if PLATFORM_MAC
+	bool ExecuteInMainThread();
+#endif
+
 	bool PEP8ize();
 
 	FString GetSafeName(bool IsDirectory);
@@ -80,6 +84,10 @@ private:
 	void SaveAll_Internal();
 
 	void Execute_Internal();
+
+#if PLATFORM_MAC
+	void ExecuteInMainThread_Internal();
+#endif
 
 	void PEP8ize_Internal();
 

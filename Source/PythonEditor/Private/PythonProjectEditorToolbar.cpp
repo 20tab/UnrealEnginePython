@@ -36,6 +36,9 @@ void FPythonProjectEditorToolbar::FillEditorToolbar(FToolBarBuilder& ToolbarBuil
 	ToolbarBuilder.BeginSection(TEXT("CodeExcute"));
 	{
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().Execute);
+#if PLATFORM_MAC
+		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().ExecuteInMainThread);
+#endif
 		ToolbarBuilder.AddToolBarButton(FPythonProjectEditorCommands::Get().PEP8ize);
 	}
 	ToolbarBuilder.EndSection();

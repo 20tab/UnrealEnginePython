@@ -105,6 +105,11 @@ public:
 	void RunString(char *);
 	void RunFile(char *);
 
+#if PLATFORM_MAC
+	void RunStringInMainThread(char *);
+	void RunFileInMainThread(char *);
+#endif
+
 	void UESetupPythonInterpreter(bool);
 
 	TArray<FString> ScriptsPaths;

@@ -108,6 +108,21 @@ void SPythonEditor::Execute() const
 	PythonModule.RunString(TCHAR_TO_UTF8(*SelectionString));
 }
 
+#if PLATFORM_MAC
+void SPythonEditor::ExecuteInMainThread() const
+{
+	Save();
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	
+	FString SelectionString = PythonEditableText->GetSelectedText().ToString();
+	if (SelectionString.Len() == 0) {
+		SelectionString = PythonEditableText->GetText().ToString();
+	}
+	PythonModule.RunStringInMainThread(TCHAR_TO_UTF8(*SelectionString));
+}
+#endif
+
+
 void SPythonEditor::PEP8ize() const
 {
 	Save();

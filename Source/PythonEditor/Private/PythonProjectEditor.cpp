@@ -267,6 +267,12 @@ void FPythonProjectEditor::BindCommands()
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::Execute_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
 		);
+#if PLATFORM_MAC
+	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().ExecuteInMainThread,
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::ExecuteInMainThread_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
+		);
+#endif
 
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().PEP8ize,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::PEP8ize_Internal),
@@ -492,6 +498,26 @@ void FPythonProjectEditor::Execute_Internal()
 {
 	Execute();
 }
+
+#if PLATFORM_MAC
+void FPythonProjectEditor::ExecuteInMainThread_Internal()
+{
+	ExecuteInMainThread();
+}
+
+bool FPythonProjectEditor::ExecuteInMainThread()
+{
+	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
+	{
+		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
+		PythonEditorRef->ExecuteInMainThread();
+	}
+
+	return true;
+}
+
+
+#endif
 
 void FPythonProjectEditor::PEP8ize_Internal()
 {
