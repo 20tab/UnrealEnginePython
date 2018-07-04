@@ -1946,11 +1946,16 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UWorld");
 	}
 
+	if (!FPackageName::DoesPackageExist(UTF8_TO_TCHAR(name), nullptr, nullptr))
+		return PyErr_Format(PyExc_Exception, "package does not exist");
+
 	UClass *streaming_mode_class = ULevelStreamingKismet::StaticClass();
 	if (py_bool && PyObject_IsTrue(py_bool))
 	{
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
+
+	
 
 #if ENGINE_MINOR_VERSION >= 17
 	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
