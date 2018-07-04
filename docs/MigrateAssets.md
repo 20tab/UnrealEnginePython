@@ -6,7 +6,7 @@ When triggering it from the editor, you will get a list of packages to export an
 
 Here we will see how to automate the task from python
 
-## Step1 getting asset dependencies
+## Step1: getting asset dependencies
 
 An important topic you need to understand, is that you export packages not single assets. Packages are mapped into real files.
 
