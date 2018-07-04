@@ -320,6 +320,21 @@ PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 
 	Py_RETURN_NONE;
 }
+
+PyObject *py_unreal_engine_get_package_filename(PyObject * self, PyObject * args)
+{
+	char *name;
+	if (!PyArg_ParseTuple(args, "s:get_package_filename", &name))
+	{
+		return NULL;
+	}
+
+	FString Filename;
+	if (!FPackageName::DoesPackageExist(FString(UTF8_TO_TCHAR(name)), nullptr, &Filename))
+		return PyErr_Format(PyExc_Exception, "package does not exist");
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*Filename));
+}
 #endif
 
 PyObject *py_unreal_engine_load_class(PyObject * self, PyObject * args)
@@ -771,7 +786,7 @@ PyObject *py_unreal_engine_main_thread_call(PyObject * self, PyObject * args)
 			unreal_engine_py_log_error();
 		}
 		Py_DECREF(py_callable);
-	});
+		});
 	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
@@ -1313,7 +1328,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #endif
 	Py_RETURN_NONE;
-	}
+}
 
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {

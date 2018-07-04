@@ -37,6 +37,7 @@ PyObject *py_unreal_engine_load_enum(PyObject *, PyObject *);
 PyObject *py_unreal_engine_load_package(PyObject *, PyObject *);
 #if WITH_EDITOR
 PyObject *py_unreal_engine_unload_package(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_package_filename(PyObject *, PyObject *);
 #endif
 
 PyObject *py_unreal_engine_string_to_guid(PyObject *, PyObject *);

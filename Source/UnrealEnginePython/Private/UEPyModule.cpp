@@ -219,6 +219,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "load_package", py_unreal_engine_load_package, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "unload_package", py_unreal_engine_unload_package, METH_VARARGS, "" },
+	{ "get_package_filename", py_unreal_engine_get_package_filename, METH_VARARGS, "" },
 #endif
 	{ "get_forward_vector", py_unreal_engine_get_forward_vector, METH_VARARGS, "" },
 	{ "get_up_vector", py_unreal_engine_get_up_vector, METH_VARARGS, "" },
