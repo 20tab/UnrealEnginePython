@@ -21,6 +21,7 @@ public:
 
 #if WITH_EDITOR
 	void PyFOnAssetPostImport(UFactory *factory, UObject *u_object);
+	void PyFOnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsNewProjectWindow);
 #endif
 
 protected:

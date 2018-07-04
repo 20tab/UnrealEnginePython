@@ -34,6 +34,7 @@
 #include "Wrappers/UEPyFAssetData.h"
 #include "Wrappers/UEPyFEditorViewportClient.h"
 #include "Wrappers/UEPyIAssetEditorInstance.h"
+#include "Editor/MainFrame/Public/Interfaces/IMainFrameModule.h"
 
 #include "UEPyIPlugin.h"
 
@@ -1753,9 +1754,29 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 
-	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
+	// will brutally leak
+	FPythonSmartDelegate *py_delegate = new FPythonSmartDelegate();
 	py_delegate->SetPyCallable(py_callable);
-	FEditorDelegates::OnAssetPostImport.AddSP(py_delegate, &FPythonSmartDelegate::PyFOnAssetPostImport);
+	FEditorDelegates::OnAssetPostImport.AddRaw(py_delegate, &FPythonSmartDelegate::PyFOnAssetPostImport);
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_on_main_frame_creation_finished(PyObject * self, PyObject * args)
+{
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "O:on_main_frame_creation_finished", &py_callable))
+	{
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "object is not a callable");
+
+	// will brutally leak
+	FPythonSmartDelegate *py_delegate = new FPythonSmartDelegate();
+	py_delegate->SetPyCallable(py_callable);
+	IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+	MainFrameModule.OnMainFrameCreationFinished().AddRaw(py_delegate, &FPythonSmartDelegate::PyFOnMainFrameCreationFinished);
 	Py_RETURN_NONE;
 }
 
@@ -1929,7 +1950,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 	if (py_bool && PyObject_IsTrue(py_bool))
 	{
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
-}
+	}
 
 #if ENGINE_MINOR_VERSION >= 17
 	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);

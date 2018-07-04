@@ -54,6 +54,7 @@ PyObject *py_unreal_engine_get_blueprint_components(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_editor_play(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject *, PyObject *);
+PyObject *py_unreal_engine_on_main_frame_creation_finished(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_editor_command_build(PyObject *, PyObject *);
 PyObject *py_unreal_engine_editor_command_build_lighting(PyObject *, PyObject *);

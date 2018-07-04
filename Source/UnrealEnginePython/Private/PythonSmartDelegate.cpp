@@ -3,6 +3,10 @@
 
 #include "UEPyModule.h"
 
+#if WITH_EDITOR
+#include "Slate/UEPySWindow.h"
+#endif
+
 FPythonSmartDelegate::FPythonSmartDelegate()
 {
 	py_callable = nullptr;
@@ -52,6 +56,19 @@ void FPythonSmartDelegate::PyFOnAssetPostImport(UFactory *factory, UObject *u_ob
 {
 	FScopePythonGIL gil;
 	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", ue_get_python_uobject((UObject *)factory), ue_get_python_uobject(u_object));
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+
+}
+
+void FPythonSmartDelegate::PyFOnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsNewProjectWindow)
+{
+	FScopePythonGIL gil;
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OO", py_ue_new_swidget<ue_PySWindow>(InRootWindow.ToSharedRef(), &ue_PySWindowType), bIsNewProjectWindow ? Py_True : Py_False);
 	if (!ret)
 	{
 		unreal_engine_py_log_error();

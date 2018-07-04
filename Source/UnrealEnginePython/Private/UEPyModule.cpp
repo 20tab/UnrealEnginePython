@@ -363,6 +363,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "move_actor_to_level", py_unreal_engine_move_actor_to_level, METH_VARARGS, "" },
 
 	{ "editor_on_asset_post_import", py_unreal_engine_editor_on_asset_post_import, METH_VARARGS, "" },
+	{ "on_main_frame_creation_finished", py_unreal_engine_on_main_frame_creation_finished, METH_VARARGS, "" },
 
 
 	// transactions
