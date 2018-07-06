@@ -80,13 +80,38 @@ bool PyUnicodeOrString_Check(PyObject *py_obj)
 
 void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 {
+	const TCHAR* CommandLine = FCommandLine::GetOriginal();
+	const SIZE_T CommandLineSize = FCString::Strlen(CommandLine) + 1;
+	TCHAR* CommandLineCopy = new TCHAR[CommandLineSize];
+	FCString::Strcpy(CommandLineCopy, CommandLineSize, CommandLine);
+	const TCHAR* ParsedCmdLine = CommandLineCopy;
+
+	TArray<FString> Args;
+	for (;;)
+	{
+		FString Arg = FParse::Token(ParsedCmdLine, 0);
+		if (Arg.Len() <= 0)
+			break;
+		Args.Add(Arg);
+	}
 
 #if PY_MAJOR_VERSION >= 3
-	wchar_t *argv[] = { UTF8_TO_TCHAR("UnrealEngine"), NULL };
+	wchar_t **argv = (wchar_t **)FMemory::Malloc(sizeof(wchar_t *) * (Args.Num() + 1));
 #else
-	char *argv[] = { (char *)"UnrealEngine", NULL };
+	char **argv = (char **)FMemory::Malloc(sizeof(char *) * (Args.Num() + 1));
 #endif
-	PySys_SetArgv(1, argv);
+	argv[Args.Num()] = nullptr;
+
+	for (int32 i = 0; i < Args.Num(); i++)
+	{
+#if PY_MAJOR_VERSION >= 3
+		argv[i] = (wchar_t *)(*Args[i]);
+#else
+		argv[i] = TCHAR_TO_UTF8(*Args[i]);
+#endif
+	}
+
+	PySys_SetArgv(Args.Num(), argv);
 
 	unreal_engine_init_py_module();
 
@@ -387,11 +412,11 @@ void FUnrealEnginePythonModule::StartupModule()
 #else
 		unreal_engine_py_log_error();
 #endif
-	}
+		}
 
 	// release the GIL
 	PyThreadState *UEPyGlobalState = PyEval_SaveThread();
-}
+	}
 
 void FUnrealEnginePythonModule::ShutdownModule()
 {
@@ -422,16 +447,16 @@ void FUnrealEnginePythonModule::RunString(char *str)
 #if PLATFORM_MAC
 void FUnrealEnginePythonModule::RunStringInMainThread(char *str)
 {
-        MainThreadCall(^{
-		RunString(str);
-	});
+	MainThreadCall(^{
+	RunString(str);
+		});
 }
 
 void FUnrealEnginePythonModule::RunFileInMainThread(char *filename)
 {
-        MainThreadCall(^{
-		RunFile(filename);
-	});
+	MainThreadCall(^{
+	RunFile(filename);
+		});
 }
 #endif
 
