@@ -195,10 +195,20 @@ static PyObject *py_ue_get_py_proxy(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_unreal_engine_shutdown(PyObject *self, PyObject * args)
+{
+
+	GIsRequestingExit = true;
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
+
+	{ "shutdown", py_unreal_engine_shutdown, METH_VARARGS, "" },
 
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
@@ -383,7 +393,7 @@ static PyMethodDef unreal_engine_methods[] = {
 #endif
 
 	{ "engine_tick", py_unreal_engine_engine_tick, METH_VARARGS, "" },
-	
+
 #if WITH_EDITOR
 	{ "tick_rendering_tickables", py_unreal_engine_tick_rendering_tickables, METH_VARARGS, "" },
 	{ "all_viewport_clients", py_unreal_engine_all_viewport_clients , METH_VARARGS, "" },
@@ -2766,8 +2776,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #endif
 			}
 #endif
-			}
 		}
+	}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
@@ -2881,7 +2891,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	Py_INCREF(Py_None);
 	return Py_None;
-	}
+}
 
 PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property)
 {
