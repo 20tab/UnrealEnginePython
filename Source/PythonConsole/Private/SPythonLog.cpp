@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonConsolePrivatePCH.h"
 #include "SPythonLog.h"
+#include "PythonConsolePrivatePCH.h"
 #include "SScrollBorder.h"
 #include "GameFramework/GameMode.h"
 #include "Engine/LocalPlayer.h"

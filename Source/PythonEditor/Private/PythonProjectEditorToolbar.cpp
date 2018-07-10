@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "PythonProjectEditorToolbar.h"
+#include "PythonEditorPrivatePCH.h"
 #include "LevelEditorActions.h"
 #include "SourceCodeNavigation.h"
 #include "EditorStyleSet.h"

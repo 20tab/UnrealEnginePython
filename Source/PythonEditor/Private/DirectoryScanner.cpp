@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "DirectoryScanner.h"
+#include "PythonEditorPrivatePCH.h"
 #include "PythonProjectItem.h"
 
 TArray<FDirectoryScannerCommand*> FDirectoryScanner::CommandQueue;
