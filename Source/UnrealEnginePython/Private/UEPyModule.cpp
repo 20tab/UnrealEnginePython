@@ -310,6 +310,9 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_selected_assets", py_unreal_engine_get_selected_assets, METH_VARARGS, "" },
 	{ "get_assets_by_class", py_unreal_engine_get_assets_by_class, METH_VARARGS, "" },
 
+	{ "is_loading_assets", py_unreal_engine_is_loading_assets, METH_VARARGS, "" },
+	{ "wait_for_assets", py_unreal_engine_wait_for_assets, METH_VARARGS, "" },
+
 	{ "sync_browser_to_assets", py_unreal_engine_editor_sync_browser_to_assets, METH_VARARGS, "" },
 
 	{ "get_asset_referencers", py_unreal_engine_get_asset_referencers, METH_VARARGS, "" },

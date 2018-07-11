@@ -36,6 +36,8 @@
 #include "Wrappers/UEPyIAssetEditorInstance.h"
 #include "Editor/MainFrame/Public/Interfaces/IMainFrameModule.h"
 
+#include "Runtime/Core/Public/HAL/ThreadHeartBeat.h"
+
 #include "UEPyIPlugin.h"
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
@@ -539,6 +541,35 @@ PyObject *py_unreal_engine_get_asset(PyObject * self, PyObject * args)
 	if (!asset.IsValid())
 		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
 	Py_RETURN_UOBJECT(asset.GetAsset());
+}
+
+PyObject *py_unreal_engine_is_loading_assets(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	if (AssetRegistryModule.Get().IsLoadingAssets())
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_unreal_engine_wait_for_assets(PyObject * self, PyObject * args)
+{
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	while (AssetRegistryModule.Get().IsLoadingAssets())
+	{
+		Py_BEGIN_ALLOW_THREADS;
+		AssetRegistryModule.Get().Tick(-1.0f);
+		FThreadHeartBeat::Get().HeartBeat();
+		FPlatformProcess::SleepNoStats(0.0001f);
+		Py_END_ALLOW_THREADS;
+	}
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_unreal_engine_find_asset(PyObject * self, PyObject * args)
@@ -1938,7 +1969,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 	if (!PyArg_ParseTuple(args, "Os|O:add_level_to_world", &py_world, &name, &py_bool))
 	{
 		return NULL;
-	}
+}
 
 	UWorld *u_world = ue_py_check_type<UWorld>(py_world);
 	if (!u_world)
@@ -1955,7 +1986,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();
 	}
 
-	
+
 
 #if ENGINE_MINOR_VERSION >= 17
 	ULevelStreaming *level_streaming = EditorLevelUtils::AddLevelToWorld(u_world, UTF8_TO_TCHAR(name), streaming_mode_class);
@@ -1972,7 +2003,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 #endif
 
 	Py_RETURN_UOBJECT(level_streaming);
-}
+	}
 
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args)
 {
@@ -2477,7 +2508,7 @@ PyObject *py_unreal_engine_export_assets(PyObject * self, PyObject * args)
 	if (!py_iter)
 	{
 		return PyErr_Format(PyExc_Exception, "argument is not an iterable of UObject");
-	}
+}
 
 	while (PyObject *py_item = PyIter_Next(py_iter))
 	{
