@@ -1,6 +1,8 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
+#include "Runtime/Slate/Public/Framework/Text/SyntaxTokenizer.h"
+
 /**
  * Tokenize the text based upon the given rule set
  */

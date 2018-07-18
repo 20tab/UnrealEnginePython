@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "PythonProjectEditor.h"
+#include "Runtime/Slate/Public/Framework/MultiBox/MultiBoxBuilder.h"
+
 class FPythonProjectEditorToolbar : public TSharedFromThis<FPythonProjectEditorToolbar>
 {
 public:

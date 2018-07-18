@@ -9,6 +9,7 @@
 #include "Runtime/Slate/Public/Widgets/Layout/SGridPanel.h"
 #include "PythonEditorStyle.h"
 #include "Runtime/Slate/Public/Widgets/Text/STextBlock.h"
+#include "Runtime/Slate/Public/Widgets/Layout/SScrollBar.h"
 #include "UnrealEnginePython.h"
 
 

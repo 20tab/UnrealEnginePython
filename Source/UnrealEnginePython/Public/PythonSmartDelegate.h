@@ -3,6 +3,7 @@
 #include "UnrealEnginePython.h"
 #if WITH_EDITOR
 #include "Factories/Factory.h"
+#include "Runtime/SlateCore/Public/Widgets/SWindow.h"
 #endif
 
 class FPythonSmartDelegate : public TSharedFromThis<FPythonSmartDelegate>

@@ -6,6 +6,7 @@
 #include "SlateCore.h"
 #include "UnrealEnginePython.h"
 #include "Runtime/Slate/Public/Widgets/Input/SMultiLineEditableTextBox.h"
+#include "Runtime/Slate/Public/Widgets/Input/SEditableTextBox.h"
 
 class FPythonLogTextLayoutMarshaller;
 class SSearchBox;

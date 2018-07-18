@@ -2,6 +2,7 @@
 
 #include "SPythonEditableText.h"
 #include "PythonEditorStyle.h"
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
 
 void SPythonEditableText::Construct(const FArguments& InArgs)

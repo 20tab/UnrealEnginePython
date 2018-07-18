@@ -676,13 +676,15 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 	FAssetToolsModule& AssetToolsModule = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
 	TArray<FAssetRenameData> AssetsAndNames;
+	FString Destination = FString(UTF8_TO_TCHAR(destination));
+
+#if ENGINE_MINOR_VERSION > 15
 	FAssetRenameData RenameData;
 	RenameData.Asset = asset.GetAsset();
 
-	FString Destination = FString(UTF8_TO_TCHAR(destination));
-
 	if (Destination.StartsWith("/"))
 	{
+
 		RenameData.NewPackagePath = FPackageName::GetLongPackagePath(Destination);
 		RenameData.NewName = FPackageName::GetShortName(Destination);
 	}
@@ -696,6 +698,9 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 	{
 		RenameData.bOnlyFixSoftReferences = true;
 	}
+#else
+	FAssetRenameData RenameData(TWeakObjectPtr<UObject>(asset.GetAsset()), FPackageName::GetLongPackagePath(UTF8_TO_TCHAR(path)), Destination.StartsWith("/") ? FPackageName::GetShortName(Destination) : Destination);
+#endif
 
 	AssetsAndNames.Add(RenameData);
 #if ENGINE_MINOR_VERSION < 19

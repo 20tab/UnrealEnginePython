@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-
+#include "Runtime/SlateCore/Public/Styling/SlateTypes.h"
 #include "PythonSyntaxTokenizer.h"
 #include "PlainTextLayoutMarshaller.h"
 #include "ITextDecorator.h"
