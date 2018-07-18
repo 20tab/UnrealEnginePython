@@ -5,13 +5,13 @@
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UScriptStruct *u_struct;
-	uint8 *data;
-	// if 1, data points to un-owned memory
-	int is_ptr;
+	/* Type-specific fields go here. */
+	UScriptStruct *u_struct;
+	uint8 *u_struct_ptr;
 	// points to the original struct memory (do not try this at home !)
-	uint8 *original_data;
+	uint8 *original_ptr;
+	// if set, the struct is responsible for freeing memory
+	int u_struct_owned;
 } ue_PyUScriptStruct;
 
 PyObject *py_ue_new_uscriptstruct(UScriptStruct *, uint8 *);

@@ -38,7 +38,7 @@ PyObject *py_ue_data_table_add_row(ue_PyUObject * self, PyObject * args)
 	if (!row)
 		return PyErr_Format(PyExc_Exception, "unable to add row");
 	data_table->RowStruct->InitializeStruct(row);
-	data_table->RowStruct->CopyScriptStruct(row, u_struct->data);
+	data_table->RowStruct->CopyScriptStruct(row, u_struct->u_struct_ptr);
 
 	Py_RETURN_NONE;
 

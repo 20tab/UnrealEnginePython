@@ -16,7 +16,7 @@ static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObjec
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
 
-	return ue_py_convert_property(u_property, self->data, index);
+	return ue_py_convert_property(u_property, self->u_struct_ptr, index);
 }
 
 static PyObject *py_ue_uscriptstruct_get_field_array_dim(ue_PyUScriptStruct *self, PyObject * args)
@@ -49,7 +49,7 @@ static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObjec
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
 
 
-	if (!ue_py_convert_pyobject(value, u_property, self->data, index))
+	if (!ue_py_convert_pyobject(value, u_property, self->u_struct_ptr, index))
 	{
 		return PyErr_Format(PyExc_Exception, "unable to set property %s", name);
 	}
@@ -80,7 +80,7 @@ static PyObject *py_ue_uscriptstruct_get_struct(ue_PyUScriptStruct *self, PyObje
 
 static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * args)
 {
-	return py_ue_new_uscriptstruct(self->u_struct, self->data);
+	return py_ue_new_uscriptstruct(self->u_struct, self->u_struct_ptr);
 }
 
 PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args)
