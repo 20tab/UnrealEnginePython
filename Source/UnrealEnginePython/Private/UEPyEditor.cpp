@@ -678,7 +678,7 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 	TArray<FAssetRenameData> AssetsAndNames;
 	FString Destination = FString(UTF8_TO_TCHAR(destination));
 
-#if ENGINE_MINOR_VERSION > 16
+#if ENGINE_MINOR_VERSION > 17
 	FAssetRenameData RenameData;
 	RenameData.Asset = asset.GetAsset();
 
