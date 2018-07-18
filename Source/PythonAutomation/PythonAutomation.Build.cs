@@ -12,6 +12,8 @@ public class PythonAutomation : ModuleRules
 #endif
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
+        bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
 
         PrivateIncludePaths.AddRange(
             new string[] {

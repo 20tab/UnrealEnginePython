@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "SlateCore.h"
+
 class SPythonEditor : public SCompoundWidget
 {
 public:

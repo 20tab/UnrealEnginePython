@@ -1,10 +1,15 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "SPythonEditor.h"
 #include "SMultiLineEditableText.h"
 #include "PYRichTextSyntaxHighlighterTextLayoutMarshaller.h"
 #include "SPythonEditableText.h"
+#include "Runtime/Core/Public/Misc/FileHelper.h"
+#include "PythonProjectItem.h"
+#include "Runtime/Slate/Public/Widgets/Layout/SGridPanel.h"
+#include "PythonEditorStyle.h"
+#include "Runtime/Slate/Public/Widgets/Text/STextBlock.h"
+#include "UnrealEnginePython.h"
 
 
 #define LOCTEXT_NAMESPACE "PythonEditor"

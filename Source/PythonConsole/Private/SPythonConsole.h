@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "SlateCore.h"
+#include "EditorStyle.h"
+#include "PythonConsoleModule.h"
 
 /**
  * Debug console widget, designed to be summoned on top of a viewport or window
@@ -10,14 +13,14 @@ class SPythonConsole : public SCompoundWidget
 {
 public:
 
-	SLATE_BEGIN_ARGS( SPythonConsole )	
+	SLATE_BEGIN_ARGS(SPythonConsole)
 	{
 	}
 
 	SLATE_END_ARGS()
 
-	/** Constructs this widget */
-	void Construct( const FArguments& InArgs, const EPythonConsoleStyle::Type InStyle, FPythonConsoleModule* PythonConsoleModule, const FPythonConsoleDelegates* PythonConsoleDelegates );
+		/** Constructs this widget */
+		void Construct(const FArguments& InArgs, const EPythonConsoleStyle::Type InStyle, FPythonConsoleModule* PythonConsoleModule, const FPythonConsoleDelegates* PythonConsoleDelegates);
 
 	/** Call to set focus to this debug console's editable text box */
 	void SetFocusToEditableText();

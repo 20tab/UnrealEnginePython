@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "SPythonEditableText.h"
+#include "PythonEditorStyle.h"
 
 
 void SPythonEditableText::Construct(const FArguments& InArgs)

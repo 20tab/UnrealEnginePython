@@ -1,8 +1,8 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "PYRichTextSyntaxHighlighterTextLayoutMarshaller.h"
 #include "WhiteSpaceTextRun.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 FPYRichTextSyntaxHighlighterTextLayoutMarshaller::FPYRichTextSyntaxHighlighterTextLayoutMarshaller(TSharedPtr< FPythonSyntaxTokenizer > InTokenizer, const FSyntaxTextStyle& InSyntaxTextStyle)
 	: Tokenizer(MoveTemp(InTokenizer))

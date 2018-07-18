@@ -1,10 +1,12 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "PythonProjectEditorToolbar.h"
 #include "LevelEditorActions.h"
 #include "SourceCodeNavigation.h"
 #include "EditorStyleSet.h"
+#include "Runtime/Slate/Public/Framework/MultiBox/MultiBoxExtender.h"
+#include "PythonProjectEditor.h"
+#include "PythonProjectEditorCommands.h"
 
 
 void FPythonProjectEditorToolbar::AddEditorToolbar(TSharedPtr<FExtender> Extender)

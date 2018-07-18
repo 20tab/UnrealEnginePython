@@ -1,6 +1,5 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonConsolePrivatePCH.h"
 #include "SPythonLog.h"
 #include "SScrollBorder.h"
 #include "GameFramework/GameMode.h"
@@ -8,7 +7,11 @@
 #include "GameFramework/GameState.h"
 #include "SSearchBox.h"
 #include "Runtime/Launch/Resources/Version.h"
-//#include "UnrealEnginePython.h"
+#include "Runtime/Slate/Public/Framework/Text/SlateTextLayout.h"
+#include "Editor/EditorStyle/Public/Classes/EditorStyleSettings.h"
+#include "SlateBasics.h"
+#include "EditorStyle.h"
+
 #define LOCTEXT_NAMESPACE "PythonConsole"
 
 

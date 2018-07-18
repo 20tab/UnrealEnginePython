@@ -5,6 +5,7 @@
 #include "PythonSyntaxTokenizer.h"
 #include "PlainTextLayoutMarshaller.h"
 #include "ITextDecorator.h"
+#include "PythonEditorStyle.h"
 
 
 class  FPYRichTextSyntaxHighlighterTextLayoutMarshaller : public FPlainTextLayoutMarshaller

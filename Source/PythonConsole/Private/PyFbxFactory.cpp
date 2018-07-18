@@ -1,4 +1,3 @@
-#include "PythonConsolePrivatePCH.h"
 
 #include "PyFbxFactory.h"
 #include "FbxMeshUtils.h"

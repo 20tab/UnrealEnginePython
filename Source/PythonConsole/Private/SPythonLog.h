@@ -3,8 +3,9 @@
 #pragma once
 #include "BaseTextLayoutMarshaller.h"
 #include "TextFilterExpressionEvaluator.h"
-
-#include "UnrealEnginePython/Public/UnrealEnginePython.h"
+#include "SlateCore.h"
+#include "UnrealEnginePython.h"
+#include "Runtime/Slate/Public/Widgets/Input/SMultiLineEditableTextBox.h"
 
 class FPythonLogTextLayoutMarshaller;
 class SSearchBox;

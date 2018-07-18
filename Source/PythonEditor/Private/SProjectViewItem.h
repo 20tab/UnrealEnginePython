@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "SlateCore.h"
+#include "PythonProjectItem.h"
+
 class SProjectViewItem : public SCompoundWidget
 {
 public:

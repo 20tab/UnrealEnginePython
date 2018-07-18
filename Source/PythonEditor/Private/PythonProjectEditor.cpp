@@ -1,12 +1,18 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
+#include "PythonProjectEditor.h"
 #include "SPythonEditor.h"
 #include "SPythonProjectEditor.h"
 #include "SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"
+#include "PythonProjectItem.h"
+#include "PythonEditorStyle.h"
+#include "PythonProject.h"
+#include "PythonProjectEditorCommands.h"
+#include "Runtime/Core/Public/HAL/PlatformFilemanager.h"
+#include "Runtime/Core/Public/Misc/MessageDialog.h"
 #define LOCTEXT_NAMESPACE "PythonEditor"
 
 TWeakPtr<FPythonProjectEditor> FPythonProjectEditor::PythonEditor;
