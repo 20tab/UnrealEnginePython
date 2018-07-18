@@ -320,6 +320,12 @@ void FUnrealEnginePythonModule::StartupModule()
 		{
 			ScriptsPaths.Add(PluginScriptsPath);
 		}
+
+		// allows third parties to include their code in the main plugin directory
+		if (plugin->GetName() == "UnrealEnginePython")
+		{
+			ScriptsPaths.Add(plugin->GetBaseDir());
+		}
 	}
 #endif
 
