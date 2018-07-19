@@ -906,7 +906,7 @@ Sometimes you may have a UObject and know that it is backed by a python object. 
    
 This would be resolved as shown below:
 
-```
+```python
 import unreal_engine as ue
 
 class Explosive:
