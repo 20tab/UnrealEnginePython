@@ -734,8 +734,7 @@ PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *self, PyObject * args
 		return nullptr;
 	}
 
-	FFrameNumber StartFrame;
-	StartFrame.Value = start_frame;
+	FFrameNumber StartFrame((int32)start_frame);
 	scene->SetPlaybackRange(StartFrame, duration);
 #endif
 
@@ -783,10 +782,9 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_float->AddKey(time, value, (EMovieSceneKeyInterpolation)interpolation);
 			Py_RETURN_NONE;
 #else
-			FFrameNumber FrameNum;
-			FrameNum.Value = frame_number;
+			FFrameNumber FrameNum((int32)frame_number);
 			FMovieSceneFloatChannel &Channel = (FMovieSceneFloatChannel &)section_float->GetChannel();
-			int32 RetValue = Channel.AddLinearKey(FrameNum, value);
+			int32 RetValue = Channel.AddCubicKey(FrameNum, value);
 			return PyLong_FromLong(RetValue);
 #endif
 
@@ -803,8 +801,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 #if ENGINE_MINOR_VERSION < 20
 			section_bool->AddKey(time, value, (EMovieSceneKeyInterpolation)interpolation);
 #else
-			FFrameNumber FrameNum;
-			FrameNum.Value = frame_number;
+			FFrameNumber FrameNum((int32)frame_number);
 			int32 RetValue = section_bool->GetChannel().GetData().AddKey(FrameNum, value);
 			return PyLong_FromLong(RetValue);
 #endif
@@ -842,19 +839,18 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, sy, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, sz, (EMovieSceneKeyInterpolation)interpolation);
 #else
-			FFrameNumber FrameNum;
-			FrameNum.Value = frame_number;
-			int32 RetValueTX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(0)->AddLinearKey(FrameNum, transform.GetLocation().X);
-			int32 RetValueTY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(1)->AddLinearKey(FrameNum, transform.GetLocation().Y);
-			int32 RetValueTZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(2)->AddLinearKey(FrameNum, transform.GetLocation().Z);
+			FFrameNumber FrameNum((int32)frame_number);
+			int32 RetValueTX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(0)->AddCubicKey(FrameNum, transform.GetLocation().X);
+			int32 RetValueTY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(1)->AddCubicKey(FrameNum, transform.GetLocation().Y);
+			int32 RetValueTZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(2)->AddCubicKey(FrameNum, transform.GetLocation().Z);
 
-			int32 RetValueRX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(3)->AddLinearKey(FrameNum, transform.GetRotation().Euler().X);
-			int32 RetValueRY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(4)->AddLinearKey(FrameNum, transform.GetRotation().Euler().Y);
-			int32 RetValueRZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(5)->AddLinearKey(FrameNum, transform.GetRotation().Euler().Z);
+			int32 RetValueRX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(3)->AddCubicKey(FrameNum, transform.GetRotation().Euler().X);
+			int32 RetValueRY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(4)->AddCubicKey(FrameNum, transform.GetRotation().Euler().Y);
+			int32 RetValueRZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(5)->AddCubicKey(FrameNum, transform.GetRotation().Euler().Z);
 
-			int32 RetValueSX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(6)->AddLinearKey(FrameNum, transform.GetScale3D().X);
-			int32 RetValueSY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(7)->AddLinearKey(FrameNum, transform.GetScale3D().Y);
-			int32 RetValueSZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(8)->AddLinearKey(FrameNum, transform.GetScale3D().Z);
+			int32 RetValueSX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(6)->AddCubicKey(FrameNum, transform.GetScale3D().X);
+			int32 RetValueSY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(7)->AddCubicKey(FrameNum, transform.GetScale3D().Y);
+			int32 RetValueSZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(8)->AddCubicKey(FrameNum, transform.GetScale3D().Z);
 
 			return Py_BuildValue("((III)(III)(III))", RetValueTX, RetValueTY, RetValueTZ, RetValueRX, RetValueRY, RetValueRZ, RetValueSX, RetValueSY, RetValueSZ);
 #endif
@@ -877,14 +873,13 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_vector->AddKey(time, vy, (EMovieSceneKeyInterpolation)interpolation);
 			section_vector->AddKey(time, vz, (EMovieSceneKeyInterpolation)interpolation);
 #else
-			FFrameNumber FrameNum;
-			FrameNum.Value = frame_number;
+			FFrameNumber FrameNum((int32)frame_number);
 			FMovieSceneFloatChannel &Channel = (FMovieSceneFloatChannel &)section_vector->GetChannel(0);
-			int32 RetValueX = Channel.AddLinearKey(FrameNum, vec.X);
+			int32 RetValueX = Channel.AddCubicKey(FrameNum, vec.X);
 			Channel = (FMovieSceneFloatChannel &)section_vector->GetChannel(1);
-			int32 RetValueY = Channel.AddLinearKey(FrameNum, vec.Y);
+			int32 RetValueY = Channel.AddCubicKey(FrameNum, vec.Y);
 			Channel = (FMovieSceneFloatChannel &)section_vector->GetChannel(2);
-			int32 RetValueZ = Channel.AddLinearKey(FrameNum, vec.Z);
+			int32 RetValueZ = Channel.AddCubicKey(FrameNum, vec.Z);
 			return Py_BuildValue("(fff)", RetValueX, RetValueY, RetValueZ);
 #endif
 
