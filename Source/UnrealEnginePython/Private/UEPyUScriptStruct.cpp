@@ -299,6 +299,7 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 // a dark age where strctures were passed by value)
 static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *self, PyObject * args)
 {
+	Py_INCREF(self);
 	return (PyObject *)self;
 }
 
