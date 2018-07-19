@@ -9,9 +9,6 @@
 
 //#define UEPY_MEMORY_DEBUG	1
 
-
-
-
 #include "CoreMinimal.h"
 #include "ModuleManager.h"
 #include "Styling/SlateStyle.h"

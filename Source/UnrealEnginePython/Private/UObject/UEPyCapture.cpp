@@ -20,6 +20,8 @@ for a queue of UMovieSceneCapture objects
 #include "Slate/UEPySPythonEditorViewport.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameMode.h"
+#include "Runtime/CoreUObject/Public/Serialization/ObjectReader.h"
+#include "Runtime/CoreUObject/Public/Serialization/ObjectWriter.h"
 
 
 struct FInEditorMultiCapture : TSharedFromThis<FInEditorMultiCapture>

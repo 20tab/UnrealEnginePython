@@ -144,6 +144,7 @@ public class UnrealEnginePython : ModuleRules
                 "MovieSceneCapture",
                 "Landscape",
                 "Foliage",
+                "AIModule"
 				// ... add private dependencies that you statically link with here ...
 			}
             );

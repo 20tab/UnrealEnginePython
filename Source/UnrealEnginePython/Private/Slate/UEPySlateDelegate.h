@@ -1,9 +1,6 @@
 #pragma once
 
 
-#include "SlateBasics.h"
-#include "SlateExtras.h"
-
 #include "PythonSmartDelegate.h"
 
 #include "UEPySlatePythonItem.h"
