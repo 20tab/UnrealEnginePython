@@ -1368,7 +1368,7 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 				}
 			}
 		}
-		return py_ue_wrap_uscriptstruct(u_script_struct, data);
+		return py_ue_new_uscriptstruct(u_script_struct, data);
 	}
 	return PyErr_Format(PyExc_Exception, "the specified uobject has no __call__ support");
 }
@@ -2472,7 +2472,7 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			if (casted_prop->Struct == py_u_struct->u_struct)
 			{
 				uint8 *dest = casted_prop->ContainerPtrToValuePtr<uint8>(buffer, index);
-				FMemory::Memcpy(dest, py_u_struct->data, py_u_struct->u_struct->GetStructureSize());
+				FMemory::Memcpy(dest, py_u_struct->u_struct_ptr, py_u_struct->u_struct->GetStructureSize());
 				return true;
 			}
 		}
@@ -3288,7 +3288,7 @@ FGuid *ue_py_check_fguid(PyObject *py_obj)
 
 	if (ue_py_struct->u_struct == FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")))
 	{
-		return (FGuid*)ue_py_struct->data;
+		return (FGuid*)ue_py_struct->u_struct_ptr;
 	}
 
 	return nullptr;
@@ -3303,7 +3303,7 @@ uint8 * do_ue_py_check_struct(PyObject *py_obj, UScriptStruct* chk_u_struct)
 
 	if (ue_py_struct->u_struct == chk_u_struct)
 	{
-		return ue_py_struct->data;
+		return ue_py_struct->u_struct_ptr;
 	}
 
 	return nullptr;

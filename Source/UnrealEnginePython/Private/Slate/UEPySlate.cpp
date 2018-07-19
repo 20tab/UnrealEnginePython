@@ -1190,7 +1190,7 @@ PyObject *py_unreal_engine_create_structure_detail_view(PyObject *self, PyObject
 	{
 		Py_INCREF(ue_py_struct);
 		ret->ue_py_struct = ue_py_struct;
-		struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, ue_py_struct->data);
+		struct_scope = MakeShared<FStructOnScope>(ue_py_struct->u_struct, ue_py_struct->u_struct_ptr);
 	}
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
