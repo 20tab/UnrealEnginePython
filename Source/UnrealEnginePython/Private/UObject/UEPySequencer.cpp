@@ -720,7 +720,7 @@ PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *self, PyObject * args
 #if ENGINE_MINOR_VERSION < 20
 	float start_time;
 	float end_time;
-	if (!PyArg_ParseTuple(args, "ff:sequencer_set_playback_range", &start_time, end_time))
+	if (!PyArg_ParseTuple(args, "ff:sequencer_set_playback_range", &start_time, &end_time))
 	{
 		return nullptr;
 	}
