@@ -2,8 +2,7 @@
 
 #include "UEPyModule.h"
 
-#include "SlateBasics.h"
-#include "SlateExtras.h"
+#include "Runtime/SlateCore/Public/Widgets/DeclarativeSyntaxSupport.h"
 
 
 #if WITH_EDITOR

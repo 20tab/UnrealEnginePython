@@ -1,6 +1,8 @@
 
 #include "UEPyFSlateStyleSet.h"
 #include "SlateTypes.h"
+#include "Runtime/SlateCore/Public/Styling/SlateStyleRegistry.h"
+#include "Runtime/SlateCore/Public/Sound/SlateSound.h"
 #include "Map.h"
 
 static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *self, PyObject * args)

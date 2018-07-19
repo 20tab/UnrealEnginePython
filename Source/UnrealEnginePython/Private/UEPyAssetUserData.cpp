@@ -23,7 +23,11 @@ PyObject *py_ue_asset_import_data(ue_PyUObject * self, PyObject * args)
 		PyDict_SetItemString(py_source_file, "absolute_filepath", PyUnicode_FromString(TCHAR_TO_UTF8(*import_data->ResolveImportFilename(import_info->SourceFiles[i].RelativeFilename, NULL))));
 		PyDict_SetItemString(py_source_file, "relative_filepath", PyUnicode_FromString(TCHAR_TO_UTF8(*import_info->SourceFiles[i].RelativeFilename)));
 		PyDict_SetItemString(py_source_file, "timestamp", PyLong_FromLong(import_info->SourceFiles[i].Timestamp.ToUnixTimestamp()));
+#if ENGINE_MINOR_VERSION > 19
+		PyDict_SetItemString(py_source_file, "filehash", PyUnicode_FromString(TCHAR_TO_UTF8(*LexToString(import_info->SourceFiles[i].FileHash))));
+#else
 		PyDict_SetItemString(py_source_file, "filehash", PyUnicode_FromString(TCHAR_TO_UTF8(*LexicalConversion::ToString(import_info->SourceFiles[i].FileHash))));
+#endif
 		PyList_SetItem(ret, i, py_source_file);
 	}
 	return ret;
