@@ -706,6 +706,43 @@ PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *self, PyObject * args)
 }
 
 #if WITH_EDITOR
+
+PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+#if ENGINE_MINOR_VERSION < 20
+	float start_time;
+	float end_time;
+	if (!PyArg_ParseTuple(args, "ff:sequencer_set_playback_range", &start_time, end_time))
+	{
+		return nullptr;
+	}
+
+	scene->SetPlaybackRange(start_time, end_time);
+#else
+	unsigned int start_frame;
+	int duration;
+	if (!PyArg_ParseTuple(args, "Ii:sequencer_set_playback_range", &start_frame, &duration))
+	{
+		return nullptr;
+	}
+
+	FFrameNumber StartFrame;
+	StartFrame.Value = start_frame;
+	scene->SetPlaybackRange(StartFrame, duration);
+#endif
+
+	Py_RETURN_NONE;
+}
+
+
 PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 {
 
@@ -805,7 +842,21 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 			section_transform->AddKey(time, sy, (EMovieSceneKeyInterpolation)interpolation);
 			section_transform->AddKey(time, sz, (EMovieSceneKeyInterpolation)interpolation);
 #else
-			// TODO
+			FFrameNumber FrameNum;
+			FrameNum.Value = frame_number;
+			int32 RetValueTX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(0)->AddLinearKey(FrameNum, transform.GetLocation().X);
+			int32 RetValueTY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(1)->AddLinearKey(FrameNum, transform.GetLocation().Y);
+			int32 RetValueTZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(2)->AddLinearKey(FrameNum, transform.GetLocation().Z);
+
+			int32 RetValueRX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(3)->AddLinearKey(FrameNum, transform.GetRotation().Euler().X);
+			int32 RetValueRY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(4)->AddLinearKey(FrameNum, transform.GetRotation().Euler().Y);
+			int32 RetValueRZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(5)->AddLinearKey(FrameNum, transform.GetRotation().Euler().Z);
+
+			int32 RetValueSX = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(6)->AddLinearKey(FrameNum, transform.GetScale3D().X);
+			int32 RetValueSY = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(7)->AddLinearKey(FrameNum, transform.GetScale3D().Y);
+			int32 RetValueSZ = section_transform->GetChannelProxy().GetChannel<FMovieSceneFloatChannel>(8)->AddLinearKey(FrameNum, transform.GetScale3D().Z);
+
+			return Py_BuildValue("((III)(III)(III))", RetValueTX, RetValueTY, RetValueTZ, RetValueRX, RetValueRY, RetValueRZ, RetValueSX, RetValueSY, RetValueSZ);
 #endif
 			Py_RETURN_NONE;
 		}
@@ -1075,6 +1126,10 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 {
 	ue_py_check(self);
 
+#if ENGINE_MINOR_VERSION >= 20
+	return PyErr_Format(PyExc_Exception, "sequencer_import_fbx_transform still not supported on 4.20");
+#endif
+
 	char *filename;
 	char *nodename;
 	PyObject *py_force_front_x_axis = nullptr;
@@ -1149,7 +1204,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 			section->GetRotationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetRotation().Euler()[ChannelIndex]);
 			section->GetScaleCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetScale3D()[ChannelIndex]);
 #else
-			// TODO
+			// TODO ??
 #endif
 		}
 #else
@@ -1185,7 +1240,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #if ENGINE_MINOR_VERSION < 20
 					ChannelCurve = &section->GetTranslationCurve(ChannelAxis);
 #else
-					// TODO
+					// TODO ???
 #endif
 					if (ChannelIndex == 1)
 					{
@@ -1198,7 +1253,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #if ENGINE_MINOR_VERSION < 20
 					ChannelCurve = &section->GetRotationCurve(ChannelAxis);
 #else
-					// TODO
+					// TODO ???
 #endif
 					if (ChannelIndex == 1 || ChannelIndex == 2)
 					{
@@ -1211,7 +1266,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #if ENGINE_MINOR_VERSION < 20
 					ChannelCurve = &section->GetScaleCurve(ChannelAxis);
 #else
-					// TODO
+					// TODO ???
 #endif
 				}
 
@@ -1245,7 +1300,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #if ENGINE_MINOR_VERSION < 20
 						FMatineeImportTools::SetOrAddKey(*ChannelCurve, CurveFloat->Points[KeyIndex].InVal, CurveFloat->Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, CurveFloat->Points[KeyIndex].InterpMode);
 #else
-						// TODO
+						// TODO ???
 #endif
 					}
 
