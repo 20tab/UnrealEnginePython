@@ -9,7 +9,7 @@
 #include "Windows/AllowWindowsPlatformTypes.h"
 #endif
 
-
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
 static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args)
 {

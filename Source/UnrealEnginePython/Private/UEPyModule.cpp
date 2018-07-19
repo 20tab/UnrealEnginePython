@@ -111,6 +111,7 @@
 #include "Engine/UserDefinedEnum.h"
 #endif
 
+#include "Runtime/Core/Public/UObject/PropertyPortFlags.h"
 
 #if ENGINE_MINOR_VERSION < 18
 #define USoftObjectProperty UAssetObjectProperty

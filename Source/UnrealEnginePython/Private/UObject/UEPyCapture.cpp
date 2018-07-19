@@ -22,6 +22,8 @@ for a queue of UMovieSceneCapture objects
 #include "GameFramework/GameMode.h"
 #include "Runtime/CoreUObject/Public/Serialization/ObjectReader.h"
 #include "Runtime/CoreUObject/Public/Serialization/ObjectWriter.h"
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
+#include "Runtime/Core/Public/Containers/Ticker.h"
 
 
 struct FInEditorMultiCapture : TSharedFromThis<FInEditorMultiCapture>

@@ -4,7 +4,10 @@
 #include "PythonSmartDelegate.h"
 
 #include "UEPySlatePythonItem.h"
-
+#include "Runtime/Slate/Public/Widgets/Views/SHeaderRow.h"
+#include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"
+#include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
+#include "Runtime/Slate/Public/Framework/MultiBox/MultiBoxExtender.h"
 #include "AssetData.h"
 
 void unreal_engine_py_log_error();

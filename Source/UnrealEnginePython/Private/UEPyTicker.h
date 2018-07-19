@@ -3,6 +3,7 @@
 #pragma once
 
 #include "UEPyModule.h"
+#include "Runtime/Core/Public/Containers/Ticker.h"
 
 typedef struct
 {

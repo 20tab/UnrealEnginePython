@@ -1,10 +1,14 @@
 #pragma once
 
 #include "UEPySCompoundWidget.h"
+#include "UnrealEnginePython.h"
+#include "Runtime/Slate/Public/Widgets/Views/STableRow.h"
+#include "Runtime/Slate/Public/Widgets/Views/STableViewBase.h"
+#include "Runtime/Slate/Public/Widgets/Views/SListView.h"
 
 extern PyTypeObject ue_PySCompoundWidgetType;
 extern PyTypeObject ue_PySTableViewBaseType;
-class SPythonMultiColumnTableRow : public SMultiColumnTableRow<TSharedPtr<struct FPythonItem>>
+class SPythonMultiColumnTableRow : public SMultiColumnTableRow<TSharedPtr<FPythonItem>>
 {
 public:
 	SLATE_BEGIN_ARGS(SPythonMultiColumnTableRow) {}
@@ -13,7 +17,7 @@ public:
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView, PyObject *in_py_self)
 	{
 		SetPyObject(in_py_self);
-		SMultiColumnTableRow<TSharedPtr<struct FPythonItem>>::Construct(FSuperRowType::FArguments(), InOwnerTableView);
+		SMultiColumnTableRow<TSharedPtr<FPythonItem>>::Construct(FSuperRowType::FArguments(), InOwnerTableView);
 	}
 
 	TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName)
@@ -91,7 +95,7 @@ public:
 private:
 	PyObject * self = nullptr;
 
-	TSharedPtr<struct FPythonItem> RowPythonObject;
+	TSharedPtr<FPythonItem> RowPythonObject;
 };
 
 typedef struct
