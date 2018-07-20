@@ -954,3 +954,4 @@ Such a big project requires constant sponsorship, special thanks go to:
 
 * GoodTH.INC https://www.goodthinc.com/ (they are sponsoring the sequencer api)
 
+* Quixel AB https://megascans.se/ (built their integration tool over UnrealEnginePython giving us tons of useful feedbacks and ideas)
