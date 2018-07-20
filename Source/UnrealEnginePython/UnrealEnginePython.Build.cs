@@ -206,7 +206,7 @@ public class UnrealEnginePython : ModuleRules
         {
             if (pythonHome == "")
             {
-                pythonHome = DiscoverPythonPath(windowsKnownPaths);
+                pythonHome = DiscoverPythonPath(windowsKnownPaths, "Win64");
                 if (pythonHome == "")
                 {
                     throw new System.Exception("Unable to find Python installation");
@@ -222,7 +222,7 @@ public class UnrealEnginePython : ModuleRules
         {
             if (pythonHome == "")
             {
-                pythonHome = DiscoverPythonPath(macKnownPaths);
+                pythonHome = DiscoverPythonPath(macKnownPaths, "Mac");
                 if (pythonHome == "")
                 {
                     throw new System.Exception("Unable to find Python installation");
@@ -270,10 +270,11 @@ public class UnrealEnginePython : ModuleRules
         return !IsRooted;
     }
 
-    private string DiscoverPythonPath(string[] knownPaths)
+    private string DiscoverPythonPath(string[] knownPaths, string binaryPath)
     {
         // insert the PYTHONHOME content as the first known path
         List<string> paths = new List<string>(knownPaths);
+        paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", binaryPath));
         string environmentPath = System.Environment.GetEnvironmentVariable("PYTHONHOME");
         if (!string.IsNullOrEmpty(environmentPath))
             paths.Insert(0, environmentPath);
@@ -304,7 +305,9 @@ public class UnrealEnginePython : ModuleRules
 
     private string DiscoverLinuxPythonIncludesPath()
     {
-        foreach (string path in linuxKnownIncludesPaths)
+        List<string> paths = new List<string>(linuxKnownIncludesPaths);
+        paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", "Linux", "include"));
+        foreach (string path in paths)
         {
             string headerFile = Path.Combine(path, "Python.h");
             if (File.Exists(headerFile))
@@ -317,6 +320,9 @@ public class UnrealEnginePython : ModuleRules
 
     private string DiscoverLinuxPythonLibsPath()
     {
+        List<string> paths = new List<string>(linuxKnownLibsPaths);
+        paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", "Linux", "lib"));
+        paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", "Linux", "lib64"));
         foreach (string path in linuxKnownLibsPaths)
         {
             if (File.Exists(path))
