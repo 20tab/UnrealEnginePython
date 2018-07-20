@@ -1903,6 +1903,14 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 		}
 	}
 
+	if (u_class->IsChildOf<UUserDefinedStruct>())
+	{
+		if (FindObject<UUserDefinedStruct>(outer, UTF8_TO_TCHAR(obj_name)))
+		{
+			return PyErr_Format(PyExc_Exception, "a structure with this name already exists in the package");
+		}
+	}
+
 	UObject *u_object = nullptr;
 
 	Py_BEGIN_ALLOW_THREADS;
