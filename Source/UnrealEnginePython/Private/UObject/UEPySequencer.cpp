@@ -200,7 +200,7 @@ PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *self, PyObject * args)
 	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
 
 	FMovieSceneSpawnable *spawnable = seq->MovieScene->FindSpawnable(f_guid);
-	PyObject *ret = py_ue_new_uscriptstruct(spawnable->StaticStruct(), (uint8 *)spawnable);
+	PyObject *ret = py_ue_new_owned_uscriptstruct(spawnable->StaticStruct(), (uint8 *)spawnable);
 	Py_INCREF(ret);
 	return ret;
 }
@@ -453,7 +453,7 @@ PyObject *py_ue_sequencer_possessables(ue_PyUObject *self, PyObject * args)
 	for (int32 i = 0; i < scene->GetPossessableCount(); i++)
 	{
 		FMovieScenePossessable possessable = scene->GetPossessable(i);
-		PyObject *py_possessable = py_ue_new_uscriptstruct(possessable.StaticStruct(), (uint8 *)&possessable);
+		PyObject *py_possessable = py_ue_new_owned_uscriptstruct(possessable.StaticStruct(), (uint8 *)&possessable);
 		PyList_Append(py_possessables, py_possessable);
 	}
 

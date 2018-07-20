@@ -110,7 +110,7 @@ PyObject *py_ue_data_table_as_dict(ue_PyUObject * self, PyObject * args)
 
 	for (TMap<FName, uint8*>::TConstIterator RowMapIter(data_table->RowMap.CreateConstIterator()); RowMapIter; ++RowMapIter)
 	{
-		PyDict_SetItemString(py_dict, TCHAR_TO_UTF8(*RowMapIter->Key.ToString()), py_ue_new_uscriptstruct(data_table->RowStruct, RowMapIter->Value));
+		PyDict_SetItemString(py_dict, TCHAR_TO_UTF8(*RowMapIter->Key.ToString()), py_ue_new_owned_uscriptstruct(data_table->RowStruct, RowMapIter->Value));
 	}
 
 	return py_dict;
@@ -158,7 +158,7 @@ PyObject *py_ue_data_table_find_row(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "key not found in UDataTable");
 	}
 
-	return py_ue_new_uscriptstruct(data_table->RowStruct, *data);
+	return py_ue_new_owned_uscriptstruct(data_table->RowStruct, *data);
 }
 
 PyObject *py_ue_data_table_get_all_rows(ue_PyUObject * self, PyObject * args)
@@ -174,7 +174,7 @@ PyObject *py_ue_data_table_get_all_rows(ue_PyUObject * self, PyObject * args)
 
 	for (TMap<FName, uint8*>::TConstIterator RowMapIter(data_table->RowMap.CreateConstIterator()); RowMapIter; ++RowMapIter)
 	{
-		PyList_Append(py_list, py_ue_new_uscriptstruct(data_table->RowStruct, RowMapIter->Value));
+		PyList_Append(py_list, py_ue_new_owned_uscriptstruct(data_table->RowStruct, RowMapIter->Value));
 	}
 
 	return py_list;

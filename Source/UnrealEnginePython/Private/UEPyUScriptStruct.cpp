@@ -368,6 +368,15 @@ PyObject *py_ue_new_owned_uscriptstruct(UScriptStruct *u_struct, uint8 *data)
 	return (PyObject *)ret;
 }
 
+PyObject *py_ue_new_owned_uscriptstruct_zero_copy(UScriptStruct *u_struct, uint8 *data)
+{
+	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
+	ret->u_struct = u_struct;
+	ret->u_struct_ptr = data;
+	ret->u_struct_owned = 1;
+	return (PyObject *)ret;
+}
+
 static PyObject *py_ue_uscriptstruct_clone(ue_PyUScriptStruct *self, PyObject * args)
 {
 	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);

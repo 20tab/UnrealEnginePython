@@ -336,7 +336,7 @@ PyObject *py_ue_get_blend_parameter(ue_PyUObject * self, PyObject * args)
 
 	const FBlendParameter & parameter = blend->GetBlendParameter(index);
 
-	return py_ue_new_uscriptstruct(FBlendParameter::StaticStruct(), (uint8 *)&parameter);
+	return py_ue_new_owned_uscriptstruct(FBlendParameter::StaticStruct(), (uint8 *)&parameter);
 }
 
 PyObject *py_ue_set_blend_parameter(ue_PyUObject * self, PyObject * args)

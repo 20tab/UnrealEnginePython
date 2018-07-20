@@ -36,7 +36,7 @@ static PyObject *py_ue_ftransform_get_matrix(ue_PyFTransform *self, PyObject * a
 	{
 		return PyErr_Format(PyExc_Exception, "unable to get Matrix struct");
 	}
-	return py_ue_new_uscriptstruct(u_struct, (uint8 *)&matrix);
+	return py_ue_new_owned_uscriptstruct(u_struct, (uint8 *)&matrix);
 }
 
 static PyMethodDef ue_PyFTransform_methods[] = {
