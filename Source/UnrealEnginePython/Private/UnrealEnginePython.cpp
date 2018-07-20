@@ -519,12 +519,13 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 {
 	FScopePythonGIL gil;
 	FString full_path = UTF8_TO_TCHAR(filename);
+	FString original_path = full_path;
 	bool foundFile = false;
 	if (!FPaths::FileExists(filename))
 	{
 		for (FString ScriptsPath : ScriptsPaths)
 		{
-			full_path = FPaths::Combine(*ScriptsPath, full_path);
+			full_path = FPaths::Combine(*ScriptsPath, original_path);
 			if (FPaths::FileExists(full_path))
 			{
 				foundFile = true;
