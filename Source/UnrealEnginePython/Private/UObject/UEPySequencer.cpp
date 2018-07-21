@@ -95,7 +95,7 @@ PyObject *py_ue_sequencer_changed(ue_PyUObject *self, PyObject * args)
 #if ENGINE_MINOR_VERSION < 13
 		sequencer->NotifyMovieSceneDataChanged();
 #else
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MINOR_VERSION > 16
 		sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::RefreshAllImmediately);
 #else
 		sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::Unknown);
@@ -816,7 +816,7 @@ PyObject *py_ue_sequencer_set_section_range(ue_PyUObject *self, PyObject * args)
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MINOR_VERSION > 16
 	section->SetRange(TRange<float>::Inclusive(start_time, end_time));
 #else
 	section->SetRange(TRange<float>(TRangeBound<float>::Inclusive(start_time), TRangeBound<float>::Inclusive(end_time)));
