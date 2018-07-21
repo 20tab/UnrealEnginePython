@@ -448,6 +448,11 @@ void FUnrealEnginePythonModule::RunString(char *str)
 	PyObject *eval_ret = PyRun_String(str, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret)
 	{
+		if (PyErr_ExceptionMatches(PyExc_SystemExit))
+		{
+			PyErr_Clear();
+			return;
+		}
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -566,6 +571,11 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	fclose(fd);
 	if (!eval_ret)
 	{
+		if (PyErr_ExceptionMatches(PyExc_SystemExit))
+		{
+			PyErr_Clear();
+			return;
+		}
 		unreal_engine_py_log_error();
 		return;
 	}
@@ -576,6 +586,11 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	PyObject *eval_ret = PyRun_String(TCHAR_TO_UTF8(*command), Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret)
 	{
+		if (PyErr_ExceptionMatches(PyExc_SystemExit))
+		{
+			PyErr_Clear();
+			return;
+		}
 		unreal_engine_py_log_error();
 		return;
 }
