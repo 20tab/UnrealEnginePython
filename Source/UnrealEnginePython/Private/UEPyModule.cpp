@@ -91,12 +91,15 @@
 #include "Wrappers/UEPyFARFilter.h"
 #include "Wrappers/UEPyFRawMesh.h"
 #include "Wrappers/UEPyFStringAssetReference.h"
+
 #include "UObject/UEPyAnimSequence.h"
 #include "Blueprint/UEPyEdGraphPin.h"
 #include "UEPyIPlugin.h"
 #include "CollectionManager/UEPyICollectionManager.h"
 #include "MaterialEditorUtilities/UEPyFMaterialEditorUtilities.h"
 #endif
+
+#include "Wrappers/UEPyFFrameNumber.h"
 
 #include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
@@ -1025,6 +1028,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_get_camera_cut_track", (PyCFunction)py_ue_sequencer_get_camera_cut_track, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "sequencer_set_playback_range", (PyCFunction)py_ue_sequencer_set_playback_range, METH_VARARGS, "" },
+	{ "sequencer_set_section_range", (PyCFunction)py_ue_sequencer_set_section_range, METH_VARARGS, "" },
 	{ "sequencer_folders", (PyCFunction)py_ue_sequencer_folders, METH_VARARGS, "" },
 	{ "sequencer_create_folder", (PyCFunction)py_ue_sequencer_create_folder, METH_VARARGS, "" },
 	{ "sequencer_set_display_name", (PyCFunction)py_ue_sequencer_set_display_name, METH_VARARGS, "" },
@@ -1552,6 +1556,9 @@ void unreal_engine_init_py_module()
 	ue_python_init_flinearcolor(new_unreal_engine_module);
 	ue_python_init_fquat(new_unreal_engine_module);
 
+#if ENGINE_MINOR_VERSION >= 20
+	ue_python_init_fframe_number(new_unreal_engine_module);
+#endif
 
 	ue_python_init_frandomstream(new_unreal_engine_module);
 
