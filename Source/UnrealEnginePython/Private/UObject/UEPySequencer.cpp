@@ -789,7 +789,7 @@ PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *self, PyObject * args
 		return PyErr_Format(PyExc_Exception, "range must use float or FrameNumber");
 
 	scene->SetPlaybackRange(TRange<FFrameNumber>::Inclusive(FrameStart, FrameEnd));
-	
+
 #endif
 
 	Py_RETURN_NONE;
@@ -812,8 +812,8 @@ PyObject *py_ue_sequencer_set_section_range(ue_PyUObject *self, PyObject * args)
 		return nullptr;
 	}
 
-	section->StartTime = start_time;
-	section->EndTime = end_time;
+	section->SetRange(TRange<float>::Inclusive(start_time, end_time));
+
 #else
 	PyObject *py_start;
 	PyObject *py_end;
