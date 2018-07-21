@@ -816,7 +816,7 @@ PyObject *py_ue_sequencer_set_section_range(ue_PyUObject *self, PyObject * args)
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION > 16
+#if ENGINE_MINOR_VERSION > 17
 	section->SetRange(TRange<float>::Inclusive(start_time, end_time));
 #else
 	section->SetRange(TRange<float>(TRangeBound<float>::Inclusive(start_time), TRangeBound<float>::Inclusive(end_time)));
