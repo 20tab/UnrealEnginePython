@@ -15,8 +15,6 @@
 #include "Tracks/MovieSceneCameraCutTrack.h"
 #if ENGINE_MINOR_VERSION < 20
 #include "Sections/IKeyframeSection.h"
-#else
-#include "Wrappers/UEPyFFrameNumber.h"
 #endif
 #include "Sections/MovieSceneFloatSection.h"
 #include "Sections/MovieSceneBoolSection.h"
@@ -36,6 +34,10 @@
 #include "GameFramework/Actor.h"
 #include "Runtime/LevelSequence/Public/LevelSequence.h"
 #include "Engine/World.h"
+
+#if ENGINE_MINOR_VERSION >= 20
+#include "Wrappers/UEPyFFrameNumber.h"
+#endif
 
 
 #if ENGINE_MINOR_VERSION >= 20
@@ -1342,8 +1344,8 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 	ue_py_check(self);
 
 #if ENGINE_MINOR_VERSION >= 20
-	return PyErr_Format(PyExc_Exception, "sequencer_import_fbx_transform still not supported on 4.20");
-#endif
+	return PyErr_Format(PyExc_Exception, "sequencer_import_fbx_transform() is still not supported in this engine version");
+#else
 
 	char *filename;
 	char *nodename;
@@ -1403,6 +1405,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #if ENGINE_MINOR_VERSION >= 18
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
 
+
 		for (int32 ChannelIndex = 0; ChannelIndex < 3; ++ChannelIndex)
 		{
 			EAxis::Type ChannelAxis = EAxis::X;
@@ -1414,14 +1417,13 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 			{
 				ChannelAxis = EAxis::Z;
 			}
-#if ENGINE_MINOR_VERSION < 20
+
 			section->GetTranslationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetLocation()[ChannelIndex]);
 			section->GetRotationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetRotation().Euler()[ChannelIndex]);
 			section->GetScaleCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetScale3D()[ChannelIndex]);
-#else
-			// TODO ??
-#endif
-		}
+	}
+
+
 #else
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2]);
 
@@ -1443,7 +1445,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 				else if (ChannelIndex == 2)
 				{
 					ChannelAxis = EAxis::Z;
-				}
+			}
 
 				FInterpCurveFloat* CurveFloat = nullptr;
 				FRichCurve* ChannelCurve = nullptr;
@@ -1452,11 +1454,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 				if (CurveIndex == 0)
 				{
 					CurveFloat = &Translation[ChannelIndex];
-#if ENGINE_MINOR_VERSION < 20
 					ChannelCurve = &section->GetTranslationCurve(ChannelAxis);
-#else
-					// TODO ???
-#endif
 					if (ChannelIndex == 1)
 					{
 						bNegative = true;
@@ -1465,11 +1463,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 				else if (CurveIndex == 1)
 				{
 					CurveFloat = &EulerRotation[ChannelIndex];
-#if ENGINE_MINOR_VERSION < 20
 					ChannelCurve = &section->GetRotationCurve(ChannelAxis);
-#else
-					// TODO ???
-#endif
 					if (ChannelIndex == 1 || ChannelIndex == 2)
 					{
 						bNegative = true;
@@ -1478,11 +1472,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 				else if (CurveIndex == 2)
 				{
 					CurveFloat = &Scale[ChannelIndex];
-#if ENGINE_MINOR_VERSION < 20
 					ChannelCurve = &section->GetScaleCurve(ChannelAxis);
-#else
-					// TODO ???
-#endif
 				}
 
 				if (ChannelCurve != nullptr && CurveFloat != nullptr)
@@ -1504,7 +1494,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 						if (KeyIndex < CurveFloat->Points.Num() - 1)
 						{
 							LeaveTangent = LeaveTangent / (CurveFloat->Points[KeyIndex + 1].InVal - CurveFloat->Points[KeyIndex].InVal);
-						}
+					}
 
 						if (bNegative)
 						{
@@ -1512,33 +1502,26 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 							LeaveTangent = -LeaveTangent;
 						}
 
-#if ENGINE_MINOR_VERSION < 20
 						FMatineeImportTools::SetOrAddKey(*ChannelCurve, CurveFloat->Points[KeyIndex].InVal, CurveFloat->Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, CurveFloat->Points[KeyIndex].InterpMode);
-#else
-						// TODO ???
-#endif
-					}
+
+				}
 
 					ChannelCurve->RemoveRedundantKeys(KINDA_SMALL_NUMBER);
 					ChannelCurve->AutoSetTangents();
-				}
-			}
+		}
+}
 		}
 
-#if ENGINE_MINOR_VERSION < 20
+
 		section->SetStartTime(MinTime);
 		section->SetEndTime(MaxTime);
-#else
-		// TODO
-		const TRange<FFrameNumber> Range;
-		//Range.SetLowerBoundValue();
-		section->SetRange(Range);
-#endif
+
 
 		FbxImporter->ReleaseScene();
 		ImportOptions->bConvertScene = bConverteScene;
 		ImportOptions->bConvertSceneUnit = bConverteScene;
 		ImportOptions->bForceFrontXAxis = bConverteScene;
+#endif
 		Py_RETURN_NONE;
 	}
 

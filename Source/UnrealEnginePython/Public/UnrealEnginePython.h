@@ -21,6 +21,9 @@
 #elif PLATFORM_LINUX
 #include <Python.h>
 #include <structmember.h>
+#elif PLATFORM_ANDROID
+#include <Python.h>
+#include <structmember.h>
 #elif PLATFORM_WINDOWS
 #include <include/pyconfig.h>
 #ifndef SIZEOF_PID_T

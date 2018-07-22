@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Plugin additions-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- init section is always evaluated once per architecture -->
+    <init>
+        <log text="python APL init"/>
+    </init>
+
+    <!-- optional files or directories to copy to Intermediate/Android/APK -->
+    <resourceCopies>
+        <log text="python APL copying files for $S(Architecture)/"/>
+	<copyFile src="$S(PluginDir)/../../android/armeabi-v7a/libcrystax.so"
+                    dst="$S(BuildDir)/libs/armeabi-v7a/libcrystax.so" />
+        <copyFile src="$S(PluginDir)/../../android/armeabi-v7a/libpython3.5m.so"
+                    dst="$S(BuildDir)/libs/armeabi-v7a/libpython3.5m.so" />
+    </resourceCopies>
+
+    <soLoadLibrary>
+		<log text="Python APL adding loadLibrary references"/>
+		<loadLibrary name="crystax" failmsg="libcrystax not loaded and required!" />
+		<loadLibrary name="python3.5m" failmsg="libpython3.5m not loaded and required!" />
+    </soLoadLibrary>
+</root>
+
