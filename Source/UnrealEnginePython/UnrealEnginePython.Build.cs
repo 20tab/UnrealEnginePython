@@ -267,7 +267,7 @@ public class UnrealEnginePython : ModuleRules
 
             string APLName = "UnrealEnginePython_APL.xml";
             string RelAPLPath = Utils.MakePathRelativeTo(System.IO.Path.Combine(ModuleDirectory, APLName), Target.RelativeEnginePath);
-            AdditionalPropertiesForReceipt.Add("AndroidPlugin", RelAPLPath);
+            AdditionalPropertiesForReceipt.Add(new ReceiptProperty("AndroidPlugin", RelAPLPath));
         }
 #endif
 
