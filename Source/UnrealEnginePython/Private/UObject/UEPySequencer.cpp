@@ -1519,9 +1519,8 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 
 		FbxImporter->ReleaseScene();
 		ImportOptions->bConvertScene = bConverteScene;
-		ImportOptions->bConvertSceneUnit = bConverteScene;
-		ImportOptions->bForceFrontXAxis = bConverteScene;
-#endif
+		ImportOptions->bConvertSceneUnit = bConverteSceneUnit;
+		ImportOptions->bForceFrontXAxis = bForceFrontXAxis;
 		Py_RETURN_NONE;
 	}
 
@@ -1530,6 +1529,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 	ImportOptions->bConvertSceneUnit = bConverteSceneUnit;
 	ImportOptions->bForceFrontXAxis = bForceFrontXAxis;
 	return PyErr_Format(PyExc_Exception, "unable to find specified node in Fbx file");
+#endif
 }
 #endif
 
