@@ -109,6 +109,7 @@
 #include "Runtime/Core/Public/Misc/Attribute.h"
 #include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyleRegistry.h"
+#include "Runtime/Slate/Public/Framework/Commands/Commands.h"
 
 FReply FPythonSlateDelegate::OnMouseEvent(const FGeometry &geometry, const FPointerEvent &pointer_event)
 {
