@@ -258,6 +258,7 @@ public class UnrealEnginePython : ModuleRules
                 PublicAdditionalLibraries.Add(items[1]);
             }
         }
+#if WITH_FORWARDED_MODULE_RULES_CTOR
         else if (Target.Platform == UnrealTargetPlatform.Android)
         {
             PublicIncludePaths.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/python35/include"));
@@ -268,6 +269,7 @@ public class UnrealEnginePython : ModuleRules
             string RelAPLPath = Utils.MakePathRelativeTo(System.IO.Path.Combine(ModuleDirectory, APLName), Target.RelativeEnginePath);
             AdditionalPropertiesForReceipt.Add("AndroidPlugin", RelAPLPath);
         }
+#endif
 
     }
 
