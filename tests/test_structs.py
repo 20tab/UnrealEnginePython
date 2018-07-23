@@ -40,11 +40,11 @@ class TestStructs(unittest.TestCase):
 
     def test_ptr(self):
         source_model = StaticMeshSourceModel()
-        source_model.ref().BuildSettings.ref().bRecomputeNormals=False
-        source_model.ref().BuildSettings.ref().bRecomputeTangents=True
-        source_model.ref().BuildSettings.ref().bUseMikkTSpace=True
-        source_model.ref().BuildSettings.ref().bBuildAdjacencyBuffer=True
-        source_model.ref().BuildSettings.ref().bRemoveDegenerates=True
+        source_model.BuildSettings.bRecomputeNormals=False
+        source_model.BuildSettings.bRecomputeTangents=True
+        source_model.BuildSettings.bUseMikkTSpace=True
+        source_model.BuildSettings.bBuildAdjacencyBuffer=True
+        source_model.BuildSettings.bRemoveDegenerates=True
 
         source_model2 = source_model.clone()
         self.assertEqual(source_model2.BuildSettings.bRecomputeNormals, False)
