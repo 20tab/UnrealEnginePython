@@ -165,9 +165,14 @@ Just remove the .so files in Plugins/UnrealEnginePython/Binaries/Linux and pull 
 
 At the next run the build procedure wil be started again.
 
+Android Deployment
+------------------
+
+Check https://github.com/20tab/UnrealEnginePython/blob/master/docs/Android.md
+
 # Installation on other platforms
 
-Currently only Windows, MacOSX and Linux are supported. We are investigating Android support too via the kivy project.
+Currently only Windows, MacOSX, Linux and Android are supported.
 
 # Using Python with Unreal Engine (finally)
 
