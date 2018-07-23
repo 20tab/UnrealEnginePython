@@ -12,8 +12,7 @@ keys = []
 for i in range(0, 100):
     keys.append(RichCurveKey(Time=i, Value=i))
 
-# use ref() to set struct values on-the-fly
-curve.FloatCurve.ref().Keys = keys
+curve.FloatCurve.Keys = keys
 
 curve.post_edit_change()
 
