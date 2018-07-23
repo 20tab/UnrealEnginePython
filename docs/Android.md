@@ -39,7 +39,7 @@ just add the Scripts directory as a new item in the "Additional Non Assets Direc
 
 Finally get https://github.com/20tab/UnrealEnginePython/blob/master/android/python35/stdlib.zip and copy into the Scripts directory.
 
-This is the python standard library required by libpython to correctly bootstrap itself. (DO NOT FORGET THIS STEP, WITHOUT IT YOUR ANDROID APP WILL RUN BUT WILL SUDDENLY CRASH).
+This is the python standard library required by libpython to correctly bootstrap itself. (DO NOT FORGET THIS STEP, WITHOUT IT YOUR ANDROID APP WILL RUN BUT CRASHES AFTER THE SPLASH SCREEN).
 
 The stdlib.zip filename is hardcoded, so do not rename it (unless you want to modify UnrealEnginePython sources).
 
