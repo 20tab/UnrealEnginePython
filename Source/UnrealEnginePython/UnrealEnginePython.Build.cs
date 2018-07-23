@@ -250,6 +250,7 @@ public class UnrealEnginePython : ModuleRules
                 }
                 PublicIncludePaths.Add(includesPath);
                 PublicAdditionalLibraries.Add(libsPath);
+
             }
             else
             {
@@ -335,7 +336,7 @@ public class UnrealEnginePython : ModuleRules
         List<string> paths = new List<string>(linuxKnownLibsPaths);
         paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", "Linux", "lib"));
         paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", "Linux", "lib64"));
-        foreach (string path in linuxKnownLibsPaths)
+        foreach (string path in paths)
         {
             if (File.Exists(path))
             {
