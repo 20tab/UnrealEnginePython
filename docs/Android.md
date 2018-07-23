@@ -34,3 +34,14 @@ Once the script works in the editor you need to prepare your environment to be a
 The first step is configuring the packaging system to include the /Content/Scripts directory (where you have your python files, currently the one you created before for your Character):
 
 ![android_packaging](https://github.com/20tab/UnrealEnginePython/raw/master/docs/android_packaging.png)
+
+just add the Scripts directory as a new item in the "Additional Non Assets Directories to Copy".
+
+Finally get https://github.com/20tab/UnrealEnginePython/blob/master/android/python35/stdlib.zip and copy into the Scripts directory.
+This is the python standard library required by libpython to correctly bootstrap itself. (DO NOT FORGET THIS STEP, WITHOUT IT YOUR ANDROID APP WILL RUN BUT WILL SUDDENLY CRASH). The stdlib.zip filename is hardcoded, so do not rename it (unless you want to modify UnrealEnginePython sources).
+
+Now you can Launch your project over the Android device.
+
+Before launching the UnrealEnginePython plugin will be built for the arm architecture, then an apk will be uploaded as well as your Content directory. If alla goes wall you should see your Character auto-jumping in the Android device.
+
+## Packaging
