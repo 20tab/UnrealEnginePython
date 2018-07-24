@@ -182,7 +182,7 @@ async def new_client_connected(reader, writer):
 # see below for more infos about exception management
 async def spawn_server(host, port):
     try:
-        coro = await asyncio.start_server(new_client_connected, host, port)
+        coro = await asyncio.start_server(new_client_connected, host, port, reuse_address=True)
         ue.log('tcp server spawned on {0}:{1}'.format(host, port))
         await coro.wait_closed()
     finally:
