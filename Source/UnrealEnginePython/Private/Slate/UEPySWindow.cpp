@@ -25,6 +25,15 @@ static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args)
 	Py_RETURN_SLATE_SELF;
 }
 
+static PyObject *py_ue_swindow_get_title(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+	
+	const char *title = TCHAR_TO_UTF8(*py_SWindow->GetTitle().ToString());
+
+	return PyUnicode_FromString(title);
+}
+
 static PyObject *py_ue_swindow_resize(ue_PySWindow *self, PyObject * args)
 {
 	ue_py_slate_cast(SWindow);
@@ -155,8 +164,23 @@ static PyObject *py_ue_swindow_add_child(ue_PySWindow *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_swindow_get_child_windows(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+	TArray<TSharedRef<SWindow>>& ChildWindows = py_SWindow->GetChildWindows();
+	PyObject *py_list = PyList_New(0);
+	for (TSharedRef<SWindow> ChildWindow : ChildWindows)
+	{
+		PyList_Append(py_list, (PyObject *)py_ue_new_swindow(ChildWindow));
+	}
+
+	return py_list;
+}
+
 static PyMethodDef ue_PySWindow_methods[] = {
+	{ "get_child_windows", (PyCFunction)py_ue_swindow_get_child_windows, METH_VARARGS, "" },
 	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
+	{ "get_title", (PyCFunction)py_ue_swindow_get_title, METH_VARARGS, "" },
 	{ "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
 	{ "minimize", (PyCFunction)py_ue_swindow_minimize, METH_VARARGS, "" },
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
@@ -296,4 +320,13 @@ ue_PySWindow *py_ue_is_swindow(PyObject *obj)
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySWindowType))
 		return nullptr;
 	return (ue_PySWindow *)obj;
+}
+
+ue_PySWindow *py_ue_new_swindow(TSharedRef<SWindow> s_window)
+{
+	ue_PySWindow *ret = (ue_PySWindow *)PyObject_New(ue_PySWindow, &ue_PySWindowType);
+
+	new(&ret->s_compound_widget.s_widget.Widget) TSharedRef<SWindow>(s_window);
+	ret->s_compound_widget.s_widget.weakreflist = nullptr;
+	return ret;
 }

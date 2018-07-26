@@ -445,7 +445,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "get_viewport_size", py_unreal_engine_get_viewport_size, METH_VARARGS, "" },
 	{ "get_resolution", py_unreal_engine_get_resolution, METH_VARARGS, "" },
 	{ "get_game_viewport_size", py_unreal_engine_get_game_viewport_size, METH_VARARGS, "" },
-
+		
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #pragma warning(suppress: 4191)
 	{ "open_color_picker", (PyCFunction)py_unreal_engine_open_color_picker, METH_VARARGS | METH_KEYWORDS, "" },
@@ -879,6 +879,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_world_location_at_distance_along_spline", (PyCFunction)py_ue_get_world_location_at_distance_along_spline, METH_VARARGS, "" },
 	{ "get_spline_length", (PyCFunction)py_ue_get_spline_length, METH_VARARGS, "" },
+
+	{ "game_viewport_client_get_window", (PyCFunction)py_ue_game_viewport_client_get_window, METH_VARARGS, "" },
 
 	// Widget
 	{ "take_widget", (PyCFunction)py_ue_take_widget, METH_VARARGS, "" },

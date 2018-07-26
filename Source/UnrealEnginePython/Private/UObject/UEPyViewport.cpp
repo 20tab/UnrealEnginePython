@@ -7,8 +7,24 @@
 #endif
 
 #include "Slate/UEPySWidget.h"
+#include "Slate/UEPySWindow.h"
 // required for GEngine access
 #include "Engine/Engine.h"
+
+PyObject *py_ue_game_viewport_client_get_window(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	UGameViewportClient *viewport = ue_py_check_type<UGameViewportClient>(self);
+	if (!viewport)
+		return PyErr_Format(PyExc_Exception, "uobject is not a GameViewportClient");
+
+	TSharedPtr<SWindow> Window = viewport->GetWindow();
+	if (!Window.IsValid())
+		return PyErr_Format(PyExc_Exception, "GameViewportClient has no window");
+
+	return (PyObject *)py_ue_new_swindow(Window.ToSharedRef());
+}
 
 PyObject *py_unreal_engine_get_game_viewport_client(PyObject * self, PyObject * args)
 {
