@@ -52,14 +52,23 @@ PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
 		return nullptr;
 	}
 
-	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
-	if (!primitive)
-		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
-
 	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
 	if (!material)
 		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
 
+
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (mesh)
+	{
+		mesh->SetMaterial(slot, material);
+		Py_RETURN_NONE;
+	}
+
+	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
+	if (!primitive)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
+
+	
 	primitive->SetMaterial(slot, material);
 
 	Py_RETURN_NONE;
