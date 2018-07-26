@@ -2,7 +2,7 @@
 
 #pragma once
 #include "Runtime/Slate/Public/Framework/Text/BaseTextLayoutMarshaller.h"
-#include "TextFilterExpressionEvaluator.h"
+#include "Runtime/Core/Public/Misc/TextFilterExpressionEvaluator.h"
 #include "Runtime/SlateCore/Public/SlateCore.h"
 #include "UnrealEnginePython.h"
 #include "Runtime/Slate/Public/Widgets/Input/SMultiLineEditableTextBox.h"

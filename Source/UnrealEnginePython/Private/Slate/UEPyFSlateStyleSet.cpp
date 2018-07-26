@@ -1,6 +1,6 @@
 
 #include "UEPyFSlateStyleSet.h"
-#include "SlateTypes.h"
+#include "Runtime/SlateCore/Public/Styling/SlateTypes.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyleRegistry.h"
 #include "Runtime/SlateCore/Public/Sound/SlateSound.h"
 #include "Map.h"

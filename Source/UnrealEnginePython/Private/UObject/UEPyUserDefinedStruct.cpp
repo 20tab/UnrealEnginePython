@@ -2,7 +2,8 @@
 
 
 #if WITH_EDITOR
-#include "Classes/UserDefinedStructure/UserDefinedStructEditorData.h"
+#include "Runtime/Engine/Classes/Engine/UserDefinedStruct.h"
+#include "Editor/UnrealEd/Classes/UserDefinedStructure/UserDefinedStructEditorData.h"
 #include "Public/Kismet2/StructureEditorUtils.h"
 
 
