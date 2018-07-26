@@ -2,7 +2,7 @@
 
 #include "Runtime/Core/Public/Modules/ModuleManager.h"
 #include "AssetToolsModule.h"
-#include "AssetEditorToolkit.h"
+#include "Editor/UnrealEd/Public/Toolkits/AssetEditorToolkit.h"
 #include "LevelEditor.h"
 #include "PythonEditorStyle.h"
 #include "PythonProjectEditor.h"

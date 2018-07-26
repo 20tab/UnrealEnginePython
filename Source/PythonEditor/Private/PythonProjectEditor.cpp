@@ -3,7 +3,7 @@
 #include "PythonProjectEditor.h"
 #include "SPythonEditor.h"
 #include "SPythonProjectEditor.h"
-#include "SDockTab.h"
+#include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"

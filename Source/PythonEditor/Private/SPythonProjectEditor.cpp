@@ -3,7 +3,7 @@
 #include "SPythonProjectEditor.h"
 #include "SProjectViewItem.h"
 #include "DirectoryScanner.h"
-#include "SThrobber.h"
+#include "Runtime/Slate/Public/Widgets/Images/SThrobber.h"
 #include "PythonEditorStyle.h"
 #include "PythonProjectEditor.h"
 #include "PythonProject.h"
