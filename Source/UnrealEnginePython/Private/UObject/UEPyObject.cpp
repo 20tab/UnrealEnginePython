@@ -338,9 +338,9 @@ PyObject *py_ue_post_edit_change_property(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 
 	char *prop_name = nullptr;
-	int change_type = 0;
+	int change_type = (int)EPropertyChangeType::Unspecified;
 
-	if (!PyArg_ParseTuple(args, "si:post_edit_change_property", &prop_name, &change_type))
+	if (!PyArg_ParseTuple(args, "s|i:post_edit_change_property", &prop_name, &change_type))
 	{
 		return nullptr;
 	}
