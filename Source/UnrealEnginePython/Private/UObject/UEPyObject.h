@@ -31,6 +31,9 @@ PyObject *py_ue_is_rooted(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_to_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_from_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_auto_root(ue_PyUObject *, PyObject *);
+PyObject *py_ue_own(ue_PyUObject *, PyObject *);
+PyObject *py_ue_disown(ue_PyUObject *, PyObject *);
+PyObject *py_ue_is_owned(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_save_config(ue_PyUObject *, PyObject *);
 

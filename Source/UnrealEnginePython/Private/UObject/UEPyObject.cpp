@@ -1244,6 +1244,55 @@ PyObject *py_ue_add_to_root(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_own(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (self->owned)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject already owned");
+	}
+
+	Py_DECREF(self);
+
+	self->owned = 1;
+	FUnrealEnginePythonHouseKeeper::Get()->TrackUObject(self->ue_object);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_disown(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (!self->owned)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject not owned");
+	}
+
+	Py_INCREF(self);
+
+	self->owned = 0;
+	FUnrealEnginePythonHouseKeeper::Get()->UntrackUObject(self->ue_object);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_is_owned(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (!self->owned)
+	{
+		Py_RETURN_FALSE;
+	}
+
+	Py_RETURN_TRUE;
+}
+
 PyObject *py_ue_auto_root(ue_PyUObject *self, PyObject * args)
 {
 

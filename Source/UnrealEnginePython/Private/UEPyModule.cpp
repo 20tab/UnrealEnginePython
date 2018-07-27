@@ -656,6 +656,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "auto_root", (PyCFunction)py_ue_auto_root, METH_VARARGS, "" },
 	{ "remove_from_root", (PyCFunction)py_ue_remove_from_root, METH_VARARGS, "" },
 
+	{ "own", (PyCFunction)py_ue_own, METH_VARARGS, "" },
+	{ "disown", (PyCFunction)py_ue_disown, METH_VARARGS, "" },
+	{ "is_owned", (PyCFunction)py_ue_is_owned, METH_VARARGS, "" },
+
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
 
 #pragma warning(suppress: 4191)
