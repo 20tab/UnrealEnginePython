@@ -31,10 +31,13 @@ import unreal_engine as ue
 from unreal_engine.classes import BlueprintFactory
 
 factory = BlueprintFactory()
+texture = ue.create_transient_texture(512, 512)
 # run GC
 ue.console_exec('obj gc')
-# this will raise an exception as the UObject mapped to factory has been destroyed by the GC run
+
 print(factory)
+# this will raise an exception as the UObject mapped to factory has been destroyed by the GC ru
+print(texture)
 ```
 
 By running this script you will end with something like this:
@@ -45,6 +48,10 @@ Traceback (most recent call last):
   File "<string>", line XX, in <module>
 Exception: PyUObject is in invalid state
 ```
+
+Here we are seeing two different behaviours between factory and texture. The first one survived the GC run, the second has been destroyed.
+
+This is because only UObject's created explicitely by Python with a classic constructor (like BlueprintFactory()) are bound to the related ue_PyUObject. All of the others obey the Unreal GC rules. This is a pretty complex choice aimed at improving performance and avoiding too much competition between the two GCs.
 
 Very long scripts, that do lot of stuff, often triggering UE4 GC, could be blocked in the middle of their execution by this kind of errors. In such a case (like you would do in C++) you need to inform the UE GC on how to deal with them (for avoiding their destruction).
 
@@ -61,15 +68,13 @@ You can change this bitmask with the set_obj_flags() python function:
 ```python
 import unreal_engine as ue
 
-from unreal_engine.classes import BlueprintFactory
-
-factory = BlueprintFactory()
+texture = ue.create_transient_texture(512, 512)
 # assign mask 0x00000001|0x00000002
-factory.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
+texture.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
 # run GC
 ue.console_exec('obj gc')
 # this will normally print the UObject repr
-print(factory)
+print(texture)
 ```
 
 The RF_Standalone flag (RF_STANDALONE in python api) will marks a UObject as 'standalone' so it will remain resident in memory forever.
@@ -79,11 +84,9 @@ Eventually you can reset/set the flags:
 ```python
 import unreal_engine as ue
 
-from unreal_engine.classes import BlueprintFactory
-
-factory = BlueprintFactory()
-factory.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
-
+texture = ue.create_transient_texture(512, 512)
+# assign mask 0x00000001|0x00000002
+texture.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
 
 ue.console_exec('obj gc')
 
@@ -91,11 +94,11 @@ print(factory)
 
 # the second True argument will reset the flags (otherwise set_obj_flags will work in append mode)
 # eventually you can call factory.reset_obj_flags()
-factory.set_obj_flags(ue.RF_PUBLIC, True)
+texture.set_obj_flags(ue.RF_PUBLIC, True)
 
 ue.console_exec('obj gc')
 
-print(factory)
+print(texture)
 ```
 
 The second print will raise the error.
@@ -109,20 +112,18 @@ The root set is a very specific part of the GC tree. If you want to hold control
 ```python
 import unreal_engine as ue
 
-from unreal_engine.classes import BlueprintFactory
-
-factory = BlueprintFactory()
-factory.add_to_root()
+texture = ue.create_transient_texture(512, 512)
+texture.add_to_root()
 
 ue.console_exec('obj gc')
 
-print(factory)
+print(texture)
 
-factory.remove_from_root()
+texture.remove_from_root()
 
 ue.console_exec('obj gc')
 
-print(factory)
+print(texture)
 ```
 
 as before, the first GC run will not destroy the UObject (as it is in the root set), while the second one will remove if from the memory as it is no more in the root set.
@@ -150,7 +151,7 @@ tracker = Tracker()
 Now you can create UObject from python and track them automatically. When the python GC destroys the tracker object, all of the UObject's tracked by it will be destroyed too:
 
 ```python
-factory = tracker.track(BlueprintFactory())
+texture = tracker.track(ue.create_transient_texture(512, 512))
 ```
 
 As an example when running a script multiple times, the 'tracker' id will be overwritten, triggering the destruction of the mapped python object (and its ```__del__``` method)
