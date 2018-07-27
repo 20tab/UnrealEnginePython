@@ -1122,6 +1122,11 @@ static void ue_pyobject_dealloc(ue_PyUObject *self)
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Destroying ue_PyUObject %p mapped to UObject %p"), self, self->ue_object);
 #endif
+	if (self->owned)
+	{
+		FUnrealEnginePythonHouseKeeper::Get()->UntrackUObject(self->ue_object);
+	}
+
 	if (self->auto_rooted && (self->ue_object && self->ue_object->IsValidLowLevel() && self->ue_object->IsRooted()))
 	{
 		self->ue_object->RemoveFromRoot();
@@ -1756,6 +1761,7 @@ ue_PyUObject *ue_get_python_uobject(UObject *ue_obj)
 		ue_py_object->py_proxy = nullptr;
 		ue_py_object->auto_rooted = 0;
 		ue_py_object->py_dict = PyDict_New();
+		ue_py_object->owned = 0;
 
 		FUnrealEnginePythonHouseKeeper::Get()->RegisterPyUObject(ue_obj, ue_py_object);
 

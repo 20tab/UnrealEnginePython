@@ -36,14 +36,16 @@
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UObject *ue_object;
+	/* Type-specific fields go here. */
+	UObject *ue_object;
 	// reference to proxy class (can be null)
 	PyObject *py_proxy;
 	// the __dict__
 	PyObject *py_dict;
 	// if true RemoveFromRoot will be called at object destruction time
 	int auto_rooted;
+	// if owned the life of the UObject is related to the life of PyObject
+	int owned;
 } ue_PyUObject;
 
 UNREALENGINEPYTHON_API void ue_py_register_magic_module(char *name, PyObject *(*)());

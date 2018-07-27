@@ -5,9 +5,10 @@
 #include "UObject/WeakObjectPtr.h"
 #include "Widgets/SWidget.h"
 #include "Slate/UEPySlateDelegate.h"
+#include "Runtime/CoreUObject/Public/UObject/GCObject.h"
 #include "PythonDelegate.h"
 
-class FUnrealEnginePythonHouseKeeper
+class FUnrealEnginePythonHouseKeeper : public FGCObject
 {
 
 	struct FPythonUOjectTracker
@@ -52,6 +53,11 @@ class FUnrealEnginePythonHouseKeeper
 	};
 
 public:
+
+	virtual void AddReferencedObjects(FReferenceCollector& InCollector) override
+	{
+		InCollector.AddReferencedObjects(PythonTrackedObjects);
+	}
 
 	static FUnrealEnginePythonHouseKeeper *Get()
 	{
@@ -101,6 +107,16 @@ public:
 
 	}
 
+	void TrackUObject(UObject *Object)
+	{
+		PythonTrackedObjects.Add(Object);
+	}
+
+	void UntrackUObject(UObject *Object)
+	{
+		PythonTrackedObjects.Remove(Object);
+	}
+
 	void RegisterPyUObject(UObject *Object, ue_PyUObject *InPyUObject)
 	{
 		UObjectPyMapping.Add(Object, FPythonUOjectTracker(Object, InPyUObject));
@@ -124,7 +140,8 @@ public:
 #if defined(UEPY_MEMORY_DEBUG)
 			UE_LOG(LogPython, Warning, TEXT("DEFREF'ing UObject at %p (refcnt: %d)"), Object, Tracker->PyUObject->ob_base.ob_refcnt);
 #endif
-			Py_DECREF((PyObject *)Tracker->PyUObject);
+			if (!Tracker->PyUObject->owned)
+				Py_DECREF((PyObject *)Tracker->PyUObject);
 			UnregisterPyUObject(Object);
 			return nullptr;
 		}
@@ -157,18 +174,19 @@ public:
 				UE_LOG(LogPython, Error, TEXT("UObject at %p %s is in use"), Object, *Object->GetName());
 #endif
 			}
-			}
+		}
 
 		for (UObject *Object : BrokenList)
 		{
 			FPythonUOjectTracker &Tracker = UObjectPyMapping[Object];
-			Py_DECREF((PyObject *)Tracker.PyUObject);
+			if (!Tracker.PyUObject->owned)
+				Py_DECREF((PyObject *)Tracker.PyUObject);
 			UnregisterPyUObject(Object);
 		}
 
 		return Garbaged;
 
-		}
+	}
 
 
 	int32 DelegatesGC()
@@ -261,4 +279,6 @@ private:
 
 	TArray<FPythonSWidgetDelegateTracker> PySlateDelegatesTracker;
 	TArray<TSharedRef<FPythonSlateDelegate>> PyStaticSlateDelegatesTracker;
-	};
+
+	TArray<UObject *> PythonTrackedObjects;
+};
