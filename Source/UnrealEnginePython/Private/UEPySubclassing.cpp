@@ -378,7 +378,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 					{
 						PyObject *key = PyList_GetItem(keys, i);
 						PyObject *value = PyDict_GetItem(u_py_class_casted->py_uobject->py_dict, key);
-						if (PyUnicode_Check(key))
+						if (PyUnicodeOrString_Check(key))
 						{
 							const char *key_name = UEPyUnicode_AsUTF8(key);
 							if (!strcmp(key_name, (char *)"__additional_uproperties__"))

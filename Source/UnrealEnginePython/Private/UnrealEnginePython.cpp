@@ -561,7 +561,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 		return Code;
 	}
 
-	if (!PyUnicode_Check(ret))
+	if (!PyUnicodeOrString_Check(ret))
 	{
 		UE_LOG(LogPython, Error, TEXT("returned value is not a string"));
 		// return the original string to avoid losing data

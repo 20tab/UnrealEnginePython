@@ -1480,7 +1480,7 @@ PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject * self, PyObje
 
 	FEdGraphPinType pin;
 
-	if (PyUnicode_Check(py_type))
+	if (PyUnicodeOrString_Check(py_type))
 	{
 		const char *in_type = UEPyUnicode_AsUTF8(py_type);
 

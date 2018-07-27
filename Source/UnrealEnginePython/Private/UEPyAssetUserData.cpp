@@ -53,7 +53,7 @@ PyObject *py_ue_asset_import_data_set_sources(ue_PyUObject * self, PyObject * ar
 		return PyErr_Format(PyExc_Exception, "UObject does not have asset import data.");
 	}
 
-	if (PyUnicode_Check(py_files))
+	if (PyUnicodeOrString_Check(py_files))
 	{
 		filenames.Add(FString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_files))));
 	}
@@ -67,7 +67,7 @@ PyObject *py_ue_asset_import_data_set_sources(ue_PyUObject * self, PyObject * ar
 
 		while (PyObject *py_item = PyIter_Next(py_iter))
 		{
-			if (!PyUnicode_Check(py_item))
+			if (!PyUnicodeOrString_Check(py_item))
 			{
 				Py_DECREF(py_iter);
 				return PyErr_Format(PyExc_Exception, "argument is not a string or an interable of strings");

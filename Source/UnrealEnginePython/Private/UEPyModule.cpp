@@ -2638,7 +2638,7 @@ void ue_bind_events_for_py_class_by_attribute(UObject *u_obj, PyObject *py_class
 			PyObject *event_signature = PyObject_GetAttrString(item, (char*)"ue_event");
 			if (event_signature)
 			{
-				if (PyUnicode_Check(event_signature))
+				if (PyUnicodeOrString_Check(event_signature))
 				{
 					FString event_name = FString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(event_signature)));
 					TArray<FString> parts;

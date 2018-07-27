@@ -71,7 +71,7 @@ static int ue_py_fstring_asset_reference_init(ue_PyFStringAssetReference *self, 
 	if (!PyArg_ParseTuple(args, "O", &py_object))
 		return -1;
 
-	if (PyUnicode_Check(py_object))
+	if (PyUnicodeOrString_Check(py_object))
 	{
 		const char *value = UEPyUnicode_AsUTF8(py_object);
 		self->fstring_asset_reference = FStringAssetReference(FString(UTF8_TO_TCHAR(value)));
