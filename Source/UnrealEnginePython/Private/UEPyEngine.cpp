@@ -601,17 +601,7 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 	if (!new_object)
 		return PyErr_Format(PyExc_Exception, "unable to create object");
 
-	ue_PyUObject *py_uobject = ue_get_python_uobject(new_object);
-	if (!py_uobject)
-	{
-		return PyErr_Format(PyExc_Exception, "unable to create python wrapper for uobject");
-	}
-	py_uobject->owned = 1;
-
-	// UObject crated explicitely from python, will be managed by python...
-	FUnrealEnginePythonHouseKeeper::Get()->TrackUObject(new_object);
-
-	return (PyObject *)py_uobject;
+	Py_RETURN_UOBJECT(new_object);
 }
 
 PyObject *py_unreal_engine_get_mutable_default(PyObject * self, PyObject * args)
