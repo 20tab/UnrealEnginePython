@@ -90,7 +90,7 @@ texture.set_obj_flags(ue.RF_PUBLIC|ue.RF_STANDALONE)
 
 ue.console_exec('obj gc')
 
-print(factory)
+print(texture)
 
 # the second True argument will reset the flags (otherwise set_obj_flags will work in append mode)
 # eventually you can call factory.reset_obj_flags()
