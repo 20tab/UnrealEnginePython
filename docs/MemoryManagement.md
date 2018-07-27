@@ -188,6 +188,34 @@ import unreal_engine as ue
 material = ue.new_object(ue.find_class('Material'), None, 'DumbMaterial001', ue.RF_PUBLIC|ue.RF_STANDALONE)
 ```
 
+## Owning
+
+We have seen how a UObject is differently managed based on the way it has been created:
+
+```python
+# owned by python
+material = Material()
+
+
+# owned by unreal
+material2 = ue.new_object(Material)
+```
+
+The interesting thing is that we are allowed to change the owner using the .own() and .disown() methods:
+
+```python
+# owned by unreal
+material2 = ue.new_object(Material)
+
+# now owned by python
+material2.own()
+
+# owned again by unreal
+
+material2.disown()
+```
+
+You can check if an object is owned or not by using the .is_owned() method (returns a bool)
 
 ## UStruct
 
