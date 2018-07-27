@@ -177,7 +177,11 @@ static int py_ue_edgraphpin_set_category(ue_PyEdGraphPin *self, PyObject *value,
 	if (value && PyUnicodeOrString_Check(value))
 	{
 		const char *str = UEPyUnicode_AsUTF8(value);
+#if ENGINE_MINOR_VERSION > 18
 		self->pin->PinType.PinCategory = FName(UTF8_TO_TCHAR(str));
+#else
+		self->pin->PinType.PinCategory = FString(UTF8_TO_TCHAR(str));
+#endif
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a string");
@@ -197,7 +201,11 @@ static int py_ue_edgraphpin_set_sub_category(ue_PyEdGraphPin *self, PyObject *va
 		if (PyUnicodeOrString_Check(value))
 		{
 			const char *str = UEPyUnicode_AsUTF8(value);
+#if ENGINE_MINOR_VERSION > 18
 			self->pin->PinType.PinSubCategory = FName(UTF8_TO_TCHAR(str));
+#else
+			self->pin->PinType.PinSubCategory = FString(UTF8_TO_TCHAR(str));
+#endif
 			return 0;
 		}
 	}
