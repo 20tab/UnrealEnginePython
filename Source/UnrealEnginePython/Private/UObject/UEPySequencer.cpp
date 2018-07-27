@@ -11,7 +11,11 @@
 #include "Editor/Sequencer/Public/ISequencer.h"
 #include "Editor/Sequencer/Public/ISequencerModule.h"
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
+#if ENGINE_MINOR_VERSION >= 20
 #include "LevelSequenceEditor/Private/LevelSequenceEditorToolkit.h"
+#else
+#include "Private/LevelSequenceEditorToolkit.h"
+#endif
 #include "Tracks/MovieSceneCameraCutTrack.h"
 #if ENGINE_MINOR_VERSION < 20
 #include "Sections/IKeyframeSection.h"
