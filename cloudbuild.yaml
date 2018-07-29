@@ -1,8 +1,0 @@
-steps:
-# Trigger downstream build of https://github.com/recogni/ue4-docker
-- name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" -H 'Content-type: application/json' -X POST https://cloudbuild.googleapis.com/v1/projects/tensorflow-training-176320/triggers/a87e1282-5418-41c9-a020-a05d33d1f7a6:run -d '{"branchName": "master"}'
