@@ -339,22 +339,55 @@ bool UPyUserWidget::NativeIsInteractable() const
 	return false;
 }
 
+#if ENGINE_MINOR_VERSION < 20
 void UPyUserWidget::NativePaint(FPaintContext & InContext) const
+#else
+int32 UPyUserWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+#endif
 {
+
+#if ENGINE_MINOR_VERSION >= 20
+	FPaintContext InContext(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+#endif
+
 	if (!py_user_widget_instance)
+#if ENGINE_MINOR_VERSION >= 20
+		return -1;
+#else
 		return;
+#endif
 
 	FScopePythonGIL gil;
 
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"paint"))
+#if ENGINE_MINOR_VERSION >= 20
+		return -1;
+#else
 		return;
+#endif
 
 	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"paint", (char *)"O", py_ue_new_fpaint_context(InContext));
 	if (!ret) {
 		unreal_engine_py_log_error();
+#if ENGINE_MINOR_VERSION >= 20
+		return -1;
+#else
 		return;
+#endif
 	}
+#if ENGINE_MINOR_VERSION >= 20
+	int32 RetValue = -1;
+	if (PyNumber_Check(ret))
+	{
+		PyObject *py_value = PyNumber_Long(ret);
+		RetValue = PyLong_AsLong(py_value);
+		Py_DECREF(py_value);
+	}
+#endif
 	Py_DECREF(ret);
+#if ENGINE_MINOR_VERSION >= 20
+	return RetValue;
+#endif
 }
 
 UPyUserWidget::UPyUserWidget(const FObjectInitializer& ObjectInitializer)
