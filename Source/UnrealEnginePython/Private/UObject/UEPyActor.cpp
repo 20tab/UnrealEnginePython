@@ -2,6 +2,7 @@
 
 #if WITH_EDITOR
 #include "Editor.h"
+#include "Editor/UnrealEd/Public/ComponentTypeRegistry.h"
 #endif
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args)
@@ -202,6 +203,24 @@ PyObject *py_ue_get_actor_velocity(ue_PyUObject *self, PyObject * args)
 
 
 #if WITH_EDITOR
+PyObject *py_ue_component_type_registry_invalidate_class(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	UClass *Class = ue_py_check_type<UClass>(self);
+	if (!Class)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+
+	if (!Class->IsChildOf<UActorComponent>())
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a subclass of UActorComponent");
+	}
+
+	FComponentTypeRegistry::Get().InvalidateClass(Class);
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args)
 {
 

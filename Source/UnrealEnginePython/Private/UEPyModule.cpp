@@ -600,6 +600,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
 
 	{ "get_editor_world_counterpart_actor", (PyCFunction)py_ue_get_editor_world_counterpart_actor, METH_VARARGS, "" },
+	{ "component_type_registry_invalidate_class", (PyCFunction)py_ue_component_type_registry_invalidate_class, METH_VARARGS, "" },
 
 	{ "find_actor_by_label", (PyCFunction)py_ue_find_actor_by_label, METH_VARARGS, "" },
 	{ "save_package", (PyCFunction)py_ue_save_package, METH_VARARGS, "" },
