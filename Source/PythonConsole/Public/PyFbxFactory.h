@@ -15,6 +15,7 @@ class UPyFbxFactory : public UFbxFactory
 
 	virtual bool ConfigureProperties() override;
 	virtual void PostInitProperties() override;
+	virtual UObject * FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled) override;
 	virtual UObject * FactoryCreateBinary
 		(
 			UClass * InClass,
