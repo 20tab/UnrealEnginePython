@@ -309,6 +309,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "export_assets", py_unreal_engine_export_assets, METH_VARARGS, "" },
 	{ "get_asset", py_unreal_engine_get_asset, METH_VARARGS, "" },
 	{ "find_asset", py_unreal_engine_find_asset, METH_VARARGS, "" },
+	{ "create_asset", py_unreal_engine_create_asset, METH_VARARGS, "" },
 	{ "delete_object", py_unreal_engine_delete_object, METH_VARARGS, "" },
 	{ "get_assets", py_unreal_engine_get_assets, METH_VARARGS, "" },
 	{ "get_selected_assets", py_unreal_engine_get_selected_assets, METH_VARARGS, "" },
