@@ -1232,6 +1232,11 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args)
 	if (!outer)
 		return PyErr_Format(PyExc_Exception, "unable to create package");
 
+	TArray<UPackage *> TopLevelPackages;
+	TopLevelPackages.Add(outer);
+	if (!PackageTools::HandleFullyLoadingPackages(TopLevelPackages, FText::FromString("Create a new object")))
+		return PyErr_Format(PyExc_Exception, "unable to fully load package");
+
 	if (FindObject<UBlueprint>(outer, UTF8_TO_TCHAR(bp_name)) != nullptr)
 		return PyErr_Format(PyExc_Exception, "there is already a Blueprint with this name");
 
