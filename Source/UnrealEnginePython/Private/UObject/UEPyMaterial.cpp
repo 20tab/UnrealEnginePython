@@ -148,7 +148,7 @@ PyObject *py_ue_set_material_static_switch_parameter(ue_PyUObject *self, PyObjec
 		bool isExisting = false;
 		for (auto& parameter : staticParameterSet.StaticSwitchParameters)
 		{
-#if ENGINE_MINOR_VERSION < 17
+#if ENGINE_MINOR_VERSION < 18
 			if (parameter.bOverride && parameter.ParameterName == parameterName)
 #else
 			if (parameter.bOverride && parameter.ParameterInfo.Name == parameterName)
@@ -163,7 +163,7 @@ PyObject *py_ue_set_material_static_switch_parameter(ue_PyUObject *self, PyObjec
 		if (!isExisting)
 		{
 			FStaticSwitchParameter SwitchParameter;
-#if ENGINE_MINOR_VERSION < 17
+#if ENGINE_MINOR_VERSION < 18
 			SwitchParameter.ParameterName = parameterName;
 #else
 			SwitchParameter.ParameterInfo.Name = parameterName;
