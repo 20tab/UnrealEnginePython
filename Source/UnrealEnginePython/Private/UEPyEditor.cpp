@@ -1824,10 +1824,8 @@ PyObject *py_unreal_engine_editor_on_asset_post_import(PyObject * self, PyObject
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
 
-	// will brutally leak
-	FPythonSmartDelegate *py_delegate = new FPythonSmartDelegate();
-	py_delegate->SetPyCallable(py_callable);
-	FEditorDelegates::OnAssetPostImport.AddRaw(py_delegate, &FPythonSmartDelegate::PyFOnAssetPostImport);
+	TSharedRef<FPythonSmartDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewPythonSmartDelegate(py_callable);
+	FEditorDelegates::OnAssetPostImport.AddSP(py_delegate, &FPythonSmartDelegate::PyFOnAssetPostImport);
 	Py_RETURN_NONE;
 }
 
@@ -1841,12 +1839,17 @@ PyObject *py_unreal_engine_on_main_frame_creation_finished(PyObject * self, PyOb
 
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "object is not a callable");
+	/*
+	TSharedRef<FPythonSmartDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewPythonSmartDelegate(py_callable);
+	IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
+	MainFrameModule.OnMainFrameCreationFinished().AddSP(py_delegate, &FPythonSmartDelegate::PyFOnMainFrameCreationFinished);
+	*/
 
-	// will brutally leak
 	FPythonSmartDelegate *py_delegate = new FPythonSmartDelegate();
 	py_delegate->SetPyCallable(py_callable);
 	IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
 	MainFrameModule.OnMainFrameCreationFinished().AddRaw(py_delegate, &FPythonSmartDelegate::PyFOnMainFrameCreationFinished);
+	
 	Py_RETURN_NONE;
 }
 
