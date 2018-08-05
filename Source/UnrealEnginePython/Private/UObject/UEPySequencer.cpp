@@ -66,7 +66,8 @@ static bool magic_get_frame_number(UMovieScene *MovieScene, PyObject *py_obj, FF
 	return false;
 
 }
-void ImportTransformChannel(const FInterpCurveFloat& Source, FMovieSceneFloatChannel* Dest, FFrameRate DestFrameRate, bool bNegateTangents)
+
+static void ImportTransformChannel(const FInterpCurveFloat& Source, FMovieSceneFloatChannel* Dest, FFrameRate DestFrameRate, bool bNegateTangents)
 {
 	TMovieSceneChannelData<FMovieSceneFloatValue> ChannelData = Dest->GetData();
 	ChannelData.Reset();
@@ -76,13 +77,13 @@ void ImportTransformChannel(const FInterpCurveFloat& Source, FMovieSceneFloatCha
 		float ArriveTangent = Source.Points[KeyIndex].ArriveTangent;
 		if (KeyIndex > 0)
 		{
-			ArriveTangent = ArriveTangent / ((Source.Points[KeyIndex].InVal - Source.Points[KeyIndex-1].InVal) * DecimalRate);
+			ArriveTangent = ArriveTangent / ((Source.Points[KeyIndex].InVal - Source.Points[KeyIndex - 1].InVal) * DecimalRate);
 		}
-		
+
 		float LeaveTangent = Source.Points[KeyIndex].LeaveTangent;
 		if (KeyIndex < Source.Points.Num() - 1)
 		{
-			LeaveTangent = LeaveTangent / ((Source.Points[KeyIndex+1].InVal - Source.Points[KeyIndex].InVal) * DecimalRate);
+			LeaveTangent = LeaveTangent / ((Source.Points[KeyIndex + 1].InVal - Source.Points[KeyIndex].InVal) * DecimalRate);
 		}
 
 		if (bNegateTangents)
@@ -97,7 +98,8 @@ void ImportTransformChannel(const FInterpCurveFloat& Source, FMovieSceneFloatCha
 
 	Dest->AutoSetTangents();
 }
-bool ImportFBXTransform(FString NodeName, UMovieScene3DTransformSection* TransformSection, UnFbx::FFbxCurvesAPI& CurveAPI)
+
+static bool ImportFBXTransform(FString NodeName, UMovieScene3DTransformSection* TransformSection, UnFbx::FFbxCurvesAPI& CurveAPI)
 {
 
 
@@ -129,17 +131,17 @@ bool ImportFBXTransform(FString NodeName, UMovieScene3DTransformSection* Transfo
 	Channels[7]->SetDefault(Scale3D.Y);
 	Channels[8]->SetDefault(Scale3D.Z);
 
-	ImportTransformChannel(Translation[0],   Channels[0], FrameRate, false);
-	ImportTransformChannel(Translation[1],   Channels[1], FrameRate, true);
-	ImportTransformChannel(Translation[2],   Channels[2], FrameRate, false);
+	ImportTransformChannel(Translation[0], Channels[0], FrameRate, false);
+	ImportTransformChannel(Translation[1], Channels[1], FrameRate, true);
+	ImportTransformChannel(Translation[2], Channels[2], FrameRate, false);
 
 	ImportTransformChannel(EulerRotation[0], Channels[3], FrameRate, false);
 	ImportTransformChannel(EulerRotation[1], Channels[4], FrameRate, true);
 	ImportTransformChannel(EulerRotation[2], Channels[5], FrameRate, true);
 
-	ImportTransformChannel(Scale[0],         Channels[6], FrameRate, false);
-	ImportTransformChannel(Scale[1],         Channels[7], FrameRate, false);
-	ImportTransformChannel(Scale[2],         Channels[8], FrameRate, false);
+	ImportTransformChannel(Scale[0], Channels[6], FrameRate, false);
+	ImportTransformChannel(Scale[1], Channels[7], FrameRate, false);
+	ImportTransformChannel(Scale[2], Channels[8], FrameRate, false);
 
 	return true;
 }
@@ -1482,7 +1484,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 		FTransform DefaultTransform;
 #if ENGINE_MINOR_VERSION >= 18
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
-	#if ENGINE_MINOR_VERSION < 20
+#if ENGINE_MINOR_VERSION < 20
 		for (int32 ChannelIndex = 0; ChannelIndex < 3; ++ChannelIndex)
 		{
 			EAxis::Type ChannelAxis = EAxis::X;
@@ -1498,14 +1500,14 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 			section->GetTranslationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetLocation()[ChannelIndex]);
 			section->GetRotationCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetRotation().Euler()[ChannelIndex]);
 			section->GetScaleCurve(ChannelAxis).SetDefaultValue(DefaultTransform.GetScale3D()[ChannelIndex]);
-	}
-	#endif
+		}
+#endif
 
 #else
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2]);
 
 #endif
-	#if ENGINE_MINOR_VERSION < 20
+#if ENGINE_MINOR_VERSION < 20
 		float MinTime = FLT_MAX;
 		float MaxTime = -FLT_MAX;
 
@@ -1522,7 +1524,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 				else if (ChannelIndex == 2)
 				{
 					ChannelAxis = EAxis::Z;
-			}
+				}
 
 				FInterpCurveFloat* CurveFloat = nullptr;
 				FRichCurve* ChannelCurve = nullptr;
@@ -1571,7 +1573,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 						if (KeyIndex < CurveFloat->Points.Num() - 1)
 						{
 							LeaveTangent = LeaveTangent / (CurveFloat->Points[KeyIndex + 1].InVal - CurveFloat->Points[KeyIndex].InVal);
-					}
+						}
 
 						if (bNegative)
 						{
@@ -1581,22 +1583,22 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 
 						FMatineeImportTools::SetOrAddKey(*ChannelCurve, CurveFloat->Points[KeyIndex].InVal, CurveFloat->Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, CurveFloat->Points[KeyIndex].InterpMode);
 
-				}
+					}
 
 					ChannelCurve->RemoveRedundantKeys(KINDA_SMALL_NUMBER);
 					ChannelCurve->AutoSetTangents();
+				}
+			}
 		}
-		}
-	}
 
-	#else
+#else
 		ImportFBXTransform(nodename, section, CurveAPI);
-	#endif
+#endif
 
-	#if ENGINE_MINOR_VERSION < 20
+#if ENGINE_MINOR_VERSION < 20
 		section->SetStartTime(MinTime);
 		section->SetEndTime(MaxTime);
-	#endif
+#endif
 
 		FbxImporter->ReleaseScene();
 		ImportOptions->bConvertScene = bConverteScene;
@@ -1610,7 +1612,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 	ImportOptions->bConvertSceneUnit = bConverteSceneUnit;
 	ImportOptions->bForceFrontXAxis = bForceFrontXAxis;
 	return PyErr_Format(PyExc_Exception, "unable to find specified node in Fbx file");
-	
+
 }
 #endif
 
