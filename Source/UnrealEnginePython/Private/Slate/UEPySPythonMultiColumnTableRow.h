@@ -67,7 +67,7 @@ public:
 				return FReply::Unhandled();
 			}
 
-			PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_double_click, (char *)"OO", py_ue_new_fgeometry(InMyGeometry), py_ue_new_fpointer_event(InMouseEvent));
+			PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_double_click, (char *)"NN", py_ue_new_fgeometry(InMyGeometry), py_ue_new_fpointer_event(InMouseEvent));
 			if (!ret)
 			{
 				unreal_engine_py_log_error();
