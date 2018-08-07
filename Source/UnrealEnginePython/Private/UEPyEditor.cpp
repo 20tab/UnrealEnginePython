@@ -1925,7 +1925,7 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "invalid object name");
 	}
 
-	FString PackageName = PackageTools::SanitizePackageName(FString(UTF8_TO_TCHAR(name)) + TEXT("/") + FString(UTF8_TO_TCHAR(obj_name)));
+	FString PackageName = PackageTools::SanitizePackageName(FString(UTF8_TO_TCHAR(name)));
 
 	UPackage *outer = CreatePackage(nullptr, *PackageName);
 	if (!outer)
