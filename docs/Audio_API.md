@@ -12,10 +12,12 @@ self.uobject.play_sound_at_location(sound, FVector(0, 0, 0))
 If you prefer to work with AudioComponent:
 
 ```py
+from unreal_engine.classes import AudioComponent
+
 class Sounder:
     def begin_play(self):
         # find the AudioComponent of this actor
-        self.audio = self.uobject.get_component_by_type('AudioComponent')
+        self.audio = self.uobject.get_component_by_type(AudioComponent)
         self.audio.call('Stop')
     def tick(self, delta_time):
         # start the sound when pressing 'A'
