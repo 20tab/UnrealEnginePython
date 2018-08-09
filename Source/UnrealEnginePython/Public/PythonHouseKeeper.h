@@ -16,11 +16,13 @@ class FUnrealEnginePythonHouseKeeper : public FGCObject
 	{
 		FWeakObjectPtr Owner;
 		ue_PyUObject *PyUObject;
+		bool bPythonOwned;
 
 		FPythonUOjectTracker(UObject *Object, ue_PyUObject *InPyUObject)
 		{
 			Owner = FWeakObjectPtr(Object);
 			PyUObject = InPyUObject;
+			bPythonOwned = false;
 		}
 	};
 
@@ -110,6 +112,17 @@ public:
 
 	void TrackUObject(UObject *Object)
 	{
+		FPythonUOjectTracker *Tracker = UObjectPyMapping.Find(Object);
+		if (!Tracker)
+		{
+			return;
+		}
+		if (Tracker->bPythonOwned)
+			return;
+		Tracker->bPythonOwned = true;
+		// when a new ue_PyUObject spawns, it has a reference counting of two
+		Py_DECREF(Tracker->PyUObject);
+		Tracker->PyUObject->owned = 1;
 		PythonTrackedObjects.Add(Object);
 	}
 
@@ -141,14 +154,14 @@ public:
 #if defined(UEPY_MEMORY_DEBUG)
 			UE_LOG(LogPython, Warning, TEXT("DEFREF'ing UObject at %p (refcnt: %d)"), Object, Tracker->PyUObject->ob_base.ob_refcnt);
 #endif
-			if (!Tracker->PyUObject->owned)
+			if (!Tracker->bPythonOwned)
 				Py_DECREF((PyObject *)Tracker->PyUObject);
 			UnregisterPyUObject(Object);
 			return nullptr;
-		}
+	}
 
 		return Tracker->PyUObject;
-	}
+}
 
 	uint32 PyUObjectsGC()
 	{
@@ -168,19 +181,19 @@ public:
 #endif
 				BrokenList.Add(Object);
 				Garbaged++;
-			}
+		}
 			else
 			{
 #if defined(UEPY_MEMORY_DEBUG)
 				UE_LOG(LogPython, Error, TEXT("UObject at %p %s is in use"), Object, *Object->GetName());
 #endif
-			}
+	}
 		}
 
 		for (UObject *Object : BrokenList)
 		{
 			FPythonUOjectTracker &Tracker = UObjectPyMapping[Object];
-			if (!Tracker.PyUObject->owned)
+			if (!Tracker.bPythonOwned)
 				Py_DECREF((PyObject *)Tracker.PyUObject);
 			UnregisterPyUObject(Object);
 		}
@@ -223,7 +236,7 @@ public:
 
 		}
 		return Garbaged;
-	}
+		}
 
 	UPythonDelegate *NewDelegate(UObject *Owner, PyObject *PyCallable, UFunction *Signature)
 	{

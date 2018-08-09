@@ -1330,15 +1330,12 @@ static PyObject *ue_PyUObject_call(ue_PyUObject *self, PyObject *args, PyObject 
 			PyTuple_SetItem(py_args, 2, py_name);
 		}
 		ue_PyUObject *ret = (ue_PyUObject *)py_unreal_engine_new_object(nullptr, py_args);
+		Py_DECREF(py_args);
 		if (!ret)
 		{
-			Py_DECREF(py_args);
 			return NULL;
 		}
-		// when new_object is called the reference counting is 2
-		Py_DECREF(ret);
-		ret->owned = 1;
-
+		// when new_object is called the reference counting is 2 and is registered in the GC
 		// UObject crated explicitely from python, will be managed by python...
 		FUnrealEnginePythonHouseKeeper::Get()->TrackUObject(ret->ue_object);
 
