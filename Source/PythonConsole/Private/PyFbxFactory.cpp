@@ -28,6 +28,8 @@ UObject * UPyFbxFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, F
 {
 #if ENGINE_MINOR_VERSION >= 20
 	FbxMeshUtils::SetImportOption(ImportUI);
+	// ensure auto-detect is skipped
+	bDetectImportTypeOnImport = false;
 #endif
 	return Super::FactoryCreateFile(InClass, InParent, InName, Flags, Filename, Parms, Warn, bOutOperationCanceled);
 }
