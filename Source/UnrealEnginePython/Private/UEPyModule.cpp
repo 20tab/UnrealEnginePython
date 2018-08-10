@@ -207,12 +207,29 @@ static PyObject *py_unreal_engine_shutdown(PyObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_unreal_engine_set_brutal_finalize(PyObject *self, PyObject * args)
+{
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:set_brutal_finalize", &py_bool))
+	{
+		return nullptr;
+	}
+
+	bool bBrutalFinalize = !py_bool || PyObject_IsTrue(py_bool);
+
+	FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
+	PythonModule.BrutalFinalize = bBrutalFinalize;
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef unreal_engine_methods[] = {
 	{ "log", py_unreal_engine_log, METH_VARARGS, "" },
 	{ "log_warning", py_unreal_engine_log_warning, METH_VARARGS, "" },
 	{ "log_error", py_unreal_engine_log_error, METH_VARARGS, "" },
 
 	{ "shutdown", py_unreal_engine_shutdown, METH_VARARGS, "" },
+	{ "set_brutal_finalize", py_unreal_engine_set_brutal_finalize, METH_VARARGS, "" },
 
 	{ "add_on_screen_debug_message", py_unreal_engine_add_on_screen_debug_message, METH_VARARGS, "" },
 	{ "print_string", py_unreal_engine_print_string, METH_VARARGS, "" },
