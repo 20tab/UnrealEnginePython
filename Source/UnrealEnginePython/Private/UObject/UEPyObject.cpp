@@ -1854,7 +1854,6 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 			if (u_object->HasAnyFlags(RF_Transient))
 			{
 				u_object->ClearFlags(RF_Transient);
-				u_object->SetFlags(RF_Public | RF_Standalone);
 			}
 		}
 		// create a new package if it does not exist
@@ -1886,6 +1885,9 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		}
 	}
 
+	// ensure the right flags are applied
+	u_object->SetFlags(RF_Public | RF_Standalone);
+
 	package->FullyLoad();
 	package->MarkPackageDirty();
 
@@ -1901,7 +1903,7 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package->FileName = *FPackageName::LongPackageNameToFilename(package->GetPathName(), bIsMap ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension());
 	}
 
-	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString()))
+	if (UPackage::SavePackage(package, u_object, RF_NoFlags, *package->FileName.ToString()))
 	{
 		FAssetRegistryModule::AssetCreated(u_object);
 		Py_RETURN_UOBJECT(u_object);
