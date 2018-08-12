@@ -1840,6 +1840,8 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		has_package = true;
 	}
 
+	bool bIsMap = u_object->IsA<UWorld>();
+
 	if (!package || name)
 	{
 		if (!name)
@@ -1863,7 +1865,8 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		}
 		if (!package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
-		package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
+		
+		package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), bIsMap ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension());
 		if (has_package)
 		{
 			FString split_path;
@@ -1892,14 +1895,14 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 
 	if (package->FileName.IsNone())
 	{
-		package->FileName = *FPackageName::LongPackageNameToFilename(*package->GetPathName(), FPackageName::GetAssetPackageExtension());
+		package->FileName = *FPackageName::LongPackageNameToFilename(*package->GetPathName(), bIsMap ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension());
 		UE_LOG(LogPython, Warning, TEXT("no file mapped to UPackage %s, setting its FileName to %s"), *package->GetPathName(), *package->FileName.ToString());
 	}
 
 	// NOTE: FileName may not be a fully qualified filepath
 	if (FPackageName::IsValidLongPackageName(package->FileName.ToString()))
 	{
-		package->FileName = *FPackageName::LongPackageNameToFilename(package->GetPathName(), FPackageName::GetAssetPackageExtension());
+		package->FileName = *FPackageName::LongPackageNameToFilename(package->GetPathName(), bIsMap ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension());
 	}
 
 	if (UPackage::SavePackage(package, u_object, RF_Public | RF_Standalone, *package->FileName.ToString()))

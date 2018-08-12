@@ -791,12 +791,36 @@ PyObject *py_ue_sequencer_track_add_section(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	if (!self->ue_object->IsA<UMovieSceneTrack>())
+	PyObject *py_section = nullptr;
+	if (!PyArg_ParseTuple(args, "|O:sequencer_track_add_section", &py_section))
+		return nullptr;
+
+
+	UMovieSceneTrack *track = ue_py_check_type<UMovieSceneTrack>(self);
+	if (!track)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UMovieSceneTrack");
 
-	UMovieSceneTrack *track = (UMovieSceneTrack *)self->ue_object;
+	UMovieSceneSection *new_section = nullptr;
 
-	UMovieSceneSection *new_section = track->CreateNewSection();
+	if (!py_section)
+	{
+		new_section = track->CreateNewSection();
+	}
+	else
+	{
+		new_section = ue_py_check_type<UMovieSceneSection>(py_section);
+		if (!new_section)
+		{
+			UClass *u_class = ue_py_check_type<UClass>(py_section);
+			if (u_class && u_class->IsChildOf<UMovieSceneSection>())
+			{
+				new_section = NewObject<UMovieSceneSection>(track, u_class, NAME_None);
+			}
+		}
+	}
+
+	if (!new_section)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMovieSceneSection");
 
 	track->AddSection(*new_section);
 
@@ -1190,7 +1214,7 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 #endif
 
 			Py_RETURN_NONE;
-		}
+}
 	}
 
 	return PyErr_Format(PyExc_Exception, "unsupported section type: %s", TCHAR_TO_UTF8(*section->GetClass()->GetName()));
@@ -1583,7 +1607,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 
 						FMatineeImportTools::SetOrAddKey(*ChannelCurve, CurveFloat->Points[KeyIndex].InVal, CurveFloat->Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, CurveFloat->Points[KeyIndex].InterpMode);
 
-					}
+			}
 
 					ChannelCurve->RemoveRedundantKeys(KINDA_SMALL_NUMBER);
 					ChannelCurve->AutoSetTangents();
