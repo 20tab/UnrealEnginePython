@@ -57,12 +57,14 @@ PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
 
 #if ENGINE_MINOR_VERSION >= 20
+#if WITH_EDITOR
 	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
 	if (mesh)
 	{
 		mesh->SetMaterial(slot, material);
 		Py_RETURN_NONE;
 	}
+#endif
 #endif
 
 	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);

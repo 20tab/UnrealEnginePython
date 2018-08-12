@@ -1857,12 +1857,8 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 				u_object->SetFlags(RF_Public | RF_Standalone);
 			}
 		}
-		package = (UPackage *)StaticFindObject(nullptr, ANY_PACKAGE, UTF8_TO_TCHAR(name), true);
 		// create a new package if it does not exist
-		if (!package)
-		{
-			package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
-		}
+		package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		if (!package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
 		

@@ -67,6 +67,7 @@ static bool magic_get_frame_number(UMovieScene *MovieScene, PyObject *py_obj, FF
 
 }
 
+#if WITH_EDITOR
 static void ImportTransformChannel(const FInterpCurveFloat& Source, FMovieSceneFloatChannel* Dest, FFrameRate DestFrameRate, bool bNegateTangents)
 {
 	TMovieSceneChannelData<FMovieSceneFloatValue> ChannelData = Dest->GetData();
@@ -145,6 +146,7 @@ static bool ImportFBXTransform(FString NodeName, UMovieScene3DTransformSection* 
 
 	return true;
 }
+#endif
 
 #endif
 
