@@ -1064,6 +1064,9 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	mesh->Skeleton->RecreateBoneTree(mesh);
 	mesh->Skeleton->SetPreviewMesh(mesh);
 
+	// calculate bounds from points
+	mesh->SetImportedBounds(FBoxSphereBounds(points.GetData(), points.Num()));
+
 	mesh->Skeleton->PostEditChange();
 	mesh->Skeleton->MarkPackageDirty();
 
