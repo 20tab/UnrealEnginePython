@@ -599,6 +599,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "save_config", (PyCFunction)py_ue_save_config, METH_VARARGS, "" },
 	{ "get_actor_label", (PyCFunction)py_ue_get_actor_label, METH_VARARGS, "" },
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
+	{ "set_actor_hidden_in_game", (PyCFunction)py_ue_set_actor_hidden_in_game, METH_VARARGS, "" },
 
 	{ "get_editor_world_counterpart_actor", (PyCFunction)py_ue_get_editor_world_counterpart_actor, METH_VARARGS, "" },
 	{ "component_type_registry_invalidate_class", (PyCFunction)py_ue_component_type_registry_invalidate_class, METH_VARARGS, "" },

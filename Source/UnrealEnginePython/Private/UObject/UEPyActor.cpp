@@ -261,6 +261,35 @@ PyObject *py_ue_set_actor_label(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_set_actor_hidden_in_game(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "O:set_actor_hidden_in_game", &py_bool))
+	{
+		return nullptr;
+	}
+
+	if (PyObject_IsTrue(py_bool))
+	{
+		actor->SetActorHiddenInGame(true);
+	}
+	else
+	{
+		actor->SetActorHiddenInGame(false);
+	}
+
+	
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_find_actor_by_label(ue_PyUObject * self, PyObject * args)
 {
 
