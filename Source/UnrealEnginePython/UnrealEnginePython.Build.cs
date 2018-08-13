@@ -21,7 +21,7 @@ public class UnrealEnginePython : ModuleRules
         "C:/Program Files/Python37",
         "C:/Program Files/Python36",
         "C:/Program Files/Python35",
-        "C:/Python36",
+        "C:/Python27",
         "C:/IntelPython35"
     };
 
