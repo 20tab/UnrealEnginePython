@@ -27,6 +27,13 @@ void UPyFbxFactory::PostInitProperties() {
 UObject * UPyFbxFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
 #if ENGINE_MINOR_VERSION >= 20
+	if (ImportUI->MeshTypeToImport == FBXIT_MAX)
+	{
+		if (!DetectImportType(UFactory::CurrentFilename))
+		{
+			return nullptr;
+		}
+	}
 	FbxMeshUtils::SetImportOption(ImportUI);
 	// ensure auto-detect is skipped
 	bDetectImportTypeOnImport = false;
