@@ -4,6 +4,9 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Runtime/CoreUObject/Public/UObject/UObjectIterator.h"
+#if WITH_EDITOR
+#include "Editor/UnrealEd/Public/EditorActorFolders.h"
+#endif
 
 PyObject *py_ue_world_exec(ue_PyUObject *self, PyObject * args)
 {
@@ -315,3 +318,105 @@ PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_FALSE;
 }
 
+#if WITH_EDITOR
+PyObject *py_ue_world_create_folder(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:world_create_folder", &path))
+		return nullptr;
+
+	if (!FActorFolders::IsAvailable())
+		return PyErr_Format(PyExc_Exception, "FActorFolders is not available");
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	FName FolderPath = FName(UTF8_TO_TCHAR(path));
+
+	FActorFolders::Get().CreateFolder(*world, FolderPath);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_world_delete_folder(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:world_delete_folder", &path))
+		return nullptr;
+
+	if (!FActorFolders::IsAvailable())
+		return PyErr_Format(PyExc_Exception, "FActorFolders is not available");
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	FName FolderPath = FName(UTF8_TO_TCHAR(path));
+
+	FActorFolders::Get().DeleteFolder(*world, FolderPath);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_world_rename_folder(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *path;
+	char *new_path;
+	if (!PyArg_ParseTuple(args, "ss:world_rename_folder", &path, &new_path))
+		return nullptr;
+
+	if (!FActorFolders::IsAvailable())
+		return PyErr_Format(PyExc_Exception, "FActorFolders is not available");
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	FName FolderPath = FName(UTF8_TO_TCHAR(path));
+	FName NewFolderPath = FName(UTF8_TO_TCHAR(new_path));
+
+	if (FActorFolders::Get().RenameFolderInWorld(*world, FolderPath, NewFolderPath))
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_world_folders(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	if (!FActorFolders::IsAvailable())
+		return PyErr_Format(PyExc_Exception, "FActorFolders is not available");
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	const TMap<FName, FActorFolderProps> &Folders = FActorFolders::Get().GetFolderPropertiesForWorld(*world);
+
+	PyObject *py_list = PyList_New(0);
+
+	TArray<FName> FolderNames;
+	Folders.GenerateKeyArray(FolderNames);
+	
+	for (FName FolderName : FolderNames)
+	{
+		PyObject *py_str = PyUnicode_FromString(TCHAR_TO_UTF8(*FolderName.ToString()));
+		PyList_Append(py_list, py_str);
+		Py_DECREF(py_str);
+	}
+
+	return py_list;
+}
+#endif

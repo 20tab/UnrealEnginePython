@@ -30,3 +30,10 @@ PyObject *py_ue_set_current_level(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_world_type(ue_PyUObject *, PyObject *);
 
+#if WITH_EDITOR
+PyObject *py_ue_world_create_folder(ue_PyUObject *, PyObject *);
+PyObject *py_ue_world_delete_folder(ue_PyUObject *, PyObject *);
+PyObject *py_ue_world_rename_folder(ue_PyUObject *, PyObject *);
+PyObject *py_ue_world_folders(ue_PyUObject *, PyObject *);
+#endif
+

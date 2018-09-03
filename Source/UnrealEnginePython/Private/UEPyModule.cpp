@@ -621,6 +621,14 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_actor_label", (PyCFunction)py_ue_set_actor_label, METH_VARARGS, "" },
 	{ "set_actor_hidden_in_game", (PyCFunction)py_ue_set_actor_hidden_in_game, METH_VARARGS, "" },
 
+	{ "get_folder_path", (PyCFunction)py_ue_get_folder_path, METH_VARARGS, "" },
+	{ "set_folder_path", (PyCFunction)py_ue_set_folder_path, METH_VARARGS, "" },
+
+	{ "world_create_folder", (PyCFunction)py_ue_world_create_folder, METH_VARARGS, "" },
+	{ "world_delete_folder", (PyCFunction)py_ue_world_delete_folder, METH_VARARGS, "" },
+	{ "world_rename_folder", (PyCFunction)py_ue_world_rename_folder, METH_VARARGS, "" },
+	{ "world_folders", (PyCFunction)py_ue_world_folders, METH_VARARGS, "" },
+
 	{ "get_editor_world_counterpart_actor", (PyCFunction)py_ue_get_editor_world_counterpart_actor, METH_VARARGS, "" },
 	{ "component_type_registry_invalidate_class", (PyCFunction)py_ue_component_type_registry_invalidate_class, METH_VARARGS, "" },
 

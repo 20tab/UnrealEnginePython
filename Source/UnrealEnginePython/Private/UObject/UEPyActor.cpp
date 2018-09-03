@@ -221,6 +221,49 @@ PyObject *py_ue_component_type_registry_invalidate_class(ue_PyUObject *self, PyO
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_get_folder_path(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor");
+
+	const FName DirPath = actor->GetFolderPath();
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*DirPath.ToString()));
+}
+
+PyObject *py_ue_set_folder_path(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *path;
+	PyObject *py_bool = nullptr;
+
+	if (!PyArg_ParseTuple(args, "s|O:set_folder_path", &path, &py_bool))
+		return nullptr;
+
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor");
+
+	FName DirPath = FName(UTF8_TO_TCHAR(path));
+
+	if (py_bool && PyObject_IsTrue(py_bool))
+	{
+		actor->SetFolderPath_Recursively(DirPath);
+	}
+	else
+	{
+		actor->SetFolderPath(DirPath);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args)
 {
 
@@ -285,7 +328,7 @@ PyObject *py_ue_set_actor_hidden_in_game(ue_PyUObject *self, PyObject * args)
 		actor->SetActorHiddenInGame(false);
 	}
 
-	
+
 
 	Py_RETURN_NONE;
 }
