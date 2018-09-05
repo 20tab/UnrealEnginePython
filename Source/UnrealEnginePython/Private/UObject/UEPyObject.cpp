@@ -985,11 +985,19 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 
 	ue_py_check(self);
 
-	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:broadcast", &property_name))
+	Py_ssize_t args_len = PyTuple_Size(args);
+	if (args_len < 1)
 	{
-		return nullptr;
+		return PyErr_Format(PyExc_Exception, "you need to specify the event to trigger");
 	}
+
+	PyObject *py_property_name = PyTuple_GetItem(args, 0);
+	if (!PyUnicodeOrString_Check(py_property_name))
+	{
+		return PyErr_Format(PyExc_Exception, "event name must be a unicode string");
+	}
+
+	const char *property_name = UEPyUnicode_AsUTF8(py_property_name);
 
 	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
@@ -997,10 +1005,58 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 	{
-		Py_BEGIN_ALLOW_THREADS;
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
 		uint8 *parms = (uint8 *)FMemory_Alloca(casted_prop->SignatureFunction->PropertiesSize);
 		FMemory::Memzero(parms, casted_prop->SignatureFunction->PropertiesSize);
+
+		uint32 argn = 1;
+
+		// initialize args
+		for (TFieldIterator<UProperty> IArgs(casted_prop->SignatureFunction); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
+		{
+			UProperty *prop = *IArgs;
+			if (!prop->HasAnyPropertyFlags(CPF_ZeroConstructor))
+			{
+				prop->InitializeValue_InContainer(parms);
+			}
+
+			if ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm)
+			{
+				if (!prop->IsInContainer(casted_prop->SignatureFunction->ParmsSize))
+				{
+					return PyErr_Format(PyExc_Exception, "Attempting to import func param property that's out of bounds. %s", TCHAR_TO_UTF8(*casted_prop->SignatureFunction->GetName()));
+				}
+
+				PyObject *py_arg = PyTuple_GetItem(args, argn);
+				if (!py_arg)
+				{
+					PyErr_Clear();
+#if WITH_EDITOR
+					FString default_key = FString("CPP_Default_") + prop->GetName();
+					FString default_key_value = casted_prop->SignatureFunction->GetMetaData(FName(*default_key));
+					if (!default_key_value.IsEmpty())
+					{
+#if ENGINE_MINOR_VERSION >= 17
+						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(parms), PPF_None, NULL);
+#else
+						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
+#endif
+					}
+#endif
+				}
+				else if (!ue_py_convert_pyobject(py_arg, prop, parms, 0))
+				{
+					return PyErr_Format(PyExc_TypeError, "unable to convert pyobject to property %s (%s)", TCHAR_TO_UTF8(*prop->GetName()), TCHAR_TO_UTF8(*prop->GetClass()->GetName()));
+				}
+
+
+			}
+
+			argn++;
+
+		}
+
+		Py_BEGIN_ALLOW_THREADS;
 		multiscript_delegate.ProcessMulticastDelegate<UObject>(parms);
 		Py_END_ALLOW_THREADS;
 	}
@@ -1907,7 +1963,7 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
 		if (!package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
-		
+
 		package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), bIsMap ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension());
 		if (has_package)
 		{
