@@ -37,8 +37,21 @@
 #include "Editor/MainFrame/Public/Interfaces/IMainFrameModule.h"
 
 #include "Runtime/Core/Public/HAL/ThreadHeartBeat.h"
+#include "Runtime/Engine/Public/EditorSupportDelegates.h"
 
 #include "UEPyIPlugin.h"
+
+PyObject *py_unreal_engine_redraw_all_viewports(PyObject * self, PyObject * args)
+{
+	FEditorSupportDelegates::RedrawAllViewports.Broadcast();
+	Py_RETURN_NONE;
+}
+
+PyObject *py_unreal_engine_update_ui(PyObject * self, PyObject * args)
+{
+	FEditorSupportDelegates::UpdateUI.Broadcast();
+	Py_RETURN_NONE;
+}
 
 PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * args)
 {
@@ -273,7 +286,7 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 	Py_END_ALLOW_THREADS;
 
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_editor_select_actor(PyObject * self, PyObject * args)
 {
@@ -449,7 +462,7 @@ PyObject *py_unreal_engine_import_asset(PyObject * self, PyObject * args)
 	}
 
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_editor_tick(PyObject * self, PyObject * args)
 {
@@ -742,7 +755,7 @@ PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 #endif
 
 	Py_RETURN_NONE;
-}
+	}
 
 PyObject *py_unreal_engine_duplicate_asset(PyObject * self, PyObject * args)
 {
@@ -1849,9 +1862,10 @@ PyObject *py_unreal_engine_on_main_frame_creation_finished(PyObject * self, PyOb
 	py_delegate->SetPyCallable(py_callable);
 	IMainFrameModule& MainFrameModule = FModuleManager::LoadModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
 	MainFrameModule.OnMainFrameCreationFinished().AddRaw(py_delegate, &FPythonSmartDelegate::PyFOnMainFrameCreationFinished);
-	
+
 	Py_RETURN_NONE;
 }
+
 
 PyObject *py_unreal_engine_create_material_instance(PyObject * self, PyObject * args)
 {
@@ -2060,7 +2074,7 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 #endif
 
 	Py_RETURN_UOBJECT(level_streaming);
-}
+	}
 
 PyObject *py_unreal_engine_move_selected_actors_to_level(PyObject *self, PyObject * args)
 {
