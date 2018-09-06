@@ -431,6 +431,27 @@ vec = self.uobject.GetActorLocation()
 
 Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
+Note that, in editor builds, when you change the property of an archetype (included ClassDefaultObject) via __setattr__ all of the archtype instances will be updated too.
+
+To be more clear:
+
+```python
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.MaxWalkSpeed = 600.0
+```
+
+is a super shortcut for:
+
+```python
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.pre_edit_change('MaxWalkSpeed')
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.set_property('MaxWalkSpeed', 600.0)
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.post_edit_change_property('MaxWalkSpeed')
+for instance in your_blueprint.GeneratedClass.get_cdo().CharacterMovement.get_archetype_instances():
+    instance.pre_edit_change('MaxWalkSpeed')
+    instance.set_property('MaxWalkSpeed', 600.0)
+    instance.post_edit_change_property('MaxWalkSpeed')
+```
+
+
 The automagic UClass, UStruct and UEnums mappers
 ------------------------------------------------
 
