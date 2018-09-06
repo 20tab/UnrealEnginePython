@@ -1318,8 +1318,8 @@ static int ue_PyUObject_setattro(ue_PyUObject *self, PyObject *attr_name, PyObje
 						Instance->PreEditChange(u_property);
 						if (ue_py_convert_pyobject(value, u_property, (uint8*)Instance, 0))
 						{
-							FPropertyChangedEvent PropertyEvent(u_property, EPropertyChangeType::ValueSet);
-							Instance->PostEditChangeProperty(PropertyEvent);
+							FPropertyChangedEvent InstancePropertyEvent(u_property, EPropertyChangeType::ValueSet);
+							Instance->PostEditChangeProperty(InstancePropertyEvent);
 						}
 						else
 						{

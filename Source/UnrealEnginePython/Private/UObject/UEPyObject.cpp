@@ -1039,7 +1039,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 #if ENGINE_MINOR_VERSION >= 17
 						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(parms), PPF_None, NULL);
 #else
-						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
+						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(parms), PPF_Localized, NULL);
 #endif
 					}
 #endif
