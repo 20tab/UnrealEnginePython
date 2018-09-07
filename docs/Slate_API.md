@@ -685,7 +685,6 @@ class AssetOpener(SHorizontalBox):
     def open_or_validate(self):
         try:
             asset = ue.load_object(Object, self.asset_name_picker.get_text())
-            print(asset)
         except:
             ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'invalid path')
             return
@@ -711,3 +710,29 @@ window = SWindow(client_size=(512, 64), title='Open Asset', sizing_rule=0)(
 ![OOP](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_OOP.png)
 
 As you can see, you can inherit from SWidget. Obviously you can mix 'visual' style, with fully procedural one, but the use of classes will simplify 'context' management.
+
+## SObjectPropertyEntryBox
+
+This widget allows the user to select an asset from a specific class
+
+```python
+from unreal_engine import SWindow, SObjectPropertyEntryBox
+from unreal_engine.classes import Material
+import unreal_engine as ue
+
+
+
+window = SWindow(client_size=(512, 256), title='Material Selector', sizing_rule=0)(
+    (  
+        SObjectPropertyEntryBox(allowed_class=Material, on_object_changed=lambda choice: ue.open_editor_for_asset(choice.get_asset()))
+    )
+)    
+```
+
+![SObjectPropertyEntryBox](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SObjectPropertyEntryBox.png)
+
+note that the callable executed by on_object_changed receives an FAssetData object as argument (this is why we need to call get_asset())
+
+More infos here: https://api.unrealengine.com/INT/API/Editor/PropertyEditor/SObjectPropertyEntryBox/index.html
+
+## 
