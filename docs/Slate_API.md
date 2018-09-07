@@ -9,6 +9,8 @@ The python wrapper development has been sponsored by Kite & Lightning (http://ki
 
 This document assumes a python3 environment. If you are using python2, just ensure to use unicode when you see strings.
 
+It is a 'Work In Progress' and its objective is to give the user enough basis to start building its tools. Only a meaningful subset of the available widgets is explained here, pull requests for extending this page are really welcomed.
+
 ## SWidget and ue_PySWidget
 
 SWidget is the base C++ class for all the Slate widgets, it is wrapped in a python object (PyObject) named ue_PySWidget.
