@@ -129,7 +129,7 @@ window = SWindow(client_size=(512, 512), title='First Slate Window')(
 
 Boxes are one of the many Slate ways to organize/align multiple widgets in a containers.
 
-SVerticalBox (https://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SVerticalBox/index.html) is a box allowing you to align widgets vertically in a container:
+SVerticalBox (https://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SVerticalBox/index.html) is a box allowing you to align widgets vertically in a container (each element of the box is named 'slot', a lot effectively contains the widget as well as various attibutes):
 
 ```python
 from unreal_engine import SWindow, STextBlock, SVerticalBox
@@ -165,6 +165,56 @@ window = SWindow(client_size=(512, 512), title='First Slate Window')(
     )
 )
 ```
+
+## Slot attributes
+
+We have seen that the mapping between a box and the various widgets is managed by 'slots'. Each slot describes the way a widget is managed in a box (mainly alignment and padding):
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(STextBlock(text='Hello i am an STextBlock [line 0]'), auto_height=True, padding=(10, 20, 10, 100))
+vertical_box.add_slot(STextBlock(text='Hello i am an STextBlock [line 1]'), max_height=173, h_align=EHorizontalAlignment.HAlign_Center)
+vertical_box.add_slot(STextBlock(text='Hello i am an STextBlock [line 2]'), h_align=EHorizontalAlignment.HAlign_Right, v_align=EVerticalAlignment.VAlign_Bottom, padding=(0, 0, 50, 50))
+
+window.set_content(vertical_box)
+```
+
+![Slot](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Slot.png)
+
+The first slot will have its height automatically mapped to the height of the contained widget (the STextBlock) and a padding of 10 units on the top, 20 on the left, 10 on the right and 100 on the bottom. (more on padding, later).
+
+The second slot starts 100 units below the first one (caused by the padding of the first slot). Its content will be aligned to the center and will have a maximum height of 173 unit (we use 'max' wording here as the SVerticalBox alignment could be forced to make it tinier). 
+
+The third slot is aligned to right and vertically to the bottom with a rght/bottom padding of 50 units.
+
+It is pretty hard to see what is going on here, but adding an SBorder will clarify things...
+
+## SBorder
+
+SBorder is a special container what will add a border around its contained widget:
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]')), auto_height=True, padding=(10, 20, 10, 100))
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 1]')), max_height=173, h_align=EHorizontalAlignment.HAlign_Center)
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 2]')), h_align=EHorizontalAlignment.HAlign_Right, v_align=EVerticalAlignment.VAlign_Bottom, padding=(0, 0, 50, 20))
+
+window.set_content(SBorder()(vertical_box))
+```
+
+![SBorder](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SBorder.png)
 
 ## SHorizontalBox
 
