@@ -127,6 +127,43 @@ window = SWindow(client_size=(512, 512), title='First Slate Window')(
 
 ## SVerticalBox
 
+Boxes are one of the many Slate ways to organize/align multiple widgets in a containers.
+
+SVerticalBox ()
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(STextBlock(text='Hello i am an STextBlock [line 0]'))
+vertical_box.add_slot(STextBlock(text='Hello i am an STextBlock [line 1]'))
+vertical_box.add_slot(STextBlock(text='Hello i am an STextBlock [line 2]'))
+
+window.set_content(vertical_box)
+```
+
+or in 'visual' style (always note the first opened bracked in the same line of SWindow to fake the parser):
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')(
+    SVerticalBox()
+    (
+        STextBlock(text='Hello i am an STextBlock [line 0]')
+    )
+    (
+        STextBlock(text='Hello i am an STextBlock [line 1]')
+    )
+    (
+        STextBlock(text='Hello i am an STextBlock [line 2]')
+    )
+)
+```
+
 ## SHorizontalBox
 
 ## SButton
