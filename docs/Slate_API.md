@@ -17,7 +17,7 @@ Each SWidget exposed to python has its ue_PySWidget representation. You can get 
 
 ## SWindow
 
-this is the first widget you generally use as it will be the container for the others. It represent a window:
+this is the first widget you generally use as it will be the container for the others. It represents a window:
 
 ```python
 from unreal_engine import SWindow
@@ -25,6 +25,44 @@ from unreal_engine import SWindow
 window = SWindow(client_size=(512, 512), title='First Slate Window')
 ```
 
+![SWindow](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SWindow.png)
+
 As you can see just by instancing Slate you will create and show them.
 
 In the C++ api, each SWidget has its series of FArguments (https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Input/SComboBox/FArguments/index.html). They are the options of the SWidget, and in the python api you pass them as arguments to the constructor (note the pythonization of the names with lower-case-underscore-delimited conversion). In this case the ClientSize FArguments (http://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SWindow/FArguments/ClientSize/index.html) became 'client_size' and Title (http://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SWindow/FArguments/Title/index.html) became 'title'. Note the shortcut from FVector2D to a simple 2-elements float tuple. (both are supported)
+
+
+## STextBlock
+
+STextBlock (https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Text/STextBlock/index.html) shows a simple text label:
+
+```python
+from unreal_engine import SWindow, STextBlock
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+text = STextBlock(text='Hello i am an STextBlock')
+
+window.set_content(text)
+```
+
+![STextBlock](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_STextBlock.png)
+
+Again using FArguments (https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Text/STextBlock/FArguments/index.html) you can (as an example) set the color of the text to red:
+
+```python
+from unreal_engine import SWindow, STextBlock, FLinearColor
+from unreal_engine.structs import SlateColor
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+red = SlateColor(SpecifiedColor=FLinearColor(1, 0, 0))
+
+text = STextBlock(text='Hello i am an STextBlock', color_and_opacity=red)
+
+window.set_content(text)
+```
+
+![STextBlock red](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_STextBlock_red.png)
+
+## SButton
