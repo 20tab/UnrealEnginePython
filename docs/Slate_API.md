@@ -764,6 +764,35 @@ window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_ru
 
 Note that by calling the .simulate(bool) method on the SPythonEditorViewport instance you can enable/disable the world ticking
 
+## Nomad Tabs
+
+If you plan to make a slate tool, very probably you do not want to spawn a plain SWindow, instead you want a dock (SDockTab) that you can move/rearrange in your editor and (more important) that is unique and runnable from an editor menu.
+
+This can be accomplished in a single step with nomad tab spawner:
+
+```python
+from unreal_engine import SWindow, SPythonEditorViewport, FVector, FRotator
+from unreal_engine.classes import Blueprint
+import unreal_engine as ue
+
+
+def create_tab(dock_tab):
+    editor_viewport = SPythonEditorViewport()
+    world = editor_viewport.get_world()
+    world.actor_spawn(ue.load_object(Blueprint, '/Game/ThirdPersonCPP/Blueprints/ThirdPersonCharacter').GeneratedClass)
+    editor_viewport_client = editor_viewport.get_editor_viewport_client()
+    editor_viewport_client.set_view_location(FVector(-200, 300, 200))
+    editor_viewport_client.set_view_rotation(FRotator(0, -30, -90))
+
+    editor_viewport.simulate(True)
+
+    dock_tab.set_content(editor_viewport)
+
+ue.register_nomad_tab_spawner('Hello Nomads !', create_tab)
+```
+
+![Nomad](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Nomad.png)
+
 ## Properties Editors
 
 ```python
