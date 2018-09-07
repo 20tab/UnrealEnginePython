@@ -762,13 +762,13 @@ window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_ru
 
 ![SPythonEditorViewport](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SPythonEditorViewport.png)
 
+Note that by calling the .simulate(bool) method on the SPythonEditorViewport instance you can enable/disable the world ticking
+
 ## Properties Editors
 
 ```python
 from unreal_engine import SWindow
 import unreal_engine as ue
-
-
 
 window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_rule=0)(
     (  
