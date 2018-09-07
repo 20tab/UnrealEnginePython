@@ -232,7 +232,66 @@ Now slot attributes should be more clear. Note that SBorder has a set_content() 
 SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]'))
 ```
 
+The list of FArguments for SBorder is avalable here: https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Layout/SBorder/FArguments/
+
 ## Padding
+
+The padding attributes of slots, defines their margin size.
+
+Padding in the python api accepts various forms:
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]')), padding=100, v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(vertical_box))
+```
+
+passing a single float will specify the same amount of units for top, left, bottom and right:
+
+![Padding](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding.png)
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]')), padding=(100, 100), v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(vertical_box))
+```
+
+a 2-items float tuple will specify top and left and will force bottom and right to 0:
+
+![Padding 2](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding2.png)
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]')), padding=(100, 100, 30, 30), v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(vertical_box))
+```
+
+We have alredy seen the 4-items float tuple for specifying top, left, bottom and right:
+
+![Padding 3](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding3.png)
+
+
 
 ## SHorizontalBox
 
