@@ -816,6 +816,13 @@ window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_ru
 
 ![SDetailView](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SDetailView.png)
 
+## Extenders
+
+Extenders allows you to 'extend' menus or toolbar with new entries or buttons.
+
+Check this example: https://github.com/20tab/UnrealEnginePython/blob/master/examples/extenders_example.py
+
+It shows even how to register new style sets.
 
 ## SPythonListView
 
