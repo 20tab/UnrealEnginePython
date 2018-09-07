@@ -193,6 +193,16 @@ The second slot starts 100 units below the first one (caused by the padding of t
 
 The third slot is aligned to right and vertically to the bottom with a rght/bottom padding of 50 units.
 
+Useful links:
+
+https://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SVerticalBox/FSlot/index.html
+
+https://api.unrealengine.com/INT/API/Runtime/SlateCore/Types/EHorizontalAlignment/index.html
+
+https://api.unrealengine.com/INT/API/Runtime/SlateCore/Types/EVerticalAlignment/index.html
+
+
+
 It is pretty hard to see what is going on here, but adding an SBorder will clarify things...
 
 ## SBorder
