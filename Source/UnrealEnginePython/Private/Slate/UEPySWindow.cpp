@@ -126,6 +126,26 @@ static PyObject *py_ue_swindow_request_destroy(ue_PySWindow *self, PyObject * ar
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_swindow_bring_to_front(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+
+	PyObject *py_force = nullptr;
+	
+	if (!PyArg_ParseTuple(args, "|O:set_as_owner", &py_force))
+	{
+		return nullptr;
+	}
+
+	bool bForce = false;
+	if (py_force && PyObject_IsTrue(py_force))
+		bForce = true;
+
+	py_SWindow->BringToFront(bForce);
+	
+	Py_RETURN_NONE;
+}
+
 #if WITH_EDITOR
 static PyObject *py_ue_swindow_add_modal(ue_PySWindow *self, PyObject * args)
 {
@@ -189,6 +209,7 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "get_handle", (PyCFunction)py_ue_swindow_get_handle, METH_VARARGS, "" },
 	{ "set_as_owner", (PyCFunction)py_ue_swindow_set_as_owner, METH_VARARGS, "" },
 	{ "request_destroy", (PyCFunction)py_ue_swindow_request_destroy, METH_VARARGS, "" },
+    { "bring_to_front", (PyCFunction)py_ue_swindow_bring_to_front, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "add_modal", (PyCFunction)py_ue_swindow_add_modal, METH_VARARGS, "" },
 #endif
