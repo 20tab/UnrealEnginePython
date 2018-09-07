@@ -468,6 +468,31 @@ More infos here: https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Layo
 
 ## SButton
 
+It's time for user interaction. The SButton widget raises an event whenevr the user clicks on it:
+
+```python
+from unreal_engine import SWindow, SVerticalBox, SButton
+from unreal_engine.enums import EHorizontalAlignment
+import unreal_engine as ue
+import time
+
+window = SWindow(client_size=(512, 256), title='Slate Window')(
+    SVerticalBox()
+    (
+        SButton(text='Button 001', on_clicked=lambda: ue.log('Hello i am Button001'))
+    )
+    (
+        SButton(text='Button 002', h_align=EHorizontalAlignment.HAlign_Center, on_clicked=lambda: (ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'Hello i am Button002'), window.bring_to_front()))
+    )
+    (
+        SButton(text='Update title with current time', on_clicked=lambda: window.set_title(str(time.time())))
+    )
+    (
+        SButton(text='Close Window', on_clicked=lambda: window.request_destroy())
+    )
+)
+```
+
 ## SEditableTextBox
 
 ## SImage
