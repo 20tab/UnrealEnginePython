@@ -1254,6 +1254,7 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 #endif
 						}
 					}
+					return PyErr_Format(PyExc_Exception, "unknown enum name \"%s\"", attr);
 				}
 #endif
 				if (self->ue_object->IsA<UEnum>())
@@ -1261,9 +1262,15 @@ static PyObject *ue_PyUObject_getattro(ue_PyUObject *self, PyObject *attr_name)
 					UEnum *u_enum = (UEnum *)self->ue_object;
 					PyErr_Clear();
 #if ENGINE_MINOR_VERSION > 15
-					return PyLong_FromLong(u_enum->GetIndexByName(FName(UTF8_TO_TCHAR(attr))));
+					int32 value = u_enum->GetIndexByName(FName(UTF8_TO_TCHAR(attr)));
+					if (value == INDEX_NONE)
+						return PyErr_Format(PyExc_Exception, "unknown enum name \"%s\"", attr);
+					return PyLong_FromLong(value);
 #else
-					return PyLong_FromLong(u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr))));
+					int32 value = u_enum->FindEnumIndex(FName(UTF8_TO_TCHAR(attr)));
+					if (value == INDEX_NONE)
+						return PyErr_Format(PyExc_Exception, "unknown enum name \"%s\"", attr);
+					return PyLong_FromLong(value);
 #endif
 				}
 			}

@@ -196,6 +196,16 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 		ue_py_slate_down(param)
 
+
+#define ue_py_slate_farguments_int32(param, attribute) ue_py_slate_up(int32, GetterInt, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((int32)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
+
+
 #define ue_py_slate_farguments_tint(param, attribute) ue_py_slate_up(TOptional<int32>, GetterIntT<TOptional<int32>>, param, attribute)\
 		else if (PyNumber_Check(value)) {\
 			PyObject *py_int = PyNumber_Long(value);\
@@ -311,6 +321,20 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 		}\
 }
 
+
+#define ue_py_slate_farguments_optional_int32(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((int32)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
 
 
 #define ue_py_slate_farguments_optional_float(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
@@ -450,6 +474,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
     value = value ? value : PyTuple_GetItem(args, 0);\
+    if (!value) {PyErr_Clear(); PyErr_SetString(PyExc_TypeError, "you need to specify a widget"); return -1;}\
 	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(value);\
 	if (Widget.IsValid())\
 		arguments.AttachWidget(Widget.ToSharedRef());\
@@ -461,6 +486,10 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 #define ue_py_slate_setup_hack_slot_args(_type, _swidget_ref) _type::FSlot &arguments = _swidget_ref->AddSlot();\
+	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
+    ue_py_slate_farguments_required_slot("widget");
+
+#define ue_py_slate_setup_hack_slot_args_grid(_type, _swidget_ref, column, row, layer) _type::FSlot &arguments = _swidget_ref->AddSlot(column, row, layer);\
 	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
     ue_py_slate_farguments_required_slot("widget");
 

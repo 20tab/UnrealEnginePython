@@ -11,34 +11,41 @@ static PyObject *py_ue_sgrid_panel_clear_children(ue_PySGridPanel *self, PyObjec
 	Py_RETURN_NONE;
 }
 
-static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * args)
+static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * args, PyObject * kwargs)
 {
 	ue_py_slate_cast(SGridPanel);
+
 	PyObject *py_content;
-	int col;
+	int column;
 	int row;
 	int layer = 0;
-	if (!PyArg_ParseTuple(args, "Oii|i:add_slot", &py_content, &col, &row, &layer))
-	{
-		return NULL;
-	}
 
-	TSharedPtr<SWidget> Content = py_ue_is_swidget<SWidget>(py_content);
-	if (!Content.IsValid())
+	char *kwlist[] = { (char *)"widget", (char *)"column", (char *)"row", (char *)"layer", nullptr };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oii|i:add_slot", kwlist, &py_content, &column, &row, &layer))
 	{
 		return nullptr;
 	}
 
+	int32 retCode = [&]() {
+		ue_py_slate_setup_hack_slot_args_grid(SGridPanel, py_SGridPanel, column, row, SGridPanel::Layer(layer));
+		ue_py_slate_farguments_optional_int32("column_span", ColumnSpan);
+		ue_py_slate_farguments_optional_fvector2d("nudge", Nudge);
+		ue_py_slate_farguments_optional_int32("row_span", RowSpan);
+		return 0;
+	}();
 
-	SGridPanel::FSlot &fslot = py_SGridPanel->AddSlot(col, row, SGridPanel::Layer(layer));
-	fslot.AttachWidget(Content.ToSharedRef());
+	if (retCode != 0)
+	{
+		return PyErr_Format(PyExc_Exception, "could not add GridPanel slot");
+	}
 
 	Py_RETURN_SLATE_SELF;
 }
 
 static PyMethodDef ue_PySGridPanel_methods[] = {
 	{ "clear_children", (PyCFunction)py_ue_sgrid_panel_clear_children, METH_VARARGS, "" },
-	{ "add_slot", (PyCFunction)py_ue_sgrid_panel_add_slot, METH_VARARGS, "" },
+#pragma warning(suppress: 4191)
+	{ "add_slot", (PyCFunction)py_ue_sgrid_panel_add_slot,  METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };
 
