@@ -29,7 +29,11 @@ window = SWindow(client_size=(512, 512), title='First Slate Window')
 
 As you can see just by instancing Slate you will create and show them.
 
-In the C++ api, each SWidget has its series of FArguments (https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Input/SComboBox/FArguments/index.html). They are the options of the SWidget, and in the python api you pass them as arguments to the constructor (note the pythonization of the names with lower-case-underscore-delimited conversion). In this case the ClientSize FArguments (http://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SWindow/FArguments/ClientSize/index.html) became 'client_size' and Title (http://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SWindow/FArguments/Title/index.html) became 'title'. Note the shortcut from FVector2D to a simple 2-elements float tuple. (both are supported)
+In the C++ api, each SWidget has its series of FArguments (https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Input/SComboBox/FArguments/index.html).
+
+They are the options of the SWidget, and in the python api you pass them as arguments to the constructor (note the pythonization of the names with lower-case-underscore-delimited conversion).
+
+In this case the ClientSize FArguments (http://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SWindow/FArguments/ClientSize/index.html) became 'client_size' and Title (http://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SWindow/FArguments/Title/index.html) became 'title'. Note the shortcut from FVector2D to a simple 2-elements float tuple. (both are supported)
 
 
 ## STextBlock
@@ -291,8 +295,99 @@ We have alredy seen the 4-items float tuple for specifying top, left, bottom and
 
 ![Padding 3](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding3.png)
 
+In addition to float/float-tuples you can specify padding using the FMargin struct:
 
+```python
+from unreal_engine.structs import Margin
+print(Margin.properties())
+```
+returns
+
+```python
+['Left', 'Top', 'Right', 'Bottom']
+```
+
+So:
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+from unreal_engine.structs import Margin
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]')), padding=Margin(Left=100, Right=50), v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(vertical_box))
+```
+
+![Padding 4](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding4.png)
 
 ## SHorizontalBox
 
+SHorizontalBox allows you to horizontally align widgets in a containers:
+
+```python
+from unreal_engine import SWindow, STextBlock, SHorizontalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+from unreal_engine.structs import Margin
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+horizontal_box = SHorizontalBox()
+
+horizontal_box.add_slot(SBorder()(STextBlock(text='Left')), padding=Margin(Left=100, Right=50, Bottom=30), v_align=EVerticalAlignment.VAlign_Fill)
+horizontal_box.add_slot(SBorder()(STextBlock(text='Right')), padding=Margin(Left=10, Right=20, Top=50), v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(horizontal_box))
+```
+
+![SHorizontalBox](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SHorizontalBox.png)
+
+You can obviously combine vertical and horizontal boxes (this time using 'visual' style)
+
+```python
+from unreal_engine import SWindow, STextBlock, SHorizontalBox, SVerticalBox, SBorder, FLinearColor
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment, ETextJustify
+from unreal_engine.structs import Margin, SlateColor
+
+SWindow(client_size=(512, 256), title='Slate Window')(
+    SVerticalBox()
+    (
+        SHorizontalBox()
+        (
+            SBorder()(STextBlock(text='Left top', justification=ETextJustify.Center)), v_align=EVerticalAlignment.VAlign_Fill
+        )
+        (
+            SBorder(border_background_color=SlateColor(SpecifiedColor=FLinearColor.Green))(STextBlock(text='Right top', highlight_text='Right'))
+        )
+    )
+    (
+        SHorizontalBox()
+        (
+            SBorder(border_background_color=SlateColor(SpecifiedColor=FLinearColor(1, 0, 0)), padding=20)
+            (
+                STextBlock(text='Left bottom')
+            ), v_align=EVerticalAlignment.VAlign_Fill
+        )
+        (
+            SBorder()(STextBlock(text='Middle bottom', justification=ETextJustify.Right)), v_align=EVerticalAlignment.VAlign_Center
+        )
+        (
+            SBorder(border_background_color=SlateColor(SpecifiedColor=FLinearColor.Yellow))(STextBlock(text='Right bottom')), v_align=EVerticalAlignment.VAlign_Fill
+        )
+    )
+)
+```
+
+## SGridPanel
+
+## SScrollBox
+
 ## SButton
+
+## SEditableTextBox
+
+## SImage
