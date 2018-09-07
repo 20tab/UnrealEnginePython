@@ -348,6 +348,40 @@ window.set_content(SBorder()(horizontal_box))
 
 You can obviously combine vertical and horizontal boxes (this time using 'visual' style)
 
+```python
+from unreal_engine import SWindow, STextBlock, SHorizontalBox, SVerticalBox, SBorder, FLinearColor
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment, ETextJustify
+from unreal_engine.structs import Margin, SlateColor
+
+SWindow(client_size=(512, 256), title='Slate Window')(
+    SVerticalBox()
+    (
+        SHorizontalBox()
+        (
+            SBorder()(STextBlock(text='Left top', justification=ETextJustify.Center)), v_align=EVerticalAlignment.VAlign_Fill
+        )
+        (
+            SBorder(border_background_color=SlateColor(SpecifiedColor=FLinearColor.Green))(STextBlock(text='Right top', highlight_text='Right'))
+        )
+    )
+    (
+        SHorizontalBox()
+        (
+            SBorder(border_background_color=SlateColor(SpecifiedColor=FLinearColor(1, 0, 0)), padding=20)
+            (
+                STextBlock(text='Left bottom')
+            ), v_align=EVerticalAlignment.VAlign_Fill
+        )
+        (
+            SBorder()(STextBlock(text='Middle bottom', justification=ETextJustify.Right)), v_align=EVerticalAlignment.VAlign_Center
+        )
+        (
+            SBorder(border_background_color=SlateColor(SpecifiedColor=FLinearColor.Yellow))(STextBlock(text='Right bottom')), v_align=EVerticalAlignment.VAlign_Fill
+        )
+    )
+)
+```
+
 ## SGridPanel
 
 ## SScrollBox
