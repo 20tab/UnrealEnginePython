@@ -226,6 +226,14 @@ window.set_content(SBorder()(vertical_box))
 
 ![SBorder](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SBorder.png)
 
+Now slot attributes should be more clear. Note that SBorder has a set_content() method but here we used the 'visual' style (mixed with procedural one):
+
+```python
+SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]'))
+```
+
+## Padding
+
 ## SHorizontalBox
 
 ## SButton
