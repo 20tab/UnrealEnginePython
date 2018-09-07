@@ -382,6 +382,10 @@ SWindow(client_size=(512, 256), title='Slate Window')(
 )
 ```
 
+![SHorizontalBox2](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SHorizontalBox2.png)
+
+More infos on SHorizontalBox: https://api.unrealengine.com/INT/API/Runtime/SlateCore/Widgets/SHorizontalBox/index.html
+
 ## SGridPanel
 
 ## SScrollBox
