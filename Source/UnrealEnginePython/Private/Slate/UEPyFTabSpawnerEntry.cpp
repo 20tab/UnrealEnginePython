@@ -36,8 +36,8 @@ static PyMethodDef ue_PyFTabSpawnerEntry_methods[] = {
 
 static PyObject *ue_PyFTabSpawnerEntry_str(ue_PyFTabSpawnerEntry *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.FTabSpawnerEntry {'name': %s}>",
-		PyUnicode_FromString(TCHAR_TO_UTF8(*self->spawner_entry->GetDisplayName().ToString())));
+	return PyUnicode_FromFormat("<unreal_engine.FTabSpawnerEntry {'name': '%s'}>",
+		TCHAR_TO_UTF8(*self->spawner_entry->GetDisplayName().ToString()));
 }
 
 static PyTypeObject ue_PyFTabSpawnerEntryType = {
