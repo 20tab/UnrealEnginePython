@@ -493,6 +493,8 @@ window = SWindow(client_size=(512, 256), title='Slate Window')(
 )
 ```
 
+![SButton](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SButton.png)
+
 ## SEditableTextBox
 
 ## SImage
