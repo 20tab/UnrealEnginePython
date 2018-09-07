@@ -102,4 +102,27 @@ text = STextBlock(text=what_time_is_it, color_and_opacity=red)
 window.set_content(text)
 ```
 
+## Content assignment shortcut
+
+In the previous examples we have seen how we added the STextBlock to the SWindow by using set_content().
+
+This is a very 'procedural' way of dealing with GUIs. Technically Slate (as well as other toolkits) enforce the developer to a very 'visual' style when describing user interfaces. For this reason, if you do not like the 'procedural' approach you can abuse a specific feature of ue_PySWidget objects: when they are containers, they are 'callable', and calling them will internally call set_content() (or similar).
+
+Based on this you can rewrite the first STextBlock example in this way:
+
+```python
+from unreal_engine import SWindow, STextBlock
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')(STextBlock(text='Hello i am an STextBlock'))
+```
+or 'visually' better (note the opened bracked in the same line of SWindow)
+
+```python
+from unreal_engine import SWindow, STextBlock
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')(
+    STextBlock(text='Hello i am an STextBlock')
+)
+```
+
 ## SButton
