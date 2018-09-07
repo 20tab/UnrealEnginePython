@@ -559,4 +559,59 @@ https://api.unrealengine.com/INT/API/Runtime/SlateCore/Styling/FSlateBrush/index
 
 ## SEditableTextBox
 
+This widget allows the user to input a string:
 
+```python
+from unreal_engine import SWindow, SEditableTextBox, SHorizontalBox, SButton
+from unreal_engine.classes import Object
+import unreal_engine as ue
+
+asset_name=SEditableTextBox()
+
+window = SWindow(client_size=(512, 32), title='Open Asset', sizing_rule=0)(
+    SHorizontalBox()
+    (
+        asset_name
+    )
+    (
+        SButton(text='Ok', on_clicked=lambda: ue.open_editor_for_asset(ue.load_object(Object, asset_name.get_text()))), auto_width=True
+    )
+)    
+```
+
+![SEditableTextBox](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SEditableTextBox.png)
+
+The get_text() method will return the currently inserted text.
+
+When the user click on 'Ok', the asset specified in the SEditableTextBox will be validated, loaded and opened in the related editor.
+
+More infos (check FArguments) here:
+
+https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Input/SEditableTextBox/index.html
+
+
+## The .assign() hack
+
+In the previous example we used a 'mixed' visual style to allow the SEditableTextBox to be assigned to a python variable to be able to reference it in the on_clicked event.
+
+The python SWidget api supports an alternative way for assigning references to SWidget. It is indeed a hack (and honestly not very pythonic), but for big interfaces should simplify the management a lot:
+
+```python
+from unreal_engine import SWindow, SEditableTextBox, SHorizontalBox, SButton
+from unreal_engine.classes import Object
+import unreal_engine as ue
+
+asset_name=None
+
+window = SWindow(client_size=(512, 32), title='Open Asset', sizing_rule=0)(
+    SHorizontalBox()
+    (
+        SEditableTextBox().assign('asset_name')
+    )
+    (
+        SButton(text='Ok', on_clicked=lambda: ue.open_editor_for_asset(ue.load_object(Object, asset_name.get_text()))), auto_width=True
+    )
+)   
+```
+
+Basically the .assign(global_name) method, will map the SWidget to the global item specified as global_name. The .assign() method will check for validity of the passed name, so typos will not be a problem.
