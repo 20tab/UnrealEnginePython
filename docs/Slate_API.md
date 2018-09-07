@@ -737,9 +737,25 @@ note that the callable executed by on_object_changed receives an FAssetData obje
 
 More infos here: https://api.unrealengine.com/INT/API/Editor/PropertyEditor/SObjectPropertyEntryBox/index.html
 
+## SPythonEditorViewport
+
 ## Properties Editors
 
-## SPythonEditorViewport
+```python
+from unreal_engine import SWindow
+import unreal_engine as ue
+
+
+
+window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_rule=0)(
+    (  
+        ue.create_detail_view(uobject=ue.get_selected_assets()[0].GeneratedClass.get_cdo())
+    )
+)    
+```
+
+![SDetailView](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SDetailView.png)
+
 
 ## SPythonListView
 
