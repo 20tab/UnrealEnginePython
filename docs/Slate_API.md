@@ -344,4 +344,12 @@ window.set_content(SBorder()(horizontal_box))
 
 You can obviously combine vertical and horizontal boxes (this time using 'visual' style)
 
+## SGridPanel
+
+## SScrollBox
+
 ## SButton
+
+## SEditableTextBox
+
+## SImage
