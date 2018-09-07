@@ -323,4 +323,25 @@ window.set_content(SBorder()(vertical_box))
 
 ## SHorizontalBox
 
+SHorizontalBox allows you to horizontally align widgets in a containers:
+
+```python
+from unreal_engine import SWindow, STextBlock, SHorizontalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+from unreal_engine.structs import Margin
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+horizontal_box = SHorizontalBox()
+
+horizontal_box.add_slot(SBorder()(STextBlock(text='Left')), padding=Margin(Left=100, Right=50, Bottom=30), v_align=EVerticalAlignment.VAlign_Fill)
+horizontal_box.add_slot(SBorder()(STextBlock(text='Right')), padding=Margin(Left=10, Right=20, Top=50), v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(horizontal_box))
+```
+
+![SHorizontalBox](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SHorizontalBox.png)
+
+You can obviously combine vertical and horizontal boxes (this time using 'visual' style)
+
 ## SButton
