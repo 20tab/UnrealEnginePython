@@ -388,6 +388,41 @@ More infos on SHorizontalBox: https://api.unrealengine.com/INT/API/Runtime/Slate
 
 ## SGridPanel
 
+This widget allows you to align children in a virtual grid. For each slot you specify the column and row and eventually how much it 'spans' horizontally and verically:
+
+```python
+from unreal_engine import SWindow, STextBlock, SGridPanel, SBorder
+
+margin = 40
+
+SWindow(client_size=(512, 512), title='Slate Window')(
+    SGridPanel()
+    (
+        SBorder(padding=margin)(STextBlock(text='cell0')), column=0, row=0
+    )
+    (
+        SBorder(padding=margin)(STextBlock(text='cell1')), column=1, row=0
+    )
+    (
+        SBorder(padding=margin)(STextBlock(text='cell2')), column=2, row=0
+    )
+    (
+        SBorder(padding=margin)(STextBlock(text='cell3')), column=0, row=1
+    )
+    (
+        SBorder(padding=margin)(STextBlock(text='cell4')), column=3, row=1, row_span=3
+    )
+    (
+        SBorder(padding=margin)(STextBlock(text='cell5')), column=2, row=2
+    )
+    (
+        SBorder(padding=margin)(STextBlock(text='cell6')), column=0, row=3, column_span=2
+    )
+)
+```
+
+![SGridPanel](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SGridPanel.png)
+
 ## SScrollBox
 
 ## SButton
