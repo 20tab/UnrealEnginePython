@@ -323,6 +323,34 @@ static PyObject *py_ue_swidget_new_ref(ue_PySWidget *self, PyObject * args)
 	return (PyObject *)py_ue_new_swidget<ue_PySWidget>(Widget.ToSharedRef(), &ue_PySWidgetType);
 }
 
+static PyObject *py_ue_swidget_assign(ue_PySWidget *self, PyObject * args)
+{
+	char *global_name;
+	if (!PyArg_ParseTuple(args, "s:assign", &global_name))
+	{
+		return nullptr;
+	}
+
+	PyObject *py_globals = PyEval_GetGlobals();
+	if (!py_globals)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to retrieve globals");
+	}
+
+	if (!PyDict_GetItemString(py_globals, global_name))
+	{
+		PyErr_Clear();
+		return PyErr_Format(PyExc_Exception, "global \"%s\" not found", global_name);
+	}
+
+	if (PyDict_SetItemString(py_globals, global_name, (PyObject *)self) < 0)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to assign global \"%s\" to SWidget", global_name);
+	}
+
+	Py_RETURN_SLATE_SELF;
+}
+
 static PyMethodDef ue_PySWidget_methods[] = {
 	{ "new_ref", (PyCFunction)py_ue_swidget_new_ref, METH_VARARGS, "" },
 	{ "get_shared_reference_count", (PyCFunction)py_ue_swidget_get_shared_reference_count, METH_VARARGS, "" },
@@ -344,6 +372,8 @@ static PyMethodDef ue_PySWidget_methods[] = {
 #endif
 	{ "on_mouse_button_down", (PyCFunction)py_ue_swidget_on_mouse_button_down, METH_VARARGS, "" },
 	{ "on_mouse_button_up", (PyCFunction)py_ue_swidget_on_mouse_button_up, METH_VARARGS, "" },
+
+	{ "assign", (PyCFunction)py_ue_swidget_assign, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
 
