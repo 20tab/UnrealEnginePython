@@ -495,6 +495,16 @@ window = SWindow(client_size=(512, 256), title='Slate Window')(
 
 ![SButton](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SButton.png)
 
-## SEditableTextBox
+Note that technically SButton's are containers so you can assign to them another widget:
+
+```python
+SButton(on_clicked=lambda: window.request_destroy())(STextBlock(text='Hello'))
+```
+
+More infos here: https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Input/SButton/index.html
 
 ## SImage
+
+## SEditableTextBox
+
+
