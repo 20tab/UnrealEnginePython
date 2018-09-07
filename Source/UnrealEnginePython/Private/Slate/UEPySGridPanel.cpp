@@ -19,9 +19,11 @@ static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * ar
 	int column;
 	int row;
 	int layer = 0;
+	int foobar = 0;
+	PyObject *py_nudge = nullptr;
 
-	char *kwlist[] = { (char *)"widget", (char *)"column", (char *)"row", (char *)"layer", nullptr };
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oii|i:add_slot", kwlist, &py_content, &column, &row, &layer))
+	char *kwlist[] = { (char *)"widget", (char *)"column", (char *)"row", (char *)"layer", (char *)"column_span", (char *)"nudge", (char *)"row_span", nullptr };
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oii|iiOi:add_slot", kwlist, &py_content, &column, &row, &layer, &foobar, &py_nudge, &foobar))
 	{
 		return nullptr;
 	}
