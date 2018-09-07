@@ -425,6 +425,47 @@ SWindow(client_size=(512, 512), title='Slate Window')(
 
 ## SScrollBox
 
+This container allows you to scroll on big series of widgets:
+
+```python
+from unreal_engine import SWindow, STextBlock, SGridPanel, SBorder, SScrollBox
+from unreal_engine.enums import EOrientation
+
+margin = 40
+
+SWindow(client_size=(512, 256), title='Slate Window')(
+    SScrollBox(orientation=EOrientation.Orient_Vertical)
+    (
+        SGridPanel()
+        (
+            SBorder(padding=margin)(STextBlock(text='cell0')), column=0, row=0
+        )
+        (
+            SBorder(padding=margin)(STextBlock(text='cell1')), column=1, row=0
+        )
+        (
+            SBorder(padding=margin)(STextBlock(text='cell2')), column=2, row=0
+        )
+        (
+            SBorder(padding=margin)(STextBlock(text='cell3')), column=0, row=1
+        )
+        (
+            SBorder(padding=margin)(STextBlock(text='cell4')), column=3, row=1, row_span=3
+        )
+        (
+            SBorder(padding=margin)(STextBlock(text='cell5')), column=2, row=2
+        )
+        (
+            SBorder(padding=margin)(STextBlock(text='cell6')), column=0, row=3, column_span=2
+        )
+    )
+)
+```
+
+![SScrollBox](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SScrollBox.png)
+
+More infos here: https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Layout/SScrollBox/
+
 ## SButton
 
 ## SEditableTextBox
