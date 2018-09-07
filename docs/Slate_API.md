@@ -739,6 +739,29 @@ More infos here: https://api.unrealengine.com/INT/API/Editor/PropertyEditor/SObj
 
 ## SPythonEditorViewport
 
+This is probably tu funniest widget, an EditorViewportClient and a whole World all in a single SWidget:
+
+```python
+from unreal_engine import SWindow, SPythonEditorViewport, FVector, FRotator
+from unreal_engine.classes import Blueprint
+import unreal_engine as ue
+
+editor_viewport = SPythonEditorViewport()
+world = editor_viewport.get_world()
+world.actor_spawn(ue.load_object(Blueprint, '/Game/ThirdPersonCPP/Blueprints/ThirdPersonCharacter').GeneratedClass)
+editor_viewport_client = editor_viewport.get_editor_viewport_client()
+editor_viewport_client.set_view_location(FVector(-200, 300, 200))
+editor_viewport_client.set_view_rotation(FRotator(0, -30, -90))
+
+window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_rule=0)(
+    (  
+        editor_viewport
+    )
+)   
+```
+
+![SPythonEditorViewport](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SPythonEditorViewport.png)
+
 ## Properties Editors
 
 ```python
