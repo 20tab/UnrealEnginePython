@@ -65,4 +65,41 @@ window.set_content(text)
 
 ![STextBlock red](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_STextBlock_red.png)
 
+## Dynamic binding for FArguments
+
+As in C++ Slate, you can map 'delegates' (well, callables in python) to some of the FArguments. As an example you can dynamically change the 'text' attribute of an STextBlock to be constantly updated with the current time:
+
+```python
+from unreal_engine import SWindow, STextBlock, FLinearColor
+from unreal_engine.structs import SlateColor
+import time
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+red = SlateColor(SpecifiedColor=FLinearColor(1, 0, 0))
+
+text = STextBlock(text=lambda: str(time.time()), color_and_opacity=red)
+
+window.set_content(text)
+```
+
+Obviously instead of the lambda you could use a plain function (any callable will works):
+
+```python
+from unreal_engine import SWindow, STextBlock, FLinearColor
+from unreal_engine.structs import SlateColor
+import time
+
+def what_time_is_it():
+    return str(time.time())
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+red = SlateColor(SpecifiedColor=FLinearColor(1, 0, 0))
+
+text = STextBlock(text=what_time_is_it, color_and_opacity=red)
+
+window.set_content(text)
+```
+
 ## SButton
