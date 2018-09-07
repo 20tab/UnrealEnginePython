@@ -9,6 +9,8 @@ The python wrapper development has been sponsored by Kite & Lightning (http://ki
 
 This document assumes a python3 environment. If you are using python2, just ensure to use unicode when you see strings.
 
+It is a 'Work In Progress' and its objective is to give the user enough basis to start building its tools. Only a meaningful subset of the available widgets is explained here, pull requests for extending this page are really welcomed.
+
 ## SWidget and ue_PySWidget
 
 SWidget is the base C++ class for all the Slate widgets, it is wrapped in a python object (PyObject) named ue_PySWidget.
@@ -735,4 +737,28 @@ note that the callable executed by on_object_changed receives an FAssetData obje
 
 More infos here: https://api.unrealengine.com/INT/API/Editor/PropertyEditor/SObjectPropertyEntryBox/index.html
 
-## 
+## SPythonEditorViewport
+
+## Properties Editors
+
+```python
+from unreal_engine import SWindow
+import unreal_engine as ue
+
+
+
+window = SWindow(client_size=(512, 256), title='Mannequin Properties', sizing_rule=0)(
+    (  
+        ue.create_detail_view(uobject=ue.get_selected_assets()[0].GeneratedClass.get_cdo())
+    )
+)    
+```
+
+![SDetailView](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SDetailView.png)
+
+
+## SPythonListView
+
+## SPythonTreeView
+
+## SPythonWidget
