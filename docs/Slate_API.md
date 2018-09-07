@@ -615,3 +615,11 @@ window = SWindow(client_size=(512, 32), title='Open Asset', sizing_rule=0)(
 ```
 
 Basically the .assign(global_name) method, will map the SWidget to the global item specified as global_name. The .assign() method will check for validity of the passed name, so typos will not be a problem.
+
+## SCheckBox
+
+Very useful for managing boolean values:
+
+```python
+
+```
