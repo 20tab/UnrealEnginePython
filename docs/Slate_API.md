@@ -125,4 +125,8 @@ window = SWindow(client_size=(512, 512), title='First Slate Window')(
 )
 ```
 
+## SVerticalBox
+
+## SHorizontalBox
+
 ## SButton
