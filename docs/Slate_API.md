@@ -544,6 +544,19 @@ window = SWindow(client_size=(128, 512), title='Slate Window', sizing_rule=0)(
 
 ![SImage](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SImage.png)
 
+Pay attention to the bIsDynamicallyLoaded field of SlateBrush, if you are passing a non-ue4 resource (via ResourceName) you have to instruct UE to load the resource as a texture (by setting bIsDynamicallyLoaded to true). This is not required when using ResourceObject.
+
+Combining SButton and SImage is pretty handy:
+
+```python
+SButton(on_clicked=lambda: ue.log('Image Clicked'))(SImage(image=SlateBrush(ResourceName=image_file, bIsDynamicallyLoaded=True)))
+```
+
+More infos about SlateBrush:
+
+https://api.unrealengine.com/INT/API/Runtime/SlateCore/Styling/FSlateBrush/index.html
+
+
 ## SEditableTextBox
 
 
