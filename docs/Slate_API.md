@@ -505,6 +505,45 @@ More infos here: https://api.unrealengine.com/INT/API/Runtime/Slate/Widgets/Inpu
 
 ## SImage
 
+This widget draw graphics resources (images, solid blocks).
+
+```python
+from unreal_engine import SWindow, SImage, SVerticalBox, FLinearColor, SBorder
+from unreal_engine.structs import SlateBrush, SlateColor, Vector2D
+from unreal_engine.classes import Texture2D
+import unreal_engine as ue
+import os
+
+plugin = unreal_engine.find_plugin('UnrealEnginePython')
+plugin_base_dir = plugin.get_base_dir()
+
+image_file = os.path.join(plugin_base_dir, 'Resources/Icon128.png')
+
+texture = ue.load_object(Texture2D, '/Game/Mannequin/Character/Textures/UE4_LOGO_CARD')
+
+
+window = SWindow(client_size=(128, 512), title='Slate Window', sizing_rule=0)(
+    SVerticalBox()
+    (
+        SImage(image=SlateBrush(ResourceName=image_file, bIsDynamicallyLoaded=True)),
+    )
+    (
+        SImage(image=SlateBrush(ResourceObject=texture))
+    )
+    (
+        SImage(image=SlateBrush(TintColor=SlateColor(SpecifiedColor=FLinearColor(1, 0, 0))))
+    )
+    (
+        SImage(image=SlateBrush(ResourceName=image_file, bIsDynamicallyLoaded=True, TintColor=SlateColor(SpecifiedColor=FLinearColor(0, 1, 0))))
+    )
+    (
+        SBorder()(SImage(image=SlateBrush(ResourceObject=texture, ImageSize=Vector2D(X=64, Y=64)))), auto_height=True
+    )
+)    
+```
+
+![SImage](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SImage.png)
+
 ## SEditableTextBox
 
 
