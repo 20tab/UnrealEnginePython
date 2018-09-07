@@ -615,3 +615,99 @@ window = SWindow(client_size=(512, 32), title='Open Asset', sizing_rule=0)(
 ```
 
 Basically the .assign(global_name) method, will map the SWidget to the global item specified as global_name. The .assign() method will check for validity of the passed name, so typos will not be a problem.
+
+## SCheckBox
+
+Very useful for managing boolean values:
+
+```python
+from unreal_engine import SWindow, SEditableTextBox, SHorizontalBox, SButton, SCheckBox, STextBlock
+from unreal_engine.classes import Object
+from unreal_engine.enums import EVerticalAlignment
+import unreal_engine as ue
+
+asset_name=None
+checkbox_bool=False
+
+def open_or_validate(path, only_validate):
+    try:
+        asset = ue.load_object(Object, path)
+    except:
+        ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'invalid path')
+        return
+        
+    if only_validate:
+        ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'path is valid')
+    else:
+        ue.open_editor_for_asset(asset)
+
+window = SWindow(client_size=(512, 32), title='Open Asset', sizing_rule=0)(
+    SHorizontalBox()
+    (
+        SEditableTextBox().assign('asset_name')
+    )
+    (
+        STextBlock(text='only validate path'), auto_width=True, v_align=EVerticalAlignment.VAlign_Center
+    )
+    (
+        SCheckBox().assign('checkbox_bool'), auto_width=True
+    )
+    (
+        SButton(text='Ok', on_clicked=lambda: open_or_validate(asset_name.get_text(), checkbox_bool.is_checked())), auto_width=True
+    )
+)   
+```
+
+![SCheckBox](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_SCheckBox.png)
+
+## OOP refactoring
+
+Time to refactor the code to be more elegant, and to allow the reuse of custom/complex widgets:
+
+```python
+from unreal_engine import SWindow, SEditableTextBox, SHorizontalBox, SButton, SCheckBox, STextBlock, SVerticalBox
+from unreal_engine.classes import Object
+from unreal_engine.enums import EVerticalAlignment
+import unreal_engine as ue
+
+class AssetOpener(SHorizontalBox):
+
+    def __init__(self):
+        super().__init__(self)
+        self.asset_name_picker = SEditableTextBox()
+        self.only_validate_path = SCheckBox()
+
+        self.add_slot(self.asset_name_picker)
+        self.add_slot(STextBlock(text='only validate path'), auto_width=True, v_align=EVerticalAlignment.VAlign_Center)
+        self.add_slot(self.only_validate_path, auto_width=True)
+        self.add_slot(SButton(text='Ok', on_clicked=self.open_or_validate), auto_width=True)
+
+    def open_or_validate(self):
+        try:
+            asset = ue.load_object(Object, self.asset_name_picker.get_text())
+            print(asset)
+        except:
+            ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'invalid path')
+            return
+        
+        if self.only_validate_path.is_checked():
+            ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'path is valid')
+        else:
+            ue.open_editor_for_asset(asset)
+       
+
+
+window = SWindow(client_size=(512, 64), title='Open Asset', sizing_rule=0)(
+    SVerticalBox()
+    (
+        STextBlock(text='OOP widget below')
+    )
+    (
+        AssetOpener()
+    )
+)    
+```
+
+![OOP](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_OOP.png)
+
+As you can see, you can inherit from SWidget. Obviously you can mix 'visual' style, with fully procedural one, but the use of classes will simplify 'context' management.
