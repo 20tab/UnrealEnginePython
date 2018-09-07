@@ -262,6 +262,8 @@ void FUnrealEnginePythonModule::StartupModule()
 		Py_SetPythonHome(home);
 	}
 
+	TArray<FString> ImportModules;
+
 	FString IniValue;
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni))
 	{
@@ -314,6 +316,12 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeZipPath"), IniValue, GEngineIni))
 	{
 		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+	}
+
+	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ImportModules"), IniValue, GEngineIni))
+	{
+		const TCHAR* separators[] = { TEXT(" "), TEXT(";"), TEXT(",") };
+		IniValue.ParseIntoArray(ImportModules, separators, 3);
 	}
 
 	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
@@ -478,6 +486,19 @@ void FUnrealEnginePythonModule::StartupModule()
 #else
 		unreal_engine_py_log_error();
 #endif
+	}
+
+
+	for (FString ImportModule : ImportModules)
+	{
+		if (PyImport_ImportModule(TCHAR_TO_UTF8(*ImportModule)))
+		{
+			UE_LOG(LogPython, Log, TEXT("%s Python module successfully imported"), *ImportModule);
+		}
+		else
+		{
+			unreal_engine_py_log_error();
+		}
 	}
 
 	// release the GIL
