@@ -685,7 +685,6 @@ class AssetOpener(SHorizontalBox):
     def open_or_validate(self):
         try:
             asset = ue.load_object(Object, self.asset_name_picker.get_text())
-            print(asset)
         except:
             ue.message_dialog_open(ue.APP_MSG_TYPE_OK, 'invalid path')
             return
