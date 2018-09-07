@@ -793,6 +793,8 @@ ue.register_nomad_tab_spawner('Hello Nomads !', create_tab)
 
 ![Nomad](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Nomad.png)
 
+To spawn the nomad tab you need to search for 'Hello Nomads !' entry in Window/Developer Tools menu. (currently there is no way to place it in other positions)
+
 ## Properties Editors
 
 ```python
