@@ -795,6 +795,12 @@ ue.register_nomad_tab_spawner('Hello Nomads !', create_tab)
 
 To spawn the nomad tab you need to search for 'Hello Nomads !' entry in Window/Developer Tools menu. (currently there is no way to place it in other positions)
 
+If you want to spawn (or give focus) to a specific tab, just run
+
+```python
+ue.invoke_tab('Hello Nomads !')
+```
+
 ## Properties Editors
 
 ```python
