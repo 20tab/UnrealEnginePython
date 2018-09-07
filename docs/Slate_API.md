@@ -291,7 +291,35 @@ We have alredy seen the 4-items float tuple for specifying top, left, bottom and
 
 ![Padding 3](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding3.png)
 
+In addition to float/float-tuples you can specify padding using the FMargin struct:
 
+```python
+from unreal_engine.structs import Margin
+print(Margin.properties())
+```
+returns
+
+```python
+['Left', 'Top', 'Right', 'Bottom']
+```
+
+So:
+
+```python
+from unreal_engine import SWindow, STextBlock, SVerticalBox, SBorder
+from unreal_engine.enums import EVerticalAlignment, EHorizontalAlignment
+from unreal_engine.structs import Margin
+
+window = SWindow(client_size=(512, 512), title='First Slate Window')
+
+vertical_box = SVerticalBox()
+
+vertical_box.add_slot(SBorder()(STextBlock(text='Hello i am an STextBlock [line 0]')), padding=Margin(Left=100, Right=50), v_align=EVerticalAlignment.VAlign_Fill)
+
+window.set_content(SBorder()(vertical_box))
+```
+
+![Padding 4](https://github.com/20tab/UnrealEnginePython/raw/master/docs/screenshots/slate_Padding4.png)
 
 ## SHorizontalBox
 
