@@ -739,7 +739,7 @@ More infos here: https://api.unrealengine.com/INT/API/Editor/PropertyEditor/SObj
 
 ## SPythonEditorViewport
 
-This is probably tu funniest widget, an EditorViewportClient and a whole World all in a single SWidget:
+This is probably the funniest widget, an EditorViewportClient and a whole World all in a single SWidget:
 
 ```python
 from unreal_engine import SWindow, SPythonEditorViewport, FVector, FRotator
