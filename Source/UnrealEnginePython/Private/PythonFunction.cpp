@@ -19,13 +19,17 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	FScopePythonGIL gil;
 
+#if ENGINE_MINOR_VERSION <= 18
+	UObject *Context = Stack.Object;
+#endif
+
 	UPythonFunction *function = static_cast<UPythonFunction *>(Stack.CurrentNativeFunction);
 
 	bool on_error = false;
 	bool is_static = function->HasAnyFunctionFlags(FUNC_Static);
 
 	// count the number of arguments
-	Py_ssize_t argn = (Stack.Object && !is_static) ? 1 : 0;
+	Py_ssize_t argn = (Context && !is_static) ? 1 : 0;
 	TFieldIterator<UProperty> IArgs(function);
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
@@ -34,22 +38,22 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	UE_LOG(LogPython, Warning, TEXT("Initializing %d parameters"), argn);
 #endif
 	PyObject *py_args = PyTuple_New(argn);
+	argn = 0;
 
-	if (Stack.Object && !is_static) {
-		PyObject *py_obj = (PyObject *)ue_get_python_uobject(Stack.Object);
+	if (Context && !is_static) {
+		PyObject *py_obj = (PyObject *)ue_get_python_uobject(Context);
 		if (!py_obj) {
 			unreal_engine_py_log_error();
 			on_error = true;
 		}
 		else {
 			Py_INCREF(py_obj);
-			PyTuple_SetItem(py_args, 0, py_obj);
+			PyTuple_SetItem(py_args, argn++, py_obj);
 		}
 	}
 
 	uint8 *frame = Stack.Locals;
 
-	argn = (Stack.Object && !is_static) ? 1 : 0;
 	// is it a blueprint call ?
 	if (*Stack.Code == EX_EndFunctionParms) {
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
