@@ -44,6 +44,20 @@ PyObject *py_ue_texture_get_height(ue_PyUObject *self, PyObject * args)
 	return PyLong_FromLong(texture->GetSizeY());
 }
 
+PyObject *py_ue_texture_has_alpha_channel(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UTexture2D *texture = ue_py_check_type<UTexture2D>(self);
+	if (!texture)
+		return PyErr_Format(PyExc_Exception, "object is not a Texture");
+
+	if (texture->HasAlphaChannel())
+		Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
 PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args)
 {
 
