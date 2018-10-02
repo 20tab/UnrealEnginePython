@@ -126,14 +126,23 @@ PyObject *py_ue_texture_set_source_data(ue_PyUObject *self, PyObject * args)
 
 	UTexture2D *tex = ue_py_check_type<UTexture2D>(self);
 	if (!tex)
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "object is not a Texture2D");
+	}
 
 
 	if (!py_buf.buf)
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "invalid data");
+	}
 
 	if (mipmap >= tex->GetNumMips())
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
+	}
 
 	int32 wanted_len = py_buf.len;
 	int32 len = tex->Source.GetSizeX() * tex->Source.GetSizeY() * 4;
@@ -147,6 +156,8 @@ PyObject *py_ue_texture_set_source_data(ue_PyUObject *self, PyObject * args)
 	const uint8 *blob = tex->Source.LockMip(mipmap);
 
 	FMemory::Memcpy((void *)blob, py_buf.buf, wanted_len);
+
+	PyBuffer_Release(&py_buf);
 
 	tex->Source.UnlockMip(mipmap);
 	Py_BEGIN_ALLOW_THREADS;
@@ -214,27 +225,34 @@ PyObject *py_ue_render_target_get_data_to_buffer(ue_PyUObject *self, PyObject * 
 
 	UTextureRenderTarget2D *tex = ue_py_check_type<UTextureRenderTarget2D>(self);
 	if (!tex)
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
+	}
 
 	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
 	if (!resource)
 	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "cannot get render target resource");
 	}
 
 	Py_ssize_t data_len = (Py_ssize_t)(tex->GetSurfaceWidth() * 4 * tex->GetSurfaceHeight());
 	if (py_buf.len < data_len)
 	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "buffer is not big enough");
 	}
 
 	TArray<FColor> pixels;
 	if (!resource->ReadPixels(pixels))
 	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "unable to read pixels");
 	}
 
 	FMemory::Memcpy(py_buf.buf, pixels.GetData(), data_len);
+	PyBuffer_Release(&py_buf);
 	Py_RETURN_NONE;
 }
 
@@ -253,14 +271,23 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args)
 
 	UTexture2D *tex = ue_py_check_type<UTexture2D>(self);
 	if (!tex)
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "object is not a Texture2D");
+	}
 
 
 	if (!py_buf.buf)
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "invalid data");
+	}
 
 	if (mipmap >= tex->GetNumMips())
+	{
+		PyBuffer_Release(&py_buf);
 		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
+	}
 
 	char *blob = (char*)tex->PlatformData->Mips[mipmap].BulkData.Lock(LOCK_READ_WRITE);
 	int32 len = tex->PlatformData->Mips[mipmap].BulkData.GetBulkDataSize();
@@ -272,6 +299,9 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args)
 		wanted_len = len;
 	}
 	FMemory::Memcpy(blob, py_buf.buf, wanted_len);
+
+	PyBuffer_Release(&py_buf);
+
 	tex->PlatformData->Mips[mipmap].BulkData.Unlock();
 
 	Py_BEGIN_ALLOW_THREADS;
@@ -308,6 +338,8 @@ PyObject *py_unreal_engine_compress_image_array(PyObject * self, PyObject * args
 	{
 		colors.Add(FColor(buf[i], buf[1 + 1], buf[i + 2], buf[i + 3]));
 	}
+
+	PyBuffer_Release(&py_buf);
 
 	TArray<uint8> output;
 
@@ -411,6 +443,7 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args)
 		u_package = ue_py_check_type<UPackage>(py_package);
 		if (!u_package)
 		{
+			PyBuffer_Release(&py_buf);
 			return PyErr_Format(PyExc_Exception, "argument is not a UPackage");
 		}
 	}
@@ -425,6 +458,8 @@ PyObject *py_unreal_engine_create_texture(PyObject * self, PyObject * args)
 		wanted_len = py_buf.len;
 
 	FMemory::Memcpy(colors.GetData(), py_buf.buf, wanted_len);
+
+	PyBuffer_Release(&py_buf);
 
 	UTexture2D *texture = FImageUtils::CreateTexture2D(width, height, colors, u_package, UTF8_TO_TCHAR(name), RF_Public | RF_Standalone, params);
 	if (!texture)
