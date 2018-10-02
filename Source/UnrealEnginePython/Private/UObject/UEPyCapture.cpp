@@ -29,11 +29,14 @@ for a queue of UMovieSceneCapture objects
 struct FInEditorMultiCapture : TSharedFromThis<FInEditorMultiCapture>
 {
 
-	static TWeakPtr<FInEditorMultiCapture> CreateInEditorMultiCapture(TArray<UMovieSceneCapture*> InCaptureObjects)
+	static TWeakPtr<FInEditorMultiCapture> CreateInEditorMultiCapture(TArray<UMovieSceneCapture*> InCaptureObjects, PyObject *py_callable)
 	{
 		// FInEditorCapture owns itself, so should only be kept alive by itself, or a pinned (=> temporary) weakptr
 		FInEditorMultiCapture* Capture = new FInEditorMultiCapture;
 		Capture->CaptureObjects = InCaptureObjects;
+		Capture->py_callable = py_callable;
+		if (Capture->py_callable)
+			Py_INCREF(Capture->py_callable);
 		for (UMovieSceneCapture *SceneCapture : Capture->CaptureObjects)
 		{
 			SceneCapture->AddToRoot();
@@ -55,6 +58,10 @@ private:
 			SceneCapture->RemoveFromRoot();
 		}
 		OnlyStrongReference = nullptr;
+		{
+			FScopePythonGIL gil;
+			Py_XDECREF(py_callable);
+		}
 	}
 
 	void Dequeue()
@@ -124,6 +131,22 @@ private:
 
 	bool PlaySession(float DeltaTime)
 	{
+
+
+		if (py_callable)
+		{
+			GEditor->RequestEndPlayMap();
+			FScopePythonGIL gil;
+			ue_PyUObject *py_capture = ue_get_python_uobject(CurrentCaptureObject);
+			PyObject *py_ret = PyObject_CallFunction(py_callable, "O", py_capture);
+			if (!py_ret)
+			{
+				unreal_engine_py_log_error();
+			}
+			Py_XDECREF(py_ret);
+		}
+
+
 		GEditor->RequestPlaySession(true, nullptr, false);
 		return false;
 	}
@@ -276,6 +299,7 @@ private:
 	{
 
 		FEditorDelegates::EndPIE.RemoveAll(this);
+
 		// remove item from the TArray;
 		CaptureObjects.RemoveAt(0);
 
@@ -309,13 +333,16 @@ private:
 
 	TSubclassOf<AGameModeBase> CachedGameMode;
 	TArray<UMovieSceneCapture*> CaptureObjects;
+
+	PyObject *py_callable;
 };
 
 PyObject *py_unreal_engine_in_editor_capture(PyObject * self, PyObject * args)
 {
 	PyObject *py_scene_captures;
+	PyObject *py_callable = nullptr;
 
-	if (!PyArg_ParseTuple(args, "O:in_editor_capture", &py_scene_captures))
+	if (!PyArg_ParseTuple(args, "O|O:in_editor_capture", &py_scene_captures, &py_callable))
 	{
 		return nullptr;
 	}
@@ -348,7 +375,7 @@ PyObject *py_unreal_engine_in_editor_capture(PyObject * self, PyObject * args)
 	}
 
 	Py_BEGIN_ALLOW_THREADS
-		FInEditorMultiCapture::CreateInEditorMultiCapture(Captures);
+		FInEditorMultiCapture::CreateInEditorMultiCapture(Captures, py_callable);
 	Py_END_ALLOW_THREADS
 
 		Py_RETURN_NONE;
