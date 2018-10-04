@@ -77,9 +77,9 @@ PyObject *py_ue_get_foliage_instances(ue_PyUObject *self, PyObject * args)
 
 	PyObject *py_list = PyList_New(0);
 
-	for (FFoliageInstance& instance : info.Instances)
+	for (int32 i=0; i<info.Instances.Num(); i++)
 	{
-		PyList_Append(py_list, py_ue_new_ffoliage_instance(instance));
+		PyList_Append(py_list, py_ue_new_ffoliage_instance(foliage_actor, foliage_type, i));
 	}
 
 	return py_list;
