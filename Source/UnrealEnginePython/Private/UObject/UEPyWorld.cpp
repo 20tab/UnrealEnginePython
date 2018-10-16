@@ -43,7 +43,11 @@ PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args)
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve the first controller");
 
+#if ENGINE_MINOR_VERSION > 20
+	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit, false);
+#else
 	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit);
+#endif
 
 	Py_RETURN_NONE;
 }
