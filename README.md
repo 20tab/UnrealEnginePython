@@ -943,9 +943,9 @@ We try to do our best to "protect" the user, but you can effectively crash UE fr
 Contacts and Commercial Support
 -------------------------------
 
-If you want to contact us (for help, support, sponsorship), drop a mail to info at 20tab.com or follow @unbit on twitter
+If you need commercial support for UnrealEnginePython just drop a mail to info at 20tab.com
 
-We offer commercial support for both UnrealEngine and UnrealEnginePython, again drop a mail to info at 20tab.com for more infos
+Follow @unbit on twitter for news about the project
 
 Special Thanks
 --------------
