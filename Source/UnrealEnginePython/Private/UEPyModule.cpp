@@ -877,6 +877,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_current_level", (PyCFunction)py_ue_set_current_level, METH_VARARGS, "" },
 
 #if WITH_EDITOR
+	{ "get_level_script_blueprint", (PyCFunction)py_ue_get_level_script_blueprint, METH_VARARGS, "" },
 	{ "add_foliage_asset", (PyCFunction)py_ue_add_foliage_asset, METH_VARARGS, "" },
 	{ "get_foliage_instances", (PyCFunction)py_ue_get_foliage_instances, METH_VARARGS, "" },
 #endif
