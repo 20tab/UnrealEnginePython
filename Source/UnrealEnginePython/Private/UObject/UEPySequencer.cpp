@@ -911,6 +911,50 @@ PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *self, PyObject * args
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_sequencer_set_working_range(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	float start_time;
+	float end_time;
+	if (!PyArg_ParseTuple(args, "ff:sequencer_set_working_range", &start_time, &end_time))
+	{
+		return nullptr;
+	}
+
+	scene->SetWorkingRange(start_time, end_time);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_sequencer_set_view_range(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	float start_time;
+	float end_time;
+	if (!PyArg_ParseTuple(args, "ff:sequencer_set_view_range", &start_time, &end_time))
+	{
+		return nullptr;
+	}
+
+	scene->SetViewRange(start_time, end_time);
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_sequencer_set_section_range(ue_PyUObject *self, PyObject * args)
 {
 

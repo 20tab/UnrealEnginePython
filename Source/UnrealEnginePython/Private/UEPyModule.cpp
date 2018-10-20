@@ -1076,6 +1076,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_get_camera_cut_track", (PyCFunction)py_ue_sequencer_get_camera_cut_track, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "sequencer_set_playback_range", (PyCFunction)py_ue_sequencer_set_playback_range, METH_VARARGS, "" },
+	{ "sequencer_set_view_range", (PyCFunction)py_ue_sequencer_set_view_range, METH_VARARGS, "" },
+	{ "sequencer_set_working_range", (PyCFunction)py_ue_sequencer_set_working_range, METH_VARARGS, "" },
 	{ "sequencer_set_section_range", (PyCFunction)py_ue_sequencer_set_section_range, METH_VARARGS, "" },
 	{ "sequencer_folders", (PyCFunction)py_ue_sequencer_folders, METH_VARARGS, "" },
 	{ "sequencer_create_folder", (PyCFunction)py_ue_sequencer_create_folder, METH_VARARGS, "" },
