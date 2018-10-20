@@ -94,7 +94,11 @@ static void ImportTransformChannel(const FInterpCurveFloat& Source, FMovieSceneF
 		}
 
 		FFrameNumber KeyTime = (Source.Points[KeyIndex].InVal * DestFrameRate).RoundToFrame();
+#if ENGINE_MINOR_VERSION > 20
+		FMatineeImportTools::SetOrAddKey(ChannelData, KeyTime, Source.Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, Source.Points[KeyIndex].InterpMode, DestFrameRate);
+#else
 		FMatineeImportTools::SetOrAddKey(ChannelData, KeyTime, Source.Points[KeyIndex].OutVal, ArriveTangent, LeaveTangent, Source.Points[KeyIndex].InterpMode);
+#endif
 	}
 
 	Dest->AutoSetTangents();
