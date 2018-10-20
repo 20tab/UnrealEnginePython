@@ -616,6 +616,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #if WITH_EDITOR
 	{ "get_thumbnail", (PyCFunction)py_ue_get_thumbnail, METH_VARARGS, "" },
 	{ "render_thumbnail", (PyCFunction)py_ue_render_thumbnail, METH_VARARGS, "" },
+	{"get_metadata_tag", (PyCFunction)py_ue_get_metadata_tag, METH_VARARGS, "" },
+	{"set_metadata_tag", (PyCFunction)py_ue_set_metadata_tag, METH_VARARGS, "" },
+	{ "metadata_tags", (PyCFunction)py_ue_metadata_tags, METH_VARARGS, "" },
+	{ "has_metadata_tag", (PyCFunction)py_ue_has_metadata_tag, METH_VARARGS, "" },
+	{"remove_metadata_tag", (PyCFunction)py_ue_remove_metadata_tag, METH_VARARGS, "" },
+
 #endif
 
 #if WITH_EDITOR
@@ -1856,10 +1862,10 @@ ue_PyUObject *ue_get_python_uobject(UObject *ue_obj)
 		UE_LOG(LogPython, Warning, TEXT("CREATED UPyObject at %p for %p %s"), ue_py_object, ue_obj, *ue_obj->GetName());
 #endif
 		return ue_py_object;
-		}
+	}
 	return ret;
 
-	}
+}
 
 ue_PyUObject *ue_get_python_uobject_inc(UObject *ue_obj)
 {
@@ -2883,8 +2889,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 #endif
 			}
 #endif
-			}
 		}
+	}
 
 
 	Py_ssize_t tuple_len = PyTuple_Size(args);
@@ -2997,7 +3003,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		return ret;
 
 	Py_RETURN_NONE;
-	}
+}
 
 PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property)
 {
@@ -3057,8 +3063,8 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		{
 			UE_LOG(LogPython, Error, TEXT("function %s is already registered"), UTF8_TO_TCHAR(name));
 			return nullptr;
+		}
 	}
-}
 
 	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 	function->SetPyCallable(py_callable);
@@ -3379,7 +3385,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 #endif
 
 	return function;
-	}
+}
 
 FGuid *ue_py_check_fguid(PyObject *py_obj)
 {
