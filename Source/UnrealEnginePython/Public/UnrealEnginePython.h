@@ -21,7 +21,7 @@
 #elif PLATFORM_LINUX
 #include <Python.h>
 #include <structmember.h>
-#elif PLATFORM_ANDROID
+#elif PLATFORM_ANDROID || PLATFORM_IOS
 #include <Python.h>
 #include <structmember.h>
 #elif PLATFORM_WINDOWS
