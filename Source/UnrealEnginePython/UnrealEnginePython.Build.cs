@@ -276,7 +276,7 @@ public class UnrealEnginePython : ModuleRules
         {
             string PythonIOSLibsDirectory = Path.Combine(PluginDirectory, "python", "python36", "ios");
 
-            includePath = Path.Combine(PythonIOSLibsDirectory, "Python", "Headers");
+            string includePath = Path.Combine(PythonIOSLibsDirectory, "Python", "Headers");
             PublicIncludePaths.Add(includePath);
 
             PublicLibraryPaths.AddRange(
