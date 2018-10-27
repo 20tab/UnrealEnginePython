@@ -285,6 +285,7 @@ public class UnrealEnginePython : ModuleRules
                     Path.Combine(PythonIOSLibsDirectory, "OpenSSL"),
                     Path.Combine(PythonIOSLibsDirectory, "Python"),
                     Path.Combine(PythonIOSLibsDirectory, "XZ"),
+                    Path.Combine(PythonIOSLibsDirectory, "Sqlite3"),
                 });
 
             string[] libraryPaths = new string[] {
@@ -292,6 +293,7 @@ public class UnrealEnginePython : ModuleRules
                 Path.Combine(PythonIOSLibsDirectory, "OpenSSL", "libOpenSSL.a"),
                 Path.Combine(PythonIOSLibsDirectory, "Python", "libPython.a"),
                 Path.Combine(PythonIOSLibsDirectory, "XZ", "libxz.a"),
+                Path.Combine(PythonIOSLibsDirectory, "Sqlite3", "libsqlite3.tbd"),
             };
 
             foreach (string libraryPath in libraryPaths)

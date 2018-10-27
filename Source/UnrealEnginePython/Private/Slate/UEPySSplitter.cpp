@@ -40,7 +40,9 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
 }
 
 static PyMethodDef ue_PySSplitter_methods[] = {
+#ifdef _MSC_VER
 #pragma warning(suppress: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_ssplitter_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };

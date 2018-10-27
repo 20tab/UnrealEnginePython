@@ -32,7 +32,9 @@ static PyObject *py_ue_shorizontal_box_num_slots(ue_PySHorizontalBox *self, PyOb
 }
 
 static PyMethodDef ue_PySHorizontalBox_methods[] = {
+#ifdef _MSC_VER
 #pragma warning(suppress: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_shorizontal_box_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "num_slots", (PyCFunction)py_ue_shorizontal_box_num_slots, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */

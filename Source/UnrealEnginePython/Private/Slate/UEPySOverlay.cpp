@@ -70,7 +70,9 @@ static PyObject *py_ue_soverlay_get_num_widgets(ue_PySOverlay *self, PyObject * 
 }
 
 static PyMethodDef ue_PySOverlay_methods[] = {
+#ifdef _MSC_VER
 #pragma warning(suppress: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_soverlay_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "get_num_widgets", (PyCFunction)py_ue_soverlay_get_num_widgets, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
