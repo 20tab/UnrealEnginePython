@@ -6,6 +6,7 @@
 #include "Engine/StaticMesh.h"
 #include "Wrappers/UEPyFRawMesh.h"
 #include "Editor/UnrealEd/Private/GeomFitUtils.h"
+#include "FbxMeshUtils.h"
 
 static PyObject *generate_kdop(ue_PyUObject *self, const FVector *directions, uint32 num_directions)
 {
@@ -114,6 +115,26 @@ PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args)
 	mesh->SourceModels[lod_index].RawMeshBulkData->LoadRawMesh(raw_mesh);
 
 	return py_ue_new_fraw_mesh(raw_mesh);
+}
+
+PyObject *py_ue_static_mesh_import_lod(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *filename;
+	int lod_level;
+	if (!PyArg_ParseTuple(args, "si:static_mesh_import_lod", &filename, &lod_level))
+		return nullptr;
+
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+
+	if (FbxMeshUtils::ImportStaticMeshLOD(mesh, FString(UTF8_TO_TCHAR(filename)), lod_level))
+	{
+		Py_RETURN_TRUE;
+	}
+	Py_RETURN_FALSE;
 }
 
 #endif

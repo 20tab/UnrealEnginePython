@@ -1137,6 +1137,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "static_mesh_generate_kdop18", (PyCFunction)py_ue_static_mesh_generate_kdop18, METH_VARARGS, "" },
 	{ "static_mesh_generate_kdop26", (PyCFunction)py_ue_static_mesh_generate_kdop26, METH_VARARGS, "" },
 
+	{ "static_mesh_import_lod", (PyCFunction)py_ue_static_mesh_import_lod, METH_VARARGS, "" },
+
 #endif
 
 	// Viewport
