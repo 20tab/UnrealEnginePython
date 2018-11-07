@@ -445,7 +445,9 @@ void FUnrealEnginePythonModule::StartupModule()
     
 #elif PLATFORM_IOS
     FString IOSContentPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*IFileManager::Get().GetFilenameOnDisk(*FPaths::ConvertRelativePathToFull(PROJECT_CONTENT_DIR)));
-    FString PyScriptsSearchPath = IOSContentPath / FString(TEXT("lib")) + FString(":") + IOSContentPath / FString(TEXT("scripts")); // the name of directory must be lower
+    FString PyScriptsSearchPath = IOSContentPath / FString(TEXT("lib")) + FString(":") +
+                                IOSContentPath / FString(TEXT("lib/stdlib.zip")) + FString(":") +
+                                IOSContentPath / FString(TEXT("scripts")); // the name of directory must be lower-case.
 
     Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*PyScriptsSearchPath), NULL));
     
