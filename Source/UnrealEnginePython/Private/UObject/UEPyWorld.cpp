@@ -43,7 +43,11 @@ PyObject *py_ue_quit_game(ue_PyUObject *self, PyObject * args)
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "unable to retrieve the first controller");
 
+#if ENGINE_MINOR_VERSION > 20
+	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit, false);
+#else
 	UKismetSystemLibrary::QuitGame(world, controller, EQuitPreference::Quit);
+#endif
 
 	Py_RETURN_NONE;
 }
@@ -319,6 +323,20 @@ PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
 }
 
 #if WITH_EDITOR
+PyObject *py_ue_get_level_script_blueprint(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevel *level = ue_py_check_type<ULevel>(self);
+	if (!level)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a ULevel");
+	}
+
+	Py_RETURN_UOBJECT((UObject*)level->GetLevelScriptBlueprint());
+}
+
 PyObject *py_ue_world_create_folder(ue_PyUObject *self, PyObject * args)
 {
 

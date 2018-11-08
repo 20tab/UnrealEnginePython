@@ -108,7 +108,11 @@ PyObject *py_ue_data_table_as_dict(ue_PyUObject * self, PyObject * args)
 
 	PyObject *py_dict = PyDict_New();
 
+#if ENGINE_MINOR_VERSION > 20
+	for (TMap<FName, uint8*>::TConstIterator RowMapIter(data_table->GetRowMap().CreateConstIterator()); RowMapIter; ++RowMapIter)
+#else
 	for (TMap<FName, uint8*>::TConstIterator RowMapIter(data_table->RowMap.CreateConstIterator()); RowMapIter; ++RowMapIter)
+#endif
 	{
 		PyDict_SetItemString(py_dict, TCHAR_TO_UTF8(*RowMapIter->Key.ToString()), py_ue_new_owned_uscriptstruct(data_table->RowStruct, RowMapIter->Value));
 	}
@@ -152,7 +156,11 @@ PyObject *py_ue_data_table_find_row(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UDataTable");
 
 	uint8 **data = nullptr;
+#if ENGINE_MINOR_VERSION > 20
+	data = (uint8 **)data_table->GetRowMap().Find(FName(UTF8_TO_TCHAR(name)));
+#else
 	data = data_table->RowMap.Find(FName(UTF8_TO_TCHAR(name)));
+#endif
 	if (!data)
 	{
 		return PyErr_Format(PyExc_Exception, "key not found in UDataTable");
@@ -172,7 +180,11 @@ PyObject *py_ue_data_table_get_all_rows(ue_PyUObject * self, PyObject * args)
 
 	PyObject *py_list = PyList_New(0);
 
+#if ENGINE_MINOR_VERSION > 20
+	for (TMap<FName, uint8*>::TConstIterator RowMapIter(data_table->GetRowMap().CreateConstIterator()); RowMapIter; ++RowMapIter)
+#else
 	for (TMap<FName, uint8*>::TConstIterator RowMapIter(data_table->RowMap.CreateConstIterator()); RowMapIter; ++RowMapIter)
+#endif
 	{
 		PyList_Append(py_list, py_ue_new_owned_uscriptstruct(data_table->RowStruct, RowMapIter->Value));
 	}

@@ -482,6 +482,87 @@ PyObject *py_ue_get_metadata(ue_PyUObject * self, PyObject * args)
 	return PyErr_Format(PyExc_TypeError, "the object does not support MetaData");
 }
 
+PyObject *py_ue_get_metadata_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *metadata_tag_key;
+	if (!PyArg_ParseTuple(args, "s:get_metadata_tag", &metadata_tag_key))
+	{
+		return nullptr;
+	}
+
+	const FString& Value = self->ue_object->GetOutermost()->GetMetaData()->GetValue(self->ue_object, UTF8_TO_TCHAR(metadata_tag_key));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*Value));
+}
+
+PyObject *py_ue_has_metadata_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *metadata_tag_key;
+	if (!PyArg_ParseTuple(args, "s:has_metadata_tag", &metadata_tag_key))
+	{
+		return nullptr;
+	}
+
+	if (self->ue_object->GetOutermost()->GetMetaData()->HasValue(self->ue_object, UTF8_TO_TCHAR(metadata_tag_key)))
+	{
+		Py_RETURN_TRUE;
+	}
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_remove_metadata_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *metadata_tag_key;
+	if (!PyArg_ParseTuple(args, "s:remove_metadata_tag", &metadata_tag_key))
+	{
+		return nullptr;
+	}
+
+	self->ue_object->GetOutermost()->GetMetaData()->RemoveValue(self->ue_object, UTF8_TO_TCHAR(metadata_tag_key));
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_set_metadata_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *metadata_tag_key;
+	char *metadata_tag_value;
+	if (!PyArg_ParseTuple(args, "ss:set_metadata_tag", &metadata_tag_key, &metadata_tag_value))
+	{
+		return nullptr;
+	}
+
+	self->ue_object->GetOutermost()->GetMetaData()->SetValue(self->ue_object, UTF8_TO_TCHAR(metadata_tag_key), UTF8_TO_TCHAR(metadata_tag_value));
+	Py_RETURN_NONE;
+}
+
+
+PyObject *py_ue_metadata_tags(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	TMap<FName, FString> *TagsMap = self->ue_object->GetOutermost()->GetMetaData()->GetMapForObject(self->ue_object);
+	if (!TagsMap)
+		Py_RETURN_NONE;
+
+	PyObject* py_list = PyList_New(0);
+	for (TPair< FName, FString>& Pair : *TagsMap)
+	{
+		PyList_Append(py_list, PyUnicode_FromString(TCHAR_TO_UTF8(*Pair.Key.ToString())));
+	}
+	return py_list;
+}
+
 PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args)
 {
 
@@ -498,11 +579,9 @@ PyObject *py_ue_has_metadata(ue_PyUObject * self, PyObject * args)
 		UClass *u_class = (UClass *)self->ue_object;
 		if (u_class->HasMetaData(FName(UTF8_TO_TCHAR(metadata_key))))
 		{
-			Py_INCREF(Py_True);
-			return Py_True;
+			Py_RETURN_TRUE;
 		}
-		Py_INCREF(Py_False);
-		return Py_False;
+		Py_RETURN_FALSE;
 	}
 
 	if (self->ue_object->IsA<UField>())
@@ -1850,7 +1929,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 	// TODO add default value
 
 	Py_RETURN_UOBJECT(u_property);
-}
+	}
 
 PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args)
 {

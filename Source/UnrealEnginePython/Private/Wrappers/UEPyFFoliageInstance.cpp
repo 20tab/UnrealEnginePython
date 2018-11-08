@@ -143,12 +143,13 @@ static PyObject *py_ue_ffoliage_instance_get_instance_id(ue_PyFFoliageInstance *
 	return PyLong_FromLong(self->instance_id);
 }
 
-
+#if ENGINE_MINOR_VERSION > 19
 static PyObject *py_ue_ffoliage_instance_get_base_component(ue_PyFFoliageInstance *self, void *closure)
 {
 	get_instance(self);
 	Py_RETURN_UOBJECT(instance->BaseComponent);
 }
+#endif
 
 
 
@@ -163,6 +164,9 @@ static PyGetSetDef ue_PyFFoliageInstance_getseters[] = {
 	{ (char *)"guid", (getter)py_ue_ffoliage_instance_get_procedural_guid, nullptr, (char *)"", NULL },
 	{ (char *)"base_id", (getter)py_ue_ffoliage_instance_get_base_id, nullptr, (char *)"", NULL },
 	{ (char *)"instance_id", (getter)py_ue_ffoliage_instance_get_instance_id, nullptr, (char *)"", NULL },
+#if ENGINE_MINOR_VERSION > 19
+	{ (char *)"base_component", (getter)py_ue_ffoliage_instance_get_base_component, nullptr, (char *)"", NULL },
+#endif
 	{ NULL }  /* Sentinel */
 };
 

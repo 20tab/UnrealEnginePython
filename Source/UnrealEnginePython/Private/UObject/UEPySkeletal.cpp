@@ -5,6 +5,9 @@
 #include "Developer/MeshUtilities/Public/MeshUtilities.h"
 #include "Wrappers/UEPyFMorphTargetDelta.h"
 #include "Wrappers/UEPyFSoftSkinVertex.h"
+#if ENGINE_MINOR_VERSION > 20
+#include "Runtime/Engine/Public/Rendering/SkeletalMeshLODImporterData.h"
+#endif
 #if ENGINE_MINOR_VERSION > 18
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshModel.h"
 #endif
@@ -953,9 +956,15 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	TArray<FSoftSkinVertex> soft_vertices;
 
 	TArray<FVector> points;
+#if ENGINE_MINOR_VERSION > 20
+	TArray<SkeletalMeshImportData::FMeshWedge> wedges;
+	TArray<SkeletalMeshImportData::FMeshFace> faces;
+	TArray<SkeletalMeshImportData::FVertInfluence> influences;
+#else
 	TArray<FMeshWedge> wedges;
 	TArray<FMeshFace> faces;
 	TArray<FVertInfluence> influences;
+#endif
 	TArray<int32> points_to_map;
 
 	TArray<FVector> tangentsX;
@@ -976,7 +985,11 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 		points_to_map.Add(vertex_index);
 
+#if ENGINE_MINOR_VERSION > 20
+		SkeletalMeshImportData::FMeshWedge wedge;
+#else
 		FMeshWedge wedge;
+#endif
 		wedge.iVertex = vertex_index;
 		wedge.Color = ss_vertex->ss_vertex.Color;
 		for (int32 i = 0; i < MAX_TEXCOORDS; i++)
@@ -987,7 +1000,11 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++)
 		{
+#if ENGINE_MINOR_VERSION > 20
+			SkeletalMeshImportData::FVertInfluence influence;
+#else
 			FVertInfluence influence;
+#endif
 			influence.VertIndex = wedge_index;
 			influence.BoneIndex = ss_vertex->ss_vertex.InfluenceBones[i];
 			influence.Weight = ss_vertex->ss_vertex.InfluenceWeights[i] / 255.f;
@@ -1009,7 +1026,11 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	for (int32 i = 0; i < wedges.Num(); i += 3)
 	{
+#if ENGINE_MINOR_VERSION > 20
+		SkeletalMeshImportData::FMeshFace face;
+#else
 		FMeshFace face;
+#endif
 		face.iWedge[0] = i;
 		face.iWedge[1] = i + 1;
 		face.iWedge[2] = i + 2;
