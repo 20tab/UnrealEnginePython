@@ -11,6 +11,8 @@ typedef struct
 		FLinearColor color;
 } ue_PyFLinearColor;
 
+extern PyTypeObject ue_PyFLinearColorType;
+
 PyObject *py_ue_new_flinearcolor(FLinearColor);
 ue_PyFLinearColor *py_ue_is_flinearcolor(PyObject *);
 

@@ -103,7 +103,7 @@ static PyObject *ue_PyFColor_str(ue_PyFColor *self)
 		self->color.R, self->color.G, self->color.B, self->color.A);
 }
 
-static PyTypeObject ue_PyFColorType = {
+PyTypeObject ue_PyFColorType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FColor", /* tp_name */
 	sizeof(ue_PyFColor), /* tp_basicsize */

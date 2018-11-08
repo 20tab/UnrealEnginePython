@@ -11,6 +11,8 @@ typedef struct
 		FColor color;
 } ue_PyFColor;
 
+extern PyTypeObject ue_PyFColorType;
+
 PyObject *py_ue_new_fcolor(FColor);
 ue_PyFColor *py_ue_is_fcolor(PyObject *);
 

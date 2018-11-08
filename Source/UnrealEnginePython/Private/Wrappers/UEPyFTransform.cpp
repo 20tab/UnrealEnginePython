@@ -220,7 +220,7 @@ static PyObject *ue_PyFTransform_str(ue_PyFTransform *self)
 }
 
 
-static PyTypeObject ue_PyFTransformType = {
+PyTypeObject ue_PyFTransformType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FTransform", /* tp_name */
 	sizeof(ue_PyFTransform), /* tp_basicsize */
