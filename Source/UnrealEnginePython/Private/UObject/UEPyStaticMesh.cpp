@@ -5,8 +5,18 @@
 
 #include "Engine/StaticMesh.h"
 #include "Wrappers/UEPyFRawMesh.h"
+#include "Wrappers/UEPyFBoxSphereBounds.h"
 #include "Editor/UnrealEd/Private/GeomFitUtils.h"
 #include "FbxMeshUtils.h"
+
+PyObject *py_ue_static_mesh_get_bounds(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+    return py_ue_new_fboxspherebounds(mesh->GetBounds());
+}
 
 static PyObject *generate_kdop(ue_PyUObject *self, const FVector *directions, uint32 num_directions)
 {

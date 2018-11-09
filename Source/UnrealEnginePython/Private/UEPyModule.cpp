@@ -100,6 +100,7 @@
 #endif
 
 #include "Wrappers/UEPyFFrameNumber.h"
+#include "Wrappers/UEPyFBoxSphereBounds.h"
 
 #include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
@@ -749,6 +750,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "vlog_cylinder", (PyCFunction)py_ue_vlog_cylinder, METH_VARARGS, "" },
 
 	// StaticMesh
+    { "get_static_mesh_bounds", (PyCFunction)py_ue_static_mesh_get_bounds, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "static_mesh_build", (PyCFunction)py_ue_static_mesh_build, METH_VARARGS, "" },
 	{ "static_mesh_create_body_setup", (PyCFunction)py_ue_static_mesh_create_body_setup, METH_VARARGS, "" },
@@ -1658,6 +1660,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_fcolor(new_unreal_engine_module);
 	ue_python_init_flinearcolor(new_unreal_engine_module);
 	ue_python_init_fquat(new_unreal_engine_module);
+    ue_python_init_fboxspherebounds(new_unreal_engine_module);
 
 #if ENGINE_MINOR_VERSION >= 20
 	ue_python_init_fframe_number(new_unreal_engine_module);
