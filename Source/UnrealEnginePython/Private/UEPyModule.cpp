@@ -3258,6 +3258,42 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 				{
 					prop = NewObject<UIntProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFVectorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FVector>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFRotatorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FRotator>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFLinearColorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FLinearColor>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFColorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FColor>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFTransformType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FTransform>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFQuatType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FQuat>::Get();
+					prop = prop_struct;
+				}
 			}
 			else if (ue_PyUObject *py_obj = ue_is_pyuobject(py_return_value))
 			{
@@ -3286,7 +3322,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 					}
 				}
 			}
-			// TODO add native types (like vectors, rotators...)
+
 			if (prop)
 			{
 				prop->SetPropertyFlags(CPF_Parm | CPF_OutParm | CPF_ReturnParm);
