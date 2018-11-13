@@ -307,15 +307,15 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "redraw_all_viewports", py_unreal_engine_redraw_all_viewports, METH_VARARGS, "" },
 	{ "update_ui", py_unreal_engine_update_ui, METH_VARARGS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "create_detail_view", (PyCFunction)py_unreal_engine_create_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "create_structure_detail_view", (PyCFunction)py_unreal_engine_create_structure_detail_view, METH_VARARGS | METH_KEYWORDS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "create_property_view",  (PyCFunction)py_unreal_engine_create_property_view, METH_VARARGS | METH_KEYWORDS, "" },
 
@@ -374,7 +374,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "play_preview_sound", py_unreal_engine_play_preview_sound, METH_VARARGS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "get_assets_by_filter", (PyCFunction)py_unreal_engine_get_assets_by_filter, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "create_blueprint", py_unreal_engine_create_blueprint, METH_VARARGS, "" },
@@ -475,7 +475,7 @@ static PyMethodDef unreal_engine_methods[] = {
 
 	{ "get_game_viewport_client", py_unreal_engine_get_game_viewport_client, METH_VARARGS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "open_color_picker", (PyCFunction)py_unreal_engine_open_color_picker, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "destroy_color_picker", py_unreal_engine_destroy_color_picker, METH_VARARGS, "" },
@@ -508,7 +508,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "clipboard_paste", py_unreal_engine_clipboard_paste, METH_VARARGS, "" },
 
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "copy_properties_for_unrelated_objects", (PyCFunction)py_unreal_engine_copy_properties_for_unrelated_objects, METH_VARARGS | METH_KEYWORDS, "" },
 
@@ -712,7 +712,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "find_function", (PyCFunction)py_ue_find_function, METH_VARARGS, "" },
 
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "call_function", (PyCFunction)py_ue_call_function, METH_VARARGS | METH_KEYWORDS, "" },
 
@@ -868,7 +868,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "actor_destroy", (PyCFunction)py_ue_actor_destroy, METH_VARARGS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "actor_spawn", (PyCFunction)py_ue_actor_spawn, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "actor_has_tag", (PyCFunction)py_ue_actor_has_tag, METH_VARARGS, "" },
@@ -1053,7 +1053,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeletal_mesh_lods_num", (PyCFunction)py_ue_skeletal_mesh_lods_num, METH_VARARGS, "" },
 	{ "skeletal_mesh_sections_num", (PyCFunction)py_ue_skeletal_mesh_sections_num, METH_VARARGS, "" },
 #ifdef _MSC_VER
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 #endif
 	{ "skeletal_mesh_build_lod", (PyCFunction)py_ue_skeletal_mesh_build_lod, METH_VARARGS | METH_KEYWORDS, "" },
 #endif

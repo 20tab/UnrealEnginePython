@@ -81,7 +81,7 @@ static PyObject *py_ue_istructure_details_view_get_widget(ue_PyIStructureDetails
 }
 
 static PyMethodDef ue_PyIStructureDetailsView_methods[] = {
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 	{ "set_structure_data", (PyCFunction)py_ue_istructure_details_view_set_structure_data, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "get_widget", (PyCFunction)py_ue_istructure_details_view_get_widget, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
