@@ -2116,7 +2116,7 @@ PyObject *py_ue_save_package(ue_PyUObject * self, PyObject * args)
 		package->FileName = *FPackageName::LongPackageNameToFilename(package->GetPathName(), bIsMap ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension());
 	}
 
-	if (UPackage::SavePackage(package, u_object, RF_NoFlags, *package->FileName.ToString()))
+	if (UPackage::SavePackage(package, u_object, RF_Standalone, *package->FileName.ToString()))
 	{
 		FAssetRegistryModule::AssetCreated(u_object);
 		Py_RETURN_UOBJECT(u_object);
