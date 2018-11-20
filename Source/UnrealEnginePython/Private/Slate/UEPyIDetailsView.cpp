@@ -40,7 +40,7 @@ static PyObject *py_ue_idetails_view_set_object(ue_PyIDetailsView *self, PyObjec
 }
 
 static PyMethodDef ue_PyIDetailsView_methods[] = {
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 	{ "set_object", (PyCFunction)py_ue_idetails_view_set_object, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };

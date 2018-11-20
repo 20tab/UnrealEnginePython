@@ -67,7 +67,9 @@ static PyObject *py_ue_sheader_row_add_column(ue_PySHeaderRow *self, PyObject *a
 }
 
 static PyMethodDef ue_PySHeaderRow_methods[] = {
-#pragma warning(suppress: 4191)
+#ifdef _MSC_VER
+#pragma warning(disable: 4191)
+#endif
 	{ "add_column", (PyCFunction)py_ue_sheader_row_add_column, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };

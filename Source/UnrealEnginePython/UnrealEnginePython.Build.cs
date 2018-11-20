@@ -97,6 +97,7 @@ public class UnrealEnginePython : ModuleRules
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
         string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
         bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
+        string PluginDirectory = Path.Combine(ModuleDirectory, "..", "..");
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -271,6 +272,35 @@ public class UnrealEnginePython : ModuleRules
             AdditionalPropertiesForReceipt.Add(new ReceiptProperty("AndroidPlugin", RelAPLPath));
         }
 #endif
+        else if (Target.Platform == UnrealTargetPlatform.IOS)
+        {
+            string PythonIOSLibsDirectory = Path.Combine(PluginDirectory, "python", "python36", "ios");
+
+            string includePath = Path.Combine(PythonIOSLibsDirectory, "Python", "Headers");
+            PublicIncludePaths.Add(includePath);
+
+            PublicLibraryPaths.AddRange(
+                new string[] {
+                    Path.Combine(PythonIOSLibsDirectory, "BZip2"),
+                    Path.Combine(PythonIOSLibsDirectory, "OpenSSL"),
+                    Path.Combine(PythonIOSLibsDirectory, "Python"),
+                    Path.Combine(PythonIOSLibsDirectory, "XZ"),
+                    Path.Combine(PythonIOSLibsDirectory, "Sqlite3"),
+                });
+
+            string[] libraryPaths = new string[] {
+                Path.Combine(PythonIOSLibsDirectory, "BZip2", "libbzip2.a"),
+                Path.Combine(PythonIOSLibsDirectory, "OpenSSL", "libOpenSSL.a"),
+                Path.Combine(PythonIOSLibsDirectory, "Python", "libPython.a"),
+                Path.Combine(PythonIOSLibsDirectory, "XZ", "libxz.a"),
+                Path.Combine(PythonIOSLibsDirectory, "Sqlite3", "libsqlite3.tbd"),
+            };
+
+            foreach (string libraryPath in libraryPaths)
+            {
+                PublicAdditionalLibraries.Add(libraryPath);
+            }
+        }
 
     }
 

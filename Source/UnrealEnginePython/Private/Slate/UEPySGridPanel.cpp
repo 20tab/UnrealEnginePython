@@ -46,7 +46,9 @@ static PyObject *py_ue_sgrid_panel_add_slot(ue_PySGridPanel *self, PyObject * ar
 
 static PyMethodDef ue_PySGridPanel_methods[] = {
 	{ "clear_children", (PyCFunction)py_ue_sgrid_panel_clear_children, METH_VARARGS, "" },
-#pragma warning(suppress: 4191)
+#ifdef _MSC_VER
+#pragma warning(disable: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_sgrid_panel_add_slot,  METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };

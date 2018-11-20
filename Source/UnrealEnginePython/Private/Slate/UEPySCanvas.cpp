@@ -89,7 +89,9 @@ static PyObject *py_ue_scanvas_add_slot(ue_PySCanvas *self, PyObject * args, PyO
 }
 
 static PyMethodDef ue_PySCanvas_methods[] = {
-#pragma warning(suppress: 4191)
+#ifdef _MSC_VER
+#pragma warning(disable: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_scanvas_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "clear_children", (PyCFunction)py_ue_scanvas_clear_children, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */

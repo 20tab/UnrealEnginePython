@@ -439,14 +439,30 @@ void FUnrealEnginePythonModule::StartupModule()
 		BasePythonPath += FString(":") + UnrealEnginePython_OBBPath;
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("Setting Base Path to %s"), *BasePythonPath);
+	UE_LOG(LogPython, Warning, TEXT("Setting Android Base Path to %s"), *BasePythonPath);
 
 	Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*BasePythonPath), NULL));
+    
+#elif PLATFORM_IOS
+    FString IOSContentPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*IFileManager::Get().GetFilenameOnDisk(*FPaths::ConvertRelativePathToFull(PROJECT_CONTENT_DIR)));
+    FString PyScriptsSearchPath = IOSContentPath / FString(TEXT("lib")) + FString(":") +
+                                IOSContentPath / FString(TEXT("lib/stdlib.zip")) + FString(":") +
+                                IOSContentPath / FString(TEXT("scripts")); // the name of directory must be lower-case.
+
+    Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*PyScriptsSearchPath), NULL));
+    
+    UE_LOG(LogPython, Log, TEXT("Setting IOS Python Scripts Search Path to %s"), *PyScriptsSearchPath);
 #endif
 #endif
 
+#if PLATFORM_IOS || PLATFORM_ANDROID
+    Py_NoSiteFlag = 1;
+    Py_NoUserSiteDirectory = 1;
+    
+    Py_InitializeEx(0);
+#else
 	Py_Initialize();
-
+#endif
 	PyEval_InitThreads();
 
 #if WITH_EDITOR

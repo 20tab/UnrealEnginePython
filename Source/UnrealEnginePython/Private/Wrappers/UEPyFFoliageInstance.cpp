@@ -1,5 +1,7 @@
 #include "UEPyFFoliageInstance.h"
 
+#if WITH_EDITOR
+
 #include "Wrappers/UEPyFVector.h"
 #include "Wrappers/UEPyFRotator.h"
 #include "Wrappers/UEPyFTransform.h"
@@ -258,3 +260,5 @@ PyObject *py_ue_new_ffoliage_instance(AInstancedFoliageActor *foliage_actor, UFo
 	ret->instance_id = instance_id;
 	return (PyObject *)ret;
 }
+
+#endif
