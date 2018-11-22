@@ -3214,6 +3214,14 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 					prop = prop_base;
 				}
 			}
+            else if (py_obj->ue_object->IsA<UEnum>())
+            {
+                UEnumProperty *prop_enum = NewObject<UEnumProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                UNumericProperty *prop_underlying = NewObject<UByteProperty>(prop_enum, TEXT("UnderlyingType"), RF_Public);
+                prop_enum->SetEnum((UEnum*)py_obj->ue_object);
+                prop_enum->AddCppProperty(prop_underlying);
+                prop = prop_enum;
+            }
 		}
 
 		if (prop)
@@ -3321,6 +3329,14 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 						prop = prop_base;
 					}
 				}
+                else if (py_obj->ue_object->IsA<UEnum>())
+                {
+                    UEnumProperty *prop_enum = NewObject<UEnumProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                    UNumericProperty *prop_underlying = NewObject<UByteProperty>(prop_enum, TEXT("UnderlyingType"), RF_Public);
+                    prop_enum->SetEnum((UEnum*)py_obj->ue_object);
+                    prop_enum->AddCppProperty(prop_underlying);
+                    prop = prop_enum;
+                }
 			}
 
 			if (prop)
