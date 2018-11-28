@@ -106,7 +106,7 @@ static PyObject *ue_PyFLinearColor_str(ue_PyFLinearColor *self)
 		PyFloat_FromDouble(self->color.A));
 }
 
-static PyTypeObject ue_PyFLinearColorType = {
+PyTypeObject ue_PyFLinearColorType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FLinearColor", /* tp_name */
 	sizeof(ue_PyFLinearColor), /* tp_basicsize */

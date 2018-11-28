@@ -2642,9 +2642,18 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 		{
 			if (auto casted_prop = Cast<UObjectPropertyBase>(prop))
 			{
-				// ensure the object type is correct, otherwise crash could happen (soon or later)
-				if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
-					return false;
+                // if the property specifies an interface, the object must be of a class that implements it
+                if (casted_prop->PropertyClass->HasAnyClassFlags(CLASS_Interface))
+                {
+                    if (!ue_obj->ue_object->GetClass()->ImplementsInterface(casted_prop->PropertyClass))
+                        return false;
+                }
+                else
+                {
+                    // ensure the object type is correct, otherwise crash could happen (soon or later)
+                    if (!ue_obj->ue_object->IsA(casted_prop->PropertyClass))
+                        return false;
+                }
 
 				casted_prop->SetObjectPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
 
@@ -3151,35 +3160,103 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			{
 				prop = NewObject<UIntProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 			}
+			else if ((PyTypeObject *)value == &ue_PyFVectorType)
+			{
+				UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_struct->Struct = TBaseStructure<FVector>::Get();
+				prop = prop_struct;
+			}
+			else if ((PyTypeObject *)value == &ue_PyFRotatorType)
+			{
+				UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_struct->Struct = TBaseStructure<FRotator>::Get();
+				prop = prop_struct;
+			}
+			else if ((PyTypeObject *)value == &ue_PyFLinearColorType)
+			{
+				UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_struct->Struct = TBaseStructure<FLinearColor>::Get();
+				prop = prop_struct;
+			}
+			else if ((PyTypeObject *)value == &ue_PyFColorType)
+			{
+				UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_struct->Struct = TBaseStructure<FColor>::Get();
+				prop = prop_struct;
+			}
+			else if ((PyTypeObject *)value == &ue_PyFTransformType)
+			{
+				UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_struct->Struct = TBaseStructure<FTransform>::Get();
+				prop = prop_struct;
+			}
+			else if ((PyTypeObject *)value == &ue_PyFQuatType)
+			{
+				UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+				prop_struct->Struct = TBaseStructure<FQuat>::Get();
+				prop = prop_struct;
+			}
+            else if (PyObject_IsInstance(value, (PyObject *)&PyType_Type))
+            {
+                // Method annotation like foo:typing.Type[Pawn] produces annotations like typing.Type[Pawn], with .__args__ = (Pawn,)
+                PyObject *type_args = PyObject_GetAttrString(value, "__args__");
+                if (!type_args)
+                {
+                    UE_LOG(LogPython, Error, TEXT("missing type info on %s"), UTF8_TO_TCHAR(name));
+                    return nullptr;
+                }
+                if (PyTuple_Size(type_args) != 1)
+                {
+                    Py_DECREF(type_args);
+                    UE_LOG(LogPython, Error, TEXT("exactly one class is allowed in type info for %s"), UTF8_TO_TCHAR(name));
+                    return nullptr;
+                }
+                PyObject *py_class = PyTuple_GetItem(type_args, 0);
+                ue_PyUObject *py_obj = ue_is_pyuobject(py_class);
+                if (!py_obj)
+                {
+                    Py_DECREF(type_args);
+                    UE_LOG(LogPython, Error, TEXT("type for %s must be a ue_PyUObject"), UTF8_TO_TCHAR(name));
+                    return nullptr;
+                }
+                if (!py_obj->ue_object->IsA<UClass>())
+                {
+                    Py_DECREF(type_args);
+                    UE_LOG(LogPython, Error, TEXT("type for %s must be a UClass"), UTF8_TO_TCHAR(name));
+                    return nullptr;
+                }
+                UClassProperty *prop_class = NewObject<UClassProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                prop_class->SetMetaClass((UClass*)py_obj->ue_object);
+                prop_class->PropertyClass = UClass::StaticClass();
+                prop = prop_class;
+                Py_DECREF(type_args);
+            }
 		}
 		else if (ue_PyUObject *py_obj = ue_is_pyuobject(value))
 		{
 			if (py_obj->ue_object->IsA<UClass>())
 			{
 				UClass *p_u_class = (UClass *)py_obj->ue_object;
-				if (p_u_class->IsChildOf<UClass>())
-				{
-					UClassProperty *prop_base = NewObject<UClassProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-					if (p_u_class == UClass::StaticClass())
-					{
-						prop_base->SetMetaClass(UObject::StaticClass());
-					}
-					else
-					{
-						prop_base->SetMetaClass(p_u_class->GetClass());
-					}
-					prop_base->PropertyClass = UClass::StaticClass();
-					prop = prop_base;
-				}
-				else
-				{
-					UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-					prop_base->SetPropertyClass(p_u_class);
-					prop = prop_base;
-				}
+                UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                prop_base->SetPropertyClass(p_u_class);
+                prop = prop_base;
 			}
+            else if (py_obj->ue_object->IsA<UEnum>())
+            {
+                UEnumProperty *prop_enum = NewObject<UEnumProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                UNumericProperty *prop_underlying = NewObject<UByteProperty>(prop_enum, TEXT("UnderlyingType"), RF_Public);
+                prop_enum->SetEnum((UEnum*)py_obj->ue_object);
+                prop_enum->AddCppProperty(prop_underlying);
+                prop = prop_enum;
+            }
+            else if (py_obj->ue_object->IsA<UStruct>())
+            {
+                UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                prop_struct->Struct = (UScriptStruct*)py_obj->ue_object;
+                prop = prop_struct;
+            }
 		}
-		// TODO add native types (like vectors, rotators...)
+
 		if (prop)
 		{
 			prop->SetPropertyFlags(CPF_Parm);
@@ -3222,35 +3299,103 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 				{
 					prop = NewObject<UIntProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
 				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFVectorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FVector>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFRotatorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FRotator>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFLinearColorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FLinearColor>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFColorType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FColor>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFTransformType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FTransform>::Get();
+					prop = prop_struct;
+				}
+				else if ((PyTypeObject *)py_return_value == &ue_PyFQuatType)
+				{
+					UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+					prop_struct->Struct = TBaseStructure<FQuat>::Get();
+					prop = prop_struct;
+				}
+                else if (PyObject_IsInstance(py_return_value, (PyObject *)&PyType_Type))
+                {
+                    // Method annotation like foo:typing.Type[Pawn] produces annotations like typing.Type[Pawn], with .__args__ = (Pawn,)
+                    PyObject *type_args = PyObject_GetAttrString(py_return_value, "__args__");
+                    if (!type_args)
+                    {
+                        UE_LOG(LogPython, Error, TEXT("missing type info on %s"), UTF8_TO_TCHAR(name));
+                        return nullptr;
+                    }
+                    if (PyTuple_Size(type_args) != 1)
+                    {
+                        Py_DECREF(type_args);
+                        UE_LOG(LogPython, Error, TEXT("exactly one class is allowed in type info for %s"), UTF8_TO_TCHAR(name));
+                        return nullptr;
+                    }
+                    PyObject *py_class = PyTuple_GetItem(type_args, 0);
+                    ue_PyUObject *py_obj = ue_is_pyuobject(py_class);
+                    if (!py_obj)
+                    {
+                        Py_DECREF(type_args);
+                        UE_LOG(LogPython, Error, TEXT("type for %s must be a ue_PyUObject"), UTF8_TO_TCHAR(name));
+                        return nullptr;
+                    }
+                    if (!py_obj->ue_object->IsA<UClass>())
+                    {
+                        Py_DECREF(type_args);
+                        UE_LOG(LogPython, Error, TEXT("type for %s must be a UClass"), UTF8_TO_TCHAR(name));
+                        return nullptr;
+                    }
+                    UClassProperty *prop_class = NewObject<UClassProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                    prop_class->SetMetaClass((UClass*)py_obj->ue_object);
+                    prop_class->PropertyClass = UClass::StaticClass();
+                    prop = prop_class;
+                    Py_DECREF(type_args);
+                }
 			}
 			else if (ue_PyUObject *py_obj = ue_is_pyuobject(py_return_value))
 			{
-				if (py_obj->ue_object->IsA<UClass>())
-				{
-					UClass *p_u_class = (UClass *)py_obj->ue_object;
-					if (p_u_class->IsChildOf<UClass>())
-					{
-						UClassProperty *prop_base = NewObject<UClassProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-						if (p_u_class == UClass::StaticClass())
-						{
-							prop_base->SetMetaClass(UObject::StaticClass());
-						}
-						else
-						{
-							prop_base->SetMetaClass(p_u_class->GetClass());
-						}
-						prop_base->PropertyClass = UClass::StaticClass();
-						prop = prop_base;
-					}
-					else
-					{
-						UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
-						prop_base->SetPropertyClass(p_u_class);
-						prop = prop_base;
-					}
-				}
+                if (py_obj->ue_object->IsA<UClass>())
+                {
+                    UClass *p_u_class = (UClass *)py_obj->ue_object;
+                    UObjectProperty *prop_base = NewObject<UObjectProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                    prop_base->SetPropertyClass(p_u_class);
+                    prop = prop_base;
+                }
+                else if (py_obj->ue_object->IsA<UEnum>())
+                {
+                    UEnumProperty *prop_enum = NewObject<UEnumProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                    UNumericProperty *prop_underlying = NewObject<UByteProperty>(prop_enum, TEXT("UnderlyingType"), RF_Public);
+                    prop_enum->SetEnum((UEnum*)py_obj->ue_object);
+                    prop_enum->AddCppProperty(prop_underlying);
+                    prop = prop_enum;
+                }
+                else if (py_obj->ue_object->IsA<UStruct>())
+                {
+                    UStructProperty *prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
+                    prop_struct->Struct = (UScriptStruct*)py_obj->ue_object;
+                    prop = prop_struct;
+                }
 			}
-			// TODO add native types (like vectors, rotators...)
+
 			if (prop)
 			{
 				prop->SetPropertyFlags(CPF_Parm | CPF_OutParm | CPF_ReturnParm);

@@ -151,7 +151,7 @@ static PyObject *ue_PyFVector_str(ue_PyFVector *self)
 		PyFloat_FromDouble(self->vec.X), PyFloat_FromDouble(self->vec.Y), PyFloat_FromDouble(self->vec.Z));
 }
 
-static PyTypeObject ue_PyFVectorType = {
+PyTypeObject ue_PyFVectorType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FVector", /* tp_name */
 	sizeof(ue_PyFVector), /* tp_basicsize */
