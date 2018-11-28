@@ -13,6 +13,8 @@ PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_view_range(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_working_range(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_section_range(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_playback_range(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_selection_range(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_folders(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_create_folder(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_set_display_name(ue_PyUObject *, PyObject *);

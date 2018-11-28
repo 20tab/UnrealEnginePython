@@ -915,6 +915,26 @@ PyObject *py_ue_sequencer_set_playback_range(ue_PyUObject *self, PyObject * args
 	Py_RETURN_NONE;
 }
 
+PyObject *py_ue_sequencer_get_playback_range(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+#if ENGINE_MINOR_VERSION < 20
+	scene->GetPlaybackRange();
+#else
+	TRange<FFrameNumber> range = scene->GetPlaybackRange();
+
+	return Py_BuildValue("(OO)", py_ue_new_fframe_number(range.GetLowerBoundValue()), py_ue_new_fframe_number(range.GetUpperBoundValue()));
+
+#endif
+}
+
 PyObject *py_ue_sequencer_set_working_range(ue_PyUObject *self, PyObject * args)
 {
 
@@ -1011,6 +1031,26 @@ PyObject *py_ue_sequencer_set_section_range(ue_PyUObject *self, PyObject * args)
 #endif
 
 	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_sequencer_get_selection_range(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+#if ENGINE_MINOR_VERSION < 20
+	scene->GetSelectionRange();
+#else
+	TRange<FFrameNumber> range = scene->GetSelectionRange();
+
+	return Py_BuildValue("(OO)", py_ue_new_fframe_number(range.GetLowerBoundValue()), py_ue_new_fframe_number(range.GetUpperBoundValue()));
+
+#endif
 }
 
 
