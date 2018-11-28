@@ -926,7 +926,8 @@ PyObject *py_ue_sequencer_get_playback_range(ue_PyUObject *self, PyObject * args
 	UMovieScene	*scene = seq->GetMovieScene();
 
 #if ENGINE_MINOR_VERSION < 20
-	scene->GetPlaybackRange();
+	TRange<float> range = scene->GetPlaybackRange();
+	return Py_BuildValue("(ff)", range.GetLowerBoundValue(), range.GetUpperBoundValue());
 #else
 	TRange<FFrameNumber> range = scene->GetPlaybackRange();
 
@@ -1044,7 +1045,8 @@ PyObject *py_ue_sequencer_get_selection_range(ue_PyUObject *self, PyObject * arg
 	UMovieScene	*scene = seq->GetMovieScene();
 
 #if ENGINE_MINOR_VERSION < 20
-	scene->GetSelectionRange();
+	TRange<float> range = scene->GetSelectionRange();
+	return Py_BuildValue("(ff)", range.GetLowerBoundValue(), range.GetUpperBoundValue());
 #else
 	TRange<FFrameNumber> range = scene->GetSelectionRange();
 
