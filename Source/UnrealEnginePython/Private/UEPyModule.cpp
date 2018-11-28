@@ -2587,7 +2587,8 @@ bool ue_py_convert_pyobject(PyObject *py_obj, UProperty *prop, uint8 *buffer, in
 			if (casted_prop->Struct == py_u_struct->u_struct)
 			{
 				uint8 *dest = casted_prop->ContainerPtrToValuePtr<uint8>(buffer, index);
-				FMemory::Memcpy(dest, py_u_struct->u_struct_ptr, py_u_struct->u_struct->GetStructureSize());
+				py_u_struct->u_struct->InitializeStruct(dest);
+				py_u_struct->u_struct->CopyScriptStruct(dest, py_u_struct->u_struct_ptr);
 				return true;
 			}
 		}
