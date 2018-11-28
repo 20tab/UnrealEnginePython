@@ -194,7 +194,7 @@ class PlotComponent:
         dpi = 72.0
         self.texture = ue.create_transient_texture(width, height, EPixelFormat.PF_R8G8B8A8)
 
-        self.uobject.get_owner().StaticMesh.OverrideMaterials[0].set_material_texture_parameter('Graph', self.texture)
+        self.uobject.get_owner().StaticMeshComponent.OverrideMaterials[0].set_material_texture_parameter('Graph', self.texture)
 
         self.fig = plt.figure(1)
         self.fig.set_dpi(dpi)
