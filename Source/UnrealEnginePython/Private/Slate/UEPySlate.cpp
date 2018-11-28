@@ -417,6 +417,18 @@ void FPythonSlateDelegate::MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAss
 }
 
 
+TSharedRef<FExtender> FPythonSlateDelegate::OnExtendContentBrowserMenu(const TArray<FAssetData>& SelectedAssets)
+{
+	TSharedRef<FExtender> Extender(new FExtender());
+
+	Extender->AddMenuExtension((char *)"GetAssetActions", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateSP(this, &FPythonSlateDelegate::MenuPyAssetBuilder, SelectedAssets));
+
+	return Extender;
+}
+
+#endif
+
+
 void FPythonSlateDelegate::SubMenuPyBuilder(FMenuBuilder &Builder)
 {
 	FScopePythonGIL gil;
@@ -430,16 +442,6 @@ void FPythonSlateDelegate::SubMenuPyBuilder(FMenuBuilder &Builder)
 	Py_DECREF(ret);
 }
 
-TSharedRef<FExtender> FPythonSlateDelegate::OnExtendContentBrowserMenu(const TArray<FAssetData>& SelectedAssets)
-{
-	TSharedRef<FExtender> Extender(new FExtender());
-
-	Extender->AddMenuExtension((char *)"GetAssetActions", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateSP(this, &FPythonSlateDelegate::MenuPyAssetBuilder, SelectedAssets));
-
-	return Extender;
-}
-
-#endif
 
 TSharedRef<SWidget> FPythonSlateDelegate::OnGenerateWidget(TSharedPtr<FPythonItem> py_item)
 {

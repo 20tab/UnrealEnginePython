@@ -45,12 +45,12 @@ public:
 	void OnAssetSelected(const FAssetData& AssetData);
 	TSharedRef<FExtender> OnExtendContentBrowserMenu(const TArray<FAssetData> &SelectedAssets);
 	void MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
-	void SubMenuPyBuilder(FMenuBuilder &Builder);
 	void OnAssetChanged(const FAssetData &AssetData);
 	bool OnShouldFilterAsset(const FAssetData& AssetData);
 #endif
 
 	void OnWindowClosed(const TSharedRef<SWindow> &Window);
+	void SubMenuPyBuilder(FMenuBuilder &Builder);
 
 	TSharedPtr<SWidget> OnContextMenuOpening();
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);

@@ -1697,9 +1697,9 @@ void unreal_engine_init_py_module()
 	ue_python_init_enumsimporter(new_unreal_engine_module);
 	ue_python_init_ustructsimporter(new_unreal_engine_module);
 
+#if WITH_EDITOR
 	ue_python_init_ffoliage_instance(new_unreal_engine_module);
 
-#if WITH_EDITOR
 	ue_python_init_fslowtask(new_unreal_engine_module);
 	ue_python_init_swidget(new_unreal_engine_module);
 	ue_python_init_farfilter(new_unreal_engine_module);
