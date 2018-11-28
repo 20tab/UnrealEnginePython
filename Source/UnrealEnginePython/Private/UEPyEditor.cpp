@@ -639,10 +639,11 @@ PyObject *py_unreal_engine_create_asset(PyObject * self, PyObject * args)
 PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * args)
 {
 	char *path;
+	int depency_type = (int)EAssetRegistryDependencyType::All;
 
-	if (!PyArg_ParseTuple(args, "s:get_asset_referencers", &path))
+	if (!PyArg_ParseTuple(args, "s|i:get_asset_referencers", &path, &depency_type))
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!GEditor)
@@ -650,7 +651,7 @@ PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * arg
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	TArray<FName> referencers;
-	AssetRegistryModule.Get().GetReferencers(UTF8_TO_TCHAR(path), referencers);
+	AssetRegistryModule.Get().GetReferencers(UTF8_TO_TCHAR(path), referencers, (EAssetRegistryDependencyType::Type) depency_type);
 
 	PyObject *referencers_list = PyList_New(0);
 	for (FName name : referencers)
@@ -660,11 +661,38 @@ PyObject *py_unreal_engine_get_asset_referencers(PyObject * self, PyObject * arg
 	return referencers_list;
 }
 
+PyObject *py_unreal_engine_get_asset_identifier_referencers(PyObject * self, PyObject * args)
+{
+	char *path;
+	int depency_type = (int)EAssetRegistryDependencyType::All;
+
+	if (!PyArg_ParseTuple(args, "s|i:get_asset_identifier_referencers", &path, &depency_type))
+	{
+		return nullptr;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	TArray<FAssetIdentifier> referencers;
+	AssetRegistryModule.Get().GetReferencers(FAssetIdentifier::FromString(UTF8_TO_TCHAR(path)), referencers, (EAssetRegistryDependencyType::Type) depency_type);
+
+	PyObject *referencers_list = PyList_New(0);
+	for (FAssetIdentifier identifier : referencers)
+	{
+		PyList_Append(referencers_list, PyUnicode_FromString(TCHAR_TO_UTF8(*identifier.ToString())));
+	}
+	return referencers_list;
+}
+
+
 PyObject *py_unreal_engine_get_asset_dependencies(PyObject * self, PyObject * args)
 {
 	char *path;
+	int depency_type = (int)EAssetRegistryDependencyType::All;
 
-	if (!PyArg_ParseTuple(args, "s:get_asset_dependencies", &path))
+	if (!PyArg_ParseTuple(args, "s|i:get_asset_dependencies", &path, &depency_type))
 	{
 		return NULL;
 	}
@@ -674,7 +702,7 @@ PyObject *py_unreal_engine_get_asset_dependencies(PyObject * self, PyObject * ar
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	TArray<FName> dependencies;
-	AssetRegistryModule.Get().GetDependencies(UTF8_TO_TCHAR(path), dependencies);
+	AssetRegistryModule.Get().GetDependencies(UTF8_TO_TCHAR(path), dependencies, (EAssetRegistryDependencyType::Type) depency_type);
 
 	PyObject *dependencies_list = PyList_New(0);
 	for (FName name : dependencies)

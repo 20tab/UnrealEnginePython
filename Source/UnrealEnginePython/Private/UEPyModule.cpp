@@ -341,6 +341,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "sync_browser_to_assets", py_unreal_engine_editor_sync_browser_to_assets, METH_VARARGS, "" },
 
 	{ "get_asset_referencers", py_unreal_engine_get_asset_referencers, METH_VARARGS, "" },
+	{ "get_asset_identifier_referencers", py_unreal_engine_get_asset_identifier_referencers, METH_VARARGS, "" },
 	{ "get_asset_dependencies", py_unreal_engine_get_asset_dependencies, METH_VARARGS, "" },
 
 	{ "rename_asset", py_unreal_engine_rename_asset, METH_VARARGS, "" },
