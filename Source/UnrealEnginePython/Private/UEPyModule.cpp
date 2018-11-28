@@ -349,6 +349,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "delete_asset", py_unreal_engine_delete_asset, METH_VARARGS, "" },
 
 	{ "get_long_package_path", py_unreal_engine_get_long_package_path, METH_VARARGS, "" },
+	{ "get_long_package_asset_name", py_unreal_engine_get_long_package_asset_name, METH_VARARGS, "" },
 
 	{ "editor_command_build", py_unreal_engine_editor_command_build, METH_VARARGS, "" },
 	{ "editor_command_build_lighting", py_unreal_engine_editor_command_build_lighting, METH_VARARGS, "" },

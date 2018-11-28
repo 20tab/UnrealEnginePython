@@ -725,6 +725,19 @@ PyObject *py_unreal_engine_get_long_package_path(PyObject * self, PyObject * arg
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(package_path)));
 }
 
+PyObject *py_unreal_engine_get_long_package_asset_name(PyObject * self, PyObject * args)
+{
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:get_long_package_asset_name", &path))
+	{
+		return NULL;
+	}
+
+	const FString asset_name = FPackageName::GetLongPackageAssetName(UTF8_TO_TCHAR(path));
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(asset_name)));
+}
+
 PyObject *py_unreal_engine_rename_asset(PyObject * self, PyObject * args)
 {
 	char *path;

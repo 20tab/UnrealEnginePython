@@ -42,6 +42,7 @@ PyObject *py_unreal_engine_duplicate_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_delete_asset(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_get_long_package_path(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_long_package_asset_name(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_create_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_compile_blueprint(PyObject *, PyObject *);
