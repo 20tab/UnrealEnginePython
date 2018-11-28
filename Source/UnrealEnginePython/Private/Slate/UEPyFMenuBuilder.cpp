@@ -63,6 +63,32 @@ static PyObject *py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder *self, PyO
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_fmenu_builder_add_sub_menu(ue_PyFMenuBuilder *self, PyObject * args)
+{
+	char *label;
+	char *tooltip;
+	PyObject *py_callable;
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "ssO|O:add_sub_menu", &label, &tooltip, &py_callable, &py_bool))
+		return nullptr;
+
+	if (!PyCallable_Check(py_callable))
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+	}
+
+	
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+
+	FNewMenuDelegate menu_delegate;
+	menu_delegate.BindSP(py_delegate, &FPythonSlateDelegate::SubMenuPyBuilder);
+
+
+	self->menu_builder.AddSubMenu(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), menu_delegate, (py_bool && PyObject_IsTrue(py_bool)) ? true : false);
+
+	Py_RETURN_NONE;
+}
+
 static PyObject *py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder *self, PyObject * args)
 {
 	char *name = nullptr;
@@ -130,6 +156,7 @@ static PyMethodDef ue_PyFMenuBuilder_methods[] = {
 	{ "add_menu_entry", (PyCFunction)py_ue_fmenu_builder_add_menu_entry, METH_VARARGS, "" },
 	{ "add_menu_separator", (PyCFunction)py_ue_fmenu_builder_add_menu_separator, METH_VARARGS, "" },
 	{ "add_search_widget", (PyCFunction)py_ue_fmenu_builder_add_search_widget, METH_VARARGS, "" },
+	{ "add_sub_menu", (PyCFunction)py_ue_fmenu_builder_add_sub_menu, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "add_asset_actions", (PyCFunction)py_ue_fmenu_builder_add_asset_actions, METH_VARARGS, "" },
 #endif

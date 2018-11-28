@@ -362,7 +362,11 @@ void FUnrealEnginePythonModule::StartupModule()
 
 		const int32 MaxPathVarLen = 32768;
 		FString OrigPathVar = FString::ChrN(MaxPathVarLen, TEXT('\0'));
+#if ENGINE_MINOR_VERSION >= 21
+		OrigPathVar = FPlatformMisc::GetEnvironmentVariable(TEXT("PATH"));
+#else
 		FPlatformMisc::GetEnvironmentVariable(TEXT("PATH"), OrigPathVar.GetCharArray().GetData(), MaxPathVarLen);
+#endif
 
 		// Get the current path and remove elements with python in them, we don't want any conflicts
 		const TCHAR* PathDelimiter = FPlatformMisc::GetPathVarDelimiter();
