@@ -363,7 +363,7 @@ void ue_python_init_fvector(PyObject *ue_module)
 	ue_PyFVector_number_methods.nb_add = (binaryfunc)ue_py_fvector_add;
 	ue_PyFVector_number_methods.nb_subtract = (binaryfunc)ue_py_fvector_sub;
 	ue_PyFVector_number_methods.nb_multiply = (binaryfunc)ue_py_fvector_mul;
-	ue_PyFVector_number_methods.nb_divmod = (binaryfunc)ue_py_fvector_div;
+	ue_PyFVector_number_methods.nb_true_divide = (binaryfunc)ue_py_fvector_div;
 
 	memset(&ue_PyFVector_sequence_methods, 0, sizeof(PySequenceMethods));
 	ue_PyFVectorType.tp_as_sequence = &ue_PyFVector_sequence_methods;
