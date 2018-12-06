@@ -1,9 +1,24 @@
 #include "UEPyStaticMesh.h"
+#include "Engine/StaticMesh.h"
 
+PyObject *py_ue_static_mesh_get_bounds(ue_PyUObject *self, PyObject * args)
+{
+    ue_py_check(self);
+    UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+    if (!mesh)
+        return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+
+    FBoxSphereBounds bounds = mesh->GetBounds();
+    UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR("BoxSphereBounds"));
+    if (!u_struct)
+    {
+        return PyErr_Format(PyExc_Exception, "unable to get BoxSphereBounds struct");
+    }
+    return py_ue_new_owned_uscriptstruct(u_struct, (uint8 *)&bounds);
+}
 
 #if WITH_EDITOR
 
-#include "Engine/StaticMesh.h"
 #include "Wrappers/UEPyFRawMesh.h"
 #include "Editor/UnrealEd/Private/GeomFitUtils.h"
 #include "FbxMeshUtils.h"
