@@ -216,6 +216,23 @@ static PyObject *ue_py_fvector2d_div(ue_PyFVector2D *self, PyObject *value)
 	return py_ue_new_fvector2d(vec);
 }
 
+static PyObject *ue_py_fvector2d_floor_div(ue_PyFVector2D *self, PyObject *value)
+{
+	FVector2D vec = self->vec;
+	if (PyNumber_Check(value))
+	{
+		PyObject *f_value = PyNumber_Float(value);
+		float f = PyFloat_AsDouble(f_value);
+		if (f == 0)
+			return PyErr_Format(PyExc_ZeroDivisionError, "division by zero");
+		vec.X = floor(vec.X / f);
+		vec.Y = floor(vec.Y / f);
+		Py_DECREF(f_value);
+		return py_ue_new_fvector2d(vec);
+	}
+	return PyErr_Format(PyExc_TypeError, "value is not numeric");
+}
+
 PyNumberMethods ue_PyFVector2D_number_methods;
 
 static Py_ssize_t ue_py_fvector2d_seq_length(ue_PyFVector2D *self)
@@ -297,6 +314,7 @@ void ue_python_init_fvector2d(PyObject *ue_module)
 	ue_PyFVector2D_number_methods.nb_subtract = (binaryfunc)ue_py_fvector2d_sub;
 	ue_PyFVector2D_number_methods.nb_multiply = (binaryfunc)ue_py_fvector2d_mul;
 	ue_PyFVector2D_number_methods.nb_true_divide = (binaryfunc)ue_py_fvector2d_div;
+	ue_PyFVector2D_number_methods.nb_floor_divide = (binaryfunc)ue_py_fvector2d_floor_div;
 
 	memset(&ue_PyFVector2D_sequence_methods, 0, sizeof(PySequenceMethods));
 	ue_PyFVector2DType.tp_as_sequence = &ue_PyFVector2D_sequence_methods;
