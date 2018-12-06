@@ -752,6 +752,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "vlog_cylinder", (PyCFunction)py_ue_vlog_cylinder, METH_VARARGS, "" },
 
 	// StaticMesh
+    { "get_static_mesh_bounds", (PyCFunction)py_ue_static_mesh_get_bounds, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "static_mesh_build", (PyCFunction)py_ue_static_mesh_build, METH_VARARGS, "" },
 	{ "static_mesh_create_body_setup", (PyCFunction)py_ue_static_mesh_create_body_setup, METH_VARARGS, "" },
