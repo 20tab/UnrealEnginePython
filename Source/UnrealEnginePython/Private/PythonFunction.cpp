@@ -54,8 +54,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	uint8 *frame = Stack.Locals;
 
-	// is it a blueprint call ?
-	if (*Stack.Code == EX_EndFunctionParms) {
+	if (*Stack.Code == EX_EndFunctionParms)
+    {   // native call
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
 			if (prop->PropertyFlags & CPF_OutParm)
 				continue;
@@ -72,10 +72,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		}
 	}
 	else
-    {
-		//UE_LOG(LogPython, Warning, TEXT("BLUEPRINT CALL"));
-        // largely copied from ScriptCore.cpp::CallFunction
-        // for BP calls, we need to set up the FOutParmRec stuff ourselves
+    {   // blueprint call
+        // largely copied from ScriptCore.cpp::CallFunction - for BP calls, we need to set up the FOutParmRec stuff ourselves
         Stack.OutParms = NULL;
 		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 		FMemory::Memzero(frame, function->PropertiesSize);
@@ -118,7 +116,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		return;
 	}
 
-	// get return value and/or any out params - for convenience, if a single item is returned, wrap it in a tuple so that we can process
+    // get return value and/or any out params - for convenience, if a single item is returned, wrap it in a tuple so that we can process
     // multi-out params and single out params with one block of code
     bool wrapped_ret = false;
     if (!PyTuple_Check(ret))
@@ -143,14 +141,14 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
         UProperty *prop = *It;
         PyObject *py_obj = PyTuple_GetItem(ret, tuple_index);
         if (prop->PropertyFlags & CPF_ReturnParm)
-        {   // handle the return value specially by have it write directly to the stack
+        {   // handle the return value specially by having it write directly to the stack
             if (!ue_py_convert_pyobject(py_obj, prop, (uint8*)RESULT_PARAM - prop->GetOffset_ForUFunction(), 0))
             {
                 UE_LOG(LogPython, Error, TEXT("Invalid return value type for function %s"), *function->GetFName().ToString());
             }
         }
         else
-        {
+        {   // Find the given FOutParmRec for this property
             uint8 *out_frame = frame;
             for (FOutParmRec *rec = Stack.OutParms; rec != nullptr; rec = rec->NextOutParm)
             {

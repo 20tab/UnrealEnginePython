@@ -2970,7 +2970,8 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	if (num_out_params > 0)
 	{
-        // mirror Python function return behavior: 'return x' produces a single object, while 'return x,y' produces a tuple
+        // mirror normal Python function return behavior in that there is ever only a single return value, and returning multiple items is
+        // actually achieved by returning a tuple
         if (num_out_params > 1)
             ret = PyTuple_New(num_out_params);
 
@@ -3184,7 +3185,6 @@ UProperty *new_property_from_pyobject(UObject *owner, const char *prop_name, PyO
 
 UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_callable, uint32 function_flags)
 {
-
 	UFunction *parent_function = u_class->GetSuperClass()->FindFunctionByName(UTF8_TO_TCHAR(name));
 	// if the function is not available in the parent
 	// check for name collision
@@ -3196,26 +3196,6 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 			return nullptr;
 		}
 	}
-
-    // note the index of the return param, if any
-    int return_param_index = -1;
-    if (parent_function)
-    {
-        TFieldIterator<UProperty> It(parent_function);
-        int cur_index = 0;
-        while (It)
-        {
-            UProperty *p = *It;
-            if (p->PropertyFlags & CPF_ReturnParm)
-            {
-                return_param_index = cur_index;
-                break;
-            }
-            if (p->PropertyFlags & CPF_OutParm)
-                cur_index++;
-            ++It;
-        }
-    }
 
 	UPythonFunction *function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 	function->SetPyCallable(py_callable);
@@ -3294,15 +3274,35 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		}
 	}
 
-	// check for return value
+	// check for return value (including out params)
 	if (annotations)
 	{
 		PyObject *py_return_value = PyDict_GetItemString(annotations, "return");
 		if (py_return_value)
 		{
+            // in the parent, note the index of the return param, if any, among all out params
+            int return_param_index = -1;
+            if (parent_function)
+            {
+                TFieldIterator<UProperty> It(parent_function);
+                int cur_index = 0;
+                while (It)
+                {
+                    UProperty *p = *It;
+                    if (p->PropertyFlags & CPF_ReturnParm)
+                    {
+                        return_param_index = cur_index;
+                        break;
+                    }
+                    if (p->PropertyFlags & CPF_OutParm)
+                        cur_index++;
+                    ++It;
+                }
+            }
+
             if (PyTuple_Check(py_return_value))
             {   // some combination of a return value and output params
-                UE_LOG(LogPython, Warning, TEXT("Multiple return values found"));
+                //UE_LOG(LogPython, Warning, TEXT("Multiple return values found"));
                 for (auto i=0; i < PyTuple_Size(py_return_value); i++)
                 {
                     PyObject *item = PyTuple_GetItem(py_return_value, i);
@@ -3329,7 +3329,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
             }
             else
             {   // either a single output param or a single return value
-                UE_LOG(LogPython, Warning, TEXT("Return value or single output value found"));
+                //UE_LOG(LogPython, Warning, TEXT("Return value or single output value found"));
                 FString param_name(return_param_index == -1 ? _T("OutParam0") : _T("ReturnValue"));
                 UProperty *prop = new_property_from_pyobject(function, TCHAR_TO_UTF8(*param_name), py_return_value);
                 if (prop)
@@ -3401,29 +3401,19 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 
 	// allocate properties storage (ignore super)
 	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
-    int num_out_params = 0;
-    int num_return_params = 0;
 	for (; props; ++props)
 	{
 		UProperty *p = *props;
 		if (p->HasAnyPropertyFlags(CPF_Parm))
 		{
             if (p->HasAnyPropertyFlags(CPF_OutParm))
-                num_out_params++;
+                function_flags |= FUNC_HasOutParms;
 			function->NumParms++;
 			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm))
-			{
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
-                num_return_params++;
-			}
 		}
 	}
-
-    // UProps have both out + return flags set on the property that is the return value, but a function with a return value but no other
-    // out properties does not get HasOutParms set.
-    if (num_out_params > 0) //num_return_params)
-        function_flags |= FUNC_HasOutParms;
 
 	if (parent_function)
 	{
