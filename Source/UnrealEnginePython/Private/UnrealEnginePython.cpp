@@ -34,8 +34,13 @@ const char *ue4_module_options = "linux_global_symbols";
 #include "Runtime/Core/Public/Misc/CommandLine.h"
 #include "Runtime/Core/Public/Misc/ConfigCacheIni.h"
 #include "Runtime/Core/Public/GenericPlatform/GenericPlatformFile.h"
+#include "Runtime/Core/Public/GenericPlatform/GenericPlatformMisc.h"
 
 #include "Runtime/Core/Public/HAL/FileManagerGeneric.h"
+
+#if PLATFORM_WINDOWS
+#include <fcntl.h>
+#endif
 
 #if PLATFORM_ANDROID
 #include "Android/AndroidJNI.h"
@@ -446,6 +451,22 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 
 	Py_Initialize();
+
+#if PLATFORM_WINDOWS
+	// Restore stdio state after Py_Initialize set it to O_BINARY, otherwise
+	// everything that the engine will output is going to be encoded in UTF-16.
+	// The behaviour is described here: https://bugs.python.org/issue16587
+	_setmode(fileno(stdin), O_TEXT);
+	_setmode(fileno(stdout), O_TEXT);
+	_setmode(fileno(stderr), O_TEXT);
+
+	// Also restore the user-requested UTF-8 flag if relevant (behaviour copied
+	// from LaunchEngineLoop.cpp).
+	if (FParse::Param(FCommandLine::Get(), TEXT("UTF8Output")))
+	{
+		FPlatformMisc::SetUTF8Output();
+	}
+#endif
 
 	PyEval_InitThreads();
 
