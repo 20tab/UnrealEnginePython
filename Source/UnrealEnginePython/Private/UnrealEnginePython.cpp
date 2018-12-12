@@ -460,9 +460,9 @@ void FUnrealEnginePythonModule::StartupModule()
 	// Restore stdio state after Py_Initialize set it to O_BINARY, otherwise
 	// everything that the engine will output is going to be encoded in UTF-16.
 	// The behaviour is described here: https://bugs.python.org/issue16587
-	_setmode(fileno(stdin), O_TEXT);
-	_setmode(fileno(stdout), O_TEXT);
-	_setmode(fileno(stderr), O_TEXT);
+	_setmode(_fileno(stdin), O_TEXT);
+	_setmode(_fileno(stdout), O_TEXT);
+	_setmode(_fileno(stderr), O_TEXT);
 
 	// Also restore the user-requested UTF-8 flag if relevant (behaviour copied
 	// from LaunchEngineLoop.cpp).
