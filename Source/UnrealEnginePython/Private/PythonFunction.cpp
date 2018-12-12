@@ -55,15 +55,10 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	uint8 *frame = Stack.Locals;
 
 	// is it a blueprint call ?
-    UProperty *first_out_prop = nullptr;
 	if (*Stack.Code == EX_EndFunctionParms) {
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
 			if (prop->PropertyFlags & CPF_OutParm)
-            {
-                if (!first_out_prop)
-                    first_out_prop = prop;
 				continue;
-            }
 			if (!on_error) {
 				PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals, 0);
 				if (!arg) {
@@ -76,16 +71,24 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 			}
 		}
 	}
-	else {
+	else
+    {
 		//UE_LOG(LogPython, Warning, TEXT("BLUEPRINT CALL"));
+        // largely copied from ScriptCore.cpp::CallFunction
+        // for BP calls, we need to set up the FOutParmRec stuff ourselves
+        Stack.OutParms = NULL;
 		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 		FMemory::Memzero(frame, function->PropertiesSize);
-		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
+		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) 
+        {
 			Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
 			if (prop->PropertyFlags & CPF_OutParm)
             {
-                if (!first_out_prop)
-                    first_out_prop = prop;
+                FOutParmRec *rec = (FOutParmRec*)FMemory_Alloca(sizeof(FOutParmRec));
+                rec->Property = prop;
+                rec->PropAddr = Stack.MostRecentPropertyAddress;
+                rec->NextOutParm = Stack.OutParms;
+                Stack.OutParms = rec;
 				continue;
             }
 			if (!on_error) {
@@ -115,75 +118,55 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		return;
 	}
 
-	// get return value and/or any out params
-    if (PyTuple_Check(ret))
-    {   // function has multiple output params or a return value and one or more output params
-        int nret = PyTuple_Size(ret);
-        int tuple_index = 0;
-        for( TFieldIterator<UProperty> It(function); It && (It->PropertyFlags & CPF_Parm); ++It )
+	// get return value and/or any out params - for convenience, if a single item is returned, wrap it in a tuple so that we can process
+    // multi-out params and single out params with one block of code
+    bool wrapped_ret = false;
+    if (!PyTuple_Check(ret))
+    {
+		PyObject *wrapped = PyTuple_New(1);
+        PyTuple_SetItem(wrapped, 0, ret);
+        ret = wrapped;
+    }
+
+    int nret = PyTuple_Size(ret);
+    int tuple_index = 0;
+    for (TFieldIterator<UProperty> It(function); It && (It->PropertyFlags & CPF_Parm); ++It)
+    {
+        if (!(It->PropertyFlags & CPF_OutParm))
+            continue;
+        if (tuple_index >= nret)
         {
-            if( It->PropertyFlags & CPF_OutParm )
-            {
-                if (tuple_index >= nret)
-                {
-                    UE_LOG(LogPython, Error, TEXT("Python function %s didn't return enough values"), *function->GetFName().ToString());
-                }
-                else
-                {
-                    UProperty *prop = *It;
-                    PyObject *py_obj = PyTuple_GetItem(ret, tuple_index);
-                    uint8 *out_frame = frame;
-                    for (FOutParmRec *rec = Stack.OutParms; rec != nullptr; rec = rec->NextOutParm)
-                    {
-                        if (rec->Property == prop)
-                        {
-                            out_frame = rec->PropAddr - prop->GetOffset_ForUFunction();
-                            break;
-                        }
-                    }
-                    if (ue_py_convert_pyobject(py_obj, prop, out_frame, 0))
-                    {   
-                        if (prop->PropertyFlags & CPF_ReturnParm)
-                        {
-                            // copy value to stack result value
-                            //FMemory::Memcpy(RESULT_PARAM, frame + function->ReturnValueOffset, prop->ArrayDim * prop->ElementSize);
-                        }
-                    }
-                    else {
-                        UE_LOG(LogPython, Error, TEXT("Invalid return value type for function %s"), *function->GetFName().ToString());
-                    }
-                    tuple_index++;
-                }
-            }
+            UE_LOG(LogPython, Error, TEXT("Python function %s didn't return enough values"), *function->GetFName().ToString());
+            break;
         }
 
-    }
-    else
-    {   // no output params, but maybe a return value
-        if (first_out_prop)
-        {
-			uint8 *out_frame = frame;
-            for (FOutParmRec *rec = Stack.OutParms; rec != nullptr; rec = rec->NextOutParm)
+        UProperty *prop = *It;
+        PyObject *py_obj = PyTuple_GetItem(ret, tuple_index);
+        if (prop->PropertyFlags & CPF_ReturnParm)
+        {   // handle the return value specially by have it write directly to the stack
+            if (!ue_py_convert_pyobject(py_obj, prop, (uint8*)RESULT_PARAM - prop->GetOffset_ForUFunction(), 0))
             {
-                if (rec->Property == first_out_prop)
-                {
-                    out_frame = rec->PropAddr - first_out_prop->GetOffset_ForUFunction();
-                    break;
-                }
-            }
-            if (ue_py_convert_pyobject(ret, first_out_prop, out_frame, 0))
-            {
-                if (function->ReturnValueOffset != MAX_uint16)
-                {
-                    // copy value to stack result value
-                    //FMemory::Memcpy(RESULT_PARAM, frame + function->ReturnValueOffset, first_out_prop->ArrayDim * first_out_prop->ElementSize);
-                }
-            }
-            else {
                 UE_LOG(LogPython, Error, TEXT("Invalid return value type for function %s"), *function->GetFName().ToString());
             }
         }
-	}
+        else
+        {
+            uint8 *out_frame = frame;
+            for (FOutParmRec *rec = Stack.OutParms; rec != nullptr; rec = rec->NextOutParm)
+            {
+                if (rec->Property == prop)
+                {
+                    out_frame = rec->PropAddr - prop->GetOffset_ForUFunction();
+                    break;
+                }
+            }
+            if (!ue_py_convert_pyobject(py_obj, prop, out_frame, 0))
+            {
+                UE_LOG(LogPython, Error, TEXT("Failed to convert output property for function %s"), *function->GetFName().ToString());
+            }
+        }
+        tuple_index++;
+    }
 	Py_DECREF(ret);
 }
 

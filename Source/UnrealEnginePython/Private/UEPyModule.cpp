@@ -3401,23 +3401,28 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 
 	// allocate properties storage (ignore super)
 	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
-    bool has_out_params = false;
+    int num_out_params = 0;
+    int num_return_params = 0;
 	for (; props; ++props)
 	{
 		UProperty *p = *props;
 		if (p->HasAnyPropertyFlags(CPF_Parm))
 		{
             if (p->HasAnyPropertyFlags(CPF_OutParm))
-                has_out_params = true;
+                num_out_params++;
 			function->NumParms++;
 			function->ParmsSize = p->GetOffset_ForUFunction() + p->GetSize();
 			if (p->HasAnyPropertyFlags(CPF_ReturnParm))
 			{
 				function->ReturnValueOffset = p->GetOffset_ForUFunction();
+                num_return_params++;
 			}
 		}
 	}
-    if (has_out_params)
+
+    // UProps have both out + return flags set on the property that is the return value, but a function with a return value but no other
+    // out properties does not get HasOutParms set.
+    if (num_out_params > 0) //num_return_params)
         function_flags |= FUNC_HasOutParms;
 
 	if (parent_function)
