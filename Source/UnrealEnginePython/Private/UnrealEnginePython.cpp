@@ -547,22 +547,35 @@ void FUnrealEnginePythonModule::ShutdownModule()
 	}
 }
 
-void FUnrealEnginePythonModule::RunString(char *str)
+FString FUnrealEnginePythonModule::RunString(char *str)
 {
 	FScopePythonGIL gil;
 
-	PyObject *eval_ret = PyRun_String(str, Py_file_input, (PyObject *)main_dict, (PyObject *)local_dict);
+	PyObject *eval_ret = PyRun_String(str, Py_single_input, (PyObject *)main_dict, (PyObject *)local_dict);
 	if (!eval_ret)
 	{
 		if (PyErr_ExceptionMatches(PyExc_SystemExit))
 		{
 			PyErr_Clear();
-			return;
+			return "";
 		}
 		unreal_engine_py_log_error();
-		return;
+		return "";
 	}
+
+	FString ue4_str_ret;
+	if (eval_ret != Py_None)
+	{
+		PyObject *stringified = PyObject_Str(eval_ret);
+		if (!stringified)
+			return "argument cannot be casted to string";
+
+		ue4_str_ret = UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(stringified));
+	}
+
 	Py_DECREF(eval_ret);
+
+	return ue4_str_ret;
 }
 
 #if PLATFORM_MAC
@@ -626,7 +639,7 @@ FString FUnrealEnginePythonModule::Pep8ize(FString Code)
 }
 
 
-void FUnrealEnginePythonModule::RunFile(char *filename)
+FString FUnrealEnginePythonModule::RunFile(char *filename)
 {
 	FScopePythonGIL gil;
 	FString full_path = UTF8_TO_TCHAR(filename);
@@ -652,7 +665,7 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	if (!foundFile)
 	{
 		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), UTF8_TO_TCHAR(filename));
-		return;
+		return "";
 	}
 
 #if PY_MAJOR_VERSION >= 3
@@ -662,14 +675,14 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	if (fopen_s(&fd, TCHAR_TO_UTF8(*full_path), "r") != 0)
 	{
 		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
-		return;
+		return "";
 	}
 #else
 	fd = fopen(TCHAR_TO_UTF8(*full_path), "r");
 	if (!fd)
 	{
 		UE_LOG(LogPython, Error, TEXT("Unable to open file %s"), *full_path);
-		return;
+		return "";
 	}
 #endif
 
@@ -680,12 +693,20 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 		if (PyErr_ExceptionMatches(PyExc_SystemExit))
 		{
 			PyErr_Clear();
-			return;
+			return "";
 		}
 		unreal_engine_py_log_error();
-		return;
+		return "";
 	}
+
+	PyObject *stringified = PyObject_Str(eval_ret);
+	if (!stringified)
+		return "argument cannot be casted to string";
+
+	FString ue4_string = UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(stringified));
 	Py_DECREF(eval_ret);
+
+	return ue4_string;
 #else
 	// damn, this is horrible, but it is the only way i found to avoid the CRT error :(
 	FString command = FString::Printf(TEXT("execfile(\"%s\")"), *full_path);
@@ -698,8 +719,15 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 			return;
 		}
 		unreal_engine_py_log_error();
-		return;
+		return "";
 	}
+
+	PyObject *stringified = PyObject_Str(eval_ret);
+	if (!stringified)
+		return "argument cannot be casted to string";
+
+	FString ue4_string = UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(stringified));
+	return ue4_string;
 #endif
 
 }
