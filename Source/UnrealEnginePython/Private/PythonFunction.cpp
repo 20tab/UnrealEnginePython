@@ -9,7 +9,6 @@ void UPythonFunction::SetPyCallable(PyObject *callable)
 	Py_INCREF(py_callable);
 }
 
-
 #if ENGINE_MINOR_VERSION > 18
 void UPythonFunction::CallPythonCallable(UObject *Context, FFrame& Stack, RESULT_DECL)
 #else
@@ -30,9 +29,10 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	// count the number of arguments
 	Py_ssize_t argn = (Context && !is_static) ? 1 : 0;
-	TFieldIterator<UProperty> IArgs(function);
-	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_OutParm)) == CPF_Parm); ++IArgs) {
-		argn++;
+	for (TFieldIterator<UProperty> IArgs(function); IArgs; ++IArgs)
+    {
+        if (!PROP_IS_OUT_PARAM(*IArgs))
+            argn++;
 	}
 #if defined(UEPY_MEMORY_DEBUG)
 	UE_LOG(LogPython, Warning, TEXT("Initializing %d parameters"), argn);
@@ -57,8 +57,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	if (*Stack.Code == EX_EndFunctionParms)
     {   // native call
 		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
-			if (prop->PropertyFlags & CPF_OutParm)
-				continue;
+            if (PROP_IS_OUT_PARAM(prop))
+                continue;
 			if (!on_error) {
 				PyObject *arg = ue_py_convert_property(prop, (uint8 *)Stack.Locals, 0);
 				if (!arg) {
@@ -80,7 +80,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) 
         {
 			Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
-			if (prop->PropertyFlags & CPF_OutParm)
+			if (PROP_IS_OUT_PARAM(prop))
             {
                 FOutParmRec *rec = (FOutParmRec*)FMemory_Alloca(sizeof(FOutParmRec));
                 rec->Property = prop;
@@ -130,7 +130,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
     int tuple_index = 0;
     for (TFieldIterator<UProperty> It(function); It && (It->PropertyFlags & CPF_Parm); ++It)
     {
-        if (!(It->PropertyFlags & CPF_OutParm))
+        if (!PROP_IS_OUT_PARAM(*It))
             continue;
         if (tuple_index >= nret)
         {

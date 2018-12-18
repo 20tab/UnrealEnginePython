@@ -2940,7 +2940,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 	for (; PArgs && ((PArgs->PropertyFlags & CPF_Parm) == CPF_Parm); ++PArgs)
 	{
 		UProperty *prop = *PArgs;
-        if (prop->PropertyFlags & CPF_OutParm)
+        if (PROP_IS_OUT_PARAM(prop))
         {
             if (prop->IsA<UArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false)
                 num_out_params++;
@@ -2999,7 +2999,7 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 		for (; OProps; ++OProps)
 		{
 			UProperty *prop = *OProps;
-			if (prop->HasAnyPropertyFlags(CPF_OutParm) && (prop->IsA<UArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false))
+			if (PROP_IS_OUT_PARAM(prop))
 			{
 				PyObject *py_out = ue_py_convert_property(prop, buffer, 0);
 				if (!py_out)
@@ -3074,6 +3074,25 @@ PyObject *ue_bind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_
 	}
 
 	Py_RETURN_NONE;
+}
+
+UProperty *new_property_from_pyobject(UObject *owner, const char *prop_name, PyObject *value);
+
+// used by new_property_from_pyobject to create an array property of the given name and type, or nullptr if it couldn't
+// be created for some reason. Array properties can be created using type annotations in either of the following
+// forms: arg:[arrayType] or arg:typing.List[arrayType]
+// where arrayType is a type that new_property_from_pyobject knows how to handle
+UProperty *new_array_property(UObject *owner, const char *prop_name, PyObject *py_array_type)
+{
+    UArrayProperty *array_prop = NewObject<UArrayProperty>(owner, UTF8_TO_TCHAR(prop_name), RF_Public);
+    UProperty *inner = new_property_from_pyobject(array_prop, "Inner", py_array_type);
+    if (!inner)
+    {
+        UE_LOG(LogPython, Error, TEXT("Unsupported type for list property %s"), UTF8_TO_TCHAR(*prop_name));
+        return nullptr;
+    }
+    array_prop->Inner = inner;
+    return array_prop;
 }
 
 // Creates and configures a UProperty on the given owner using info from a PyObject (typically a type
@@ -3158,7 +3177,22 @@ UProperty *new_property_from_pyobject(UObject *owner, const char *prop_name, PyO
                 UE_LOG(LogPython, Error, TEXT("exactly one class is allowed in type info for %s"), UTF8_TO_TCHAR(*owner->GetName()));
                 return nullptr;
             }
+            PyObject *type_name = PyObject_GetAttrString(value, "__name__");
+            if (!type_name)
+            {
+                UE_LOG(LogPython, Error, TEXT("failed to get type object name from %s"), UTF8_TO_TCHAR(prop_name));
+                return nullptr;
+            }
+
+            // If the annotation was like "foo:typing.List[int]" (i.e. __name__ == 'List') then it's an array property. Anything
+            // else (like foo:typing.List[Pawn]) will be treated as a class property
             PyObject *py_class = PyTuple_GetItem(type_args, 0);
+            bool is_array = !strcmp(PyUnicode_AsUTF8(type_name), "List");
+            Py_DECREF(type_name);
+
+            if (is_array)
+                return new_array_property(owner, prop_name, py_class);
+
             ue_PyUObject *py_obj = ue_is_pyuobject(py_class);
             if (!py_obj)
             {
@@ -3178,6 +3212,17 @@ UProperty *new_property_from_pyobject(UObject *owner, const char *prop_name, PyO
             prop = prop_class;
             Py_DECREF(type_args);
         }
+    }
+    else if (PyList_Check(value))
+    {
+        // has to be a single item list containing something that can be used as a property
+        if (PyList_Size(value) != 1)
+        {
+            UE_LOG(LogPython, Error, TEXT("List property %s must have a single item providing the array type"), UTF8_TO_TCHAR(prop_name));
+            return nullptr;
+        }
+
+        return new_array_property(owner, prop_name, PyList_GetItem(value, 0));
     }
     else if (ue_PyUObject *py_obj = ue_is_pyuobject(value))
     {
@@ -3286,7 +3331,15 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
 		UProperty *prop = new_property_from_pyobject(function, p_name, value);
 		if (prop)
 		{
-			prop->SetPropertyFlags(CPF_Parm);
+            uint64 flags = CPF_Parm;
+            if (prop->IsA<UArrayProperty>())
+            {   // some weirdness to mimic what the engine does: arrays are always passed by reference, so we need to mark this as
+                // a reference parameter. But the definition for CPF_ReferenceParm says that CPF_OutParm should be set too. So we
+                // mark it as an out param even though it isn't, flag it as const to indicate that it's gotta be an input param,
+                //  and then on the calling side skip it.
+                flags |= CPF_ReferenceParm | CPF_OutParm | CPF_ConstParm;
+            }
+			prop->SetPropertyFlags(flags);
 			*next_property = prop;
 			next_property = &prop->Next;
 			*next_property_link = prop;
@@ -3319,7 +3372,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
                         return_param_index = cur_index;
                         break;
                     }
-                    if (p->PropertyFlags & CPF_OutParm)
+                    if (PROP_IS_OUT_PARAM(p))
                         cur_index++;
                     ++It;
                 }
