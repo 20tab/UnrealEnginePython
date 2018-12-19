@@ -3112,7 +3112,9 @@ UProperty *new_property_from_pyobject(UObject *owner, const char *prop_name, PyO
         }
         else if ((PyTypeObject *)value == &PyBool_Type)
         {
-            prop = NewObject<UBoolProperty>(owner, UTF8_TO_TCHAR(prop_name), RF_Public);
+            UBoolProperty *prop_bool = NewObject<UBoolProperty>(owner, UTF8_TO_TCHAR(prop_name), RF_Public);
+            prop_bool->SetBoolSize(1, true);
+            prop = prop_bool;
         }
         else if ((PyTypeObject *)value == &PyLong_Type)
         {
