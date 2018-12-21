@@ -14,6 +14,9 @@
 #include "Wrappers/UEPyFColor.h"
 #include "Wrappers/UEPyFLinearColor.h"
 
+// returns true if the given UProperty is a function output parameter (some function parameters are incorrectly
+// marked as output parameters, but if they are also marked as const refs, then they are actually input parameters)
+#define PROP_IS_OUT_PARAM(prop) ((prop)->HasAllPropertyFlags(CPF_Parm|CPF_OutParm) && !(prop)->HasAllPropertyFlags(CPF_ReferenceParm|CPF_ConstParm))
 
 
 UWorld *ue_get_uworld(ue_PyUObject *);
