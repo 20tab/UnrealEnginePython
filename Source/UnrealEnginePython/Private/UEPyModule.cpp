@@ -2143,7 +2143,7 @@ PyObject *ue_py_convert_property(UProperty *prop, uint8 *buffer, int32 index)
 				FLinearColor color = *casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer, index);
 				return py_ue_new_flinearcolor(color);
 			}
-			return py_ue_new_uscriptstruct(casted_struct, casted_prop->ContainerPtrToValuePtr<uint8>(buffer, index));
+			return py_ue_new_owned_uscriptstruct(casted_struct, casted_prop->ContainerPtrToValuePtr<uint8>(buffer, index));
 		}
 		return PyErr_Format(PyExc_TypeError, "unsupported UStruct type");
 	}
