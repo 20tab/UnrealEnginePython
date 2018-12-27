@@ -18,7 +18,6 @@
 // marked as output parameters, but if they are also marked as const refs, then they are actually input parameters)
 #define PROP_IS_OUT_PARAM(prop) ((prop)->HasAllPropertyFlags(CPF_Parm|CPF_OutParm) && !(prop)->HasAllPropertyFlags(CPF_ReferenceParm|CPF_ConstParm))
 
-
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
 PyObject *ue_py_convert_property(UProperty *, uint8 *, int32);
