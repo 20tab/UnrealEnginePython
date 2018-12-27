@@ -27,6 +27,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	bool on_error = false;
 	bool is_static = function->HasAnyFunctionFlags(FUNC_Static);
+    FOutParmRec *OutParms = nullptr;
 
 	// count the number of arguments
 	Py_ssize_t argn = (Context && !is_static) ? 1 : 0;
@@ -73,8 +74,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	}
 	else
     {   // blueprint call
-        // largely copied from ScriptCore.cpp::CallFunction - for BP calls, we need to set up the FOutParmRec stuff ourselves
-        Stack.OutParms = NULL;
+        // largely copied from ScriptCore.cpp::CallFunction - for BP calls, we need to set up some of the FOutParmRec stuff ourselves
 		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 		FMemory::Memzero(frame, function->PropertiesSize);
 		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) 
@@ -85,8 +85,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
                 FOutParmRec *rec = (FOutParmRec*)FMemory_Alloca(sizeof(FOutParmRec));
                 rec->Property = prop;
                 rec->PropAddr = Stack.MostRecentPropertyAddress;
-                rec->NextOutParm = Stack.OutParms;
-                Stack.OutParms = rec;
+                rec->NextOutParm = OutParms;
+                OutParms = rec;
 				continue;
             }
 			if (!on_error) {
@@ -148,8 +148,8 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
             }
         }
         else
-        {   // Find the given FOutParmRec for this property
-            uint8 *out_frame = frame;
+        {   // Find the given FOutParmRec for this property - look in the stack first
+            uint8 *out_frame = nullptr;
             for (FOutParmRec *rec = Stack.OutParms; rec != nullptr; rec = rec->NextOutParm)
             {
                 if (rec->Property == prop)
@@ -158,6 +158,22 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
                     break;
                 }
             }
+            if (!out_frame)
+            {   // look in our local out parms next
+                for (FOutParmRec *rec = OutParms; rec != nullptr; rec = rec->NextOutParm)
+                {
+                    if (rec->Property == prop)
+                    {
+                        out_frame = rec->PropAddr - prop->GetOffset_ForUFunction();
+                        break;
+                    }
+                }
+            }
+            if (!out_frame)
+            {   // default to our current frame
+                out_frame = frame;
+            }
+
             if (!ue_py_convert_pyobject(py_obj, prop, out_frame, 0))
             {
                 UE_LOG(LogPython, Error, TEXT("Failed to convert output property for function %s"), *function->GetFName().ToString());
