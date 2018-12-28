@@ -10,7 +10,7 @@ static PyObject *ue_PyFFrameNumber_str(ue_PyFFrameNumber *self)
 
 static PyTypeObject ue_PyFFrameNumberType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
-	"unreal_engine.FMFrameNumber", /* tp_name */
+	"unreal_engine.FFrameNumber", /* tp_name */
 	sizeof(ue_PyFFrameNumber), /* tp_basicsize */
 	0,                         /* tp_itemsize */
 	0,       /* tp_dealloc */
