@@ -114,9 +114,24 @@ static PyObject *py_ue_edgraphpin_get_sub_category(ue_PyEdGraphPin *self, void *
 #endif
 }
 
+static PyObject *py_ue_edgraphpin_get_sub_category_object(ue_PyEdGraphPin *self, void *closure)
+{
+	TWeakObjectPtr<UObject> u_object = self->pin->PinType.PinSubCategoryObject;
+	if (!u_object.IsValid())
+	{
+		Py_RETURN_NONE;
+	}
+	Py_RETURN_UOBJECT(u_object.Get());
+}
+
 static PyObject *py_ue_edgraphpin_get_default_value(ue_PyEdGraphPin *self, void *closure)
 {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->DefaultValue)));
+}
+
+static PyObject *py_ue_edgraphpin_get_direction(ue_PyEdGraphPin *self, void *closure)
+{
+    return PyLong_FromLong(self->pin->Direction);
 }
 
 static int py_ue_edgraphpin_set_default_value(ue_PyEdGraphPin *self, PyObject *value, void *closure)
@@ -217,19 +232,26 @@ static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 	{ (char*)"name", (getter)py_ue_edgraphpin_get_name, NULL, (char *)"", NULL },
 	{ (char*)"category", (getter)py_ue_edgraphpin_get_category, (setter)py_ue_edgraphpin_set_category, (char *)"", NULL },
 	{ (char*)"sub_category", (getter)py_ue_edgraphpin_get_sub_category, (setter)py_ue_edgraphpin_set_sub_category, (char *)"", NULL },
+	{ (char*)"sub_category_object", (getter)py_ue_edgraphpin_get_sub_category_object, NULL, (char*)"", NULL },
 	{ (char*)"default_value", (getter)py_ue_edgraphpin_get_default_value, (setter)py_ue_edgraphpin_set_default_value, (char *)"", NULL },
 	{ (char*)"default_text_value", (getter)py_ue_edgraphpin_get_default_text_value, (setter)py_ue_edgraphpin_set_default_text_value, (char *)"", NULL },
 	{ (char*)"default_object", (getter)py_ue_edgraphpin_get_default_object, (setter)py_ue_edgraphpin_set_default_object, (char *)"", NULL },
+    { (char*)"direction", (getter)py_ue_edgraphpin_get_direction, NULL, (char*)"", NULL },
 	{ NULL }  /* Sentinel */
 };
 
 static PyObject *ue_PyEdGraphPin_str(ue_PyEdGraphPin *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.EdGraphPin {'name': '%s', 'type': '%s'}>",
+    FString dir = _T("???");
+    if (self->pin->Direction == EEdGraphPinDirection::EGPD_Input)
+        dir = _T("in");
+    else if (self->pin->Direction == EEdGraphPinDirection::EGPD_Output)
+        dir = _T("out");
+	return PyUnicode_FromFormat("<unreal_engine.EdGraphPin {'name': '%s', 'type': '%s', 'direction': '%s'}>",
 #if ENGINE_MINOR_VERSION > 18
-		TCHAR_TO_UTF8(*self->pin->PinName.ToString()), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory.ToString()));
+		TCHAR_TO_UTF8(*self->pin->PinName.ToString()), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory.ToString()), TCHAR_TO_UTF8(*dir));
 #else
-		TCHAR_TO_UTF8(*self->pin->PinName), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory));
+		TCHAR_TO_UTF8(*self->pin->PinName), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory), TCHAR_TO_UTF8(*dir));
 #endif
 }
 
