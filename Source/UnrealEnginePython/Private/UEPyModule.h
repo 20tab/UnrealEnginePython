@@ -35,6 +35,7 @@ void ue_bind_events_for_py_class_by_attribute(UObject *, PyObject *);
 
 void ue_autobind_events_for_pyclass(ue_PyUObject *, PyObject *);
 PyObject *ue_bind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
+PyObject *ue_unbind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
 
 PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject *);
 

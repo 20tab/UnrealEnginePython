@@ -607,6 +607,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "set_name", (PyCFunction)py_ue_set_name, METH_VARARGS, "" },
 
 	{ "bind_event", (PyCFunction)py_ue_bind_event, METH_VARARGS, "" },
+	{ "unbind_event", (PyCFunction)py_ue_unbind_event, METH_VARARGS, "" },
 	{ "delegate_bind_ufunction", (PyCFunction)py_ue_delegate_bind_ufunction, METH_VARARGS, "" },
 
 	{ "get_py_proxy", (PyCFunction)py_ue_get_py_proxy, METH_VARARGS, "" },
@@ -3040,6 +3041,45 @@ PyObject *py_ue_ufunction_call(UFunction *u_function, UObject *u_obj, PyObject *
 
 	if (ret)
 		return ret;
+
+	Py_RETURN_NONE;
+}
+
+PyObject *ue_unbind_pyevent(ue_PyUObject *u_obj, FString event_name, PyObject *py_callable, bool fail_on_wrong_property)
+{
+	UProperty *u_property = u_obj->ue_object->GetClass()->FindPropertyByName(FName(*event_name));
+	if (!u_property)
+	{
+		if (fail_on_wrong_property)
+			return PyErr_Format(PyExc_Exception, "unable to find event property %s", TCHAR_TO_UTF8(*event_name));
+		Py_RETURN_NONE;
+	}
+
+	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
+	{
+        UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->FindDelegate(u_obj->ue_object, py_callable);
+        if (py_delegate != nullptr)
+        {
+            FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
+            multiscript_delegate.Remove(py_delegate, FName("PyFakeCallable"));
+
+            // re-assign multicast delegate
+            casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
+        }
+	}
+	else if (auto casted_prop_delegate = Cast<UDelegateProperty>(u_property))
+	{
+		FScriptDelegate script_delegate = casted_prop_delegate->GetPropertyValue_InContainer(u_obj->ue_object);
+        script_delegate.Unbind();
+
+		// re-assign multicast delegate
+		casted_prop_delegate->SetPropertyValue_InContainer(u_obj->ue_object, script_delegate);
+	}
+	else
+	{
+		if (fail_on_wrong_property)
+			return PyErr_Format(PyExc_Exception, "property %s is not an event", TCHAR_TO_UTF8(*event_name));
+	}
 
 	Py_RETURN_NONE;
 }

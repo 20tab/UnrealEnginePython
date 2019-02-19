@@ -1517,6 +1517,25 @@ PyObject *py_ue_bind_event(ue_PyUObject * self, PyObject * args)
 	return ue_bind_pyevent(self, FString(event_name), py_callable, true);
 }
 
+PyObject *py_ue_unbind_event(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	char *event_name;
+	PyObject *py_callable;
+	if (!PyArg_ParseTuple(args, "sO:bind_event", &event_name, &py_callable))
+	{
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+	{
+		return PyErr_Format(PyExc_Exception, "object is not callable");
+	}
+
+	return ue_unbind_pyevent(self, FString(event_name), py_callable, true);
+}
+
 PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);
