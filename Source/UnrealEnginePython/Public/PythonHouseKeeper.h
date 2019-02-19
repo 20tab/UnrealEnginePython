@@ -238,6 +238,17 @@ public:
 		return Garbaged;
 		}
 
+    UPythonDelegate *FindDelegate(UObject *Owner, PyObject *PyCallable)
+    {
+		for (int32 i = PyDelegatesTracker.Num() - 1; i >= 0; --i)
+		{
+			FPythonDelegateTracker &Tracker = PyDelegatesTracker[i];
+            if (Tracker.Owner.Get() == Owner && Tracker.Delegate->UsesPyCallable(PyCallable))
+                return Tracker.Delegate;
+        }
+        return nullptr;
+    }
+
 	UPythonDelegate *NewDelegate(UObject *Owner, PyObject *PyCallable, UFunction *Signature)
 	{
 		UPythonDelegate *Delegate = NewObject<UPythonDelegate>();

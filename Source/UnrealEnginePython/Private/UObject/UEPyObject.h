@@ -51,6 +51,7 @@ PyObject *py_ue_enum_user_defined_names(ue_PyUObject *, PyObject *);
 
 
 PyObject *py_ue_bind_event(ue_PyUObject *, PyObject *);
+PyObject *py_ue_unbind_event(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_function(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_property(ue_PyUObject *, PyObject *);
 
