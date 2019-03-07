@@ -5,7 +5,11 @@
 
 #include "UEPySLeafWidget.h"
 
+#if ENGINE_MINOR_VERSION > 21
+#include "Runtime/SlateCore/Public/Widgets/Images/SImage.h"
+#else
 #include "Runtime/Slate/Public/Widgets/Images/SImage.h"
+#endif
 #include "Runtime/SlateCore/Public/Styling/SlateBrush.h"
 
 extern PyTypeObject ue_PySImageType;

@@ -85,10 +85,14 @@ PyObject *py_ue_landscape_export_to_raw_mesh(ue_PyUObject *self, PyObject * args
 	if (!landscape)
 		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
 
+#if ENGINE_MINOR_VERSION > 21
+	return PyErr_Format(PyExc_Exception, "MeshDescription struct is still unsupported");;
+#else
 	FRawMesh raw_mesh;
 	if (!landscape->ExportToRawMesh(lod, raw_mesh))
 		return PyErr_Format(PyExc_Exception, "unable to export landscape to FRawMesh");
 
 	return py_ue_new_fraw_mesh(raw_mesh);
+#endif
 }
 #endif
