@@ -80,9 +80,49 @@ static PyObject *py_ue_edgraphpin_break_link_to(ue_PyEdGraphPin *self, PyObject 
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_edgraphpin_break_all_pin_links(ue_PyEdGraphPin *self, PyObject * args)
+{
+	PyObject *py_notify_nodes = nullptr;
+	if (!PyArg_ParseTuple(args, "O:break_all_pin_links", &py_notify_nodes))
+	{
+		return NULL;
+	}
+
+	bool notify_nodes = true;
+	if (py_notify_nodes && !PyObject_IsTrue(py_notify_nodes))
+		notify_nodes = false;
+
+	self->pin->BreakAllPinLinks(notify_nodes);
+
+	if (UBlueprint *bp = Cast<UBlueprint>(self->pin->GetOwningNode()->GetGraph()->GetOuter()))
+	{
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *py_ue_edgraphpin_get_linked_to(ue_PyEdGraphPin * self, PyObject * args)
+{
+	PyObject *pins = PyList_New(0);
+
+	TArray<UEdGraphPin*> Links = self->pin->LinkedTo;
+
+	for (int32 i = 0; i < Links.Num(); i++)
+	{
+		UEdGraphPin *pin = Links[i];
+		ue_PyUObject *item = (ue_PyUObject *)py_ue_new_edgraphpin(pin);
+		if (item)
+			PyList_Append(pins, (PyObject *)item);
+	}
+	return pins;
+}
+
 static PyMethodDef ue_PyEdGraphPin_methods[] = {
 	{ "make_link_to", (PyCFunction)py_ue_edgraphpin_make_link_to, METH_VARARGS, "" },
 	{ "break_link_to", (PyCFunction)py_ue_edgraphpin_break_link_to, METH_VARARGS, "" },
+	{ "break_all_pin_links", (PyCFunction)py_ue_edgraphpin_break_all_pin_links, METH_VARARGS, "" },
+	{ "get_linked_to", (PyCFunction)py_ue_edgraphpin_get_linked_to, METH_VARARGS, "" },
 	{ "connect", (PyCFunction)py_ue_edgraphpin_connect, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
