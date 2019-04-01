@@ -298,6 +298,7 @@ PyObject *py_ue_get_current_level(ue_PyUObject *self, PyObject * args)
 	Py_RETURN_UOBJECT(level);
 }
 
+#if WITH_EDITORONLY_DATA
 PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
 {
 
@@ -321,6 +322,7 @@ PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
 
 	Py_RETURN_FALSE;
 }
+#endif
 
 #if WITH_EDITOR
 PyObject *py_ue_get_level_script_blueprint(ue_PyUObject *self, PyObject * args)
