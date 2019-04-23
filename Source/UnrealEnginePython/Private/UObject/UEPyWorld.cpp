@@ -316,8 +316,11 @@ PyObject *py_ue_set_current_level(ue_PyUObject *self, PyObject * args)
 	if (!level)
 		return PyErr_Format(PyExc_Exception, "argument is not a ULevel");
 
+#if WITH_EDITOR
+
 	if (world->SetCurrentLevel(level))
 		Py_RETURN_TRUE;
+#endif
 
 	Py_RETURN_FALSE;
 }
