@@ -5,7 +5,7 @@ import time
 import shutil
 import zipfile
 
-UE_VERSIONS = ['4.15', '4.16', '4.17', '4.18', '4.19', '4.20', '4.21']
+UE_VERSIONS = ['4.17', '4.18', '4.19', '4.20', '4.21', '4.22']
 PYTHON_VERSIONS = ["C:/Program Files/Python37", "C:/Program Files/Python36", "C:/Python27"]
 MSBUILD = 'C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe'
 UE_PATH = 'C:/Program Files/Epic Games'
