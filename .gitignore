@@ -89,6 +89,7 @@ ENV/
 .ropeproject
 
 Binaries/
+Intermediate/
 python35/
 python27/
 *.un~
