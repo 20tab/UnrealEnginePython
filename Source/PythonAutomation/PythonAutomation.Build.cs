@@ -1,4 +1,4 @@
-// Copyright 1998-2018 20Tab S.r.l All Rights Reserved.
+// Copyright 1998-2019 20Tab S.r.l All Rights Reserved.
 
 using UnrealBuildTool;
 using System.IO;
