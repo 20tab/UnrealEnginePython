@@ -229,8 +229,17 @@ static PyObject *ue_py_fvector_sub(ue_PyFVector *self, PyObject *value)
 	return py_ue_new_fvector(vec);
 }
 
-static PyObject *ue_py_fvector_mul(ue_PyFVector *self, PyObject *value)
+static PyObject *ue_py_fvector_mul(PyObject *a0, PyObject *a1)
 {
+    // At least one of the parameters is a ue_PyFVector, but we don't know which
+    ue_PyFVector *self = (ue_PyFVector*)a0;
+    PyObject *value = a1;
+    if (!py_ue_is_fvector(a0))
+    {
+        self = (ue_PyFVector*)a1;
+        value = a0;
+    }
+
 	FVector vec = self->vec;
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)

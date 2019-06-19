@@ -176,8 +176,17 @@ static PyObject *ue_py_fvector2d_sub(ue_PyFVector2D *self, PyObject *value)
 	return py_ue_new_fvector2d(vec);
 }
 
-static PyObject *ue_py_fvector2d_mul(ue_PyFVector2D *self, PyObject *value)
+static PyObject *ue_py_fvector2d_mul(PyObject *a0, PyObject *a1)
 {
+    // At least one of the parameters is a ue_PyFVector2D, but we don't know which
+    ue_PyFVector2D *self = (ue_PyFVector2D*)a0;
+    PyObject *value = a1;
+    if (!py_ue_is_fvector2d(a0))
+    {
+        self = (ue_PyFVector2D*)a1;
+        value = a0;
+    }
+
 	FVector2D vec = self->vec;
 	ue_PyFVector2D *py_vec = py_ue_is_fvector2d(value);
 	if (py_vec)
