@@ -14,16 +14,9 @@
 #include "Wrappers/UEPyFColor.h"
 #include "Wrappers/UEPyFLinearColor.h"
 
-// backward compatibility for UE4.20 TCHAR_TO_WCHAR
-#ifndef TCHAR_TO_WCHAR
-	// SIZEOF_WCHAR_T is provided by pyconfig.h
-	#if SIZEOF_WCHAR_T == (PLATFORM_TCHAR_IS_4_BYTES ? 4 : 2)
-		#define TCHAR_TO_WCHAR(str) str
-	#else
-		#define TCHAR_TO_WCHAR(str) (wchar_t*)StringCast<wchar_t>(static_cast<const TCHAR*>(str)).Get()
-	#endif
-#endif
-
+// returns true if the given UProperty is a function output parameter (some function parameters are incorrectly
+// marked as output parameters, but if they are also marked as const refs, then they are actually input parameters)
+#define PROP_IS_OUT_PARAM(prop) ((prop)->HasAllPropertyFlags(CPF_Parm|CPF_OutParm) && !(prop)->HasAllPropertyFlags(CPF_ReferenceParm|CPF_ConstParm))
 
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
