@@ -1473,6 +1473,37 @@ PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * 
 
 }
 
+PyObject *py_unreal_engine_remove_component_from_blueprint(PyObject *self, PyObject *args)
+{
+	PyObject *py_blueprint;
+	char *name;
+	char *parentName = nullptr;
+
+	if (!PyArg_ParseTuple(args, "Os|s:remove_component_from_blueprint", &py_blueprint, &name, &parentName))
+	{
+		return NULL;
+	}
+
+	if (!ue_is_pyuobject(py_blueprint))
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+	}
+
+	ue_PyUObject *py_obj = (ue_PyUObject *)py_blueprint;
+	if (!py_obj->ue_object->IsA<UBlueprint>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
+	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
+
+	bp->Modify();
+	USCS_Node *ComponentNode = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(name));
+	if (ComponentNode)
+	{
+		bp->SimpleConstructionScript->RemoveNode(ComponentNode);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_unreal_engine_add_component_to_blueprint(PyObject * self, PyObject * args)
 {
 

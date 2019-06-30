@@ -52,6 +52,7 @@ PyObject *py_unreal_engine_reload_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_replace_blueprint(PyObject *, PyObject *);
 PyObject *py_unreal_engine_create_blueprint_from_actor(PyObject *, PyObject *);
 PyObject *py_unreal_engine_add_component_to_blueprint(PyObject *, PyObject *);
+PyObject *py_unreal_engine_remove_component_from_blueprint(PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject *, PyObject *);
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject *, PyObject *);
