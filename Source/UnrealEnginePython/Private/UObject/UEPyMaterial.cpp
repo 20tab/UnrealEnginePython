@@ -505,7 +505,11 @@ PyObject *py_ue_static_mesh_set_collision_for_lod(ue_PyUObject *self, PyObject *
 		enabled = true;
 	}
 
+#if ENGINE_MINOR_VERSION >= 23
+	FMeshSectionInfo info = mesh->GetSectionInfoMap().Get(lod_index, material_index);
+#else
 	FMeshSectionInfo info = mesh->SectionInfoMap.Get(lod_index, material_index);
+#endif
 	info.bEnableCollision = enabled;
 	mesh->SectionInfoMap.Set(lod_index, material_index, info);
 

@@ -80,7 +80,11 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
 	};
 
 #if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MINOR_VERSION >= 23
+#define ADD_NATIVE_ENUM(EnumType, EnumVal) add_native_enum(#EnumType "." #EnumVal, (uint8)EnumType::EnumVal)
+#else
 #define ADD_NATIVE_ENUM(EnumType, EnumVal) add_native_enum(#EnumType "." #EnumVal, (uint8)EnumType::Type::EnumVal)
+#endif
 	ADD_NATIVE_ENUM(EUserInterfaceActionType, None);
 	ADD_NATIVE_ENUM(EUserInterfaceActionType, Button);
 	ADD_NATIVE_ENUM(EUserInterfaceActionType, ToggleButton);

@@ -105,6 +105,7 @@ PyObject *py_ue_anim_extract_root_motion(ue_PyUObject * self, PyObject * args)
 
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MINOR_VERSION < 23
 PyObject *py_ue_anim_sequence_update_compressed_track_map_from_raw(ue_PyUObject * self, PyObject * args)
 {
 	ue_py_check(self);
@@ -117,6 +118,7 @@ PyObject *py_ue_anim_sequence_update_compressed_track_map_from_raw(ue_PyUObject 
 
 	Py_RETURN_NONE;
 }
+#endif
 
 
 PyObject *py_ue_anim_sequence_get_raw_animation_data(ue_PyUObject * self, PyObject * args)
