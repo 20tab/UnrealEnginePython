@@ -70,7 +70,11 @@ static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObjec
 	ue_py_slate_farguments_float("line_height_percentage", LineHeightPercentage);
 	ue_py_slate_farguments_struct("margin", Margin, FMargin);
 	ue_py_slate_farguments_float("min_desired_width", MinDesiredWidth);
+#if ENGINE_MINOR_VERSION >= 23
+	ue_py_slate_farguments_event("on_double_clicked", OnDoubleClicked, FPointerEventHandler, OnMouseEvent);
+#else
 	ue_py_slate_farguments_event("on_double_clicked", OnDoubleClicked, FOnClicked, OnClicked);
+#endif
 	ue_py_slate_farguments_flinear_color("shadow_color_and_opacity", ShadowColorAndOpacity);
 	ue_py_slate_farguments_fvector2d("shadow_offset", ShadowOffset);
 	ue_py_slate_farguments_text("text", Text);

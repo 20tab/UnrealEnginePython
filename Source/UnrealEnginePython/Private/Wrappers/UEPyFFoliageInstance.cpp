@@ -33,8 +33,7 @@ static FFoliageInstance* get_foliage_instance(ue_PyFFoliageInstance* self)
 	}
 
 #if ENGINE_MINOR_VERSION >= 23
-	auto FoliageInfo = self->foliage_actor->FoliageInfos[self->foliage_type.Get()];
-	FFoliageInfo& info = info;
+	FFoliageInfo& info = self->foliage_actor->FoliageInfos[self->foliage_type.Get()].Get();
 #else
 
 	FFoliageMeshInfo& info = self->foliage_actor->FoliageMeshes[self->foliage_type.Get()].Get();
@@ -72,7 +71,11 @@ static int py_ue_ffoliage_instance_set_location(ue_PyFFoliageInstance* self, PyO
 		{
 			TArray<int32> instances;
 			instances.Add(self->instance_id);
+#if ENGINE_MINOR_VERSION >= 23
+			FFoliageInfo& info = self->foliage_actor->FoliageInfos[self->foliage_type.Get()].Get();
+#else
 			FFoliageMeshInfo& info = self->foliage_actor->FoliageMeshes[self->foliage_type.Get()].Get();
+#endif
 			info.PreMoveInstances(self->foliage_actor.Get(), instances);
 			instance->Location = vec->vec;
 			info.PostMoveInstances(self->foliage_actor.Get(), instances);
@@ -93,7 +96,11 @@ static int py_ue_ffoliage_instance_set_rotation(ue_PyFFoliageInstance* self, PyO
 		{
 			TArray<int32> instances;
 			instances.Add(self->instance_id);
+#if ENGINE_MINOR_VERSION >= 23
+			FFoliageInfo& info = self->foliage_actor->FoliageInfos[self->foliage_type.Get()].Get();
+#else
 			FFoliageMeshInfo& info = self->foliage_actor->FoliageMeshes[self->foliage_type.Get()].Get();
+#endif
 			info.PreMoveInstances(self->foliage_actor.Get(), instances);
 			instance->Rotation = rot->rot;
 			info.PostMoveInstances(self->foliage_actor.Get(), instances);
