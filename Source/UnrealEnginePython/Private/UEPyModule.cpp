@@ -744,7 +744,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
+#if ENGINE_MINOR_VERSION <23
 	{ "update_compressed_track_map_from_raw", (PyCFunction)py_ue_anim_sequence_update_compressed_track_map_from_raw, METH_VARARGS, "" },
+#endif
 	{ "update_raw_track", (PyCFunction)py_ue_anim_sequence_update_raw_track, METH_VARARGS, "" },
 	{ "apply_raw_anim_changes", (PyCFunction)py_ue_anim_sequence_apply_raw_anim_changes, METH_VARARGS, "" },
 	{ "add_key_to_sequence", (PyCFunction)py_ue_anim_add_key_to_sequence, METH_VARARGS, "" },
