@@ -824,6 +824,31 @@ Check this example: https://github.com/20tab/UnrealEnginePython/blob/master/exam
 
 It shows even how to register new style sets.
 
+## SPythonComboBox
+
+```python
+from unreal_engine import SWindow, STextBlock, SPythonComboBox
+
+def generate_combo_box_widget(item):
+  return STextBlock(text=item)
+
+def get_current_item():
+  return combo_box.get_selected_item()
+
+def on_selection_changed(item, index):
+  print ('New selection: %s, %s' % (item, index))
+
+items = ['spam', 'ham', 'eggs']
+combo_box = SPythonComboBox(options_source=items, on_generate_widget=generate_combo_box_widget, content=STextBlock(text=get_current_item), on_selection_changed=on_selection_changed)
+combo_box.set_selected_item(items[0])
+
+SWindow(client_size=(300,30))(
+    combo_box
+)
+```
+
+![SDetailView](screenshots/slate_SPythonComboBox.png)
+
 ## SPythonListView
 
 ## SPythonTreeView
