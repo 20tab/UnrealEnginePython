@@ -6,7 +6,7 @@ Teaser (by Kite & Lightning): https://twitter.com/KNLstudio/status/9326578124668
 
 Fixing Mixamo RootMotion tutorial: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython.md
 
-Funny snippets for working with StaticMesh and SkeletalMesh assets: http ://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
+Funny snippets for working with StaticMesh and SkeletalMesh assets: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
 
 More tutorials: https://github.com/20tab/UnrealEnginePython/tree/master/tutorials
 
