@@ -4,9 +4,9 @@ Embed Python in Unreal Engine 4
 
 Teaser (by Kite & Lightning): https://twitter.com/KNLstudio/status/932657812466843648
 
-Fixing Mixamo RootMotion tuturial: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython.md
+Fixing Mixamo RootMotion tutorial: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython.md
 
-Funny snippets for working with StaticMesh and SkeletalMesh assets: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
+Funny snippets for working with StaticMesh and SkeletalMesh assets: http ://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
 
 More tutorials: https://github.com/20tab/UnrealEnginePython/tree/master/tutorials
 
@@ -22,7 +22,7 @@ If you want to have an idea of what the plugin can do, jump here: https://github
 
 In addition to this, the plugin automatically adds an actor class (PyActor), a pawn class (PyPawn), a character class (PyCharacter) and a component class (PythonComponent) for "gentle" integration of python in your games.
 
-In the spirit of automating tasks, even wrappers for third party libraries used by UE4 are exposed in a 'pythonic' way. As an example the FbxSdk is exposed to allow low-level interaction with Fbx files. This is an example extracting animation curves: https://github.com/20tab/UnrealEnginePython/blob/master/examples/fbx_curves_extractor.py
+In the spirit of automating tasks, even wrappers for third-party libraries used by UE4 are exposed in a 'pythonic' way. As an example, the FbxSdk is exposed to allow low-level interaction with Fbx files. This is an example extracting animation curves: https://github.com/20tab/UnrealEnginePython/blob/master/examples/fbx_curves_extractor.py
 
 Another funny feature (well, a side effect ;) is that you can change your python code even after the project has been packaged. You can potentially build a completely new game from an already packaged one.
 
@@ -34,7 +34,7 @@ The minimal supported Unreal Engine version is 4.12, while the latest is 4.23
 
 We support official python.org releases as well as IntelPython and Anaconda distributions.
 
-Note: this plugin has nothing to do with the experimental 'PythonScriptPlugin' included in Unreal Engine >= 4.19. We aim at full integration with engine and editor (included the Slate api, check here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Slate_API.md), as well as support for the vast majority of python features like asyncio, coroutines, generators, threads and third party modules.
+Note: this plugin has nothing to do with the experimental 'PythonScriptPlugin' included in Unreal Engine >= 4.19. We aim at full integration with engine and editor (included the Slate api, check here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Slate_API.md), as well as support for the vast majority of python features like asyncio, coroutines, generators, threads and third-party modules.
 
 # Binary installation on Windows (64 bit)
 
@@ -54,7 +54,7 @@ If instead, you want to package your project without python, just remember to ch
 
 # Installation from sources on Windows (64 bit)
 
-Currently python3.6, python3.5 and python2.7 are supported. It is highly suggested to have a python system wide installation (by default the official python distributions are installed in user's home directory) with the PATH environment variable including it (if you change the PATH variable remember to reboot the system before running the build procedure, this is not strictly required but will ensure the PATH is updated). If the PATH variable does not contain the path of your python installation you will see a warning in the build log/output.
+Currently python3.6, python3.5 and python2.7 are supported. It is highly suggested to have a python system-wide installation (by default the official python distributions are installed in user's home directory) with the PATH environment variable including it (if you change the PATH variable remember to reboot the system before running the build procedure, this is not strictly required but will ensure the PATH is updated). If the PATH variable does not contain the path of your python installation you will see a warning in the build log/output.
 
 Download a source official release or simply clone the repository for latest updates:
 
@@ -62,19 +62,19 @@ Download a source official release or simply clone the repository for latest upd
 git clone https://github.com/20tab/UnrealEnginePython
 ```
 
-By default the build procedure will try to discover your python installation looking at hardcoded known paths. If you want to specify a custom python installation (or the autodetection simply fails) you can change it in the Source/UnrealEnginePython/UnrealEnginePython.Build.cs file at this line: https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/UnrealEnginePython.Build.cs#L10
+By default, the build procedure will try to discover your python installation looking at hardcoded known paths. If you want to specify a custom python installation (or the autodetection simply fails) you can change it in the Source/UnrealEnginePython/UnrealEnginePython.Build.cs file at this line: https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/UnrealEnginePython.Build.cs#L10
 
 Note: ensure you have a 64bit python installation
 
 
 choose a project you want to install the plugin into, open the file explorer (you can do it from the epic launcher too) and:
 
-* create a Plugins/ directory (if it does not exist) in your project and copy the directory UnrealEnginePython into it
-* from the file explorer right click on the project main file and choose 'generate visual studio project files'
-* open visual studio, you should now see Plugins/UnrealEnginePython in your solution explorer
-* run the compilation from visual studio
-* once the compilation ends, double check the python libraries can be found by the plugin (they must be in the system PATH like previously described, or brutally copy them in the Binaries/Win64 directory of the just built plugin)
-* now you can re-run the unreal engine editor
+* Create a Plugins/ directory (if it does not exist) in your project and copy the directory UnrealEnginePython into it
+* From the file explorer right click on the project main file and choose 'generate visual studio project files'
+* Open Visual Studio, you should now see Plugins/UnrealEnginePython in your solution explorer
+* Run the compilation from visual studio
+* Once the compilation ends, double-check the python libraries can be found by the plugin (they must be in the system PATH like previously described, or brutally copy them in the Binaries/Win64 directory of the just built plugin)
+* Now you can re-run the unreal engine editor
 
 If all goes well, you will see 'Python Console' in the "Window/Developer Tools" menu
 
@@ -86,7 +86,7 @@ If you want to package without python, just remember to change the UnrealEngineP
 
 Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue asking us for it [please specify the python version too]) and download it.
 
-Binary releases for MacOSX expects an official python installation (the packages you get from python.org).
+Binary releases for MacOS expects an official python installation (the packages you get from python.org).
 
 Create (if it does not already exist) a Plugins directory in your project root directory (at the same level of Content/ and the .uproject file) and unzip the plugin into it. If your project is named FooBar you will end with FooBar/Plugins/UnrealEnginePython.
 
@@ -98,7 +98,7 @@ Binary releases are mainly useful for editor scripting, if you want to package y
 
 If instead, you want to package your project without python, just remember to change the UnrealEnginePython.uplugin to have this line: https://github.com/20tab/UnrealEnginePython/blob/master/UnrealEnginePython.uplugin#L20 set as "Editor" instead of "Runtime"
 
-# Installation from sources on MacOSX
+# Installation from sources on MacOS
 
 * install the latest official python distribution from python.org (the installation will end in the "/Library/Frameworks/Python.framework/Versions/X.Y" directory).
 * create a new unreal engine blank c++ project (NOT a blueprint one, otherwise XCode will not be initialized)
@@ -117,7 +117,7 @@ The build procedure will try to automatically discover python installations. If 
 
 https://github.com/20tab/UnrealEnginePython/blob/master/Source/UnrealEnginePython/UnrealEnginePython.Build.cs#L10
 
-Upgrading on MacOSX
+Upgrading on MacOS
 -------------------
 
 To upgrade to the latest development version of UnrealEnginePython:
@@ -163,7 +163,7 @@ Upgrade the plugin on Linux
 
 Just remove the .so files in Plugins/UnrealEnginePython/Binaries/Linux and pull the latest code.
 
-At the next run the build procedure wil be started again.
+At the next run the build procedure will be started again.
 
 Android Deployment
 ------------------
@@ -172,7 +172,7 @@ Check https://github.com/20tab/UnrealEnginePython/blob/master/docs/Android.md
 
 # Installation on other platforms
 
-Currently only Windows, MacOSX, Linux and Android are supported.
+Currently only Windows, MacOS, Linux and Android are supported.
 
 # Using Python with Unreal Engine (finally)
 
@@ -180,7 +180,7 @@ If your objective is to script the editor, you can directly jump to
 
 https://github.com/20tab/UnrealEnginePython/tree/master/docs
 
-and
+And
 
 https://github.com/20tab/UnrealEnginePython/tree/master/examples
 
@@ -192,7 +192,7 @@ Creating a new blueprint class managed by python
 We are going to create a new Actor based on python (instead of C++ or blueprints)
 
 This is the "gentle" approach, using a 'proxy' python class to speak with the UE4 api. Once you get familiar with the system, you can
-go further and start working withe native subclassing api (https://github.com/20tab/UnrealEnginePython/blob/master/docs/Subclassing_API.md) 
+go further and start working with the native subclassing api (https://github.com/20tab/UnrealEnginePython/blob/master/docs/Subclassing_API.md) 
 
 In the content browser click on 'add new' and choose 'blueprint class'
 
@@ -213,7 +213,7 @@ Go to the Content directory of your project and create a directory named 'Script
 ```py
 import unreal_engine as ue
 
-ue.log('Hello i am a Python module')
+ue.log('Hello I am a Python module')
 
 class Hero:
 
@@ -236,7 +236,7 @@ Now, go back to the blueprint editor and set 'funnygameclasses' in the 'Python M
 
 As you can see the actor will simply move over the z axis, but we need to give it some kind of visual representation to have a feedback in the scene. In the blueprint editor click on 'add component' and add some shape (a sphere, or a cube, or whatever you want). Save and Compile your blueprint.
 
-Now you can drag the bluprint from the content browser to the scene and just click 'Play'.
+Now you can drag the blueprint from the content browser to the scene and just click 'Play'.
 
 You should see your actor moving along the 'z' axis at a speed of 1 meter per second
 
@@ -255,7 +255,7 @@ def on_actor_hit(self, me, other_actor, normal_impulse, hit_result):
 ...
 ```
 
-Basically for each method startwing with 'on_' the related delegate/event is automatically configured (if available).
+Basically for each method starting with 'on_' the related delegate/event is automatically configured (if available).
 
 If you instead prefer to manually setup events, the following functions are exposed:
 
@@ -297,7 +297,7 @@ To be more clear, a call to:
 text_render_component = unreal_engine.find_class('TextRenderComponent')
 ```
 
-will internally search for the 'TextRenderComponent' class (via unreal c++ reflection) and when found will check if it is available in the cache, otherwise it will create a new ue_PyUObject object that will be placed in the cache.
+Will internally search for the 'TextRenderComponent' class (via unreal c++ reflection) and when found will check if it is available in the cache, otherwise it will create a new ue_PyUObject object that will be placed in the cache.
 
 From the previous example the 'text_render_component' maintains a mapping to the UObject (well a UClass in this example).
 
@@ -377,7 +377,7 @@ This means that calling:
 self.uobject.bCanBeDamaged = True
 ```
 
-it is the same as
+It is the same as
 
 ```py
 self.uobject.set_property('bCanBeDamaged', True)
@@ -401,7 +401,7 @@ And more important (and handy) K2_ functions are automagically exposed too:
 vec = self.uobject.GetActorLocation()
 ```
 
-is equal to:
+Is equal to:
 
 ```py
 vec = self.uobject.call_function('K2_GetActorLocation')
@@ -431,7 +431,7 @@ vec = self.uobject.GetActorLocation()
 
 Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
-Note that, in editor builds, when you change the property of an archetype (included ClassDefaultObject) via __setattr__ all of the archtype instances will be updated too.
+Note that, in editor builds, when you change the property of an archetype (included ClassDefaultObject) via __setattr__ all of the archetype instances will be updated too.
 
 To be more clear:
 
@@ -439,7 +439,7 @@ To be more clear:
 your_blueprint.GeneratedClass.get_cdo().CharacterMovement.MaxWalkSpeed = 600.0
 ```
 
-is a super shortcut for:
+Is a super shortcut for:
 
 ```python
 your_blueprint.GeneratedClass.get_cdo().CharacterMovement.pre_edit_change('MaxWalkSpeed')
@@ -471,7 +471,7 @@ self.uobject.get_player_controller().ClientPlayForceFeedback(self.force_feedback
 name = KismetSystemLibrary.GetObjectName(self.actor)
 ```
 
-the last example, shows another magic feature: static classes function calls. Obviously in this specific case using self.actor.get_name() would have been the best approach, but this feature allows you to access your blueprint function libraries too.
+The last example shows another magic feature: static classes function calls. Obviously in this specific case using self.actor.get_name() would have been the best approach, but this feature allows you to access your blueprint function libraries too.
 
 Another example for adding a widget:
 
@@ -525,7 +525,7 @@ More details here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/
 The ue_site.py file
 -------------------
 
-On Editor/Engine start, the ue_site module is tried for import. You should place initialization code there. If the module cannot be imported, you will get a (harmful) message in the logs.
+On Editor/Engine start, the ue_site module is tried for import. You should place the initialization code there. If the module cannot be imported, you will get a (harmful) message in the logs.
 
 PyPawn
 ------
@@ -545,9 +545,9 @@ The uobject.get_world() function returns a uobject representing the world (the C
 The uobject api
 ---------------
 
-Each uobject represent a UObject class of the Engine. This C++ class is basically the root of all the other classes (Actors, Pawns, components, properties ...). Thanks to Unreal Engine reflection system we do not need to implement a python class for each unreal engine class, but for performance reason we expose the most common methods. The uobject system checks for the type of the mapped C++ UObject and will call the method only if it is safe to call it.
+Each uobject represents an UObject class of the Engine. This C++ class is basically the root of all the other classes (Actors, Pawns, components, properties ...). Thanks to Unreal Engine reflection system we do not need to implement a python class for each unreal engine class, but for performance reasons we expose the most common methods. The uobject system checks for the type of the mapped C++ UObject and will call the method only if it is safe to call it.
 
-Sometime methods are implemented for automatically getting the right object. As an example get_actor_location() when called over a component will automatically retrieve the related actor and will call C++ AActor::GetActorLocation() method over it.
+Sometimes methods are implemented for automatically getting the right object. As an example get_actor_location() when called over a component will automatically retrieve the related actor and will call C++ AActor::GetActorLocation() method over it.
 
 When this automagic approach is too risky, the method will check for the uobject type and will raise an exception in the case of inconsistencies.
 
@@ -952,7 +952,7 @@ Special Thanks
 
 Such a big project requires constant sponsorship, special thanks go to:
 
-* Kite & Lighting http://kiteandlightning.la/ (they are sponsoring various areas of the project, expecially the slate api)
+* Kite & Lighting http://kiteandlightning.la/ (they are sponsoring various areas of the project, especially the slate api)
 
 * GoodTH.INC https://www.goodthinc.com/ (they are sponsoring the sequencer api)
 
