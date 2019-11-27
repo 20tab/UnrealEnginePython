@@ -14,7 +14,7 @@ public class UnrealEnginePython : ModuleRules
     // this is an example for Homebrew on Mac
     //private string pythonHome = "/usr/local/Cellar/python3/3.6.0/Frameworks/Python.framework/Versions/3.6/";
     // on Linux an include;libs syntax is expected:
-    //private string pythonHome = "/usr/local/include/python3.6;/usr/local/lib/libpython3.6.so"
+    //private string pythonHome = "/usr/local/include/python3.6;/usr/local/lib/libpython3.6.so";
 
     private string[] windowsKnownPaths =
     {
