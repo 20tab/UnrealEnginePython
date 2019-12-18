@@ -54,7 +54,12 @@ static PyObject *py_ue_command_apply(PyObject *cls, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UMaterial");
 	}
 
+#if ENGINE_MINOR_VERSION >= 24
+	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	IAssetEditorInstance* Instance = AssetEditorSubsystem->FindEditorForAsset(Material, false);
+#else
 	IAssetEditorInstance *Instance = FAssetEditorManager::Get().FindEditorForAsset(Material, false);
+#endif
 	if (!Instance)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve editor for UMaterial");

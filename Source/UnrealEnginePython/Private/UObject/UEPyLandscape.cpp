@@ -8,35 +8,35 @@
 #include "Runtime/Landscape/Classes/LandscapeInfo.h"
 #include "GameFramework/GameModeBase.h"
 
-PyObject *py_ue_create_landscape_info(ue_PyUObject *self, PyObject * args)
+PyObject* py_ue_create_landscape_info(ue_PyUObject* self, PyObject* args)
 {
 
 	ue_py_check(self);
 
-	ALandscapeProxy *landscape = ue_py_check_type<ALandscapeProxy>(self);
+	ALandscapeProxy* landscape = ue_py_check_type<ALandscapeProxy>(self);
 	if (!landscape)
 		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
 
 	Py_RETURN_UOBJECT(landscape->CreateLandscapeInfo());
 }
 
-PyObject *py_ue_get_landscape_info(ue_PyUObject *self, PyObject * args)
+PyObject* py_ue_get_landscape_info(ue_PyUObject* self, PyObject* args)
 {
 
 	ue_py_check(self);
 
-	ALandscapeProxy *landscape = ue_py_check_type<ALandscapeProxy>(self);
+	ALandscapeProxy* landscape = ue_py_check_type<ALandscapeProxy>(self);
 	if (!landscape)
 		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
 
-	ULandscapeInfo *info = landscape->GetLandscapeInfo();
+	ULandscapeInfo* info = landscape->GetLandscapeInfo();
 	if (!info)
 		Py_RETURN_NONE;
 
 	Py_RETURN_UOBJECT(info);
 }
 
-PyObject *py_ue_landscape_import(ue_PyUObject *self, PyObject * args)
+PyObject* py_ue_landscape_import(ue_PyUObject* self, PyObject* args)
 {
 
 	ue_py_check(self);
@@ -51,7 +51,7 @@ PyObject *py_ue_landscape_import(ue_PyUObject *self, PyObject * args)
 	if (!PyArg_ParseTuple(args, "iiiiy*|i:landscape_import", &section_size, &sections_per_component, &component_x, &component_y, &heightmap_buffer, &layer_type))
 		return nullptr;
 
-	ALandscapeProxy *landscape = ue_py_check_type<ALandscapeProxy>(self);
+	ALandscapeProxy* landscape = ue_py_check_type<ALandscapeProxy>(self);
 	if (!landscape)
 		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
 
@@ -62,16 +62,29 @@ PyObject *py_ue_landscape_import(ue_PyUObject *self, PyObject * args)
 	if (heightmap_buffer.len < (Py_ssize_t)(size_x * size_y * sizeof(uint16)))
 		return PyErr_Format(PyExc_Exception, "not enough heightmap data, expecting %lu bytes", size_x * size_y * sizeof(uint16));
 
-	uint16 *data = (uint16 *)heightmap_buffer.buf;
+	uint16* data = (uint16*)heightmap_buffer.buf;
 
 	TArray<FLandscapeImportLayerInfo> infos;
 
+#if ENGINE_MINOR_VERSION < 23
 	landscape->Import(FGuid::NewGuid(), 0, 0, size_x - 1, size_y - 1, sections_per_component, section_size, data, nullptr, infos, (ELandscapeImportAlphamapType)layer_type);
+#else
+	TMap<FGuid, TArray<uint16>> HeightDataPerLayers;
+	TArray<uint16> HeightData;
+	for (uint32 i = 0; i < (heightmap_buffer.len / sizeof(uint16)); i++)
+	{
+		HeightData.Add(data[i]);
+	}
+	HeightDataPerLayers.Add(FGuid(), HeightData);
+	TMap<FGuid, TArray<FLandscapeImportLayerInfo>> MaterialLayersInfo;
+	MaterialLayersInfo.Add(FGuid(), infos);
+	landscape->Import(FGuid::NewGuid(), 0, 0, size_x - 1, size_y - 1, sections_per_component, section_size, HeightDataPerLayers, nullptr, MaterialLayersInfo, (ELandscapeImportAlphamapType)layer_type);
+#endif
 
 	Py_RETURN_NONE;
 }
 
-PyObject *py_ue_landscape_export_to_raw_mesh(ue_PyUObject *self, PyObject * args)
+PyObject* py_ue_landscape_export_to_raw_mesh(ue_PyUObject* self, PyObject* args)
 {
 
 	ue_py_check(self);
@@ -81,7 +94,7 @@ PyObject *py_ue_landscape_export_to_raw_mesh(ue_PyUObject *self, PyObject * args
 	if (!PyArg_ParseTuple(args, "|i:landscape_import", &lod))
 		return nullptr;
 
-	ALandscapeProxy *landscape = ue_py_check_type<ALandscapeProxy>(self);
+	ALandscapeProxy* landscape = ue_py_check_type<ALandscapeProxy>(self);
 	if (!landscape)
 		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
 

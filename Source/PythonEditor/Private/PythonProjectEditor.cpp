@@ -13,6 +13,7 @@
 #include "PythonProjectEditorCommands.h"
 #include "Runtime/Core/Public/HAL/PlatformFilemanager.h"
 #include "Runtime/Core/Public/Misc/MessageDialog.h"
+#include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
 #define LOCTEXT_NAMESPACE "PythonEditor"
 
 TWeakPtr<FPythonProjectEditor> FPythonProjectEditor::PythonEditor;
@@ -209,7 +210,12 @@ void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager
 
 void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UPythonProject* PythonProject)
 {
+#if ENGINE_MINOR_VERSION >= 24
+	UAssetEditorSubsystem* AssetEditor = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	AssetEditor->CloseOtherEditors(PythonProject, this);
+#else
 	FAssetEditorManager::Get().CloseOtherEditors(PythonProject, this);
+#endif
 	PythonProjectBeingEdited = PythonProject;
 
 	TSharedPtr<FPythonProjectEditor> ThisPtr(SharedThis(this));

@@ -1020,8 +1020,11 @@ public:
 	virtual void RegisterCommands() override
 	{
 		commands = MakeShareable(new FUICommandList);
-
+#if ENGINE_MINOR_VERSION >= 23
+		MakeUICommand_InternalUseOnly(this, command, nullptr, *name, *name, TCHAR_TO_UTF8(*name), *name, *name, EUserInterfaceActionType::Button, FInputGesture());
+#else
 		UI_COMMAND_Function(this, command, nullptr, *name, *name, TCHAR_TO_UTF8(*name), *name, *name, EUserInterfaceActionType::Button, FInputGesture());
+#endif
 		commands->MapAction(command, FExecuteAction::CreateRaw(this, &FPythonSlateCommands::Callback), FCanExecuteAction());
 	}
 

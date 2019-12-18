@@ -26,6 +26,7 @@ namespace UnrealBuildTool.Rules
                 {
                     "Core",
                     "CoreUObject",
+                    "Engine",
                     "SlateCore",
                     "Slate",
                     "AssetTools",

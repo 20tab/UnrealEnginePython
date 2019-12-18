@@ -346,7 +346,12 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 							{
 								if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 								{
+#if ENGINE_MINOR_VERSION >= 23
+									FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(ObjectInitializer.GetObj());
+#else
+									
 									FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(ObjectInitializer.GetObj());
+#endif
 
 									FScriptDelegate script_delegate;
 									UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(ObjectInitializer.GetObj(), mc_value, casted_prop->SignatureFunction);
@@ -357,7 +362,11 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 									multiscript_delegate.Add(script_delegate);
 
 									// re-assign multicast delegate
+#if ENGINE_MINOR_VERSION >= 23
+									casted_prop->SetMulticastDelegate(ObjectInitializer.GetObj(), multiscript_delegate);
+#else
 									casted_prop->SetPropertyValue_InContainer(ObjectInitializer.GetObj(), multiscript_delegate);
+#endif
 								}
 								else
 								{
