@@ -4,6 +4,12 @@
 #if WITH_EDITOR
 #if ENGINE_MINOR_VERSION > 12
 
+#if PLATFORM_LINUX
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wnull-dereference"
+#endif
+#endif
+
 #include <fbxsdk.h>
 
 struct ue_PyFbxMesh

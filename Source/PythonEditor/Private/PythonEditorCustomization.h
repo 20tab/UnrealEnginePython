@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "UnrealEd.h"
 #include "PythonEditorCustomization.generated.h"
 
 USTRUCT()

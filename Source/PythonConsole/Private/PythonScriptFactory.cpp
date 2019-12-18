@@ -1,4 +1,3 @@
-#include "PythonConsolePrivatePCH.h"
 
 #include "PythonScriptFactory.h"
 #include "PythonScript.h"

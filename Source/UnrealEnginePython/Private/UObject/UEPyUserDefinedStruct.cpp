@@ -2,8 +2,9 @@
 
 
 #if WITH_EDITOR
-#include "Classes/UserDefinedStructure/UserDefinedStructEditorData.h"
-#include "Public/Kismet2/StructureEditorUtils.h"
+#include "Runtime/Engine/Classes/Engine/UserDefinedStruct.h"
+#include "Editor/UnrealEd/Classes/UserDefinedStructure/UserDefinedStructEditorData.h"
+#include "Editor/UnrealEd/Public/Kismet2/StructureEditorUtils.h"
 
 
 
@@ -33,7 +34,7 @@ PyObject *py_ue_struct_add_variable(ue_PyUObject * self, PyObject * args)
 
 	FStructureEditorUtils::OnStructureChanged(u_struct, FStructureEditorUtils::EStructureEditorChangeInfo::AddedVariable);
 
-	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&var->VarGuid);
+	return py_ue_new_owned_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&var->VarGuid);
 }
 
 PyObject *py_ue_struct_get_variables(ue_PyUObject * self, PyObject * args)
@@ -50,7 +51,7 @@ PyObject *py_ue_struct_get_variables(ue_PyUObject * self, PyObject * args)
 	PyObject *py_list = PyList_New(0);
 	for (FStructVariableDescription description : variables)
 	{
-		PyList_Append(py_list, py_ue_new_uscriptstruct(FStructVariableDescription::StaticStruct(), (uint8*)&description));
+		PyList_Append(py_list, py_ue_new_owned_uscriptstruct(FStructVariableDescription::StaticStruct(), (uint8*)&description));
 	}
 	return py_list;
 }

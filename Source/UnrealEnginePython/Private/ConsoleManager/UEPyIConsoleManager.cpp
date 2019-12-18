@@ -434,6 +434,10 @@ static PyObject *py_ue_iconsole_manager_unregister_object(PyObject *cls, PyObjec
 		return PyErr_Format(PyExc_Exception, "unable to find console object \"%s\"", key);
 	}
 
+
+	FPythonSmartConsoleDelegate::UnregisterPyDelegate(c_object);
+
+
 	IConsoleManager::Get().UnregisterConsoleObject(c_object, false);
 
 	Py_RETURN_NONE;
@@ -539,6 +543,9 @@ void FPythonSmartConsoleDelegate::OnConsoleCommand(const TArray < FString > & In
 	Py_DECREF(ret);
 }
 
+// static TArray declaration
+TArray<FPythonSmartConsoleDelegatePair> FPythonSmartConsoleDelegate::PyDelegatesMapping;
+
 static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject * args)
 {
 	char *key;
@@ -565,10 +572,14 @@ static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject
 	FConsoleCommandWithArgsDelegate console_delegate;
 	console_delegate.BindSP(py_delegate, &FPythonSmartConsoleDelegate::OnConsoleCommand);
 
-	if (!IConsoleManager::Get().RegisterConsoleCommand(UTF8_TO_TCHAR(key), help ? UTF8_TO_TCHAR(help) : UTF8_TO_TCHAR(key), console_delegate, 0))
-	{
+
+
+	c_object = IConsoleManager::Get().RegisterConsoleCommand(UTF8_TO_TCHAR(key), help ? UTF8_TO_TCHAR(help) : UTF8_TO_TCHAR(key), console_delegate, 0);
+	if (!c_object)
 		return PyErr_Format(PyExc_Exception, "unable to register console command \"%s\"", key);
-	}
+
+	// this allows the delegates to not be destroyed
+	FPythonSmartConsoleDelegate::RegisterPyDelegate(c_object, py_delegate);
 
 	Py_RETURN_NONE;
 }

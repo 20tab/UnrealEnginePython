@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Commands.h"
+#include "Runtime/Slate/Public/Framework/Commands/Commands.h"
 
 class FPythonProjectEditorCommands : public TCommands<FPythonProjectEditorCommands>
 {
@@ -15,6 +15,9 @@ public:
 	TSharedPtr<FUICommandInfo> Save;
 	TSharedPtr<FUICommandInfo> SaveAll;
 	TSharedPtr<FUICommandInfo> Execute;
+#if PLATFORM_MAC
+	TSharedPtr<FUICommandInfo> ExecuteInMainThread;
+#endif
 	TSharedPtr<FUICommandInfo> PEP8ize;
 	/** Initialize commands */
 	virtual void RegisterCommands() override;

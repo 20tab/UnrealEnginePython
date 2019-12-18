@@ -11,6 +11,8 @@ typedef struct
 		FQuat quat;
 } ue_PyFQuat;
 
+extern PyTypeObject ue_PyFQuatType;
+
 PyObject *py_ue_new_fquat(FQuat);
 ue_PyFQuat *py_ue_is_fquat(PyObject *);
 

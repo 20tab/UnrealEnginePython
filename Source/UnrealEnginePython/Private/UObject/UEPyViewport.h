@@ -17,3 +17,4 @@ PyObject *py_ue_add_viewport_widget_content(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_viewport_widget_content(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_all_viewport_widgets(ue_PyUObject *, PyObject *);
 PyObject *py_ue_game_viewport_client_set_rendering_flag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_game_viewport_client_get_window(ue_PyUObject *, PyObject *);

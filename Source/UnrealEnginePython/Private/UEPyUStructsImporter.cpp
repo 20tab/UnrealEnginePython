@@ -7,7 +7,7 @@ static PyObject *ue_PyUStructsImporter_getattro(ue_PyUStructsImporter *self, PyO
 	{
 		if (PyUnicodeOrString_Check(attr_name))
 		{
-			char *attr = PyUnicode_AsUTF8(attr_name);
+			const char *attr = UEPyUnicode_AsUTF8(attr_name);
 			if (attr[0] != '_')
 			{
 				UScriptStruct *u_struct = FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR(attr));

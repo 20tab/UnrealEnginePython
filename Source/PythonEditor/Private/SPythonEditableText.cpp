@@ -1,7 +1,8 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
 #include "SPythonEditableText.h"
+#include "PythonEditorStyle.h"
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
 
 void SPythonEditableText::Construct(const FArguments& InArgs)
@@ -33,11 +34,10 @@ FReply SPythonEditableText::OnKeyChar(const FGeometry& MyGeometry, const FCharac
 		return Reply;
 	}
 	Reply = FReply::Handled();
+	// substitute tab, with 4 spaces
 	if (Character == TEXT('\t'))
 	{
-		FString String;
-		String.AppendChar(Character);
-		InsertTextAtCursor(String);
+		InsertTextAtCursor(FString("    "));
 	}
 	//else if (Character == TEXT('('))
 	//{

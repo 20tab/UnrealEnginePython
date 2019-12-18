@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "UnrealEd.h"
 #include "PythonProjectItem.generated.h"
 
 /** Types of project items. Note that the enum ordering determines the tree sorting */

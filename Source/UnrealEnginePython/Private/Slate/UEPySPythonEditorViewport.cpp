@@ -4,11 +4,18 @@
 #if WITH_EDITOR
 
 #include "Components/DirectionalLightComponent.h"
+#include "Wrappers/UEPyFEditorViewportClient.h"
 
 static PyObject *py_ue_spython_editor_viewport_get_world(ue_PySPythonEditorViewport *self, PyObject * args)
 {
 	ue_py_slate_cast(SPythonEditorViewport);
 	Py_RETURN_UOBJECT(py_SPythonEditorViewport->GetPythonWorld());
+}
+
+static PyObject *py_ue_spython_editor_viewport_get_editor_viewport_client(ue_PySPythonEditorViewport *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonEditorViewport);
+	return py_ue_new_feditor_viewport_client(py_SPythonEditorViewport->GetViewportClient().ToSharedRef());
 }
 
 static PyObject *py_ue_spython_editor_viewport_set_show_bounds(ue_PySPythonEditorViewport *self, PyObject * args)
@@ -241,6 +248,7 @@ static PyObject *py_ue_spython_editor_viewport_get_light(ue_PySPythonEditorViewp
 static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
 	{ "simulate", (PyCFunction)py_ue_spython_editor_viewport_simulate, METH_VARARGS, "" },
 	{ "get_world", (PyCFunction)py_ue_spython_editor_viewport_get_world, METH_VARARGS, "" },
+	{ "get_editor_viewport_client", (PyCFunction)py_ue_spython_editor_viewport_get_editor_viewport_client, METH_VARARGS, "" },
 	{ "set_show_bounds", (PyCFunction)py_ue_spython_editor_viewport_set_show_bounds, METH_VARARGS, "" },
 	{ "set_show_stats", (PyCFunction)py_ue_spython_editor_viewport_set_show_stats, METH_VARARGS, "" },
 	{ "set_view_mode", (PyCFunction)py_ue_spython_editor_viewport_set_view_mode, METH_VARARGS, "" },

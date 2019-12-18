@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "SlateCore.h"
+#include "Runtime/Slate/Public/Widgets/Layout/SScrollBar.h"
+
 class SPythonEditor : public SCompoundWidget
 {
 public:
@@ -15,6 +18,10 @@ public:
 	bool CanSave() const;
 
 	void Execute() const;
+
+#if PLATFORM_MAC
+	void ExecuteInMainThread() const;
+#endif
 
 	void GotoLineAndColumn(int32 LineNumber, int32 ColumnNumber);
 

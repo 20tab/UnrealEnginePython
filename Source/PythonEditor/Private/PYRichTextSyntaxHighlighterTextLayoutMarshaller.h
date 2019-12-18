@@ -1,10 +1,11 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-
+#include "Runtime/SlateCore/Public/Styling/SlateTypes.h"
 #include "PythonSyntaxTokenizer.h"
-#include "PlainTextLayoutMarshaller.h"
-#include "ITextDecorator.h"
+#include "Runtime/Slate/Public/Framework/Text/PlainTextLayoutMarshaller.h"
+#include "Runtime/Slate/Public/Framework/Text/ITextDecorator.h"
+#include "PythonEditorStyle.h"
 
 
 class  FPYRichTextSyntaxHighlighterTextLayoutMarshaller : public FPlainTextLayoutMarshaller

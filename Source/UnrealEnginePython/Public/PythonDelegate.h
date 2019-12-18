@@ -13,6 +13,7 @@ public:
 	~UPythonDelegate();
 	virtual void ProcessEvent(UFunction *function, void *Parms) override;
 	void SetPyCallable(PyObject *callable);
+    bool UsesPyCallable(PyObject *callable);
 	void SetSignature(UFunction *original_signature);
 
 	void PyInputHandler();

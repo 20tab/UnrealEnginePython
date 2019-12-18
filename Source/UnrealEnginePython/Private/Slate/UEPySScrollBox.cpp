@@ -5,33 +5,18 @@
 static PyObject *py_ue_sscroll_box_add_slot(ue_PySScrollBox *self, PyObject * args, PyObject *kwargs)
 {
 	ue_py_slate_cast(SScrollBox);
-	PyObject *py_content;
-	int h_align = 0;
-	int v_align = 0;
 
-	char *kwlist[] = { (char *)"widget",
-		(char *)"h_align",
-		(char *)"v_align",
-		nullptr };
+	int32 retCode = [&]() {
+		ue_py_slate_setup_hack_slot_args(SScrollBox, py_SScrollBox);
+		ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
+		ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
+		return 0;
+	}();
 
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|ii:add_slot", kwlist,
-		&py_content,
-		&h_align,
-		&v_align))
+	if (retCode != 0)
 	{
-		return nullptr;
+		return PyErr_Format(PyExc_Exception, "could not add vertical slot");
 	}
-
-	TSharedPtr<SWidget> Content = py_ue_is_swidget<SWidget>(py_content);
-	if (!Content.IsValid())
-	{
-		return nullptr;
-	}
-
-	SScrollBox::FSlot &fslot = py_SScrollBox->AddSlot();
-	fslot.AttachWidget(Content.ToSharedRef());
-	fslot.HAlign((EHorizontalAlignment)h_align);
-	fslot.VAlign((EVerticalAlignment)v_align);
 
 	Py_RETURN_SLATE_SELF;
 }

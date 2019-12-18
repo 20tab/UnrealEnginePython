@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
+#include "PythonProject.h"
+#include "UnrealEnginePython.h"
 
 
 UPythonProject::UPythonProject(const FObjectInitializer& ObjectInitializer)

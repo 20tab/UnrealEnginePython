@@ -1,6 +1,6 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonConsolePrivatePCH.h"
+#include "SPythonConsole.h"
 #include "PythonConsoleModule.h"
 #include "SPythonConsole.h"
 #include "SPythonLog.h"

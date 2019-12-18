@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SlateStyle.h"
+#include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
 
 class FPythonEditorStyle
 {

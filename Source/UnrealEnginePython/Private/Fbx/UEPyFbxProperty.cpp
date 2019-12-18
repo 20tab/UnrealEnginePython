@@ -5,29 +5,36 @@
 
 #include "UEPyFbx.h"
 
-static PyObject *py_ue_fbx_property_get_name(ue_PyFbxProperty *self, PyObject *args) {
+static PyObject *py_ue_fbx_property_get_name(ue_PyFbxProperty *self, PyObject *args)
+{
 	return PyUnicode_FromString(self->fbx_property.GetName());
 }
 
-static PyObject *py_ue_fbx_property_get_double3(ue_PyFbxProperty *self, PyObject *args) {
+static PyObject *py_ue_fbx_property_get_double3(ue_PyFbxProperty *self, PyObject *args)
+{
 	FbxDouble3 value = self->fbx_property.Get<FbxDouble3>();
 	return Py_BuildValue((char *)"(fff)", value[0], value[1], value[2]);
 }
 
-static PyObject *py_ue_fbx_property_get_string(ue_PyFbxProperty *self, PyObject *args) {
-    return PyUnicode_FromString(self->fbx_property.Get<FbxString>());
+static PyObject *py_ue_fbx_property_get_string(ue_PyFbxProperty *self, PyObject *args)
+{
+	return PyUnicode_FromString(self->fbx_property.Get<FbxString>());
 }
 
-static PyObject *py_ue_fbx_property_is_valid(ue_PyFbxProperty *self, PyObject *args) {
-	if (self->fbx_property.IsValid()) {
+static PyObject *py_ue_fbx_property_is_valid(ue_PyFbxProperty *self, PyObject *args)
+{
+	if (self->fbx_property.IsValid())
+	{
 		Py_RETURN_TRUE;
 	}
 	Py_RETURN_FALSE;
 }
 
-static PyObject *py_ue_fbx_property_get_curve_node(ue_PyFbxProperty *self, PyObject *args) {
+static PyObject *py_ue_fbx_property_get_curve_node(ue_PyFbxProperty *self, PyObject *args)
+{
 	PyObject *py_object;
-	if (!PyArg_ParseTuple(args, "O", &py_object)) {
+	if (!PyArg_ParseTuple(args, "O", &py_object))
+	{
 		return nullptr;
 	}
 
@@ -45,10 +52,28 @@ static PyObject *py_ue_fbx_property_get_curve_node(ue_PyFbxProperty *self, PyObj
 	return py_ue_new_fbx_object(fbx_anim_curve_node);
 }
 
+static PyObject *py_ue_fbx_property_get_bool(ue_PyFbxProperty *self, PyObject *args)
+{
+	if (self->fbx_property.Get<FbxBool>())
+		Py_RETURN_TRUE;
+
+	Py_RETURN_FALSE;
+
+}
+
+static PyObject *py_ue_fbx_property_get_int(ue_PyFbxProperty *self, PyObject *args)
+{
+	return PyLong_FromLong(self->fbx_property.Get<FbxInt>());
+
+}
+
+
 static PyMethodDef ue_PyFbxProperty_methods[] = {
 	{ "get_name", (PyCFunction)py_ue_fbx_property_get_name, METH_VARARGS, "" },
 	{ "get_double3", (PyCFunction)py_ue_fbx_property_get_double3, METH_VARARGS, "" },
-    { "get_string", (PyCFunction)py_ue_fbx_property_get_string, METH_VARARGS, "" },
+	{ "get_string", (PyCFunction)py_ue_fbx_property_get_string, METH_VARARGS, "" },
+	{ "get_bool", (PyCFunction)py_ue_fbx_property_get_bool, METH_VARARGS, "" },
+	{ "get_int", (PyCFunction)py_ue_fbx_property_get_int, METH_VARARGS, "" },
 	{ "is_valid", (PyCFunction)py_ue_fbx_property_is_valid, METH_VARARGS, "" },
 	{ "get_curve_node", (PyCFunction)py_ue_fbx_property_get_curve_node, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
@@ -87,12 +112,14 @@ static PyTypeObject ue_PyFbxPropertyType = {
 	0,                         /* tp_getset */
 };
 
-static int py_ue_fbx_property_init(ue_PyFbxProperty *self, PyObject * args) {
+static int py_ue_fbx_property_init(ue_PyFbxProperty *self, PyObject * args)
+{
 	PyErr_SetString(PyExc_Exception, "instantiating a new FbxProperty is currently not supported");
 	return -1;
 }
 
-void ue_python_init_fbx_property(PyObject *ue_module) {
+void ue_python_init_fbx_property(PyObject *ue_module)
+{
 	ue_PyFbxPropertyType.tp_new = PyType_GenericNew;;
 	ue_PyFbxPropertyType.tp_init = (initproc)py_ue_fbx_property_init;
 	if (PyType_Ready(&ue_PyFbxPropertyType) < 0)
@@ -102,13 +129,15 @@ void ue_python_init_fbx_property(PyObject *ue_module) {
 	PyModule_AddObject(ue_module, "FbxProperty", (PyObject *)&ue_PyFbxPropertyType);
 }
 
-PyObject *py_ue_new_fbx_property(FbxProperty fbx_property) {
+PyObject *py_ue_new_fbx_property(FbxProperty fbx_property)
+{
 	ue_PyFbxProperty *ret = (ue_PyFbxProperty *)PyObject_New(ue_PyFbxProperty, &ue_PyFbxPropertyType);
 	ret->fbx_property = fbx_property;
 	return (PyObject *)ret;
 }
 
-ue_PyFbxProperty *py_ue_is_fbx_property(PyObject *obj) {
+ue_PyFbxProperty *py_ue_is_fbx_property(PyObject *obj)
+{
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PyFbxPropertyType))
 		return nullptr;
 	return (ue_PyFbxProperty *)obj;

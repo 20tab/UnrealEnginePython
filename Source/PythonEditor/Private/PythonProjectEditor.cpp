@@ -1,12 +1,19 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
+#include "PythonProjectEditor.h"
 #include "SPythonEditor.h"
 #include "SPythonProjectEditor.h"
-#include "SDockTab.h"
+#include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"
+#include "PythonProjectItem.h"
+#include "PythonEditorStyle.h"
+#include "PythonProject.h"
+#include "PythonProjectEditorCommands.h"
+#include "Runtime/Core/Public/HAL/PlatformFilemanager.h"
+#include "Runtime/Core/Public/Misc/MessageDialog.h"
+#include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
 #define LOCTEXT_NAMESPACE "PythonEditor"
 
 TWeakPtr<FPythonProjectEditor> FPythonProjectEditor::PythonEditor;
@@ -203,7 +210,12 @@ void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager
 
 void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UPythonProject* PythonProject)
 {
+#if ENGINE_MINOR_VERSION >= 24
+	UAssetEditorSubsystem* AssetEditor = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	AssetEditor->CloseOtherEditors(PythonProject, this);
+#else
 	FAssetEditorManager::Get().CloseOtherEditors(PythonProject, this);
+#endif
 	PythonProjectBeingEdited = PythonProject;
 
 	TSharedPtr<FPythonProjectEditor> ThisPtr(SharedThis(this));
@@ -267,6 +279,12 @@ void FPythonProjectEditor::BindCommands()
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::Execute_Internal),
 		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
 		);
+#if PLATFORM_MAC
+	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().ExecuteInMainThread,
+		FExecuteAction::CreateSP(this, &FPythonProjectEditor::ExecuteInMainThread_Internal),
+		FCanExecuteAction::CreateSP(this, &FPythonProjectEditor::CanExecute)
+		);
+#endif
 
 	ToolkitCommands->MapAction(FPythonProjectEditorCommands::Get().PEP8ize,
 		FExecuteAction::CreateSP(this, &FPythonProjectEditor::PEP8ize_Internal),
@@ -492,6 +510,26 @@ void FPythonProjectEditor::Execute_Internal()
 {
 	Execute();
 }
+
+#if PLATFORM_MAC
+void FPythonProjectEditor::ExecuteInMainThread_Internal()
+{
+	ExecuteInMainThread();
+}
+
+bool FPythonProjectEditor::ExecuteInMainThread()
+{
+	if (DocumentManager.IsValid() && DocumentManager->GetActiveTab().IsValid())
+	{
+		TSharedRef<SPythonEditor> PythonEditorRef = StaticCastSharedRef<SPythonEditor>(DocumentManager->GetActiveTab()->GetContent());
+		PythonEditorRef->ExecuteInMainThread();
+	}
+
+	return true;
+}
+
+
+#endif
 
 void FPythonProjectEditor::PEP8ize_Internal()
 {

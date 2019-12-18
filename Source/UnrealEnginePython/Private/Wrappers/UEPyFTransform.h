@@ -10,6 +10,8 @@ typedef struct {
 	FTransform transform;
 } ue_PyFTransform;
 
+extern PyTypeObject ue_PyFTransformType;
+
 PyObject *py_ue_new_ftransform(FTransform);
 ue_PyFTransform *py_ue_is_ftransform(PyObject *);
 

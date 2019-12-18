@@ -3,7 +3,7 @@
 static PyObject *py_ue_fkey_event_get_key(ue_PyFKeyEvent *self, PyObject * args)
 {
 	FKey key = self->key_event.GetKey();
-	return py_ue_new_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
+	return py_ue_new_owned_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
 }
 
 static PyObject *py_ue_fkey_event_get_key_name(ue_PyFKeyEvent *self, PyObject * args)

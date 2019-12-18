@@ -1,6 +1,7 @@
 
 #include "PythonDelegate.h"
 #include "UEPyModule.h"
+#include "UEPyCallable.h"
 
 UPythonDelegate::UPythonDelegate()
 {
@@ -101,6 +102,12 @@ void UPythonDelegate::PyInputAxisHandler(float value)
 	Py_DECREF(ret);
 }
 
+bool UPythonDelegate::UsesPyCallable(PyObject *other)
+{
+    ue_PyCallable *other_callable = (ue_PyCallable*)other;
+    ue_PyCallable *this_callable = (ue_PyCallable*)py_callable;
+    return other_callable->u_function == this_callable->u_function && other_callable->u_target == this_callable->u_target;
+}
 
 UPythonDelegate::~UPythonDelegate()
 {

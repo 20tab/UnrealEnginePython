@@ -63,13 +63,21 @@ materials = ue.get_assets_by_class('Material')
 Moving/Renaming assets
 -
 
-The rename_asset() function allows you to change the package and object name of an asset:
+The rename_asset() function allows you to change the name of an asset:
 
 ```python
-ue.rename_asset('/Game/Materials/Mat001.Foobar', '/Game/NewMaterials/Mat001', 'FooBarUpdated')
+ue.rename_asset('/Game/Materials/Mat001.Foobar', 'FooBarUpdated')
 ```
 
-this will result in the /Game/NewMaterials/Mat001.FooBarUpdated asset. Beware, as the unreal editor retain the so called 'Redirector Object' that is basically a reference to the original object, so you will not be able to re-use the old name until you reload the editor.
+this will result in the /Game/Materials/FooBarUpdated.FooBarUpdated asset. Beware, as the unreal editor retain the so called 'Redirector Object' that is basically a reference to the original object, so you will not be able to re-use the old name until you reload the editor.
+
+If you specify a full path as the destination, you can 'move' the asset:
+
+```python
+ue.rename_asset('/Game/Materials/Mat001.Foobar', '/Game/Ops/FooBarUpdated')
+```
+
+will results in /Game/Ops/FooBarUpdated.FooBarUpdated asset
 
 Duplicating assets
 -
@@ -153,6 +161,27 @@ Before reimporting you can check if an asset supports it:
 if asset002.asset_can_reimport():
    asset002.asset_reimport()
 ```
+
+The signature of asset_reimport() is the following:
+
+```python
+success = asset_reimport(open_file_dialog, report_dialog, filename_to_import)
+```
+
+open_file_dialog will trigger an open file widget for selecting the file to import if the object has no file mapped to it.
+
+report_dialog will show the notify widget reporting the status of the operation
+
+filename_to_import allows you to specify which file to import for the asset
+
+The function returns a boolean value
+
+You can programmatically change the filename assigned to an asset in this way:
+
+```python
+mesh.asset_import_data_set_sources('D:/sword.fbx')
+```
+
 
 Creating Assets
 -

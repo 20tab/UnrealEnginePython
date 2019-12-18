@@ -153,7 +153,7 @@ static int ue_py_sborder_init(ue_PySBorder *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_struct_ptr("border_image", BorderImage, FSlateBrush);
 	ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
 	ue_py_slate_farguments_optional_enum("v_align", VAlign, EVerticalAlignment);
-	ue_py_slate_farguments_struct("padding", Padding, FMargin);
+	ue_py_slate_farguments_padding("padding", Padding);
 	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
 	ue_py_slate_farguments_fvector2d("content_scale", ContentScale);
 	ue_py_slate_farguments_fvector2d("desired_size_scale", DesiredSizeScale);

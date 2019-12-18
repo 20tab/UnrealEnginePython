@@ -14,6 +14,15 @@
 #include "Wrappers/UEPyFColor.h"
 #include "Wrappers/UEPyFLinearColor.h"
 
+// backward compatibility for UE4.20 TCHAR_TO_WCHAR
+#ifndef TCHAR_TO_WCHAR
+	// SIZEOF_WCHAR_T is provided by pyconfig.h
+	#if SIZEOF_WCHAR_T == (PLATFORM_TCHAR_IS_4_BYTES ? 4 : 2)
+		#define TCHAR_TO_WCHAR(str) str
+	#else
+		#define TCHAR_TO_WCHAR(str) (wchar_t*)StringCast<wchar_t>(static_cast<const TCHAR*>(str)).Get()
+	#endif
+#endif
 
 
 UWorld *ue_get_uworld(ue_PyUObject *);
@@ -26,6 +35,7 @@ void ue_bind_events_for_py_class_by_attribute(UObject *, PyObject *);
 
 void ue_autobind_events_for_pyclass(ue_PyUObject *, PyObject *);
 PyObject *ue_bind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
+PyObject *ue_unbind_pyevent(ue_PyUObject *, FString, PyObject *, bool);
 
 PyObject *py_ue_ufunction_call(UFunction *, UObject *, PyObject *, int, PyObject *);
 

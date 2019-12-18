@@ -1,7 +1,11 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "PythonEditorPrivatePCH.h"
+#include "PythonEditorStyle.h"
 #include "EditorStyleSet.h"
+#include "SlateCore.h"
+#include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
+#include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
+
 
 TSharedPtr< FSlateStyleSet > FPythonEditorStyle::StyleSet = nullptr;
 
@@ -33,12 +37,12 @@ static const FVector2D Icon267x140(170.0f, 50.0f);
 void FPythonEditorStyle::Initialize()
 {
 	// Only register once
-	if( StyleSet.IsValid() )
+	if (StyleSet.IsValid())
 	{
 		return;
 	}
 
-	StyleSet = MakeShareable(new FSlateStyleSet("PythonEditor") );
+	StyleSet = MakeShareable(new FSlateStyleSet("PythonEditor"));
 
 	StyleSet->SetContentRoot(IPluginManager::Get().FindPlugin("UnrealEnginePython")->GetBaseDir() / TEXT("Resources"));
 
@@ -58,11 +62,13 @@ void FPythonEditorStyle::Initialize()
 		StyleSet->Set("PythonEditor.SaveAll.Small", new IMAGE_BRUSH("UI/SaveAll_40x", Icon16x16));
 		StyleSet->Set("PythonEditor.Execute", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
 		StyleSet->Set("PythonEditor.Execute.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
+		StyleSet->Set("PythonEditor.ExecuteInMainThread", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
+		StyleSet->Set("PythonEditor.ExecuteInMainThread.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 		StyleSet->Set("PythonEditor.PEP8ize", new IMAGE_BRUSH("UI/Excute_x40", Icon40x40));
 		StyleSet->Set("PythonEditor.PEP8ize.Small", new IMAGE_BRUSH("UI/Excute_x40", Icon16x16));
 	}
 
-	const FSlateFontInfo Consolas10  = TTF_FONT("Font/DroidSansMono", 9);
+	const FSlateFontInfo Consolas10 = TTF_FONT("Font/DroidSansMono", 9);
 
 	const FTextBlockStyle NormalText = FTextBlockStyle()
 		.SetFont(Consolas10)
@@ -86,28 +92,28 @@ void FPythonEditorStyle::Initialize()
 		StyleSet->Set("SyntaxHighlight.PY.Define", FTextBlockStyle(NormalText).SetColorAndOpacity(FLinearColor(FColor(0xffa6e22a)))); // light grey
 
 
-		StyleSet->Set("TextEditor.Border", new BOX_BRUSH("UI/TextEditorBorder", FMargin(4.0f/16.0f), FLinearColor(0.02f,0.02f,0.02f,1)));
+		StyleSet->Set("TextEditor.Border", new BOX_BRUSH("UI/TextEditorBorder", FMargin(4.0f / 16.0f), FLinearColor(0.02f, 0.02f, 0.02f, 1)));
 
 		const FEditableTextBoxStyle EditableTextBoxStyle = FEditableTextBoxStyle()
-			.SetBackgroundImageNormal( FSlateNoResource() )
-			.SetBackgroundImageHovered( FSlateNoResource() )
-			.SetBackgroundImageFocused( FSlateNoResource() )
-			.SetBackgroundImageReadOnly( FSlateNoResource() );
-		
+			.SetBackgroundImageNormal(FSlateNoResource())
+			.SetBackgroundImageHovered(FSlateNoResource())
+			.SetBackgroundImageFocused(FSlateNoResource())
+			.SetBackgroundImageReadOnly(FSlateNoResource());
+
 		StyleSet->Set("TextEditor.EditableTextBox", EditableTextBoxStyle);
 	}
 
 	// Project editor
 	{
-		StyleSet->Set("ProjectEditor.Border", new BOX_BRUSH("UI/TextEditorBorder", FMargin(4.0f/16.0f), FLinearColor(0.048f,0.048f,0.048f,1)));
+		StyleSet->Set("ProjectEditor.Border", new BOX_BRUSH("UI/TextEditorBorder", FMargin(4.0f / 16.0f), FLinearColor(0.048f, 0.048f, 0.048f, 1)));
 
-		StyleSet->Set("ProjectEditor.Icon.Project", new IMAGE_BRUSH("UI/FolderClosed", Icon16x16, FLinearColor(0.25f,0.25f,0.25f,1)));
-		StyleSet->Set("ProjectEditor.Icon.Folder", new IMAGE_BRUSH("UI/FolderClosed", Icon16x16, FLinearColor(0.25f,0.25f,0.25f,1)));
+		StyleSet->Set("ProjectEditor.Icon.Project", new IMAGE_BRUSH("UI/FolderClosed", Icon16x16, FLinearColor(0.25f, 0.25f, 0.25f, 1)));
+		StyleSet->Set("ProjectEditor.Icon.Folder", new IMAGE_BRUSH("UI/FolderClosed", Icon16x16, FLinearColor(0.25f, 0.25f, 0.25f, 1)));
 		StyleSet->Set("ProjectEditor.Icon.File", new IMAGE_BRUSH("UI/PythonEditor_16x", Icon16x16));
 		StyleSet->Set("ProjectEditor.Icon.GenericFile", new IMAGE_BRUSH("UI/GenericFile", Icon16x16));
 	}
 
-	FSlateStyleRegistry::RegisterSlateStyle( *StyleSet.Get() );
+	FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
 }
 
 #undef IMAGE_BRUSH
@@ -118,17 +124,17 @@ void FPythonEditorStyle::Initialize()
 
 void FPythonEditorStyle::Shutdown()
 {
-	if( StyleSet.IsValid() )
+	if (StyleSet.IsValid())
 	{
-		FSlateStyleRegistry::UnRegisterSlateStyle( *StyleSet.Get() );
-		ensure( StyleSet.IsUnique() );
+		FSlateStyleRegistry::UnRegisterSlateStyle(*StyleSet.Get());
+		ensure(StyleSet.IsUnique());
 		StyleSet.Reset();
 	}
 }
 
 const ISlateStyle& FPythonEditorStyle::Get()
 {
-	return *( StyleSet.Get() );
+	return *(StyleSet.Get());
 }
 
 const FName& FPythonEditorStyle::GetStyleSetName()

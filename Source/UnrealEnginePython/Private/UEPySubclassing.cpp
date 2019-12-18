@@ -21,9 +21,9 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 	if (PyTuple_Size(args) == 3)
 	{
 		// TODO make it smarter on error checking
-		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)))));
-		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 1)))));
-		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(PyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 2)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 0)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 1)))));
+		UE_LOG(LogPython, Warning, TEXT("%s"), UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(PyObject_Str(PyTuple_GetItem(args, 2)))));
 
 		PyObject *parents = PyTuple_GetItem(args, 1);
 		ue_PyUObject *parent = (ue_PyUObject *)PyTuple_GetItem(parents, 0);
@@ -31,9 +31,9 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 		PyObject *class_attributes = PyTuple_GetItem(args, 2);
 
 		PyObject *class_name = PyDict_GetItemString(class_attributes, (char *)"__qualname__");
-		char *name = PyUnicode_AsUTF8(class_name);
+		const char *name = UEPyUnicode_AsUTF8(class_name);
 		// check if parent is a uclass
-		UClass *new_class = unreal_engine_new_uclass(name, (UClass *)parent->ue_object);
+		UClass *new_class = unreal_engine_new_uclass((char *)name, (UClass *)parent->ue_object);
 		if (!new_class)
 			return -1;
 
@@ -59,7 +59,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 			}
 			if (!PyUnicodeOrString_Check(key))
 				continue;
-			char *class_key = PyUnicode_AsUTF8(key);
+			const char *class_key = UEPyUnicode_AsUTF8(key);
 
 			PyObject *value = PyDict_GetItem(class_attributes, key);
 
@@ -277,15 +277,15 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 				PyObject *override_name = PyObject_GetAttrString(value, (char *)"override");
 				if (override_name && PyUnicodeOrString_Check(override_name))
 				{
-					class_key = PyUnicode_AsUTF8(override_name);
+					class_key = UEPyUnicode_AsUTF8(override_name);
 				}
 				else if (override_name && PyUnicodeOrString_Check(override_name))
 				{
-					class_key = PyUnicode_AsUTF8(override_name);
+					class_key = UEPyUnicode_AsUTF8(override_name);
 				}
 				else if (!override_name)
 					PyErr_Clear();
-				if (!unreal_engine_add_function(new_class, class_key, value, func_flags))
+				if (!unreal_engine_add_function(new_class, (char *)class_key, value, func_flags))
 				{
 					UE_LOG(LogPython, Error, TEXT("unable to add function %s"), UTF8_TO_TCHAR(class_key));
 					return -1;
@@ -340,13 +340,18 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 							PyObject *mc_key = PyList_GetItem(keys, i);
 							PyObject *mc_value = PyDict_GetItem(found_additional_props, mc_key);
 
-							char *mc_name = PyUnicode_AsUTF8(mc_key);
+							const char *mc_name = UEPyUnicode_AsUTF8(mc_key);
 							UProperty *u_property = ObjectInitializer.GetObj()->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(mc_name)));
 							if (u_property)
 							{
 								if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 								{
+#if ENGINE_MINOR_VERSION >= 23
+									FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(ObjectInitializer.GetObj());
+#else
+									
 									FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(ObjectInitializer.GetObj());
+#endif
 
 									FScriptDelegate script_delegate;
 									UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(ObjectInitializer.GetObj(), mc_value, casted_prop->SignatureFunction);
@@ -357,7 +362,11 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 									multiscript_delegate.Add(script_delegate);
 
 									// re-assign multicast delegate
+#if ENGINE_MINOR_VERSION >= 23
+									casted_prop->SetMulticastDelegate(ObjectInitializer.GetObj(), multiscript_delegate);
+#else
 									casted_prop->SetPropertyValue_InContainer(ObjectInitializer.GetObj(), multiscript_delegate);
+#endif
 								}
 								else
 								{
@@ -378,9 +387,9 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 					{
 						PyObject *key = PyList_GetItem(keys, i);
 						PyObject *value = PyDict_GetItem(u_py_class_casted->py_uobject->py_dict, key);
-						if (PyUnicode_Check(key))
+						if (PyUnicodeOrString_Check(key))
 						{
-							char *key_name = PyUnicode_AsUTF8(key);
+							const char *key_name = UEPyUnicode_AsUTF8(key);
 							if (!strcmp(key_name, (char *)"__additional_uproperties__"))
 								continue;
 						}

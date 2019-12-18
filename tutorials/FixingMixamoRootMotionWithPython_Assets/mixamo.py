@@ -122,15 +122,13 @@ class RootMotionFixer:
         new_anim.NumFrames = animation.NumFrames
         new_anim.SequenceLength = animation.SequenceLength
 
+        # first step is generatin the 'root' track
+        # we need to do it before anything else, as the 'root' track must be the 0 one
         for index, name in enumerate(animation.AnimationTrackNames):
-            data = animation.get_raw_animation_track(index)
             if name == bone:
+                data = animation.get_raw_animation_track(index)
                 # extract root motion
-                root_motion = [position - data.pos_keys[0] for position in data.pos_keys]
-
-                # remove root motion from original track
-                data.pos_keys = [data.pos_keys[0]]
-                new_anim.add_new_raw_track(name, data)
+                root_motion = [(position - data.pos_keys[0]) for position in data.pos_keys]
 
                 # create a new track (the root motion one)
                 root_data = FRawAnimSequenceTrack()
@@ -138,8 +136,20 @@ class RootMotionFixer:
                 # ensure empty rotations !
                 root_data.rot_keys = [FQuat()]
         
-                 # add  the track
+                # add  the track
                 new_anim.add_new_raw_track('root', root_data)
+                break
+        else:
+            raise DialogException('Unable to find bone {0}'.format(bone))
+           
+        # now append the original tracks, but removes the position keys
+        # from the original root bone
+        for index, name in enumerate(animation.AnimationTrackNames):
+            data = animation.get_raw_animation_track(index)
+            if name == bone:
+                # remove root motion from original track
+                data.pos_keys = [data.pos_keys[0]]
+                new_anim.add_new_raw_track(name, data)
             else:
                 new_anim.add_new_raw_track(name, data)
 

@@ -2,6 +2,7 @@
 
 #if WITH_EDITOR
 #include "Editor.h"
+#include "Editor/UnrealEd/Public/ComponentTypeRegistry.h"
 #endif
 
 PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args)
@@ -20,6 +21,29 @@ PyObject *py_ue_actor_has_tag(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
 
 	if (actor->ActorHasTag(FName(UTF8_TO_TCHAR(tag))))
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_component_has_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *tag;
+	if (!PyArg_ParseTuple(args, "s:component_has_tag", &tag))
+	{
+		return nullptr;
+	}
+
+	UActorComponent *component = ue_py_check_type<UActorComponent>(self);
+	if (!component)
+		return PyErr_Format(PyExc_Exception, "uobject is not an UActorComponent");
+
+	if (component->ComponentHasTag(FName(UTF8_TO_TCHAR(tag))))
 	{
 		Py_RETURN_TRUE;
 	}
@@ -179,6 +203,67 @@ PyObject *py_ue_get_actor_velocity(ue_PyUObject *self, PyObject * args)
 
 
 #if WITH_EDITOR
+PyObject *py_ue_component_type_registry_invalidate_class(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+
+	UClass *Class = ue_py_check_type<UClass>(self);
+	if (!Class)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+
+	if (!Class->IsChildOf<UActorComponent>())
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a subclass of UActorComponent");
+	}
+
+	FComponentTypeRegistry::Get().InvalidateClass(Class);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_get_folder_path(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor");
+
+	const FName DirPath = actor->GetFolderPath();
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*DirPath.ToString()));
+}
+
+PyObject *py_ue_set_folder_path(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *path;
+	PyObject *py_bool = nullptr;
+
+	if (!PyArg_ParseTuple(args, "s|O:set_folder_path", &path, &py_bool))
+		return nullptr;
+
+	AActor *actor = ue_py_check_type<AActor>(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an actor");
+
+	FName DirPath = FName(UTF8_TO_TCHAR(path));
+
+	if (py_bool && PyObject_IsTrue(py_bool))
+	{
+		actor->SetFolderPath_Recursively(DirPath);
+	}
+	else
+	{
+		actor->SetFolderPath(DirPath);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_get_actor_label(ue_PyUObject *self, PyObject * args)
 {
 
@@ -215,6 +300,35 @@ PyObject *py_ue_set_actor_label(ue_PyUObject *self, PyObject * args)
 	}
 
 	actor->SetActorLabel(UTF8_TO_TCHAR(label), true);
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_set_actor_hidden_in_game(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "cannot retrieve Actor from uobject");
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "O:set_actor_hidden_in_game", &py_bool))
+	{
+		return nullptr;
+	}
+
+	if (PyObject_IsTrue(py_bool))
+	{
+		actor->SetActorHiddenInGame(true);
+	}
+	else
+	{
+		actor->SetActorHiddenInGame(false);
+	}
+
+
 
 	Py_RETURN_NONE;
 }
@@ -692,6 +806,51 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 }
 
+PyObject *py_ue_get_actor_components_by_tag(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *tag;
+	PyObject *py_uclass = nullptr;
+	if (!PyArg_ParseTuple(args, "s|O:get_actor_components_by_tag", &tag, &py_uclass))
+	{
+		return nullptr;
+	}
+
+	AActor *actor = ue_get_actor(self);
+	if (!actor)
+		return PyErr_Format(PyExc_Exception, "uobject is not an AActor");
+
+	PyObject *components = PyList_New(0);
+
+	UClass *u_class = UActorComponent::StaticClass();
+
+	if (py_uclass)
+	{
+		u_class = ue_py_check_type<UClass>(py_uclass);
+		if (!u_class)
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a UClass");
+		}
+
+		if (!u_class->IsChildOf<UActorComponent>())
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a UClass inheriting from UActorComponent");
+		}
+	}
+
+	for (UActorComponent *component : actor->GetComponentsByTag(u_class, FName(UTF8_TO_TCHAR(tag))))
+	{
+		ue_PyUObject *item = ue_get_python_uobject(component);
+		if (item)
+			PyList_Append(components, (PyObject *)item);
+	}
+
+	return components;
+
+}
+
 
 PyObject *py_ue_actor_spawn(ue_PyUObject * self, PyObject * args, PyObject *kwargs)
 {
@@ -790,7 +949,7 @@ PyObject *py_ue_get_overlapping_actors(ue_PyUObject * self, PyObject * args)
 
 	ue_py_check(self);
 
-	
+
 	PyObject *class_filter = nullptr;
 	if (!PyArg_ParseTuple(args, "|O:get_overlapping_actors", &class_filter))
 	{

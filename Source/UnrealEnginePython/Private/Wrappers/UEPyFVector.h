@@ -11,6 +11,8 @@ typedef struct
 		FVector vec;
 } ue_PyFVector;
 
+extern PyTypeObject ue_PyFVectorType;
+
 PyObject *py_ue_new_fvector(FVector);
 ue_PyFVector *py_ue_is_fvector(PyObject *);
 

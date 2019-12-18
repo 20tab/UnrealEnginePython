@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SlateBasics.h"
+#include "Runtime/Slate/Public/SlateBasics.h"
 
 /** Style of the debug console */
 namespace EPythonConsoleStyle

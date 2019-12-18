@@ -25,16 +25,24 @@ PyObject *py_ue_call(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property_array_dim(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_uproperty(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_inner(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_key_prop(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_value_prop(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property_class(ue_PyUObject *, PyObject *);
 PyObject *py_ue_has_property(ue_PyUObject *, PyObject *);
 PyObject *py_ue_is_rooted(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_to_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_remove_from_root(ue_PyUObject *, PyObject *);
 PyObject *py_ue_auto_root(ue_PyUObject *, PyObject *);
+PyObject *py_ue_own(ue_PyUObject *, PyObject *);
+PyObject *py_ue_disown(ue_PyUObject *, PyObject *);
+PyObject *py_ue_is_owned(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_save_config(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_cdo(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_archetype(ue_PyUObject *, PyObject *);
+PyObject *py_ue_get_archetype_instances(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enum_values(ue_PyUObject *, PyObject *);
 PyObject *py_ue_enum_names(ue_PyUObject *, PyObject *);
 #if ENGINE_MINOR_VERSION >= 15
@@ -43,6 +51,7 @@ PyObject *py_ue_enum_user_defined_names(ue_PyUObject *, PyObject *);
 
 
 PyObject *py_ue_bind_event(ue_PyUObject *, PyObject *);
+PyObject *py_ue_unbind_event(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_function(ue_PyUObject *, PyObject *);
 PyObject *py_ue_add_property(ue_PyUObject *, PyObject *);
 
@@ -72,6 +81,8 @@ PyObject *py_ue_class_get_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_class_set_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_obj_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_obj_flags(ue_PyUObject *, PyObject *);
+PyObject *py_ue_clear_obj_flags(ue_PyUObject *, PyObject *);
+PyObject *py_ue_reset_obj_flags(ue_PyUObject *, PyObject *);
 PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject *, PyObject *);
 
 
@@ -86,6 +97,12 @@ PyObject *py_ue_asset_reimport(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_metadata(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_metadata(ue_PyUObject *, PyObject *);
 PyObject *py_ue_has_metadata(ue_PyUObject *, PyObject *);
+
+PyObject *py_ue_get_metadata_tag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_set_metadata_tag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_has_metadata_tag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_remove_metadata_tag(ue_PyUObject *, PyObject *);
+PyObject *py_ue_metadata_tags(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_import_custom_properties(ue_PyUObject *, PyObject *);
 #endif

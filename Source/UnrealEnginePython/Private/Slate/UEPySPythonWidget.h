@@ -39,7 +39,7 @@ public:
 			return FReply::Unhandled();
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_on_key_char, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fcharacter_event(InCharacterEvent));
+		PyObject *ret = PyObject_CallFunction(py_callable_on_key_char, (char *)"NN", py_ue_new_fgeometry(MyGeometry), py_ue_new_fcharacter_event(InCharacterEvent));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -69,7 +69,7 @@ public:
 			return FReply::Unhandled();
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_on_key_down, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fkey_event(InKeyEvent));
+		PyObject *ret = PyObject_CallFunction(py_callable_on_key_down, (char *)"NN", py_ue_new_fgeometry(MyGeometry), py_ue_new_fkey_event(InKeyEvent));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -99,7 +99,7 @@ public:
 			return FReply::Unhandled();
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_move, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_move, (char *)"NN", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -129,7 +129,7 @@ public:
 			return FReply::Unhandled();
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_wheel, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_wheel, (char *)"NN", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -159,7 +159,7 @@ public:
 			return FReply::Unhandled();
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_down, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_down, (char *)"NN", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -189,7 +189,7 @@ public:
 			return FReply::Unhandled();
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_up, (char *)"OO", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
+		PyObject *ret = PyObject_CallFunction(py_callable_on_mouse_button_up, (char *)"NN", py_ue_new_fgeometry(MyGeometry), py_ue_new_fpointer_event(MyEvent));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -230,7 +230,7 @@ public:
 
 		FPaintContext context(AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 
-		PyObject *ret = PyObject_CallFunction(py_callable_paint, (char *)"O", py_ue_new_fpaint_context(context));
+		PyObject *ret = PyObject_CallFunction(py_callable_paint, (char *)"N", py_ue_new_fpaint_context(context));
 		if (!ret)
 		{
 			unreal_engine_py_log_error();
@@ -259,7 +259,7 @@ public:
 			return;
 		}
 
-		PyObject *ret = PyObject_CallFunction(py_callable_tick, (char *)"Off", py_ue_new_fgeometry(AllottedGeometry), InCurrentTime, InDeltaTime);
+		PyObject *ret = PyObject_CallFunction(py_callable_tick, (char *)"Nff", py_ue_new_fgeometry(AllottedGeometry), InCurrentTime, InDeltaTime);
 		if (!ret)
 		{
 			unreal_engine_py_log_error();

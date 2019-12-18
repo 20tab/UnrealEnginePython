@@ -10,6 +10,11 @@ namespace UnrealBuildTool.Rules
         public PythonEditor(TargetInfo Target)
 #endif
         {
+
+            PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+            string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
+            bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
+
             PrivateIncludePaths.AddRange(
                 new string[] {
                     "PythonEditor/Private",
@@ -21,6 +26,7 @@ namespace UnrealBuildTool.Rules
                 {
                     "Core",
                     "CoreUObject",
+                    "Engine",
                     "SlateCore",
                     "Slate",
                     "AssetTools",

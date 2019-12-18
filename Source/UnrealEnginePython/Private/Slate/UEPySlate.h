@@ -2,8 +2,7 @@
 
 #include "UEPyModule.h"
 
-#include "SlateBasics.h"
-#include "SlateExtras.h"
+#include "Runtime/SlateCore/Public/Widgets/DeclarativeSyntaxSupport.h"
 
 
 #if WITH_EDITOR
@@ -80,7 +79,7 @@ template<typename T> ue_PySWidget *py_ue_new_swidget(TSharedRef<SWidget> s_widge
 	ue_PySWidget *ret = (ue_PySWidget *)PyObject_New(T, py_type);
 
 	new(&ret->Widget) TSharedRef<SWidget>(s_widget);
-
+	ret->weakreflist = nullptr;
 	return ret;
 }
 
@@ -137,15 +136,15 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 #define ue_py_slate_up(_type, _func, _param, _attribute) ue_py_slate_base_up(TAttribute<_type>, _func, _param, _attribute)
 
 #define ue_py_slate_farguments_text(param, attribute) ue_py_slate_up(FText, GetterFText, param, attribute)\
-	else if (PyUnicode_Check(value)) {\
-		arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
+	else if (PyUnicodeOrString_Check(value)) {\
+		arguments.attribute(FText::FromString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(value))));\
 	}\
 	ue_py_slate_down(param)
 
 
 #define ue_py_slate_farguments_string(param, attribute) ue_py_slate_up(FString, GetterFString, param, attribute)\
-	else if (PyUnicode_Check(value)) {\
-		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
+	else if (PyUnicodeOrString_Check(value)) {\
+		arguments.attribute(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(value)));\
 	}\
 	ue_py_slate_down(param)
 
@@ -196,6 +195,16 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 			Py_DECREF(py_int);\
 		}\
 		ue_py_slate_down(param)
+
+
+#define ue_py_slate_farguments_int32(param, attribute) ue_py_slate_up(int32, GetterInt, param, attribute)\
+		else if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((int32)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		ue_py_slate_down(param)
+
 
 #define ue_py_slate_farguments_tint(param, attribute) ue_py_slate_up(TOptional<int32>, GetterIntT<TOptional<int32>>, param, attribute)\
 		else if (PyNumber_Check(value)) {\
@@ -313,6 +322,20 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 
+#define ue_py_slate_farguments_optional_int32(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
+	if (value) {\
+		if (PyNumber_Check(value)) {\
+			PyObject *py_int = PyNumber_Long(value);\
+			arguments.attribute((int32)PyLong_AsLong(py_int)); \
+			Py_DECREF(py_int);\
+		}\
+		else {\
+				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
+				return -1;\
+		}\
+	}\
+}
+
 
 #define ue_py_slate_farguments_optional_float(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
@@ -343,15 +366,15 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 #define ue_py_slate_farguments_optional_string(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
-	if (PyUnicode_Check(value)) {\
-		arguments.attribute(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value)));\
+	if (PyUnicodeOrString_Check(value)) {\
+		arguments.attribute(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(value)));\
 	}\
 }
 
 #define ue_py_slate_farguments_optional_text(param, attribute) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
 	if (value) {\
-		if (PyUnicode_Check(value)) {\
-			arguments.attribute(FText::FromString(UTF8_TO_TCHAR(PyUnicode_AsUTF8(value))));\
+		if (PyUnicodeOrString_Check(value)) {\
+			arguments.attribute(FText::FromString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(value))));\
 		}\
 		else {\
 				PyErr_SetString(PyExc_TypeError, "unsupported type for attribute " param); \
@@ -451,6 +474,7 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 
 #define ue_py_slate_farguments_required_slot(param) { PyObject *value = ue_py_dict_get_item(kwargs, param);\
     value = value ? value : PyTuple_GetItem(args, 0);\
+    if (!value) {PyErr_Clear(); PyErr_SetString(PyExc_TypeError, "you need to specify a widget"); return -1;}\
 	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(value);\
 	if (Widget.IsValid())\
 		arguments.AttachWidget(Widget.ToSharedRef());\
@@ -462,6 +486,10 @@ ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget);
 }
 
 #define ue_py_slate_setup_hack_slot_args(_type, _swidget_ref) _type::FSlot &arguments = _swidget_ref->AddSlot();\
+	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
+    ue_py_slate_farguments_required_slot("widget");
+
+#define ue_py_slate_setup_hack_slot_args_grid(_type, _swidget_ref, column, row, layer) _type::FSlot &arguments = _swidget_ref->AddSlot(column, row, layer);\
 	TArray<TSharedRef<FPythonSlateDelegate>> DeferredSlateDelegates;\
     ue_py_slate_farguments_required_slot("widget");
 

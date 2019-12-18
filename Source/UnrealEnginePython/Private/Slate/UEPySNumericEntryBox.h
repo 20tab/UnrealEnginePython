@@ -3,7 +3,7 @@
 
 #include "UEPySCompoundWidget.h"
 
-#include "Runtime/Slate/Public/SlateFwd.h"
+#include "Runtime/Slate/Public/Widgets/Input/SNumericEntryBox.h"
 
 extern PyTypeObject ue_PySNumericEntryBoxType;
 

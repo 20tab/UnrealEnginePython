@@ -1,7 +1,9 @@
 
 #include "UEPyFSlateStyleSet.h"
-#include "SlateTypes.h"
-#include "Map.h"
+#include "Runtime/SlateCore/Public/Styling/SlateTypes.h"
+#include "Runtime/SlateCore/Public/Styling/SlateStyleRegistry.h"
+#include "Runtime/SlateCore/Public/Sound/SlateSound.h"
+#include "Runtime/Core/Public/Containers/Map.h"
 
 static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *self, PyObject * args)
 {
@@ -11,8 +13,7 @@ static PyObject *py_ue_fslate_style_set_set_content_root(ue_PyFSlateStyleSet *se
 
 	self->style_set->SetContentRoot(path);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 static PyObject *py_ue_fslate_style_set_register(ue_PyFSlateStyleSet *self, PyObject * args)
@@ -94,7 +95,7 @@ namespace
 	PyObject* pyGetWidgetStyle(FSlateStyleSet& InStyle, FName PropertyName)
 	{
 		const WidgetStyleType styleWidgetStyle = InStyle.GetWidgetStyle<WidgetStyleType>(PropertyName);
-		return py_ue_new_uscriptstruct(WidgetStyleType::StaticStruct(), (uint8*)&styleWidgetStyle);
+		return py_ue_new_owned_uscriptstruct(WidgetStyleType::StaticStruct(), (uint8*)&styleWidgetStyle);
 	}
 }
 
@@ -114,24 +115,24 @@ static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject 
 	if (ue_py_check_struct<FSlateSound>(py_type))
 	{
 		const FSlateSound& styleSound = self->style_set->GetSound(FName(name));
-		ret = py_ue_new_uscriptstruct(FSlateSound::StaticStruct(), (uint8*)&styleSound);
+		ret = py_ue_new_owned_uscriptstruct(FSlateSound::StaticStruct(), (uint8*)&styleSound);
 	}
 	else if (ue_py_check_struct<FSlateBrush>(py_type))
 	{
 		if (const FSlateBrush* styleBrush = self->style_set->GetBrush(FName(name)))
 		{
-			ret = py_ue_new_uscriptstruct(FSlateBrush::StaticStruct(), (uint8*)styleBrush);
+			ret = py_ue_new_owned_uscriptstruct(FSlateBrush::StaticStruct(), (uint8*)styleBrush);
 		}
 	}
 	else if (ue_py_check_struct<FSlateColor>(py_type))
 	{
 		const FSlateColor styleSlateColor = self->style_set->GetSlateColor(FName(name));
-		ret = py_ue_new_uscriptstruct(FSlateColor::StaticStruct(), (uint8*)&styleSlateColor);
+		ret = py_ue_new_owned_uscriptstruct(FSlateColor::StaticStruct(), (uint8*)&styleSlateColor);
 	}
 	else if (ue_py_check_struct<FSlateFontInfo>(py_type))
 	{
 		const FSlateFontInfo styleFontInfo = self->style_set->GetFontStyle(FName(name));
-		ret = py_ue_new_uscriptstruct(FSlateFontInfo::StaticStruct(), (uint8*)&styleFontInfo);
+		ret = py_ue_new_owned_uscriptstruct(FSlateFontInfo::StaticStruct(), (uint8*)&styleFontInfo);
 	}
 	else if (ue_py_check_childstruct<FSlateWidgetStyle>(py_type))
 	{

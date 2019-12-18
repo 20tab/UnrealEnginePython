@@ -4,6 +4,12 @@ Embed Python in Unreal Engine 4
 
 Teaser (by Kite & Lightning): https://twitter.com/KNLstudio/status/932657812466843648
 
+Fixing Mixamo RootMotion tuturial: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/FixingMixamoRootMotionWithPython.md
+
+Funny snippets for working with StaticMesh and SkeletalMesh assets: https://github.com/20tab/UnrealEnginePython/blob/master/tutorials/SnippetsForStaticAndSkeletalMeshes.md
+
+More tutorials: https://github.com/20tab/UnrealEnginePython/tree/master/tutorials
+
 # How and Why ?
 
 This is a plugin embedding a whole Python VM (versions 3.x [the default and suggested one] and 2.7) In Unreal Engine 4 (both the editor and runtime).
@@ -24,11 +30,11 @@ Once the plugin is installed and enabled, you get access to the 'PythonConsole' 
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
-The currently supported Unreal Engine versions are 4.12, 4.13, 4.14, 4.15, 4.16, 4.17, 4.18 and 4.19
+The minimal supported Unreal Engine version is 4.12, while the latest is 4.23
 
 We support official python.org releases as well as IntelPython and Anaconda distributions.
 
-Note: this plugin has nothing to do with the experimental 'PythonScriptPlugin' included in Unreal Engine >= 4.19. We aim at full integration with engine and editor (included the Slate api), as well as support for the vast majority of python features like asyncio, coroutines, generators, threads and third party modules.
+Note: this plugin has nothing to do with the experimental 'PythonScriptPlugin' included in Unreal Engine >= 4.19. We aim at full integration with engine and editor (included the Slate api, check here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Slate_API.md), as well as support for the vast majority of python features like asyncio, coroutines, generators, threads and third party modules.
 
 # Binary installation on Windows (64 bit)
 
@@ -159,9 +165,14 @@ Just remove the .so files in Plugins/UnrealEnginePython/Binaries/Linux and pull 
 
 At the next run the build procedure wil be started again.
 
+Android Deployment
+------------------
+
+Check https://github.com/20tab/UnrealEnginePython/blob/master/docs/Android.md
+
 # Installation on other platforms
 
-Currently only Windows, MacOSX and Linux are supported. We are investigating Android support too via the kivy project.
+Currently only Windows, MacOSX, Linux and Android are supported.
 
 # Using Python with Unreal Engine (finally)
 
@@ -420,6 +431,27 @@ vec = self.uobject.GetActorLocation()
 
 Reflection based functions are those in camelcase (or with the first capital letter). Native functions instead follow the python style, with lower case, underscore-as-separator function names.
 
+Note that, in editor builds, when you change the property of an archetype (included ClassDefaultObject) via __setattr__ all of the archtype instances will be updated too.
+
+To be more clear:
+
+```python
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.MaxWalkSpeed = 600.0
+```
+
+is a super shortcut for:
+
+```python
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.pre_edit_change('MaxWalkSpeed')
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.set_property('MaxWalkSpeed', 600.0)
+your_blueprint.GeneratedClass.get_cdo().CharacterMovement.post_edit_change_property('MaxWalkSpeed')
+for instance in your_blueprint.GeneratedClass.get_cdo().CharacterMovement.get_archetype_instances():
+    instance.pre_edit_change('MaxWalkSpeed')
+    instance.set_property('MaxWalkSpeed', 600.0)
+    instance.post_edit_change_property('MaxWalkSpeed')
+```
+
+
 The automagic UClass, UStruct and UEnums mappers
 ------------------------------------------------
 
@@ -467,8 +499,6 @@ if is_hitting_something:
     ue.log(hit_result)
 ```
 
-Remember that structs are passed by value (not by ref like UObject's), so a dedicated unreal_engine.UScriptStruct python class is exposed.
-
 To create a new struct instance you can do:
 
 ```python
@@ -489,29 +519,8 @@ To access the fields of a struct just call the fields() method.
 
 A good example of struct usage is available here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/Settings.md
 
-As structs are passed by value, you need to pay attention when manipulating structs fields that are structs by themselves:
 
-```python
-from unreal_engine.structs import TerrificStruct, DumbStruct
-
-ts = TerrificStruct()
-ts.dumb = DumbStruct(Foo=17, Bar=22)
-
-# will not modify the original DumbStruct but a copy of it !!!
-ts.dumb.Foo = 22
-```
-
-You can eventually force structs to be passed by ref (extremely dangerous as the internal C pointer could be a dangling one) using the ref() function:
-
-```python
-from unreal_engine.structs import TerrificStruct, DumbStruct
-
-ts = TerrificStruct()
-ts.dumb = DumbStruct(Foo=17, Bar=22)
-
-# ref() will return a pointer to a struct
-ts.ref().dumb.foo().Foo = 22
-```
+More details here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/MemoryManagement.md
 
 The ue_site.py file
 -------------------
@@ -677,6 +686,7 @@ The following parameters are supported:
 * `RelativeAdditionalModulesPath`: like AdditionalModulesPath, but the path is relative to the /Content directory
 * `ZipPath`: allow to specify a .zip file that is added to sys.path
 * `RelativeZipPath`: like ZipPath, but the path is relative to the /Content directory
+* `ImportModules: comma/space/semicolon separated list of modules to import on startup (after ue_site)
 
 Example:
 
@@ -780,54 +790,80 @@ It allows you to run, create, modify and delete scripts directly from the UE edi
 
 The first pull request for the editor has been issued by https://github.com/sun5471 so many thanks to him ;)
 
-Integration with PyQT
----------------------
+Integration with Qt4/Qt5/PySide2
+--------------------------------
 
-To correctly integrates PyQT with UnrealEngine the python plugin must correctly setup the GIL (and this is done) and exceptions must be managed ad-hoc (not doing it will result in a deadlock whenever a qt signal handler raises an exception)
+Thanks to solid GIL management, you can integrate Qt python apps in Unreal Engine 4.
 
-This is an example of having a QT window along the editor to trigger asset reimporting (pay attention to the sys.excepthook usage):
+Pay attention to not call app.exec_() as it will result in Qt taking control of the UE loop. Instead use a ticker to integrate the Qt loop in the editor loop:
 
-```py
-from PyQt5.QtWidgets import QApplication, QWidget, QListWidget
-import unreal_engine as ue
+```python
+
+# save it as ueqt.py
 import sys
-import traceback
+import unreal_engine as ue
+import PySide2
+from PySide2 import QtWidgets
 
-def ue_exception(_type, value, back):
-    ue.log_error(value)
-    tb_lines = traceback.format_exception(_type, value, back)
-    for line in tb_lines:
-        ue.log_error(line)
+app = QtWidgets.QApplication(sys.argv)
 
-sys.excepthook = ue_exception
+def ticker_loop(delta_time):
+    app.processEvents()
+    return True
 
-skeletal_mappings = {}
-
-def selected_skeletal_mesh(item):
-    uobject = skeletal_mappings[item.data()]
-    ue.log('Ready to reimport: ' + uobject.get_name())
-    uobject.asset_reimport()
-
-#check if an instance of the application is already running
-app = QApplication.instance()
-if app is None:
-	app = QApplication([])
-else:
-	print("App already running.")
-
-win = QWidget()
-win.setWindowTitle('Unreal Engine 4 skeletal meshes reimporter')
-
-wlist = QListWidget(win)
-for asset in ue.get_assets_by_class('SkeletalMesh'):
-    wlist.addItem(asset.get_name())
-    skeletal_mappings[asset.get_name()] = asset
-    
-wlist.clicked.connect(selected_skeletal_mesh)
-wlist.show()
-
-win.show()
+ticker = ue.add_ticker(ticker_loop)
 ```
+now you can start writing your gui (this is a simple example loading asset thumbnail):
+
+```python
+import ueqt
+from PySide2 import QtCore, QtWidgets, QtGui
+import unreal_engine as ue
+
+from unreal_engine import FARFilter
+
+_filter = FARFilter()
+_filter.class_names = ['SkeletalMesh', 'Material']
+
+class MyWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.vertical = QtWidgets.QVBoxLayout()
+        self.scroll = QtWidgets.QScrollArea()
+        self.content = QtWidgets.QWidget()
+        self.scroll.setWidget(self.content)
+        self.scroll.setWidgetResizable(True)
+        self.layout = QtWidgets.QVBoxLayout()
+	
+        for asset_data in ue.get_assets_by_filter(_filter, True):
+            try:
+                thumbnail = asset_data.get_thumbnail()
+            except:
+                continue
+
+            label = QtWidgets.QLabel()
+            data = thumbnail.get_uncompressed_image_data()
+            image = QtGui.QImage(data, 256, 256, QtGui.QImage.Format_RGB32)
+            label.setPixmap(QtGui.QPixmap.fromImage(image).scaled(256, 256))
+            self.layout.addWidget(label)
+
+        self.content.setLayout(self.layout)
+        self.vertical.addWidget(self.scroll)
+        self.setLayout(self.vertical)
+
+
+
+widget = MyWidget()
+widget.resize(800, 600)
+widget.show()
+
+root_window = ue.get_editor_window()
+root_window.set_as_owner(widget.winId())
+```
+
+(no need to allocate a new Qt app, or start it, as the UE4 Editor, thanks to to ueqt module is now the Qt app itself)
+
+Note the 2 final lines: they 'attach' the Qt window as a 'child' of the editor root window. Note that on windows platform this is not simple parenting but 'ownership'.
 
 Memory management
 -----------------
@@ -838,6 +874,7 @@ Starting from release 20180226 a new memory management system has been added (FU
 
 The same system works for delegates, as well as Slate.
 
+More details here: https://github.com/20tab/UnrealEnginePython/blob/master/docs/MemoryManagement.md
 
 Unit Testing
 ------------
@@ -848,25 +885,14 @@ To run the unit tests (ensure to run them on an empty/useless project to avoid m
 
 ```python
 import unreal_engine as ue
-ue.sandbox_exec(ue.find_plugin('UnrealEnginePython').get_base_dir() + '/run_tests.py')
+ue.py_exec(ue.find_plugin('UnrealEnginePython').get_base_dir() + '/run_tests.py')
 ```
 if you plan to add new features to the plugin, including a test suite in your pull request will be really appreciated ;)
 
-Threading (Experimental)
+Threading
 ------------------------
 
-By default the plugin is compiled without effective python threads support. This is for 2 main reasons:
-
-* we still do not have numbers about the performance impact of constantly acquiring and releasing the GIL
-* we need a better test suite
-
-By the way, if you want to play with experimental threading support, just uncomment
-
-```c
-//#define UEPY_THREADING 1
-```
-
-on top of UnrealEnginePython.h and rebuild the plugin.
+Since release 20180624 threading is fully supported.
 
 As with native threads, do not modify (included deletion) UObjects from non-main threads.
 
@@ -882,7 +908,7 @@ Sometimes you may have a UObject and know that it is backed by a python object. 
    
 This would be resolved as shown below:
 
-```
+```python
 import unreal_engine as ue
 
 class Explosive:
@@ -908,18 +934,18 @@ What is going on here in `BadGuy` is that self.uobject is a reference to the PyA
 Status and Known issues
 -----------------------
 
-The project could be considered in beta state.
-
 Exposing the full ue4 api is a huge amount of work, feel free to make pull requests for your specific needs.
 
 We still do not have a plugin icon ;)
 
+We try to do our best to "protect" the user, but you can effectively crash UE from python as you are effectively calling the C/C++ api
+
 Contacts and Commercial Support
 -------------------------------
 
-If you want to contact us (for help, support, sponsorship), drop a mail to info at 20tab.com or follow @unbit on twitter
+If you need commercial support for UnrealEnginePython just drop a mail to info at 20tab.com
 
-We offer commercial support for both UnrealEngine and UnrealEnginePython, again drop a mail to info at 20tab.com for more infos
+Follow @unbit on twitter for news about the project
 
 Special Thanks
 --------------
@@ -930,3 +956,4 @@ Such a big project requires constant sponsorship, special thanks go to:
 
 * GoodTH.INC https://www.goodthinc.com/ (they are sponsoring the sequencer api)
 
+* Quixel AB https://megascans.se/ (built their integration tool over UnrealEnginePython giving us tons of useful feedbacks and ideas)

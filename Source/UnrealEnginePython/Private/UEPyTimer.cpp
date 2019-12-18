@@ -127,6 +127,8 @@ PyObject *py_ue_set_timer(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to allocate FTimerHandle python object");
 	}
 
+	new(&ret->thandle) FTimerHandle;
+
 	FTimerDelegate timer_delegate;
 	TSharedRef<FPythonSmartDelegate> py_delegate = MakeShareable(new FPythonSmartDelegate);
 	py_delegate->SetPyCallable(py_callable);
