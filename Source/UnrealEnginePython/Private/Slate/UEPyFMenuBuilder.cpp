@@ -115,6 +115,7 @@ static PyObject* py_ue_fmenu_builder_add_menu_separator(ue_PyFMenuBuilder* self,
 }
 
 #if WITH_EDITOR
+
 #include "ContentBrowserModule.h"
 
 static PyObject* py_ue_fmenu_builder_add_asset_actions(ue_PyFMenuBuilder* self, PyObject* args)
