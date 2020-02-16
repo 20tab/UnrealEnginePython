@@ -4,6 +4,8 @@
 #include "LevelEditor.h"
 #include "Editor/LevelEditor/Public/ILevelViewport.h"
 #include "Editor/UnrealEd/Public/LevelEditorViewport.h"
+#include "SLevelViewport.h"
+
 #endif
 
 #include "Slate/UEPySWidget.h"
@@ -59,14 +61,15 @@ PyObject *py_unreal_engine_editor_set_view_mode(PyObject * self, PyObject * args
 		return NULL;
 	}
 
-	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	FLevelEditorModule& LevelEditorModule = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
+	TSharedPtr<SLevelViewport> ActiveLevelViewport = LevelEditorModule.GetFirstActiveLevelViewport();
 
-	if (!EditorModule.GetFirstActiveViewport().IsValid())
+	if (!ActiveLevelViewport.IsValid())
 		return PyErr_Format(PyExc_Exception, "no active LevelEditor Viewport");
 
-	FLevelEditorViewportClient &viewport_client = EditorModule.GetFirstActiveViewport()->GetLevelViewportClient();
+	FLevelEditorViewportClient& LevelViewportClient = ActiveLevelViewport->GetLevelViewportClient();
 
-	viewport_client.SetViewMode((EViewModeIndex)mode);
+	LevelViewportClient.SetViewMode((EViewModeIndex)mode);
 
 	Py_RETURN_NONE;
 }
@@ -81,14 +84,16 @@ PyObject *py_unreal_engine_editor_set_camera_speed(PyObject * self, PyObject * a
 		return NULL;
 	}
 
-	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
-	if (!EditorModule.GetFirstActiveViewport().IsValid())
+	FLevelEditorModule& LevelEditorModule = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
+	TSharedPtr<SLevelViewport> ActiveLevelViewport = LevelEditorModule.GetFirstActiveLevelViewport();
+
+	if (!ActiveLevelViewport.IsValid())
 		return PyErr_Format(PyExc_Exception, "no active LevelEditor Viewport");
 
-	FLevelEditorViewportClient &viewport_client = EditorModule.GetFirstActiveViewport()->GetLevelViewportClient();
+	FLevelEditorViewportClient& LevelViewportClient = ActiveLevelViewport->GetLevelViewportClient();
 
-	viewport_client.SetCameraSpeedSetting(speed);
+	LevelViewportClient.SetCameraSpeedSetting(speed);
 
 	Py_RETURN_NONE;
 }
@@ -107,14 +112,15 @@ PyObject *py_unreal_engine_editor_set_view_location(PyObject * self, PyObject * 
 	if (!vector)
 		return PyErr_Format(PyExc_Exception, "argument is not a FVector");
 
-	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	FLevelEditorModule& LevelEditorModule = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
+	TSharedPtr<SLevelViewport> ActiveLevelViewport = LevelEditorModule.GetFirstActiveLevelViewport();
 
-	if (!EditorModule.GetFirstActiveViewport().IsValid())
+	if (!ActiveLevelViewport.IsValid())
 		return PyErr_Format(PyExc_Exception, "no active LevelEditor Viewport");
 
-	FLevelEditorViewportClient &viewport_client = EditorModule.GetFirstActiveViewport()->GetLevelViewportClient();
+	FLevelEditorViewportClient& LevelViewportClient = ActiveLevelViewport->GetLevelViewportClient();
 
-	viewport_client.SetViewLocation(vector->vec);
+	LevelViewportClient.SetViewLocation(vector->vec);
 
 	Py_RETURN_NONE;
 }
@@ -133,14 +139,15 @@ PyObject *py_unreal_engine_editor_set_view_rotation(PyObject * self, PyObject * 
 	if (!rotator)
 		return PyErr_Format(PyExc_Exception, "argument is not a FRotator");
 
-	FLevelEditorModule &EditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+	FLevelEditorModule& LevelEditorModule = FModuleManager::GetModuleChecked<FLevelEditorModule>("LevelEditor");
+	TSharedPtr<SLevelViewport> ActiveLevelViewport = LevelEditorModule.GetFirstActiveLevelViewport();
 
-	if (!EditorModule.GetFirstActiveViewport().IsValid())
+	if (!ActiveLevelViewport.IsValid())
 		return PyErr_Format(PyExc_Exception, "no active LevelEditor Viewport");
 
-	FLevelEditorViewportClient &viewport_client = EditorModule.GetFirstActiveViewport()->GetLevelViewportClient();
+	FLevelEditorViewportClient& LevelViewportClient = ActiveLevelViewport->GetLevelViewportClient();
 
-	viewport_client.SetViewRotation(rotator->rot);
+	LevelViewportClient.SetViewRotation(rotator->rot);
 
 	Py_RETURN_NONE;
 }

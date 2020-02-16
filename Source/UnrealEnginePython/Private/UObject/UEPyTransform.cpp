@@ -466,7 +466,7 @@ PyObject *py_ue_get_relative_location(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>())
 	{
-		FVector vec3 = ((USceneComponent *)self->ue_object)->RelativeLocation;
+		FVector vec3 = ((USceneComponent *)self->ue_object)->GetRelativeLocation();
 		return py_ue_new_fvector(vec3);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
@@ -477,7 +477,7 @@ PyObject *py_ue_get_relative_rotation(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>())
 	{
-		FRotator rot = ((USceneComponent *)self->ue_object)->RelativeRotation;
+		FRotator rot = ((USceneComponent *)self->ue_object)->GetRelativeRotation();
 		return py_ue_new_frotator(rot);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
@@ -488,7 +488,7 @@ PyObject *py_ue_get_relative_scale(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>())
 	{
-		FVector vec3 = ((USceneComponent *)self->ue_object)->RelativeScale3D;
+		FVector vec3 = ((USceneComponent *)self->ue_object)->GetRelativeScale3D();
 		return py_ue_new_fvector(vec3);
 	}
 	return PyErr_Format(PyExc_Exception, "uobject is not a USceneComponent");
