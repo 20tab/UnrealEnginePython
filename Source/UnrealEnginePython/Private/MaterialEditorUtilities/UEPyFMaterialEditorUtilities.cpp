@@ -1,6 +1,9 @@
 
 #include "UEPyFMaterialEditorUtilities.h"
+
 #if WITH_EDITOR
+
+#include "Subsystems/AssetEditorSubsystem.h"
 
 #include "Materials/Material.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraph.h"
@@ -54,7 +57,9 @@ static PyObject *py_ue_command_apply(PyObject *cls, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UMaterial");
 	}
 
-	IAssetEditorInstance *Instance = FAssetEditorManager::Get().FindEditorForAsset(Material, false);
+	//UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+
+	IAssetEditorInstance *Instance = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->FindEditorForAsset(Material, false);
 	if (!Instance)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to retrieve editor for UMaterial");
