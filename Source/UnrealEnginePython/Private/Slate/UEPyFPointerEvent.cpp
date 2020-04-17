@@ -5,7 +5,7 @@
 static PyObject *py_ue_fpointer_event_get_effecting_button(ue_PyFPointerEvent *self, PyObject * args)
 {
 	FKey key = self->pointer.GetEffectingButton();
-	return py_ue_new_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
+	return py_ue_new_owned_uscriptstruct(FKey::StaticStruct(), (uint8*)&key);
 }
 
 static PyObject *py_ue_fpointer_event_get_effecting_button_name(ue_PyFPointerEvent *self, PyObject * args)

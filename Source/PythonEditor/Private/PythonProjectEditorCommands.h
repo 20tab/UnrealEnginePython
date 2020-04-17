@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Commands.h"
+#include "Runtime/Slate/Public/Framework/Commands/Commands.h"
 
 class FPythonProjectEditorCommands : public TCommands<FPythonProjectEditorCommands>
 {

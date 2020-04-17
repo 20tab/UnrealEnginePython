@@ -72,7 +72,7 @@ static PyObject *py_ue_ihttp_request_set_content(ue_PyIHttpRequest *self, PyObje
 		return NULL;
 	}
 
-	if (PyUnicode_Check(py_obj))
+	if (PyUnicodeOrString_Check(py_obj))
 	{
 		self->http_request->SetContentAsString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj)));
 	}
@@ -154,7 +154,7 @@ void FPythonSmartHttpDelegate::OnRequestComplete(FHttpRequestPtr request, FHttpR
 		return;
 	}
 
-	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"OOO", py_http_request, py_ue_new_ihttp_response(response.Get()), successful ? Py_True : Py_False);
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"ONO", py_http_request, py_ue_new_ihttp_response(response.Get()), successful ? Py_True : Py_False);
 	if (!ret)
 	{
 		unreal_engine_py_log_error();

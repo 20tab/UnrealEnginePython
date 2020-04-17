@@ -299,6 +299,7 @@ static int ue_py_uscriptstruct_init(ue_PyUScriptStruct *self, PyObject *args, Py
 // a dark age where strctures were passed by value)
 static PyObject *py_ue_uscriptstruct_ref(ue_PyUScriptStruct *self, PyObject * args)
 {
+	Py_INCREF(self);
 	return (PyObject *)self;
 }
 
@@ -352,6 +353,27 @@ PyObject *py_ue_new_uscriptstruct(UScriptStruct *u_struct, uint8 *data)
 	ret->u_struct = u_struct;
 	ret->u_struct_ptr = data;
 	ret->u_struct_owned = 0;
+	return (PyObject *)ret;
+}
+
+PyObject *py_ue_new_owned_uscriptstruct(UScriptStruct *u_struct, uint8 *data)
+{
+	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
+	ret->u_struct = u_struct;
+	uint8 *struct_data = (uint8*)FMemory::Malloc(u_struct->GetStructureSize());
+	ret->u_struct->InitializeStruct(struct_data);
+	ret->u_struct->CopyScriptStruct(struct_data, data);
+	ret->u_struct_ptr = struct_data;
+	ret->u_struct_owned = 1;
+	return (PyObject *)ret;
+}
+
+PyObject *py_ue_new_owned_uscriptstruct_zero_copy(UScriptStruct *u_struct, uint8 *data)
+{
+	ue_PyUScriptStruct *ret = (ue_PyUScriptStruct *)PyObject_New(ue_PyUScriptStruct, &ue_PyUScriptStructType);
+	ret->u_struct = u_struct;
+	ret->u_struct_ptr = data;
+	ret->u_struct_owned = 1;
 	return (PyObject *)ret;
 }
 

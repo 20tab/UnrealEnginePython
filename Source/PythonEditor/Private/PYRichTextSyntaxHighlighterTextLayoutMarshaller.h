@@ -3,8 +3,8 @@
 
 #include "Runtime/SlateCore/Public/Styling/SlateTypes.h"
 #include "PythonSyntaxTokenizer.h"
-#include "PlainTextLayoutMarshaller.h"
-#include "ITextDecorator.h"
+#include "Runtime/Slate/Public/Framework/Text/PlainTextLayoutMarshaller.h"
+#include "Runtime/Slate/Public/Framework/Text/ITextDecorator.h"
 #include "PythonEditorStyle.h"
 
 

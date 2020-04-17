@@ -1,9 +1,9 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
-#include "BaseTextLayoutMarshaller.h"
-#include "TextFilterExpressionEvaluator.h"
-#include "SlateCore.h"
+#include "Runtime/Slate/Public/Framework/Text/BaseTextLayoutMarshaller.h"
+#include "Runtime/Core/Public/Misc/TextFilterExpressionEvaluator.h"
+#include "Runtime/SlateCore/Public/SlateCore.h"
 #include "UnrealEnginePython.h"
 #include "Runtime/Slate/Public/Widgets/Input/SMultiLineEditableTextBox.h"
 #include "Runtime/Slate/Public/Widgets/Input/SEditableTextBox.h"

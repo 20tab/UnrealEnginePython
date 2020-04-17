@@ -52,13 +52,25 @@ PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
 		return nullptr;
 	}
 
+	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
+	if (!material)
+		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
+
+#if ENGINE_MINOR_VERSION >= 20
+#if WITH_EDITOR
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (mesh)
+	{
+		mesh->SetMaterial(slot, material);
+		Py_RETURN_NONE;
+	}
+#endif
+#endif
+
 	UPrimitiveComponent *primitive = ue_py_check_type<UPrimitiveComponent>(self);
 	if (!primitive)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UPrimitiveComponent");
 
-	UMaterialInterface *material = ue_py_check_type<UMaterialInterface>(py_mat);
-	if (!material)
-		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
 
 	primitive->SetMaterial(slot, material);
 
@@ -96,6 +108,81 @@ PyObject *py_ue_set_material_scalar_parameter(ue_PyUObject *self, PyObject * arg
 		material_instance->SetScalarParameterValue(parameterName, scalarValue);
 		valid = true;
 	}
+
+	if (!valid)
+	{
+		return PyErr_Format(PyExc_Exception, "uobject is not a MaterialInstance");
+	}
+
+	Py_RETURN_NONE;
+
+}
+
+PyObject *py_ue_set_material_static_switch_parameter(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *switchName = nullptr;
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "sO:set_material_static_switch_parameter", &switchName, &py_bool))
+	{
+		return NULL;
+	}
+
+	FName parameterName(UTF8_TO_TCHAR(switchName));
+
+	bool switchValue = false;
+	if (PyObject_IsTrue(py_bool))
+	{
+		switchValue = true;
+	}
+
+	bool valid = false;
+
+#if WITH_EDITOR
+	if (self->ue_object->IsA<UMaterialInstance>())
+	{
+		UMaterialInstance *material_instance = (UMaterialInstance *)self->ue_object;
+		valid = true;
+		FStaticParameterSet staticParameterSet = material_instance->GetStaticParameters();
+
+		bool isExisting = false;
+		for (auto& parameter : staticParameterSet.StaticSwitchParameters)
+		{
+#if ENGINE_MINOR_VERSION < 19
+			if (parameter.bOverride && parameter.ParameterName == parameterName)
+#else
+			if (parameter.bOverride && parameter.ParameterInfo.Name == parameterName)
+#endif
+			{
+				parameter.Value = switchValue;
+				isExisting = true;
+				break;
+			}
+		}
+
+		if (!isExisting)
+		{
+			FStaticSwitchParameter SwitchParameter;
+#if ENGINE_MINOR_VERSION < 19
+			SwitchParameter.ParameterName = parameterName;
+#else
+			SwitchParameter.ParameterInfo.Name = parameterName;
+#endif
+			SwitchParameter.Value = switchValue;
+
+			SwitchParameter.bOverride = true;
+			staticParameterSet.StaticSwitchParameters.Add(SwitchParameter);
+		}
+
+
+		material_instance->UpdateStaticPermutation(staticParameterSet);
+
+	}
+
+
+#endif
 
 	if (!valid)
 	{
@@ -418,7 +505,11 @@ PyObject *py_ue_static_mesh_set_collision_for_lod(ue_PyUObject *self, PyObject *
 		enabled = true;
 	}
 
+#if ENGINE_MINOR_VERSION >= 23
+	FMeshSectionInfo info = mesh->GetSectionInfoMap().Get(lod_index, material_index);
+#else
 	FMeshSectionInfo info = mesh->SectionInfoMap.Get(lod_index, material_index);
+#endif
 	info.bEnableCollision = enabled;
 	mesh->SectionInfoMap.Set(lod_index, material_index, info);
 

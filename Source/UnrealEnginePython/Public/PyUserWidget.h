@@ -2,9 +2,16 @@
 
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "UnrealEnginePython.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "PyUserWidget.generated.h"
 
-
+#if ENGINE_MINOR_VERSION < 20
+#define NativePaintArgs FPaintContext & InContext
+#define NativePaintRetValue void
+#else
+#define NativePaintArgs const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled
+#define NativePaintRetValue int32
+#endif
 
 UCLASS(BlueprintType, Blueprintable)
 class UNREALENGINEPYTHON_API UPyUserWidget : public UUserWidget
@@ -21,7 +28,7 @@ public:
 	// Called every frame
 	virtual void NativeTick(const FGeometry & MyGeometry, float InDeltaTime) override;
 
-	virtual void NativePaint(FPaintContext & InContext) const override;
+	virtual NativePaintRetValue NativePaint(NativePaintArgs) const override;
 
 	virtual bool NativeIsInteractable() const override;
 

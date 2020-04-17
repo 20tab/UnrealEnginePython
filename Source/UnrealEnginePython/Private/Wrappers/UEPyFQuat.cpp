@@ -152,7 +152,7 @@ static PyObject *ue_PyFQuat_str(ue_PyFQuat *self)
 		PyFloat_FromDouble(self->quat.X), PyFloat_FromDouble(self->quat.Y), PyFloat_FromDouble(self->quat.Z), PyFloat_FromDouble(self->quat.W));
 }
 
-static PyTypeObject ue_PyFQuatType = {
+PyTypeObject ue_PyFQuatType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FQuat", /* tp_name */
 	sizeof(ue_PyFQuat), /* tp_basicsize */

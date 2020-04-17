@@ -1,8 +1,8 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "ModuleManager.h"
+#include "Runtime/Core/Public/Modules/ModuleManager.h"
 #include "AssetToolsModule.h"
-#include "AssetEditorToolkit.h"
+#include "Editor/UnrealEd/Public/Toolkits/AssetEditorToolkit.h"
 #include "LevelEditor.h"
 #include "PythonEditorStyle.h"
 #include "PythonProjectEditor.h"

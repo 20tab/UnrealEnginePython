@@ -34,11 +34,10 @@ FReply SPythonEditableText::OnKeyChar(const FGeometry& MyGeometry, const FCharac
 		return Reply;
 	}
 	Reply = FReply::Handled();
+	// substitute tab, with 4 spaces
 	if (Character == TEXT('\t'))
 	{
-		FString String;
-		String.AppendChar(Character);
-		InsertTextAtCursor(String);
+		InsertTextAtCursor(FString("    "));
 	}
 	//else if (Character == TEXT('('))
 	//{

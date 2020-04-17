@@ -25,6 +25,8 @@
 #include "Runtime/Core/Public/Mac/CocoaThread.h"
 #endif
 
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
+#include "Runtime/CoreUObject/Public/UObject/UObjectIterator.h"
 
 PyObject *py_unreal_engine_log(PyObject * self, PyObject * args)
 {
@@ -315,7 +317,7 @@ PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 	FText outErrorMsg;
 	if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
 	{
-		return PyErr_Format(PyExc_Exception, TCHAR_TO_UTF8(*outErrorMsg.ToString()));
+		return PyErr_Format(PyExc_Exception, "%s", TCHAR_TO_UTF8(*outErrorMsg.ToString()));
 	}
 
 	Py_RETURN_NONE;
@@ -465,7 +467,7 @@ PyObject *py_unreal_engine_string_to_guid(PyObject * self, PyObject * args)
 
 	if (FGuid::Parse(FString(str), guid))
 	{
-		return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+		return py_ue_new_owned_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
 	}
 
 	return PyErr_Format(PyExc_Exception, "unable to build FGuid");
@@ -476,7 +478,7 @@ PyObject *py_unreal_engine_new_guid(PyObject * self, PyObject * args)
 
 	FGuid guid = FGuid::NewGuid();
 
-	return py_ue_new_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
+	return py_ue_new_owned_uscriptstruct(FindObject<UScriptStruct>(ANY_PACKAGE, UTF8_TO_TCHAR((char *)"Guid")), (uint8 *)&guid);
 }
 
 PyObject *py_unreal_engine_guid_to_string(PyObject * self, PyObject * args)

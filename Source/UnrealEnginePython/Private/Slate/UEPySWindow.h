@@ -14,3 +14,5 @@ typedef struct {
 void ue_python_init_swindow(PyObject *);
 
 ue_PySWindow *py_ue_is_swindow(PyObject *obj);
+
+ue_PySWindow *py_ue_new_swindow(TSharedRef<SWindow>);

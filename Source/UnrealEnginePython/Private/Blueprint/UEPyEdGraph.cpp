@@ -381,6 +381,127 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_UOBJECT(node);
 }
 
+PyObject *py_ue_graph_remove_node(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_node_class;
+	int x = 0;
+	int y = 0;
+
+	char *metadata = nullptr;
+	PyObject *py_data = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|iisO:graph_remove_node", &py_node_class, &x, &y, &metadata, &py_data))
+	{
+		return nullptr;
+	}
+
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(self);
+	if (!graph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
+
+	UObject *u_obj = ue_py_check_type<UObject>(py_node_class);
+	if (!u_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	UEdGraphNode *node = nullptr;
+
+	if (UClass *u_class = Cast<UClass>(u_obj))
+	{
+		if (!u_class->IsChildOf<UEdGraphNode>())
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
+		}
+		node = NewObject<UEdGraphNode>(graph, u_class);
+		node->PostLoad();
+	}
+	else
+	{
+		node = Cast<UEdGraphNode>(u_obj);
+		if (node)
+		{
+			if (node->GetOuter() != graph)
+
+				node->Rename(*node->GetName(), graph);
+		}
+	}
+
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "argument is not a supported type");
+
+	graph->RemoveNode(node);
+
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	Py_RETURN_NONE;
+}
+
+PyObject *py_ue_graph_reconstruct_node(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_node_class;
+	int x = 0;
+	int y = 0;
+
+	char *metadata = nullptr;
+	PyObject *py_data = nullptr;
+
+	if (!PyArg_ParseTuple(args, "O|iisO:graph_reconstruct_node", &py_node_class, &x, &y, &metadata, &py_data))
+	{
+		return nullptr;
+	}
+
+	UEdGraph *graph = ue_py_check_type<UEdGraph>(self);
+	if (!graph)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UEdGraph");
+
+	UObject *u_obj = ue_py_check_type<UObject>(py_node_class);
+	if (!u_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+
+	UEdGraphNode *node = nullptr;
+
+	if (UClass *u_class = Cast<UClass>(u_obj))
+	{
+		if (!u_class->IsChildOf<UEdGraphNode>())
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
+		}
+		node = NewObject<UEdGraphNode>(graph, u_class);
+		node->PostLoad();
+	}
+	else
+	{
+		node = Cast<UEdGraphNode>(u_obj);
+		if (node)
+		{
+			if (node->GetOuter() != graph)
+
+				node->Rename(*node->GetName(), graph);
+		}
+	}
+
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "argument is not a supported type");
+
+	//graph->RemoveNode(node);
+	node->ReconstructNode();
+
+	if (UBlueprint *bp = Cast<UBlueprint>(node->GetGraph()->GetOuter()))
+	{
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args)
 {
 
@@ -489,8 +610,7 @@ PyObject *py_ue_node_allocate_default_pins(ue_PyUObject * self, PyObject * args)
 
 	node->AllocateDefaultPins();
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_node_reconstruct(ue_PyUObject * self, PyObject * args)
@@ -504,8 +624,7 @@ PyObject *py_ue_node_reconstruct(ue_PyUObject * self, PyObject * args)
 
 	node->GetSchema()->ReconstructNode(*node);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args)
@@ -532,9 +651,7 @@ PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find pin \"%s\"", name);
 	}
 
-	PyObject *ret = py_ue_new_edgraphpin(pin);
-	Py_INCREF(ret);
-	return ret;
+	return py_ue_new_edgraphpin(pin);
 }
 
 PyObject *py_ue_node_function_entry_set_pure(ue_PyUObject * self, PyObject * args)
@@ -635,9 +752,7 @@ PyObject *py_ue_node_create_pin(ue_PyUObject * self, PyObject * args)
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
 
-	PyObject *ret = py_ue_new_edgraphpin(pin);
-	Py_INCREF(ret);
-	return ret;
+	return py_ue_new_edgraphpin(pin);
 }
 
 

@@ -16,6 +16,9 @@ PyObject *py_ue_graph_add_node(ue_PyUObject *, PyObject *);
 PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject *, PyObject *);
 PyObject *py_ue_graph_add_node_event(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_graph_reconstruct_node(ue_PyUObject *, PyObject *);
+PyObject *py_ue_graph_remove_node(ue_PyUObject *, PyObject *);
+
 PyObject *py_ue_graph_get_good_place_for_new_node(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_node_pins(ue_PyUObject *, PyObject *);

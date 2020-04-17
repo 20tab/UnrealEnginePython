@@ -9,7 +9,7 @@
 #include "Windows/AllowWindowsPlatformTypes.h"
 #endif
 
-
+#include "Runtime/Slate/Public/Framework/Application/SlateApplication.h"
 
 static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args)
 {
@@ -23,6 +23,15 @@ static PyObject *py_ue_swindow_set_title(ue_PySWindow *self, PyObject * args)
 	py_SWindow->SetTitle(FText::FromString(UTF8_TO_TCHAR(title)));
 
 	Py_RETURN_SLATE_SELF;
+}
+
+static PyObject *py_ue_swindow_get_title(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+	
+	const char *title = TCHAR_TO_UTF8(*py_SWindow->GetTitle().ToString());
+
+	return PyUnicode_FromString(title);
 }
 
 static PyObject *py_ue_swindow_resize(ue_PySWindow *self, PyObject * args)
@@ -117,6 +126,26 @@ static PyObject *py_ue_swindow_request_destroy(ue_PySWindow *self, PyObject * ar
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_swindow_bring_to_front(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+
+	PyObject *py_force = nullptr;
+	
+	if (!PyArg_ParseTuple(args, "|O:set_as_owner", &py_force))
+	{
+		return nullptr;
+	}
+
+	bool bForce = false;
+	if (py_force && PyObject_IsTrue(py_force))
+		bForce = true;
+
+	py_SWindow->BringToFront(bForce);
+	
+	Py_RETURN_NONE;
+}
+
 #if WITH_EDITOR
 static PyObject *py_ue_swindow_add_modal(ue_PySWindow *self, PyObject * args)
 {
@@ -155,8 +184,23 @@ static PyObject *py_ue_swindow_add_child(ue_PySWindow *self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+static PyObject *py_ue_swindow_get_child_windows(ue_PySWindow *self, PyObject * args)
+{
+	ue_py_slate_cast(SWindow);
+	TArray<TSharedRef<SWindow>>& ChildWindows = py_SWindow->GetChildWindows();
+	PyObject *py_list = PyList_New(0);
+	for (TSharedRef<SWindow> ChildWindow : ChildWindows)
+	{
+		PyList_Append(py_list, (PyObject *)py_ue_new_swindow(ChildWindow));
+	}
+
+	return py_list;
+}
+
 static PyMethodDef ue_PySWindow_methods[] = {
+	{ "get_child_windows", (PyCFunction)py_ue_swindow_get_child_windows, METH_VARARGS, "" },
 	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
+	{ "get_title", (PyCFunction)py_ue_swindow_get_title, METH_VARARGS, "" },
 	{ "set_sizing_rule", (PyCFunction)py_ue_swindow_set_sizing_rule, METH_VARARGS, "" },
 	{ "minimize", (PyCFunction)py_ue_swindow_minimize, METH_VARARGS, "" },
 	{ "resize", (PyCFunction)py_ue_swindow_resize, METH_VARARGS, "" },
@@ -165,6 +209,7 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "get_handle", (PyCFunction)py_ue_swindow_get_handle, METH_VARARGS, "" },
 	{ "set_as_owner", (PyCFunction)py_ue_swindow_set_as_owner, METH_VARARGS, "" },
 	{ "request_destroy", (PyCFunction)py_ue_swindow_request_destroy, METH_VARARGS, "" },
+    { "bring_to_front", (PyCFunction)py_ue_swindow_bring_to_front, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "add_modal", (PyCFunction)py_ue_swindow_add_modal, METH_VARARGS, "" },
 #endif
@@ -296,4 +341,13 @@ ue_PySWindow *py_ue_is_swindow(PyObject *obj)
 	if (!PyObject_IsInstance(obj, (PyObject *)&ue_PySWindowType))
 		return nullptr;
 	return (ue_PySWindow *)obj;
+}
+
+ue_PySWindow *py_ue_new_swindow(TSharedRef<SWindow> s_window)
+{
+	ue_PySWindow *ret = (ue_PySWindow *)PyObject_New(ue_PySWindow, &ue_PySWindowType);
+
+	new(&ret->s_compound_widget.s_widget.Widget) TSharedRef<SWindow>(s_window);
+	ret->s_compound_widget.s_widget.weakreflist = nullptr;
+	return ret;
 }

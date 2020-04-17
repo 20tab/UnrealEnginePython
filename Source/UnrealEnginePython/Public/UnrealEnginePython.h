@@ -10,8 +10,8 @@
 //#define UEPY_MEMORY_DEBUG	1
 
 #include "CoreMinimal.h"
-#include "ModuleManager.h"
-#include "Styling/SlateStyle.h"
+#include "Runtime/Core/Public/Modules/ModuleManager.h"
+#include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
 #include "UObject/ScriptMacros.h"
 #include "Runtime/Launch/Resources/Version.h"
 
@@ -19,6 +19,9 @@
 #include <Headers/Python.h>
 #include <Headers/structmember.h>
 #elif PLATFORM_LINUX
+#include <Python.h>
+#include <structmember.h>
+#elif PLATFORM_ANDROID
 #include <Python.h>
 #include <structmember.h>
 #elif PLATFORM_WINDOWS
@@ -33,14 +36,16 @@
 typedef struct
 {
 	PyObject_HEAD
-		/* Type-specific fields go here. */
-		UObject *ue_object;
+	/* Type-specific fields go here. */
+	UObject *ue_object;
 	// reference to proxy class (can be null)
 	PyObject *py_proxy;
 	// the __dict__
 	PyObject *py_dict;
 	// if true RemoveFromRoot will be called at object destruction time
 	int auto_rooted;
+	// if owned the life of the UObject is related to the life of PyObject
+	int owned;
 } ue_PyUObject;
 
 UNREALENGINEPYTHON_API void ue_py_register_magic_module(char *name, PyObject *(*)());

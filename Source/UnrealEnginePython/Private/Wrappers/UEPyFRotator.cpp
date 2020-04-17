@@ -29,7 +29,7 @@ static PyMethodDef ue_PyFRotator_methods[] = {
 	{ "get_vector", (PyCFunction)py_ue_frotator_get_vector, METH_VARARGS, "" },
 	{ "get_euler", (PyCFunction)py_ue_frotator_get_euler, METH_VARARGS, "" },
 	{ "normalized", (PyCFunction)py_ue_frotator_normalized, METH_VARARGS, "" },
-	{ "inversed", (PyCFunction)py_ue_frotator_normalized, METH_VARARGS, "" },
+	{ "inversed", (PyCFunction)py_ue_frotator_inversed, METH_VARARGS, "" },
 	{ "quaternion", (PyCFunction)py_ue_frotator_quaternion, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
 };
@@ -93,7 +93,7 @@ static PyObject *ue_PyFRotator_str(ue_PyFRotator *self)
 		PyFloat_FromDouble(self->rot.Roll), PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw));
 }
 
-static PyTypeObject ue_PyFRotatorType = {
+PyTypeObject ue_PyFRotatorType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"unreal_engine.FRotator", /* tp_name */
 	sizeof(ue_PyFRotator), /* tp_basicsize */
