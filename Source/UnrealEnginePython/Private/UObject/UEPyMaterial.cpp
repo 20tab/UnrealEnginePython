@@ -511,7 +511,7 @@ PyObject *py_ue_static_mesh_set_collision_for_lod(ue_PyUObject *self, PyObject *
 	FMeshSectionInfo info = mesh->SectionInfoMap.Get(lod_index, material_index);
 #endif
 	info.bEnableCollision = enabled;
-	mesh->SectionInfoMap.Set(lod_index, material_index, info);
+	mesh->GetSectionInfoMap().Set(lod_index, material_index, info);
 
 	mesh->MarkPackageDirty();
 
@@ -545,9 +545,9 @@ PyObject *py_ue_static_mesh_set_shadow_for_lod(ue_PyUObject *self, PyObject * ar
 		enabled = true;
 	}
 
-	FMeshSectionInfo info = mesh->SectionInfoMap.Get(lod_index, material_index);
+	FMeshSectionInfo info = mesh->GetSectionInfoMap().Get(lod_index, material_index);
 	info.bCastShadow = enabled;
-	mesh->SectionInfoMap.Set(lod_index, material_index, info);
+	mesh->GetSectionInfoMap().Set(lod_index, material_index, info);
 
 	mesh->MarkPackageDirty();
 
