@@ -12,9 +12,9 @@ More tutorials: https://github.com/20tab/UnrealEnginePython/tree/master/tutorial
 
 # Project Status (IMPORTANT)
 
-Currently (as march 2020) the project is basically dead: between 2016 and 2018 20tab invested lot of resources in it but unfortunately epic (during 2018) decided to suddenly release its own implementation and the request made for a megagrant in 2019 by the original plugin author was rejected too.
+Currently (as april 2020) the project is on hold: between 2016 and 2018 20tab invested lot of resources in it but unfortunately epic (during 2018) decided to suddenly release its own implementation and the request made for a megagrant in 2019 by the original plugin author was rejected too.
 
-Albeit this plugin (still) has way more features than the Epic one, this is not enough to allow 20tab to continue investing in it.
+As this plugin (still) has way more features than the Epic one and many contributors, **we are currently looking for new maintainers** helping us to keep it alive, checking PR and issues. If you are interested in working on it a few hours a week, drop us a line at info@20tab.com to discuss about it.
 
 If you are interested in game logic scripting/modding in Unreal Engine 4 consider giving a look at the LuaMachine project (https://github.com/rdeioris/LuaMachine/).
 
