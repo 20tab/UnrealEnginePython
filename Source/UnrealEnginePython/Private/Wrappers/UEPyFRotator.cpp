@@ -89,8 +89,8 @@ static PyGetSetDef ue_PyFRotator_getseters[] = {
 
 static PyObject *ue_PyFRotator_str(ue_PyFRotator *self)
 {
-	return PyUnicode_FromFormat("<unreal_engine.FRotator {'roll': %S, 'pitch': %S, 'yaw': %S}>",
-		PyFloat_FromDouble(self->rot.Roll), PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw));
+	return PyUnicode_FromFormat("<unreal_engine.FRotator {'pitch': %S, 'yaw': %S, 'roll': %S}>",
+		PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw), PyFloat_FromDouble(self->rot.Roll));
 }
 
 PyTypeObject ue_PyFRotatorType = {
@@ -211,11 +211,11 @@ static Py_ssize_t ue_py_frotator_seq_length(ue_PyFRotator *self) {
 static PyObject *ue_py_frotator_seq_item(ue_PyFRotator *self, Py_ssize_t i) {
 	switch (i) {
 	case 0:
-		return PyFloat_FromDouble(self->rot.Roll);
-	case 1:
 		return PyFloat_FromDouble(self->rot.Pitch);
-	case 2:
+	case 1:
 		return PyFloat_FromDouble(self->rot.Yaw);
+	case 2:
+		return PyFloat_FromDouble(self->rot.Roll);
 	}
 	return PyErr_Format(PyExc_IndexError, "FRotator has only 3 items");
 }
@@ -232,7 +232,7 @@ static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kw
         }
     }
     
-	if (!PyArg_ParseTuple(args, "|fff", &roll, &pitch, &yaw))
+	if (!PyArg_ParseTuple(args, "|fff", &pitch, &yaw, &roll))
 		return -1;
 
 	if (PyTuple_Size(args) == 1) {
@@ -297,7 +297,7 @@ bool py_ue_rotator_arg(PyObject *args, FRotator &rot) {
 	}
 
 	float pitch, yaw, roll;
-	if (!PyArg_ParseTuple(args, "fff", &roll, &pitch, &yaw))
+	if (!PyArg_ParseTuple(args, "fff", &pitch, &yaw, &roll))
 		return false;
 	rot.Pitch = pitch;
 	rot.Yaw = yaw;
