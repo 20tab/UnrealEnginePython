@@ -97,7 +97,7 @@ def fix_pivot(static_mesh):
     raw_mesh.set_vertex_positions(updated_positions)
         
     # assign the mesh data to the first LOD (LODs are exposed in SourceModels array)
-    raw_mesh.save_to_static_mesh_source_model(new_static_mesh.SourceModels[0])
+    raw_mesh.save_to_static_mesh_source_model(new_static_mesh.SourceModels[0].clone())
     # rebuild the whole mesh
     new_static_mesh.static_mesh_build()
     # re-do the body setup (collisions and friends)
@@ -171,7 +171,7 @@ def add_lods(static_mesh):
     raw_mesh.save_to_static_mesh_source_model(lod2)
         
     # assign the new LODs (leaving the first one untouched)
-    new_static_mesh.SourceModels = [new_static_mesh.SourceModels[0], lod1, lod2]
+    new_static_mesh.SourceModels = [new_static_mesh.SourceModels[0].clone(), lod1, lod2]
     # rebuild the whole mesh
     new_static_mesh.static_mesh_build()
     # re-do the body setup (collisions and friends)
