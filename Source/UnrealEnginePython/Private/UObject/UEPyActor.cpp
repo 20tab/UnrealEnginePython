@@ -649,7 +649,7 @@ PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * a
 	UObject *ret_obj = nullptr;
 
 	Py_BEGIN_ALLOW_THREADS;
-	ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, false, true);
+	ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, true);
 	Py_END_ALLOW_THREADS;
 
 	if (!ret_obj)

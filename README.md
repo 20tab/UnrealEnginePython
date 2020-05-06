@@ -40,7 +40,7 @@ Once the plugin is installed and enabled, you get access to the 'PythonConsole' 
 
 All of the exposed engine features are under the 'unreal_engine' virtual module (it is completely coded in c into the plugin, so do not expect to run 'import unreal_engine' from a standard python shell)
 
-The minimal supported Unreal Engine version is 4.12, while the latest is 4.23
+The minimal supported Unreal Engine version is 4.12, while the latest is 4.24
 
 We support official python.org releases as well as IntelPython and Anaconda distributions.
 

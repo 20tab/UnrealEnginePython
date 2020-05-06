@@ -124,10 +124,10 @@ PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args)
 
 	FRawMesh raw_mesh;
 
-	if (lod_index < 0 || lod_index >= mesh->SourceModels.Num())
+	if (lod_index < 0 || lod_index >= mesh->GetSourceModels().Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index");
 
-	mesh->SourceModels[lod_index].RawMeshBulkData->LoadRawMesh(raw_mesh);
+	mesh->GetSourceModel(lod_index).RawMeshBulkData->LoadRawMesh(raw_mesh);
 
 	return py_ue_new_fraw_mesh(raw_mesh);
 }
