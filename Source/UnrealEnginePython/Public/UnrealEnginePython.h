@@ -104,8 +104,8 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-	void RunString(char *);
-	void RunFile(char *);
+	FString RunString(char *);
+	FString RunFile(char *);
 
 #if PLATFORM_MAC
 	void RunStringInMainThread(char *);

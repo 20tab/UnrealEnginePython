@@ -238,7 +238,8 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 				else
 				{
 					IsMultiline = false;
-					PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
+					FString ret_str = PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
+					UE_LOG(LogTemp, Log, TEXT("%s"), *ret_str);
 				}
 			}
 			else if (ExecString.EndsWith(":"))
@@ -248,7 +249,8 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 			}
 			else
 			{
-				PythonModule.RunString(TCHAR_TO_UTF8(*ExecString));
+				FString ret_str = PythonModule.RunString(TCHAR_TO_UTF8(*ExecString));
+				UE_LOG(LogTemp, Log, TEXT("%s"), *ret_str);
 			}
 
 		}
@@ -256,7 +258,8 @@ void SPythonConsoleInputBox::OnTextCommitted(const FText& InText, ETextCommit::T
 		{
 			IsMultiline = false;
 			FUnrealEnginePythonModule &PythonModule = FModuleManager::GetModuleChecked<FUnrealEnginePythonModule>("UnrealEnginePython");
-			PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
+			FString ret_str = PythonModule.RunString(TCHAR_TO_UTF8(*MultilineString));
+			UE_LOG(LogTemp, Log, TEXT("%s"), *ret_str);
 		}
 
 	}
