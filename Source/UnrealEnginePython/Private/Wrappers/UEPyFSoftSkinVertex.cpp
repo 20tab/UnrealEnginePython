@@ -89,7 +89,11 @@ static int py_ue_fsoft_skin_vertex_set_tangent_z(ue_PyFSoftSkinVertex *self, PyO
 
 static PyObject *py_ue_fsoft_skin_vertex_get_influence_bones(ue_PyFSoftSkinVertex *self, void *closure)
 {
-	uint8 *data = self->ss_vertex.InfluenceBones;
+#if ENGINE_MINOR_VERSION >= 25
+	uint16* data = self->ss_vertex.InfluenceBones;
+#else
+	uint8* data = self->ss_vertex.InfluenceBones;
+#endif
 	return Py_BuildValue((char*)"(iiiiiiii)", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
 }
 
