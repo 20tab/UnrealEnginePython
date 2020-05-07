@@ -8,7 +8,7 @@ PyObject *py_ue_asset_import_data(ue_PyUObject * self, PyObject * args)
 	ue_py_check(self);
 
 	UStruct *u_struct = (UStruct *)self->ue_object->GetClass();
-	UClassProperty *u_property = (UClassProperty *)u_struct->FindPropertyByName(TEXT("AssetImportData"));
+	FClassProperty *u_property = (FClassProperty *)u_struct->FindPropertyByName(TEXT("AssetImportData"));
 	if (!u_property)
 	{
 		return PyErr_Format(PyExc_Exception, "UObject does not have asset import data.");
@@ -47,7 +47,7 @@ PyObject *py_ue_asset_import_data_set_sources(ue_PyUObject * self, PyObject * ar
 	TArray<FString> filenames;
 
 	UStruct *u_struct = (UStruct *)self->ue_object->GetClass();
-	UClassProperty *u_property = (UClassProperty *)u_struct->FindPropertyByName(TEXT("AssetImportData"));
+	FClassProperty *u_property = (FClassProperty *)u_struct->FindPropertyByName(TEXT("AssetImportData"));
 	if (!u_property)
 	{
 		return PyErr_Format(PyExc_Exception, "UObject does not have asset import data.");

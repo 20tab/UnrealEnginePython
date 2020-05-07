@@ -1,6 +1,7 @@
 #include "UEPyModule.h"
 #include "PythonClass.h"
 #include "UObject/UEPyObject.h"
+#include "UObject/UEPyUPropertyBackwardsCompatibility.h"
 
 // hack for avoiding loops in class constructors (thanks to the Unreal.js project for the idea)
 UClass *ue_py_class_constructor_placeholder = nullptr;
@@ -70,9 +71,9 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 
 			bool prop_added = false;
 
-			if (UProperty *u_property = new_class->FindPropertyByName(FName(UTF8_TO_TCHAR(class_key))))
+			if (FProperty *u_property = new_class->FindPropertyByName(FName(UTF8_TO_TCHAR(class_key))))
 			{
-				UE_LOG(LogPython, Warning, TEXT("Found UProperty %s"), UTF8_TO_TCHAR(class_key));
+				UE_LOG(LogPython, Warning, TEXT("Found FProperty %s"), UTF8_TO_TCHAR(class_key));
 				PyDict_SetItem(py_additional_properties, key, value);
 				prop_added = true;
 			}
@@ -83,7 +84,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 				if (py_obj->ue_object->IsA<UClass>())
 				{
 					UClass *p_class = (UClass *)py_obj->ue_object;
-					if (p_class->IsChildOf<UProperty>())
+					if (p_class->IsChildOf<FProperty>())
 					{
 						if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key)))
 						{
@@ -94,7 +95,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 					}
 					else
 					{
-						if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass()), class_key, value)))
+						if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_uobject(FObjectProperty::StaticClass()), class_key, value)))
 						{
 							unreal_engine_py_log_error();
 							return -1;
@@ -104,7 +105,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 				}
 				else if (py_obj->ue_object->IsA<UScriptStruct>())
 				{
-					if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass()), class_key, value)))
+					if (!py_ue_add_property(self, Py_BuildValue("(OsO)", (PyObject *)ue_get_python_uobject(FStructProperty::StaticClass()), class_key, value)))
 					{
 						unreal_engine_py_log_error();
 						return -1;
@@ -125,7 +126,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 						if (py_obj->ue_object->IsA<UClass>())
 						{
 							UClass *p_class = (UClass *)py_obj->ue_object;
-							if (p_class->IsChildOf<UProperty>())
+							if (p_class->IsChildOf<FProperty>())
 							{
 								if (!py_ue_add_property(self, Py_BuildValue("(Os)", value, class_key)))
 								{
@@ -137,7 +138,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 
 							else
 							{
-								if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass()), class_key, first_item)))
+								if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_uobject(FObjectProperty::StaticClass()), class_key, first_item)))
 								{
 									unreal_engine_py_log_error();
 									return -1;
@@ -147,7 +148,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 						}
 						else if (py_obj->ue_object->IsA<UScriptStruct>())
 						{
-							if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass()), class_key, first_item)))
+							if (!py_ue_add_property(self, Py_BuildValue("([O]sO)", (PyObject *)ue_get_python_uobject(FStructProperty::StaticClass()), class_key, first_item)))
 							{
 								unreal_engine_py_log_error();
 								return -1;
@@ -176,36 +177,36 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 						if (py_obj->ue_object->IsA<UClass>())
 						{
 							UClass *p_class = (UClass *)py_obj->ue_object;
-							if (p_class->IsChildOf<UProperty>())
+							if (p_class->IsChildOf<FProperty>())
 							{
 								first_item = py_key;
 							}
 							else
 							{
-								first_item = (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass());
+								first_item = (PyObject *)ue_get_python_uobject(FObjectProperty::StaticClass());
 							}
 						}
 						else if (py_obj->ue_object->IsA<UScriptStruct>())
 						{
-							first_item = (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass());
+							first_item = (PyObject *)ue_get_python_uobject(FStructProperty::StaticClass());
 						}
 
 						ue_PyUObject *py_obj2 = (ue_PyUObject *)py_value;
 						if (py_obj2->ue_object->IsA<UClass>())
 						{
 							UClass *p_class = (UClass *)py_obj2->ue_object;
-							if (p_class->IsChildOf<UProperty>())
+							if (p_class->IsChildOf<FProperty>())
 							{
 								second_item = py_value;
 							}
 							else
 							{
-								second_item = (PyObject *)ue_get_python_uobject(UObjectProperty::StaticClass());
+								second_item = (PyObject *)ue_get_python_uobject(FObjectProperty::StaticClass());
 							}
 						}
 						else if (py_obj2->ue_object->IsA<UScriptStruct>())
 						{
-							second_item = (PyObject *)ue_get_python_uobject(UStructProperty::StaticClass());
+							second_item = (PyObject *)ue_get_python_uobject(FStructProperty::StaticClass());
 						}
 
 						if (!py_ue_add_property(self, Py_BuildValue("([OO]sOO)", first_item, second_item, class_key, py_key, py_value)))
@@ -341,10 +342,10 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 							PyObject *mc_value = PyDict_GetItem(found_additional_props, mc_key);
 
 							const char *mc_name = UEPyUnicode_AsUTF8(mc_key);
-							UProperty *u_property = ObjectInitializer.GetObj()->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(mc_name)));
+							FProperty *u_property = ObjectInitializer.GetObj()->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(mc_name)));
 							if (u_property)
 							{
-								if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
+								if (auto casted_prop = Cast<FMulticastDelegateProperty>(u_property))
 								{
 #if ENGINE_MINOR_VERSION >= 23
 									FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(ObjectInitializer.GetObj());

@@ -11,7 +11,13 @@ static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * ar
 		return nullptr;
 	}
 
+#if ENGINE_MINOR_VERSION < 25
 	py_STextBlock->SetText(FString(UTF8_TO_TCHAR(text)));
+#else
+	FText tempText;
+	tempText.FromString(FString(UTF8_TO_TCHAR(text)));
+	py_STextBlock->SetText(tempText);
+#endif
 
 	Py_RETURN_SLATE_SELF;
 }

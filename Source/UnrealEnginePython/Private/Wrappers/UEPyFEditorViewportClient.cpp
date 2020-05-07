@@ -105,8 +105,25 @@ static PyObject *py_ue_feditor_viewport_client_set_realtime(ue_PyFEditorViewport
 	if (!PyArg_ParseTuple(args, "OO", &bInRealtime, &bStoreCurrentValue))
 		return nullptr;
 
+#if ENGINE_MINOR_VERSION >= 25
+	// UE4.25 split this setting to 2 separate functions
+	if (PyObject_IsTrue(bStoreCurrentValue))
+	{
+		//Persist across editor sessions
+		self->editor_viewport_client->SetRealtime(PyObject_IsTrue(bInRealtime) ? true : false);
+	}
+	else
+	{
+		//Don't persist across editor sessions
+		FText OverrideSourceText;
+		OverrideSourceText.FromString(TEXT("UnrealEnginePython plugin script"));
+		self->editor_viewport_client->SetRealtimeOverride(PyObject_IsTrue(bInRealtime) ? true : false, OverrideSourceText);
+	}
+	
+#else
 	self->editor_viewport_client->SetRealtime(PyObject_IsTrue(bInRealtime) ? true : false,
 		PyObject_IsTrue(bStoreCurrentValue) ? true : false);
+#endif
 	Py_RETURN_NONE;
 }
 
