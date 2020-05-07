@@ -186,11 +186,11 @@ PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
-	UStructProperty *prop = Cast<UStructProperty>(u_property);
+	FStructProperty *prop = Cast<FStructProperty>(u_property);
 	if (!prop)
 		return PyErr_Format(PyExc_Exception, "object is not a StructProperty");
 	return py_ue_new_uscriptstruct(prop->Struct, prop->ContainerPtrToValuePtr<uint8>(self->ue_object));
@@ -357,7 +357,7 @@ PyObject *py_ue_post_edit_change_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *prop = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(prop_name)));
+	FProperty *prop = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(prop_name)));
 	if (!prop)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", prop_name);
 
@@ -386,7 +386,7 @@ PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
 
-	UProperty *prop = nullptr;
+	FProperty *prop = nullptr;
 	char *prop_name = nullptr;
 
 	if (!PyArg_ParseTuple(args, "|s:pre_edit_change", &prop_name))
@@ -801,7 +801,7 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -838,7 +838,7 @@ PyObject *py_ue_set_property_flags(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -873,7 +873,7 @@ PyObject *py_ue_add_property_flags(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -908,7 +908,7 @@ PyObject *py_ue_get_property_flags(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -994,9 +994,9 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
 
 	PyObject *ret = PyList_New(0);
 
-	for (TFieldIterator<UProperty> PropIt(u_struct); PropIt; ++PropIt)
+	for (TFieldIterator<FProperty> PropIt(u_struct); PropIt; ++PropIt)
 	{
-		UProperty* property = *PropIt;
+		FProperty* property = *PropIt;
 		PyObject *property_name = PyUnicode_FromString(TCHAR_TO_UTF8(*property->GetName()));
 		PyList_Append(ret, property_name);
 		Py_DECREF(property_name);
@@ -1078,11 +1078,11 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 
 	const char *property_name = UEPyUnicode_AsUTF8(py_property_name);
 
-	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find event property %s", property_name);
 
-	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
+	if (auto casted_prop = Cast<FMulticastDelegateProperty>(u_property))
 	{
 #if ENGINE_MINOR_VERSION >= 23
 		FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(self->ue_object);
@@ -1095,9 +1095,9 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 		uint32 argn = 1;
 
 		// initialize args
-		for (TFieldIterator<UProperty> IArgs(casted_prop->SignatureFunction); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
+		for (TFieldIterator<FProperty> IArgs(casted_prop->SignatureFunction); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
 		{
-			UProperty *prop = *IArgs;
+			FProperty *prop = *IArgs;
 			if (!prop->HasAnyPropertyFlags(CPF_ZeroConstructor))
 			{
 				prop->InitializeValue_InContainer(parms);
@@ -1145,7 +1145,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 	}
 	else
 	{
-		return PyErr_Format(PyExc_Exception, "property is not a UMulticastDelegateProperty");
+		return PyErr_Format(PyExc_Exception, "property is not a FMulticastDelegateProperty");
 	}
 
 	Py_RETURN_NONE;
@@ -1174,7 +1174,7 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -1203,7 +1203,7 @@ PyObject *py_ue_get_property_array_dim(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -1270,13 +1270,13 @@ PyObject *py_ue_render_thumbnail(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
+PyObject *py_ue_get_FProperty(ue_PyUObject *self, PyObject * args)
 {
 
 	ue_py_check(self);
 
 	char *property_name;
-	if (!PyArg_ParseTuple(args, "s:get_uproperty", &property_name))
+	if (!PyArg_ParseTuple(args, "s:get_FProperty", &property_name))
 	{
 		return NULL;
 	}
@@ -1292,7 +1292,7 @@ PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -1305,11 +1305,11 @@ PyObject *py_ue_get_inner(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	UArrayProperty *u_property = ue_py_check_type<UArrayProperty>(self);
+	FArrayProperty *u_property = ue_py_check_type<FArrayProperty>(self);
 	if (!u_property)
-		return PyErr_Format(PyExc_Exception, "object is not a UArrayProperty");
+		return PyErr_Format(PyExc_Exception, "object is not a FArrayProperty");
 
-	UProperty* inner = u_property->Inner;
+	FProperty* inner = u_property->Inner;
 	if (!inner)
 		Py_RETURN_NONE;
 
@@ -1321,11 +1321,11 @@ PyObject *py_ue_get_key_prop(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	UMapProperty *u_property = ue_py_check_type<UMapProperty>(self);
+	FMapProperty *u_property = ue_py_check_type<FMapProperty>(self);
 	if (!u_property)
-		return PyErr_Format(PyExc_Exception, "object is not a UMapProperty");
+		return PyErr_Format(PyExc_Exception, "object is not a FMapProperty");
 
-	UProperty* key = u_property->KeyProp;
+	FProperty* key = u_property->KeyProp;
 	if (!key)
 		Py_RETURN_NONE;
 
@@ -1337,11 +1337,11 @@ PyObject *py_ue_get_value_prop(ue_PyUObject *self, PyObject * args)
 
 	ue_py_check(self);
 
-	UMapProperty *u_property = ue_py_check_type<UMapProperty>(self);
+	FMapProperty *u_property = ue_py_check_type<FMapProperty>(self);
 	if (!u_property)
-		return PyErr_Format(PyExc_Exception, "object is not a UMapProperty");
+		return PyErr_Format(PyExc_Exception, "object is not a FMapProperty");
 
-	UProperty* value = u_property->ValueProp;
+	FProperty* value = u_property->ValueProp;
 	if (!value)
 		Py_RETURN_NONE;
 
@@ -1370,7 +1370,7 @@ PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		Py_RETURN_FALSE;
 	Py_RETURN_TRUE;
@@ -1398,7 +1398,7 @@ PyObject *py_ue_get_property_class(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-	UProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
+	FProperty *u_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 
@@ -1551,13 +1551,13 @@ PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject * self, PyObject * args)
 	if (!PyArg_ParseTuple(args, "sOs:delegate_bind_ufunction", &delegate_name, &py_obj, &fname))
 		return nullptr;
 
-	UProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(delegate_name));
+	FProperty *u_property = self->ue_object->GetClass()->FindPropertyByName(FName(delegate_name));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", delegate_name);
 
-	UDelegateProperty *Prop = Cast<UDelegateProperty>(u_property);
+	FDelegateProperty *Prop = Cast<FDelegateProperty>(u_property);
 	if (!Prop)
-		return PyErr_Format(PyExc_Exception, "property is not a UDelegateProperty");
+		return PyErr_Format(PyExc_Exception, "property is not a FDelegateProperty");
 
 	UObject *Object = ue_py_check_type<UObject>(py_obj);
 	if (!Object)
@@ -1626,9 +1626,9 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 
 	UObject *scope = nullptr;
 
-	UProperty *u_property = nullptr;
+	FProperty *u_property = nullptr;
 	UClass *u_class = nullptr;
-	UProperty *u_property2 = nullptr;
+	FProperty *u_property2 = nullptr;
 	UClass *u_class2 = nullptr;
 
 	UClass *u_prop_class = nullptr;
@@ -1690,9 +1690,9 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 			return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 		}
 		u_class = (UClass *)py_obj->ue_object;
-		if (!u_class->IsChildOf<UProperty>())
-			return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
-		if (u_class == UArrayProperty::StaticClass())
+		if (!u_class->IsChildOf<FProperty>())
+			return PyErr_Format(PyExc_Exception, "uobject is not a FProperty");
+		if (u_class == FArrayProperty::StaticClass())
 			return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
 		scope = self->ue_object;
 	}
@@ -1709,13 +1709,13 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class = (UClass *)py_obj->ue_object;
-				if (!u_class->IsChildOf<UProperty>())
-					return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
-				if (u_class == UArrayProperty::StaticClass())
+				if (!u_class->IsChildOf<FProperty>())
+					return PyErr_Format(PyExc_Exception, "uobject is not a FProperty");
+				if (u_class == FArrayProperty::StaticClass())
 					return PyErr_Format(PyExc_Exception, "please use a single-item list of property for arrays");
-				UArrayProperty *u_array = NewObject<UArrayProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
+				FArrayProperty *u_array = NewObject<FArrayProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
 				if (!u_array)
-					return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+					return PyErr_Format(PyExc_Exception, "unable to allocate new FProperty");
 				scope = u_array;
 				is_array = true;
 			}
@@ -1735,9 +1735,9 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class = (UClass *)py_obj->ue_object;
-				if (!u_class->IsChildOf<UProperty>())
-					return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
-				if (u_class == UArrayProperty::StaticClass())
+				if (!u_class->IsChildOf<FProperty>())
+					return PyErr_Format(PyExc_Exception, "uobject is not a FProperty");
+				if (u_class == FArrayProperty::StaticClass())
 					return PyErr_Format(PyExc_Exception, "please use a two-items list of properties for maps");
 
 				// VALUE
@@ -1747,15 +1747,15 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 					return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
 				}
 				u_class2 = (UClass *)py_obj2->ue_object;
-				if (!u_class2->IsChildOf<UProperty>())
-					return PyErr_Format(PyExc_Exception, "uobject is not a UProperty");
-				if (u_class2 == UArrayProperty::StaticClass())
+				if (!u_class2->IsChildOf<FProperty>())
+					return PyErr_Format(PyExc_Exception, "uobject is not a FProperty");
+				if (u_class2 == FArrayProperty::StaticClass())
 					return PyErr_Format(PyExc_Exception, "please use a two-items list of properties for maps");
 
 
-				UMapProperty *u_map = NewObject<UMapProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
+				FMapProperty *u_map = NewObject<FMapProperty>(self->ue_object, UTF8_TO_TCHAR(name), o_flags);
 				if (!u_map)
-					return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+					return PyErr_Format(PyExc_Exception, "unable to allocate new FProperty");
 				scope = u_map;
 				is_map = true;
 			}
@@ -1771,12 +1771,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UObject or a single item list");
 	}
 
-	u_property = NewObject<UProperty>(scope, u_class, UTF8_TO_TCHAR(name), o_flags);
+	u_property = NewObject<FProperty>(scope, u_class, UTF8_TO_TCHAR(name), o_flags);
 	if (!u_property)
 	{
 		if (is_array || is_map)
 			scope->MarkPendingKill();
-		return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+		return PyErr_Format(PyExc_Exception, "unable to allocate new FProperty");
 	}
 
 	// one day we may want to support transient properties...
@@ -1797,24 +1797,24 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 
 	if (is_array)
 	{
-		UArrayProperty *u_array = (UArrayProperty *)scope;
+		FArrayProperty *u_array = (FArrayProperty *)scope;
 		u_array->AddCppProperty(u_property);
 #if ENGINE_MINOR_VERSION < 20
 		u_property->SetPropertyFlags(flags);
 #else
 		u_property->SetPropertyFlags((EPropertyFlags)flags);
 #endif
-		if (u_property->GetClass() == UObjectProperty::StaticClass())
+		if (u_property->GetClass() == FObjectProperty::StaticClass())
 		{
-			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+			FObjectProperty *obj_prop = (FObjectProperty *)u_property;
 			if (u_prop_class)
 			{
 				obj_prop->SetPropertyClass(u_prop_class);
 			}
 		}
-		if (u_property->GetClass() == UStructProperty::StaticClass())
+		if (u_property->GetClass() == FStructProperty::StaticClass())
 		{
-			UStructProperty *obj_prop = (UStructProperty *)u_property;
+			FStructProperty *obj_prop = (FStructProperty *)u_property;
 			if (u_script_struct)
 			{
 				obj_prop->Struct = u_script_struct;
@@ -1826,14 +1826,14 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 #if ENGINE_MINOR_VERSION >= 15
 	if (is_map)
 	{
-		u_property2 = NewObject<UProperty>(scope, u_class2, NAME_None, o_flags);
+		u_property2 = NewObject<FProperty>(scope, u_class2, NAME_None, o_flags);
 		if (!u_property2)
 		{
 			if (is_array || is_map)
 				scope->MarkPendingKill();
-			return PyErr_Format(PyExc_Exception, "unable to allocate new UProperty");
+			return PyErr_Format(PyExc_Exception, "unable to allocate new FProperty");
 		}
-		UMapProperty *u_map = (UMapProperty *)scope;
+		FMapProperty *u_map = (FMapProperty *)scope;
 
 #if ENGINE_MINOR_VERSION < 20
 		u_property->SetPropertyFlags(flags);
@@ -1843,34 +1843,34 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		u_property2->SetPropertyFlags((EPropertyFlags)flags);
 #endif
 
-		if (u_property->GetClass() == UObjectProperty::StaticClass())
+		if (u_property->GetClass() == FObjectProperty::StaticClass())
 		{
-			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+			FObjectProperty *obj_prop = (FObjectProperty *)u_property;
 			if (u_prop_class)
 			{
 				obj_prop->SetPropertyClass(u_prop_class);
 			}
 		}
-		if (u_property->GetClass() == UStructProperty::StaticClass())
+		if (u_property->GetClass() == FStructProperty::StaticClass())
 		{
-			UStructProperty *obj_prop = (UStructProperty *)u_property;
+			FStructProperty *obj_prop = (FStructProperty *)u_property;
 			if (u_script_struct)
 			{
 				obj_prop->Struct = u_script_struct;
 			}
 		}
 
-		if (u_property2->GetClass() == UObjectProperty::StaticClass())
+		if (u_property2->GetClass() == FObjectProperty::StaticClass())
 		{
-			UObjectProperty *obj_prop = (UObjectProperty *)u_property2;
+			FObjectProperty *obj_prop = (FObjectProperty *)u_property2;
 			if (u_prop_class2)
 			{
 				obj_prop->SetPropertyClass(u_prop_class2);
 			}
 		}
-		if (u_property2->GetClass() == UStructProperty::StaticClass())
+		if (u_property2->GetClass() == FStructProperty::StaticClass())
 		{
-			UStructProperty *obj_prop = (UStructProperty *)u_property2;
+			FStructProperty *obj_prop = (FStructProperty *)u_property2;
 			if (u_script_struct2)
 			{
 				obj_prop->Struct = u_script_struct2;
@@ -1884,30 +1884,30 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 	}
 #endif
 
-	if (u_class == UMulticastDelegateProperty::StaticClass())
+	if (u_class == FMulticastDelegateProperty::StaticClass())
 	{
-		UMulticastDelegateProperty *mcp = (UMulticastDelegateProperty *)u_property;
+		FMulticastDelegateProperty *mcp = (FMulticastDelegateProperty *)u_property;
 		mcp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
 		mcp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
 		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
 		flags &= ~CPF_Edit;
 	}
 
-	else if (u_class == UDelegateProperty::StaticClass())
+	else if (u_class == FDelegateProperty::StaticClass())
 	{
-		UDelegateProperty *udp = (UDelegateProperty *)u_property;
+		FDelegateProperty *udp = (FDelegateProperty *)u_property;
 		udp->SignatureFunction = NewObject<UFunction>(self->ue_object, NAME_None, RF_Public | RF_Transient | RF_MarkAsNative);
 		udp->SignatureFunction->FunctionFlags = FUNC_MulticastDelegate | FUNC_BlueprintCallable | FUNC_Native;
 		flags |= CPF_BlueprintAssignable | CPF_BlueprintCallable;
 		flags &= ~CPF_Edit;
 	}
 
-	else if (u_class == UObjectProperty::StaticClass())
+	else if (u_class == FObjectProperty::StaticClass())
 	{
 		// ensure it is not an arry as we have already managed it !
 		if (!is_array && !is_map)
 		{
-			UObjectProperty *obj_prop = (UObjectProperty *)u_property;
+			FObjectProperty *obj_prop = (FObjectProperty *)u_property;
 			if (u_prop_class)
 			{
 				obj_prop->SetPropertyClass(u_prop_class);
@@ -1915,12 +1915,12 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		}
 	}
 
-	else if (u_class == UStructProperty::StaticClass())
+	else if (u_class == FStructProperty::StaticClass())
 	{
 		// ensure it is not an arry as we have already managed it !
 		if (!is_array && !is_map)
 		{
-			UStructProperty *obj_prop = (UStructProperty *)u_property;
+			FStructProperty *obj_prop = (FStructProperty *)u_property;
 			if (u_script_struct)
 			{
 				obj_prop->Struct = u_script_struct;
@@ -1977,7 +1977,7 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args)
 	}
 
 	PyObject *py_struct_dict = PyDict_New();
-	TFieldIterator<UProperty> SArgs(u_struct);
+	TFieldIterator<FProperty> SArgs(u_struct);
 	for (; SArgs; ++SArgs)
 	{
 		PyObject *struct_value = ue_py_convert_property(*SArgs, (uint8 *)u_object, 0);

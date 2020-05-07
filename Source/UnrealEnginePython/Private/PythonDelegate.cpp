@@ -2,6 +2,7 @@
 #include "PythonDelegate.h"
 #include "UEPyModule.h"
 #include "UEPyCallable.h"
+#include "UObject/UEPyUPropertyBackwardsCompatibility.h"
 
 UPythonDelegate::UPythonDelegate()
 {
@@ -37,10 +38,10 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 		py_args = PyTuple_New(signature->NumParms);
 		Py_ssize_t argn = 0;
 
-		TFieldIterator<UProperty> PArgs(signature);
+		TFieldIterator<FProperty> PArgs(signature);
 		for (; PArgs && argn < signature->NumParms && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs)
 		{
-			UProperty *prop = *PArgs;
+			FProperty *prop = *PArgs;
 			PyObject *arg = ue_py_convert_property(prop, (uint8 *)Parms, 0);
 			if (!arg)
 			{
@@ -63,7 +64,7 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 	// currently useless as events do not return a value
 	/*
 	if (signature_set) {
-		UProperty *return_property = signature->GetReturnProperty();
+		FProperty *return_property = signature->GetReturnProperty();
 		if (return_property && signature->ReturnValueOffset != MAX_uint16) {
 			if (!ue_py_convert_pyobject(ret, return_property, (uint8 *)Parms)) {
 				UE_LOG(LogPython, Error, TEXT("Invalid return value type for delegate"));

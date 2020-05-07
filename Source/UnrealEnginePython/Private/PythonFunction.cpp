@@ -1,6 +1,7 @@
 
 #include "PythonFunction.h"
 #include "UEPyModule.h"
+#include "UObject/UEPyUPropertyBackwardsCompatibility.h"
 
 
 void UPythonFunction::SetPyCallable(PyObject *callable)
@@ -30,7 +31,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	// count the number of arguments
 	Py_ssize_t argn = (Context && !is_static) ? 1 : 0;
-	TFieldIterator<UProperty> IArgs(function);
+	TFieldIterator<FProperty> IArgs(function);
 	for (; IArgs && ((IArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++IArgs) {
 		argn++;
 	}
@@ -56,7 +57,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 
 	// is it a blueprint call ?
 	if (*Stack.Code == EX_EndFunctionParms) {
-		for (UProperty *prop = (UProperty *)function->Children; prop; prop = (UProperty *)prop->Next) {
+		for (FProperty *prop = (FProperty *)function->Children; prop; prop = (FProperty *)prop->Next) {
 			if (prop->PropertyFlags & CPF_ReturnParm)
 				continue;
 			if (!on_error) {
@@ -75,7 +76,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 		//UE_LOG(LogPython, Warning, TEXT("BLUEPRINT CALL"));
 		frame = (uint8 *)FMemory_Alloca(function->PropertiesSize);
 		FMemory::Memzero(frame, function->PropertiesSize);
-		for (UProperty *prop = (UProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (UProperty *)prop->Next) {
+		for (FProperty *prop = (FProperty *)function->Children; *Stack.Code != EX_EndFunctionParms; prop = (FProperty *)prop->Next) {
 			Stack.Step(Stack.Object, prop->ContainerPtrToValuePtr<uint8>(frame));
 			if (prop->PropertyFlags & CPF_ReturnParm)
 				continue;
@@ -107,7 +108,7 @@ void UPythonFunction::CallPythonCallable(FFrame& Stack, RESULT_DECL)
 	}
 
 	// get return value (if required)
-	UProperty *return_property = function->GetReturnProperty();
+	FProperty *return_property = function->GetReturnProperty();
 	if (return_property && function->ReturnValueOffset != MAX_uint16) {
 #if defined(UEPY_MEMORY_DEBUG)
 		UE_LOG(LogPython, Warning, TEXT("FOUND RETURN VALUE"));
