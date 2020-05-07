@@ -118,8 +118,16 @@ private:
 		UGameViewportClient::OnViewportCreated().AddRaw(this, &FInEditorMultiCapture::OnStart);
 		FEditorDelegates::EndPIE.AddRaw(this, &FInEditorMultiCapture::OnEndPIE);
 
-		FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
-		if (AudioDevice != nullptr)
+		//Use auto because UE4.25 changed type, but type has same interface
+		auto AudioDevice = GEngine->GetMainAudioDevice();
+
+#if ENGINE_MINOR_VERSION >= 25
+		bool bIsDeviceValid = AudioDevice.IsValid();
+#else
+		bool bIsDeviceValid = (AudioDevice != nullptr);
+#endif
+		
+		if (bIsDeviceValid)
 		{
 			TransientMasterVolume = AudioDevice->GetTransientMasterVolume();
 			AudioDevice->SetTransientMasterVolume(0.0f);
@@ -278,8 +286,16 @@ private:
 
 		FObjectReader(GetMutableDefault<ULevelEditorPlaySettings>(), BackedUpPlaySettings);
 
-		FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
-		if (AudioDevice != nullptr)
+		//Use auto because UE4.25 changed type, but type has same interface
+		auto AudioDevice = GEngine->GetMainAudioDevice();
+
+#if ENGINE_MINOR_VERSION >= 25
+		bool bIsDeviceValid = AudioDevice.IsValid();
+#else
+		bool bIsDeviceValid = (AudioDevice != nullptr);
+#endif
+
+		if (bIsDeviceValid)
 		{
 			AudioDevice->SetTransientMasterVolume(TransientMasterVolume);
 		}
