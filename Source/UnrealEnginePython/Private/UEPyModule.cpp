@@ -885,7 +885,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 	{ "get_levels", (PyCFunction)py_ue_get_levels, METH_VARARGS, "" },
 	{ "get_current_level", (PyCFunction)py_ue_get_current_level, METH_VARARGS, "" },
+
+#if WITH_EDITORONLY_DATA
 	{ "set_current_level", (PyCFunction)py_ue_set_current_level, METH_VARARGS, "" },
+#endif
 
 #if WITH_EDITOR
 	{ "get_level_script_blueprint", (PyCFunction)py_ue_get_level_script_blueprint, METH_VARARGS, "" },
