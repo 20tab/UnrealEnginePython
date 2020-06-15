@@ -1494,11 +1494,54 @@ PyObject *py_unreal_engine_remove_component_from_blueprint(PyObject *self, PyObj
 		return PyErr_Format(PyExc_Exception, "uobject is not a UBlueprint");
 	UBlueprint *bp = (UBlueprint *)py_obj->ue_object;
 
-	bp->Modify();
-	USCS_Node *ComponentNode = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(name));
-	if (ComponentNode)
+	// Copied From SSCSEditor::RemoveComponentNode(FSCSEditorTreeNodePtrType InNodePtr)
+	// Since simply removing the node causes rename issues if the component is re-created
+	// with the same name.
+	// Will probably cause issues if run on the root node of a blueprint
+	USCS_Node *SCS_Node = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(name));
+
+	if (SCS_Node != NULL)
 	{
-		bp->SimpleConstructionScript->RemoveNode(ComponentNode);
+		USimpleConstructionScript* SCS = SCS_Node->GetSCS();
+		check(SCS != nullptr);
+
+		// Remove node from SCS tree
+		SCS->RemoveNodeAndPromoteChildren(SCS_Node);
+
+		// Clear the delegate
+		SCS_Node->SetOnNameChanged(FSCSNodeNameChanged());
+
+		// on removal, since we don't move the template from the GeneratedClass (which we shouldn't, as it would create a
+		// discrepancy with existing instances), we rename it instead so that we can re-use the name without having to compile
+		// (we still have a problem if they attempt to name it to what ever we choose here, but that is unlikely)
+		// note: skip this for the default scene root; we don't actually destroy that node when it's removed, so we don't need the template to be renamed.
+		if (SCS_Node->ComponentTemplate != nullptr)
+		{
+			const FName TemplateName = SCS_Node->ComponentTemplate->GetFName();
+			const FString RemovedName = SCS_Node->GetVariableName().ToString() + TEXT("_REMOVED_") + FGuid::NewGuid().ToString();
+
+			SCS_Node->ComponentTemplate->Modify();
+			SCS_Node->ComponentTemplate->Rename(*RemovedName, /*NewOuter =*/nullptr, REN_DontCreateRedirectors);
+
+			UBlueprint* Blueprint = SCS->GetBlueprint();
+			if (Blueprint)
+			{
+				// Children need to have their inherited component template instance of the component renamed out of the way as well
+				TArray<UClass*> ChildrenOfClass;
+				GetDerivedClasses(Blueprint->GeneratedClass, ChildrenOfClass);
+
+				for (UClass* ChildClass : ChildrenOfClass)
+				{
+					UBlueprintGeneratedClass* BPChildClass = CastChecked<UBlueprintGeneratedClass>(ChildClass);
+
+					if (UActorComponent* Component = (UActorComponent*)FindObjectWithOuter(BPChildClass, UActorComponent::StaticClass(), TemplateName))
+					{
+						Component->Modify();
+						Component->Rename(*RemovedName, /*NewOuter =*/nullptr, REN_DontCreateRedirectors);
+					}
+				}
+			}
+		}
 	}
 
 	Py_RETURN_NONE;
