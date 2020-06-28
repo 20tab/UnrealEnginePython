@@ -253,8 +253,15 @@ static int py_ue_edgraphpin_set_sub_category(ue_PyEdGraphPin *self, PyObject *va
 	return -1;
 }
 
+static PyObject *py_ue_edgraphpin_get_direction(ue_PyEdGraphPin *self, void *closure)
+{
+	uint8 direction = self->pin->Direction;
+	return PyLong_FromLong((long)direction);
+}
+
 static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 	{ (char*)"name", (getter)py_ue_edgraphpin_get_name, NULL, (char *)"", NULL },
+	{ (char*)"direction", (getter)py_ue_edgraphpin_get_direction, NULL, (char *)"", NULL },
 	{ (char*)"category", (getter)py_ue_edgraphpin_get_category, (setter)py_ue_edgraphpin_set_category, (char *)"", NULL },
 	{ (char*)"sub_category", (getter)py_ue_edgraphpin_get_sub_category, (setter)py_ue_edgraphpin_set_sub_category, (char *)"", NULL },
 	{ (char*)"default_value", (getter)py_ue_edgraphpin_get_default_value, (setter)py_ue_edgraphpin_set_default_value, (char *)"", NULL },

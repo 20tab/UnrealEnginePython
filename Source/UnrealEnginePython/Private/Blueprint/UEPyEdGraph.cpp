@@ -654,6 +654,32 @@ PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args)
 	return py_ue_new_edgraphpin(pin);
 }
 
+PyObject *py_ue_node_set_purity(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "O:set_purity", &py_bool))
+	{
+		return nullptr;
+	}
+
+	UK2Node_DynamicCast *node = ue_py_check_type<UK2Node_DynamicCast>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a K2Node_DynamicCast");
+
+	if (PyObject_IsTrue(py_bool))
+	{
+		node->SetPurity(true);
+	}
+	else
+	{
+		node->SetPurity(false);
+	}
+
+	Py_RETURN_NONE;
+}
+
 PyObject *py_ue_node_function_entry_set_pure(ue_PyUObject * self, PyObject * args)
 {
 

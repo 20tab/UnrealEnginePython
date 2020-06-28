@@ -678,6 +678,8 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "node_pin_type_changed", (PyCFunction)py_ue_node_pin_type_changed, METH_VARARGS, "" },
 	{ "node_pin_default_value_changed", (PyCFunction)py_ue_node_pin_default_value_changed, METH_VARARGS, "" },
 
+	{ "node_set_purity", (PyCFunction)py_ue_node_set_purity, METH_VARARGS, "" },
+
 	{ "node_function_entry_set_pure", (PyCFunction)py_ue_node_function_entry_set_pure, METH_VARARGS, "" },
 
 	{ "node_allocate_default_pins", (PyCFunction)py_ue_node_allocate_default_pins, METH_VARARGS, "" },
