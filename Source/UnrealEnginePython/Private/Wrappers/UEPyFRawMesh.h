@@ -5,7 +5,12 @@
 
 #if ENGINE_MINOR_VERSION > 13
 
+#if ENGINE_MINOR_VERSION < 25
 #include "Developer/RawMesh/Public/RawMesh.h"
+#else
+#include "Runtime/RawMesh/Public/RawMesh.h"
+#endif
+
 
 struct ue_PyFRawMesh
 {
