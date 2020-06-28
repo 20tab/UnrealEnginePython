@@ -90,8 +90,21 @@ PyObject *py_unreal_engine_editor_play_in_viewport(PyObject * self, PyObject * a
 	if (!EditorModule.GetFirstActiveViewport().IsValid())
 		return PyErr_Format(PyExc_Exception, "no active LevelEditor Viewport");
 
+
 	Py_BEGIN_ALLOW_THREADS;
+#if ENGINE_MINOR_VERSION >= 25
+	// this is supposed to be how it works but cant figure out where is bAtPlayerStart
+	// well basically because this is just ignored!!
+	FRequestPlaySessionParams play_params;
+	play_params.DestinationSlateViewport = EditorModule.GetFirstActiveViewport();
+	play_params.StartLocation = v;
+	play_params.StartRotation = r;
+	// added if old 3rd arg is true
+	play_params.WorldType = EPlaySessionWorldType::SimulateInEditor;
+	GEditor->RequestPlaySession(play_params);
+#else
 	GEditor->RequestPlaySession(py_vector == nullptr, EditorModule.GetFirstActiveViewport(), true, &v, &r);
+#endif
 	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 
@@ -112,7 +125,17 @@ PyObject *py_unreal_engine_request_play_session(PyObject * self, PyObject * args
 	bool bSimulate = py_simulate_in_editor && PyObject_IsTrue(py_simulate_in_editor);
 
 	Py_BEGIN_ALLOW_THREADS;
+#if ENGINE_MINOR_VERSION >= 25
+	// this is supposed to be how it works but cant figure out where is bAtPlayerStart
+	// well basically because this is just ignored!!
+	FRequestPlaySessionParams play_params;
+	play_params.DestinationSlateViewport = nullptr;
+	if (bSimulate)
+		play_params.WorldType = EPlaySessionWorldType::SimulateInEditor;
+	GEditor->RequestPlaySession(play_params);
+#else
 	GEditor->RequestPlaySession(bAtPlayerStart, nullptr, bSimulate);
+#endif
 	Py_END_ALLOW_THREADS;
 	Py_RETURN_NONE;
 
@@ -279,11 +302,23 @@ PyObject *py_unreal_engine_editor_play(PyObject * self, PyObject * args)
 	}
 
 	Py_BEGIN_ALLOW_THREADS;
+#if ENGINE_MINOR_VERSION >= 25
+	// this is supposed to be how it works but cant figure out where is bAtPlayerStart
+	// well basically because this is just ignored!!
+	const FString mobile_device = FString("");
+	FRequestPlaySessionParams play_params;
+	play_params.StartLocation = v;
+	play_params.StartRotation = r;
+	// according to engine code this is ignored if old 3rd param is False (MobilePreview)
+	//play_params.MobilePreviewTargetDevice = mobile_device;
+	GEditor->RequestPlaySession(play_params);
+#else
 #if ENGINE_MINOR_VERSION >= 17
 	const FString mobile_device = FString("");
 	GEditor->RequestPlaySession(&v, &r, false, false, mobile_device);
 #else
 	GEditor->RequestPlaySession(&v, &r, false, false);
+#endif
 #endif
 	Py_END_ALLOW_THREADS;
 

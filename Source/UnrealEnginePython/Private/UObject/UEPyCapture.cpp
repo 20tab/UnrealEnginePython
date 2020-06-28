@@ -155,7 +155,15 @@ private:
 		}
 
 
+#if ENGINE_MINOR_VERSION >= 25
+		// this is supposed to be how it works but cant figure out where is bAtPlayerStart
+		// well basically because this is just ignored!!
+		FRequestPlaySessionParams play_params;
+		play_params.DestinationSlateViewport = nullptr;
+		GEditor->RequestPlaySession(play_params);
+#else
 		GEditor->RequestPlaySession(true, nullptr, false);
+#endif
 		return false;
 	}
 
