@@ -203,8 +203,11 @@ static PyObject* py_ue_get_py_proxy(ue_PyUObject* self, PyObject* args)
 static PyObject* py_unreal_engine_shutdown(PyObject* self, PyObject* args)
 {
 
-	// GIsRequestingExit = true;
+#if ENGINE_MINOR_VERSION >= 24
 	RequestEngineExit(FString(TEXT("I'm Shutting Down, Dave...")));
+#else
+	GIsRequestingExit = true;
+#endif
 	Py_RETURN_NONE;
 }
 

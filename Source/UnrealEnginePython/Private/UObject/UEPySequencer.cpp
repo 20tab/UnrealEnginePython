@@ -167,7 +167,11 @@ static bool ImportFBXTransform(FString NodeName, UMovieScene3DTransformSection* 
 	FInterpCurveFloat EulerRotation[3];
 	FInterpCurveFloat Scale[3];
 #endif
+#if ENGINE_MINOR_VERSION > 21
+	CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform, false);
+#else
 	CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
+#endif
 
 
 	TransformSection->Modify();
@@ -1670,7 +1674,11 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #endif
 		FTransform DefaultTransform;
 #if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MINOR_VERSION >= 21
+		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform, false);
+#else
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
+#endif
 #if ENGINE_MINOR_VERSION < 20
 		for (int32 ChannelIndex = 0; ChannelIndex < 3; ++ChannelIndex)
 		{

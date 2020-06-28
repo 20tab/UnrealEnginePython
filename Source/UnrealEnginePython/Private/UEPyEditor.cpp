@@ -1297,7 +1297,11 @@ PyObject *py_unreal_engine_create_blueprint(PyObject * self, PyObject * args)
 
 	TArray<UPackage *> TopLevelPackages;
 	TopLevelPackages.Add(outer);
+#if ENGINE_MINOR_VERSION >= 21
+	if (!UPackageTools::HandleFullyLoadingPackages(TopLevelPackages, FText::FromString("Create a new object")))
+#else
 	if (!PackageTools::HandleFullyLoadingPackages(TopLevelPackages, FText::FromString("Create a new object")))
+#endif
 		return PyErr_Format(PyExc_Exception, "unable to fully load package");
 
 	if (FindObject<UBlueprint>(outer, UTF8_TO_TCHAR(bp_name)) != nullptr)
@@ -2024,7 +2028,11 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "invalid object name");
 	}
 
+#if ENGINE_MINOR_VERSION >= 21
+	FString PackageName = UPackageTools::SanitizePackageName(FString(UTF8_TO_TCHAR(name)));
+#else
 	FString PackageName = PackageTools::SanitizePackageName(FString(UTF8_TO_TCHAR(name)));
+#endif
 
 	UPackage *outer = CreatePackage(nullptr, *PackageName);
 	if (!outer)
@@ -2032,7 +2040,11 @@ PyObject *py_ue_factory_create_new(ue_PyUObject *self, PyObject * args)
 
 	TArray<UPackage *> TopLevelPackages;
 	TopLevelPackages.Add(outer);
+#if ENGINE_MINOR_VERSION >= 21
+	if (!UPackageTools::HandleFullyLoadingPackages(TopLevelPackages, FText::FromString("Create a new object")))
+#else
 	if (!PackageTools::HandleFullyLoadingPackages(TopLevelPackages, FText::FromString("Create a new object")))
+#endif
 		return PyErr_Format(PyExc_Exception, "unable to fully load package");
 
 	UClass *u_class = factory->GetSupportedClass();
@@ -2136,7 +2148,11 @@ PyObject *py_unreal_engine_add_level_to_world(PyObject *self, PyObject * args)
 	if (!FPackageName::DoesPackageExist(UTF8_TO_TCHAR(name), nullptr, nullptr))
 		return PyErr_Format(PyExc_Exception, "package does not exist");
 
+#if ENGINE_MINOR_VERSION >= 21
+	UClass *streaming_mode_class = ULevelStreamingDynamic::StaticClass();
+#else
 	UClass *streaming_mode_class = ULevelStreamingKismet::StaticClass();
+#endif
 	if (py_bool && PyObject_IsTrue(py_bool))
 	{
 		streaming_mode_class = ULevelStreamingAlwaysLoaded::StaticClass();

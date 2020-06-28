@@ -315,7 +315,11 @@ PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 	}
 
 	FText outErrorMsg;
+#if ENGINE_MINOR_VERSION >= 21
+	if (!UPackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+#else
 	if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+#endif
 	{
 		return PyErr_Format(PyExc_Exception, "%s", TCHAR_TO_UTF8(*outErrorMsg.ToString()));
 	}
