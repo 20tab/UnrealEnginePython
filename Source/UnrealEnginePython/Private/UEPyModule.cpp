@@ -1416,7 +1416,22 @@ static PyObject* ue_PyUObject_call(ue_PyUObject* self, PyObject* args, PyObject*
 		{
 			return NULL;
 		}
+		// allow for keyword specification of Outer and Name
+		// because want to be able to just add Outer
+		// note that we do not check for other keywords being passed - they are just ignored
+		// for the moment override positional arguments if given in keyword form
+		if (kw)
+		{
+			PyObject* py_chk_outer = PyDict_GetItemString(kw, "Outer");
+			if (py_chk_outer != nullptr)
+				py_outer = py_chk_outer;
+			PyObject* py_chk_name = PyDict_GetItemString(kw, "Name");
+			if (py_chk_name != nullptr)
+				py_name = py_chk_name;
+		}
 		int num_args = py_name ? 3 : 1;
+		if (num_args == 1 && py_outer != Py_None)
+			num_args = 2;
 		PyObject* py_args = PyTuple_New(num_args);
 		Py_INCREF((PyObject*)self);
 		PyTuple_SetItem(py_args, 0, (PyObject*)self);
@@ -1426,6 +1441,10 @@ static PyObject* ue_PyUObject_call(ue_PyUObject* self, PyObject* args, PyObject*
 			PyTuple_SetItem(py_args, 1, py_outer);
 			Py_INCREF(py_name);
 			PyTuple_SetItem(py_args, 2, py_name);
+		} else if (py_outer != Py_None)
+		{
+			Py_INCREF(py_outer);
+			PyTuple_SetItem(py_args, 1, py_outer);
 		}
 		ue_PyUObject* ret = (ue_PyUObject*)py_unreal_engine_new_object(nullptr, py_args);
 		Py_DECREF(py_args);
