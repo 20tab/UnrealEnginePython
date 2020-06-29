@@ -24,12 +24,20 @@
 	#endif
 #endif
 
-
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
+#if ENGINE_MINOR_VERSION >= 25
+PyObject *ue_py_convert_property(FProperty *, uint8 *, int32);
+bool ue_py_convert_pyobject(PyObject *, FProperty *, uint8 *, int32);
+#else
 PyObject *ue_py_convert_property(UProperty *, uint8 *, int32);
 bool ue_py_convert_pyobject(PyObject *, UProperty *, uint8 *, int32);
+#endif
 ue_PyUObject *ue_is_pyuobject(PyObject *);
+#if ENGINE_MINOR_VERSION >= 25
+ue_PyFProperty *ue_is_pyfproperty(PyObject *);
+ue_PyFFieldClass *ue_is_pyffieldclass(PyObject *);
+#endif
 
 void ue_bind_events_for_py_class_by_attribute(UObject *, PyObject *);
 

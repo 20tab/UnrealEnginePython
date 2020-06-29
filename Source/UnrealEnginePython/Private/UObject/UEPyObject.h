@@ -24,7 +24,11 @@ PyObject *py_ue_properties(ue_PyUObject *, PyObject *);
 PyObject *py_ue_call(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_property_array_dim(ue_PyUObject *, PyObject *);
+#if ENGINE_MINOR_VERSION >= 25
+PyObject *py_ue_get_fproperty(ue_PyUObject *, PyObject *);
+#else
 PyObject *py_ue_get_uproperty(ue_PyUObject *, PyObject *);
+#endif
 PyObject *py_ue_get_inner(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_key_prop(ue_PyUObject *, PyObject *);
 PyObject *py_ue_get_value_prop(ue_PyUObject *, PyObject *);
