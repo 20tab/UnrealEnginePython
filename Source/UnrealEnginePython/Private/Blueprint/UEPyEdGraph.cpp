@@ -316,6 +316,7 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
 		}
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: Casting to class %s"), *u_class->GetName());
 		node = NewObject<UEdGraphNode>(graph, u_class);
 		node->PostLoad();
 	}
@@ -328,6 +329,7 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 
 				node->Rename(*node->GetName(), graph);
 		}
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: renaming node"));
 	}
 
 	if (!node)
@@ -337,8 +339,10 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	node->CreateNewGuid();
 	node->PostPlacedNewNode();
 	node->SetFlags(RF_Transactional);
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: allocate pins current pins num %d"), node->Pins.Num());
 	if (node->Pins.Num() == 0)
 	{
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: allocating pins"));
 		node->AllocateDefaultPins();
 	}
 	node->NodePosX = x;
@@ -527,6 +531,8 @@ PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args
 	if(!u_class)
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node_dynamic_cast: Casting to class %s %p"), *u_class->GetName(), (void *)u_class);
+
 	UK2Node_DynamicCast *node = NewObject<UK2Node_DynamicCast>(graph);
 	node->TargetType = u_class;
 #if ENGINE_MINOR_VERSION > 15
@@ -554,6 +560,8 @@ PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args
 	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node_dynamic_cast: targettype is %p"), (void *)(node->TargetType));
 
 	Py_RETURN_UOBJECT(node);
 }
