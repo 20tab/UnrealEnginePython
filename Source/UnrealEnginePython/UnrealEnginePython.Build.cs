@@ -259,6 +259,7 @@ public class UnrealEnginePython : ModuleRules
                 {
                     throw new System.Exception("Unable to find Python libs, please add a search path to linuxKnownLibsPaths");
                 }
+                PublicIncludePaths.Add(Path.Combine(ModuleDirectory,"Include"));
                 PublicIncludePaths.Add(includesPath);
                 PublicAdditionalLibraries.Add(libsPath);
 
