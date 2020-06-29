@@ -39,6 +39,8 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownIncludesPaths =
     {
+        "/usr/local/include/python3.8",
+        "/usr/local/include/python3.8m",
         "/usr/local/include/python3.7",
         "/usr/local/include/python3.7m",
         "/usr/local/include/python3.6",
@@ -46,6 +48,8 @@ public class UnrealEnginePython : ModuleRules
         "/usr/local/include/python3.5",
         "/usr/local/include/python3.5m",
         "/usr/local/include/python2.7",
+        "/usr/include/python3.8",
+        "/usr/include/python3.8m",
         "/usr/include/python3.7",
         "/usr/include/python3.7m",
         "/usr/include/python3.6",
@@ -57,6 +61,10 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownLibsPaths =
     {
+        "/usr/local/lib/libpython3.8.so",
+        "/usr/local/lib/libpython3.8m.so",
+        "/usr/local/lib/x86_64-linux-gnu/libpython3.8.so",
+        "/usr/local/lib/x86_64-linux-gnu/libpython3.8m.so",
         "/usr/local/lib/libpython3.7.so",
         "/usr/local/lib/libpython3.7m.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.7.so",
@@ -71,6 +79,10 @@ public class UnrealEnginePython : ModuleRules
         "/usr/local/lib/x86_64-linux-gnu/libpython3.5m.so",
         "/usr/local/lib/libpython2.7.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython2.7.so",
+        "/usr/lib/libpython3.8.so",
+        "/usr/lib/libpython3.8m.so",
+        "/usr/lib/x86_64-linux-gnu/libpython3.8.so",
+        "/usr/lib/x86_64-linux-gnu/libpython3.8m.so",
         "/usr/lib/libpython3.7.so",
         "/usr/lib/libpython3.7m.so",
         "/usr/lib/x86_64-linux-gnu/libpython3.7.so",
