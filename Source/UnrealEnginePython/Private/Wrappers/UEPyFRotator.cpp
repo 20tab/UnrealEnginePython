@@ -2,7 +2,7 @@
 
 
 // use this definition if want original argument order for FRotator
-//#define USE_UNREALENGINEPYTHON_ORDER 1
+#define USE_UNREALENGINEPYTHON_ORDER 1
 
 
 static PyObject *py_ue_frotator_get_vector(ue_PyFRotator *self, PyObject * args) {
