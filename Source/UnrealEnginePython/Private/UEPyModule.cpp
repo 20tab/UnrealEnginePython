@@ -1365,7 +1365,6 @@ static int ue_PyUObject_setattro(ue_PyUObject* self, PyObject* attr_name, PyObje
 		FProperty* f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
 		if (f_property)
 		{
-			EXTRA_UE_LOG(LogPython, Warning, TEXT("Setting attr found %s"), UTF8_TO_TCHAR(attr));
 #ifdef EXTRA_DEBUG_CODE
 			if (!strcmp(attr, "TargetType"))
 			{
@@ -2513,7 +2512,6 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 	if (auto casted_prop = CastField<FBoolProperty>(prop))
 	{
 		bool value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: bool %d"), value);
 		if (value)
 		{
 			Py_RETURN_TRUE;
@@ -2523,26 +2521,19 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 
 	if (auto casted_prop = CastField<FIntProperty>(prop))
 	{
-		// well I thought there was an issue here but turns out this is fine - its the test_blueprint.py thats wrong
-		//void* prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: number int %p (%p) %x"), buffer, prop_addr, *((uint64*)prop_addr));
-		//int value = casted_prop->GetPropertyValue(prop_addr);
 		int value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: int %d %x"), value, value);
 		return PyLong_FromLong(value);
 	}
 
 	if (auto casted_prop = CastField<FUInt32Property>(prop))
 	{
 		uint32 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: uint %d"), value);
 		return PyLong_FromUnsignedLong(value);
 	}
 
 	if (auto casted_prop = CastField<FInt64Property>(prop))
 	{
 		long long value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: ull %lld"), value);
 		return PyLong_FromLongLong(value);
 	}
 
@@ -2550,21 +2541,18 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 	if (auto casted_prop = CastField<FUInt64Property>(prop))
 	{
 		uint64 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: uint64 %lld"), value);
 		return PyLong_FromUnsignedLongLong(value);
 	}
 
 	if (auto casted_prop = CastField<FFloatProperty>(prop))
 	{
 		float value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: float %f"), value);
 		return PyFloat_FromDouble(value);
 	}
 
 	if (auto casted_prop = CastField<FByteProperty>(prop))
 	{
 		uint8 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: uint8 %d"), value);
 		return PyLong_FromUnsignedLong(value);
 	}
 
@@ -2572,7 +2560,6 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 	{
 		void* prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
 		uint64 enum_index = casted_prop->GetUnderlyingProperty()->GetUnsignedIntPropertyValue(prop_addr);
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: enum %lld"), enum_index);
 		return PyLong_FromUnsignedLong(enum_index);
 	}
 
@@ -2753,11 +2740,9 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 // convert a python object to a property
 bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, int32 index)
 {
-	//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject"));
 
 	if (PyBool_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: bool"));
 		auto casted_prop = CastField<FBoolProperty>(prop);
 		if (!casted_prop)
 			return false;
@@ -2774,25 +2759,16 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 
 	if (PyNumber_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: number"));
 		if (auto casted_prop = CastField<FIntProperty>(prop))
 		{
 			PyObject* py_long = PyNumber_Long(py_obj);
-			//void* prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
-			//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: number int %p (%p) %ld"), buffer, prop_addr, PyLong_AsLong(py_long));
-			//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: number int %p (%p) %x"), buffer, prop_addr, *((uint64*)prop_addr));
-			//casted_prop->SetIntPropertyValue(prop_addr, (int64) PyLong_AsLong(py_long));
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLong(py_long), index);
 			Py_DECREF(py_long);
-			//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_property: number int %p (%p) %x"), buffer, prop_addr, *((uint64*)prop_addr));
 			return true;
 		}
 		if (auto casted_prop = CastField<FUInt32Property>(prop))
 		{
 			PyObject* py_long = PyNumber_Long(py_obj);
-			//void* prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
-			//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: number uint %p (%p) %ld"), buffer, prop_addr, PyLong_AsUnsignedLong(py_long));
-			//casted_prop->SetIntPropertyValue(prop_addr, (uint64) PyLong_AsUnsignedLong(py_long));
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLong(py_long), index);
 			Py_DECREF(py_long);
 			return true;
@@ -2801,7 +2777,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 		{
 			PyObject* py_long = PyNumber_Long(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsLongLong(py_long), index);
-			//casted_prop->SetIntPropertyValue(buffer, PyLong_AsLongLong(py_long), index);
 			Py_DECREF(py_long);
 			return true;
 		}
@@ -2809,7 +2784,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 		{
 			PyObject* py_long = PyNumber_Long(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyLong_AsUnsignedLongLong(py_long), index);
-			//casted_prop->SetIntPropertyValue(buffer, PyLong_AsUnsignedLongLong(py_long), index);
 			Py_DECREF(py_long);
 			return true;
 		}
@@ -2817,7 +2791,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 		{
 			PyObject* py_float = PyNumber_Float(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_float), index);
-			//casted_prop->SetFloatingPointPropertyValue(buffer, PyFloat_AsDouble(py_float), index);
 			Py_DECREF(py_float);
 			return true;
 		}
@@ -2837,14 +2810,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			return true;
 		}
 
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: number FAILED"));
-
 		return false;
 	}
 
 	if (PyUnicodeOrString_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: string"));
 		if (auto casted_prop = CastField<FStrProperty>(prop))
 		{
 			casted_prop->SetPropertyValue_InContainer(buffer, UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj)), index);
@@ -2860,13 +2830,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			casted_prop->SetPropertyValue_InContainer(buffer, FText::FromString(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_obj))), index);
 			return true;
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: string FAILED"));
 		return false;
 	}
 
 	if (PyBytes_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: bytes"));
 		if (auto casted_prop = CastField<FArrayProperty>(prop))
 		{
 			FScriptArrayHelper_InContainer helper(casted_prop, buffer, index);
@@ -2894,13 +2862,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			}
 		}
 
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: bytes FAILED"));
 		return false;
 	}
 
 	if (PyByteArray_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: array"));
 		if (auto casted_prop = CastField<FArrayProperty>(prop))
 		{
 			FScriptArrayHelper_InContainer helper(casted_prop, buffer, index);
@@ -2929,13 +2895,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			}
 		}
 
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: bytearray FAILED"));
 		return false;
 	}
 
 	if (PyList_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: list"));
 		if (auto casted_prop = CastField<FArrayProperty>(prop))
 		{
 			FScriptArrayHelper_InContainer helper(casted_prop, buffer, index);
@@ -2964,13 +2928,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			return true;
 		}
 
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: list FAILED"));
 		return false;
 	}
 
 	if (PyTuple_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: tuple"));
 		if (auto casted_prop = CastField<FArrayProperty>(prop))
 		{
 			FScriptArrayHelper_InContainer helper(casted_prop, buffer, index);
@@ -2999,13 +2961,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			return true;
 		}
 
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: tuple FAILED"));
 		return false;
 	}
 
 	if (PyDict_Check(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: dict"));
 		if (auto casted_prop = CastField<FMapProperty>(prop))
 		{
 			FScriptMapHelper_InContainer map_helper(casted_prop, buffer, index);
@@ -3036,7 +2996,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			return true;
 		}
 
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: dict FAILED"));
 		return false;
 	}
 
@@ -3044,7 +3003,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 
 	if (ue_PyFVector * py_vec = py_ue_is_fvector(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: fvector"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == TBaseStructure<FVector>::Get())
@@ -3053,13 +3011,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: fvector FAILED"));
 		return false;
 	}
 
 	if (ue_PyFVector2D * py_vec = py_ue_is_fvector2d(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: fvector2D"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == TBaseStructure<FVector2D>::Get())
@@ -3068,13 +3024,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: fvector2D FAILED"));
 		return false;
 	}
 
 	if (ue_PyFRotator * py_rot = py_ue_is_frotator(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: frotator"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == TBaseStructure<FRotator>::Get())
@@ -3083,13 +3037,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: frotator FAILED"));
 		return false;
 	}
 
 	if (ue_PyFTransform * py_transform = py_ue_is_ftransform(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: ftransform"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == TBaseStructure<FTransform>::Get())
@@ -3098,13 +3050,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: ftransform FAILED"));
 		return false;
 	}
 
 	if (ue_PyFColor * py_color = py_ue_is_fcolor(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: fcolor"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == TBaseStructure<FColor>::Get())
@@ -3114,13 +3064,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: fcolor FAILED"));
 		return false;
 	}
 
 	if (ue_PyFLinearColor * py_color = py_ue_is_flinearcolor(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: flinearcolor"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == TBaseStructure<FLinearColor>::Get())
@@ -3129,13 +3077,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: flinearcolor FAILED"));
 		return false;
 	}
 
 	if (ue_PyFHitResult * py_hit = py_ue_is_fhitresult(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: fhitresult"));
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
 			if (casted_prop->Struct == FHitResult::StaticStruct())
@@ -3144,14 +3090,12 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: fhitresult FAILED"));
 		return false;
 	}
 
 	// generic structs
 	if (py_ue_is_uscriptstruct(py_obj))
 	{
-		//EXTRA_UE_LOG(LogPython, Warning, TEXT("ue_py_convert_pyobject: uscriptstruct"));
 		ue_PyUScriptStruct* py_u_struct = (ue_PyUScriptStruct*)py_obj;
 		if (auto casted_prop = CastField<FStructProperty>(prop))
 		{
@@ -3163,7 +3107,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: uscriptstruct FAILED"));
 		return false;
 	}
 
@@ -3217,7 +3160,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 
-			EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: uclass FAILED"));
 			return false;
 		}
 
@@ -3264,7 +3206,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				return true;
 			}
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: uobject FAILED"));
 		return false;
 	}
 
@@ -3286,7 +3227,6 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 
 			return true;
 		}
-		EXTRA_UE_LOG(LogPython, Error, TEXT("ue_py_convert_pyobject: Py_None FAILED"));
 		return false;
 	}
 
