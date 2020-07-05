@@ -212,7 +212,12 @@ private:
 		PlayInEditorSettings->LaunchConfiguration = EPlayOnLaunchConfiguration::LaunchConfig_Default;
 		PlayInEditorSettings->SetPlayNetMode(EPlayNetMode::PIE_Standalone);
 		PlayInEditorSettings->SetRunUnderOneProcess(true);
+#if ENGINE_MINOR_VERSION >= 25
+		// I hope this is equivalent ie play dedicated is same as launching a separate server
+		PlayInEditorSettings->bLaunchSeparateServer = false;
+#else
 		PlayInEditorSettings->SetPlayNetDedicated(false);
+#endif
 		PlayInEditorSettings->SetPlayNumberOfClients(1);
 	}
 
