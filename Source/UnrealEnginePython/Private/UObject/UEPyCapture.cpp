@@ -105,12 +105,21 @@ private:
 			}
 		}
 
+		// should I move this into PlaySession also??
+
 		// cleanup from previous run
 		BackedUpPlaySettings.Empty();
 
 		FObjectWriter(PlayInEditorSettings, BackedUpPlaySettings);
 
+#if ENGINE_MINOR_VERSION >= 25
+		// can I move this from here to PlaySession??
+		// otherwise need to store the settings somehow
+		// currently assuming no changes to default PlayInEditorSettings between the Dequeue and PlaySession
+		//OverridePlaySettings(PlayInEditorSettings);
+#else
 		OverridePlaySettings(PlayInEditorSettings);
+#endif
 
 		//CurrentCaptureObject->AddToRoot();
 		CurrentCaptureObject->OnCaptureFinished().AddRaw(this, &FInEditorMultiCapture::OnEnd);
@@ -156,10 +165,45 @@ private:
 
 
 #if ENGINE_MINOR_VERSION >= 25
+		// we also need access to this
+		const FMovieSceneCaptureSettings& Settings = CurrentCaptureObject->GetSettings();
+
+		// as commented this is from Editor/MovieSceneCaptureDialog/Private/MovieSceneCaptureDialogModule.cpp
+		// and this is where that source code sets the custom window now
+		TSharedRef<SWindow> CustomWindow = SNew(SWindow)
+			.Title(FText::FromString("Movie Render - Preview"))
+			.AutoCenter(EAutoCenter::PrimaryWorkArea)
+			.UseOSWindowBorder(true)
+			.FocusWhenFirstShown(false)
+			.ActivationPolicy(EWindowActivationPolicy::Never)
+			.HasCloseButton(true)
+			.SupportsMaximize(false)
+			.SupportsMinimize(true)
+			.MaxWidth(Settings.Resolution.ResX)
+			.MaxHeight(Settings.Resolution.ResY)
+			.SizingRule(ESizingRule::FixedSize);
+
+		FSlateApplication::Get().AddWindow(CustomWindow);
+
+		// is there any reason NOT to call this here??
+		ULevelEditorPlaySettings* PlayInEditorSettings = GetMutableDefault<ULevelEditorPlaySettings>();
+		OverridePlaySettings(PlayInEditorSettings);
+
+
 		// this is supposed to be how it works but cant figure out where is bAtPlayerStart
 		// well basically because this is just ignored!!
+		// note that 3rd param is bInSimulateInEditor - which only sets play_params.WorldType if true
+		// (see code in Editor/UnrealEd/Private/PlayLevel.cpp)
 		FRequestPlaySessionParams play_params;
 		play_params.DestinationSlateViewport = nullptr;
+		//play_params.WorldType = EPlaySessionWorldType::SimulateInEditor;
+
+		// NO - we have a big problem - this is in same function in MovieSceneCaptureDialogModule.cpp 
+		// - not clear how we get this here - unless we call OverridePlaySettings in this function as above
+		play_params.EditorPlaySettings = PlayInEditorSettings;
+
+		play_params.CustomPIEWindow = CustomWindow;
+
 		GEditor->RequestPlaySession(play_params);
 #else
 		GEditor->RequestPlaySession(true, nullptr, false);
@@ -176,6 +220,10 @@ private:
 		PlayInEditorSettings->CenterNewWindow = true;
 		PlayInEditorSettings->LastExecutedPlayModeType = EPlayModeType::PlayMode_InEditorFloating;
 
+#if ENGINE_MINOR_VERSION >= 25
+		// this is complicated - instead of specifying here we need to specify in FRequestPlaySessionParams
+		// but that means this needs to be done in the PlaySession function
+#else
 		TSharedRef<SWindow> CustomWindow = SNew(SWindow)
 			.Title(FText::FromString("Movie Render - Preview"))
 			.AutoCenter(EAutoCenter::PrimaryWorkArea)
@@ -194,6 +242,7 @@ private:
 		FSlateApplication::Get().AddWindow(CustomWindow);
 
 		PlayInEditorSettings->CustomPIEWindow = CustomWindow;
+#endif
 
 		// Reset everything else
 		PlayInEditorSettings->GameGetsMouseControl = false;
