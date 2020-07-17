@@ -3122,9 +3122,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			if (auto casted_prop = CastField<FClassProperty>(prop))
 			{
 				casted_prop->SetPropertyValue_InContainer(buffer, ue_obj->ue_object, index);
+#ifdef EXTRA_DEBUG_CODE
 				EXTRA_UE_LOG(LogPython, Warning, TEXT("Convert Prop 3a is uclass %s"), *ue_obj->ue_object->GetName());
 				UK2Node_DynamicCast* node = (UK2Node_DynamicCast*)buffer;
 				EXTRA_UE_LOG(LogPython, Warning, TEXT("Setting attr  targetype is %p"), (void *)(node->TargetType));
+#endif
 				return true;
 			}
 			else if (auto casted_prop_soft_class = CastField<FSoftClassProperty>(prop))
