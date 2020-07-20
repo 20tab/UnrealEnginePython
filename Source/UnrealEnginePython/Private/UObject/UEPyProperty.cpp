@@ -134,6 +134,8 @@ FProperty* FProperty_New(FFieldVariant* scope, FFieldClass* f_class, FName name,
 	return nullptr;
 }
 
+#if WITH_EDITOR
+// strictly WITH_EDITORONLY_DATA
 PyObject *py_ue_fproperty_set_metadata(ue_PyFProperty * self, PyObject * args)
 {
 
@@ -212,5 +214,6 @@ PyObject *py_ue_fproperty_has_metadata(ue_PyFProperty * self, PyObject * args)
 	Py_INCREF(Py_False);
 	return Py_False;
 }
+#endif
 
 #endif

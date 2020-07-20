@@ -221,6 +221,8 @@ PyObject *py_ue_get_material_scalar_parameter(ue_PyUObject *self, PyObject * arg
 
 }
 
+#if WITH_EDITOR
+// strictly this is WITH_EDITORONLY_DATA
 PyObject *py_ue_get_material_static_switch_parameter(ue_PyUObject *self, PyObject * args)
 {
 
@@ -253,6 +255,7 @@ PyObject *py_ue_get_material_static_switch_parameter(ue_PyUObject *self, PyObjec
 
 	Py_RETURN_FALSE;
 }
+#endif
 
 PyObject *py_ue_set_material_vector_parameter(ue_PyUObject *self, PyObject * args)
 {

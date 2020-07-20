@@ -619,7 +619,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 #endif
 
 #if ENGINE_MINOR_VERSION >= 15
+#if WITH_EDITOR
 	{ "can_modify", (PyCFunction)py_ue_can_modify, METH_VARARGS, "" },
+#endif
 #endif
 
 
@@ -1156,7 +1158,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_material_scalar_parameter", (PyCFunction)py_ue_get_material_scalar_parameter, METH_VARARGS, "" },
 	{ "get_material_vector_parameter", (PyCFunction)py_ue_get_material_vector_parameter, METH_VARARGS, "" },
 	{ "get_material_texture_parameter", (PyCFunction)py_ue_get_material_texture_parameter, METH_VARARGS, "" },
+#if WITH_EDITOR
 	{ "get_material_static_switch_parameter", (PyCFunction)py_ue_get_material_static_switch_parameter, METH_VARARGS, "" },
+#endif
 	{ "create_material_instance_dynamic", (PyCFunction)py_ue_create_material_instance_dynamic, METH_VARARGS, "" },
 #if WITH_EDITOR
 	{ "set_material_parent", (PyCFunction)py_ue_set_material_parent, METH_VARARGS, "" },
@@ -1705,9 +1709,12 @@ static int ue_PyFProperty_setattro(ue_PyFProperty* self, PyObject* attr_name, Py
 
 
 static PyMethodDef ue_PyFProperty_methods[] = {
+#if WITH_EDITOR
+// strictly WITH_EDITORONLY_DATA
 	{ "get_metadata", (PyCFunction)py_ue_fproperty_get_metadata, METH_VARARGS, "" },
 	{ "set_metadata", (PyCFunction)py_ue_fproperty_set_metadata, METH_VARARGS, "" },
 	{ "has_metadata", (PyCFunction)py_ue_fproperty_has_metadata, METH_VARARGS, "" },
+#endif
         { NULL }  /* Sentinel */
 };
 

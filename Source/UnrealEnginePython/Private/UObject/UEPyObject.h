@@ -61,7 +61,9 @@ PyObject *py_ue_add_property(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_as_dict(ue_PyUObject *, PyObject *);
 
+#if WITH_EDITOR
 PyObject *py_ue_can_modify(ue_PyUObject *, PyObject *);
+#endif
 
 PyObject *py_ue_get_outer(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_outer(ue_PyUObject *, PyObject *);
