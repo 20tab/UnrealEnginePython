@@ -1457,13 +1457,15 @@ PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-PyObject *py_ue_get_inner(ue_PyUObject *self, PyObject * args)
+#if ENGINE_MINOR_VERSION >= 25
+PyObject *py_ue_get_inner(ue_PyFProperty *self, PyObject * args)
 {
 
-	ue_py_check(self);
+	// not clear if need this - this checks if the UObject is in some invalid state
+	// - Im not sure FProperty has such a state - although I have seen some mentions of PendingDelete possible
+	//ue_py_check(self);
 
-#if ENGINE_MINOR_VERSION >= 25
-	FArrayProperty *f_property = ue_py_check_type<FArrayProperty>(self);
+	FArrayProperty *f_property = ue_py_check_ftype<FArrayProperty>(self);
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "object is not a FArrayProperty");
 
@@ -1472,7 +1474,13 @@ PyObject *py_ue_get_inner(ue_PyUObject *self, PyObject * args)
 		Py_RETURN_NONE;
 
 	Py_RETURN_FPROPERTY(inner);
+}
 #else
+PyObject *py_ue_get_inner(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
 	UArrayProperty *u_property = ue_py_check_type<UArrayProperty>(self);
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "object is not a UArrayProperty");
@@ -1482,16 +1490,18 @@ PyObject *py_ue_get_inner(ue_PyUObject *self, PyObject * args)
 		Py_RETURN_NONE;
 
 	Py_RETURN_UOBJECT(inner);
-#endif
 }
-
-PyObject *py_ue_get_key_prop(ue_PyUObject *self, PyObject * args)
-{
-
-	ue_py_check(self);
+#endif
 
 #if ENGINE_MINOR_VERSION >= 25
-	FMapProperty *f_property = ue_py_check_type<FMapProperty>(self);
+PyObject *py_ue_get_key_prop(ue_PyFProperty *self, PyObject * args)
+{
+
+	// not clear if need this - this checks if the UObject is in some invalid state
+	// - Im not sure FProperty has such a state - although I have seen some mentions of PendingDelete possible
+	//ue_py_check(self);
+
+	FMapProperty *f_property = ue_py_check_ftype<FMapProperty>(self);
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "object is not a FMapProperty");
 
@@ -1500,7 +1510,13 @@ PyObject *py_ue_get_key_prop(ue_PyUObject *self, PyObject * args)
 		Py_RETURN_NONE;
 
 	Py_RETURN_FPROPERTY(key);
+}
 #else
+PyObject *py_ue_get_key_prop(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
 	UMapProperty *u_property = ue_py_check_type<UMapProperty>(self);
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "object is not a UMapProperty");
@@ -1510,16 +1526,18 @@ PyObject *py_ue_get_key_prop(ue_PyUObject *self, PyObject * args)
 		Py_RETURN_NONE;
 
 	Py_RETURN_UOBJECT(key);
-#endif
 }
-
-PyObject *py_ue_get_value_prop(ue_PyUObject *self, PyObject * args)
-{
-
-	ue_py_check(self);
+#endif
 
 #if ENGINE_MINOR_VERSION >= 25
-	FMapProperty *f_property = ue_py_check_type<FMapProperty>(self);
+PyObject *py_ue_get_value_prop(ue_PyFProperty *self, PyObject * args)
+{
+
+	// not clear if need this - this checks if the UObject is in some invalid state
+	// - Im not sure FProperty has such a state - although I have seen some mentions of PendingDelete possible
+	//ue_py_check(self);
+
+	FMapProperty *f_property = ue_py_check_ftype<FMapProperty>(self);
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "object is not a FMapProperty");
 
@@ -1528,7 +1546,13 @@ PyObject *py_ue_get_value_prop(ue_PyUObject *self, PyObject * args)
 		Py_RETURN_NONE;
 
 	Py_RETURN_FPROPERTY(value);
+}
 #else
+PyObject *py_ue_get_value_prop(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
 	UMapProperty *u_property = ue_py_check_type<UMapProperty>(self);
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "object is not a UMapProperty");
@@ -1538,8 +1562,8 @@ PyObject *py_ue_get_value_prop(ue_PyUObject *self, PyObject * args)
 		Py_RETURN_NONE;
 
 	Py_RETURN_UOBJECT(value);
-#endif
 }
+#endif
 
 PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args)
 {
