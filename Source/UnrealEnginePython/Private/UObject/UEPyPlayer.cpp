@@ -155,7 +155,11 @@ PyObject *py_ue_create_player(ue_PyUObject *self, PyObject * args)
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "unable to create a new player from controller %d", controller_id);
 
+#if ENGINE_MINOR_VERSION >= 25
+	return PyLong_FromLong(controller->PlayerState->GetPlayerId());
+#else
 	return PyLong_FromLong(controller->PlayerState->PlayerId);
+#endif
 }
 
 PyObject *py_ue_get_num_players(ue_PyUObject *self, PyObject * args)

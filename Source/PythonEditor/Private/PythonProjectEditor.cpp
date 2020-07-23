@@ -1,6 +1,13 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "PythonProjectEditor.h"
+
+#if ENGINE_MINOR_VERSION >= 24
+#include "Subsystems/AssetEditorSubsystem.h"
+
+// #include "UnrealEd.h"
+#endif
+
 #include "SPythonEditor.h"
 #include "SPythonProjectEditor.h"
 #include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"
@@ -13,6 +20,8 @@
 #include "PythonProjectEditorCommands.h"
 #include "Runtime/Core/Public/HAL/PlatformFilemanager.h"
 #include "Runtime/Core/Public/Misc/MessageDialog.h"
+
+
 #define LOCTEXT_NAMESPACE "PythonEditor"
 
 TWeakPtr<FPythonProjectEditor> FPythonProjectEditor::PythonEditor;
@@ -209,7 +218,13 @@ void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager
 
 void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UPythonProject* PythonProject)
 {
+#if ENGINE_MINOR_VERSION >= 24
+	// UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	// GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(PythonProject, this);
+	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(PythonProject, this);
+#else
 	FAssetEditorManager::Get().CloseOtherEditors(PythonProject, this);
+#endif
 	PythonProjectBeingEdited = PythonProject;
 
 	TSharedPtr<FPythonProjectEditor> ThisPtr(SharedThis(this));

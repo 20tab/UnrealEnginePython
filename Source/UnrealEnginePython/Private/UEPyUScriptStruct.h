@@ -17,6 +17,10 @@ PyObject *py_ue_new_owned_uscriptstruct(UScriptStruct *, uint8 *);
 PyObject *py_ue_new_owned_uscriptstruct_zero_copy(UScriptStruct *, uint8 *);
 ue_PyUScriptStruct *py_ue_is_uscriptstruct(PyObject *);
 
+#if ENGINE_MINOR_VERSION >= 25
+FProperty *ue_struct_get_field_from_name(UScriptStruct *, char *);
+#else
 UProperty *ue_struct_get_field_from_name(UScriptStruct *, char *);
+#endif
 
 void ue_python_init_uscriptstruct(PyObject *);
