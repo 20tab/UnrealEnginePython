@@ -11,9 +11,17 @@
 #if ENGINE_MINOR_VERSION >= 24
 #include "Subsystems/AssetEditorSubsystem.h"
 #endif
+#if ENGINE_MINOR_VERSION >= 25
+#include "Editor/MovieSceneTools/Public/MovieSceneToolHelpers.h"
+#include "Runtime/MovieSceneTracks/Public/Sections/MovieSceneCameraCutSection.h"
+#endif
 #include "Editor/Sequencer/Public/ISequencer.h"
 #include "Editor/Sequencer/Public/ISequencerModule.h"
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
+#include "Editor/UnrealEd/Public/LevelEditorViewport.h"
+#include "Editor/Sequencer/Private/Sequencer.h"
+#include "Camera/CameraActor.h"
+#include "CinematicCamera/Public/CineCameraActor.h"
 #if ENGINE_MINOR_VERSION >= 20
 #include "LevelSequenceEditor/Private/LevelSequenceEditorToolkit.h"
 #else
@@ -169,7 +177,7 @@ static bool ImportFBXTransform(FString NodeName, UMovieScene3DTransformSection* 
 	FInterpCurveFloat EulerRotation[3];
 	FInterpCurveFloat Scale[3];
 #endif
-#if ENGINE_MINOR_VERSION > 21
+#if ENGINE_MINOR_VERSION > 22
 	CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform, false);
 #else
 	CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);
@@ -454,10 +462,193 @@ PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *self, PyObject * args)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
 }
 
+PyObject *py_ue_sequencer_add_camera(ue_PyUObject *self, PyObject * args)
+{
+	// because of what is likely a bug in Unreal Engine we cannot add cameras via AddActors from 4.22
+	// only way I can see is to replicate CreateCamera - because cant figure out how to determine
+	// which camera was created
+	// NOTA BENE - this code MUST be checked at every Unreal Engine version update to ensure
+	//             it remains consistent with the current CreateCamera
+	//             so far I can see no difference between the CreateCamera function in versions 4.22 and 4.25
+	// from 4.21 logs we have determined that the python sequence of spawn camera followed by add actor
+	// seems to be equivalent to adding a camera manually via the GUI - which calls CreateCamera
+
+	// current differences to 4.21
+	// this sets the camera position as the current viewpoint - add_actor just leaves camera object in its incoming position
+	// using add_actor seems to add an additional camera item in the sequencer window - I think this is just a template camera
+	// using this function we add just one camera per call (see the Destroy old actor line)
+	// these are spawned cameras in 4.22
+
+	ue_py_check(self);
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+#if ENGINE_MINOR_VERSION >= 24
+	//UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->OpenEditorForAsset(seq);
+
+	IAssetEditorInstance *editor = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->FindEditorForAsset(seq, true);
+#else
+	FAssetEditorManager::Get().OpenEditorForAsset(seq);
+
+	IAssetEditorInstance *editor = FAssetEditorManager::Get().FindEditorForAsset(seq, true);
+#endif
+
+	FGuid CameraGuid;
+	ACineCameraActor* NewCamera = nullptr;
+
+	if (editor)
+	{
+		FLevelSequenceEditorToolkit *toolkit = (FLevelSequenceEditorToolkit *)editor;
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_camera: opening editor for asset 1"));
+		ISequencer *sequencer = toolkit->GetSequencer().Get();
+
+		// dangerous type cast here but Im guessing ISequencer is an interface of an FSequencer
+		// well pigs FSequencer is private - although it does seem UEP uses a number of Private include files
+		// as of 4.25 cant use most FSequencer symbols as they are not available at link time
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_camera: fixup 1"));
+		FSequencer* fsequencer = (FSequencer *)sequencer;
+
+		// so all I can do is re-implement CreateCamera here
+
+		UWorld* World = GCurrentLevelEditingViewportClient ? GCurrentLevelEditingViewportClient->GetWorld() : nullptr;
+		if (!World)
+		{
+			return PyErr_Format(PyExc_Exception, "cannot get World");
+		}
+
+		// what to do about this
+		// I think this is for undo actions - as we are doing this in python dont think we need this
+		//const FScopedTransaction Transaction(NSLOCTEXT("Sequencer", "CreateCameraHere", "Create Camera Here"));
+
+		const bool bCreateAsSpawnable = sequencer->GetSequencerSettings()->GetCreateSpawnableCameras();
+
+		FActorSpawnParameters SpawnParams;
+		if (bCreateAsSpawnable)
+		{
+			// Don't bother transacting this object if we're creating a spawnable since it's temporary
+			SpawnParams.ObjectFlags &= ~RF_Transactional;
+		}
+
+		// Set new camera to match viewport
+		NewCamera = World->SpawnActor<ACineCameraActor>(SpawnParams);
+		if (!NewCamera)
+		{
+			return PyErr_Format(PyExc_Exception, "failed to spawn camera actor");
+		}
+
+		// this is pointless - how can Spawnable ever be not NULL in 2nd line!!
+		FMovieSceneSpawnable* Spawnable = nullptr;
+		ESpawnOwnership SavedOwnership = Spawnable ? Spawnable->GetSpawnOwnership() : ESpawnOwnership::InnerSequence;
+
+		if (bCreateAsSpawnable)
+		{
+			CameraGuid = sequencer->MakeNewSpawnable(*NewCamera);
+			Spawnable = sequencer->GetFocusedMovieSceneSequence()->GetMovieScene()->FindSpawnable(CameraGuid);
+
+			if (ensure(Spawnable))
+			{
+				// Override spawn ownership during this process to ensure it never gets destroyed
+				SavedOwnership = Spawnable->GetSpawnOwnership();
+				Spawnable->SetSpawnOwnership(ESpawnOwnership::External);
+			}
+
+			// Destroy the old actor
+			World->EditorDestroyActor(NewCamera, false);
+
+			// note that this directly accesses ActiveTemplateIDs.Top() in CreateCamera but GetFocusedTemplateID just calls ActiveTemplateIDs.Top()
+			for (TWeakObjectPtr<UObject>& Object : fsequencer->FindBoundObjects(CameraGuid, sequencer->GetFocusedTemplateID()))
+			{
+				NewCamera = Cast<ACineCameraActor>(Object.Get());
+				if (NewCamera)
+				{
+					break;
+				}
+			}
+			ensure(NewCamera);
+
+		}
+		else
+		{
+			CameraGuid = sequencer->CreateBinding(*NewCamera, NewCamera->GetActorLabel());
+		}
+
+		if (!CameraGuid.IsValid())
+		{
+			return PyErr_Format(PyExc_Exception, "failed to create valid guid");
+		}
+
+		NewCamera->SetActorLocation( GCurrentLevelEditingViewportClient->GetViewLocation(), false );
+		NewCamera->SetActorRotation( GCurrentLevelEditingViewportClient->GetViewRotation() );
+		//pNewCamera->CameraComponent->FieldOfView = ViewportClient->ViewFOV; //@todo set the focal length from this field of view
+
+		sequencer->OnActorAddedToSequencer().Broadcast(NewCamera, CameraGuid);
+
+#if ENGINE_MINOR_VERSION >= 25
+		// annoyingly we dont have access to NewCameraAdded in 4.25
+		// as before re-implement
+		// (note that AddActors also calls NewCameraAdded if the Actor is a camera)
+		// also note that NewCameraAdded at 4.22 does not have the MovieSceneToolHelpers::CameraAdded call because it doesnt exist
+		// - it does some extra actions which Im assuming somewhere between 4.23 and 4.25 was moved to MovieSceneToolHelpers::CameraAdded
+
+		{
+
+			sequencer->SetPerspectiveViewportCameraCutEnabled(false);
+
+			// Lock the viewport to this camera
+			if (NewCamera && NewCamera->GetLevel())
+			{
+				GCurrentLevelEditingViewportClient->SetMatineeActorLock(nullptr);
+				GCurrentLevelEditingViewportClient->SetActorLock(NewCamera);
+				GCurrentLevelEditingViewportClient->bLockedCameraView = true;
+				GCurrentLevelEditingViewportClient->UpdateViewForLockedActor();
+				GCurrentLevelEditingViewportClient->Invalidate();
+			}
+
+			UMovieSceneSequence* Sequence = sequencer->GetFocusedMovieSceneSequence();
+			UMovieScene* OwnerMovieScene = Sequence->GetMovieScene();
+
+			MovieSceneToolHelpers::CameraAdded(OwnerMovieScene, CameraGuid, sequencer->GetLocalTime().Time.FloorToFrame());
+
+		}
+#else
+		fsequencer->NewCameraAdded(CameraGuid, NewCamera);
+#endif
+
+		if (bCreateAsSpawnable && ensure(Spawnable))
+		{
+			Spawnable->SetSpawnOwnership(SavedOwnership);
+		}
+
+		sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::MovieSceneStructureItemAdded);
+
+	}
+	else
+	{
+		return PyErr_Format(PyExc_Exception, "unable to access sequencer");
+	}
+
+	ue_PyUObject *py_camera = ue_get_python_uobject_inc(NewCamera);
+        if (!py_camera)
+                return PyErr_Format(PyExc_Exception, "uobject is in invalid state");
+
+	// we need a tuple return as we want both the camera uobject and the guid
+        PyObject *ret = PyTuple_New(2);
+        PyTuple_SetItem(ret, 0, (PyObject*)py_camera);
+        PyTuple_SetItem(ret, 1, PyUnicode_FromString(TCHAR_TO_UTF8(*CameraGuid.ToString())));
+
+        return ret;
+}
+
 PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args)
 {
 
 	ue_py_check(self);
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: starting"));
 
 	PyObject *py_obj;
 	if (!PyArg_ParseTuple(args, "O:sequencer_add_actor", &py_obj))
@@ -465,22 +656,36 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args)
 		return NULL;
 	}
 
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: 1"));
+
 	if (!self->ue_object->IsA<ULevelSequence>())
 		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: 2"));
 
 	ue_PyUObject *py_ue_obj = ue_is_pyuobject(py_obj);
 	if (!py_ue_obj)
 		return PyErr_Format(PyExc_Exception, "argument is not a uobject");
 
-	if (!py_ue_obj->ue_object->IsA<AActor>())
-		return PyErr_Format(PyExc_Exception, "argument is not an actor");
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: 3"));
+
+#if ENGINE_MINOR_VERSION > 21
+	if (py_ue_obj->ue_object->IsA<ACameraActor>())
+		return PyErr_Format(PyExc_Exception, "argument is a camera actor");
+#endif
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: 4"));
 
 	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: 5"));
 
 	TArray<TWeakObjectPtr<AActor>> actors;
 	actors.Add((AActor *)py_ue_obj->ue_object);
 
 	// try to open the editor for the asset
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: opening editor for asset"));
 
 #if ENGINE_MINOR_VERSION >= 24
 	//UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
@@ -495,8 +700,11 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args)
 	if (editor)
 	{
 		FLevelSequenceEditorToolkit *toolkit = (FLevelSequenceEditorToolkit *)editor;
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: opening editor for asset 1"));
 		ISequencer *sequencer = toolkit->GetSequencer().Get();
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: opening editor for asset 2"));
 		sequencer->AddActors(actors);
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: opening editor for asset 3"));
 	}
 	else
 	{
@@ -505,11 +713,14 @@ PyObject *py_ue_sequencer_add_actor(ue_PyUObject *self, PyObject * args)
 
 	UObject& u_obj = *actors[0];
 
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: opening editor for asset 4"));
+
 #if ENGINE_MINOR_VERSION < 15
 	FGuid new_guid = seq->FindPossessableObjectId(u_obj);
 #else
 	FGuid new_guid = seq->FindPossessableObjectId(u_obj, u_obj.GetWorld());
 #endif
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("py_ue_sequencer_add_actor: opening editor for asset 5"));
 	if (!new_guid.IsValid())
 	{
 		return PyErr_Format(PyExc_Exception, "unable to find guid");
@@ -623,6 +834,39 @@ PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *self, PyObject * args
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
 }
+#endif
+
+#if WITH_EDITOR
+
+#if ENGINE_MINOR_VERSION >= 25
+PyObject *py_ue_sequencer_set_section_camera_guid(ue_PyUObject *self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	UMovieSceneCameraCutSection *section = ue_py_check_type<UMovieSceneCameraCutSection>(self);
+	if (!section)
+		return PyErr_Format(PyExc_Exception, "uobject is not a MovieSceneCameraCutSection");
+
+	char *guid;
+	if (!PyArg_ParseTuple(args, "s:sequencer_set_section_camera_guid", &guid))
+	{
+		return NULL;
+	}
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid))
+	{
+		return PyErr_Format(PyExc_Exception, "invalid guid");
+	}
+
+	section->SetCameraGuid(f_guid);
+
+	Py_RETURN_NONE;
+}
+
+#endif
+
 #endif
 
 PyObject *py_ue_sequencer_master_tracks(ue_PyUObject *self, PyObject * args)
@@ -1689,7 +1933,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 			continue;
 
 		// Look for transforms explicitly
-#if ENGINE_MINOR_VERSION > 21
+#if ENGINE_MINOR_VERSION > 22
 		FRichCurve Translation[3];
 		FRichCurve EulerRotation[3];
 		FRichCurve Scale[3];
@@ -1700,7 +1944,7 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 #endif
 		FTransform DefaultTransform;
 #if ENGINE_MINOR_VERSION >= 18
-#if ENGINE_MINOR_VERSION >= 21
+#if ENGINE_MINOR_VERSION > 22
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform, false);
 #else
 		CurveAPI.GetConvertedTransformCurveData(NodeName, Translation[0], Translation[1], Translation[2], EulerRotation[0], EulerRotation[1], EulerRotation[2], Scale[0], Scale[1], Scale[2], DefaultTransform);

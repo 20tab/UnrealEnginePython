@@ -1126,6 +1126,10 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_set_display_name", (PyCFunction)py_ue_sequencer_set_display_name, METH_VARARGS, "" },
 	{ "sequencer_get_display_name", (PyCFunction)py_ue_sequencer_get_display_name, METH_VARARGS, "" },
 	{ "sequencer_changed", (PyCFunction)py_ue_sequencer_changed, METH_VARARGS, "" },
+	{ "sequencer_add_camera", (PyCFunction)py_ue_sequencer_add_camera, METH_VARARGS, "" },
+#if ENGINE_MINOR_VERSION >= 25
+	{ "sequencer_set_section_camera_guid", (PyCFunction)py_ue_sequencer_set_section_camera_guid, METH_VARARGS, "" },
+#endif
 	{ "sequencer_add_camera_cut_track", (PyCFunction)py_ue_sequencer_add_camera_cut_track, METH_VARARGS, "" },
 	{ "sequencer_add_actor", (PyCFunction)py_ue_sequencer_add_actor, METH_VARARGS, "" },
 	{ "sequencer_add_actor_component", (PyCFunction)py_ue_sequencer_add_actor_component, METH_VARARGS, "" },

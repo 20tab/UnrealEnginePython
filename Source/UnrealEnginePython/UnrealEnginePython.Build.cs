@@ -113,6 +113,7 @@ public class UnrealEnginePython : ModuleRules
 
         PublicIncludePaths.AddRange(
             new string[] {
+                "Editor/Sequencer/Private",
 				// ... add public include paths required here ...
             }
             );
@@ -130,7 +131,8 @@ public class UnrealEnginePython : ModuleRules
             {
                 "Core",
                 "Sockets",
-                "Networking"
+                "Networking",
+                "Sequencer"
 				// ... add other public dependencies that you statically link with here ...
 			}
             );
@@ -146,6 +148,7 @@ public class UnrealEnginePython : ModuleRules
                 "SlateCore",
                 "MovieScene",
                 "LevelSequence",
+                "Sequencer",
                 "HTTP",
                 "UMG",
                 "AppFramework",

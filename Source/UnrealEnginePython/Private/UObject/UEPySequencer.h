@@ -22,11 +22,16 @@ PyObject *py_ue_sequencer_get_display_name(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_changed(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *, PyObject *);
 
+#if ENGINE_MINOR_VERSION >= 25
+PyObject *py_ue_sequencer_set_section_camera_guid(ue_PyUObject *, PyObject *);
+#endif
+
 PyObject *py_ue_sequencer_add_camera_cut_track(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_track_add_section(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_add_camera(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_add_actor(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *, PyObject *);
@@ -46,7 +51,6 @@ PyObject *py_ue_sequencer_find_possessable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_find_spawnable(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *, PyObject *);
-
 
 
 PyObject *py_ue_sequencer_add_track(ue_PyUObject *, PyObject *);
