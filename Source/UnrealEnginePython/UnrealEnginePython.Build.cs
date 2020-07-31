@@ -177,8 +177,8 @@ public class UnrealEnginePython : ModuleRules
             new string[]
             {
 				// ... add any modules that your module loads dynamically here ...
-			}
-            );
+            }
+        );
 
 #if WITH_FORWARDED_MODULE_RULES_CTOR
         if (Target.bBuildEditor)
@@ -211,6 +211,11 @@ public class UnrealEnginePython : ModuleRules
                 "LandscapeEditor",
                 "MaterialEditor"
             });
+            if (Version.MinorVersion > 21)
+            {
+                PrivateDependencyModuleNames.Add("MeshDescription");
+                PrivateDependencyModuleNames.Add("StaticMeshDescription");
+            }
         }
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))

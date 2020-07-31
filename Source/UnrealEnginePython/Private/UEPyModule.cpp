@@ -102,6 +102,9 @@
 #include "Wrappers/UEPyFAssetData.h"
 #include "Wrappers/UEPyFARFilter.h"
 #include "Wrappers/UEPyFRawMesh.h"
+#if ENGINE_MINOR_VERSION > 21
+#include "Wrappers/UEPyFMeshDescription.h"
+#endif
 #include "Wrappers/UEPyFStringAssetReference.h"
 
 #include "UObject/UEPyAnimSequence.h"
@@ -985,7 +988,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "create_landscape_info", (PyCFunction)py_ue_create_landscape_info, METH_VARARGS, "" },
 	{ "get_landscape_info", (PyCFunction)py_ue_get_landscape_info, METH_VARARGS, "" },
 	{ "landscape_import", (PyCFunction)py_ue_landscape_import, METH_VARARGS, "" },
+#if ENGINE_MINOR_VERSION > 21
+	{ "landscape_export_to_mesh_description", (PyCFunction)py_ue_landscape_export_to_mesh_description, METH_VARARGS, "" },
+#else
 	{ "landscape_export_to_raw_mesh", (PyCFunction)py_ue_landscape_export_to_raw_mesh, METH_VARARGS, "" },
+#endif
 #endif
 
 	// Player
@@ -2120,7 +2127,18 @@ void unreal_engine_init_py_module()
 	ue_python_init_fbx(new_unreal_engine_module);
 #endif
 #if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MINOR_VERSION > 21
+	ue_python_init_fmesh_description(new_unreal_engine_module);
+#if 0
+	ue_python_init_fmeshvertex(new_unreal_engine_module);
+	ue_python_init_fmeshvertexinstance(new_unreal_engine_module);
+	ue_python_init_fmeshpolygon(new_unreal_engine_module);
+#endif
+
 	ue_python_init_fraw_mesh(new_unreal_engine_module);
+#else
+	ue_python_init_fraw_mesh(new_unreal_engine_module);
+#endif
 #endif
 	ue_python_init_iplugin(new_unreal_engine_module);
 #endif
