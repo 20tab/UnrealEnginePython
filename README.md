@@ -92,7 +92,7 @@ If you want to package your project (it is required only if you need to have a p
 
 If you want to package without python, just remember to change the UnrealEnginePython.uplugin to have this line: https://github.com/20tab/UnrealEnginePython/blob/master/UnrealEnginePython.uplugin#L20 set as "Editor" instead of "Runtime"
 
-# Binaries installation on MaxOSX
+# Binaries installation on MacOSX
 
 Check in the releases page (https://github.com/20tab/UnrealEnginePython/releases) if there is a binary version that matches your configuration (otherwise open an issue asking us for it [please specify the python version too]) and download it.
 
