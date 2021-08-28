@@ -601,7 +601,7 @@ PyObject *py_ue_sequencer_add_camera(ue_PyUObject *self, PyObject * args)
 			// Lock the viewport to this camera
 			if (NewCamera && NewCamera->GetLevel())
 			{
-				GCurrentLevelEditingViewportClient->SetMatineeActorLock(nullptr);
+				GCurrentLevelEditingViewportClient->SetCinematicActorLock(nullptr);
 				GCurrentLevelEditingViewportClient->SetActorLock(NewCamera);
 				GCurrentLevelEditingViewportClient->bLockedCameraView = true;
 				GCurrentLevelEditingViewportClient->UpdateViewForLockedActor();
