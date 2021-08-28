@@ -215,7 +215,7 @@ PyObject *py_unreal_engine_object_path_to_package_name(PyObject * self, PyObject
 	{
 		return NULL;
 	}
-	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToPackageName(UTF8_TO_TCHAR(path))));
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPackageName::ObjectPathToPackageName( FString( UTF8_TO_TCHAR(path)))));
 }
 
 PyObject *py_unreal_engine_get_path(PyObject * self, PyObject * args)

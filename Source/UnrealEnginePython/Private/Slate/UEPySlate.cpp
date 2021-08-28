@@ -1494,7 +1494,7 @@ PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
 		return NULL;
 	}
 
-	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+	FGlobalTabmanager::Get()->TryInvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
 
 	Py_INCREF(Py_None);
 	return Py_None;

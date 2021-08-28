@@ -611,7 +611,7 @@ PyObject *py_ue_sequencer_add_camera(ue_PyUObject *self, PyObject * args)
 			UMovieSceneSequence* Sequence = sequencer->GetFocusedMovieSceneSequence();
 			UMovieScene* OwnerMovieScene = Sequence->GetMovieScene();
 
-			MovieSceneToolHelpers::CameraAdded(OwnerMovieScene, CameraGuid, sequencer->GetLocalTime().Time.FloorToFrame());
+			//MovieSceneToolHelpers::CameraAdded(OwnerMovieScene, CameraGuid, sequencer->GetLocalTime().Time.FloorToFrame());
 
 		}
 #else
