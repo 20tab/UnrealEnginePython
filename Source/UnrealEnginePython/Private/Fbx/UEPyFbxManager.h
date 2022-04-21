@@ -6,6 +6,7 @@
 #if PLATFORM_LINUX
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnull-dereference"
+#pragma clang diagnostic warning "-Wshadow"
 #endif
 #endif
 

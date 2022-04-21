@@ -315,7 +315,11 @@ PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 	}
 
 	FText outErrorMsg;
+#if ENGINE_MINOR_VERSION >= 21
+	if (!UPackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+#else
 	if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
+#endif
 	{
 		return PyErr_Format(PyExc_Exception, "%s", TCHAR_TO_UTF8(*outErrorMsg.ToString()));
 	}
@@ -589,7 +593,9 @@ PyObject *py_unreal_engine_new_object(PyObject * self, PyObject * args)
 		outer = ue_py_check_type<UObject>(py_outer);
 		if (!outer)
 			return PyErr_Format(PyExc_Exception, "argument is not a UObject");
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("object creation outer is %s"), *outer->GetName());
 	}
+
 
 	UObject *new_object = nullptr;
 	Py_BEGIN_ALLOW_THREADS;

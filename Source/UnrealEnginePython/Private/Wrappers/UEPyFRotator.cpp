@@ -1,5 +1,10 @@
 #include "UEPyFRotator.h"
 
+
+// use this definition if want original argument order for FRotator
+#define USE_UNREALENGINEPYTHON_ORDER 1
+
+
 static PyObject *py_ue_frotator_get_vector(ue_PyFRotator *self, PyObject * args) {
 	FVector vec = self->rot.Vector();
 	return py_ue_new_fvector(vec);
@@ -89,8 +94,14 @@ static PyGetSetDef ue_PyFRotator_getseters[] = {
 
 static PyObject *ue_PyFRotator_str(ue_PyFRotator *self)
 {
+#ifdef USE_UNREALENGINEPYTHON_ORDER
 	return PyUnicode_FromFormat("<unreal_engine.FRotator {'roll': %S, 'pitch': %S, 'yaw': %S}>",
 		PyFloat_FromDouble(self->rot.Roll), PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw));
+
+#else
+	return PyUnicode_FromFormat("<unreal_engine.FRotator {'pitch': %S, 'yaw': %S, 'roll': %S}>",
+		PyFloat_FromDouble(self->rot.Pitch), PyFloat_FromDouble(self->rot.Yaw), PyFloat_FromDouble(self->rot.Roll));
+#endif
 }
 
 PyTypeObject ue_PyFRotatorType = {
@@ -210,12 +221,22 @@ static Py_ssize_t ue_py_frotator_seq_length(ue_PyFRotator *self) {
 
 static PyObject *ue_py_frotator_seq_item(ue_PyFRotator *self, Py_ssize_t i) {
 	switch (i) {
+
+#ifdef USE_UNREALENGINEPYTHON_ORDER
 	case 0:
 		return PyFloat_FromDouble(self->rot.Roll);
 	case 1:
 		return PyFloat_FromDouble(self->rot.Pitch);
 	case 2:
 		return PyFloat_FromDouble(self->rot.Yaw);
+#else
+	case 0:
+		return PyFloat_FromDouble(self->rot.Pitch);
+	case 1:
+		return PyFloat_FromDouble(self->rot.Yaw);
+	case 2:
+		return PyFloat_FromDouble(self->rot.Roll);
+#endif
 	}
 	return PyErr_Format(PyExc_IndexError, "FRotator has only 3 items");
 }
@@ -232,8 +253,13 @@ static int ue_py_frotator_init(ue_PyFRotator *self, PyObject *args, PyObject *kw
         }
     }
     
+#ifdef USE_UNREALENGINEPYTHON_ORDER
 	if (!PyArg_ParseTuple(args, "|fff", &roll, &pitch, &yaw))
 		return -1;
+#else
+	if (!PyArg_ParseTuple(args, "|fff", &pitch, &yaw, &roll))
+		return -1;
+#endif
 
 	if (PyTuple_Size(args) == 1) {
 		yaw = pitch;
@@ -297,8 +323,13 @@ bool py_ue_rotator_arg(PyObject *args, FRotator &rot) {
 	}
 
 	float pitch, yaw, roll;
+#ifdef USE_UNREALENGINEPYTHON_ORDER
 	if (!PyArg_ParseTuple(args, "fff", &roll, &pitch, &yaw))
 		return false;
+#else
+	if (!PyArg_ParseTuple(args, "fff", &pitch, &yaw, &roll))
+		return false;
+#endif
 	rot.Pitch = pitch;
 	rot.Yaw = yaw;
 	rot.Roll = roll;

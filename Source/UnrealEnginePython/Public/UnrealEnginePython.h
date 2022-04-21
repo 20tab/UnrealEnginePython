@@ -9,6 +9,17 @@
 
 //#define UEPY_MEMORY_DEBUG	1
 
+//#define EXTRA_LOGGING 1
+
+#ifdef EXTRA_LOGGING
+#define EXTRA_UE_LOG(log_python, log_level, fmt, args...) \
+        UE_LOG(log_python, log_level, fmt, ##args)
+#define EXTRA_DEBUG_CODE 1
+#else
+#define EXTRA_UE_LOG(...)
+#endif
+
+
 #include "CoreMinimal.h"
 #include "Runtime/Core/Public/Modules/ModuleManager.h"
 #include "Runtime/SlateCore/Public/Styling/SlateStyle.h"
@@ -85,6 +96,67 @@ UNREALENGINEPYTHON_API ue_PyUObject *ue_get_python_uobject_inc(UObject *);
 	if (!ret)\
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
 	return (PyObject *)ret;
+
+#if ENGINE_MINOR_VERSION >= 25
+
+typedef struct
+{
+	PyObject_HEAD
+	/* Type-specific fields go here. */
+	FProperty *ue_fproperty;
+	// the __dict__
+	PyObject *py_dict;
+	//// if true RemoveFromRoot will be called at object destruction time
+	//int auto_rooted;
+	//// if owned the life of the UObject is related to the life of PyObject
+	//int owned;
+} ue_PyFProperty;
+
+UNREALENGINEPYTHON_API ue_PyFProperty *ue_get_python_fproperty(FProperty *);
+UNREALENGINEPYTHON_API ue_PyFProperty *ue_get_python_fproperty_inc(FProperty *);
+
+#define Py_RETURN_FPROPERTY(py_fprop) ue_PyFProperty *ret = ue_get_python_fproperty_inc(py_fprop);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "fproperty is invalid");\
+	return (PyObject *)ret;
+
+#define Py_RETURN_FPROPERTY_NOINC(py_fprop) ue_PyFProperty *ret = ue_get_python_fproperty(py_fprop);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "fproperty is invalid");\
+	return (PyObject *)ret;
+
+// for the moment it seems I need both an FProperty wrap and an FFieldClass wrap
+// not sure about this yet
+// for uobjects both property and class are the same type ie uobjects which is not true for
+// FProperties but havent figured the ramifications of this yet
+
+typedef struct
+{
+	PyObject_HEAD
+	/* Type-specific fields go here. */
+	FFieldClass *ue_ffieldclass;
+	// the __dict__
+	PyObject *py_dict;
+	//// if true RemoveFromRoot will be called at object destruction time
+	//int auto_rooted;
+	//// if owned the life of the UObject is related to the life of PyObject
+	//int owned;
+} ue_PyFFieldClass;
+
+UNREALENGINEPYTHON_API ue_PyFFieldClass *ue_get_python_ffieldclass(FFieldClass *);
+UNREALENGINEPYTHON_API ue_PyFFieldClass *ue_get_python_ffieldclass_inc(FFieldClass *);
+
+#define Py_RETURN_FFIELDCLASS(py_ffieldclass) ue_PyFFieldClass *ret = ue_get_python_ffieldclass_inc(py_ffieldclass);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "ffieldclass is invalid");\
+	return (PyObject *)ret;
+
+#define Py_RETURN_FFIELDCLASS_NOINC(py_ffieldclass) ue_PyFFieldClass *ret = ue_get_python_ffieldclass(py_ffieldclass);\
+	if (!ret)\
+		return PyErr_Format(PyExc_Exception, "ffieldclass is invalid");\
+	return (PyObject *)ret;
+
+#endif
 
 #if ENGINE_MINOR_VERSION < 16
 template<class CPPSTRUCT>

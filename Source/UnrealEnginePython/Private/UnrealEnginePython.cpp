@@ -28,7 +28,26 @@ void unreal_engine_init_py_module();
 void init_unreal_engine_builtin();
 
 #if PLATFORM_LINUX
+// so something seems to have changed between 4.18 and 4.25 which means we can no longer
+// import python extension modules that have/are dynamic libraries (ie site?dist-packages modules)
+// eg import ctypes fails with missing dynamic link symbol found in the primary python shared library
+// it seems that the python extension modules are not able to access the primary
+// python shared library /usr/lib/x86_64-linux-gnu/libpythonx.x.so symbols
+// OK so this gets even more confusing as apparently on other linux distributions the python extension libraries
+// ARE linked with the primary python shared library - this is a debian/ubuntu issue
+// it appears what happened is that the default symbol visibility for global symbols was changed from default to hidden
+// - likely to reduce chance of symbol clashes - it could be particularly true now with Unreals python implementation
+// although that seems to use static linking - but this fixup may mean we cannot have both python implementations
+// active
+// note that ue4_module_options is a symbol whose existence and value is checked in either LinuxPlatformProcess.cpp (4.18)
+// or UnixPlatformProcess.cpp (4.25) to determine if to load dynamic libraries using RTLD_GLOBAL
+// - otherwise RTLD_LOCAL is used
+// it apparently has to be a global symbol itself for this to work
+#if ENGINE_MINOR_VERSION >= 25
+const char *ue4_module_options __attribute__((visibility("default"))) = "linux_global_symbols";
+#else
 const char *ue4_module_options = "linux_global_symbols";
+#endif
 #endif
 
 #include "Runtime/Core/Public/Misc/CommandLine.h"
@@ -46,7 +65,6 @@ const char *ue4_module_options = "linux_global_symbols";
 #include "Android/AndroidJNI.h"
 #include "Android/AndroidApplication.h"
 #endif
-
 
 const char *UEPyUnicode_AsUTF8(PyObject *py_str)
 {
@@ -249,7 +267,11 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni))
 	{
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *home = (wchar_t *)(TCHAR_TO_WCHAR(*PythonHome));
+	#else
 		wchar_t *home = (wchar_t *)*PythonHome;
+	#endif
 #else
 		char *home = TCHAR_TO_UTF8(*PythonHome);
 #endif
@@ -263,7 +285,11 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPaths::NormalizeFilename(PythonHome);
 		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *home = (wchar_t *)(TCHAR_TO_WCHAR(*PythonHome));
+	#else
 		wchar_t *home = (wchar_t *)*PythonHome;
+	#endif
 #else
 		char *home = TCHAR_TO_UTF8(*PythonHome);
 #endif
@@ -277,7 +303,11 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni))
 	{
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *program_name = (wchar_t *)(TCHAR_TO_WCHAR(*IniValue));
+	#else
 		wchar_t *program_name = (wchar_t *)*IniValue;
+	#endif
 #else
 		char *program_name = TCHAR_TO_UTF8(*IniValue);
 #endif
@@ -290,7 +320,11 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPaths::NormalizeFilename(IniValue);
 		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *program_name = (wchar_t *)(TCHAR_TO_WCHAR(*IniValue));
+	#else
 		wchar_t *program_name = (wchar_t *)*IniValue;
+	#endif
 #else
 		char *program_name = TCHAR_TO_UTF8(*IniValue);
 #endif
@@ -391,6 +425,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		}
 
 		// Setup our own paths for PYTHONPATH
+		#if PLATFORM_WINDOWS
 		TArray<FString> OurPythonPaths = {
 			PythonHome,
 			FPaths::Combine(PythonHome, TEXT("Lib")),
@@ -403,8 +438,8 @@ void FUnrealEnginePythonModule::StartupModule()
 		PathVars.Append(OurPythonPaths);
 		FString ModifiedPath = FString::Join(PathVars, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
+		#endif
 	}
-
 
 
 #if PY_MAJOR_VERSION >= 3
