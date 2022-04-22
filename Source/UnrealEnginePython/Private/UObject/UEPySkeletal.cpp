@@ -270,7 +270,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 	model.Sections[section_index].NumVertices = soft_vertices.Num();
 	model.Sections[section_index].CalcMaxBoneInfluences();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -468,11 +468,11 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 	mesh->ReleaseResources();
 	mesh->ReleaseResourcesFence.Wait();
 
-	mesh->Skeleton = skeleton;
+	mesh->SetSkeleton(skeleton);
 
-	mesh->RefSkeleton = skeleton->GetReferenceSkeleton();
+	mesh->GetRefSkeleton() = skeleton->GetReferenceSkeleton();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -548,7 +548,7 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 
 	model.Sections[section_index].BoneMap = bone_map;
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -701,7 +701,7 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 	model.ActiveBoneIndices = active_indices;
 	model.ActiveBoneIndices.Sort();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -810,7 +810,7 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	model.RequiredBones = required_bones;
 	model.RequiredBones.Sort();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -1065,7 +1065,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	build_settings.bComputeTangents = (py_compute_tangents && PyObject_IsTrue(py_compute_tangents));
 	build_settings.bRemoveDegenerateTriangles = true;
 
-	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
+	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->GetPathName(), mesh->GetRefSkeleton(), influences, wedges, faces, points, points_to_map, build_settings);
 
 	if (!success)
 	{
@@ -1079,17 +1079,17 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	}
 #endif
 
-	mesh->CalculateRequiredBones(LODModel, mesh->RefSkeleton, nullptr);
+	mesh->CalculateRequiredBones(LODModel, mesh->GetRefSkeleton(), nullptr);
 	mesh->CalculateInvRefMatrices();
 
-	mesh->Skeleton->RecreateBoneTree(mesh);
-	mesh->Skeleton->SetPreviewMesh(mesh);
+	mesh->GetSkeleton()->RecreateBoneTree(mesh);
+	mesh->GetSkeleton()->SetPreviewMesh(mesh);
 
 	// calculate bounds from points
 	mesh->SetImportedBounds(FBoxSphereBounds(points.GetData(), points.Num()));
 
-	mesh->Skeleton->PostEditChange();
-	mesh->Skeleton->MarkPackageDirty();
+	mesh->GetSkeleton()->PostEditChange();
+	mesh->GetSkeleton()->MarkPackageDirty();
 
 	mesh->PostEditChange();
 	mesh->MarkPackageDirty();
