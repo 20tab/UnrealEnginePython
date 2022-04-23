@@ -37,7 +37,9 @@ PyObject *py_ue_get_foliage_types(ue_PyUObject *self, PyObject * args)
 	PyObject *py_list = PyList_New(0);
 
 	TArray<UFoliageType *> FoliageTypes;
-#if ENGINE_MINOR_VERSION >=23
+#if ENGINE_MAJOR_VERSION == 5
+	foliage_actor->GetFoliageInfos().GetKeys(FoliageTypes);
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23
 	foliage_actor->FoliageInfos.GetKeys(FoliageTypes);
 #else
 	foliage_actor->FoliageMeshes.GetKeys(FoliageTypes);
@@ -71,7 +73,9 @@ PyObject *py_ue_get_foliage_instances(ue_PyUObject *self, PyObject * args)
 	if (!foliage_type)
 		return PyErr_Format(PyExc_Exception, "argument is not a UFoliageType");
 
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5
+	if (!foliage_actor->GetFoliageInfos().Contains(foliage_type))
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23
 	if (!foliage_actor->FoliageInfos.Contains(foliage_type))
 #else
 	if (!foliage_actor->FoliageMeshes.Contains(foliage_type))
@@ -80,7 +84,9 @@ PyObject *py_ue_get_foliage_instances(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "specified UFoliageType not found in AInstancedFoliageActor");
 	}
 
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5
+	const FFoliageInfo& info = foliage_actor->GetFoliageInfos()[foliage_type].Get();
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23
 	FFoliageInfo& info = foliage_actor->FoliageInfos[foliage_type].Get();
 #else
 	FFoliageMeshInfo& info = foliage_actor->FoliageMeshes[foliage_type].Get();
@@ -122,7 +128,7 @@ PyObject *py_ue_add_foliage_asset(ue_PyUObject *self, PyObject * args)
 	AInstancedFoliageActor *ifa = AInstancedFoliageActor::GetInstancedFoliageActorForCurrentLevel(world, true);
 	if (u_object->IsA<UStaticMesh>())
 	{
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 		foliage_type = ifa->GetLocalFoliageTypeForSource(u_object);
 #else
 		foliage_type = ifa->GetLocalFoliageTypeForMesh((UStaticMesh *)u_object);

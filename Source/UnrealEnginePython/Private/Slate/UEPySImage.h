@@ -5,7 +5,7 @@
 
 #include "UEPySLeafWidget.h"
 
-#if ENGINE_MINOR_VERSION > 21
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 21)
 #include "Runtime/SlateCore/Public/Widgets/Images/SImage.h"
 #else
 #include "Runtime/Slate/Public/Widgets/Images/SImage.h"

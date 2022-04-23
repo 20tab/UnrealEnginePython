@@ -33,7 +33,11 @@ static PyObject *py_ue_soverlay_add_slot(ue_PySOverlay *self, PyObject * args, P
 	if (!Child.IsValid())
 		return nullptr;
 
+#if ENGINE_MAJOR_VERSION == 5
+	auto fslot = py_SOverlay->AddSlot(z_order);
+#else
 	SOverlay::FOverlaySlot &fslot = py_SOverlay->AddSlot(z_order);
+#endif
 	fslot.AttachWidget(Child.ToSharedRef());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (padding)

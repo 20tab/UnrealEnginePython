@@ -3,7 +3,7 @@
 
 #if WITH_EDITOR
 
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 #include "Subsystems/AssetEditorSubsystem.h"
 #endif
 
@@ -59,7 +59,7 @@ static PyObject *py_ue_command_apply(PyObject *cls, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UMaterial");
 	}
 
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 	//UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
 
 	IAssetEditorInstance *Instance = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->FindEditorForAsset(Material, false);

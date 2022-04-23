@@ -72,14 +72,14 @@ void UPyUserWidget::NativeConstruct()
 	PyObject_SetAttrString(py_user_widget_instance, (char*)"uobject", (PyObject *)py_uobject);
 
 	if (PythonTickForceDisabled)
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 		bCanEverTick = false;
 #else
 		bHasScriptImplementedTick = false;
 #endif
 
 	if (PythonPaintForceDisabled)
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 		bCanEverPaint = false;
 #else
 		bHasScriptImplementedPaint = false;
@@ -339,19 +339,19 @@ bool UPyUserWidget::NativeIsInteractable() const
 	return false;
 }
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 void UPyUserWidget::NativePaint(FPaintContext & InContext) const
 #else
 int32 UPyUserWidget::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 #endif
 {
 
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 	FPaintContext InContext(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 #endif
 
 	if (!py_user_widget_instance)
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		return -1;
 #else
 		return;
@@ -360,7 +360,7 @@ int32 UPyUserWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Allott
 	FScopePythonGIL gil;
 
 	if (!PyObject_HasAttrString(py_user_widget_instance, (char *)"paint"))
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		return -1;
 #else
 		return;
@@ -369,13 +369,13 @@ int32 UPyUserWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Allott
 	PyObject *ret = PyObject_CallMethod(py_user_widget_instance, (char *)"paint", (char *)"O", py_ue_new_fpaint_context(InContext));
 	if (!ret) {
 		unreal_engine_py_log_error();
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		return -1;
 #else
 		return;
 #endif
 	}
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 	int32 RetValue = -1;
 	if (PyNumber_Check(ret))
 	{
@@ -385,7 +385,7 @@ int32 UPyUserWidget::NativePaint(const FPaintArgs& Args, const FGeometry& Allott
 	}
 #endif
 	Py_DECREF(ret);
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 	return RetValue;
 #endif
 }

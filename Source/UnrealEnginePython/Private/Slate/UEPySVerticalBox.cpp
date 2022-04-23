@@ -58,7 +58,11 @@ static PyObject *ue_py_svertical_box_add(ue_PySVerticalBox *self, PyObject *valu
 		return nullptr;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	auto fslot = py_SVerticalBox->AddSlot();
+#else
 	SVerticalBox::FSlot &fslot = py_SVerticalBox->AddSlot();
+#endif
 	fslot.AttachWidget(Child.ToSharedRef());
 
 	Py_RETURN_SLATE_SELF;

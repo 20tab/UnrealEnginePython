@@ -9,7 +9,7 @@ static PyObject *py_ue_iconsole_manager_add_history_entry(PyObject *cls, PyObjec
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	IConsoleManager::Get().AddConsoleHistoryEntry(TEXT(""), UTF8_TO_TCHAR(entry));
 #else
 	IConsoleManager::Get().AddConsoleHistoryEntry(UTF8_TO_TCHAR(entry));
@@ -21,7 +21,7 @@ static PyObject *py_ue_iconsole_manager_add_history_entry(PyObject *cls, PyObjec
 static PyObject *py_ue_iconsole_manager_get_history(PyObject *cls, PyObject * args)
 {
 	TArray<FString> history;
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	IConsoleManager::Get().GetConsoleHistory(TEXT(""), history);
 #else
 	IConsoleManager::Get().GetConsoleHistory(history);
@@ -36,7 +36,7 @@ static PyObject *py_ue_iconsole_manager_get_history(PyObject *cls, PyObject * ar
 	return py_history;
 }
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 static PyObject *py_ue_iconsole_manager_get_objects(PyObject *cls, PyObject * args)
 {
 	char *key = (char*)"";
@@ -58,7 +58,7 @@ static PyObject *py_ue_iconsole_manager_get_objects(PyObject *cls, PyObject * ar
 }
 #endif
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 static PyObject *py_ue_iconsole_manager_get_objects_containing(PyObject *cls, PyObject * args)
 {
 	char *key = (char*)"";
@@ -588,7 +588,7 @@ static PyObject *py_ue_iconsole_manager_register_command(PyObject *cls, PyObject
 static PyMethodDef ue_PyIConsoleManager_methods[] = {
 	{ "get_history", (PyCFunction)py_ue_iconsole_manager_get_history, METH_VARARGS | METH_CLASS, "" },
 	{ "add_history_entry", (PyCFunction)py_ue_iconsole_manager_add_history_entry, METH_VARARGS | METH_CLASS, "" },
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	{ "get_objects", (PyCFunction)py_ue_iconsole_manager_get_objects, METH_VARARGS | METH_CLASS, "" },
 	{ "get_objects_starting_with", (PyCFunction)py_ue_iconsole_manager_get_objects, METH_VARARGS | METH_CLASS, "" },
 	{ "get_objects_containing", (PyCFunction)py_ue_iconsole_manager_get_objects_containing, METH_VARARGS | METH_CLASS, "" },

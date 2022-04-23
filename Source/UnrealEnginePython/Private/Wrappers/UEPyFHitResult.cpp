@@ -50,7 +50,11 @@ static PyObject *py_ue_fhitresult_get_bone_name(ue_PyFHitResult *self, void *clo
 
 static PyObject *py_ue_fhitresult_get_actor(ue_PyFHitResult *self, void *closure)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	AActor *actor = self->hit.GetActor();
+#else
 	AActor *actor = self->hit.Actor.Get();
+#endif
 	if (!actor)
 	{
 		Py_RETURN_NONE;

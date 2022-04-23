@@ -27,9 +27,17 @@ static PyObject *py_ue_fraw_anim_sequence_track_get_scale_keys(ue_PyFRawAnimSequ
 static PyObject *py_ue_fraw_anim_sequence_track_get_rot_keys(ue_PyFRawAnimSequenceTrack *self, void *closure)
 {
 	PyObject *py_list = PyList_New(0);
+#if ENGINE_MAJOR_VERSION == 5
+	for (auto quat : self->raw_anim_sequence_track.RotKeys)
+#else
 	for (FQuat quat : self->raw_anim_sequence_track.RotKeys)
+#endif
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		PyObject *py_quat = py_ue_new_fquat(FQuat(quat));
+#else
 		PyObject *py_quat = py_ue_new_fquat(quat);
+#endif
 		PyList_Append(py_list, py_quat);
 		Py_DECREF(py_quat);
 	}
@@ -58,7 +66,11 @@ static int py_ue_fraw_anim_sequence_track_set_pos_keys(ue_PyFRawAnimSequenceTrac
 			Py_DECREF(py_iter);
 			if (!failed)
 			{
+#if ENGINE_MAJOR_VERSION == 5
+				self->raw_anim_sequence_track.PosKeys = TArray<FVector3f>(pos);
+#else
 				self->raw_anim_sequence_track.PosKeys = pos;
+#endif
 				return 0;
 			}
 		}
@@ -89,7 +101,11 @@ static int py_ue_fraw_anim_sequence_track_set_scale_keys(ue_PyFRawAnimSequenceTr
 			Py_DECREF(py_iter);
 			if (!failed)
 			{
+#if ENGINE_MAJOR_VERSION == 5
+				self->raw_anim_sequence_track.ScaleKeys = TArray<FVector3f>(scale);
+#else
 				self->raw_anim_sequence_track.ScaleKeys = scale;
+#endif
 				return 0;
 			}
 		}
@@ -120,7 +136,11 @@ static int py_ue_fraw_anim_sequence_track_set_rot_keys(ue_PyFRawAnimSequenceTrac
 			Py_DECREF(py_iter);
 			if (!failed)
 			{
+#if ENGINE_MAJOR_VERSION == 5
+				self->raw_anim_sequence_track.RotKeys = TArray<FQuat4f>(rot);
+#else
 				self->raw_anim_sequence_track.RotKeys = rot;
+#endif
 				return 0;
 			}
 		}

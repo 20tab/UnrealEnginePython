@@ -42,7 +42,9 @@ static int ue_py_srotator_input_box_init(ue_PySRotatorInputBox *self, PyObject *
 {
 	ue_py_slate_setup_farguments(SRotatorInputBox);
 
+#if ENGINE_MAJOR_VERSION == 4
 	ue_py_slate_farguments_optional_bool("allow_responsive_layout", AllowResponsiveLayout);
+#endif
 	ue_py_slate_farguments_optional_bool("color_axis_labels", bColorAxisLabels);
 	ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
 	ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);

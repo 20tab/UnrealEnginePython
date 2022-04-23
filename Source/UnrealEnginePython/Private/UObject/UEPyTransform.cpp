@@ -466,7 +466,7 @@ PyObject *py_ue_get_relative_location(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>())
 	{
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 		FVector vec3 = ((USceneComponent *)self->ue_object)->GetRelativeLocation();
 #else
 		FVector vec3 = ((USceneComponent *)self->ue_object)->RelativeLocation;
@@ -481,7 +481,7 @@ PyObject *py_ue_get_relative_rotation(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>())
 	{
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 		FRotator rot = ((USceneComponent *)self->ue_object)->GetRelativeRotation();
 #else
 		FRotator rot = ((USceneComponent *)self->ue_object)->RelativeRotation;
@@ -496,7 +496,7 @@ PyObject *py_ue_get_relative_scale(ue_PyUObject *self, PyObject * args)
 	ue_py_check(self);
 	if (self->ue_object->IsA<USceneComponent>())
 	{
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 		FVector vec3 = ((USceneComponent *)self->ue_object)->GetRelativeScale3D();
 #else
 		FVector vec3 = ((USceneComponent *)self->ue_object)->RelativeScale3D;

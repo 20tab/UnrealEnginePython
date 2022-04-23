@@ -1,7 +1,7 @@
 #include "UEPySGraphPanel.h"
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 
 
 #define sw_graph_panel StaticCastSharedRef<SGraphPanel>(self->s_nodePanel.s_panel.s_widget)

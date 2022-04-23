@@ -6,7 +6,9 @@
 
 #include "Editor/MaterialEditor/Public/MaterialEditorUtilities.h"
 #include "Editor/MaterialEditor/Public/MaterialEditorActions.h"
+#if ENGINE_MAJOR_VERSION == 4
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
+#endif
 #include "Editor/MaterialEditor/Public/IMaterialEditor.h"
 
 typedef struct

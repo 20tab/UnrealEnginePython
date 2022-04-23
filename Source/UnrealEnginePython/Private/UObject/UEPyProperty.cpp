@@ -1,7 +1,7 @@
 
 #include "UEPyProperty.h"
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 
 #include "PythonDelegate.h"
 #include "PythonFunction.h"

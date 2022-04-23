@@ -112,7 +112,7 @@ private:
 
 		FObjectWriter(PlayInEditorSettings, BackedUpPlaySettings);
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// can I move this from here to PlaySession??
 		// otherwise need to store the settings somehow
 		// currently assuming no changes to default PlayInEditorSettings between the Dequeue and PlaySession
@@ -130,7 +130,7 @@ private:
 		//Use auto because UE4.25 changed type, but type has same interface
 		auto AudioDevice = GEngine->GetMainAudioDevice();
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		bool bIsDeviceValid = AudioDevice.IsValid();
 #else
 		bool bIsDeviceValid = (AudioDevice != nullptr);
@@ -143,7 +143,11 @@ private:
 		}
 
 		// play at the next tick
+#if ENGINE_MAJOR_VERSION == 5
+		FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FInEditorMultiCapture::PlaySession), 0);
+#else
 		FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FInEditorMultiCapture::PlaySession), 0);
+#endif
 	}
 
 	bool PlaySession(float DeltaTime)
@@ -164,7 +168,7 @@ private:
 		}
 
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// we also need access to this
 		const FMovieSceneCaptureSettings& Settings = CurrentCaptureObject->GetSettings();
 
@@ -220,7 +224,7 @@ private:
 		PlayInEditorSettings->CenterNewWindow = true;
 		PlayInEditorSettings->LastExecutedPlayModeType = EPlayModeType::PlayMode_InEditorFloating;
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// this is complicated - instead of specifying here we need to specify in FRequestPlaySessionParams
 		// but that means this needs to be done in the PlaySession function
 #else
@@ -229,7 +233,7 @@ private:
 			.AutoCenter(EAutoCenter::PrimaryWorkArea)
 			.UseOSWindowBorder(true)
 			.FocusWhenFirstShown(false)
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 			.ActivationPolicy(EWindowActivationPolicy::Never)
 #endif
 			.HasCloseButton(true)
@@ -248,7 +252,7 @@ private:
 		PlayInEditorSettings->GameGetsMouseControl = false;
 		PlayInEditorSettings->ShowMouseControlLabel = false;
 		PlayInEditorSettings->ViewportGetsHMDControl = false;
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 		PlayInEditorSettings->ShouldMinimizeEditorOnVRPIE = true;
 		PlayInEditorSettings->EnableGameSound = false;
 #endif
@@ -261,7 +265,7 @@ private:
 		PlayInEditorSettings->LaunchConfiguration = EPlayOnLaunchConfiguration::LaunchConfig_Default;
 		PlayInEditorSettings->SetPlayNetMode(EPlayNetMode::PIE_Standalone);
 		PlayInEditorSettings->SetRunUnderOneProcess(true);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// I hope this is equivalent ie play dedicated is same as launching a separate server
 		PlayInEditorSettings->bLaunchSeparateServer = false;
 #else
@@ -351,7 +355,7 @@ private:
 		//Use auto because UE4.25 changed type, but type has same interface
 		auto AudioDevice = GEngine->GetMainAudioDevice();
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		bool bIsDeviceValid = AudioDevice.IsValid();
 #else
 		bool bIsDeviceValid = (AudioDevice != nullptr);
@@ -480,7 +484,7 @@ PyObject *py_ue_set_level_sequence_asset(ue_PyUObject *self, PyObject *args)
 	if (!capture)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UAutomatedLevelSequenceCapture");
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	capture->SetLevelSequenceAsset(sequence->GetPathName());
 #else
 	capture->LevelSequenceAsset = FSoftObjectPath(sequence->GetPathName());

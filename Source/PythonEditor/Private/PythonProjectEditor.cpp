@@ -2,7 +2,7 @@
 
 #include "PythonProjectEditor.h"
 
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 #include "Subsystems/AssetEditorSubsystem.h"
 
 // #include "UnrealEd.h"
@@ -12,8 +12,13 @@
 #include "SPythonProjectEditor.h"
 #include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
+#if ENGINE_MAJOR_VERSION == 5
+#include "WorkflowOrientedApp/WorkflowUObjectDocuments.h"
+#include "WorkflowOrientedApp/ApplicationMode.h"
+#else
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"
+#endif
 #include "PythonProjectItem.h"
 #include "PythonEditorStyle.h"
 #include "PythonProject.h"
@@ -162,7 +167,9 @@ FBasicPythonEditorMode::FBasicPythonEditorMode(TSharedPtr<class FPythonProjectEd
 				FTabManager::NewStack()
 				->SetSizeCoefficient(0.1f)
 				->SetHideTabWell(true)
+#if ENGINE_MAJOR_VERSION == 4
 				->AddTab(InPythonEditor->GetToolbarTabId(), ETabState::OpenedTab)
+#endif
 				)
 			->Split
 			(
@@ -218,7 +225,7 @@ void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager
 
 void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UPythonProject* PythonProject)
 {
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 	// UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
 	// GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(PythonProject, this);
 	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(PythonProject, this);

@@ -5,7 +5,7 @@
 #include "PythonBlueprintFunctionLibrary.h"
 #include "HAL/IConsoleManager.h"
 #include "HAL/PlatformFilemanager.h"
-#if ENGINE_MINOR_VERSION < 13
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 13))
 #include "ClassIconFinder.h"
 #endif
 
@@ -14,7 +14,7 @@
 #include "Interfaces/IPluginManager.h"
 #endif
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 #define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()
 #else
 #define PROJECT_CONTENT_DIR FPaths::GameContentDir()
@@ -43,7 +43,7 @@ void init_unreal_engine_builtin();
 // or UnixPlatformProcess.cpp (4.25) to determine if to load dynamic libraries using RTLD_GLOBAL
 // - otherwise RTLD_LOCAL is used
 // it apparently has to be a global symbol itself for this to work
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 const char *ue4_module_options __attribute__((visibility("default"))) = "linux_global_symbols";
 #else
 const char *ue4_module_options = "linux_global_symbols";
@@ -139,7 +139,7 @@ void FUnrealEnginePythonModule::UESetupPythonInterpreter(bool verbose)
 	for (int32 i = 0; i < Args.Num(); i++)
 	{
 #if PY_MAJOR_VERSION >= 3
-	#if ENGINE_MINOR_VERSION >= 20
+	#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		argv[i] = (wchar_t *)(TCHAR_TO_WCHAR(*Args[i]));
 	#else
 		argv[i] = (wchar_t *)(*Args[i]);
@@ -267,7 +267,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni))
 	{
 #if PY_MAJOR_VERSION >= 3
-	#if ENGINE_MINOR_VERSION >= 20
+	#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		wchar_t *home = (wchar_t *)(TCHAR_TO_WCHAR(*PythonHome));
 	#else
 		wchar_t *home = (wchar_t *)*PythonHome;
@@ -285,7 +285,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPaths::NormalizeFilename(PythonHome);
 		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
 #if PY_MAJOR_VERSION >= 3
-	#if ENGINE_MINOR_VERSION >= 20
+	#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		wchar_t *home = (wchar_t *)(TCHAR_TO_WCHAR(*PythonHome));
 	#else
 		wchar_t *home = (wchar_t *)*PythonHome;
@@ -303,7 +303,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni))
 	{
 #if PY_MAJOR_VERSION >= 3
-	#if ENGINE_MINOR_VERSION >= 20
+	#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		wchar_t *program_name = (wchar_t *)(TCHAR_TO_WCHAR(*IniValue));
 	#else
 		wchar_t *program_name = (wchar_t *)*IniValue;
@@ -320,7 +320,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPaths::NormalizeFilename(IniValue);
 		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
 #if PY_MAJOR_VERSION >= 3
-	#if ENGINE_MINOR_VERSION >= 20
+	#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 		wchar_t *program_name = (wchar_t *)(TCHAR_TO_WCHAR(*IniValue));
 	#else
 		wchar_t *program_name = (wchar_t *)*IniValue;
@@ -405,7 +405,7 @@ void FUnrealEnginePythonModule::StartupModule()
 
 		const int32 MaxPathVarLen = 32768;
 		FString OrigPathVar = FString::ChrN(MaxPathVarLen, TEXT('\0'));
-#if ENGINE_MINOR_VERSION >= 21
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 21)
 		OrigPathVar = FPlatformMisc::GetEnvironmentVariable(TEXT("PATH"));
 #else
 		FPlatformMisc::GetEnvironmentVariable(TEXT("PATH"), OrigPathVar.GetCharArray().GetData(), MaxPathVarLen);
@@ -518,7 +518,7 @@ void FUnrealEnginePythonModule::StartupModule()
 	StyleSet->SetContentRoot(IPluginManager::Get().FindPlugin("UnrealEnginePython")->GetBaseDir() / "Resources");
 	StyleSet->Set("ClassThumbnail.PythonScript", new FSlateImageBrush(StyleSet->RootToContentDir("Icon128.png"), FVector2D(128.0f, 128.0f)));
 	FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
-#if ENGINE_MINOR_VERSION < 13
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 13))
 	FClassIconFinder::RegisterIconSource(StyleSet.Get());
 #endif
 #endif

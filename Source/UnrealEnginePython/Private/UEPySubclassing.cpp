@@ -79,7 +79,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 
 			//EXTRA_UE_LOG(LogPython, Warning, TEXT("offset tp_alloc %d %x"), offsetof(PyTypeObject, tp_alloc), offsetof(PyTypeObject, tp_alloc));
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			if (FProperty *f_property = new_class->FindPropertyByName(FName(UTF8_TO_TCHAR(class_key))))
 			{
 				UE_LOG(LogPython, Warning, TEXT("Found FProperty %s"), UTF8_TO_TCHAR(class_key));
@@ -94,7 +94,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 				prop_added = true;
 			}
 #endif
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			// add simple property
 			// this is confusing because it appears when properties were uobjects UEP allowed both general
 			// uobject classes and UProperty classes as arguments - creating a UOBjectProperty/UScriptStructProperty for a non-UProperty class
@@ -214,7 +214,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 				if (PyList_Size(value) == 1)
 				{
 					PyObject *first_item = PyList_GetItem(value, 0);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 					// pigs - we need same code as above - allow for direct FFieldClass plus UObject/UScriptStruct classes
 					if (ue_is_pyfproperty(first_item))
 					{
@@ -325,7 +325,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 
 				}
 			}
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 			else if (PyDict_Check(value))
 			{
 				if (PyDict_Size(value) == 1)
@@ -334,7 +334,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 					PyObject *py_value = nullptr;
 					Py_ssize_t pos = 0;
 					PyDict_Next(value, &pos, &py_key, &py_value);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 					if (ue_is_pyfproperty(py_key) || ue_is_pyfproperty(py_value))
 					{
 						// So I dont think an FProperty is valid as an argument here - we need a class object
@@ -605,7 +605,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 							PyObject *mc_value = PyDict_GetItem(found_additional_props, mc_key);
 
 							const char *mc_name = UEPyUnicode_AsUTF8(mc_key);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 							FProperty *f_property = ObjectInitializer.GetObj()->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(mc_name)));
 							if (f_property)
 							{
@@ -618,7 +618,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 								if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 								{
 #endif
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 									FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(ObjectInitializer.GetObj());
 #else
 									
@@ -626,7 +626,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 #endif
 
 									FScriptDelegate script_delegate;
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 									// can we reuse UPythonDelegate here??
 									UPythonDelegate *py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(ObjectInitializer.GetObj(), mc_value, casted_prop->SignatureFunction);
 #else
@@ -639,7 +639,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 									multiscript_delegate.Add(script_delegate);
 
 									// re-assign multicast delegate
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 									casted_prop->SetMulticastDelegate(ObjectInitializer.GetObj(), multiscript_delegate);
 #else
 									casted_prop->SetPropertyValue_InContainer(ObjectInitializer.GetObj(), multiscript_delegate);
@@ -764,7 +764,13 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 		if (py_init && PyCallable_Check(py_init))
 		{
 			// fake initializer
+#if ENGINE_MAJOR_VERSION == 5
+			FObjectInitializer initializer(new_u_py_class->ClassDefaultObject, nullptr,
+			                               EObjectInitializerOptions::None |
+			                               EObjectInitializerOptions::InitializeProperties, nullptr);
+#else
 			FObjectInitializer initializer(new_u_py_class->ClassDefaultObject, nullptr, false, true);
+#endif
 			new_u_py_class->SetPyConstructor(py_init);
 			ue_PyUObject *new_default_self = ue_get_python_uobject(new_u_py_class->ClassDefaultObject);
 
@@ -784,7 +790,7 @@ int unreal_engine_py_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)
 }
 
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 
 
 int unreal_engine_py_fproperty_init(ue_PyUObject *self, PyObject *args, PyObject *kwds)

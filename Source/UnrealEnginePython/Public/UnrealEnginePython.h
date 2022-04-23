@@ -62,7 +62,7 @@ typedef struct
 UNREALENGINEPYTHON_API void ue_py_register_magic_module(char *name, PyObject *(*)());
 UNREALENGINEPYTHON_API PyObject *ue_py_register_module(const char *);
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 #define FStringAssetReference FSoftObjectPath
 #endif
 
@@ -97,7 +97,7 @@ UNREALENGINEPYTHON_API ue_PyUObject *ue_get_python_uobject_inc(UObject *);
 		return PyErr_Format(PyExc_Exception, "uobject is in invalid state");\
 	return (PyObject *)ret;
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 
 typedef struct
 {
@@ -158,7 +158,7 @@ UNREALENGINEPYTHON_API ue_PyFFieldClass *ue_get_python_ffieldclass_inc(FFieldCla
 
 #endif
 
-#if ENGINE_MINOR_VERSION < 16
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 16))
 template<class CPPSTRUCT>
 struct TStructOpsTypeTraitsBase2 : TStructOpsTypeTraitsBase
 {

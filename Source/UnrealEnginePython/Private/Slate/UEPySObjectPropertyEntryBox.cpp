@@ -16,7 +16,7 @@ static int ue_py_sobject_property_entry_box_init(ue_PySObjectPropertyEntryBox *s
 	ue_py_slate_farguments_optional_bool("allow_clear", AllowClear);
 	ue_py_slate_farguments_optional_bool("display_browse", DisplayBrowse);
 	ue_py_slate_farguments_optional_bool("display_use_selected", DisplayUseSelected);
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	ue_py_slate_farguments_optional_bool("enable_content_picker", EnableContentPicker);
 #endif
 	ue_py_slate_farguments_string("object_path", ObjectPath);

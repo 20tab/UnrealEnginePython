@@ -42,7 +42,11 @@ static int ue_py_scolor_block_init(ue_PySColorBlock *self, PyObject *args, PyObj
 
 	ue_py_slate_farguments_flinear_color("color", Color);
 	ue_py_slate_farguments_bool("color_is_hsv", ColorIsHSV);
+#if ENGINE_MAJOR_VERSION == 5
+	ue_py_slate_farguments_enum("alpha_display_mode", AlphaDisplayMode, EColorBlockAlphaDisplayMode);
+#else
 	ue_py_slate_farguments_bool("ignore_alpha", IgnoreAlpha);
+#endif
 	ue_py_slate_farguments_event("on_mouse_button_down", OnMouseButtonDown, FPointerEventHandler, OnMouseEvent);
 	ue_py_slate_farguments_bool("show_background_for_alpha", ShowBackgroundForAlpha);
 	ue_py_slate_farguments_fvector2d("size", Size);

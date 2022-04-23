@@ -13,7 +13,7 @@ FUnrealEnginePythonHouseKeeper *FUnrealEnginePythonHouseKeeper::Get()
     {
         Singleton = new FUnrealEnginePythonHouseKeeper();
         // register a new delegate for the GC
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
         FCoreUObjectDelegates::GetPostGarbageCollect().AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);
 #else
         FCoreUObjectDelegates::PostGarbageCollect.AddRaw(Singleton, &FUnrealEnginePythonHouseKeeper::RunGCDelegate);

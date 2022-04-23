@@ -25,14 +25,26 @@ static PyObject *py_ue_ssplitter_add_slot(ue_PySSplitter *self, PyObject * args,
 		return nullptr;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	auto fslot = py_SSplitter->AddSlot(index);
+#else
 	SSplitter::FSlot &fslot = py_SSplitter->AddSlot(index);
+#endif
 	if (size_value > -1)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		fslot._Value = size_value;
+#else
 		fslot.SizeValue = size_value;
+#endif
 	}
 	if (sizing_rule > -1)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		fslot._SizeRule = sizing_rule;
+#else
 		fslot.SizingRule = (SSplitter::ESizeRule)sizing_rule;
+#endif
 	}
 	fslot.AttachWidget(Child.ToSharedRef());
 

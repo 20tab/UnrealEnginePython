@@ -12,7 +12,7 @@ static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObjec
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
@@ -35,7 +35,7 @@ static PyObject *py_ue_uscriptstruct_get_field_array_dim(ue_PyUScriptStruct *sel
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
@@ -60,7 +60,7 @@ static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObjec
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
@@ -90,7 +90,7 @@ static PyObject *py_ue_uscriptstruct_fields(ue_PyUScriptStruct *self, PyObject *
 {
 	PyObject *ret = PyList_New(0);
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	for (TFieldIterator<FProperty> PropIt(self->u_struct); PropIt; ++PropIt)
 	{
 		FProperty* property = *PropIt;
@@ -130,7 +130,7 @@ PyObject *py_ue_uscriptstruct_as_dict(ue_PyUScriptStruct * self, PyObject * args
 	static const FName DisplayNameKey(TEXT("DisplayName"));
 
 	PyObject *py_struct_dict = PyDict_New();
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	TFieldIterator<FProperty> SArgs(self->u_struct);
 #else
 	TFieldIterator<UProperty> SArgs(self->u_struct);
@@ -185,14 +185,14 @@ static PyObject *ue_PyUScriptStruct_str(ue_PyUScriptStruct *self)
 		TCHAR_TO_UTF8(*self->u_struct->GetName()), self->u_struct->GetStructureSize(), self->u_struct_ptr);
 }
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 static FProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 #else
 static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 #endif
 {
 	FString attr = UTF8_TO_TCHAR(name);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(*attr));
 	if (f_property)
 		return f_property;
@@ -206,7 +206,7 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 	static const FName DisplayNameKey(TEXT("DisplayName"));
 
 	// if the property is not found, attempt to search for DisplayName
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	for (TFieldIterator<FProperty> prop(u_struct); prop; ++prop)
 	{
 		FProperty *property = *prop;
@@ -229,7 +229,7 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 	return nullptr;
 }
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 FProperty *ue_struct_get_field_from_name(UScriptStruct *u_struct, char *name)
 #else
 UProperty *ue_struct_get_field_from_name(UScriptStruct *u_struct, char *name)
@@ -247,7 +247,7 @@ static PyObject *ue_PyUScriptStruct_getattro(ue_PyUScriptStruct *self, PyObject 
 		{
 			const char *attr = UEPyUnicode_AsUTF8(attr_name);
 			// first check for property
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			FProperty *f_property = get_field_from_name(self->u_struct, (char *)attr);
 			if (f_property)
 			{
@@ -276,7 +276,7 @@ static int ue_PyUScriptStruct_setattro(ue_PyUScriptStruct *self, PyObject *attr_
 	{
 		const char *attr = UEPyUnicode_AsUTF8(attr_name);
 		// first check for property
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty *f_property = get_field_from_name(self->u_struct, (char *)attr);
 		if (f_property)
 		{

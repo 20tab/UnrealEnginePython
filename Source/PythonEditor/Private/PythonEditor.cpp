@@ -7,7 +7,7 @@
 #include "PythonEditorStyle.h"
 #include "PythonProjectEditor.h"
 #include "PythonProject.h"
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 #include "Subsystems/AssetEditorSubsystem.h"
 #endif
 #include "Runtime/Slate/Public/Framework/MultiBox/MultiBoxBuilder.h"

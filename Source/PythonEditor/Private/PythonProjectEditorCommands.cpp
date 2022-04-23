@@ -14,7 +14,7 @@ FPythonProjectEditorCommands::FPythonProjectEditorCommands()
 
 void FPythonProjectEditorCommands::RegisterCommands()
 {
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	UI_COMMAND(New, "New", "New Python Script.", EUserInterfaceActionType::Button, FInputChord(EModifierKey::Control, EKeys::N));
 	UI_COMMAND(NewDirectory, "New Directory", "New Directory.", EUserInterfaceActionType::Button, FInputChord(EModifierKey::Control | EModifierKey::Shift, EKeys::N));
 	UI_COMMAND(Delete, "Delete", "Delete Python Script.", EUserInterfaceActionType::Button, FInputChord(EModifierKey::Control, EKeys::D));

@@ -37,14 +37,14 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 		py_args = PyTuple_New(signature->NumParms);
 		Py_ssize_t argn = 0;
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		TFieldIterator<FProperty> PArgs(signature);
 #else
 		TFieldIterator<UProperty> PArgs(signature);
 #endif
 		for (; PArgs && argn < signature->NumParms && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs)
 		{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			FProperty *prop = *PArgs;
 #else
 			UProperty *prop = *PArgs;
@@ -71,7 +71,7 @@ void UPythonDelegate::ProcessEvent(UFunction *function, void *Parms)
 	// currently useless as events do not return a value
 	/*
 	if (signature_set) {
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty *return_property = signature->GetReturnProperty();
 #else
 		UProperty *return_property = signature->GetReturnProperty();

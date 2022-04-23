@@ -6,7 +6,7 @@
 #include "UEPyVisualLogger.h"
 
 #include "UObject/UEPyObject.h"
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 #include "UObject/UEPyProperty.h"
 #endif
 #include "UObject/UEPyActor.h"
@@ -91,7 +91,7 @@
 #include "UEPyEnumsImporter.h"
 #include "UEPyUStructsImporter.h"
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 #include "UEPyFPropertiesImporter.h"
 #endif
 
@@ -122,13 +122,13 @@
 #include "PythonFunction.h"
 #include "PythonClass.h"
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 #include "Engine/UserDefinedEnum.h"
 #endif
 
 #include "Runtime/Core/Public/UObject/PropertyPortFlags.h"
 
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 #define USoftObjectProperty UAssetObjectProperty
 #define USoftClassProperty UAssetClassProperty
 typedef FAssetPtr FSoftObjectPtr;
@@ -214,7 +214,7 @@ static PyObject* py_ue_get_py_proxy(ue_PyUObject* self, PyObject* args)
 static PyObject* py_unreal_engine_shutdown(PyObject* self, PyObject* args)
 {
 
-#if ENGINE_MINOR_VERSION >= 24
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
 	RequestEngineExit(FString(TEXT("I'm Shutting Down, Dave...")));
 #else
 	GIsRequestingExit = true;
@@ -583,7 +583,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "properties", (PyCFunction)py_ue_properties, METH_VARARGS, "" },
 	{ "get_property_class", (PyCFunction)py_ue_get_property_class, METH_VARARGS, "" },
 	{ "has_property", (PyCFunction)py_ue_has_property, METH_VARARGS, "" },
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	{ "get_fproperty", (PyCFunction)py_ue_get_fproperty, METH_VARARGS, "" },
 #else
 	{ "get_uproperty", (PyCFunction)py_ue_get_uproperty, METH_VARARGS, "" },
@@ -618,7 +618,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "import_custom_properties", (PyCFunction)py_ue_import_custom_properties, METH_VARARGS, "" },
 #endif
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 #if WITH_EDITOR
 	{ "can_modify", (PyCFunction)py_ue_can_modify, METH_VARARGS, "" },
 #endif
@@ -707,9 +707,13 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "struct_add_variable", (PyCFunction)py_ue_struct_add_variable, METH_VARARGS, "" },
 	{ "struct_get_variables", (PyCFunction)py_ue_struct_get_variables, METH_VARARGS, "" },
 	{ "struct_remove_variable", (PyCFunction)py_ue_struct_remove_variable, METH_VARARGS, "" },
+#if ENGINE_MAJOR_VERSION == 5
+	{ "struct_move_variable_above", (PyCFunction)py_ue_struct_move_variable_above, METH_VARARGS, "" },
+	{ "struct_move_variable_below", (PyCFunction)py_ue_struct_move_variable_below, METH_VARARGS, "" },
+#else
 	{ "struct_move_variable_up", (PyCFunction)py_ue_struct_move_variable_up, METH_VARARGS, "" },
 	{ "struct_move_variable_down", (PyCFunction)py_ue_struct_move_variable_down, METH_VARARGS, "" },
-
+#endif
 	{ "data_table_add_row", (PyCFunction)py_ue_data_table_add_row, METH_VARARGS, "" },
 	{ "data_table_remove_row", (PyCFunction)py_ue_data_table_remove_row, METH_VARARGS, "" },
 	{ "data_table_rename_row", (PyCFunction)py_ue_data_table_rename_row, METH_VARARGS, "" },
@@ -762,11 +766,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "extract_root_motion", (PyCFunction)py_ue_anim_extract_root_motion, METH_VARARGS, "" },
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	{ "get_raw_animation_data", (PyCFunction)py_ue_anim_sequence_get_raw_animation_data, METH_VARARGS, "" },
 	{ "get_raw_animation_track", (PyCFunction)py_ue_anim_sequence_get_raw_animation_track, METH_VARARGS, "" },
 	{ "add_new_raw_track", (PyCFunction)py_ue_anim_sequence_add_new_raw_track, METH_VARARGS, "" },
-#if ENGINE_MINOR_VERSION <23
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 	{ "update_compressed_track_map_from_raw", (PyCFunction)py_ue_anim_sequence_update_compressed_track_map_from_raw, METH_VARARGS, "" },
 #endif
 	{ "update_raw_track", (PyCFunction)py_ue_anim_sequence_update_raw_track, METH_VARARGS, "" },
@@ -1046,12 +1050,12 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeleton_find_bone_index", (PyCFunction)py_ue_skeleton_find_bone_index, METH_VARARGS, "" },
 	{ "skeleton_get_ref_bone_pose", (PyCFunction)py_ue_skeleton_get_ref_bone_pose, METH_VARARGS, "" },
 
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	{ "skeleton_add_bone", (PyCFunction)py_ue_skeleton_add_bone, METH_VARARGS, "" },
 #endif
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	{ "skeletal_mesh_set_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_set_soft_vertices, METH_VARARGS, "" },
 	{ "skeletal_mesh_get_soft_vertices", (PyCFunction)py_ue_skeletal_mesh_get_soft_vertices, METH_VARARGS, "" },
 #endif
@@ -1062,7 +1066,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "skeletal_mesh_set_skeleton", (PyCFunction)py_ue_skeletal_mesh_set_skeleton, METH_VARARGS, "" },
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	{ "skeletal_mesh_get_bone_map", (PyCFunction)py_ue_skeletal_mesh_get_bone_map, METH_VARARGS, "" },
 	{ "skeletal_mesh_set_bone_map", (PyCFunction)py_ue_skeletal_mesh_set_bone_map, METH_VARARGS, "" },
 #endif
@@ -1194,7 +1198,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "get_archetype_instances", (PyCFunction)py_ue_get_archetype_instances, METH_VARARGS, "" },
 	{ "enum_values", (PyCFunction)py_ue_enum_values, METH_VARARGS, "" },
 	{ "enum_names", (PyCFunction)py_ue_enum_names, METH_VARARGS, "" },
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 	{ "enum_user_defined_names", (PyCFunction)py_ue_enum_user_defined_names, METH_VARARGS, "" },
 #endif
 
@@ -1248,7 +1252,7 @@ static PyObject* ue_PyUObject_getattro(ue_PyUObject* self, PyObject* attr_name)
 			{
 				u_struct = (UStruct*)self->ue_object->GetClass();
 			}
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			FProperty* f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
 			if (f_property)
 			{
@@ -1297,7 +1301,7 @@ static PyObject* ue_PyUObject_getattro(ue_PyUObject* self, PyObject* attr_name)
 			// last hope, is it an enum ?
 			if (!function)
 			{
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 				if (self->ue_object->IsA<UUserDefinedEnum>())
 				{
 					UUserDefinedEnum* u_enum = (UUserDefinedEnum*)self->ue_object;
@@ -1307,7 +1311,7 @@ static PyObject* ue_PyUObject_getattro(ue_PyUObject* self, PyObject* attr_name)
 					{
 						if (item.Value.ToString() == attr_as_string)
 						{
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 							return PyLong_FromLong(u_enum->GetIndexByName(item.Key));
 #else
 							return PyLong_FromLong(u_enum->FindEnumIndex(item.Key));
@@ -1321,7 +1325,7 @@ static PyObject* ue_PyUObject_getattro(ue_PyUObject* self, PyObject* attr_name)
 				{
 					UEnum* u_enum = (UEnum*)self->ue_object;
 					PyErr_Clear();
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 					int32 value = u_enum->GetIndexByName(FName(UTF8_TO_TCHAR(attr)));
 					if (value == INDEX_NONE)
 						return PyErr_Format(PyExc_Exception, "unknown enum name \"%s\"", attr);
@@ -1365,7 +1369,7 @@ static int ue_PyUObject_setattro(ue_PyUObject* self, PyObject* attr_name, PyObje
 		{
 			u_struct = (UStruct*)self->ue_object->GetClass();
 		}
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty* f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(attr)));
 		if (f_property)
 		{
@@ -1586,7 +1590,7 @@ static PyObject* ue_PyUObject_call(ue_PyUObject* self, PyObject* args, PyObject*
 					break;
 				}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 				FProperty* f_property = ue_struct_get_field_from_name(u_script_struct, (char*)struct_key);
 				if (f_property)
 				{
@@ -1657,7 +1661,7 @@ static PyTypeObject ue_PyUObjectType = {
 };
 
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 
 static PyObject* ue_PyFProperty_call(ue_PyFProperty* self, PyObject* args, PyObject* kw)
 {
@@ -1936,7 +1940,7 @@ UClass* unreal_engine_new_uclass(char* name, UClass* outer_parent)
 		// with properties in ChildProperties
 		// in fact given that the above nulled the entire list it would suggest
 		// the following is needed
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		new_object->ChildProperties = nullptr;
 #endif
 	}
@@ -2001,7 +2005,7 @@ UClass* unreal_engine_new_uclass(char* name, UClass* outer_parent)
 
 
 int unreal_engine_py_init(ue_PyUObject*, PyObject*, PyObject*);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 int unreal_engine_py_fproperty_init(ue_PyUObject*, PyObject*, PyObject*);
 int unreal_engine_py_ffieldclass_init(ue_PyUObject*, PyObject*, PyObject*);
 #endif
@@ -2024,7 +2028,7 @@ void unreal_engine_init_py_module()
 	Py_INCREF(&ue_PyUObjectType);
 	PyModule_AddObject(new_unreal_engine_module, "UObject", (PyObject*)& ue_PyUObjectType);
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	ue_PyFPropertyType.tp_new = PyType_GenericNew;
 	ue_PyFPropertyType.tp_init = (initproc)unreal_engine_py_fproperty_init;
 	ue_PyFPropertyType.tp_dictoffset = offsetof(ue_PyFProperty, py_dict);
@@ -2069,7 +2073,7 @@ void unreal_engine_init_py_module()
 	ue_python_init_flinearcolor(new_unreal_engine_module);
 	ue_python_init_fquat(new_unreal_engine_module);
 
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 	ue_python_init_fframe_number(new_unreal_engine_module);
 #endif
 
@@ -2116,10 +2120,10 @@ void unreal_engine_init_py_module()
 	ue_python_init_fassetdata(new_unreal_engine_module);
 	ue_python_init_edgraphpin(new_unreal_engine_module);
 	ue_python_init_fstring_asset_reference(new_unreal_engine_module);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_python_init_fbx(new_unreal_engine_module);
 #endif
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	ue_python_init_fraw_mesh(new_unreal_engine_module);
 #endif
 	ue_python_init_iplugin(new_unreal_engine_module);
@@ -2146,7 +2150,7 @@ void unreal_engine_init_py_module()
 	ue_py_register_magic_module((char*)"unreal_engine.classes", py_ue_new_uclassesimporter);
 	ue_py_register_magic_module((char*)"unreal_engine.enums", py_ue_new_enumsimporter);
 	ue_py_register_magic_module((char*)"unreal_engine.structs", py_ue_new_ustructsimporter);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	ue_py_register_magic_module((char*)"unreal_engine.properties", py_ue_new_fpropertiesimporter);
 #endif
 
@@ -2213,9 +2217,11 @@ void unreal_engine_init_py_module()
 	PyDict_SetItemString(unreal_engine_dict, "RF_DUPLICATETRANSIENT", PyLong_FromUnsignedLongLong((uint64)RF_DuplicateTransient));
 	PyDict_SetItemString(unreal_engine_dict, "RF_STRONGREFONFRAME", PyLong_FromUnsignedLongLong((uint64)RF_StrongRefOnFrame));
 	PyDict_SetItemString(unreal_engine_dict, "RF_NONPIEDUPLICATETRANSIENT", PyLong_FromUnsignedLongLong((uint64)RF_NonPIEDuplicateTransient));
+#if ENGINE_MAJOR_VERSION == 4
 	PyDict_SetItemString(unreal_engine_dict, "RF_DYNAMIC", PyLong_FromUnsignedLongLong((uint64)RF_Dynamic));
+#endif
 
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	PyDict_SetItemString(unreal_engine_dict, "RF_WILLBELOADED", PyLong_FromUnsignedLongLong((uint64)RF_WillBeLoaded));
 #endif
 
@@ -2260,7 +2266,11 @@ ue_PyUObject* ue_get_python_uobject(UObject* ue_obj)
 	ue_PyUObject* ret = FUnrealEnginePythonHouseKeeper::Get()->GetPyUObject(ue_obj);
 	if (!ret)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		if (!ue_obj->IsValidLowLevel() || ue_obj->IsUnreachable())
+#else
 		if (!ue_obj->IsValidLowLevel() || ue_obj->IsPendingKillOrUnreachable())
+#endif
 			return nullptr;
 
 		ue_PyUObject* ue_py_object = (ue_PyUObject*)PyObject_New(ue_PyUObject, &ue_PyUObjectType);
@@ -2295,7 +2305,7 @@ ue_PyUObject* ue_get_python_uobject_inc(UObject* ue_obj)
 	return ret;
 }
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 // so for the moment lets reimplement this using fproperty
 ue_PyFProperty* ue_get_python_fproperty(FProperty* ue_fprop)
 {
@@ -2512,7 +2522,7 @@ AActor* ue_get_actor(ue_PyUObject* py_obj)
 	return nullptr;
 }
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 // convert a property to a python object
 PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 {
@@ -3210,7 +3220,11 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				if (!ue_obj->ue_object->GetClass()->ImplementsInterface(casted_prop_interface->InterfaceClass))
 					return false;
 
+#if ENGINE_MAJOR_VERSION == 5
+				casted_prop_interface->SetPropertyValue_InContainer(buffer, TScriptInterface<IInterface>(ue_obj->ue_object), index);
+#else
 				casted_prop_interface->SetPropertyValue_InContainer(buffer, FScriptInterface(ue_obj->ue_object), index);
+#endif
 
 				return true;
 			}
@@ -3292,7 +3306,7 @@ PyObject* ue_py_convert_property(UProperty* prop, uint8* buffer, int32 index)
 		return PyLong_FromUnsignedLong(value);
 	}
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 	if (auto casted_prop = Cast<UEnumProperty>(prop))
 	{
 		void* prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
@@ -3436,7 +3450,7 @@ PyObject* ue_py_convert_property(UProperty* prop, uint8* buffer, int32 index)
 		return py_list;
 	}
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 	if (auto casted_prop = Cast<UMapProperty>(prop))
 	{
 		FScriptMapHelper_InContainer map_helper(casted_prop, buffer, index);
@@ -3541,7 +3555,7 @@ bool ue_py_convert_pyobject(PyObject* py_obj, UProperty* prop, uint8* buffer, in
 			Py_DECREF(py_long);
 			return true;
 		}
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 		if (auto casted_prop = Cast<UEnumProperty>(prop))
 		{
 			PyObject* py_long = PyNumber_Long(py_obj);
@@ -3707,7 +3721,7 @@ bool ue_py_convert_pyobject(PyObject* py_obj, UProperty* prop, uint8* buffer, in
 		return false;
 	}
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 	if (PyDict_Check(py_obj))
 	{
 		if (auto casted_prop = Cast<UMapProperty>(prop))
@@ -3979,7 +3993,7 @@ ue_PyUObject* ue_is_pyuobject(PyObject* obj)
 	return (ue_PyUObject*)obj;
 }
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 // check if a python object is a wrapper to an FProperty
 ue_PyFProperty* ue_is_pyfproperty(PyObject* obj)
 {
@@ -4130,7 +4144,7 @@ void ue_autobind_events_for_pyclass(ue_PyUObject* u_obj, PyObject* py_class)
 static void py_ue_destroy_params(UFunction* u_function, uint8* buffer)
 {
 	// destroy params
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	TFieldIterator<FProperty> DArgs(u_function);
 	for (; DArgs && (DArgs->PropertyFlags & CPF_Parm); ++DArgs)
 	{
@@ -4168,13 +4182,13 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 	uint8* buffer = (uint8*)FMemory_Alloca(u_function->ParmsSize);
 	FMemory::Memzero(buffer, u_function->ParmsSize);
 	// initialize args
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	for (TFieldIterator<FProperty> IArgs(u_function); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
 #else
 	for (TFieldIterator<UProperty> IArgs(u_function); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
 #endif
 	{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty* prop = *IArgs;
 #else
 		UProperty* prop = *IArgs;
@@ -4196,7 +4210,7 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 			FString default_key_value = u_function->GetMetaData(FName(*default_key));
 			if (!default_key_value.IsEmpty())
 			{
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 				prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_None, NULL);
 #else
 				prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(buffer), PPF_Localized, NULL);
@@ -4211,14 +4225,14 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 
 	int has_out_params = 0;
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	TFieldIterator<FProperty> PArgs(u_function);
 #else
 	TFieldIterator<UProperty> PArgs(u_function);
 #endif
 	for (; PArgs && ((PArgs->PropertyFlags & (CPF_Parm | CPF_ReturnParm)) == CPF_Parm); ++PArgs)
 	{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty* prop = *PArgs;
 #else
 		UProperty* prop = *PArgs;
@@ -4250,7 +4264,7 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 				}
 			}
 		}
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		if (prop->HasAnyPropertyFlags(CPF_OutParm) && (prop->IsA<FArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false))
 #else
 		if (prop->HasAnyPropertyFlags(CPF_OutParm) && (prop->IsA<UArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false))
@@ -4271,14 +4285,14 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 	PyObject* ret = nullptr;
 
 	int has_ret_param = 0;
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	TFieldIterator<FProperty> Props(u_function);
 #else
 	TFieldIterator<UProperty> Props(u_function);
 #endif
 	for (; Props; ++Props)
 	{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty* prop = *Props;
 #else
 		UProperty* prop = *Props;
@@ -4304,14 +4318,14 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 		{
 			PyTuple_SetItem(multi_ret, 0, ret);
 		}
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		TFieldIterator<FProperty> OProps(u_function);
 #else
 		TFieldIterator<UProperty> OProps(u_function);
 #endif
 		for (; OProps; ++OProps)
 		{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			FProperty* prop = *OProps;
 			if (prop->HasAnyPropertyFlags(CPF_OutParm) && (prop->IsA<FArrayProperty>() || prop->HasAnyPropertyFlags(CPF_ConstParm) == false))
 #else
@@ -4350,7 +4364,7 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 
 PyObject* ue_unbind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_callable, bool fail_on_wrong_property)
 {
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty* f_property = u_obj->ue_object->GetClass()->FindPropertyByName(FName(*event_name));
 	if (!f_property)
 #else
@@ -4363,13 +4377,13 @@ PyObject* ue_unbind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* p
 		Py_RETURN_NONE;
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	if (auto casted_prop = CastField<FMulticastDelegateProperty>(f_property))
 #else
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 #endif
 	{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// can we reuse UPythonDelegate here??
 		UPythonDelegate* py_delegate = FUnrealEnginePythonHouseKeeper::Get()->FindDelegate(u_obj->ue_object, py_callable);
 #else
@@ -4377,7 +4391,7 @@ PyObject* ue_unbind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* p
 #endif
 		if (py_delegate != nullptr)
 		{
-#if ENGINE_MINOR_VERSION < 23
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 			FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
 #else
 			FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(u_obj->ue_object);
@@ -4386,14 +4400,14 @@ PyObject* ue_unbind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* p
 			multiscript_delegate.Remove(py_delegate, FName("PyFakeCallable"));
 
 			// re-assign multicast delegate
-#if ENGINE_MINOR_VERSION < 23
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 			casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
 #else
 			casted_prop->SetMulticastDelegate(u_obj->ue_object, multiscript_delegate);
 #endif
 		}
 	}
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	else if (auto casted_prop_delegate = CastField<FDelegateProperty>(f_property))
 	{
 		FScriptDelegate script_delegate = casted_prop_delegate->GetPropertyValue_InContainer(u_obj->ue_object);
@@ -4424,7 +4438,7 @@ PyObject* ue_unbind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* p
 PyObject* ue_bind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_callable, bool fail_on_wrong_property)
 {
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty* f_property = u_obj->ue_object->GetClass()->FindPropertyByName(FName(*event_name));
 	if (!f_property)
 #else
@@ -4437,20 +4451,20 @@ PyObject* ue_bind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_
 		Py_RETURN_NONE;
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	if (auto casted_prop = CastField<FMulticastDelegateProperty>(f_property))
 #else
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 #endif
 	{
-#if ENGINE_MINOR_VERSION < 23
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
 #else
 		FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(u_obj->ue_object);
 #endif
 
 		FScriptDelegate script_delegate;
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// can we reuse UPythonDelegate here??
 		UPythonDelegate* py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop->SignatureFunction);
 #else
@@ -4463,13 +4477,13 @@ PyObject* ue_bind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_
 		multiscript_delegate.Add(script_delegate);
 
 		// re-assign multicast delegate
-#if ENGINE_MINOR_VERSION < 23
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
 #else
 		casted_prop->SetMulticastDelegate(u_obj->ue_object, multiscript_delegate);
 #endif
 	}
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	else if (auto casted_prop_delegate = CastField<FDelegateProperty>(f_property))
 #else
 	else if (auto casted_prop_delegate = Cast<UDelegateProperty>(u_property))
@@ -4477,7 +4491,7 @@ PyObject* ue_bind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_
 	{
 
 		FScriptDelegate script_delegate = casted_prop_delegate->GetPropertyValue_InContainer(u_obj->ue_object);
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		// can we reuse UPythonDelegate here??
 		UPythonDelegate* py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewDelegate(u_obj->ue_object, py_callable, casted_prop_delegate->SignatureFunction);
 #else
@@ -4516,7 +4530,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 	UPythonFunction* function = NewObject<UPythonFunction>(u_class, UTF8_TO_TCHAR(name), RF_Public | RF_Transient | RF_MarkAsNative);
 	function->SetPyCallable(py_callable);
 
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	function->RepOffset = MAX_uint16;
 #endif
 	function->ReturnValueOffset = MAX_uint16;
@@ -4550,7 +4564,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 
 	PyObject* annotations = PyObject_GetAttrString(py_callable, "__annotations__");
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FField** next_property = &function->ChildProperties;
 	FProperty** next_property_link = &function->PropertyLink;
 #else
@@ -4579,7 +4593,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 		if (!value)
 			continue;
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty* prop = nullptr;
 		if (PyType_Check(value))
 		{
@@ -4763,7 +4777,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 				prop_struct->Struct = TBaseStructure<FTransform>::Get();
 				prop = prop_struct;
 			}
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 			else if ((PyTypeObject*)value == &ue_PyFQuatType)
 			{
 				UStructProperty* prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
@@ -4816,7 +4830,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 				prop_base->SetPropertyClass(p_u_class);
 				prop = prop_base;
 			}
-#if ENGINE_MINOR_VERSION > 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 17)
 			else if (py_obj->ue_object->IsA<UEnum>())
 			{
 				UEnumProperty* prop_enum = NewObject<UEnumProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
@@ -4857,7 +4871,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 		if (py_return_value)
 		{
 			UE_LOG(LogPython, Warning, TEXT("Return Value found"));
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			FProperty* prop = nullptr;
 			char* p_name = (char*) "ReturnValue";
 			if (PyType_Check(py_return_value))
@@ -5037,7 +5051,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 					prop_struct->Struct = TBaseStructure<FTransform>::Get();
 					prop = prop_struct;
 				}
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 				else if ((PyTypeObject*)py_return_value == &ue_PyFQuatType)
 				{
 					UStructProperty* prop_struct = NewObject<UStructProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
@@ -5090,7 +5104,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 					prop_base->SetPropertyClass(p_u_class);
 					prop = prop_base;
 				}
-#if ENGINE_MINOR_VERSION > 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 17)
 				else if (py_obj->ue_object->IsA<UEnum>())
 				{
 					UEnumProperty* prop_enum = NewObject<UEnumProperty>(function, UTF8_TO_TCHAR(p_name), RF_Public);
@@ -5133,14 +5147,14 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 
 		if (!function->IsSignatureCompatibleWith(parent_function))
 		{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			TFieldIterator<FProperty> It(parent_function);
 #else
 			TFieldIterator<UProperty> It(parent_function);
 #endif
 			while (It)
 			{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 				FProperty* p = *It;
 #else
 				UProperty* p = *It;
@@ -5148,14 +5162,14 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 				if (p->PropertyFlags & CPF_Parm)
 				{
 					UE_LOG(LogPython, Warning, TEXT("Parent PROP: %s %d/%d %d %d %d %s %p"), *p->GetName(), (int)p->PropertyFlags, (int)UFunction::GetDefaultIgnoredSignatureCompatibilityFlags(), (int)(p->PropertyFlags & ~UFunction::GetDefaultIgnoredSignatureCompatibilityFlags()), p->GetSize(), p->GetOffset_ForGC(), *p->GetClass()->GetName(), p->GetClass());
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 					FClassProperty* ucp = CastField<FClassProperty>(p);
 #else
 					UClassProperty* ucp = Cast<UClassProperty>(p);
 #endif
 					if (ucp)
 					{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 						UE_LOG(LogPython, Warning, TEXT("Parent FClassProperty = %p %s %p %s"), ucp->PropertyClass, *ucp->PropertyClass->GetName(), ucp->MetaClass, *ucp->MetaClass->GetName());
 #else
 						UE_LOG(LogPython, Warning, TEXT("Parent UClassProperty = %p %s %p %s"), ucp->PropertyClass, *ucp->PropertyClass->GetName(), ucp->MetaClass, *ucp->MetaClass->GetName());
@@ -5165,14 +5179,14 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 				++It;
 			}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 			TFieldIterator<FProperty> It2(function);
 #else
 			TFieldIterator<UProperty> It2(function);
 #endif
 			while (It2)
 			{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 				FProperty* p = *It2;
 #else
 				UProperty* p = *It2;
@@ -5180,14 +5194,14 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 				if (p->PropertyFlags & CPF_Parm)
 				{
 					UE_LOG(LogPython, Warning, TEXT("Function PROP: %s %d/%d %d %d %d %s %p"), *p->GetName(), (int)p->PropertyFlags, (int)UFunction::GetDefaultIgnoredSignatureCompatibilityFlags(), (int)(p->PropertyFlags & ~UFunction::GetDefaultIgnoredSignatureCompatibilityFlags()), p->GetSize(), p->GetOffset_ForGC(), *p->GetClass()->GetName(), p->GetClass());
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 					FClassProperty* ucp = CastField<FClassProperty>(p);
 #else
 					UClassProperty* ucp = Cast<UClassProperty>(p);
 #endif
 					if (ucp)
 					{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 						UE_LOG(LogPython, Warning, TEXT("Function FClassProperty = %p %s %p %s"), ucp->PropertyClass, *ucp->PropertyClass->GetName(), ucp->MetaClass, *ucp->MetaClass->GetName());
 #else
 						UE_LOG(LogPython, Warning, TEXT("Function UClassProperty = %p %s %p %s"), ucp->PropertyClass, *ucp->PropertyClass->GetName(), ucp->MetaClass, *ucp->MetaClass->GetName());
@@ -5205,14 +5219,14 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 	function->NumParms = 0;
 
 	// allocate properties storage (ignore super)
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	TFieldIterator<FProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
 #else
 	TFieldIterator<UProperty> props(function, EFieldIteratorFlags::ExcludeSuper);
 #endif
 	for (; props; ++props)
 	{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		FProperty* p = *props;
 #else
 		UProperty* p = *props;
@@ -5238,13 +5252,13 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 	}
 
 
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 	function->FunctionFlags = (EFunctionFlags)function_flags;
 #else
 	function->FunctionFlags = function_flags;
 #endif
 
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	function->SetNativeFunc((FNativeFuncPtr)& UPythonFunction::CallPythonCallable);
 #else
 	function->SetNativeFunc((Native)& UPythonFunction::CallPythonCallable);
@@ -5255,7 +5269,7 @@ UFunction* unreal_engine_add_function(UClass* u_class, char* name, PyObject* py_
 
 
 	u_class->Children = function;
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	u_class->AddFunctionToFunctionMap(function);
 #else
 	u_class->AddFunctionToFunctionMap(function, function->GetFName());

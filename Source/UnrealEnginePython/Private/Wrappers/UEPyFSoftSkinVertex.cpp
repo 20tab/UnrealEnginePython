@@ -72,7 +72,11 @@ static int py_ue_fsoft_skin_vertex_set_tangent_y(ue_PyFSoftSkinVertex *self, PyO
 
 static PyObject *py_ue_fsoft_skin_vertex_get_tangent_z(ue_PyFSoftSkinVertex *self, void *closure)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	return py_ue_new_fvector(FVector(self->ss_vertex.TangentZ));
+#else
 	return py_ue_new_fvector(self->ss_vertex.TangentZ);
+#endif
 }
 
 static int py_ue_fsoft_skin_vertex_set_tangent_z(ue_PyFSoftSkinVertex *self, PyObject *value, void *closure)
@@ -80,7 +84,11 @@ static int py_ue_fsoft_skin_vertex_set_tangent_z(ue_PyFSoftSkinVertex *self, PyO
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		self->ss_vertex.TangentZ = FVector4f(py_vec->vec);
+#else
 		self->ss_vertex.TangentZ = py_vec->vec;
+#endif
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");
@@ -89,7 +97,7 @@ static int py_ue_fsoft_skin_vertex_set_tangent_z(ue_PyFSoftSkinVertex *self, PyO
 
 static PyObject *py_ue_fsoft_skin_vertex_get_influence_bones(ue_PyFSoftSkinVertex *self, void *closure)
 {
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	uint16* data = self->ss_vertex.InfluenceBones;
 #else
 	uint8* data = self->ss_vertex.InfluenceBones;
@@ -217,7 +225,11 @@ static int py_ue_fsoft_skin_vertex_set_uvs(ue_PyFSoftSkinVertex *self, PyObject 
 			float y = PyFloat_AsDouble(py_num);
 			Py_DECREF(py_num);
 
+#if ENGINE_MAJOR_VERSION == 5
+			self->ss_vertex.UVs[pos] = FVector2f(x, y);
+#else
 			self->ss_vertex.UVs[pos] = FVector2D(x, y);
+#endif
 			pos++;
 			if (pos >= MAX_TEXCOORDS)
 				break;

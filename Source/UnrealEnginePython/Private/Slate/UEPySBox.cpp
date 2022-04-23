@@ -100,7 +100,7 @@ static int ue_py_sbox_init(ue_PySBox *self, PyObject *args, PyObject *kwargs)
 	ue_py_slate_farguments_struct("padding", Padding, FMargin);
 	ue_py_slate_farguments_optional_foptional_size("height_override", HeightOverride);
 	ue_py_slate_farguments_optional_foptional_size("width_override", WidthOverride);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_py_slate_farguments_optional_foptional_size("max_aspect_ratio", MaxAspectRatio);
 #endif
 	ue_py_slate_farguments_optional_foptional_size("max_desired_height", MaxDesiredHeight);

@@ -1,7 +1,7 @@
 #include "UEPySDirectoryPicker.h"
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 
 
 static PyObject *py_ue_sdirectory_picker_get_directory(ue_PySDirectoryPicker *self, PyObject * args)

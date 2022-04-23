@@ -1,7 +1,7 @@
 #include "UEPyFPropertiesImporter.h"
 
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 
 
 static PyObject *ue_PyFPropertiesImporter_getattro(ue_PyFPropertiesImporter *self, PyObject *attr_name)

@@ -155,7 +155,8 @@ public class UnrealEnginePython : ModuleRules
                 "MovieSceneCapture",
                 "Landscape",
                 "Foliage",
-                "AIModule"
+                "AIModule",
+                "ApplicationCore"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
@@ -213,7 +214,7 @@ public class UnrealEnginePython : ModuleRules
             });
         }
 
-        if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             if (pythonHome == "")
             {

@@ -15,7 +15,7 @@
 #include "UnrealEngine.h"
 #include "Runtime/Engine/Classes/Engine/GameViewportClient.h"
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 #include "HAL/PlatformApplicationMisc.h"
 #endif
 
@@ -177,7 +177,7 @@ PyObject *py_unreal_engine_get_up_vector(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 {
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectContentDir()));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameContentDir()));
@@ -186,7 +186,7 @@ PyObject *py_unreal_engine_get_content_dir(PyObject * self, PyObject * args)
 
 PyObject *py_unreal_engine_get_game_saved_dir(PyObject * self, PyObject * args)
 {
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::ProjectSavedDir()));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*FPaths::GameSavedDir()));
@@ -315,7 +315,7 @@ PyObject *py_unreal_engine_unload_package(PyObject * self, PyObject * args)
 	}
 
 	FText outErrorMsg;
-#if ENGINE_MINOR_VERSION >= 21
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 21)
 	if (!UPackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
 #else
 	if (!PackageTools::UnloadPackages({ packageToUnload }, outErrorMsg))
@@ -336,7 +336,11 @@ PyObject *py_unreal_engine_get_package_filename(PyObject * self, PyObject * args
 	}
 
 	FString Filename;
+#if ENGINE_MAJOR_VERSION == 5
+	if (!FPackageName::DoesPackageExist(FString(UTF8_TO_TCHAR(name)), &Filename))
+#else
 	if (!FPackageName::DoesPackageExist(FString(UTF8_TO_TCHAR(name)), nullptr, &Filename))
+#endif
 		return PyErr_Format(PyExc_Exception, "package does not exist");
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*Filename));
@@ -1057,7 +1061,11 @@ PyObject *py_unreal_engine_create_package(PyObject *self, PyObject * args)
 	{
 		return PyErr_Format(PyExc_Exception, "package %s already exists", TCHAR_TO_UTF8(*u_package->GetPathName()));
 	}
+#if ENGINE_MAJOR_VERSION == 5
+	u_package = CreatePackage(UTF8_TO_TCHAR(name));
+#else
 	u_package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+#endif
 	if (!u_package)
 		return PyErr_Format(PyExc_Exception, "unable to create package");
 	u_package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
@@ -1082,7 +1090,11 @@ PyObject *py_unreal_engine_get_or_create_package(PyObject *self, PyObject * args
 	// create a new package if it does not exist
 	if (!u_package)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		u_package = CreatePackage(UTF8_TO_TCHAR(name));
+#else
 		u_package = CreatePackage(nullptr, UTF8_TO_TCHAR(name));
+#endif
 		if (!u_package)
 			return PyErr_Format(PyExc_Exception, "unable to create package");
 		u_package->FileName = *FPackageName::LongPackageNameToFilename(UTF8_TO_TCHAR(name), FPackageName::GetAssetPackageExtension());
@@ -1330,7 +1342,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	FPlatformApplicationMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
 #else
 	FGenericPlatformMisc::ClipboardCopy(UTF8_TO_TCHAR(text));
@@ -1341,7 +1353,7 @@ PyObject *py_unreal_engine_clipboard_copy(PyObject * self, PyObject * args)
 PyObject *py_unreal_engine_clipboard_paste(PyObject * self, PyObject * args)
 {
 	FString clipboard;
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	FPlatformApplicationMisc::ClipboardPaste(clipboard);
 #else
 	FGenericPlatformMisc::ClipboardPaste(clipboard);

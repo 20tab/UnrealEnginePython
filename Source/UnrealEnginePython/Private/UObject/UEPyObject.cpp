@@ -1,6 +1,6 @@
 #include "UEPyObject.h"
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 #include "UEPyProperty.h"
 #endif
 
@@ -190,7 +190,7 @@ PyObject *py_ue_get_property_struct(ue_PyUObject * self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -265,7 +265,11 @@ PyObject *py_ue_conditional_begin_destroy(ue_PyUObject *self, PyObject * args)
 
 PyObject *py_ue_is_valid(ue_PyUObject * self, PyObject * args)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	if (!self->ue_object || !self->ue_object->IsValidLowLevel() || self->ue_object->IsUnreachable())
+#else
 	if (!self->ue_object || !self->ue_object->IsValidLowLevel() || self->ue_object->IsPendingKillOrUnreachable())
+#endif
 	{
 		Py_RETURN_FALSE;
 	}
@@ -371,7 +375,7 @@ PyObject *py_ue_post_edit_change_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *prop = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(prop_name)));
 #else
 	UProperty *prop = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(prop_name)));
@@ -404,7 +408,7 @@ PyObject *py_ue_pre_edit_change(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *prop = nullptr;
 #else
 	UProperty *prop = nullptr;
@@ -671,7 +675,7 @@ PyObject *py_ue_find_function(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_UOBJECT((UObject *)function);
 }
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 #if WITH_EDITOR
 PyObject *py_ue_can_modify(ue_PyUObject *self, PyObject * args)
 {
@@ -828,7 +832,7 @@ PyObject *py_ue_set_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -877,7 +881,7 @@ PyObject *py_ue_set_property_flags(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -887,10 +891,10 @@ PyObject *py_ue_set_property_flags(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
 #endif
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	f_property->SetPropertyFlags((EPropertyFlags)flags);
 #else
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	u_property->SetPropertyFlags(flags);
 #else
 	u_property->SetPropertyFlags((EPropertyFlags)flags);
@@ -922,7 +926,7 @@ PyObject *py_ue_add_property_flags(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -933,10 +937,10 @@ PyObject *py_ue_add_property_flags(ue_PyUObject *self, PyObject * args)
 #endif
 
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	f_property->SetPropertyFlags(f_property->GetPropertyFlags() | (EPropertyFlags)flags);
 #else
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	u_property->SetPropertyFlags(u_property->GetPropertyFlags() | flags);
 #else
 	u_property->SetPropertyFlags(u_property->GetPropertyFlags() | (EPropertyFlags)flags);
@@ -967,7 +971,7 @@ PyObject *py_ue_get_property_flags(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -1011,7 +1015,7 @@ PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args)
 	PyObject *ret = PyList_New(0);
 	for (uint8 i = 0; i < max_enum_value; i++)
 	{
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 		PyObject *py_long = PyUnicode_FromString(TCHAR_TO_UTF8(*u_enum->GetNameStringByIndex(i)));
 #else
 		PyObject *py_long = PyUnicode_FromString(TCHAR_TO_UTF8(*u_enum->GetEnumName(i)));
@@ -1022,7 +1026,7 @@ PyObject *py_ue_enum_names(ue_PyUObject *self, PyObject * args)
 	return ret;
 }
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -1061,7 +1065,7 @@ PyObject *py_ue_properties(ue_PyUObject *self, PyObject * args)
 
 	PyObject *ret = PyList_New(0);
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	for (TFieldIterator<FProperty> PropIt(u_struct); PropIt; ++PropIt)
 	{
 		FProperty* property = *PropIt;
@@ -1155,7 +1159,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 
 	const char *property_name = UEPyUnicode_AsUTF8(py_property_name);
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = self->ue_object->GetClass()->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find event property %s", property_name);
@@ -1169,7 +1173,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 	if (auto casted_prop = Cast<UMulticastDelegateProperty>(u_property))
 #endif
 	{
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 		FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(self->ue_object);
 #else
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(self->ue_object);
@@ -1180,7 +1184,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 		uint32 argn = 1;
 
 		// initialize args
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		for (TFieldIterator<FProperty> IArgs(casted_prop->SignatureFunction); IArgs && IArgs->HasAnyPropertyFlags(CPF_Parm); ++IArgs)
 		{
 			FProperty *prop = *IArgs;
@@ -1210,7 +1214,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 					FString default_key_value = casted_prop->SignatureFunction->GetMetaData(FName(*default_key));
 					if (!default_key_value.IsEmpty())
 					{
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(parms), PPF_None, NULL);
 #else
 						prop->ImportText(*default_key_value, prop->ContainerPtrToValuePtr<uint8>(parms), PPF_Localized, NULL);
@@ -1236,7 +1240,7 @@ PyObject *py_ue_broadcast(ue_PyUObject *self, PyObject *args)
 	}
 	else
 	{
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 		return PyErr_Format(PyExc_Exception, "property is not a FMulticastDelegateProperty");
 #else
 		return PyErr_Format(PyExc_Exception, "property is not a UMulticastDelegateProperty");
@@ -1269,7 +1273,7 @@ PyObject *py_ue_get_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -1306,7 +1310,7 @@ PyObject *py_ue_get_property_array_dim(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -1381,7 +1385,7 @@ PyObject *py_ue_render_thumbnail(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 PyObject *py_ue_get_fproperty(ue_PyUObject *self, PyObject * args)
 {
 
@@ -1457,7 +1461,7 @@ PyObject *py_ue_get_uproperty(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 PyObject *py_ue_get_inner(ue_PyFProperty *self, PyObject * args)
 {
 
@@ -1493,7 +1497,7 @@ PyObject *py_ue_get_inner(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 PyObject *py_ue_get_key_prop(ue_PyFProperty *self, PyObject * args)
 {
 
@@ -1529,7 +1533,7 @@ PyObject *py_ue_get_key_prop(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 PyObject *py_ue_get_value_prop(ue_PyFProperty *self, PyObject * args)
 {
 
@@ -1587,7 +1591,7 @@ PyObject *py_ue_has_property(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		Py_RETURN_FALSE;
@@ -1621,7 +1625,7 @@ PyObject *py_ue_get_property_class(ue_PyUObject *self, PyObject * args)
 		u_struct = (UStruct *)self->ue_object->GetClass();
 	}
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(property_name)));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", property_name);
@@ -1789,7 +1793,7 @@ PyObject *py_ue_delegate_bind_ufunction(ue_PyUObject * self, PyObject * args)
 	if (!PyArg_ParseTuple(args, "sOs:delegate_bind_ufunction", &delegate_name, &py_obj, &fname))
 		return nullptr;
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	FProperty *f_property = self->ue_object->GetClass()->FindPropertyByName(FName(delegate_name));
 	if (!f_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", delegate_name);
@@ -1855,7 +1859,7 @@ PyObject *py_ue_add_function(ue_PyUObject * self, PyObject * args)
 }
 #endif
 
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 // so I think we have to completely rewrite this for 4.25
 PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 {
@@ -2407,7 +2411,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 			}
 			Py_DECREF(py_item);
 		}
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 		else if (PyList_Size(obj) == 2)
 		{
 			PyObject *py_key = PyList_GetItem(obj, 0);
@@ -2485,7 +2489,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 	{
 		UArrayProperty *u_array = (UArrayProperty *)scope;
 		u_array->AddCppProperty(u_property);
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 		u_property->SetPropertyFlags(flags);
 #else
 		u_property->SetPropertyFlags((EPropertyFlags)flags);
@@ -2509,7 +2513,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		u_property = u_array;
 	}
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 	if (is_map)
 	{
 		u_property2 = NewObject<UProperty>(scope, u_class2, NAME_None, o_flags);
@@ -2521,7 +2525,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		}
 		UMapProperty *u_map = (UMapProperty *)scope;
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 		u_property->SetPropertyFlags(flags);
 		u_property2->SetPropertyFlags(flags);
 #else
@@ -2614,7 +2618,7 @@ PyObject *py_ue_add_property(ue_PyUObject * self, PyObject * args)
 		}
 	}
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	u_property->SetPropertyFlags(flags);
 #else
 	u_property->SetPropertyFlags((EPropertyFlags)flags);
@@ -2664,7 +2668,7 @@ PyObject *py_ue_as_dict(ue_PyUObject * self, PyObject * args)
 	}
 
 	PyObject *py_struct_dict = PyDict_New();
-#if ENGINE_MINOR_VERSION >= 25
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
 	TFieldIterator<FProperty> SArgs(u_struct);
 #else
 	TFieldIterator<UProperty> SArgs(u_struct);
@@ -2935,7 +2939,7 @@ PyObject *py_ue_duplicate(ue_PyUObject * self, PyObject * args)
 	UObject *new_asset = nullptr;
 
 	Py_BEGIN_ALLOW_THREADS;
-#if ENGINE_MINOR_VERSION < 14
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 14))
 	new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused);
 #else
 	new_asset = ObjectTools::DuplicateSingleObject(self->ue_object, pgn, refused, (py_overwrite && PyObject_IsTrue(py_overwrite)));

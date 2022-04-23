@@ -26,7 +26,7 @@ void UPyFbxFactory::PostInitProperties() {
 
 UObject * UPyFbxFactory::FactoryCreateFile(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, const FString& Filename, const TCHAR* Parms, FFeedbackContext* Warn, bool& bOutOperationCanceled)
 {
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 	if (ImportUI->MeshTypeToImport == FBXIT_MAX)
 	{
 		if (!DetectImportType(UFactory::CurrentFilename))

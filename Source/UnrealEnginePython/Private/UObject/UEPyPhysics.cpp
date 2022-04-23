@@ -1,6 +1,6 @@
 #include "UEPyPhysics.h"
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 #include "Runtime/Engine/Public/DestructibleInterface.h"
 #else
 #include "Components/DestructibleComponent.h"
@@ -141,7 +141,7 @@ PyObject *py_ue_add_angular_impulse(ue_PyUObject * self, PyObject * args)
 	if (py_obj_b_vel_change && PyObject_IsTrue(py_obj_b_vel_change))
 		b_vel_change = true;
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	primitive->AddAngularImpulseInRadians(impulse, f_bone_name, b_vel_change);
 #else
 	primitive->AddAngularImpulse(impulse, f_bone_name, b_vel_change);
@@ -244,7 +244,7 @@ PyObject *py_ue_add_torque(ue_PyUObject * self, PyObject * args)
 	if (py_obj_b_accel_change && PyObject_IsTrue(py_obj_b_accel_change))
 		b_accel_change = true;
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	primitive->AddTorqueInRadians(torque, f_bone_name, b_accel_change);
 #else
 	primitive->AddTorque(torque, f_bone_name, b_accel_change);
@@ -379,7 +379,7 @@ PyObject *py_ue_set_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
 	}
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	primitive->SetPhysicsAngularVelocityInDegrees(new_ang_vel, add_to_current, f_bone_name);
 #else
 	primitive->SetPhysicsAngularVelocity(new_ang_vel, add_to_current, f_bone_name);
@@ -415,7 +415,7 @@ PyObject *py_ue_get_physics_angular_velocity(ue_PyUObject * self, PyObject * arg
 	{
 		f_bone_name = FName(UTF8_TO_TCHAR(bone_name));
 	}
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	return py_ue_new_fvector(primitive->GetPhysicsAngularVelocityInDegrees(f_bone_name));
 #else
 	return py_ue_new_fvector(primitive->GetPhysicsAngularVelocity(f_bone_name));
@@ -437,7 +437,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 		return NULL;
 	}
 
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	UDestructibleComponent *destructible = ue_py_check_type<UDestructibleComponent>(self);
 #else
 	IDestructibleInterface *destructible = ue_py_check_type<IDestructibleInterface>(self);
@@ -448,7 +448,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 		AActor *actor = ue_py_check_type<AActor>(self);
 		if (actor)
 		{
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 			destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
 #else
 			for (UActorComponent *component : actor->GetComponents())
@@ -467,7 +467,7 @@ PyObject *py_ue_destructible_apply_damage(ue_PyUObject * self, PyObject * args)
 			if (component)
 			{
 				actor = (AActor *)component->GetOuter();
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 				destructible = (UDestructibleComponent *)actor->GetComponentByClass(UDestructibleComponent::StaticClass());
 #else
 				for (UActorComponent *checked_component : actor->GetComponents())

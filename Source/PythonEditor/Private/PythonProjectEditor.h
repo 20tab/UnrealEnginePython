@@ -2,14 +2,26 @@
 
 #pragma once
 
+#if ENGINE_MAJOR_VERSION == 5
+#include "WorkflowOrientedApp/WorkflowCentricApplication.h"
+#include "WorkflowOrientedApp/WorkflowTabManager.h"
+#else
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowCentricApplication.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowTabManager.h"
+#endif
 #include "Runtime/Launch/Resources/Version.h"
 
 class FPythonProjectEditor : public FWorkflowCentricApplication, public FGCObject
 {
 public:
 	FPythonProjectEditor();
+
+	// FGCObject interface
+	virtual FString GetReferencerName() const override
+	{
+		return TEXT("FPythonProjectEditor");
+	}
+	// End of FGCObject interface
 
 	// IToolkit interface
 	virtual void RegisterTabSpawners(const TSharedRef<class FTabManager>& TabManager) override;
@@ -112,7 +124,7 @@ protected:
 	static TWeakPtr<FPythonProjectEditor> PythonEditor;
 
 	virtual bool CanSaveAsset() const override { return false; }
-#if ENGINE_MINOR_VERSION > 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 17)
 	virtual bool CanFindInContentBrowser() const override { return false; }
 #endif
 };

@@ -34,7 +34,7 @@ static PyObject* py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder* self, PyO
 	char* tooltip;
 	PyObject* py_callable;
 	PyObject* py_obj = nullptr;
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 	int ui_action_type = (int)EUserInterfaceActionType::Button;
 #else
 	int ui_action_type = EUserInterfaceActionType::Button;
@@ -62,7 +62,7 @@ static PyObject* py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder* self, PyO
 	}
 
 	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler), NAME_None,
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 		(EUserInterfaceActionType)ui_action_type);
 #else
 		(EUserInterfaceActionType::Type)ui_action_type);
