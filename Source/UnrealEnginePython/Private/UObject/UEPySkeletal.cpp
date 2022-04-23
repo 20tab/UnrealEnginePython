@@ -979,11 +979,13 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 #endif
 	TArray<int32> points_to_map;
 
-	TArray<FVector> tangentsX;
-	TArray<FVector> tangentsY;
 #if ENGINE_MAJOR_VERSION == 5
+	TArray<FVector3f> tangentsX;
+	TArray<FVector3f> tangentsY;
 	TArray<FVector4f> tangentsZ;
 #else
+	TArray<FVector> tangentsX;
+	TArray<FVector> tangentsY;
 	TArray<FVector> tangentsZ;
 #endif
 	TArray<uint16> material_indices;

@@ -2,7 +2,11 @@
 
 static PyObject *py_ue_fmorph_target_delta_get_position_delta(ue_PyFMorphTargetDelta *self, void *closure)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	return py_ue_new_fvector(FVector(self->morph_target_delta.PositionDelta));
+#else
 	return py_ue_new_fvector(self->morph_target_delta.PositionDelta);
+#endif
 }
 
 static int py_ue_fmorph_target_delta_set_position_delta(ue_PyFMorphTargetDelta *self, PyObject *value, void *closure)
@@ -10,7 +14,11 @@ static int py_ue_fmorph_target_delta_set_position_delta(ue_PyFMorphTargetDelta *
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		self->morph_target_delta.PositionDelta = FVector3f(py_vec->vec);
+#else
 		self->morph_target_delta.PositionDelta = py_vec->vec;
+#endif
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");
@@ -19,7 +27,11 @@ static int py_ue_fmorph_target_delta_set_position_delta(ue_PyFMorphTargetDelta *
 
 static PyObject *py_ue_fmorph_target_delta_get_tangent_z_delta(ue_PyFMorphTargetDelta *self, void *closure)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	return py_ue_new_fvector(FVector(self->morph_target_delta.TangentZDelta));
+#else
 	return py_ue_new_fvector(self->morph_target_delta.TangentZDelta);
+#endif
 }
 
 static int py_ue_fmorph_target_delta_set_tangent_z_delta(ue_PyFMorphTargetDelta *self, PyObject *value, void *closure)
@@ -27,7 +39,11 @@ static int py_ue_fmorph_target_delta_set_tangent_z_delta(ue_PyFMorphTargetDelta 
 	ue_PyFVector *py_vec = py_ue_is_fvector(value);
 	if (py_vec)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		self->morph_target_delta.TangentZDelta = FVector3f(py_vec->vec);
+#else
 		self->morph_target_delta.TangentZDelta = py_vec->vec;
+#endif
 		return 0;
 	}
 	PyErr_SetString(PyExc_TypeError, "value is not a FVector");

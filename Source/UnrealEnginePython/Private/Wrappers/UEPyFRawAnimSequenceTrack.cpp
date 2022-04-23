@@ -3,7 +3,11 @@
 static PyObject *py_ue_fraw_anim_sequence_track_get_pos_keys(ue_PyFRawAnimSequenceTrack *self, void *closure)
 {
 	PyObject *py_list = PyList_New(0);
+#if ENGINE_MAJOR_VERSION == 5
+	for (FVector vec : TArray<FVector>(self->raw_anim_sequence_track.PosKeys))
+#else
 	for (FVector vec : self->raw_anim_sequence_track.PosKeys)
+#endif
 	{
 		PyObject *py_vec = py_ue_new_fvector(vec);
 		PyList_Append(py_list, py_vec);
@@ -15,7 +19,11 @@ static PyObject *py_ue_fraw_anim_sequence_track_get_pos_keys(ue_PyFRawAnimSequen
 static PyObject *py_ue_fraw_anim_sequence_track_get_scale_keys(ue_PyFRawAnimSequenceTrack *self, void *closure)
 {
 	PyObject *py_list = PyList_New(0);
+#if ENGINE_MAJOR_VERSION == 5
+	for (FVector vec : TArray<FVector>(self->raw_anim_sequence_track.ScaleKeys))
+#else
 	for (FVector vec : self->raw_anim_sequence_track.ScaleKeys)
+#endif
 	{
 		PyObject *py_vec = py_ue_new_fvector(vec);
 		PyList_Append(py_list, py_vec);

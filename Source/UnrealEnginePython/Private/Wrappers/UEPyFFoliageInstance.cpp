@@ -139,7 +139,11 @@ static int py_ue_ffoliage_instance_set_rotation(ue_PyFFoliageInstance* self, PyO
 static PyObject* py_ue_ffoliage_instance_get_draw_scale3d(ue_PyFFoliageInstance* self, void* closure)
 {
 	get_instance(self);
+#if ENGINE_MAJOR_VERSION == 5
+	return py_ue_new_fvector(FVector(instance->DrawScale3D));
+#else
 	return py_ue_new_fvector(instance->DrawScale3D);
+#endif
 }
 
 static PyObject* py_ue_ffoliage_instance_get_flags(ue_PyFFoliageInstance* self, void* closure)
