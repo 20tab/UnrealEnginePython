@@ -1,6 +1,6 @@
 
 #include "UEPySPythonEditorViewport.h"
-#if ENGINE_MAJOR_VERSION == 5
+#if WITH_EDITOR && ENGINE_MAJOR_VERSION == 5
 #include "UnrealWidget.h"
 #endif
 

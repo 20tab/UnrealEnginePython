@@ -30,6 +30,7 @@ PyObject *py_ue_get_class(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_UOBJECT(self->ue_object->GetClass());
 }
 
+#if WITH_EDITOR
 PyObject *py_ue_class_generated_by(ue_PyUObject * self, PyObject * args)
 {
 
@@ -45,6 +46,7 @@ PyObject *py_ue_class_generated_by(ue_PyUObject * self, PyObject * args)
 
 	Py_RETURN_UOBJECT(u_object);
 }
+#endif
 
 PyObject *py_ue_class_get_flags(ue_PyUObject * self, PyObject * args)
 {

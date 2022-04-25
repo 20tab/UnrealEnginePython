@@ -262,6 +262,17 @@ void FUnrealEnginePythonModule::StartupModule()
 {
 	BrutalFinalize = false;
 
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
+	// Python 3.7+ changes the C locale which affects functions using C string APIs
+	// So change the C locale back to its current setting after Py_Initialize has been called
+	FString CurrentLocale;
+
+	if (const char* CurrentLocalePtr = setlocale(LC_ALL, nullptr))
+	{
+		CurrentLocale = ANSI_TO_TCHAR(CurrentLocalePtr);
+	}
+#endif
+
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	FString PythonHome;
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni))
@@ -521,6 +532,14 @@ void FUnrealEnginePythonModule::StartupModule()
 #if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 13))
 	FClassIconFinder::RegisterIconSource(StyleSet.Get());
 #endif
+#endif
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
+	// We call setlocale here to restore the previous state
+	if (!CurrentLocale.IsEmpty())
+	{
+		setlocale(LC_ALL, TCHAR_TO_ANSI(*CurrentLocale));
+	}
 #endif
 
 	UESetupPythonInterpreter(true);

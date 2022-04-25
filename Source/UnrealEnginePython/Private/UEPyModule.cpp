@@ -843,7 +843,9 @@ static PyMethodDef ue_PyUObject_methods[] = {
 
 
 	{ "get_class", (PyCFunction)py_ue_get_class, METH_VARARGS, "" },
+#if WITH_EDITOR
 	{ "class_generated_by", (PyCFunction)py_ue_class_generated_by, METH_VARARGS, "" },
+#endif
 	{ "class_get_flags", (PyCFunction)py_ue_class_get_flags, METH_VARARGS, "" },
 	{ "class_set_flags", (PyCFunction)py_ue_class_set_flags, METH_VARARGS, "" },
 	{ "get_obj_flags", (PyCFunction)py_ue_get_obj_flags, METH_VARARGS, "" },
