@@ -95,15 +95,14 @@ int32 UPyCommandlet::Main(const FString& CommandLine)
 		wcsncpy(argv[i], (const wchar_t *) TCHAR_TO_WCHAR(*PyArgv[i].ReplaceEscapedCharWithChar()), PyArgv[i].Len() + 1);
 	#else
 		wcsncpy(argv[i], *PyArgv[i].ReplaceEscapedCharWithChar(), PyArgv[i].Len() + 1);
-	#endif
-#elif PLATFORM_ANDROID
+#elif PLATFORM_ANDROID || PLATFORM_IOS
 		wcsncpy(argv[i], (const wchar_t *)*PyArgv[i].ReplaceEscapedCharWithChar(), PyArgv[i].Len() + 1);
 #else
 		wcscpy_s(argv[i], PyArgv[i].Len() + 1, *PyArgv[i].ReplaceEscapedCharWithChar());
 #endif
 #else
 		argv[i] = (char*)malloc(PyArgv[i].Len() + 1);
-#if PLATFORM_MAC || PLATFORM_LINUX || PLATFORM_ANDROID
+#if PLATFORM_MAC || PLATFORM_LINUX || PLATFORM_ANDROID || PLATFORM_IOS
 		strncpy(argv[i], TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()), PyArgv[i].Len() + 1);
 #else
 		strcpy_s(argv[i], PyArgv[i].Len() + 1, TCHAR_TO_UTF8(*PyArgv[i].ReplaceEscapedCharWithChar()));

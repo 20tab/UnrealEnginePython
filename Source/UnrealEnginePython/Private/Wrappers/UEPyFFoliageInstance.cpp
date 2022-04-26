@@ -1,5 +1,7 @@
 #include "UEPyFFoliageInstance.h"
 
+#if WITH_EDITOR
+
 #include "Wrappers/UEPyFVector.h"
 #include "Wrappers/UEPyFRotator.h"
 #include "Wrappers/UEPyFTransform.h"
