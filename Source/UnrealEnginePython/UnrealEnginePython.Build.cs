@@ -108,8 +108,6 @@ public class UnrealEnginePython : ModuleRules
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDefinitions.Add("WITH_UNREALENGINEPYTHON=1"); // fixed
-        string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
-        bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
         string PluginDirectory = Path.Combine(ModuleDirectory, "..", "..");
 
         PublicIncludePaths.AddRange(
@@ -297,7 +295,7 @@ public class UnrealEnginePython : ModuleRules
             string includePath = Path.Combine(PythonIOSLibsDirectory, "Python", "Headers");
             PublicIncludePaths.Add(includePath);
 
-            PublicLibraryPaths.AddRange(
+            PublicSystemLibraryPaths.AddRange(
                 new string[] {
                     Path.Combine(PythonIOSLibsDirectory, "BZip2"),
                     Path.Combine(PythonIOSLibsDirectory, "OpenSSL"),

@@ -529,6 +529,7 @@ void FUnrealEnginePythonModule::StartupModule()
     Py_InitializeEx(0);
 #else
 	Py_Initialize();
+#endif
 
 #if PLATFORM_WINDOWS
 	// Restore stdio state after Py_Initialize set it to O_BINARY, otherwise
