@@ -161,6 +161,10 @@ public class UnrealEnginePython : ModuleRules
 			}
             );
 
+        if (Target.bBuildEditor)
+        {
+            PrivateDependencyModuleNames.Add("PythonScriptPlugin");
+        }
 
 #if WITH_FORWARDED_MODULE_RULES_CTOR
         BuildVersion Version;

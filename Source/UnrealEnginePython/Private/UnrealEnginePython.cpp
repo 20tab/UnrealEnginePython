@@ -11,6 +11,7 @@
 
 #include "Styling/SlateStyleRegistry.h"
 #if WITH_EDITOR
+#include "IPythonScriptPlugin.h"
 #include "Interfaces/IPluginManager.h"
 #endif
 
@@ -260,6 +261,13 @@ FAutoConsoleCommand ExecPythonStringCommand(
 
 void FUnrealEnginePythonModule::StartupModule()
 {
+#if WITH_EDITOR
+	if (Py_IsInitialized())
+	{
+		IPythonScriptPlugin::Get()->ShutdownModule();
+	}
+#endif
+
 	BrutalFinalize = false;
 
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
