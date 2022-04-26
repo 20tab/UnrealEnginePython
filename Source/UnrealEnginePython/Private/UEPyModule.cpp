@@ -2569,6 +2569,12 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 		return PyFloat_FromDouble(value);
 	}
 
+	if (auto casted_prop = CastField<FDoubleProperty>(prop))
+	{
+		double value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyFloat_FromDouble(value);
+	}
+
 	if (auto casted_prop = CastField<FByteProperty>(prop))
 	{
 		uint8 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
@@ -2753,6 +2759,32 @@ PyObject* ue_py_convert_property(FProperty* prop, uint8* buffer, int32 index)
 		return py_dict;
 	}
 
+	if (auto casted_prop = CastField<FSetProperty>(prop))
+	{
+		FScriptSetHelper_InContainer set_helper(casted_prop, buffer, index);
+
+		FProperty* set_prop = casted_prop->ElementProp;
+
+		PyObject* py_set = PySet_New(NULL);
+
+		for (int i = 0; i < set_helper.GetMaxIndex(); i++)
+		{
+			if (set_helper.IsValidIndex(i))
+			{
+				PyObject* item = ue_py_convert_property(set_prop, set_helper.GetElementPtr(i), 0);
+				if (!item)
+				{
+					Py_DECREF(py_set);
+					return NULL;
+				}
+				PySet_Add(py_set, item);
+				Py_DECREF(item);
+			}
+		}
+
+		return py_set;
+	}
+
 	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
 }
 
@@ -2807,6 +2839,13 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 			return true;
 		}
 		if (auto casted_prop = CastField<FFloatProperty>(prop))
+		{
+			PyObject* py_float = PyNumber_Float(py_obj);
+			casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_float), index);
+			Py_DECREF(py_float);
+			return true;
+		}
+		if (auto casted_prop = CastField<FDoubleProperty>(prop))
 		{
 			PyObject* py_float = PyNumber_Float(py_obj);
 			casted_prop->SetPropertyValue_InContainer(buffer, PyFloat_AsDouble(py_float), index);
@@ -3011,6 +3050,51 @@ bool ue_py_convert_pyobject(PyObject* py_obj, FProperty* prop, uint8* buffer, in
 				}
 			}
 			map_helper.Rehash();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	if (PySet_Check(py_obj))
+	{
+		if (auto casted_prop = CastField<FSetProperty>(prop))
+		{
+			FScriptSetHelper_InContainer set_helper(casted_prop, buffer, index);
+
+			set_helper.EmptyElements();
+
+			Py_ssize_t Size = PySet_Size(py_obj);
+
+			TArray<PyObject*> Objects;
+
+			Objects.Reset(Size);
+
+			while (Size > 0)
+			{
+				PyObject* py_item = PySet_Pop(py_obj);
+
+				int32 hindex = set_helper.AddDefaultValue_Invalid_NeedsRehash();
+
+				uint8* ptr = set_helper.GetElementPtr(hindex);
+
+				if (!ue_py_convert_pyobject(py_item, casted_prop->ElementProp, ptr, 0))
+				{
+					return false;
+				}
+
+				Objects.Add(py_item);
+
+				--Size;
+			}
+
+			for (auto Object : Objects)
+			{
+				PySet_Add(py_obj, Object);
+			}
+
+			set_helper.Rehash();
 
 			return true;
 		}
@@ -4461,7 +4545,7 @@ PyObject* ue_bind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_
 	{
 #if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 		FMulticastScriptDelegate multiscript_delegate = casted_prop->GetPropertyValue_InContainer(u_obj->ue_object);
-#else
+#elif !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25))
 		FMulticastScriptDelegate multiscript_delegate = *casted_prop->GetMulticastDelegate(u_obj->ue_object);
 #endif
 
@@ -4476,12 +4560,16 @@ PyObject* ue_bind_pyevent(ue_PyUObject* u_obj, FString event_name, PyObject* py_
 		script_delegate.BindUFunction(py_delegate, FName("PyFakeCallable"));
 
 		// add the new delegate
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25))
 		multiscript_delegate.Add(script_delegate);
+#else
+		casted_prop->AddDelegate(script_delegate, u_obj->ue_object);
+#endif
 
 		// re-assign multicast delegate
 #if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 		casted_prop->SetPropertyValue_InContainer(u_obj->ue_object, multiscript_delegate);
-#else
+#elif !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25))
 		casted_prop->SetMulticastDelegate(u_obj->ue_object, multiscript_delegate);
 #endif
 	}
