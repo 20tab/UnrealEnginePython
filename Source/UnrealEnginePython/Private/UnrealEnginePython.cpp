@@ -716,6 +716,11 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 		for (FString ScriptsPath : ScriptsPaths)
 		{
 			full_path = FPaths::Combine(*ScriptsPath, original_path);
+
+#if PLATFORM_IOS
+			full_path = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*full_path);
+#endif
+			
 			if (FPaths::FileExists(full_path))
 			{
 				foundFile = true;
@@ -731,7 +736,9 @@ void FUnrealEnginePythonModule::RunFile(char *filename)
 	if (!foundFile)
 	{
 		UE_LOG(LogPython, Error, TEXT("Unable to find file %s"), UTF8_TO_TCHAR(filename));
+#if !PLATFORM_IOS
 		return;
+#endif
 	}
 
 #if PY_MAJOR_VERSION >= 3
