@@ -219,19 +219,11 @@ public class UnrealEnginePython : ModuleRules
 
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
-            if (pythonHome == "")
-            {
-                pythonHome = DiscoverPythonPath(windowsKnownPaths, "Win64");
-                if (pythonHome == "")
-                {
-                    throw new System.Exception("Unable to find Python installation");
-                }
-            }
-            System.Console.WriteLine("Using Python at: " + pythonHome);
-            PublicIncludePaths.Add(pythonHome);
-            string libPath = GetWindowsPythonLibFile(pythonHome);
-            PublicSystemLibraryPaths.Add(Path.GetDirectoryName(libPath));
-            PublicAdditionalLibraries.Add(libPath);
+            string PythonHome = Path.Combine(Target.UEThirdPartyBinariesDirectory, "Python3/Win64");
+            PublicIncludePaths.Add(PythonHome);
+            string LibPath = Path.Combine(Target.UEThirdPartySourceDirectory, "Python3/Win64/libs/python39.lib");
+            PublicSystemLibraryPaths.Add(Path.GetDirectoryName(LibPath));
+            PublicAdditionalLibraries.Add(LibPath);
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
