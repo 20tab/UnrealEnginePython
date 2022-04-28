@@ -235,19 +235,10 @@ public class UnrealEnginePython : ModuleRules
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
-            if (pythonHome == "")
-            {
-                pythonHome = DiscoverPythonPath(macKnownPaths, "Mac");
-                if (pythonHome == "")
-                {
-                    throw new System.Exception("Unable to find Python installation");
-                }
-            }
-            System.Console.WriteLine("Using Python at: " + pythonHome);
-            PublicIncludePaths.Add(pythonHome);
-            string libPath = GetMacPythonLibFile(pythonHome);
-            PublicAdditionalLibraries.Add(Path.GetDirectoryName(libPath));
-            PublicDelayLoadDLLs.Add(libPath);
+            string PythonHome = Path.Combine(Target.UEThirdPartySourceDirectory, "Python3/Mac/include");
+            PublicIncludePaths.Add(PythonHome);
+            string LibPath = Path.Combine(Target.UEThirdPartyBinariesDirectory, "Python3/Mac/lib/libpython3.9.dylib");
+            PublicDelayLoadDLLs.Add(LibPath);
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
