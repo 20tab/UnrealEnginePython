@@ -386,7 +386,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		IniValue.ParseIntoArray(ImportModules, separators, 3);
 	}
 
-	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
+	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PythonScripts"));
 	if (!FPaths::DirectoryExists(ProjectScriptsPath))
 	{
 		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
@@ -396,7 +396,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #if WITH_EDITOR
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
 	{
-		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
+		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("PythonScripts"));
 		if (FPaths::DirectoryExists(PluginScriptsPath))
 		{
 			ScriptsPaths.Add(PluginScriptsPath);
@@ -476,19 +476,19 @@ void FUnrealEnginePythonModule::StartupModule()
 	FString UnrealEnginePython_OBBPath;
 	if (FPaths::FileExists(*(OBBDir1 / MainOBBName)))
 	{
-		UnrealEnginePython_OBBPath = OBBDir1 / MainOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
+		UnrealEnginePython_OBBPath = OBBDir1 / MainOBBName / FApp::GetProjectName() / FString(TEXT("Content/PythonScripts"));
 	}
 	else if (FPaths::FileExists(*(OBBDir2 / MainOBBName)))
 	{
-		UnrealEnginePython_OBBPath = OBBDir2 / MainOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
+		UnrealEnginePython_OBBPath = OBBDir2 / MainOBBName / FApp::GetProjectName() / FString(TEXT("Content/PythonScripts"));
 	}
 	if (FPaths::FileExists(*(OBBDir1 / PatchOBBName)))
 	{
-		UnrealEnginePython_OBBPath = OBBDir1 / PatchOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
+		UnrealEnginePython_OBBPath = OBBDir1 / PatchOBBName / FApp::GetProjectName() / FString(TEXT("Content/PythonScripts"));
 	}
 	else if (FPaths::FileExists(*(OBBDir2 / PatchOBBName)))
 	{
-		UnrealEnginePython_OBBPath = OBBDir1 / PatchOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
+		UnrealEnginePython_OBBPath = OBBDir1 / PatchOBBName / FApp::GetProjectName() / FString(TEXT("Content/PythonScripts"));
 	}
 
 	if (!UnrealEnginePython_OBBPath.IsEmpty())
@@ -496,7 +496,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		ScriptsPaths.Add(UnrealEnginePython_OBBPath);
 	}
 
-	FString FinalPath = GFilePathBase / FString("UE4Game") / FApp::GetProjectName() / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
+	FString FinalPath = GFilePathBase / FString("UE4Game") / FApp::GetProjectName() / FApp::GetProjectName() / FString(TEXT("Content/PythonScripts"));
 	ScriptsPaths.Add(FinalPath);
 
 	FString BasePythonPath = FinalPath / FString(TEXT("stdlib.zip")) + FString(":") + FinalPath;
@@ -514,7 +514,7 @@ void FUnrealEnginePythonModule::StartupModule()
     FString IOSContentPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*IFileManager::Get().GetFilenameOnDisk(*FPaths::ConvertRelativePathToFull(PROJECT_CONTENT_DIR)));
     FString PyScriptsSearchPath = IOSContentPath / FString(TEXT("lib")) + FString(":") +
                                 IOSContentPath / FString(TEXT("lib/stdlib.zip")) + FString(":") +
-                                IOSContentPath / FString(TEXT("scripts")); // the name of directory must be lower-case.
+                                IOSContentPath / FString(TEXT("pythonscripts")); // the name of directory must be lower-case.
 
     Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*PyScriptsSearchPath), NULL));
     
