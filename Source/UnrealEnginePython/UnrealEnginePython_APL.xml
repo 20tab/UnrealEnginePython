@@ -8,17 +8,95 @@
 
     <!-- optional files or directories to copy to Intermediate/Android/APK -->
     <resourceCopies>
-        <log text="python APL copying files for $S(Architecture)/"/>
-	<copyFile src="$S(PluginDir)/../../android/armeabi-v7a/libcrystax.so"
-                    dst="$S(BuildDir)/libs/armeabi-v7a/libcrystax.so" />
-        <copyFile src="$S(PluginDir)/../../android/armeabi-v7a/libpython3.5m.so"
-                    dst="$S(BuildDir)/libs/armeabi-v7a/libpython3.5m.so" />
+        <log text="bz2 APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libbz2.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libbz2.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="crypto APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libcrypto.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libcrypto.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="crypto1.1 APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libcrypto1.1.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libcrypto1.1.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="ffi APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libffi.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libffi.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="lzma APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/liblzma.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/liblzma.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="python3.7m APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libpython3.7m.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libpython3.7m.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="rubicon APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/librubicon.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/librubicon.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="sqlite3 APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libsqlite3.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libsqlite3.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="ssl APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libssl.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libssl.so" />
+    </resourceCopies>
+    <resourceCopies>
+        <log text="ssl1.1 APL copying files for $S(Architecture)/"/>
+        <copyFile src="$S(PluginDir)/../../android/libs/arm64-v8a/libssl1.1.so"
+                  dst="$S(BuildDir)/libs/arm64-v8a/libssl1.1.so" />
     </resourceCopies>
 
     <soLoadLibrary>
-		<log text="Python APL adding loadLibrary references"/>
-		<loadLibrary name="crystax" failmsg="libcrystax not loaded and required!" />
-		<loadLibrary name="python3.5m" failmsg="libpython3.5m not loaded and required!" />
+        <log text="bz2 APL adding loadLibrary references"/>
+        <loadLibrary name="bz2" failmsg="bz2 not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="crypto APL adding loadLibrary references"/>
+        <loadLibrary name="crypto" failmsg="crypto not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="crypto1.1 APL adding loadLibrary references"/>
+        <loadLibrary name="crypto1.1" failmsg="crypto1.1 not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="ffi APL adding loadLibrary references"/>
+        <loadLibrary name="ffi" failmsg="ffi not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="lzma APL adding loadLibrary references"/>
+        <loadLibrary name="lzma" failmsg="lzma not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="python3.7m APL adding loadLibrary references"/>
+        <loadLibrary name="python3.7m" failmsg="python3.6m not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="rubicon APL adding loadLibrary references"/>
+        <loadLibrary name="rubicon" failmsg="rubicon not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="sqlite3 APL adding loadLibrary references"/>
+        <loadLibrary name="sqlite3" failmsg="sqlite3 not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="ssl APL adding loadLibrary references"/>
+        <loadLibrary name="ssl" failmsg="ssl not loaded and required!" />
+    </soLoadLibrary>
+    <soLoadLibrary>
+        <log text="ssl1.1 APL adding loadLibrary references"/>
+        <loadLibrary name="ssl1.1" failmsg="ssl1.1 not loaded and required!" />
     </soLoadLibrary>
 </root>
 

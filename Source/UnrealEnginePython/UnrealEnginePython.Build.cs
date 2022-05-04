@@ -258,19 +258,41 @@ public class UnrealEnginePython : ModuleRules
                 PublicAdditionalLibraries.Add(items[1]);
             }
         }
-#if WITH_FORWARDED_MODULE_RULES_CTOR
         else if (Target.Platform == UnrealTargetPlatform.Android)
 		{
-            PublicIncludePaths.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/python35/include"));
-            PublicAdditionalLibraries.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/armeabi-v7a"));
-            PublicAdditionalLibraries.Add("python3.5m");
+            string PythonAndroidLibsDirectory = Path.Combine(PluginDirectory, "android");
 
+            string includePath = Path.Combine(PythonAndroidLibsDirectory, "include", "python3.7m");
+            PublicIncludePaths.Add(includePath);
+
+            PublicSystemLibraryPaths.AddRange(
+                new string[] {
+                    Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a")
+                });
+
+            string[] libraryPaths = new string[] {
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libbz2.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libcrypto.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libcrypto1.1.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libffi.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "liblzma.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libpython3.7m.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "librubicon.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libsqlite3.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libssl.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libssl1.1.so"),
+            };
+
+            foreach (string libraryPath in libraryPaths)
+            {
+                PublicAdditionalLibraries.Add(libraryPath);
+            }
+            
             string APLName = "UnrealEnginePython_APL.xml";
             string RelAPLPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
             AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(RelAPLPath, APLName));
     
         }
-#endif
         else if (Target.Platform == UnrealTargetPlatform.IOS)
         {
             string PythonIOSLibsDirectory = Path.Combine(PluginDirectory, "python", "python36", "ios");
