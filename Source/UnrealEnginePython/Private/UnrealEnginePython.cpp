@@ -63,6 +63,7 @@ const char *ue4_module_options = "linux_global_symbols";
 #endif
 
 #if PLATFORM_ANDROID
+#include "Misc/LocalTimestampDirectoryVisitor.h"
 #include "Android/AndroidJNI.h"
 #include "Android/AndroidApplication.h"
 #endif
@@ -464,52 +465,50 @@ void FUnrealEnginePythonModule::StartupModule()
 #if PY_MAJOR_VERSION >= 3
 	init_unreal_engine_builtin();
 #if PLATFORM_ANDROID
-	extern FString GOBBFilePathBase;
-	extern FString GFilePathBase;
+	FString InDirectory = FString(TEXT("Scripts"));
+
 	extern FString GExternalFilePath;
-	extern FString GPackageName;
-	extern int32 GAndroidPackageVersion;
-	FString OBBDir1 = GOBBFilePathBase + FString(TEXT("/Android/obb/") + GPackageName);
-	FString OBBDir2 = GOBBFilePathBase + FString(TEXT("/obb/") + GPackageName);
-	FString MainOBBName = FString::Printf(TEXT("main.%d.%s.obb"), GAndroidPackageVersion, *GPackageName);
-	FString PatchOBBName = FString::Printf(TEXT("patch.%d.%s.obb"), GAndroidPackageVersion, *GPackageName);
-	FString UnrealEnginePython_OBBPath;
-	if (FPaths::FileExists(*(OBBDir1 / MainOBBName)))
-	{
-		UnrealEnginePython_OBBPath = OBBDir1 / MainOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
-	}
-	else if (FPaths::FileExists(*(OBBDir2 / MainOBBName)))
-	{
-		UnrealEnginePython_OBBPath = OBBDir2 / MainOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
-	}
-	if (FPaths::FileExists(*(OBBDir1 / PatchOBBName)))
-	{
-		UnrealEnginePython_OBBPath = OBBDir1 / PatchOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
-	}
-	else if (FPaths::FileExists(*(OBBDir2 / PatchOBBName)))
-	{
-		UnrealEnginePython_OBBPath = OBBDir1 / PatchOBBName / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
-	}
 
-	if (!UnrealEnginePython_OBBPath.IsEmpty())
+	FString DirectoryPath = FPaths::ProjectContentDir() / InDirectory;
+
+	IFileManager* FileManager = &IFileManager::Get();
+
+	// iterate over all the files in provided directory
+	FLocalTimestampDirectoryVisitor Visitor(FPlatformFileManager::Get().GetPlatformFile(), TArray<FString>(),
+	                                        TArray<FString>(), false);
+
+	FileManager->IterateDirectoryRecursively(*DirectoryPath, Visitor);
+
+	FString Prefix = FApp::GetProjectName() / FString(TEXT("Content/Scripts/"));
+
+	for (TMap<FString, FDateTime>::TIterator TimestampIt(Visitor.FileTimes); TimestampIt; ++TimestampIt)
 	{
-		ScriptsPaths.Add(UnrealEnginePython_OBBPath);
-	}
+		FString Path = TimestampIt.Key();
 
-	FString FinalPath = GFilePathBase / FString("UE4Game") / FApp::GetProjectName() / FApp::GetProjectName() / FString(TEXT("Content/Scripts"));
-	ScriptsPaths.Add(FinalPath);
+		Path.RemoveFromStart(Prefix);
 
-	FString BasePythonPath = FinalPath / FString(TEXT("stdlib.zip")) + FString(":") + FinalPath;
+		// read the file contents and write it if successful to external path
+		TArray<uint8> MemFile;
 
-	if (!UnrealEnginePython_OBBPath.IsEmpty())
-	{
-		BasePythonPath += FString(":") + UnrealEnginePython_OBBPath;
+		const FString SourceFilename = TimestampIt.Key();
+
+		if (FFileHelper::LoadFileToArray(MemFile, *SourceFilename, 0))
+		{
+			FString DestFilename = GExternalFilePath / InDirectory / Path;
+
+			FFileHelper::SaveArrayToFile(MemFile, *DestFilename);
+		}
 	}
 
-	UE_LOG(LogPython, Warning, TEXT("Setting Android Base Path to %s"), *BasePythonPath);
+	FString PyScriptsSearchPath = GExternalFilePath / InDirectory;
 
-	Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*BasePythonPath), NULL));
-    
+	ScriptsPaths.Reset();
+
+	ScriptsPaths.Add(PyScriptsSearchPath);
+
+	UE_LOG(LogPython, Warning, TEXT("Setting Android Python Scripts Search Path to %s"), *PyScriptsSearchPath);
+
+	Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*PyScriptsSearchPath), NULL));
 #elif PLATFORM_IOS
     FString IOSContentPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*IFileManager::Get().GetFilenameOnDisk(*FPaths::ConvertRelativePathToFull(PROJECT_CONTENT_DIR)));
     FString PyScriptsSearchPath = IOSContentPath / FString(TEXT("lib")) + FString(":") +
