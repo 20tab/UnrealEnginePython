@@ -387,7 +387,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		IniValue.ParseIntoArray(ImportModules, separators, 3);
 	}
 
-	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("Scripts"));
+	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PythonScripts"));
 	if (!FPaths::DirectoryExists(ProjectScriptsPath))
 	{
 		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
@@ -397,7 +397,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #if WITH_EDITOR
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
 	{
-		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
+		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("PythonScripts"));
 		if (FPaths::DirectoryExists(PluginScriptsPath))
 		{
 			ScriptsPaths.Add(PluginScriptsPath);
@@ -465,7 +465,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #if PY_MAJOR_VERSION >= 3
 	init_unreal_engine_builtin();
 #if PLATFORM_ANDROID
-	FString InDirectory = FString(TEXT("Scripts"));
+	FString InDirectory = FString(TEXT("PythonScripts"));
 
 	extern FString GExternalFilePath;
 
@@ -479,7 +479,7 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	FileManager->IterateDirectoryRecursively(*DirectoryPath, Visitor);
 
-	FString Prefix = FApp::GetProjectName() / FString(TEXT("Content/Scripts/"));
+	FString Prefix = FApp::GetProjectName() / FString(TEXT("Content/PythonScripts/"));
 
 	for (TMap<FString, FDateTime>::TIterator TimestampIt(Visitor.FileTimes); TimestampIt; ++TimestampIt)
 	{
@@ -513,7 +513,7 @@ void FUnrealEnginePythonModule::StartupModule()
     FString IOSContentPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*IFileManager::Get().GetFilenameOnDisk(*FPaths::ConvertRelativePathToFull(PROJECT_CONTENT_DIR)));
     FString PyScriptsSearchPath = IOSContentPath / FString(TEXT("lib")) + FString(":") +
                                 IOSContentPath / FString(TEXT("lib/stdlib.zip")) + FString(":") +
-                                IOSContentPath / FString(TEXT("scripts")); // the name of directory must be lower-case.
+                                IOSContentPath / FString(TEXT("pythonscripts")); // the name of directory must be lower-case.
 
     Py_SetPath(Py_DecodeLocale(TCHAR_TO_UTF8(*PyScriptsSearchPath), NULL));
     

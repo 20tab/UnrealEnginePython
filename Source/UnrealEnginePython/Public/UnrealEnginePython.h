@@ -27,8 +27,8 @@
 #include "Runtime/Launch/Resources/Version.h"
 
 #if PLATFORM_MAC
-#include <Headers/Python.h>
-#include <Headers/structmember.h>
+#include <Python.h>
+#include <structmember.h>
 #elif PLATFORM_LINUX
 #include <Python.h>
 #include <structmember.h>
