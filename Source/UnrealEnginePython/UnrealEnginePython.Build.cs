@@ -295,7 +295,7 @@ public class UnrealEnginePython : ModuleRules
         }
         else if (Target.Platform == UnrealTargetPlatform.IOS)
         {
-            string PythonIOSLibsDirectory = Path.Combine(PluginDirectory, "python", "python36", "ios");
+            string PythonIOSLibsDirectory = Path.Combine(PluginDirectory, "ios");
 
             string includePath = Path.Combine(PythonIOSLibsDirectory, "Python", "Headers");
             PublicIncludePaths.Add(includePath);
