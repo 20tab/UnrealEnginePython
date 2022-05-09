@@ -219,11 +219,13 @@ public class UnrealEnginePython : ModuleRules
 
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
-            string PythonHome = Path.Combine(Target.UEThirdPartyBinariesDirectory, "Python3/Win64");
-            PublicIncludePaths.Add(PythonHome);
             string LibPath = Path.Combine(Target.UEThirdPartySourceDirectory, "Python3/Win64/libs/python39.lib");
             PublicSystemLibraryPaths.Add(Path.GetDirectoryName(LibPath));
-            PublicAdditionalLibraries.Add(LibPath);
+            PrivateDependencyModuleNames.AddRange(
+                new string[] {
+                    "Python3"
+                }
+            );
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
