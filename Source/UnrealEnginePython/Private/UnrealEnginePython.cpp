@@ -409,6 +409,11 @@ void FUnrealEnginePythonModule::StartupModule()
 			ScriptsPaths.Add(plugin->GetBaseDir());
 		}
 	}
+
+#if PLATFORM_WINDOWS
+	ScriptsPaths.Add(FPaths::Combine(FPaths::EngineDir(), "Binaries", "ThirdParty", "Python3", "Win64", "Lib",
+	                                 "site-packages"));
+#endif
 #endif
 
 	if (ZipPath.IsEmpty())
