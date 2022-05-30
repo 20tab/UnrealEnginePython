@@ -31,7 +31,9 @@ static PyObject *py_ue_sscroll_box_clear_children(ue_PySScrollBox *self, PyObjec
 
 static PyMethodDef ue_PySScrollBox_methods[] = {
 	{ "clear_children", (PyCFunction)py_ue_sscroll_box_clear_children, METH_VARARGS, "" },
-#pragma warning(suppress: 4191)
+#ifdef _MSC_VER
+#pragma warning(disable: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_sscroll_box_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ NULL }  /* Sentinel */
 };

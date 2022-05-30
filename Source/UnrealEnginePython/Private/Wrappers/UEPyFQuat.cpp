@@ -1,6 +1,6 @@
 #include "UEPyFQuat.h"
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 static PyObject *py_ue_fquat_angular_distance(ue_PyFQuat *self, PyObject * args)
 {
 	FQuat q;
@@ -49,7 +49,7 @@ static PyObject *py_ue_fquat_vector(ue_PyFQuat *self, PyObject * args)
 }
 
 static PyMethodDef ue_PyFQuat_methods[] = {
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	{ "angular_distance", (PyCFunction)py_ue_fquat_angular_distance, METH_VARARGS, "" },
 #endif
 	{ "euler", (PyCFunction)py_ue_fquat_euler, METH_VARARGS, "" },

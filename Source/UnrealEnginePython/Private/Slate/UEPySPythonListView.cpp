@@ -195,14 +195,14 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
 	ue_py_slate_farguments_optional_bool("clear_selection_on_click", ClearSelectionOnClick);
 	ue_py_slate_farguments_optional_enum("consume_mouse_wheel", ConsumeMouseWheel, EConsumeMouseWheel);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_py_slate_farguments_optional_bool("handle_gamepad_events", HandleGamepadEvents);
 #endif
 	ue_py_slate_farguments_float("item_height", ItemHeight);
 	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
 	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
 #endif
 

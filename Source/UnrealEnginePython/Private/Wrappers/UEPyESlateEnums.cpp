@@ -79,8 +79,8 @@ void ue_python_init_eslate_enums(PyObject *ue_module)
 		PyDict_SetItemString(ue_PyESlateEnumsType.tp_dict, enum_name, (PyObject *)native_enum);
 	};
 
-#if ENGINE_MINOR_VERSION > 15
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 #define ADD_NATIVE_ENUM(EnumType, EnumVal) add_native_enum(#EnumType "." #EnumVal, (uint8)EnumType::EnumVal)
 #else
 #define ADD_NATIVE_ENUM(EnumType, EnumVal) add_native_enum(#EnumType "." #EnumVal, (uint8)EnumType::Type::EnumVal)

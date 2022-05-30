@@ -3,7 +3,7 @@
 #include "UnrealEnginePython.h"
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 #include "UEPySNodePanel.h"
 
 #include "Editor/GraphEditor/Public/SGraphPanel.h"

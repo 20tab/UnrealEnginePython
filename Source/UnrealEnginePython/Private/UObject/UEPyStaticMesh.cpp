@@ -87,7 +87,7 @@ PyObject *py_ue_static_mesh_build(ue_PyUObject *self, PyObject * args)
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
 
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	mesh->ImportVersion = EImportStaticMeshVersion::LastVersion;
 #endif
 	mesh->Build();
@@ -124,10 +124,17 @@ PyObject *py_ue_static_mesh_get_raw_mesh(ue_PyUObject *self, PyObject * args)
 
 	FRawMesh raw_mesh;
 
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
+	if (lod_index < 0 || lod_index >= mesh->GetSourceModels().Num())
+		return PyErr_Format(PyExc_Exception, "invalid LOD index");
+
+	mesh->GetSourceModel(lod_index).RawMeshBulkData->LoadRawMesh(raw_mesh);
+#else
 	if (lod_index < 0 || lod_index >= mesh->SourceModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index");
 
 	mesh->SourceModels[lod_index].RawMeshBulkData->LoadRawMesh(raw_mesh);
+#endif
 
 	return py_ue_new_fraw_mesh(raw_mesh);
 }

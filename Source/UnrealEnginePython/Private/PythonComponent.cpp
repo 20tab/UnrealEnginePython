@@ -6,7 +6,7 @@ UPythonComponent::UPythonComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-#if ENGINE_MINOR_VERSION < 14
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 14))
 	bWantsBeginPlay = true;
 #endif
 	PrimaryComponentTick.bCanEverTick = true;
@@ -520,7 +520,7 @@ UObject *UPythonComponent::CallPythonComponentMethodObject(FString method_name, 
 	return nullptr;
 }
 
-#if ENGINE_MINOR_VERSION >= 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 15)
 TMap<FString, FString> UPythonComponent::CallPythonComponentMethodMap(FString method_name, FString args)
 {
 	TMap<FString, FString> output_map;

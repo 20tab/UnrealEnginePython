@@ -105,12 +105,21 @@ private:
 			}
 		}
 
+		// should I move this into PlaySession also??
+
 		// cleanup from previous run
 		BackedUpPlaySettings.Empty();
 
 		FObjectWriter(PlayInEditorSettings, BackedUpPlaySettings);
 
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		// can I move this from here to PlaySession??
+		// otherwise need to store the settings somehow
+		// currently assuming no changes to default PlayInEditorSettings between the Dequeue and PlaySession
+		//OverridePlaySettings(PlayInEditorSettings);
+#else
 		OverridePlaySettings(PlayInEditorSettings);
+#endif
 
 		//CurrentCaptureObject->AddToRoot();
 		CurrentCaptureObject->OnCaptureFinished().AddRaw(this, &FInEditorMultiCapture::OnEnd);
@@ -118,15 +127,27 @@ private:
 		UGameViewportClient::OnViewportCreated().AddRaw(this, &FInEditorMultiCapture::OnStart);
 		FEditorDelegates::EndPIE.AddRaw(this, &FInEditorMultiCapture::OnEndPIE);
 
-		FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
-		if (AudioDevice != nullptr)
+		//Use auto because UE4.25 changed type, but type has same interface
+		auto AudioDevice = GEngine->GetMainAudioDevice();
+
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		bool bIsDeviceValid = AudioDevice.IsValid();
+#else
+		bool bIsDeviceValid = (AudioDevice != nullptr);
+#endif
+
+		if (bIsDeviceValid)
 		{
 			TransientMasterVolume = AudioDevice->GetTransientMasterVolume();
 			AudioDevice->SetTransientMasterVolume(0.0f);
 		}
 
 		// play at the next tick
+#if ENGINE_MAJOR_VERSION == 5
+		FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FInEditorMultiCapture::PlaySession), 0);
+#else
 		FTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FInEditorMultiCapture::PlaySession), 0);
+#endif
 	}
 
 	bool PlaySession(float DeltaTime)
@@ -147,7 +168,50 @@ private:
 		}
 
 
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		// we also need access to this
+		const FMovieSceneCaptureSettings& Settings = CurrentCaptureObject->GetSettings();
+
+		// as commented this is from Editor/MovieSceneCaptureDialog/Private/MovieSceneCaptureDialogModule.cpp
+		// and this is where that source code sets the custom window now
+		TSharedRef<SWindow> CustomWindow = SNew(SWindow)
+			.Title(FText::FromString("Movie Render - Preview"))
+			.AutoCenter(EAutoCenter::PrimaryWorkArea)
+			.UseOSWindowBorder(true)
+			.FocusWhenFirstShown(false)
+			.ActivationPolicy(EWindowActivationPolicy::Never)
+			.HasCloseButton(true)
+			.SupportsMaximize(false)
+			.SupportsMinimize(true)
+			.MaxWidth(Settings.Resolution.ResX)
+			.MaxHeight(Settings.Resolution.ResY)
+			.SizingRule(ESizingRule::FixedSize);
+
+		FSlateApplication::Get().AddWindow(CustomWindow);
+
+		// is there any reason NOT to call this here??
+		ULevelEditorPlaySettings* PlayInEditorSettings = GetMutableDefault<ULevelEditorPlaySettings>();
+		OverridePlaySettings(PlayInEditorSettings);
+
+
+		// this is supposed to be how it works but cant figure out where is bAtPlayerStart
+		// well basically because this is just ignored!!
+		// note that 3rd param is bInSimulateInEditor - which only sets play_params.WorldType if true
+		// (see code in Editor/UnrealEd/Private/PlayLevel.cpp)
+		FRequestPlaySessionParams play_params;
+		play_params.DestinationSlateViewport = nullptr;
+		//play_params.WorldType = EPlaySessionWorldType::SimulateInEditor;
+
+		// NO - we have a big problem - this is in same function in MovieSceneCaptureDialogModule.cpp 
+		// - not clear how we get this here - unless we call OverridePlaySettings in this function as above
+		play_params.EditorPlaySettings = PlayInEditorSettings;
+
+		play_params.CustomPIEWindow = CustomWindow;
+
+		GEditor->RequestPlaySession(play_params);
+#else
 		GEditor->RequestPlaySession(true, nullptr, false);
+#endif
 		return false;
 	}
 
@@ -160,12 +224,16 @@ private:
 		PlayInEditorSettings->CenterNewWindow = true;
 		PlayInEditorSettings->LastExecutedPlayModeType = EPlayModeType::PlayMode_InEditorFloating;
 
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		// this is complicated - instead of specifying here we need to specify in FRequestPlaySessionParams
+		// but that means this needs to be done in the PlaySession function
+#else
 		TSharedRef<SWindow> CustomWindow = SNew(SWindow)
 			.Title(FText::FromString("Movie Render - Preview"))
 			.AutoCenter(EAutoCenter::PrimaryWorkArea)
 			.UseOSWindowBorder(true)
 			.FocusWhenFirstShown(false)
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 			.ActivationPolicy(EWindowActivationPolicy::Never)
 #endif
 			.HasCloseButton(true)
@@ -178,12 +246,13 @@ private:
 		FSlateApplication::Get().AddWindow(CustomWindow);
 
 		PlayInEditorSettings->CustomPIEWindow = CustomWindow;
+#endif
 
 		// Reset everything else
 		PlayInEditorSettings->GameGetsMouseControl = false;
 		PlayInEditorSettings->ShowMouseControlLabel = false;
 		PlayInEditorSettings->ViewportGetsHMDControl = false;
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 		PlayInEditorSettings->ShouldMinimizeEditorOnVRPIE = true;
 		PlayInEditorSettings->EnableGameSound = false;
 #endif
@@ -196,7 +265,12 @@ private:
 		PlayInEditorSettings->LaunchConfiguration = EPlayOnLaunchConfiguration::LaunchConfig_Default;
 		PlayInEditorSettings->SetPlayNetMode(EPlayNetMode::PIE_Standalone);
 		PlayInEditorSettings->SetRunUnderOneProcess(true);
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		// I hope this is equivalent ie play dedicated is same as launching a separate server
+		PlayInEditorSettings->bLaunchSeparateServer = false;
+#else
 		PlayInEditorSettings->SetPlayNetDedicated(false);
+#endif
 		PlayInEditorSettings->SetPlayNumberOfClients(1);
 	}
 
@@ -278,8 +352,16 @@ private:
 
 		FObjectReader(GetMutableDefault<ULevelEditorPlaySettings>(), BackedUpPlaySettings);
 
-		FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
-		if (AudioDevice != nullptr)
+		//Use auto because UE4.25 changed type, but type has same interface
+		auto AudioDevice = GEngine->GetMainAudioDevice();
+
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		bool bIsDeviceValid = AudioDevice.IsValid();
+#else
+		bool bIsDeviceValid = (AudioDevice != nullptr);
+#endif
+
+		if (bIsDeviceValid)
 		{
 			AudioDevice->SetTransientMasterVolume(TransientMasterVolume);
 		}
@@ -402,7 +484,7 @@ PyObject *py_ue_set_level_sequence_asset(ue_PyUObject *self, PyObject *args)
 	if (!capture)
 		return PyErr_Format(PyExc_Exception, "uobject is not a UAutomatedLevelSequenceCapture");
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	capture->SetLevelSequenceAsset(sequence->GetPathName());
 #else
 	capture->LevelSequenceAsset = FSoftObjectPath(sequence->GetPathName());

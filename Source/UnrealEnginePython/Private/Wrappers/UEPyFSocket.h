@@ -7,7 +7,7 @@
 
 
 
-typedef struct {
+typedef struct _ue_PyFSocket {
 	PyObject_HEAD
 	/* Type-specific fields go here. */
 	FSocket *sock;

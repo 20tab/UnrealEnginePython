@@ -1,7 +1,7 @@
 #pragma once
 #include "UnrealEnginePython.h"
 
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 
 #include "Runtime/Core/Public/Misc/FrameNumber.h"
 

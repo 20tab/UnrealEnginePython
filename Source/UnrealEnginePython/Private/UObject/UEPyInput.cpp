@@ -585,7 +585,11 @@ PyObject *py_ue_input_axis(ue_PyUObject * self, PyObject * args)
 	if (!key)
 		return PyErr_Format(PyExc_Exception, "argument is not a FKey");
 
+#if ENGINE_MAJOR_VERSION == 5
+	if (controller->InputKey(FInputKeyParams(*key, delta, delta_time, num_samples, py_gamepad && PyObject_IsTrue(py_gamepad))))
+#else
 	if (controller->InputAxis(*key, delta, delta_time, num_samples, py_gamepad && PyObject_IsTrue(py_gamepad)))
+#endif
 	{
 		Py_RETURN_TRUE;
 	}
@@ -617,7 +621,11 @@ PyObject *py_ue_input_key(ue_PyUObject * self, PyObject * args)
 	if (!key)
 		return PyErr_Format(PyExc_Exception, "argument is not a FKey");
 
+#if ENGINE_MAJOR_VERSION == 5
+	if (controller->InputKey(FInputKeyParams(*key, (EInputEvent)event_type, FVector(amount, 0.0, 0.0), py_gamepad && PyObject_IsTrue(py_gamepad))))
+#else
 	if (controller->InputKey(*key, (EInputEvent)event_type, amount, py_gamepad && PyObject_IsTrue(py_gamepad)))
+#endif
 	{
 		Py_RETURN_TRUE;
 	}

@@ -24,12 +24,20 @@
 	#endif
 #endif
 
-
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+PyObject *ue_py_convert_property(FProperty *, uint8 *, int32);
+bool ue_py_convert_pyobject(PyObject *, FProperty *, uint8 *, int32);
+#else
 PyObject *ue_py_convert_property(UProperty *, uint8 *, int32);
 bool ue_py_convert_pyobject(PyObject *, UProperty *, uint8 *, int32);
+#endif
 ue_PyUObject *ue_is_pyuobject(PyObject *);
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+ue_PyFProperty *ue_is_pyfproperty(PyObject *);
+ue_PyFFieldClass *ue_is_pyffieldclass(PyObject *);
+#endif
 
 void ue_bind_events_for_py_class_by_attribute(UObject *, PyObject *);
 
@@ -51,7 +59,11 @@ template <typename T> T *ue_py_check_type(PyObject *py_obj)
 		return nullptr;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	if (!ue_py_obj->ue_object || !ue_py_obj->ue_object->IsValidLowLevel() || ue_py_obj->ue_object->IsUnreachable())
+#else
 	if (!ue_py_obj->ue_object || !ue_py_obj->ue_object->IsValidLowLevel() || ue_py_obj->ue_object->IsPendingKillOrUnreachable())
+#endif
 	{
 		UE_LOG(LogPython, Error, TEXT("invalid UObject in ue_PyUObject %p"), ue_py_obj);
 		return nullptr;
@@ -62,13 +74,61 @@ template <typename T> T *ue_py_check_type(PyObject *py_obj)
 
 template <typename T> T *ue_py_check_type(ue_PyUObject *py_obj)
 {
+#if ENGINE_MAJOR_VERSION == 5
+	if (!py_obj->ue_object || !py_obj->ue_object->IsValidLowLevel() || py_obj->ue_object->IsUnreachable())
+#else
 	if (!py_obj->ue_object || !py_obj->ue_object->IsValidLowLevel() || py_obj->ue_object->IsPendingKillOrUnreachable())
+#endif
 	{
 		UE_LOG(LogPython, Error, TEXT("invalid UObject in ue_PyUObject %p"), py_obj);
 		return nullptr;
 	}
 	return Cast<T>(py_obj->ue_object);
 }
+
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+
+template <typename T> T *ue_py_check_ftype(PyObject *py_obj)
+{
+	ue_PyFProperty *ue_py_prop = ue_is_pyfproperty(py_obj);
+	if (!ue_py_prop)
+	{
+		return nullptr;
+	}
+
+	// I cannot see any function IsValidLowLevel or IsPendingKillOrUnreachable in the FProperty definition in UnrealType.h
+	//if (!ue_py_obj->ue_object || !ue_py_obj->ue_object->IsValidLowLevel() || ue_py_obj->ue_object->IsPendingKillOrUnreachable())
+	//{
+	//	UE_LOG(LogPython, Error, TEXT("invalid UObject in ue_PyUObject %p"), ue_py_obj);
+	//	return nullptr;
+	//}
+
+	if (!ue_py_prop->ue_fproperty)
+	{
+		UE_LOG(LogPython, Error, TEXT("invalid FProperty in ue_PyFProperty %p"), ue_py_prop);
+		return nullptr;
+	}
+
+	return CastField<T>(ue_py_prop->ue_fproperty);
+}
+
+template <typename T> T *ue_py_check_ftype(ue_PyFProperty *py_prop)
+{
+	// I cannot see any function IsValidLowLevel or IsPendingKillOrUnreachable in the FProperty definition in UnrealType.h
+	//if (!py_obj->ue_object || !py_obj->ue_object->IsValidLowLevel() || py_obj->ue_object->IsPendingKillOrUnreachable())
+	//{
+	//	UE_LOG(LogPython, Error, TEXT("invalid UObject in ue_PyUObject %p"), py_obj);
+	//	return nullptr;
+	//}
+	if (!py_prop->ue_fproperty)
+	{
+		UE_LOG(LogPython, Error, TEXT("invalid FProperty in ue_PyFProperty %p"), py_prop);
+		return nullptr;
+	}
+	return CastField<T>(py_prop->ue_fproperty);
+}
+
+#endif
 
 uint8 *do_ue_py_check_struct(PyObject *py_obj, UScriptStruct* chk_u_struct);
 

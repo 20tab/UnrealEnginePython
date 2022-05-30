@@ -66,7 +66,7 @@ PyObject* py_ue_landscape_import(ue_PyUObject* self, PyObject* args)
 
 	TArray<FLandscapeImportLayerInfo> infos;
 
-#if ENGINE_MINOR_VERSION < 23
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23))
 	landscape->Import(FGuid::NewGuid(), 0, 0, size_x - 1, size_y - 1, sections_per_component, section_size, data, nullptr, infos, (ELandscapeImportAlphamapType)layer_type);
 #else
 	TMap<FGuid, TArray<uint16>> HeightDataPerLayers;
@@ -98,7 +98,7 @@ PyObject* py_ue_landscape_export_to_raw_mesh(ue_PyUObject* self, PyObject* args)
 	if (!landscape)
 		return PyErr_Format(PyExc_Exception, "uobject is not a ULandscapeProxy");
 
-#if ENGINE_MINOR_VERSION > 21
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 21)
 	return PyErr_Format(PyExc_Exception, "MeshDescription struct is still unsupported");;
 #else
 	FRawMesh raw_mesh;

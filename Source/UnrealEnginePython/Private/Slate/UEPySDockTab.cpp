@@ -76,7 +76,9 @@ static int ue_py_sdock_tab_init(ue_PySDockTab *self, PyObject *args, PyObject *k
 	ue_py_slate_setup_farguments(SDockTab);
 
 	ue_py_slate_farguments_struct("content_padding", ContentPadding, FMargin);
+#if ENGINE_MAJOR_VERSION == 4
 	ue_py_slate_farguments_optional_struct_ptr("icon", Icon, FSlateBrush);
+#endif
 	ue_py_slate_farguments_text("label", Label);
 	ue_py_slate_farguments_optional_bool("should_autosize", ShouldAutosize);
 	ue_py_slate_farguments_optional_enum("tab_role", TabRole, ETabRole);

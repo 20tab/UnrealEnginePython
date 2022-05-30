@@ -5,7 +5,7 @@
 
 #include "Runtime/Engine/Public/SkeletalMeshTypes.h"
 
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshLODModel.h"
 

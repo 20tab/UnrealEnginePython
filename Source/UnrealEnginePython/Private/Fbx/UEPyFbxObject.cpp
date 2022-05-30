@@ -1,7 +1,7 @@
 
 #include "UEPyFbxObject.h"
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 #if WITH_EDITOR
 
 #include "UEPyFbx.h"

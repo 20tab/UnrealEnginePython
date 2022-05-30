@@ -135,10 +135,16 @@ static int ue_py_slevel_viewport_init(ue_PySLevelViewport *self, PyObject *args,
 
 	arguments.ParentLevelEditor(EditorModule.GetFirstLevelEditor().ToSharedRef());
 
+#if ENGINE_MAJOR_VERSION == 4
 	ue_py_slate_farguments_optional_bool("realtime", Realtime);
 	ue_py_slate_farguments_optional_enum("viewport_type", ViewportType, ELevelViewportType);
+#endif
 
+#if ENGINE_MAJOR_VERSION == 5
+	ue_py_snew_with_args(SLevelViewport, FAssetEditorViewportConstructionArgs());
+#else
 	ue_py_snew(SLevelViewport);
+#endif
 	ue_py_slate_cast(SLevelViewport);
 
 	EditorModule.GetFirstLevelEditor()->AddStandaloneLevelViewport(py_SLevelViewport);

@@ -9,7 +9,11 @@ typedef struct
 {
 	PyObject_HEAD
 		/* Type-specific fields go here. */
+#if ENGINE_MAJOR_VERSION == 5
+	FTSTicker::FDelegateHandle dhandle;
+#else
 		FDelegateHandle dhandle;
+#endif
 	bool garbaged;
 	TSharedPtr<FPythonSmartDelegate> delegate_ptr;
 } ue_PyFDelegateHandle;

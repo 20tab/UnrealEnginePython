@@ -307,7 +307,7 @@ static int ue_py_ihttp_request_init(ue_PyIHttpRequest *self, PyObject *args, PyO
 	{
 		return -1;
 	}
-	new(&self->http_request) TSharedRef<IHttpRequest>(FHttpModule::Get().CreateRequest());
+	new(&self->http_request) TSharedRef<IHttpRequest, ESPMode::ThreadSafe>(FHttpModule::Get().CreateRequest());
 	new(&self->on_process_request_complete) TSharedPtr<FPythonSmartHttpDelegate>(nullptr);
 	new(&self->on_request_progress) TSharedPtr<FPythonSmartHttpDelegate>(nullptr);
 	self->py_dict = PyDict_New();

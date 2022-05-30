@@ -72,9 +72,9 @@ static PyObject *py_ue_iplugin_to_json(ue_PyIPlugin *self, PyObject * args)
 
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
 	FString text;
-#if ENGINE_MINOR_VERSION < 14
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 14))
 	text = descriptor.ToString();
-#elif ENGINE_MINOR_VERSION <= 17
+#elif !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17))
 	descriptor.Write(text, enabled_by_default);
 #else
 	descriptor.Write(text);
@@ -102,9 +102,9 @@ static PyObject *py_ue_iplugin_from_json(ue_PyIPlugin *self, PyObject * args)
 	FText error;
 	FString text = FString(UTF8_TO_TCHAR(json));
 	FPluginDescriptor descriptor = self->plugin->GetDescriptor();
-#if ENGINE_MINOR_VERSION < 14
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 14))
 	if (!descriptor.Read(text, error))
-#elif ENGINE_MINOR_VERSION <= 17
+#elif !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17))
 	if (!descriptor.Read(text, enabled_by_default, error))
 #else
 	if (!descriptor.Read(text, error))
@@ -149,7 +149,7 @@ static PyObject *py_ue_iplugin_get_can_contain_content(ue_PyIPlugin *self, void 
 
 static PyObject *py_ue_iplugin_get_enabled_by_default(ue_PyIPlugin *self, void *closure)
 {
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	if (self->plugin->GetDescriptor().bEnabledByDefault)
 #else
 	if (self->plugin->GetDescriptor().EnabledByDefault == EPluginEnabledByDefault::Enabled)
@@ -229,7 +229,7 @@ static PyObject *py_ue_iplugin_version_name(ue_PyIPlugin *self, void *closure)
 
 static PyObject *py_ue_iplugin_file_version(ue_PyIPlugin *self, void *closure)
 {
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	return PyLong_FromLong(self->plugin->GetDescriptor().FileVersion);
 #else
 	return PyLong_FromLong(self->plugin->GetDescriptor().Version);

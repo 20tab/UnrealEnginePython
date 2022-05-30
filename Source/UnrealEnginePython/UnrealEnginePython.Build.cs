@@ -39,6 +39,8 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownIncludesPaths =
     {
+        "/usr/local/include/python3.8",
+        "/usr/local/include/python3.8m",
         "/usr/local/include/python3.7",
         "/usr/local/include/python3.7m",
         "/usr/local/include/python3.6",
@@ -46,6 +48,8 @@ public class UnrealEnginePython : ModuleRules
         "/usr/local/include/python3.5",
         "/usr/local/include/python3.5m",
         "/usr/local/include/python2.7",
+        "/usr/include/python3.8",
+        "/usr/include/python3.8m",
         "/usr/include/python3.7",
         "/usr/include/python3.7m",
         "/usr/include/python3.6",
@@ -57,6 +61,10 @@ public class UnrealEnginePython : ModuleRules
 
     private string[] linuxKnownLibsPaths =
     {
+        "/usr/local/lib/libpython3.8.so",
+        "/usr/local/lib/libpython3.8m.so",
+        "/usr/local/lib/x86_64-linux-gnu/libpython3.8.so",
+        "/usr/local/lib/x86_64-linux-gnu/libpython3.8m.so",
         "/usr/local/lib/libpython3.7.so",
         "/usr/local/lib/libpython3.7m.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython3.7.so",
@@ -71,6 +79,10 @@ public class UnrealEnginePython : ModuleRules
         "/usr/local/lib/x86_64-linux-gnu/libpython3.5m.so",
         "/usr/local/lib/libpython2.7.so",
         "/usr/local/lib/x86_64-linux-gnu/libpython2.7.so",
+        "/usr/lib/libpython3.8.so",
+        "/usr/lib/libpython3.8m.so",
+        "/usr/lib/x86_64-linux-gnu/libpython3.8.so",
+        "/usr/lib/x86_64-linux-gnu/libpython3.8m.so",
         "/usr/lib/libpython3.7.so",
         "/usr/lib/libpython3.7m.so",
         "/usr/lib/x86_64-linux-gnu/libpython3.7.so",
@@ -95,8 +107,8 @@ public class UnrealEnginePython : ModuleRules
     {
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-        string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
-        bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
+        PublicDefinitions.Add("WITH_UNREALENGINEPYTHON=1"); // fixed
+        string PluginDirectory = Path.Combine(ModuleDirectory, "..", "..");
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -142,11 +154,16 @@ public class UnrealEnginePython : ModuleRules
                 "MovieSceneCapture",
                 "Landscape",
                 "Foliage",
-                "AIModule"
+                "AIModule",
+                "ApplicationCore"
 				// ... add private dependencies that you statically link with here ...
 			}
             );
 
+        if (Target.bBuildEditor)
+        {
+            PrivateDependencyModuleNames.Add("PythonScriptPlugin");
+        }
 
 #if WITH_FORWARDED_MODULE_RULES_CTOR
         BuildVersion Version;
@@ -200,37 +217,22 @@ public class UnrealEnginePython : ModuleRules
             });
         }
 
-        if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
+        if (Target.Platform == UnrealTargetPlatform.Win64)
         {
-            if (pythonHome == "")
-            {
-                pythonHome = DiscoverPythonPath(windowsKnownPaths, "Win64");
-                if (pythonHome == "")
-                {
-                    throw new System.Exception("Unable to find Python installation");
+            string LibPath = Path.Combine(Target.UEThirdPartySourceDirectory, "Python3/Win64/libs/python39.lib");
+            PublicSystemLibraryPaths.Add(Path.GetDirectoryName(LibPath));
+            PrivateDependencyModuleNames.AddRange(
+                new string[] {
+                    "Python3"
                 }
-            }
-            System.Console.WriteLine("Using Python at: " + pythonHome);
-            PublicIncludePaths.Add(pythonHome);
-            string libPath = GetWindowsPythonLibFile(pythonHome);
-            PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
-            PublicAdditionalLibraries.Add(libPath);
+            );
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
         {
-            if (pythonHome == "")
-            {
-                pythonHome = DiscoverPythonPath(macKnownPaths, "Mac");
-                if (pythonHome == "")
-                {
-                    throw new System.Exception("Unable to find Python installation");
-                }
-            }
-            System.Console.WriteLine("Using Python at: " + pythonHome);
-            PublicIncludePaths.Add(pythonHome);
-            string libPath = GetMacPythonLibFile(pythonHome);
-            PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
-            PublicDelayLoadDLLs.Add(libPath);
+            string PythonHome = Path.Combine(Target.UEThirdPartySourceDirectory, "Python3/Mac/include");
+            PublicIncludePaths.Add(PythonHome);
+            string LibPath = Path.Combine(Target.UEThirdPartyBinariesDirectory, "Python3/Mac/lib/libpython3.9.dylib");
+            PublicDelayLoadDLLs.Add(LibPath);
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -246,6 +248,7 @@ public class UnrealEnginePython : ModuleRules
                 {
                     throw new System.Exception("Unable to find Python libs, please add a search path to linuxKnownLibsPaths");
                 }
+                PublicIncludePaths.Add(Path.Combine(ModuleDirectory,"Include"));
                 PublicIncludePaths.Add(includesPath);
                 PublicAdditionalLibraries.Add(libsPath);
 
@@ -257,18 +260,70 @@ public class UnrealEnginePython : ModuleRules
                 PublicAdditionalLibraries.Add(items[1]);
             }
         }
-#if WITH_FORWARDED_MODULE_RULES_CTOR
         else if (Target.Platform == UnrealTargetPlatform.Android)
-        {
-            PublicIncludePaths.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/python35/include"));
-            PublicLibraryPaths.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/armeabi-v7a"));
-            PublicAdditionalLibraries.Add("python3.5m");
+		{
+            string PythonAndroidLibsDirectory = Path.Combine(PluginDirectory, "android");
 
+            string includePath = Path.Combine(PythonAndroidLibsDirectory, "include", "python3.7m");
+            PublicIncludePaths.Add(includePath);
+
+            PublicSystemLibraryPaths.AddRange(
+                new string[] {
+                    Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a")
+                });
+
+            string[] libraryPaths = new string[] {
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libbz2.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libcrypto.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libcrypto1.1.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libffi.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "liblzma.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libpython3.7m.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "librubicon.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libsqlite3.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libssl.so"),
+                Path.Combine(PythonAndroidLibsDirectory, "libs", "arm64-v8a", "libssl1.1.so"),
+            };
+
+            foreach (string libraryPath in libraryPaths)
+            {
+                PublicAdditionalLibraries.Add(libraryPath);
+            }
+            
             string APLName = "UnrealEnginePython_APL.xml";
-            string RelAPLPath = Utils.MakePathRelativeTo(System.IO.Path.Combine(ModuleDirectory, APLName), Target.RelativeEnginePath);
-            AdditionalPropertiesForReceipt.Add(new ReceiptProperty("AndroidPlugin", RelAPLPath));
+            string RelAPLPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
+            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(RelAPLPath, APLName));
+    
         }
-#endif
+        else if (Target.Platform == UnrealTargetPlatform.IOS)
+        {
+            string PythonIOSLibsDirectory = Path.Combine(PluginDirectory, "ios");
+
+            string includePath = Path.Combine(PythonIOSLibsDirectory, "Python", "Headers");
+            PublicIncludePaths.Add(includePath);
+
+            PublicSystemLibraryPaths.AddRange(
+                new string[] {
+                    Path.Combine(PythonIOSLibsDirectory, "BZip2"),
+                    Path.Combine(PythonIOSLibsDirectory, "OpenSSL"),
+                    Path.Combine(PythonIOSLibsDirectory, "Python"),
+                    Path.Combine(PythonIOSLibsDirectory, "XZ"),
+                    Path.Combine(PythonIOSLibsDirectory, "Sqlite3"),
+                });
+
+            string[] libraryPaths = new string[] {
+                Path.Combine(PythonIOSLibsDirectory, "BZip2", "libbzip2.a"),
+                Path.Combine(PythonIOSLibsDirectory, "OpenSSL", "libOpenSSL.a"),
+                Path.Combine(PythonIOSLibsDirectory, "Python", "libPython.a"),
+                Path.Combine(PythonIOSLibsDirectory, "XZ", "libxz.a"),
+                Path.Combine(PythonIOSLibsDirectory, "Sqlite3", "libsqlite3.tbd"),
+            };
+
+            foreach (string libraryPath in libraryPaths)
+            {
+                PublicAdditionalLibraries.Add(libraryPath);
+            }
+        }
 
     }
 

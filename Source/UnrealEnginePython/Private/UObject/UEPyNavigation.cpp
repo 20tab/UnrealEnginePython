@@ -1,6 +1,6 @@
 #include "UEPyNavigation.h"
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 #include "AI/Navigation/NavigationSystem.h"
 #else
 #include "Blueprint/AIBlueprintHelperLibrary.h"
@@ -47,7 +47,7 @@ PyObject *py_ue_simple_move_to_location(ue_PyUObject *self, PyObject * args)
 	if (!controller)
 		return PyErr_Format(PyExc_Exception, "Pawn has no controller");
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	world->GetNavigationSystem()->SimpleMoveToLocation(controller, vec);
 #else
 	UAIBlueprintHelperLibrary::SimpleMoveToLocation(controller, vec);

@@ -60,7 +60,9 @@ static TSharedPtr<FPythonLogHistory> PythonLogHistory;
 TSharedRef<SDockTab> SpawnPythonLog( const FSpawnTabArgs& Args )
 {
 	return SNew(SDockTab)
+#if ENGINE_MAJOR_VERSION == 4
 		.Icon(FEditorStyle::GetBrush("Log.TabIcon"))
+#endif
 		.TabRole( ETabRole::NomadTab )
 		.Label( NSLOCTEXT("PythonConsole", "TabTitle", "Python Console") )
 		[
