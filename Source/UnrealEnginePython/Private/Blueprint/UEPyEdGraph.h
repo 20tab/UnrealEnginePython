@@ -28,6 +28,8 @@ PyObject *py_ue_node_create_pin(ue_PyUObject *, PyObject *);
 PyObject *py_ue_node_pin_type_changed(ue_PyUObject *, PyObject *);
 PyObject *py_ue_node_pin_default_value_changed(ue_PyUObject *, PyObject *);
 
+PyObject *py_ue_node_set_purity(ue_PyUObject *, PyObject *);
+
 PyObject *py_ue_node_function_entry_set_pure(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_node_get_title(ue_PyUObject *, PyObject *);

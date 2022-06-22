@@ -2,7 +2,7 @@
 #include "UEPyModule.h"
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 
 #if PLATFORM_LINUX
 #if defined(__clang__)

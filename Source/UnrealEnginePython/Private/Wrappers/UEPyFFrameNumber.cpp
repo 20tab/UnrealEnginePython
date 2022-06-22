@@ -1,6 +1,6 @@
 #include "UEPyFFrameNumber.h"
 
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 
 static PyObject *ue_PyFFrameNumber_str(ue_PyFFrameNumber *self)
 {

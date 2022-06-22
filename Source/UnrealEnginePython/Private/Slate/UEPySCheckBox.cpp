@@ -103,7 +103,7 @@ static int ue_py_scheck_box_init(ue_PySCheckBox *self, PyObject *args, PyObject 
 	ue_py_slate_farguments_enum("is_checked", IsChecked, ECheckBoxState);
 	ue_py_slate_farguments_optional_enum("h_align", HAlign, EHorizontalAlignment);
 	ue_py_slate_farguments_struct("padding", Padding, FMargin);
-	ue_py_slate_farguments_enum("click_method", ClickMethod, EButtonClickMethod::Type);
+	ue_py_slate_farguments_optional_enum("click_method", ClickMethod, EButtonClickMethod::Type);
 	ue_py_slate_farguments_optional_bool("is_focusable", IsFocusable);
 	ue_py_slate_farguments_optional_struct_ptr("unchecked_image", UncheckedImage, FSlateBrush);
 	ue_py_slate_farguments_optional_struct_ptr("unchecked_hoveredimage", UncheckedHoveredImage, FSlateBrush);

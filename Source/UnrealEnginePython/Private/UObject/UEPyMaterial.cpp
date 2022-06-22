@@ -56,7 +56,7 @@ PyObject *py_ue_set_material(ue_PyUObject *self, PyObject * args)
 	if (!material)
 		return PyErr_Format(PyExc_Exception, "argument is not a UMaterialInterface");
 
-#if ENGINE_MINOR_VERSION >= 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20)
 #if WITH_EDITOR
 	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
 	if (mesh)
@@ -150,7 +150,7 @@ PyObject *py_ue_set_material_static_switch_parameter(ue_PyUObject *self, PyObjec
 		bool isExisting = false;
 		for (auto& parameter : staticParameterSet.StaticSwitchParameters)
 		{
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 			if (parameter.bOverride && parameter.ParameterName == parameterName)
 #else
 			if (parameter.bOverride && parameter.ParameterInfo.Name == parameterName)
@@ -165,7 +165,7 @@ PyObject *py_ue_set_material_static_switch_parameter(ue_PyUObject *self, PyObjec
 		if (!isExisting)
 		{
 			FStaticSwitchParameter SwitchParameter;
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 			SwitchParameter.ParameterName = parameterName;
 #else
 			SwitchParameter.ParameterInfo.Name = parameterName;
@@ -221,6 +221,8 @@ PyObject *py_ue_get_material_scalar_parameter(ue_PyUObject *self, PyObject * arg
 
 }
 
+#if WITH_EDITOR
+// strictly this is WITH_EDITORONLY_DATA
 PyObject *py_ue_get_material_static_switch_parameter(ue_PyUObject *self, PyObject * args)
 {
 
@@ -253,6 +255,7 @@ PyObject *py_ue_get_material_static_switch_parameter(ue_PyUObject *self, PyObjec
 
 	Py_RETURN_FALSE;
 }
+#endif
 
 PyObject *py_ue_set_material_vector_parameter(ue_PyUObject *self, PyObject * args)
 {
@@ -505,13 +508,18 @@ PyObject *py_ue_static_mesh_set_collision_for_lod(ue_PyUObject *self, PyObject *
 		enabled = true;
 	}
 
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 	FMeshSectionInfo info = mesh->GetSectionInfoMap().Get(lod_index, material_index);
 #else
 	FMeshSectionInfo info = mesh->SectionInfoMap.Get(lod_index, material_index);
 #endif
 	info.bEnableCollision = enabled;
+
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
+	mesh->GetSectionInfoMap().Set(lod_index, material_index, info);
+#else
 	mesh->SectionInfoMap.Set(lod_index, material_index, info);
+#endif
 
 	mesh->MarkPackageDirty();
 
@@ -545,9 +553,17 @@ PyObject *py_ue_static_mesh_set_shadow_for_lod(ue_PyUObject *self, PyObject * ar
 		enabled = true;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
+	FMeshSectionInfo info = mesh->GetSectionInfoMap().Get(lod_index, material_index);
+#else
 	FMeshSectionInfo info = mesh->SectionInfoMap.Get(lod_index, material_index);
+#endif
 	info.bCastShadow = enabled;
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
+	mesh->GetSectionInfoMap().Set(lod_index, material_index, info);
+#else
 	mesh->SectionInfoMap.Set(lod_index, material_index, info);
+#endif
 
 	mesh->MarkPackageDirty();
 

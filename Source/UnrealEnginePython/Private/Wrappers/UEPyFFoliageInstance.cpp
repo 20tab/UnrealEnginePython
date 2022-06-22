@@ -32,16 +32,21 @@ static FFoliageInstance* get_foliage_instance(ue_PyFFoliageInstance* self)
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5
+	FFoliageInfo& info = const_cast<FFoliageInfo&>(self->foliage_actor->GetFoliageInfos()[self->foliage_type.Get()].Get());
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23
 	FFoliageInfo& info = self->foliage_actor->FoliageInfos[self->foliage_type.Get()].Get();
 #else
-
 	FFoliageMeshInfo& info = self->foliage_actor->FoliageMeshes[self->foliage_type.Get()].Get();
 #endif
 
 	if (self->instance_id >= 0 && self->instance_id < info.Instances.Num())
 	{
+#if ENGINE_MAJOR_VERSION == 5
 		return &info.Instances[self->instance_id];
+#else 
+		return &info.Instances[self->instance_id];
+#endif
 	}
 
 	PyErr_SetString(PyExc_Exception, "invalid foliage instance id");
@@ -71,14 +76,24 @@ static int py_ue_ffoliage_instance_set_location(ue_PyFFoliageInstance* self, PyO
 		{
 			TArray<int32> instances;
 			instances.Add(self->instance_id);
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5
+			FFoliageInfo& info = const_cast<FFoliageInfo&>(self->foliage_actor->GetFoliageInfos()[self->foliage_type.Get()].Get());
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23
 			FFoliageInfo& info = self->foliage_actor->FoliageInfos[self->foliage_type.Get()].Get();
 #else
 			FFoliageMeshInfo& info = self->foliage_actor->FoliageMeshes[self->foliage_type.Get()].Get();
 #endif
+#if ENGINE_MAJOR_VERSION == 5
+			info.PreMoveInstances(instances);
+#else
 			info.PreMoveInstances(self->foliage_actor.Get(), instances);
+#endif
 			instance->Location = vec->vec;
+#if ENGINE_MAJOR_VERSION == 5
+			info.PostMoveInstances(instances);
+#else
 			info.PostMoveInstances(self->foliage_actor.Get(), instances);
+#endif
 			return 0;
 		}
 	}
@@ -96,14 +111,24 @@ static int py_ue_ffoliage_instance_set_rotation(ue_PyFFoliageInstance* self, PyO
 		{
 			TArray<int32> instances;
 			instances.Add(self->instance_id);
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5
+			FFoliageInfo& info = const_cast<FFoliageInfo&>(self->foliage_actor->GetFoliageInfos()[self->foliage_type.Get()].Get());
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23
 			FFoliageInfo& info = self->foliage_actor->FoliageInfos[self->foliage_type.Get()].Get();
 #else
 			FFoliageMeshInfo& info = self->foliage_actor->FoliageMeshes[self->foliage_type.Get()].Get();
 #endif
+#if ENGINE_MAJOR_VERSION == 5
+			info.PreMoveInstances(instances);
+#else
 			info.PreMoveInstances(self->foliage_actor.Get(), instances);
+#endif
 			instance->Rotation = rot->rot;
+#if ENGINE_MAJOR_VERSION == 5
+			info.PostMoveInstances(instances);
+#else
 			info.PostMoveInstances(self->foliage_actor.Get(), instances);
+#endif
 			return 0;
 		}
 	}
@@ -114,7 +139,11 @@ static int py_ue_ffoliage_instance_set_rotation(ue_PyFFoliageInstance* self, PyO
 static PyObject* py_ue_ffoliage_instance_get_draw_scale3d(ue_PyFFoliageInstance* self, void* closure)
 {
 	get_instance(self);
+#if ENGINE_MAJOR_VERSION == 5
+	return py_ue_new_fvector(FVector(instance->DrawScale3D));
+#else
 	return py_ue_new_fvector(instance->DrawScale3D);
+#endif
 }
 
 static PyObject* py_ue_ffoliage_instance_get_flags(ue_PyFFoliageInstance* self, void* closure)
@@ -159,7 +188,7 @@ static PyObject* py_ue_ffoliage_instance_get_instance_id(ue_PyFFoliageInstance* 
 	return PyLong_FromLong(self->instance_id);
 }
 
-#if ENGINE_MINOR_VERSION > 19
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 19)
 static PyObject * py_ue_ffoliage_instance_get_base_component(ue_PyFFoliageInstance * self, void* closure)
 {
 	get_instance(self);
@@ -180,7 +209,7 @@ static PyGetSetDef ue_PyFFoliageInstance_getseters[] = {
 	{ (char*)"guid", (getter)py_ue_ffoliage_instance_get_procedural_guid, nullptr, (char*)"", NULL },
 	{ (char*)"base_id", (getter)py_ue_ffoliage_instance_get_base_id, nullptr, (char*)"", NULL },
 	{ (char*)"instance_id", (getter)py_ue_ffoliage_instance_get_instance_id, nullptr, (char*)"", NULL },
-#if ENGINE_MINOR_VERSION > 19
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 19)
 	{ (char*)"base_component", (getter)py_ue_ffoliage_instance_get_base_component, nullptr, (char*)"", NULL },
 #endif
 	{ NULL }  /* Sentinel */

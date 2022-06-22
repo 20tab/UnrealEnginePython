@@ -37,7 +37,7 @@ PyObject *py_ue_ivoice_capture_init_method(ue_PyIVoiceCapture *self, PyObject * 
 		return nullptr;
 	}
 
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	if (self->voice_capture->Init(sample_rate, channels))
 #else
 	if (self->voice_capture->Init(UTF8_TO_TCHAR(name), sample_rate, channels))
@@ -131,7 +131,7 @@ static PyTypeObject ue_PyIVoiceCaptureType = {
 static int py_ue_ivoice_capture_init(ue_PyIVoiceCapture *self, PyObject * args)
 {
 
-	TSharedPtr<IVoiceCapture> voice_capture_ptr = FVoiceModule::Get().CreateVoiceCapture();
+	TSharedPtr<IVoiceCapture> voice_capture_ptr = FVoiceModule::Get().CreateVoiceCapture("");
 	if (!voice_capture_ptr.IsValid())
 	{
 		PyErr_SetString(PyExc_Exception, "unable to create a new VoiceCapture");

@@ -62,7 +62,7 @@ PyObject *py_ue_actor_begin_play(ue_PyUObject * self, PyObject * args)
 
 	Py_BEGIN_ALLOW_THREADS;
 
-#if ENGINE_MINOR_VERSION > 14
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 14)
 	actor->DispatchBeginPlay();
 #else
 	actor->BeginPlay();
@@ -135,7 +135,7 @@ PyObject *py_ue_actor_destroy_component(ue_PyUObject * self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "argument is not a UActorComponent");
 
 	Py_BEGIN_ALLOW_THREADS
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 		component->DestroyComponent();
 #else
 		actor->K2_DestroyComponent(component);
@@ -649,7 +649,11 @@ PyObject *py_ue_actor_create_default_subobject(ue_PyUObject * self, PyObject * a
 	UObject *ret_obj = nullptr;
 
 	Py_BEGIN_ALLOW_THREADS;
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
+	ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, true);
+#else
 	ret_obj = actor->CreateDefaultSubobject(FName(UTF8_TO_TCHAR(name)), UObject::StaticClass(), u_class, false, false, true);
+#endif
 	Py_END_ALLOW_THREADS;
 
 	if (!ret_obj)
@@ -795,7 +799,11 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 	PyObject *components = PyList_New(0);
 
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
+	for (UActorComponent *component : actor->K2_GetComponentsByClass(u_class))
+#else
 	for (UActorComponent *component : actor->GetComponentsByClass(u_class))
+#endif
 	{
 		ue_PyUObject *item = ue_get_python_uobject(component);
 		if (item)

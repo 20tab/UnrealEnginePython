@@ -6,7 +6,11 @@ static void ue_pyfdelegatehandle_dealloc(ue_PyFDelegateHandle *self)
 {
 	if (!self->garbaged)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		FTSTicker::GetCoreTicker().RemoveTicker(self->dhandle);
+#else
 		FTicker::GetCoreTicker().RemoveTicker(self->dhandle);
+#endif
 		// useless ;)
 		self->garbaged = true;
 	}
@@ -86,7 +90,11 @@ PyObject *py_unreal_engine_add_ticker(PyObject * self, PyObject * args)
 
 	ticker_delegate.BindSP(py_delegate, &FPythonSmartDelegate::Tick);
 
+#if ENGINE_MAJOR_VERSION == 5
+	ret->dhandle = FTSTicker::GetCoreTicker().AddTicker(ticker_delegate, delay);
+#else
 	ret->dhandle = FTicker::GetCoreTicker().AddTicker(ticker_delegate, delay);
+#endif
 	if (!ret->dhandle.IsValid())
 	{
 		Py_DECREF(ret);
@@ -113,7 +121,11 @@ PyObject *py_unreal_engine_remove_ticker(PyObject * self, PyObject * args)
 
 	if (!py_handle->garbaged)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		FTSTicker::GetCoreTicker().RemoveTicker(py_handle->dhandle);
+#else
 		FTicker::GetCoreTicker().RemoveTicker(py_handle->dhandle);
+#endif
 		py_handle->garbaged = true;
 		if (py_handle->delegate_ptr.IsValid())
 		{

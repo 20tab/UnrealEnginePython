@@ -56,7 +56,7 @@ static PyObject *py_ue_istructure_details_view_set_structure_data(ue_PyIStructur
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	self->istructure_details_view->SetStructureData(struct_scope);
 
-#if ENGINE_MINOR_VERSION > 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 17)
 	if (py_force_refresh && PyObject_IsTrue(py_force_refresh))
 	{
 		self->istructure_details_view->GetDetailsView()->ForceRefresh();
@@ -81,7 +81,7 @@ static PyObject *py_ue_istructure_details_view_get_widget(ue_PyIStructureDetails
 }
 
 static PyMethodDef ue_PyIStructureDetailsView_methods[] = {
-#pragma warning(suppress: 4191)
+#pragma warning(disable: 4191)
 	{ "set_structure_data", (PyCFunction)py_ue_istructure_details_view_set_structure_data, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "get_widget", (PyCFunction)py_ue_istructure_details_view_get_widget, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
@@ -163,12 +163,19 @@ static int ue_py_istructure_details_view_init(ue_PyIStructureDetailsView *self, 
 	}
 
 	FDetailsViewArgs view_args;
+#if ENGINE_MAJOR_VERSION == 5
+	view_args.bAllowSearch = (py_allow_search) ? !!PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
+	view_args.bUpdatesFromSelection = (py_update_from_selection) ? !!PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
+	view_args.bLockable = (py_lockable) ? !!PyObject_IsTrue(py_lockable) : view_args.bLockable;
+	view_args.bHideSelectionTip = (py_hide_selection_tip) ? !!PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
+	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? !!PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+#else
 	view_args.bAllowSearch = (py_allow_search) ? PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
 	view_args.bUpdatesFromSelection = (py_update_from_selection) ? PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
 	view_args.bLockable = (py_lockable) ? PyObject_IsTrue(py_lockable) : view_args.bLockable;
 	view_args.bHideSelectionTip = (py_hide_selection_tip) ? PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
 	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
-
+#endif
 	FString name_area_string = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();
 	view_args.NameAreaSettings = [&name_area_string]() {
 		if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::HideNameArea; }

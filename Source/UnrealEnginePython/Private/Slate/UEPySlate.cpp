@@ -5,7 +5,7 @@
 #include "LevelEditor.h"
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorToolkit.h"
 #include "Editor/Persona/Public/PersonaModule.h"
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 #include "Editor/AnimationEditor/Public/IAnimationEditorModule.h"
 #endif
 #include "Editor/StaticMeshEditor/Public/StaticMeshEditorModule.h"
@@ -907,7 +907,7 @@ void ue_python_init_slate(PyObject *module)
 
 #if WITH_EDITOR
 	ue_python_init_snode_panel(module);
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	ue_python_init_sgraph_panel(module);
 #endif
 	ue_python_init_idetails_view(module);
@@ -916,9 +916,9 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_slevel_viewport(module);
 	ue_python_init_spython_editor_viewport(module);
 	ue_python_init_sgraph_editor(module);
-#if ENGINE_MINOR_VERSION > 14
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 14)
 	ue_python_init_spython_shelf(module);
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	ue_python_init_sfile_path_picker(module);
 	ue_python_init_sdirectory_picker(module);
 #endif
@@ -1020,10 +1020,17 @@ public:
 	virtual void RegisterCommands() override
 	{
 		commands = MakeShareable(new FUICommandList);
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25)
+		// probabaly not the way to do this Runtime/Slate/Public/Framework/Commands/Commands.h says to use FUICommandInfo::MakeCommandInfo
+		// - apparently only the macros are used for localization - ie this will not get localized
+		// not clear why the UI_COMMAND macro is not used here - which simply expands to the following call
+		MakeUICommand_InternalUseOnly(this, command, nullptr, *name, *name, TCHAR_TO_UTF8(*name), *name, *name, EUserInterfaceActionType::Button, FInputChord());
+#else
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 		MakeUICommand_InternalUseOnly(this, command, nullptr, *name, *name, TCHAR_TO_UTF8(*name), *name, *name, EUserInterfaceActionType::Button, FInputGesture());
 #else
 		UI_COMMAND_Function(this, command, nullptr, *name, *name, TCHAR_TO_UTF8(*name), *name, *name, EUserInterfaceActionType::Button, FInputGesture());
+#endif
 #endif
 		commands->MapAction(command, FExecuteAction::CreateRaw(this, &FPythonSlateCommands::Callback), FCanExecuteAction());
 	}
@@ -1120,11 +1127,19 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 
 	FPropertyEditorModule& PropertyEditorModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	FDetailsViewArgs view_args;
+#if ENGINE_MAJOR_VERSION == 5
+	view_args.bAllowSearch = (py_allow_search) ? !!PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
+	view_args.bUpdatesFromSelection = (py_update_from_selection) ? !!PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
+	view_args.bLockable = (py_lockable) ? !!PyObject_IsTrue(py_lockable) : view_args.bLockable;
+	view_args.bHideSelectionTip = (py_hide_selection_tip) ? !!PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
+	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? !!PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+#else
 	view_args.bAllowSearch = (py_allow_search) ? PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
 	view_args.bUpdatesFromSelection = (py_update_from_selection) ? PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
 	view_args.bLockable = (py_lockable) ? PyObject_IsTrue(py_lockable) : view_args.bLockable;
 	view_args.bHideSelectionTip = (py_hide_selection_tip) ? PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
 	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+#endif
 	FString name_area_string = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();
 	view_args.NameAreaSettings = [&name_area_string]() {
 		if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::HideNameArea; }
@@ -1178,12 +1193,19 @@ PyObject *py_unreal_engine_create_structure_detail_view(PyObject *self, PyObject
 	}
 
 	FDetailsViewArgs view_args;
+#if ENGINE_MAJOR_VERSION == 5
+	view_args.bAllowSearch = (py_allow_search) ? !!PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
+	view_args.bUpdatesFromSelection = (py_update_from_selection) ? !!PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
+	view_args.bLockable = (py_lockable) ? !!PyObject_IsTrue(py_lockable) : view_args.bLockable;
+	view_args.bHideSelectionTip = (py_hide_selection_tip) ? !!PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
+	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? !!PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
+#else
 	view_args.bAllowSearch = (py_allow_search) ? PyObject_IsTrue(py_allow_search) : view_args.bAllowSearch;
 	view_args.bUpdatesFromSelection = (py_update_from_selection) ? PyObject_IsTrue(py_update_from_selection) : view_args.bUpdatesFromSelection;
 	view_args.bLockable = (py_lockable) ? PyObject_IsTrue(py_lockable) : view_args.bLockable;
 	view_args.bHideSelectionTip = (py_hide_selection_tip) ? PyObject_IsTrue(py_hide_selection_tip) : view_args.bHideSelectionTip;
 	view_args.bSearchInitialKeyFocus = (py_search_initial_key_focus) ? PyObject_IsTrue(py_search_initial_key_focus) : view_args.bSearchInitialKeyFocus;
-
+#endif
 	FString name_area_string = py_name_area_settings ? FString(UTF8_TO_TCHAR(py_name_area_settings)) : FString();
 	view_args.NameAreaSettings = [&name_area_string]() {
 		if (FCString::Stricmp(*name_area_string, TEXT("HideNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::HideNameArea; }
@@ -1288,7 +1310,7 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args)
 		FPersonaModule &Module = FModuleManager::LoadModuleChecked<FPersonaModule>(module);
 		menu_extension_interface = (IHasMenuExtensibility *)&Module;
 	}
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	else if (!strcmp(module, (char *)"AnimationEditor"))
 	{
 		IAnimationEditorModule &Module = FModuleManager::LoadModuleChecked<IAnimationEditorModule>(module);
@@ -1487,7 +1509,11 @@ PyObject *py_unreal_engine_invoke_tab(PyObject * self, PyObject * args)
 		return NULL;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	FGlobalTabmanager::Get()->TryInvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+#else
 	FGlobalTabmanager::Get()->InvokeTab(FTabId(FName(UTF8_TO_TCHAR(name))));
+#endif
 
 	Py_INCREF(Py_None);
 	return Py_None;

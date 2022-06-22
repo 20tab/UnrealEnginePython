@@ -88,7 +88,7 @@ static PyObject *py_ue_swindow_set_sizing_rule(ue_PySWindow *self, PyObject * ar
 	}
 
 
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	py_SWindow->SetSizingRule((ESizingRule)rule);
 #else
 	py_SWindow->SetSizingRule((ESizingRule::Type)rule);
@@ -224,12 +224,12 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 {
 
 	ue_py_slate_setup_farguments(SWindow);
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	ue_py_slate_farguments_optional_enum("activation_policy", ActivationPolicy, EWindowActivationPolicy);
 #else
 	ue_py_slate_farguments_optional_bool("activate_when_first_shown", ActivateWhenFirstShown);
 #endif
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter);
 #else
 	ue_py_slate_farguments_optional_enum("auto_center", AutoCenter, EAutoCenter::Type);
@@ -251,10 +251,10 @@ static int ue_py_swindow_init(ue_PySWindow *self, PyObject *args, PyObject *kwar
 	ue_py_slate_farguments_optional_float("min_width", MinWidth);
 	ue_py_slate_farguments_optional_bool("sane_window_placement", SaneWindowPlacement);
 	ue_py_slate_farguments_optional_fvector2d("screen_position", ScreenPosition);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_py_slate_farguments_optional_bool("should_preserve_aspect_ratio", ShouldPreserveAspectRatio);
 #endif
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule);
 #else
 	ue_py_slate_farguments_optional_enum("sizing_rule", SizingRule, ESizingRule::Type);

@@ -139,7 +139,7 @@ static PyObject *py_ue_fslate_style_set_get(ue_PyFSlateStyleSet *self, PyObject 
 
 		typedef TFunction<PyObject* (FSlateStyleSet&, FName)> WStyleGetter;
 		typedef TPair<UScriptStruct*, WStyleGetter> WStylePair;
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 		static const WStylePair validWidgetStyleUStructList[] = {
 			WStylePair{ FTextBlockStyle::StaticStruct()              , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FTextBlockStyle>(InStyle, InName); }) },
 			WStylePair{ FButtonStyle::StaticStruct()                 , WStyleGetter([](FSlateStyleSet& InStyle, FName InName) { return pyGetWidgetStyle<FButtonStyle>(InStyle, InName); }) },

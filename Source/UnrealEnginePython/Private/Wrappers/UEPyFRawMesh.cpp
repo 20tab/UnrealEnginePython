@@ -2,7 +2,7 @@
 
 #if WITH_EDITOR
 
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 
 #include "Engine/StaticMesh.h"
 
@@ -61,7 +61,11 @@ static PyObject *py_ue_fraw_mesh_set_vertex_positions(ue_PyFRawMesh *self, PyObj
 	}
 
 
+#if ENGINE_MAJOR_VERSION == 5
+	self->raw_mesh.VertexPositions = TArray<FVector3f>(vertex);
+#else
 	self->raw_mesh.VertexPositions = vertex;
+#endif
 
 	Py_DECREF(iter);
 
@@ -118,7 +122,11 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tex_coords(ue_PyFRawMesh *self, PyObj
 	}
 
 
+#if ENGINE_MAJOR_VERSION == 5
+	self->raw_mesh.WedgeTexCoords[index] = TArray<FVector2f>(uv);
+#else
 	self->raw_mesh.WedgeTexCoords[index] = uv;
+#endif
 
 	Py_DECREF(iter);
 
@@ -237,7 +245,11 @@ static PyObject *py_ue_fraw_mesh_get_wedge_position(ue_PyFRawMesh *self, PyObjec
 	if (index > self->raw_mesh.WedgeIndices.Num() - 1 || index < 0)
 		return PyErr_Format(PyExc_IndexError, "wedge index error");
 
+#if ENGINE_MAJOR_VERSION == 5
+	FVector vec = FVector(self->raw_mesh.GetWedgePosition(index));
+#else
 	FVector vec = self->raw_mesh.GetWedgePosition(index);
+#endif
 
 	return py_ue_new_fvector(vec);
 }
@@ -296,7 +308,11 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_x(ue_PyFRawMesh *self, PyObje
 	}
 
 
+#if ENGINE_MAJOR_VERSION == 5
+	self->raw_mesh.WedgeTangentX = TArray<FVector3f>(vertex);
+#else
 	self->raw_mesh.WedgeTangentX = vertex;
+#endif
 
 	Py_DECREF(iter);
 
@@ -357,7 +373,11 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_y(ue_PyFRawMesh *self, PyObje
 	}
 
 
+#if ENGINE_MAJOR_VERSION == 5
+	self->raw_mesh.WedgeTangentY = TArray<FVector3f>(vertex);
+#else
 	self->raw_mesh.WedgeTangentY = vertex;
+#endif
 
 	Py_DECREF(iter);
 
@@ -419,7 +439,11 @@ static PyObject *py_ue_fraw_mesh_set_wedge_tangent_z(ue_PyFRawMesh *self, PyObje
 	}
 
 
+#if ENGINE_MAJOR_VERSION == 5
+	self->raw_mesh.WedgeTangentZ = TArray<FVector3f>(vertex);
+#else
 	self->raw_mesh.WedgeTangentZ = vertex;
+#endif
 
 	Py_DECREF(iter);
 
@@ -504,7 +528,11 @@ static PyObject *py_ue_fraw_mesh_get_vertex_positions(ue_PyFRawMesh *self, PyObj
 
 	for (int32 i = 0; i < self->raw_mesh.VertexPositions.Num(); i++)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		PyList_Append(py_list, py_ue_new_fvector(FVector(self->raw_mesh.VertexPositions[i])));
+#else
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.VertexPositions[i]));
+#endif
 	}
 
 	return py_list;
@@ -517,7 +545,11 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tangent_x(ue_PyFRawMesh *self, PyObje
 
 	for (int32 i = 0; i < self->raw_mesh.WedgeTangentX.Num(); i++)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		PyList_Append(py_list, py_ue_new_fvector(FVector(self->raw_mesh.WedgeTangentX[i])));
+#else
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.WedgeTangentX[i]));
+#endif
 	}
 
 	return py_list;
@@ -530,7 +562,11 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tangent_y(ue_PyFRawMesh *self, PyObje
 
 	for (int32 i = 0; i < self->raw_mesh.WedgeTangentY.Num(); i++)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		PyList_Append(py_list, py_ue_new_fvector(FVector(self->raw_mesh.WedgeTangentY[i])));
+#else
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.WedgeTangentY[i]));
+#endif
 	}
 
 	return py_list;
@@ -543,7 +579,11 @@ static PyObject *py_ue_fraw_mesh_get_wedge_tangent_z(ue_PyFRawMesh *self, PyObje
 
 	for (int32 i = 0; i < self->raw_mesh.WedgeTangentZ.Num(); i++)
 	{
+#if ENGINE_MAJOR_VERSION == 5
+		PyList_Append(py_list, py_ue_new_fvector(FVector(self->raw_mesh.WedgeTangentZ[i])));
+#else
 		PyList_Append(py_list, py_ue_new_fvector(self->raw_mesh.WedgeTangentZ[i]));
+#endif
 	}
 
 	return py_list;

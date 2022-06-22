@@ -33,7 +33,11 @@ static PyObject *py_ue_soverlay_add_slot(ue_PySOverlay *self, PyObject * args, P
 	if (!Child.IsValid())
 		return nullptr;
 
+#if ENGINE_MAJOR_VERSION == 5
+	auto fslot = py_SOverlay->AddSlot(z_order);
+#else
 	SOverlay::FOverlaySlot &fslot = py_SOverlay->AddSlot(z_order);
+#endif
 	fslot.AttachWidget(Child.ToSharedRef());
 	fslot.HAlign((EHorizontalAlignment)h_align);
 	if (padding)
@@ -70,7 +74,9 @@ static PyObject *py_ue_soverlay_get_num_widgets(ue_PySOverlay *self, PyObject * 
 }
 
 static PyMethodDef ue_PySOverlay_methods[] = {
-#pragma warning(suppress: 4191)
+#ifdef _MSC_VER
+#pragma warning(disable: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_soverlay_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "get_num_widgets", (PyCFunction)py_ue_soverlay_get_num_widgets, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */

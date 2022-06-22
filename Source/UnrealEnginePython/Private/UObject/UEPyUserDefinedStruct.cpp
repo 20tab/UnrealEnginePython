@@ -84,6 +84,63 @@ PyObject *py_ue_struct_remove_variable(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_FALSE;
 }
 
+#if ENGINE_MAJOR_VERSION == 5
+PyObject *py_ue_struct_move_variable_above(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_guid;
+
+	if (!PyArg_ParseTuple(args, "O:struct_move_variable_above", &py_guid))
+	{
+		return nullptr;
+	}
+
+	UUserDefinedStruct *u_struct = ue_py_check_type<UUserDefinedStruct>(self);
+	if (!u_struct)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UUserDefinedStruct");
+
+	FGuid *guid = ue_py_check_fguid(py_guid);
+	if (!guid)
+		return PyErr_Format(PyExc_Exception, "object is not a FGuid");
+
+	if (FStructureEditorUtils::MoveVariable(u_struct, *guid, u_struct->Guid, FStructureEditorUtils::EMovePosition::PositionAbove))
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
+PyObject *py_ue_struct_move_variable_below(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	PyObject *py_guid;
+
+	if (!PyArg_ParseTuple(args, "O:struct_move_variable_below", &py_guid))
+	{
+		return nullptr;
+	}
+
+	UUserDefinedStruct *u_struct = ue_py_check_type<UUserDefinedStruct>(self);
+	if (!u_struct)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UUserDefinedStruct");
+
+	FGuid *guid = ue_py_check_fguid(py_guid);
+	if (!guid)
+		return PyErr_Format(PyExc_Exception, "object is not a FGuid");
+
+	if (FStructureEditorUtils::MoveVariable(u_struct, *guid, u_struct->Guid, FStructureEditorUtils::EMovePosition::PositionBelow))
+	{
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+#else
 PyObject *py_ue_struct_move_variable_up(ue_PyUObject * self, PyObject * args)
 {
 
@@ -139,5 +196,6 @@ PyObject *py_ue_struct_move_variable_down(ue_PyUObject * self, PyObject * args)
 
 	Py_RETURN_FALSE;
 }
+#endif
 
 #endif

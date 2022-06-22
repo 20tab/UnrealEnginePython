@@ -371,7 +371,7 @@ FPythonLogTextLayoutMarshaller::FPythonLogTextLayoutMarshaller(TArray< TSharedPt
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 void SPythonLog::Construct(const FArguments& InArgs)
 {
-#if ENGINE_MINOR_VERSION < 18
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18))
 	MessagesTextMarshaller = FPythonLogTextLayoutMarshaller::Create(MoveTemp(InArgs._Messages));
 #else
 	MessagesTextMarshaller = FPythonLogTextLayoutMarshaller::Create(InArgs._Messages);

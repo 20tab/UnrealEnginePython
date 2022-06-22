@@ -32,7 +32,9 @@ static PyObject *py_ue_shorizontal_box_num_slots(ue_PySHorizontalBox *self, PyOb
 }
 
 static PyMethodDef ue_PySHorizontalBox_methods[] = {
-#pragma warning(suppress: 4191)
+#ifdef _MSC_VER
+#pragma warning(disable: 4191)
+#endif
 	{ "add_slot", (PyCFunction)py_ue_shorizontal_box_add_slot, METH_VARARGS | METH_KEYWORDS, "" },
 	{ "num_slots", (PyCFunction)py_ue_shorizontal_box_num_slots, METH_VARARGS, "" },
 	{ NULL }  /* Sentinel */
@@ -58,7 +60,11 @@ static PyObject *ue_py_shorizontal_box_add(ue_PySHorizontalBox *self, PyObject *
 		return nullptr;
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	auto fslot = py_SHorizontalBox->AddSlot();
+#else
 	SHorizontalBox::FSlot &fslot = py_SHorizontalBox->AddSlot();
+#endif
 	fslot.AttachWidget(Child.ToSharedRef());
 
 	Py_RETURN_SLATE_SELF;

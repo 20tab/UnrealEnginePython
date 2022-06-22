@@ -5,10 +5,10 @@
 #include "Developer/MeshUtilities/Public/MeshUtilities.h"
 #include "Wrappers/UEPyFMorphTargetDelta.h"
 #include "Wrappers/UEPyFSoftSkinVertex.h"
-#if ENGINE_MINOR_VERSION > 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 20)
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshLODImporterData.h"
 #endif
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 #include "Runtime/Engine/Public/Rendering/SkeletalMeshModel.h"
 #endif
 #endif
@@ -155,7 +155,7 @@ PyObject *py_ue_skeleton_get_ref_bone_pose(ue_PyUObject *self, PyObject * args)
 	return py_ue_new_ftransform(skeleton->GetReferenceSkeleton().GetRefBonePose()[index]);
 }
 
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
 {
 
@@ -206,7 +206,7 @@ PyObject *py_ue_skeleton_add_bone(ue_PyUObject *self, PyObject * args)
 
 #if WITH_EDITOR
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -221,7 +221,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -230,7 +230,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -270,7 +270,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 	model.Sections[section_index].NumVertices = soft_vertices.Num();
 	model.Sections[section_index].CalcMaxBoneInfluences();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -286,7 +286,7 @@ PyObject *py_ue_skeletal_mesh_set_soft_vertices(ue_PyUObject *self, PyObject * a
 #endif
 
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * args)
 {
 
@@ -301,7 +301,7 @@ PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * a
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -310,7 +310,7 @@ PyObject *py_ue_skeletal_mesh_get_soft_vertices(ue_PyUObject *self, PyObject * a
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -344,7 +344,7 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -353,7 +353,7 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -363,7 +363,7 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 	PyObject *py_list = PyList_New(0);
 
 	TArray<uint32> indices;
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	indices = model.IndexBuffer;
 #else
 	model.MultiSizeIndexContainer.GetIndexBuffer(indices);
@@ -373,7 +373,7 @@ PyObject *py_ue_skeletal_mesh_get_lod(ue_PyUObject *self, PyObject * args)
 	{
 		int32 section_index;
 		int32 vertex_index;
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 		model.GetSectionFromVertexIndex(indices[index], section_index, vertex_index);
 #else
 		bool has_extra_influences;
@@ -416,7 +416,7 @@ PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * arg
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -425,7 +425,7 @@ PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * arg
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -434,12 +434,20 @@ PyObject *py_ue_skeletal_mesh_get_raw_indices(ue_PyUObject *self, PyObject * arg
 
 	PyObject *py_list = PyList_New(0);
 
+#if ENGINE_MAJOR_VERSION == 5
+	uint32 *raw_indices = (uint32 *)model.GetRawPointIndices().GetData();
+	uint32 *indices = (uint32 *)FMemory_Alloca(model.GetRawPointIndices().Num());
+	FMemory::Memcpy(indices, raw_indices, model.GetRawPointIndices().Num());
+
+	for (int32 index = 0; index < model.GetRawPointIndices().Num(); index++)
+#else
 	int32 *raw_indices = (int32 *)model.RawPointIndices.Lock(LOCK_READ_ONLY);
 	int32 *indices = (int32 *)FMemory_Alloca(model.RawPointIndices.GetBulkDataSize());
 	FMemory::Memcpy(indices, raw_indices, model.RawPointIndices.GetBulkDataSize());
 	model.RawPointIndices.Unlock();
 
 	for (int32 index = 0; index < model.RawPointIndices.GetBulkDataSize() / sizeof(int32); index++)
+#endif
 	{
 		PyList_Append(py_list, PyLong_FromLong(indices[index]));
 	}
@@ -468,11 +476,11 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 	mesh->ReleaseResources();
 	mesh->ReleaseResourcesFence.Wait();
 
-	mesh->Skeleton = skeleton;
+	mesh->SetSkeleton(skeleton);
 
-	mesh->RefSkeleton = skeleton->GetReferenceSkeleton();
+	mesh->GetRefSkeleton() = skeleton->GetReferenceSkeleton();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -485,7 +493,7 @@ PyObject *py_ue_skeletal_mesh_set_skeleton(ue_PyUObject * self, PyObject * args)
 }
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -500,7 +508,7 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -509,7 +517,7 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -548,7 +556,7 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 
 	model.Sections[section_index].BoneMap = bone_map;
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -562,7 +570,7 @@ PyObject *py_ue_skeletal_mesh_set_bone_map(ue_PyUObject *self, PyObject * args)
 }
 #endif
 
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args)
 {
 	ue_py_check(self);
@@ -576,7 +584,7 @@ PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args)
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -585,7 +593,7 @@ PyObject *py_ue_skeletal_mesh_get_bone_map(ue_PyUObject *self, PyObject * args)
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -617,7 +625,7 @@ PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *self, PyObje
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -626,7 +634,7 @@ PyObject *py_ue_skeletal_mesh_get_active_bone_indices(ue_PyUObject *self, PyObje
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -655,7 +663,7 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -664,7 +672,7 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -701,7 +709,7 @@ PyObject *py_ue_skeletal_mesh_set_active_bone_indices(ue_PyUObject *self, PyObje
 	model.ActiveBoneIndices = active_indices;
 	model.ActiveBoneIndices.Sort();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -726,7 +734,7 @@ PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * 
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -735,7 +743,7 @@ PyObject *py_ue_skeletal_mesh_get_required_bones(ue_PyUObject *self, PyObject * 
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -764,7 +772,7 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -773,7 +781,7 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	if (lod_index < 0 || lod_index >= resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num() - 1);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel &model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &model = resource->LODModels[lod_index];
@@ -810,7 +818,7 @@ PyObject *py_ue_skeletal_mesh_set_required_bones(ue_PyUObject *self, PyObject * 
 	model.RequiredBones = required_bones;
 	model.RequiredBones.Sort();
 
-	mesh->RefBasesInvMatrix.Empty();
+	mesh->GetRefBasesInvMatrix().Empty();
 	mesh->CalculateInvRefMatrices();
 
 #if WITH_EDITOR
@@ -832,7 +840,7 @@ PyObject *py_ue_skeletal_mesh_lods_num(ue_PyUObject *self, PyObject * args)
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -853,7 +861,7 @@ PyObject *py_ue_skeletal_mesh_sections_num(ue_PyUObject *self, PyObject * args)
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -887,7 +895,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a SkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -900,13 +908,13 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	if (lod_index == resource->LODModels.Num())
 	{
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 		resource->LODModels.Add(new FStaticLODModel());
 #else
 		resource->LODModels.Add(new FSkeletalMeshLODModel());
 #endif
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 		mesh->LODInfo.AddZeroed();
 #else
 		mesh->AddLODInfo();
@@ -915,20 +923,20 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	else
 	{
 		// reinitialized already existent LOD
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 		new(&resource->LODModels[lod_index]) FStaticLODModel();
 #else
 		new(&resource->LODModels[lod_index]) FSkeletalMeshLODModel();
 #endif
 	}
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel& LODModel = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel& LODModel = resource->LODModels[lod_index];
 #endif
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	mesh->LODInfo[lod_index].LODHysteresis = 0.02;
 #else
 	mesh->GetLODInfo(lod_index)->LODHysteresis = 0.02;
@@ -936,7 +944,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	FSkeletalMeshOptimizationSettings settings;
 
-#if ENGINE_MINOR_VERSION < 20
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 20))
 	mesh->LODInfo[lod_index].ReductionSettings = settings;
 #else
 	mesh->GetLODInfo(lod_index)->ReductionSettings = settings;
@@ -955,8 +963,12 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	TArray<FSoftSkinVertex> soft_vertices;
 
+#if ENGINE_MAJOR_VERSION == 5
+	TArray<FVector3f> points;
+#else
 	TArray<FVector> points;
-#if ENGINE_MINOR_VERSION > 20
+#endif
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 20)
 	TArray<SkeletalMeshImportData::FMeshWedge> wedges;
 	TArray<SkeletalMeshImportData::FMeshFace> faces;
 	TArray<SkeletalMeshImportData::FVertInfluence> influences;
@@ -967,9 +979,15 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 #endif
 	TArray<int32> points_to_map;
 
+#if ENGINE_MAJOR_VERSION == 5
+	TArray<FVector3f> tangentsX;
+	TArray<FVector3f> tangentsY;
+	TArray<FVector4f> tangentsZ;
+#else
 	TArray<FVector> tangentsX;
 	TArray<FVector> tangentsY;
 	TArray<FVector> tangentsZ;
+#endif
 	TArray<uint16> material_indices;
 	TArray<uint32> smoothing_groups;
 
@@ -985,7 +1003,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 		points_to_map.Add(vertex_index);
 
-#if ENGINE_MINOR_VERSION > 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 20)
 		SkeletalMeshImportData::FMeshWedge wedge;
 #else
 		FMeshWedge wedge;
@@ -1000,7 +1018,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 		for (int32 i = 0; i < MAX_TOTAL_INFLUENCES; i++)
 		{
-#if ENGINE_MINOR_VERSION > 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 20)
 			SkeletalMeshImportData::FVertInfluence influence;
 #else
 			FVertInfluence influence;
@@ -1026,7 +1044,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 
 	for (int32 i = 0; i < wedges.Num(); i += 3)
 	{
-#if ENGINE_MINOR_VERSION > 20
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 20)
 		SkeletalMeshImportData::FMeshFace face;
 #else
 		FMeshFace face;
@@ -1053,7 +1071,7 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 		faces.Add(face);
 	}
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel & lod_model = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel & lod_model = resource->LODModels[lod_index];
@@ -1065,31 +1083,35 @@ PyObject *py_ue_skeletal_mesh_build_lod(ue_PyUObject *self, PyObject * args, PyO
 	build_settings.bComputeTangents = (py_compute_tangents && PyObject_IsTrue(py_compute_tangents));
 	build_settings.bRemoveDegenerateTriangles = true;
 
-	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->RefSkeleton, influences, wedges, faces, points, points_to_map, build_settings);
+	bool success = MeshUtilities.BuildSkeletalMesh(lod_model, mesh->GetPathName(), mesh->GetRefSkeleton(), influences, wedges, faces, points, points_to_map, build_settings);
 
 	if (!success)
 	{
 		return PyErr_Format(PyExc_Exception, "unable to create new Skeletal LOD");
 	}
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	for (int32 i = 0; i < lod_model.Sections.Num(); i++)
 	{
 		mesh->LODInfo[lod_index].TriangleSortSettings.AddZeroed();
 	}
 #endif
 
-	mesh->CalculateRequiredBones(LODModel, mesh->RefSkeleton, nullptr);
+	mesh->CalculateRequiredBones(LODModel, mesh->GetRefSkeleton(), nullptr);
 	mesh->CalculateInvRefMatrices();
 
-	mesh->Skeleton->RecreateBoneTree(mesh);
-	mesh->Skeleton->SetPreviewMesh(mesh);
+	mesh->GetSkeleton()->RecreateBoneTree(mesh);
+	mesh->GetSkeleton()->SetPreviewMesh(mesh);
 
 	// calculate bounds from points
+#if ENGINE_MAJOR_VERSION == 5
+	mesh->SetImportedBounds(FBoxSphereBounds(TArray<FVector3d>{points}.GetData(),points.Num()));
+#else
 	mesh->SetImportedBounds(FBoxSphereBounds(points.GetData(), points.Num()));
+#endif
 
-	mesh->Skeleton->PostEditChange();
-	mesh->Skeleton->MarkPackageDirty();
+	mesh->GetSkeleton()->PostEditChange();
+	mesh->GetSkeleton()->MarkPackageDirty();
 
 	mesh->PostEditChange();
 	mesh->MarkPackageDirty();
@@ -1117,7 +1139,7 @@ PyObject *py_ue_skeletal_mesh_register_morph_target(ue_PyUObject *self, PyObject
 	if (!morph)
 		return PyErr_Format(PyExc_Exception, "argument is not a MorphTarget");
 
-#if ENGINE_MINOR_VERSION > 16
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 16)
 	if (!morph->HasValidData())
 		return PyErr_Format(PyExc_Exception, "the MorphTarget has no valid data");
 #endif
@@ -1171,14 +1193,14 @@ PyObject *py_ue_morph_target_populate_deltas(ue_PyUObject *self, PyObject * args
 
 	Py_DECREF(py_iter);
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	morph->PopulateDeltas(deltas, lod_index);
 #else
 	FSkeletalMeshModel *model = morph->BaseSkelMesh->GetImportedModel();
 	morph->PopulateDeltas(deltas, lod_index, model->LODModels[lod_index].Sections);
 #endif
 
-#if ENGINE_MINOR_VERSION > 16
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 16)
 	if (morph->HasValidData())
 	{
 		Py_RETURN_TRUE;
@@ -1205,12 +1227,20 @@ PyObject *py_ue_morph_target_get_deltas(ue_PyUObject *self, PyObject * args)
 	if (!morph)
 		return PyErr_Format(PyExc_Exception, "uobject is not a MorphTarget");
 
+#if ENGINE_MAJOR_VERSION == 5
+	if (lod_index < 0 || lod_index > morph->GetMorphLODModels().Num())
+#else
 	if (lod_index < 0 || lod_index > morph->MorphLODModels.Num())
+#endif
 		return PyErr_Format(PyExc_Exception, "invalid LOD index");
 
 	PyObject *py_list = PyList_New(0);
 
+#if ENGINE_MAJOR_VERSION == 5
+	for (FMorphTargetDelta delta : morph->GetMorphLODModels()[lod_index].Vertices)
+#else
 	for (FMorphTargetDelta delta : morph->MorphLODModels[lod_index].Vertices)
+#endif
 	{
 		PyList_Append(py_list, py_ue_new_fmorph_target_delta(delta));
 	}
@@ -1233,7 +1263,7 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 	if (!mesh)
 		return PyErr_Format(PyExc_Exception, "uobject is not a USkeletalMesh");
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FSkeletalMeshResource *resource = mesh->GetImportedResource();
 #else
 	FSkeletalMeshModel *resource = mesh->GetImportedModel();
@@ -1242,7 +1272,7 @@ PyObject *py_ue_skeletal_mesh_to_import_vertex_map(ue_PyUObject *self, PyObject 
 	if (lod_index < 0 || lod_index > resource->LODModels.Num())
 		return PyErr_Format(PyExc_Exception, "invalid LOD index, must be between 0 and %d", resource->LODModels.Num());
 
-#if ENGINE_MINOR_VERSION < 19
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 19))
 	FStaticLODModel& LODModel = resource->LODModels[lod_index];
 #else
 	FSkeletalMeshLODModel &LODModel = resource->LODModels[lod_index];

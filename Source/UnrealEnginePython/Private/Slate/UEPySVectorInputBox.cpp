@@ -41,10 +41,12 @@ static int ue_py_svector_input_box_init(ue_PySVectorInputBox *self, PyObject *ar
 {
 	ue_py_slate_setup_farguments(SVectorInputBox);
 
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	ue_py_slate_farguments_optional_bool("allow_spin", AllowSpin);
 #endif
+#if ENGINE_MAJOR_VERSION == 4
 	ue_py_slate_farguments_optional_bool("allow_responsive_layout", AllowResponsiveLayout);
+#endif
 	ue_py_slate_farguments_optional_bool("color_axis_labels", bColorAxisLabels);
 	ue_py_slate_farguments_struct("font", Font, FSlateFontInfo);
 	ue_py_slate_farguments_event("on_x_changed", OnXChanged, FOnFloatValueChanged, OnFloatChanged);

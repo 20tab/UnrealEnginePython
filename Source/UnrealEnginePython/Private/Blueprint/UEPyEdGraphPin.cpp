@@ -129,7 +129,7 @@ static PyMethodDef ue_PyEdGraphPin_methods[] = {
 
 static PyObject *py_ue_edgraphpin_get_name(ue_PyEdGraphPin *self, void *closure)
 {
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName.ToString())));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinName)));
@@ -138,7 +138,7 @@ static PyObject *py_ue_edgraphpin_get_name(ue_PyEdGraphPin *self, void *closure)
 
 static PyObject *py_ue_edgraphpin_get_category(ue_PyEdGraphPin *self, void *closure)
 {
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory.ToString())));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinCategory)));
@@ -147,7 +147,7 @@ static PyObject *py_ue_edgraphpin_get_category(ue_PyEdGraphPin *self, void *clos
 
 static PyObject *py_ue_edgraphpin_get_sub_category(ue_PyEdGraphPin *self, void *closure)
 {
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory.ToString())));
 #else
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*(self->pin->PinType.PinSubCategory)));
@@ -217,7 +217,7 @@ static int py_ue_edgraphpin_set_category(ue_PyEdGraphPin *self, PyObject *value,
 	if (value && PyUnicodeOrString_Check(value))
 	{
 		const char *str = UEPyUnicode_AsUTF8(value);
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 		self->pin->PinType.PinCategory = FName(UTF8_TO_TCHAR(str));
 #else
 		self->pin->PinType.PinCategory = FString(UTF8_TO_TCHAR(str));
@@ -241,7 +241,7 @@ static int py_ue_edgraphpin_set_sub_category(ue_PyEdGraphPin *self, PyObject *va
 		if (PyUnicodeOrString_Check(value))
 		{
 			const char *str = UEPyUnicode_AsUTF8(value);
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 			self->pin->PinType.PinSubCategory = FName(UTF8_TO_TCHAR(str));
 #else
 			self->pin->PinType.PinSubCategory = FString(UTF8_TO_TCHAR(str));
@@ -253,8 +253,15 @@ static int py_ue_edgraphpin_set_sub_category(ue_PyEdGraphPin *self, PyObject *va
 	return -1;
 }
 
+static PyObject *py_ue_edgraphpin_get_direction(ue_PyEdGraphPin *self, void *closure)
+{
+	uint8 direction = self->pin->Direction;
+	return PyLong_FromLong((long)direction);
+}
+
 static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 	{ (char*)"name", (getter)py_ue_edgraphpin_get_name, NULL, (char *)"", NULL },
+	{ (char*)"direction", (getter)py_ue_edgraphpin_get_direction, NULL, (char *)"", NULL },
 	{ (char*)"category", (getter)py_ue_edgraphpin_get_category, (setter)py_ue_edgraphpin_set_category, (char *)"", NULL },
 	{ (char*)"sub_category", (getter)py_ue_edgraphpin_get_sub_category, (setter)py_ue_edgraphpin_set_sub_category, (char *)"", NULL },
 	{ (char*)"default_value", (getter)py_ue_edgraphpin_get_default_value, (setter)py_ue_edgraphpin_set_default_value, (char *)"", NULL },
@@ -266,7 +273,7 @@ static PyGetSetDef ue_PyEdGraphPin_getseters[] = {
 static PyObject *ue_PyEdGraphPin_str(ue_PyEdGraphPin *self)
 {
 	return PyUnicode_FromFormat("<unreal_engine.EdGraphPin {'name': '%s', 'type': '%s'}>",
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 		TCHAR_TO_UTF8(*self->pin->PinName.ToString()), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory.ToString()));
 #else
 		TCHAR_TO_UTF8(*self->pin->PinName), TCHAR_TO_UTF8(*self->pin->PinType.PinCategory));

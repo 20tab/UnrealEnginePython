@@ -15,8 +15,13 @@ static PyObject* ue_pycallable_call(ue_PyCallable *self, PyObject *args, PyObjec
 		!self->u_target ||
 		!self->u_function->IsValidLowLevel() ||
 		!self->u_target->IsValidLowLevel() ||
+#if ENGINE_MAJOR_VERSION == 5
+		self->u_function->IsUnreachable() ||
+		self->u_target->IsUnreachable())
+#else
 		self->u_function->IsPendingKillOrUnreachable() ||
 		self->u_target->IsPendingKillOrUnreachable())
+#endif
 	{
 		return PyErr_Format(PyExc_Exception, "UFunction/UObject is in invalid state for python callable");
 	}

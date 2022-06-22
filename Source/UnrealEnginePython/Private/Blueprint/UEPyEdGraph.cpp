@@ -316,6 +316,7 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 		{
 			return PyErr_Format(PyExc_Exception, "argument is not a child of UEdGraphNode");
 		}
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: Casting to class %s"), *u_class->GetName());
 		node = NewObject<UEdGraphNode>(graph, u_class);
 		node->PostLoad();
 	}
@@ -328,6 +329,7 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 
 				node->Rename(*node->GetName(), graph);
 		}
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: renaming node"));
 	}
 
 	if (!node)
@@ -337,8 +339,10 @@ PyObject *py_ue_graph_add_node(ue_PyUObject * self, PyObject * args)
 	node->CreateNewGuid();
 	node->PostPlacedNewNode();
 	node->SetFlags(RF_Transactional);
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: allocate pins current pins num %d"), node->Pins.Num());
 	if (node->Pins.Num() == 0)
 	{
+		EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node: allocating pins"));
 		node->AllocateDefaultPins();
 	}
 	node->NodePosX = x;
@@ -527,9 +531,11 @@ PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args
 	if(!u_class)
 		return PyErr_Format(PyExc_Exception, "argument is not a UClass");
 
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node_dynamic_cast: Casting to class %s %p"), *u_class->GetName(), (void *)u_class);
+
 	UK2Node_DynamicCast *node = NewObject<UK2Node_DynamicCast>(graph);
 	node->TargetType = u_class;
-#if ENGINE_MINOR_VERSION > 15
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 15)
 	node->SetPurity(false);
 #endif
 	node->AllocateDefaultPins();
@@ -554,6 +560,8 @@ PyObject *py_ue_graph_add_node_dynamic_cast(ue_PyUObject * self, PyObject * args
 	{
 		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(bp);
 	}
+
+	EXTRA_UE_LOG(LogPython, Warning, TEXT("add_node_dynamic_cast: targettype is %p"), (void *)(node->TargetType));
 
 	Py_RETURN_UOBJECT(node);
 }
@@ -652,6 +660,32 @@ PyObject *py_ue_node_find_pin(ue_PyUObject * self, PyObject * args)
 	}
 
 	return py_ue_new_edgraphpin(pin);
+}
+
+PyObject *py_ue_node_set_purity(ue_PyUObject * self, PyObject * args)
+{
+	ue_py_check(self);
+
+	PyObject *py_bool = nullptr;
+	if (!PyArg_ParseTuple(args, "O:set_purity", &py_bool))
+	{
+		return nullptr;
+	}
+
+	UK2Node_DynamicCast *node = ue_py_check_type<UK2Node_DynamicCast>(self);
+	if (!node)
+		return PyErr_Format(PyExc_Exception, "uobject is not a K2Node_DynamicCast");
+
+	if (PyObject_IsTrue(py_bool))
+	{
+		node->SetPurity(true);
+	}
+	else
+	{
+		node->SetPurity(false);
+	}
+
+	Py_RETURN_NONE;
 }
 
 PyObject *py_ue_node_function_entry_set_pure(ue_PyUObject * self, PyObject * args)

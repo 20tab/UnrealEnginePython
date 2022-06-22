@@ -128,12 +128,12 @@ static int ue_py_spython_combo_box_init(ue_PySPythonComboBox *self, PyObject *ar
 
 	ue_py_slate_farguments_optional_struct_ptr("button_style", ButtonStyle, FButtonStyle);
 	ue_py_slate_farguments_struct("content_padding", ContentPadding, FMargin);
-#if ENGINE_MINOR_VERSION > 13
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 13)
 	ue_py_slate_farguments_optional_bool("enable_gamepad_navigation_mode", EnableGamepadNavigationMode);
 #endif
 	ue_py_slate_farguments_struct("foreground_color", ForegroundColor, FSlateColor);
 	ue_py_slate_farguments_optional_bool("has_down_arrow", HasDownArrow);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_py_slate_farguments_optional_struct_ptr("item_style", ItemStyle, FTableRowStyle);
 #endif
 	ue_py_slate_farguments_optional_float("max_list_height", MaxListHeight);

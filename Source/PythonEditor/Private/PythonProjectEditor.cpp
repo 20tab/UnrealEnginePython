@@ -1,18 +1,32 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "PythonProjectEditor.h"
+
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
+#include "Subsystems/AssetEditorSubsystem.h"
+
+// #include "UnrealEd.h"
+#endif
+
 #include "SPythonEditor.h"
 #include "SPythonProjectEditor.h"
 #include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"
 #include "PythonProjectEditorToolbar.h"
+#if ENGINE_MAJOR_VERSION == 5
+#include "WorkflowOrientedApp/WorkflowUObjectDocuments.h"
+#include "WorkflowOrientedApp/ApplicationMode.h"
+#else
 #include "Editor/Kismet/Public/WorkflowOrientedApp/WorkflowUObjectDocuments.h"
 #include "Editor/Kismet/Public/WorkflowOrientedApp/ApplicationMode.h"
+#endif
 #include "PythonProjectItem.h"
 #include "PythonEditorStyle.h"
 #include "PythonProject.h"
 #include "PythonProjectEditorCommands.h"
 #include "Runtime/Core/Public/HAL/PlatformFilemanager.h"
 #include "Runtime/Core/Public/Misc/MessageDialog.h"
+
+
 #define LOCTEXT_NAMESPACE "PythonEditor"
 
 TWeakPtr<FPythonProjectEditor> FPythonProjectEditor::PythonEditor;
@@ -153,7 +167,9 @@ FBasicPythonEditorMode::FBasicPythonEditorMode(TSharedPtr<class FPythonProjectEd
 				FTabManager::NewStack()
 				->SetSizeCoefficient(0.1f)
 				->SetHideTabWell(true)
+#if ENGINE_MAJOR_VERSION == 4
 				->AddTab(InPythonEditor->GetToolbarTabId(), ETabState::OpenedTab)
+#endif
 				)
 			->Split
 			(
@@ -209,7 +225,13 @@ void FPythonProjectEditor::RegisterToolbarTab(const TSharedRef<class FTabManager
 
 void FPythonProjectEditor::InitPythonEditor(const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, class UPythonProject* PythonProject)
 {
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 24)
+	// UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	// GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(PythonProject, this);
+	GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()->CloseOtherEditors(PythonProject, this);
+#else
 	FAssetEditorManager::Get().CloseOtherEditors(PythonProject, this);
+#endif
 	PythonProjectBeingEdited = PythonProject;
 
 	TSharedPtr<FPythonProjectEditor> ThisPtr(SharedThis(this));

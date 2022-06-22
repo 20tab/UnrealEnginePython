@@ -11,7 +11,11 @@ static PyObject *py_ue_stext_block_set_text(ue_PySTextBlock *self, PyObject * ar
 		return nullptr;
 	}
 
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 25))
 	py_STextBlock->SetText(FString(UTF8_TO_TCHAR(text)));
+#else
+	py_STextBlock->SetText(FText::FromString(FString(UTF8_TO_TCHAR(text))));
+#endif
 
 	Py_RETURN_SLATE_SELF;
 }
@@ -70,7 +74,7 @@ static int ue_py_stext_block_init(ue_PySTextBlock *self, PyObject *args, PyObjec
 	ue_py_slate_farguments_float("line_height_percentage", LineHeightPercentage);
 	ue_py_slate_farguments_struct("margin", Margin, FMargin);
 	ue_py_slate_farguments_float("min_desired_width", MinDesiredWidth);
-#if ENGINE_MINOR_VERSION >= 23
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 23)
 	ue_py_slate_farguments_event("on_double_clicked", OnDoubleClicked, FPointerEventHandler, OnMouseEvent);
 #else
 	ue_py_slate_farguments_event("on_double_clicked", OnDoubleClicked, FOnClicked, OnClicked);

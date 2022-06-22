@@ -38,12 +38,12 @@ static PyObject *py_ue_fassetdata_get_thumbnail(ue_PyFAssetData *self, PyObject 
 	return py_ue_new_fobject_thumbnail(*thumbnail);
 }
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 
 static PyObject *py_ue_fassetdata_has_custom_thumbnail(ue_PyFAssetData *self, PyObject * args)
 {
 
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	if (!ThumbnailTools::AssetHasCustomThumbnail(self->asset_data.GetFullName()))
 #else
 	if (!ThumbnailTools::AssetHasCustomThumbnail(self->asset_data))
@@ -72,7 +72,7 @@ static PyMethodDef ue_PyFAssetData_methods[] = {
 	{ "is_asset_loaded", (PyCFunction)py_ue_fassetdata_is_asset_loaded, METH_VARARGS, "" },
 	{ "get_thumbnail", (PyCFunction)py_ue_fassetdata_get_thumbnail, METH_VARARGS, "" },
 
-#if ENGINE_MINOR_VERSION >= 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 18)
 	{ "has_custom_thumbnail", (PyCFunction)py_ue_fassetdata_has_custom_thumbnail, METH_VARARGS, "" },
 #endif
 	{ "has_cached_thumbnail", (PyCFunction)py_ue_fassetdata_has_cached_thumbnail, METH_VARARGS, "" },
@@ -89,7 +89,7 @@ static PyObject *py_ue_fassetdata_get_asset_name(ue_PyFAssetData *self, void *cl
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.AssetName.ToString()));
 }
 
-#if ENGINE_MINOR_VERSION < 17
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17))
 static PyObject *py_ue_fassetdata_get_group_names(ue_PyFAssetData *self, void *closure)
 {
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*self->asset_data.GroupNames.ToString()));
@@ -122,8 +122,8 @@ static PyObject *py_ue_fassetdata_get_tags_and_values(ue_PyFAssetData *self, voi
 	for (auto It = self->asset_data.TagsAndValues.CreateConstIterator(); It; ++It)
 	{
 		PyDict_SetItem(ret,
-			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Key.ToString())),
-			PyUnicode_FromString(TCHAR_TO_UTF8(*It->Value)));
+			PyUnicode_FromString(TCHAR_TO_UTF8(*It.Key().ToString())),
+			PyUnicode_FromString(TCHAR_TO_UTF8(*It.Value().AsString())));
 	}
 	return ret;
 }
@@ -131,7 +131,7 @@ static PyObject *py_ue_fassetdata_get_tags_and_values(ue_PyFAssetData *self, voi
 static PyGetSetDef ue_PyFAssetData_getseters[] = {
 	{ (char *)"asset_class", (getter)py_ue_fassetdata_get_asset_class, nullptr, (char *)"asset_class" },
 	{ (char *)"asset_name", (getter)py_ue_fassetdata_get_asset_name, nullptr, (char *)"asset_name" },
-#if ENGINE_MINOR_VERSION < 17
+#if !(ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17))
 	{ (char *)"group_names", (getter)py_ue_fassetdata_get_group_names, nullptr, (char *)"group_names" },
 #endif
 	{ (char *)"object_path",(getter)py_ue_fassetdata_get_object_path, nullptr, (char *)"object_path" },

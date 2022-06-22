@@ -29,6 +29,7 @@ class TestBlueprint(unittest.TestCase):
     def test_variable(self):
         new_blueprint = ue.create_blueprint(Character, '/Game/Tests/Blueprints/Test2_' + self.random_string)
         ue.blueprint_add_member_variable(new_blueprint, 'TestValue', 'int')
+        ue.blueprint_set_variable_visibility(new_blueprint, 'TestValue', 1)
         ue.compile_blueprint(new_blueprint)
         new_actor = self.world.actor_spawn(new_blueprint.GeneratedClass)
         new_actor.TestValue = 17

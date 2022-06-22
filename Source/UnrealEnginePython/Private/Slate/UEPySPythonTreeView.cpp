@@ -102,7 +102,7 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
 	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
 #endif
 	ue_py_slate_farguments_event("on_get_children", OnGetChildren, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGetChildren, GetChildren);

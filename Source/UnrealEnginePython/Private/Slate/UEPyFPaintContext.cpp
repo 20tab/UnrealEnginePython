@@ -32,7 +32,7 @@ static PyObject *py_ue_fpaint_context_draw_line(ue_PyFPaintContext *self, PyObje
 	points.Add(FVector2D(x1, y1));
 	points.Add(FVector2D(x2, y2));
 
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 	FSlateDrawElement::MakeLines(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(),
 		points, ESlateDrawEffect::None, tint, (py_antialias && !PyObject_IsTrue(py_antialias)), thickness);
 #else
@@ -76,7 +76,7 @@ static PyObject *py_ue_fpaint_context_draw_box(ue_PyFPaintContext *self, PyObjec
 	FPaintContext context = self->paint_context;
 	context.MaxLayer++;
 
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 	FSlateDrawElement::MakeBox(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(FVector2D(x, y), FVector2D(w, h)),
 		brush, ESlateDrawEffect::None, tint);
 #else
@@ -133,7 +133,7 @@ static PyObject *py_ue_fpaint_context_draw_text(ue_PyFPaintContext *self, PyObje
 
 	context.MaxLayer++;
 
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 	FSlateDrawElement::MakeText(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToOffsetPaintGeometry(position),
 		FText::FromString(UTF8_TO_TCHAR(text)), font, ESlateDrawEffect::None, tint);
 #else
@@ -169,7 +169,7 @@ static PyObject *py_ue_fpaint_context_draw_spline(ue_PyFPaintContext *self, PyOb
 
 	context.MaxLayer++;
 
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 	FSlateDrawElement::MakeSpline(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(),
 		FVector2D(x1, y1), FVector2D(dx1, dy1), FVector2D(x2, y2), FVector2D(dx2, dy2),
 		thickness, ESlateDrawEffect::None, tint);
@@ -231,7 +231,7 @@ static PyObject *py_ue_fpaint_context_draw_lines(ue_PyFPaintContext *self, PyObj
 
 	context.MaxLayer++;
 
-#if ENGINE_MINOR_VERSION >= 17
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 17)
 	FSlateDrawElement::MakeLines(context.OutDrawElements, context.MaxLayer, context.AllottedGeometry.ToPaintGeometry(),
 		points, ESlateDrawEffect::None, tint, (py_antialias && !PyObject_IsTrue(py_antialias)), thickness);
 #else

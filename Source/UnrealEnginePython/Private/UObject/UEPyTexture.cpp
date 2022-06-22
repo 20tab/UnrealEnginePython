@@ -77,9 +77,15 @@ PyObject *py_ue_texture_get_data(ue_PyUObject *self, PyObject * args)
 	if (mipmap >= tex->GetNumMips())
 		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
 
+#if ENGINE_MAJOR_VERSION == 5
+	const char *blob = (const char*)tex->GetPlatformData()->Mips[mipmap].BulkData.Lock(LOCK_READ_ONLY);
+	PyObject *bytes = PyByteArray_FromStringAndSize(blob, (Py_ssize_t)tex->GetPlatformData()->Mips[mipmap].BulkData.GetBulkDataSize());
+	tex->GetPlatformData()->Mips[mipmap].BulkData.Unlock();
+#else
 	const char *blob = (const char*)tex->PlatformData->Mips[mipmap].BulkData.Lock(LOCK_READ_ONLY);
 	PyObject *bytes = PyByteArray_FromStringAndSize(blob, (Py_ssize_t)tex->PlatformData->Mips[mipmap].BulkData.GetBulkDataSize());
 	tex->PlatformData->Mips[mipmap].BulkData.Unlock();
+#endif
 	return bytes;
 }
 
@@ -189,7 +195,11 @@ PyObject *py_ue_render_target_get_data(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
 
 
+#if ENGINE_MAJOR_VERSION == 5
+	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->GetResource();
+#else
 	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
+#endif
 	if (!resource)
 	{
 		return PyErr_Format(PyExc_Exception, "cannot get render target resource");
@@ -230,7 +240,11 @@ PyObject *py_ue_render_target_get_data_to_buffer(ue_PyUObject *self, PyObject * 
 		return PyErr_Format(PyExc_Exception, "object is not a TextureRenderTarget");
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->GetResource();
+#else
 	FTextureRenderTarget2DResource *resource = (FTextureRenderTarget2DResource *)tex->Resource;
+#endif
 	if (!resource)
 	{
 		PyBuffer_Release(&py_buf);
@@ -289,8 +303,13 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_Exception, "invalid mipmap id");
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	char *blob = (char*)tex->GetPlatformData()->Mips[mipmap].BulkData.Lock(LOCK_READ_WRITE);
+	int32 len = tex->GetPlatformData()->Mips[mipmap].BulkData.GetBulkDataSize();
+#else
 	char *blob = (char*)tex->PlatformData->Mips[mipmap].BulkData.Lock(LOCK_READ_WRITE);
 	int32 len = tex->PlatformData->Mips[mipmap].BulkData.GetBulkDataSize();
+#endif
 	int32 wanted_len = py_buf.len;
 	// avoid making mess
 	if (wanted_len > len)
@@ -302,7 +321,11 @@ PyObject *py_ue_texture_set_data(ue_PyUObject *self, PyObject * args)
 
 	PyBuffer_Release(&py_buf);
 
+#if ENGINE_MAJOR_VERSION == 5
+	tex->GetPlatformData()->Mips[mipmap].BulkData.Unlock();
+#else
 	tex->PlatformData->Mips[mipmap].BulkData.Unlock();
+#endif
 
 	Py_BEGIN_ALLOW_THREADS;
 	tex->MarkPackageDirty();

@@ -3,7 +3,9 @@
 
 #if WITH_EDITOR
 
+#if ENGINE_MAJOR_VERSION == 4
 #include "Editor/UnrealEd/Public/Toolkits/AssetEditorManager.h"
+#endif
 
 struct ue_PyIAssetEditorInstance
 {

@@ -11,6 +11,13 @@
 
 class FUnrealEnginePythonHouseKeeper : public FGCObject
 {
+	// FGCObject interface
+	virtual FString GetReferencerName() const override
+	{
+		return TEXT("FUnrealEnginePythonHouseKeeper");
+	}
+	// End of FGCObject interface
+	
     struct FPythonUOjectTracker
     {
         FWeakObjectPtr Owner;

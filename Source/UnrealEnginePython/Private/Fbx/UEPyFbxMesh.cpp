@@ -2,7 +2,7 @@
 #include "UEPyFbxMesh.h"
 
 #if WITH_EDITOR
-#if ENGINE_MINOR_VERSION > 12
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 12)
 
 #include "UEPyFbx.h"
 

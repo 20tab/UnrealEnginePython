@@ -1,5 +1,8 @@
 
 #include "UEPySPythonEditorViewport.h"
+#if WITH_EDITOR && ENGINE_MAJOR_VERSION == 5
+#include "UnrealWidget.h"
+#endif
 
 #if WITH_EDITOR
 
@@ -295,7 +298,11 @@ public:
 
 			SelectedActor = h_actor->Actor;
 
+#if ENGINE_MAJOR_VERSION == 5
+			SetWidgetMode(UE::Widget::WM_Translate);
+#else
 			SetWidgetMode(FWidget::WM_Translate);
+#endif
 		}
 		else if (HitProxy->IsA(HWidgetAxis::StaticGetType()))
 		{
@@ -308,12 +315,21 @@ public:
 		}
 	}
 
+#if ENGINE_MAJOR_VERSION == 5
+	virtual UE::Widget::EWidgetMode GetWidgetMode() const
+	{
+		if (SelectedActor == nullptr)
+			return UE::Widget::EWidgetMode::WM_None;
+		return FEditorViewportClient::GetWidgetMode();
+	}
+#else
 	virtual FWidget::EWidgetMode GetWidgetMode() const
 	{
 		if (SelectedActor == nullptr)
 			return FWidget::WM_None;
 		return FEditorViewportClient::GetWidgetMode();
 	}
+#endif
 
 	virtual FMatrix GetWidgetCoordSystem() const
 	{
@@ -379,7 +395,7 @@ TSharedRef<FEditorViewportClient> SPythonEditorViewport::MakeEditorViewportClien
 
 	FExposureSettings settings;
 	settings.bFixed = true;
-#if ENGINE_MINOR_VERSION > 18
+#if ENGINE_MAJOR_VERSION == 5 || (ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION > 18)
 	settings.FixedEV100 = 0;
 #else
 	settings.LogOffset = 0;
